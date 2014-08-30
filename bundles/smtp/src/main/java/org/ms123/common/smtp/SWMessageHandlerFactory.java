@@ -85,7 +85,7 @@ public class SWMessageHandlerFactory implements MessageHandlerFactory {
 				String subject = mm.getSubject();
 				String s[] = subject.split(",");
 				if( s.length != 4){
-					sendingReplay(mm, "SimpleWorkflow:Subject not correct:"+subject, "Usage:username,password,appname,messagename");
+					sendingReplay(mm, "Simpl4:Subject not correct:"+subject, "Usage:username,password,appname,messagename");
 					return;
 				}
 				System.out.println("ThreadContext:"+ThreadContext.getThreadContext());

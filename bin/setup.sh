@@ -4,7 +4,7 @@ SWDIR=`pwd`
 echo "Setup in $SWDIR"
 
 if [ ! -e "${SWDIR}/server/felix/config.ini" ] ; then
-  echo "Not a simplflo installation"
+  echo "Not a simpl4 installation"
   exit 1
 fi
 

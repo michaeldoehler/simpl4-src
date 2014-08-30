@@ -1,7 +1,7 @@
 <configuration>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>_LOGDIR_/simplflo.log</file>
+    <file>_LOGDIR_/simpl4.log</file>
     <append>true</append>
 
    <!-- encoders are assigned the type

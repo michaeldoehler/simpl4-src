@@ -40,10 +40,10 @@ while true; do
 done
 
 if [ -z "$SRCTOPDIR" ] ; then
-	SRCTOPDIR=$TOPDIR/simpleworkflow
+	SRCTOPDIR=$TOPDIR/simpl4-src
 fi
 if [ -z "$DESTTOPDIR" ] ; then
-	DESTTOPDIR=$TOPDIR/simplflo-deployed
+	DESTTOPDIR=$TOPDIR/simpl4-deployed
 fi
 echo "================="
 echo "Copy files ->"
@@ -79,8 +79,8 @@ mkdir -p ${CLIENTLECACYDIRECTORY}/js
 cp $REPOSITORY/jdt-compiler-3.1.1.jar ${LIBDIRECTORY}
 cp $REPOSITORY/xml-w3c.jar ${LIBDIRECTORY}
 cp $REPOSITORY/jcommander-1.31-SNAPSHOT.jar ${LIBDIRECTORY}
-cp $REPOSITORY/master/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
-cp $REPOSITORY/master/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/master/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/master/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/flexjson-2.1.bar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 

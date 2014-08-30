@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#simplflo-deployed/bin/start.sh start
+#simpl4-deployed/bin/start.sh start
 
 
 if [ -z "$SWDIR" ] ; then
@@ -9,7 +9,7 @@ if [ -z "$SWDIR" ] ; then
 fi
 
 if [ ! -e "${SWDIR}/server/felix/config.ini" ] ; then
-  echo "Not a simplflo installation"
+  echo "Not a simpl4 installation"
   exit 1
 fi
 export PATH=$SWDIR/bin:$PATH
@@ -36,4 +36,4 @@ rm -fr $SWDIR/gitrepos
 rm -fr $SWDIR/workspace/activiti
 
 
-#simplflo-deployed/bin/start.sh stop
+#simpl4-deployed/bin/start.sh stop

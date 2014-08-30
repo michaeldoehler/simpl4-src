@@ -41,10 +41,10 @@ while true; do
 done
 
 if [ -z "$SRCTOPDIR" ] ; then
-	SRCTOPDIR=$TOPDIR/simpleworkflow
+	SRCTOPDIR=$TOPDIR/simpl4-src
 fi
 if [ -z "$DESTTOPDIR" ] ; then
-	DESTTOPDIR=$TOPDIR/simplflo-deployed
+	DESTTOPDIR=$TOPDIR/simpl4-deployed
 fi
 SERVERDIR="$DESTTOPDIR/server"
 export REPOSITORY="$SRCTOPDIR/repository"
