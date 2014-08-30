@@ -104,6 +104,7 @@ cp -r $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/logging.config.tpl $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/config $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/gittemplate $ETCDIRECTORY/
+cp -r $SRCTOPDIR/etc/images $ETCDIRECTORY/
 
 
 cp $SRCTOPDIR/client/start.html $CLIENTDIRECTORY

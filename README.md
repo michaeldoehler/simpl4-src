@@ -1,6 +1,6 @@
 
 
-[![alt text](https://raw.githubusercontent.com/ms123s/simpl4-deployed/master/etc/images/simplflo70x247.png  "simplflo logo")] (http://www.simpl4.org) installation
+[![alt text](https://raw.githubusercontent.com/ms123s/simpl4-deployed/master/etc/images/simpl4_logo.png  "simpl4 logo")] (http://www.simpl4.org) installation
 =================
 
 ####Requirement
@@ -23,5 +23,5 @@ $ gradle deploy
 ```
 ----
 
-####Congratulations,you  have succesfully installed [*simpl4*](http://www.simpl4.org)
+####Congratulations,you  have succesfully compiled [*simpl4*](http://www.simpl4.org)
 
