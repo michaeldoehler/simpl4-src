@@ -76,21 +76,21 @@ rm -fr $SERVERDIR
 vmOptions="\
  -Xmx1500m \
  -XX:MaxPermSize=256m \
- -Djava.security.egd=file:/dev/./urandomx -Dworkspace=\$SWDIR/workspace \
+ -Djava.security.egd=file:/dev/./urandomx -Dworkspace=\$SIMPL4DIR/workspace \
  -Dorg.osgi.service.http.port=\$CONTROL_PORT \
  -DdisableCheckForReferencesInContentException=true \
- -Dgit.repos=\$SWDIR/gitrepos \
+ -Dgit.repos=\$SIMPL4DIR/gitrepos \
  -Dgroovy.target.indy=true \
- -Dsw.dir=\$SWDIR \
+ -Dsw.dir=\$SIMPL4DIR \
  -Djetty.port=\$JETTY_PORT \
  -Dkaraf.startLocalConsole=true \
  -Dkaraf.systemBundlesStartLevel=0 \
  -Dkaraf.startRemoteShell=false \
- -Dfelix.cm.dir=\$SWDIR/etc/config \
- -Dfelix.fileinstall.dir=\$SWDIR/gitrepos/.bundles \
+ -Dfelix.cm.dir=\$SIMPL4DIR/etc/config \
+ -Dfelix.fileinstall.dir=\$SIMPL4DIR/gitrepos/.bundles \
  -Dorg.ops4j.pax.logging.DefaultServiceLog.level=ERROR \
  -Ddrools.dialect.java.compiler=JANINO \
- -Dkaraf.shell.init.script=\$SWDIR/etc/shell.init.script \
+ -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
 activitibundles=""
@@ -299,7 +299,7 @@ ${localbundles} \
 	--shell= \
 	--log=ERROR \
 	--definitionURL=file:${SRCTOPDIR}/etc/felix.xml \
-	--classpath='$SWDIR/libs/jdt-compiler-3.1.1.jar:$SWDIR/libs/xml-w3c.jar' \
+	--classpath='$SIMPL4DIR/libs/jdt-compiler-3.1.1.jar:$SIMPL4DIR/libs/xml-w3c.jar' \
 	--vmOptions="$vmOptions"
 
 
@@ -311,7 +311,7 @@ chmod +x $SERVERDIR/run.sh
 sed -i 's/startLocalConsole=true/startLocalConsole=$START_CONSOLE/' $SERVERDIR/run.sh
 sed -i 's/^java/exec java/' $SERVERDIR/run.sh
 
-sed -i 's/\$SWDIR/%SWDIR%/g' $SERVERDIR/run.bat
+sed -i 's/\$SIMPL4DIR/%SIMPL4DIR%/g' $SERVERDIR/run.bat
 sed -i 's/\$JETTY_PORT/%JETTY_PORT%/g' $SERVERDIR/run.bat
 sed -i 's/\$CONTROL_PORT/%CONTROL_PORT%/g' $SERVERDIR/run.bat
 sed -i 's/startLocalConsole=true/startLocalConsole=false/g' $SERVERDIR/run.bat
@@ -320,12 +320,12 @@ sed -i 's/org.apache.felix.main.Main.*/org.apache.felix.main.Main 1>..\\log\\run
 cat >$SERVERDIR/run.bat.tpl <<END-OF-RUNBAT
 @echo off
 title SIMPFLO 
-setx SWDIR _BASEDIR_
-set SWDIR=_BASEDIR_
+setx SIMPL4DIR _BASEDIR_
+set SIMPL4DIR=_BASEDIR_
 set JETTY_PORT=80
 set CONTROL_PORT=8070
-echo %SWDIR%\\server
-cd %SWDIR%\\server
+echo %SIMPL4DIR%\\server
+cd %SIMPL4DIR%\\server
 rem
 END-OF-RUNBAT
 

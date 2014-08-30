@@ -1,16 +1,16 @@
 #!/bin/bash
-if [ -z "$SWDIR" ] ; then
+if [ -z "$SIMPL4DIR" ] ; then
   thisdir=$(readlink $0)
   if [ "${thisdir}" != "" ]
   then
-		 export SWDIR=$(dirname $(cd `dirname $thisdir`; pwd))
+		 export SIMPL4DIR=$(dirname $(cd `dirname $thisdir`; pwd))
   else
-     export SWDIR=$(dirname $(cd `dirname $0`; pwd))
+     export SIMPL4DIR=$(dirname $(cd `dirname $0`; pwd))
   fi
-  echo "using $SWDIR"
+  echo "using $SIMPL4DIR"
 fi
 
-if [ ! -e "${SWDIR}/server/felix/config.ini" ] ; then
+if [ ! -e "${SIMPL4DIR}/server/felix/config.ini" ] ; then
   echo "Not a simpl4 installation"
   exit 1
 fi
@@ -26,19 +26,19 @@ export JETTY_PORT=80
 export CONTROL_PORT=8070
 export START_CONSOLE=false
 
-cd $SWDIR
+cd $SIMPL4DIR
 export PATH=.:/opt/java/bin:$PATH
 
 case "$ACTION" in
    start)
-      echo  "Starting: $SWDIR"
+      echo  "Starting: $SIMPL4DIR"
       cd server
       run.sh >save 2>&1 &
       echo
    ;;
 
    stop)
-      echo -n "Stopping: $SWDIR:"
+      echo -n "Stopping: $SIMPL4DIR:"
       for i in `ps ax | grep "org.apache.felix.main.Main" | grep -v grep | grep -v stop | sed 's/[ ]*//' | cut -d" " -f1`
       do
          echo -n $i
@@ -54,14 +54,14 @@ case "$ACTION" in
    ;;
 
    restart)
-      $SWDIR/bin/start.sh stop
+      $SIMPL4DIR/bin/start.sh stop
       sleep 1
-      $SWDIR/bin/start.sh start
+      $SIMPL4DIR/bin/start.sh start
       exit $?
    ;;
 
    *)
-      echo "Usage: $SWDIR/bin/start.sh {start|stop|restart}"
+      echo "Usage: $SIMPL4DIR/bin/start.sh {start|stop|restart}"
       exit 1
    ;;
 esac

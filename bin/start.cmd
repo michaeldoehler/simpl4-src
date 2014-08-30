@@ -1,1 +1,1 @@
-START /MIN CMD /C CALL %SWDIR%\server\run.bat
+START /MIN CMD /C CALL %SIMPL4DIR%\server\run.bat
