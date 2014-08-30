@@ -29,6 +29,8 @@ ext.qooxdooBuildOutputDir=gradle.getRootProject().getRootDir().toString()+"/clie
 ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/qooxdooBuild"
 ext.rootDir=gradle.getRootProject().getRootDir().toString()
 ext.qoodooSDK="${rootDir}/build/.qooxdooSDK";
+ext.bundlesBuild="${rootDir}/build/bundlesBuild";
+ext.repository="${rootDir}/repository";
 ext.licenseBlock=	{
 	header rootProject.file('etc/license.txt')
 		ext.year = Calendar.getInstance().get(Calendar.YEAR)
@@ -132,12 +134,12 @@ configure(subprojects - project(":client")){ s->
 	}
 	task copyToRepo (type:Task) {
 		dependsOn makeBundle
-		ant.mkdir  ( dir:"../../repository/${currentBranch}" );
+		ant.mkdir  ( dir:"${bundlesBuild}/${currentBranch}" );
 		doLast{
 			if( shortName == "admin"){
-				ant.copy( file:"build/libs/${shortName}-1.0.0.jar", todir:"../../repository/org.ms123.admin-${version}.jar",overwrite:"true")
+				ant.copy( file:"build/libs/${shortName}-1.0.0.jar", todir:"${bundlesBuild}/org.ms123.admin-${version}.jar",overwrite:"true")
 			}else{
-				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"../../repository/${currentBranch}",overwrite:"true")
+				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"${bundlesBuild}/${currentBranch}",overwrite:"true")
 			}
 		}
 	}

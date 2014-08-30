@@ -1,16 +1,16 @@
 version='1.0.0'
 
 dependencies {
-	compile files("../../repository/biz.aQute.bnd.jar")
-  compile files("../../repository/commons-beanutils-1.8.4-SNAPSHOT.jar")
-	compile files("../../repository/commons-email-1.3.1.jar")
-	compile files("../../repository/commons-exec-1.1.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.data.api-1.0.0.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.nucleus.api-1.0.0.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.store-1.0.0.jar")
-	compile files("../../repository/org.osgi.compendium-4.3.1.jar")
-	compile files("../../repository/org.osgi.core-4.3.1.jar")
-	compile files("../../repository/servlet-api-2.5.jar")
-	compile files("../../repository/slf4j-api-1.6.1.jar")
+	compile files("${repository}/biz.aQute.bnd.jar")
+  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+	compile files("${repository}/commons-email-1.3.1.jar")
+	compile files("${repository}/commons-exec-1.1.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.data.api-1.0.0.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.nucleus.api-1.0.0.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.store-1.0.0.jar")
+	compile files("${repository}/org.osgi.compendium-4.3.1.jar")
+	compile files("${repository}/org.osgi.core-4.3.1.jar")
+	compile files("${repository}/servlet-api-2.5.jar")
+	compile files("${repository}/slf4j-api-1.6.1.jar")
 }

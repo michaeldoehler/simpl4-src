@@ -1,8 +1,8 @@
 version='1.0.0'
 
 dependencies {
-	compile files("../../repository/datanucleus-3.3.6/jdo-api-3.1-rc1.jar")
-	compile files("../../repository/jta-1.1.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.store-1.0.0.jar")
-	compile files("../../repository/${currentBranch}/org.ms123.common.libhelper-1.0.0.jar")
+	compile files("${repository}/datanucleus-3.3.6/jdo-api-3.1-rc1.jar")
+	compile files("${repository}/jta-1.1.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.store-1.0.0.jar")
+	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.libhelper-1.0.0.jar")
 }

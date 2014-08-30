@@ -62,6 +62,7 @@ echo -e "\t:CURRENTBRANCH=$CURRENTBRANCH"
 #########################################################
 # copy
 #########################################################
+export BUNDLESBUILD="$SRCTOPDIR/build/bundlesBuild"
 export REPOSITORY="$SRCTOPDIR/repository"
 export LIBDIRECTORY="$DESTTOPDIR/libs"
 export BINDIRECTORY="$DESTTOPDIR/bin"
@@ -81,7 +82,7 @@ cp $REPOSITORY/jcommander-1.31-SNAPSHOT.jar ${LIBDIRECTORY}
 cp $REPOSITORY/master/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/master/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/flexjson-2.1.bar ${LIBDIRECTORY}
-cp $REPOSITORY/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 
 
 cp $SRCTOPDIR/bin/sw $BINDIRECTORY

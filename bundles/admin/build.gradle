@@ -1,15 +1,15 @@
 version='1.0.0'
 dependencies {
- 	compile files("../../repository/jcommander-1.31-SNAPSHOT.jar")
- 	compile files("../../repository/master/org.ms123.common.utils-1.0.0.jar")
- 	compile files("../../repository/master/org.ms123.common.libhelper-1.0.0.jar")
-	compile files("../../repository/flexjson-2.1.bar")
+ 	compile files("${repository}/jcommander-1.31-SNAPSHOT.jar")
+ 	compile files("${repository}/master/org.ms123.common.utils-1.0.0.jar")
+ 	compile files("${repository}/master/org.ms123.common.libhelper-1.0.0.jar")
+	compile files("${repository}/flexjson-2.1.bar")
 
 }
 
 task copyToRepo (overwrite:true) {
 	doLast(){
-  	ant.copy( file:"build/libs/admin-${version}.jar", tofile:"../../repository/org.ms123.admin-${version}.jar",overwrite:"true")
+  	ant.copy( file:"build/libs/admin-${version}.jar", tofile:"${repository}/org.ms123.admin-${version}.jar",overwrite:"true")
 	}
 }
 
