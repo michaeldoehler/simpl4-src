@@ -72,7 +72,7 @@ class GitMetaDataImpl implements MetaData {
 	}
 
 	public Map<String, String> getBranding() throws Exception {
-		String swDir = System.getProperty("sw.dir");
+		String swDir = System.getProperty("simpl4.dir");
 		String ret = readFileToString(new File(swDir, BRANDING_PATH));
 		return (Map) m_ds.deserialize(ret);
 	}

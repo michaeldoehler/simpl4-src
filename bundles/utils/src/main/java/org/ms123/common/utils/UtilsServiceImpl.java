@@ -353,7 +353,7 @@ public class UtilsServiceImpl implements UtilsService {
 		b.put("ss", lookupServiceByName("org.ms123.common.setting.SettingService"));
 		b.put("et", lookupServiceByName("org.ms123.common.entity.EntityService"));
 		b.put("storeDesc", sdesc);
-		b.put("home", System.getProperty("sw.dir"));
+		b.put("home", System.getProperty("simpl4.dir"));
 		b.put("log", m_logger);
 		b.put("user", user);
 		b.put("namespace", namespace);
@@ -403,7 +403,7 @@ public class UtilsServiceImpl implements UtilsService {
 				return new FileReader(scriptFile);
 			}
 		}
-		scriptFile = new File(System.getProperty("sw.dir") + "/etc/"+namespace+"/scripts", scriptname);
+		scriptFile = new File(System.getProperty("simpl4.dir") + "/etc/"+namespace+"/scripts", scriptname);
 		System.out.println("getScriptFile2:" + scriptFile + "->" + scriptFile.exists());
 		if (scriptFile.exists()) {
 			return new FileReader(scriptFile);
