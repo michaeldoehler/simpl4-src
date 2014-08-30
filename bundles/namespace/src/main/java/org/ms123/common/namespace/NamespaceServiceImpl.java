@@ -89,8 +89,12 @@ public class NamespaceServiceImpl implements NamespaceService {
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 		try{
-			String swDir = System.getProperty("simpl4.dir");
-			String json = readFileToString(new File(swDir+"/etc", "branding"));
+			String simpl4Dir = System.getProperty("simpl4.dir");
+			File file = new File(simpl4Dir+"/etc", "branding");
+			if( !file.exists()){
+				file = new File(simpl4Dir+"/etc", "branding.example");
+			}
+			String json = readFileToString(file);
 			Map<String,String> b = (Map) m_ds.deserialize(json);
 			m_apiKey = b.get("apikey");
 			m_gitHost = b.get("githost");
@@ -145,9 +149,9 @@ public class NamespaceServiceImpl implements NamespaceService {
 
 	private void initRepo(String name, String templateName) throws Exception {
 		String gitSpace = System.getProperty("git.repos");
-		String swDir = System.getProperty("simpl4.dir");
+		String simpl4Dir = System.getProperty("simpl4.dir");
 		File dest = new File(gitSpace, name);
-		File src = new File(swDir + "/etc", "gittemplate/" + templateName);
+		File src = new File(simpl4Dir + "/etc", "gittemplate/" + templateName);
 		if (src.exists()) {
 			copyDirectory(src, dest);
 			m_gitService.add(name, ".");

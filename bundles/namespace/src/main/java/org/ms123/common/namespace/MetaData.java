@@ -34,6 +34,7 @@ interface MetaData {
 	public final String NAMESPACE_PATH = "namespaces/{0}";
 
 	public final String BRANDING_PATH = "etc/branding";
+	public final String BRANDING_EXAMPLE_PATH = "etc/branding.example";
 
 	public final String NAMESPACES_PATH = "namespaces";
 
