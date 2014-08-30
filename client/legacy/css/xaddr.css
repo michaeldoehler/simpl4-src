@@ -1,0 +1,27 @@
+.ui-datepicker {z-index:1200;}
+
+----------------------------------*/
+.ui-button { margin-left: -1px; }
+.ui-button-icon-only .ui-button-text { padding: 0.35em; } 
+
+
+.EditTable td input, .EditTable td select, .EditTable td textarea {width:90%;margin: 0em} //@@@MS
+.ui-jqdialog-content .EditTable { width: 100%; margin-bottom:0em;}
+
+
+.ui-jqdialog-content .EditTable { width: 100%; margin-bottom:0em;}
+
+.ui-jqdialog-content, .ui-jqdialog .ui-jqdialog-content {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    height: auto;
+    padding: 0.3em 0.2em;
+}
+
+.ui-jqdialog-content .DataTD {
+    border-bottom: 0 none;
+    border-left: 0 none;
+    border-right: 0 none;
+    padding: 1px;
+    vertical-align: top;
+}

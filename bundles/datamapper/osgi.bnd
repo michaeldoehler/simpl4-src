@@ -1,0 +1,12 @@
+version=1.0.0
+Export-Package org.ms123.common.datamapper
+Import-Package *,sun.reflect,org.codehaus.groovy.vmplugin.v7
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Datamapper Service
+Bundle-ManifestVersion: 2
+Bundle-Name: DatamapperService Bundle
+Bundle-SymbolicName:org.ms123.common.datamapper
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

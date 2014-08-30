@@ -1,0 +1,15 @@
+version=1.0.0
+Export-Package org.ms123.common.workflow,org.ms123.common.workflow.stencil,org.ms123.common.workflow.converter
+Import-Package *,org.activiti.engine.impl.juel,org.activiti.engine.impl.variable,org.activiti.engine.impl.task,org.activiti.engine.impl.repository,org.h2
+Private-Package: org.ms123.common.workflow*
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Workflow Service
+Bundle-ManifestVersion: 2
+Bundle-Name: WorkflowService Bundle
+Bundle-SymbolicName:org.ms123.common.workflow
+DynamicImport-Package: *
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

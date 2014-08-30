@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.data.api
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Data Service Api
+Bundle-ManifestVersion: 2
+Bundle-Name: DataService Bundle Api
+Bundle-SymbolicName:org.ms123.common.data.api
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+DynamicImport-Package:*
+Service-Component: *
+-metatype: *

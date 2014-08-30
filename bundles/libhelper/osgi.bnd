@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.libhelper
+Import-Package *
+Private-Package: org.ms123.common.utils*
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Libhelper
+Bundle-ManifestVersion: 2
+Bundle-Name: Libhelper Bundle
+Bundle-SymbolicName:org.ms123.common.libhelper
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

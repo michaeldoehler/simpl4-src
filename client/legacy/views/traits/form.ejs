@@ -1,0 +1,98 @@
+<div id="<%= id2 %>" style="font-size:90%;height:100%">
+  <div id="<%= id2 %>-form-div" class="ui-widget ui-widget-content ui-corner-all" style="height:100%;overflow-y:hidden;overflow-x:hidden;margin:0px">
+	<form id="<%= id2 %>-form" class="ui-jqdialog-content" action="javascript:;" style="margin:0px;height:100%">
+	  <table class="EditTable ui-jqdialog-content" style="margin-top:0px;height:100%" cellspacing="0" cellpadding="0">
+		<tr style="height:25px">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.traitid") %></label>
+		  </td>
+		  <td class="ui-widget-content DataTD">
+			<input readonly="true" type="text" id="traitid" class="text" />
+		  </td>
+		</tr>
+		<tr style="height:25px">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.valid_from") %></label>
+		  </td>
+		  <td class="ui-widget-content DataTD">
+			<input readonly="true" type="text" id="valid_from" class="text datepicker" />
+		  </td>
+		</tr>
+		<tr style="height:25px">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.valid_to") %></label>
+		  </td>
+		  <td class="ui-widget-content DataTD">
+			<input readonly="true" type="text" id="valid_to" class="text datepicker" />
+		  </td>
+		</tr>
+		<tr style="height:50px">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.description") %></label>
+		  </td>
+		  <td class="DataTD ui-widget-content">
+			<textarea id="description" cols="50" rows="2" style="height:100%;width:100%" class="text textarea"></textarea>
+		  </td>
+		</tr>
+		<tr style="height:40%">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.acl_users") %></label>
+		  </td>
+		  <td class="DataTD ui-widget-content">
+			  <div class="ui-widget ui-widget-content ui-corner-all" style="height: 100%; width:100%;overflow: auto;">
+				<table  class="EditTable ui-jqdialog-content" border="0" cellspacing="0" cellpadding="5">
+				  <tr>
+					<th class="ui-widget-content DataTD" align="left" style="width:100px"><%= $.i18n.prop("meta.traits.user") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_read") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_create") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_manage") %></th>
+				  </tr>
+				  <%for(var i = 0; i < users.length ; i++){%>
+					<tr>
+					  <td class="ui-widget-content DataTD"><%= users[i] %></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="user_read" value="<%= users[i] %>" /></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="user_create" value="<%= users[i] %>" /></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="user_manage" value="<%= users[i] %>" /></td>
+					</tr>
+				  <%}%>
+				</table>
+			  </div>
+		  </td>
+		</tr>
+		<tr style="height:40%">
+		  <td class="ui-widget-content DataTD">
+			<label><%= $.i18n.prop("meta.traits.acl_groups") %></label>
+		  </td>
+		  <td class="DataTD ui-widget-content">
+			  <div class="ui-widget ui-widget-content ui-corner-all" style="height: 100%; width:100%;overflow: auto;">
+				<table  class="EditTable ui-jqdialog-content" border="0" cellspacing="0" cellpadding="5">
+				  <tr>
+					<th class="ui-widget-content DataTD" align="left" style="width:100px"><%= $.i18n.prop("meta.traits.group") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_read") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_create") %></th>
+					<th class="ui-widget-content DataTD" align="left"><%= $.i18n.prop("meta.traits.acl_manage") %></th>
+				  </tr>
+				  <%for(var i = 0; i < groups.length ; i++){%>
+					<tr>
+					  <td class="ui-widget-content DataTD"><%= groups[i] %></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="group_read" value="<%= groups[i] %>" /></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="group_create" value="<%= groups[i] %>" /></td>
+					  <td class="ui-widget-content DataTD"><input type="checkbox" name="group_manage" value="<%= groups[i] %>" /></td>
+					</tr>
+				  <%}%>
+				</table>
+			  </div>
+		  </td>
+		</tr>
+		<tr>
+		  <td colspan="2" class="DataTD ui-widget-content" style="padding:10px">
+			<button id="<%= id2 %>-button-save" nowrap="nowrap">
+			  <span class="ui-icon ui-icon-disk" style="float:left"></span><%= $.i18n.prop("meta.traits.save_trait") %>
+			</button>
+		  </td>
+		</tr>
+	  </table>
+	</form>
+  </div>
+
+</div>

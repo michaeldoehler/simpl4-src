@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.data,org.ms123.common.data.quality,org.ms123.common.data.dupcheck,org.ms123.common.data.query, org.ms123.common.data.lucene,org.ms123.common.data.scripting
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Data Service
+Bundle-ManifestVersion: 2
+Bundle-Name: DataService Bundle
+Bundle-SymbolicName:org.ms123.common.data
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+DynamicImport-Package:*
+Service-Component: *
+-metatype: *

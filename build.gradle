@@ -1,0 +1,320 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+import java.util.zip.GZIPOutputStream;
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.0'
+}
+
+defaultTasks "buildAll"
+
+buildscript {
+    dependencies {
+      classpath files("repository/gradle-aspectj-1.5.jar")
+      classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+    }
+		repositories {
+        mavenCentral()
+				jcenter()
+    }
+}
+
+ext.os = [Os.FAMILY_WINDOWS, Os.FAMILY_MAC, Os.FAMILY_UNIX].find {String family ->
+	Os.isFamily(family)
+}
+
+ext.aspectjVersion = '1.7.1'
+ext.currentBranch = getCurrentBranch();
+ext.clientDir=gradle.getRootProject().getRootDir().toString()+"/client"
+ext.qooxdooBuildOutputDir=gradle.getRootProject().getRootDir().toString()+"/client/common/build"
+ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/qooxdooBuild"
+ext.rootDir=gradle.getRootProject().getRootDir().toString()
+ext.qoodooSDK="${rootDir}/build/.qooxdooSDK";
+ext.licenseBlock=	{
+	header rootProject.file('etc/license.txt')
+		ext.year = Calendar.getInstance().get(Calendar.YEAR)
+		ext.name = 'Manfred Sattler'
+		ext.email = 'manfred@ms123.org'
+		ignoreFailures true
+		skipExistingHeaders true
+		strictCheck false
+		includes(["**/*.java", "**/*.groovy", "**/*.js"])
+		mapping {
+			javascript='JAVADOC_STYLE'
+		}
+}
+
+configure(subprojects - project(":client")){ s->
+	def rootDir = getRootProject().getRootDir().toString()
+	ext.shortName = getShortName(s.name);
+
+	configurations {
+		vfs
+		bnd
+    ajtools
+	}
+
+	apply plugin: 'groovy'
+	apply plugin: 'aspectj'
+	apply plugin: 'license'
+
+	defaultTasks "copyToRepo"
+
+	sourceCompatibility = '1.6' 
+	targetCompatibility = '1.6'
+
+	jar.enabled=false
+	test.enabled=false
+
+	dependencies {
+    ajtools files("${rootDir}/repository/aspectjtools-1.7.1.jar")
+		vfs files("${rootDir}/repository/commons-vfs-1.0.jar")
+		vfs files("${rootDir}/repository/commons-logging-1.1.1.jar")
+		bnd files("${rootDir}/repository/biz.aQute.bnd.jar")
+  	compile files("${rootDir}/repository/biz.aQute.bnd.jar")
+		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar"); 
+ 		compile files("${rootDir}/repository/aspectjrt-1.7.1.jar")
+		compile files("${rootDir}/repository/shiro-aspectj-1.2.0.jar")
+		compile files("${rootDir}/repository/shiro-core-1.2.0.jar")
+		aspectpath files("../../repository/shiro-aspectj-1.2.0.jar")
+	}
+
+	license licenseBlock
+	compileGroovy.options.define(
+			compilerArgs: [
+			"-nowarn",
+			"-Xlint:-unchecked",
+			"-encoding", "UTF-8"
+		]
+	);
+
+	ant.taskdef( resource: 'aQute/bnd/ant/taskdef.properties', classpath: configurations.bnd.asPath)
+	ant.taskdef( resource: 'org/apache/commons/vfs/tasks/tasks.properties',classpath:configurations.vfs.asPath) 
+
+	sourceSets {
+		main {
+			java {
+				srcDir 'src/main/java'
+			}
+			groovy {
+				srcDir 'src/main/java'
+			}
+			resources {
+				srcDir 'src/main/resources'
+			}
+		}
+	}
+	sourceSets.main.ext.classesDir = new File ( 'build/classes/main' )
+
+	task projectClean (type:Task) {
+		doLast{
+			ant.delete ( dir:"build/libs/bundles" );
+			ant.mkdir  ( dir:"build/libs/bundles" );
+			ant.delete ( dir:"tmp" );
+			ant.mkdir  ( dir:"tmp" );
+		}
+	}
+	task makeBundle (type:Task){
+		dependsOn classes
+		doLast{
+			 ant.zip( destfile:"tmp/bundle.zip",
+				 basedir:"build/classes/main",
+				 includes:"**/*.class,OSGI-INF/**",
+				 excludes:"test/**"
+			 )
+			 ant.bnd(
+				 failok:true,
+				 exceptions:true,
+				 classpath : "tmp/bundle.zip:${configurations.compile.asPath}",
+				 output:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar",
+				 files:"osgi.bnd" 
+			 )
+		}
+	}
+	task copyToRepo (type:Task) {
+		dependsOn makeBundle
+		ant.mkdir  ( dir:"../../repository/${currentBranch}" );
+		doLast{
+			if( shortName == "admin"){
+				ant.copy( file:"build/libs/${shortName}-1.0.0.jar", todir:"../../repository/org.ms123.admin-${version}.jar",overwrite:"true")
+			}else{
+				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"../../repository/${currentBranch}",overwrite:"true")
+			}
+		}
+	}
+	compileGroovy.dependsOn.remove("compileJava")
+	compileJava.dependsOn(compileGroovy)
+	compileGroovy.dependsOn projectClean
+}
+
+
+configure(project(":client")){
+	apply plugin: 'license'
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+	task unzipQooxdoo(type: Copy) {
+		def zipFile = file("${clientDir}/qooxdoo-sdk-3.5.1.zip")
+		into file(qoodooSDK)
+		from zipTree(zipFile)
+		outputs.upToDateWhen { file(qoodooSDK).isDirectory() }
+	}
+	task compileQooxdoo (type:Task) { 
+		if(!file(qoodooSDK).isDirectory()){
+			dependsOn unzipQooxdoo
+		}
+		doLast(){
+			compileQooxdoo();
+			gzipFile("${qooxdooBuildDir}/script/ms123.js", "${qooxdooBuildDir}/script/ms123.js.gz");
+		}
+	}
+	sourceSets {
+		main {
+			java {
+				srcDir "../client/common/source/class/ms123"
+				include "**/*.js"
+			}
+		}
+	}
+	license licenseBlock
+}
+
+
+task buildAll(type: Task) {
+	dependsOn subprojects.copyToRepo
+
+	def currentDir = gradle.getStartParameter().getCurrentDir().toString();
+	def projectDir = gradle.getRootProject().getRootDir().toString();
+	if( currentDir == projectDir){
+		def settingsText = new File(gradle.rootProject.getProjectDir(),"settings.gradle").text
+		def listText = settingsText =~ /(?ms)(include(.*)?)/
+		def projectList = Eval.me('['+listText[0][2]+']');
+
+		def prev = null;
+		projectList.each() {s->
+			if( prev ){
+				getProjectClean(s).dependsOn(getCopyRepo(prev));
+			}else{
+				getProjectClean(s).dependsOn(getCompileQooxdoo(":client"));
+			}
+			prev = s;
+		}
+	}
+}
+
+task deploy(type: Task) {
+	doLast(){
+		def dest = new File(rootProject.property("deploy.directory")).getCanonicalPath().toString();
+		println("deploying to -> "+dest);
+		
+		deployServerPart(dest);
+		copyFiles(dest);
+		compileQooxdoo();
+		deployClientPart(dest);	
+	}
+}
+
+def getCompileQooxdoo(name){
+	return gradle.rootProject.project(name).compileQooxdoo;
+}
+def getProjectClean(name){
+	return gradle.rootProject.project(name).projectClean;
+}
+def getCopyRepo(name){
+	return gradle.rootProject.project(name).copyToRepo;
+}
+
+def getCurrentBranch() {
+	def stdOut = new ByteArrayOutputStream()
+	try{
+		exec {
+			commandLine 'git rev-parse --abbrev-ref HEAD'.tokenize()
+			standardOutput =stdOut
+		}
+		return stdOut.toString().trim()
+	}catch(e){
+		return "master";
+	}
+}
+
+def getShortName(name){
+	def shortName = name.split("/")
+	if( shortName.length==1){
+		return shortName[0]
+	}else{
+		return shortName[1]
+	}
+}
+
+def compileQooxdoo() {
+	def cache = "${rootDir}/build/.qooxdooCache";
+	if( os == "unix"){
+		exec {
+			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/common/config.json build".tokenize()
+		}
+	}else{
+		exec {
+			commandLine "bin\\py.exe  ${qoodooSDK}/tool/bin/generator.py -I --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/common/config.json build".tokenize()
+		}
+	}
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${qooxdooBuildDir}"){
+		fileset(dir:"${qooxdooBuildOutputDir}") {
+		}
+	}
+	new groovy.util.AntBuilder().delete ( dir:"${qooxdooBuildOutputDir}" );
+}
+
+def deployClientPart(destdir){
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build"){
+		fileset(dir:"${qooxdooBuildDir}") {
+		}
+	}
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
+		fileset(dir:"${rootDir}/client/common/source/resource/openseadragon") {
+		}
+	}
+}
+
+
+def deployServerPart(destdir){
+	def dir = new File(destdir);
+	if( !dir.exists()){
+		dir.mkdirs();
+	}
+	if( os == "unix"){
+		exec {
+			commandLine "${rootDir}/bin/pax.sh -s ${rootDir}  -d ${destdir}".tokenize()
+		}
+	}else{
+		exec {
+			commandLine "${rootDir}/bin/pax.bat -s ${rootDir}  -d ${destdir}".tokenize()
+		}
+	}
+}
+
+def copyFiles(destdir){
+	if( os == "unix"){
+		exec {
+			commandLine "${rootDir}/bin/copy.sh -s ${rootDir}  -d ${destdir}".tokenize()
+		}
+	}else{
+		exec {
+			commandLine "${rootDir}/bin/copy.bat -s ${rootDir}  -d ${destdir}".tokenize()
+		}
+	}
+}
+
+def gzipFile(sourcePath, destPath) {
+	byte[] buffer = new byte[1024];
+	def fileOutputStream =new FileOutputStream(destPath);
+	def gzipOuputStream = new GZIPOutputStream(fileOutputStream);
+	def fileInput = new FileInputStream(sourcePath);
+
+	int bytesRead;
+	while ((bytesRead = fileInput.read(buffer)) > 0) {
+		gzipOuputStream.write(buffer, 0, bytesRead);
+	}
+
+	fileInput.close();
+	gzipOuputStream.finish();
+	gzipOuputStream.close();
+	println("The file was compressed successfully!");
+}

@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.entity.api
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Entity Service Api
+Bundle-ManifestVersion: 2
+Bundle-Name: EntityServiceApi Bundle
+Bundle-SymbolicName:org.ms123.common.entity.api
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

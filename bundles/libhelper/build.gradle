@@ -1,0 +1,11 @@
+version='1.0.0'
+dependencies {
+	compile files("../../repository/slf4j-api-1.6.1.jar")
+	compile files("../../repository/org.osgi.compendium-4.3.1.jar")
+	compile files("../../repository/org.osgi.core-4.3.1.jar")
+ 	compile files("../../repository/flexjson-2.1.bar")
+  compile files("../../repository/mvel2-2.1.RC1.jar")
+  compile files("../../repository/commons-beanutils-1.8.4-SNAPSHOT.jar")
+	compile files("../../repository/datanucleus-3.3.6/jdo-api-3.1-rc1.jar")
+  compile files("../../repository/commons-io-2.4.jar")
+}

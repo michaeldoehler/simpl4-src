@@ -1,0 +1,14 @@
+version=1.0.0
+Export-Package org.ms123.common.form,org.ms123.common.form.constraints
+Import-Package *,javax.validation.constraints,org.hibernate.validator.constraints
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Form Service
+Bundle-ManifestVersion: 2
+Bundle-Name: FormService Bundle
+Bundle-SymbolicName:org.ms123.common.form
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Include-Resource: =src/main/resources/messages
+Service-Component: *
+-metatype: *

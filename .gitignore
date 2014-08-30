@@ -1,0 +1,9 @@
+bundles/*/build
+bundles/*/tmp
+build
+.gradle
+.cache
+client/common/build
+repository/master
+*.class
+repository/org.ms123.admin*

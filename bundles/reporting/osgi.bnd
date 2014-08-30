@@ -1,0 +1,11 @@
+version=1.0.0
+Export-Package org.ms123.common.reporting
+Import-Package: *,org.h2,javax.script,ar.com.fdvs.dj.domain.builders,ar.com.fdvs.dj.core,ar.com.fdvs.dj.core.layout,ar.com.fdvs.dj.domain.constants,ar.com.fdvs.dj.domain.entities.columns,ar.com.fdvs.dj.domain,org.apache.commons.digester,net.sf.jasperreports.engine,net.sf.jasperreports.engine.fill,net.sf.jasperreports.engine.data,net.sf.jasperreports.engine.export
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Reporting Service
+Bundle-ManifestVersion: 2
+Bundle-Name: ReportingService Bundle
+Bundle-SymbolicName:org.ms123.common.reporting
+Service-Component: *
+-metatype: *

@@ -1,0 +1,52 @@
+{
+	"name": "ms123",
+
+	"include": [{
+		"path": "${QOOXDOO_PATH}/tool/data/config/application.json"
+	}],
+
+	"export": ["api", "api-data", "build", "clean", "distclean", "fix", "info", "inspector", "lint", "migration", "pretty", "profiling", "source", "source-all", "simulation-build", "simulation-run", "test", "test-source", "translation"],
+
+	"default-job": "source",
+
+	"let": {
+		"APPLICATION": "ms123",
+		"QOOXDOO_PATH": "../../../thirdparty/qooxdoo/qooxdoo-sdk",
+		"__QOOXDOO_PATH": "/opt/appmaker-1.0/client/qooxdoo-sdk",
+		"QXTHEME": "ms123.theme.ms.Theme",
+		"QXICONTHEME": ["Tango", "Oxygen"],
+		"API_EXCLUDE": ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
+		"LOCALES": ["de", "en"],
+		"CACHE": "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+		"__OPTIMIZE"     : ["basecalls", "variables", "privates", "strings", "variants", "comments"],
+		"OPTIMIZE": ["comments"],
+		"ROOT": "."
+	},
+
+	"jobs": {
+		"common": {
+			"include": ["ms123.usertasks.*", "ms123.form.*"]
+		},
+
+		//"libraries": {
+		//	"library": [{
+		//		"manifest": "../common/Manifest.json"
+		//	}]
+		//},
+
+		"build-script": {
+			"environment": {
+				"qx.debug": false,
+				"qx.debug.dispose": false,
+				"qx.debug.dispose.level" : "1"
+				//"qx.disposerDebugLevel": 3
+			},
+
+			"compile-options": {
+				"code": {
+					"format": false
+				}
+			}
+		}
+	}
+}

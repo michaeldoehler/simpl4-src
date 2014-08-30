@@ -1,0 +1,14 @@
+version=1.0.0
+Export-Package org.ms123.common.jetty
+Import-Package *,org.h2,javax.xml.transform.dom,javax.sql,javax.security.auth,javax.xml.transform,javax.security.auth.callback,javax.security.auth.login,javax.xml.parsers,org.w3c.dom.ranges,javax.naming,org.xml.sax.helpers,javax.servlet.http,org.w3c.dom.traversal,org.w3c.dom,org.w3c.dom.events,org.xml.sax,org.xml.sax.ext,javax.servlet,javax.script,com.Ostermiller.util
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Jetty Service
+Bundle-ManifestVersion: 2
+Bundle-Name: JettyService Bundle
+Bundle-SymbolicName:org.ms123.common.jetty
+Bundle-ClassPath: .
+DynamicImport-Package: *
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

@@ -1,0 +1,4 @@
+version='1.0.0'
+dependencies {
+	compile files("../../repository/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
+}

@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.utils,org.ms123.common.utils.annotations
+Import-Package *,org.codehaus.groovy.jsr223,org.activiti.engine.impl.scripting
+Private-Package: org.ms123.common.utils*
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Utils
+Bundle-ManifestVersion: 2
+Bundle-Name: Utils Bundle
+Bundle-SymbolicName:org.ms123.common.utils
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

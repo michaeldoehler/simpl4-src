@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.nucleus.api
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Nucleus Service Api
+Bundle-ManifestVersion: 2
+Bundle-Name: NucleusServiceApi Bundle
+Bundle-SymbolicName:org.ms123.common.nucleus.api
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+DynamicImport-Package:*
+Service-Component: *
+-metatype: *

@@ -1,0 +1,15 @@
+version=1.0.0
+Export-Package org.ms123.common.docbook
+Private-Package org.zkoss.zuss*,org.wikimodel.wem*,org.ms123.common.docbook.xom*,org.ms123.common.docbook.rendering*,org.ms123.common.docbook.wikimodel*
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Docbook Service
+Bundle-ManifestVersion: 2
+Bundle-Name: DocbookService Bundle
+Bundle-SymbolicName:org.ms123.common.docbook
+Bundle-ClassPath: .
+DynamicImport-Package: *
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF,xml=src/main/resources/xml,xsl=src/main/resources/xsl
+Service-Component: *
+-metatype: *

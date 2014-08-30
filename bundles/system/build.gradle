@@ -1,0 +1,23 @@
+version='1.0.0'
+
+dependencies {
+  compile files("../../repository/biz.aQute.bnd.jar")
+	compile files("../../repository/camel-2.12.1/camel-core-2.12.1.jar")
+  compile files("../../repository/commons-beanutils-1.8.4-SNAPSHOT.jar")
+ 	compile files("../../repository/commons-io-2.4.jar")
+  compile files("../../repository/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("../../repository/${currentBranch}/org.ms123.common.store-1.0.0.jar")
+	compile files("../../repository/${currentBranch}/org.ms123.common.libhelper-1.0.0.jar")
+	compile files("../../repository/${currentBranch}/org.ms123.common.nucleus.api-1.0.0.jar")
+  compile files("../../repository/flexjson-2.1.bar")
+  compile files("../../repository/datanucleus-3.3.6/jdo-api-3.1-rc1.jar")
+	compile files("../../repository/jta-1.1.jar")
+	compile files("../../repository/jotm-core-2.2.3.jar")
+  compile files("../../repository/org.osgi.compendium-4.3.1.jar")
+  compile files("../../repository/org.osgi.core-4.3.1.jar")
+  compile files("../../repository/servlet-api-2.5.jar")
+	compile files("../../repository/slf4j-api-1.6.1.jar")
+	compile files("../../repository/spring-tx-3.1.4.RELEASE.jar")
+	compile files("../../repository/spring-beans-3.1.4.RELEASE.jar")
+  compile files("../../repository/UserAgentUtils-1.9-snapshot.bar")
+}

@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.stencil.api
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Stencil Service Api
+Bundle-ManifestVersion: 2
+Bundle-Name: StencilServiceApi Bundle
+Bundle-SymbolicName:org.ms123.common.stencil.api
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

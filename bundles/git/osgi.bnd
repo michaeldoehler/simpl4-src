@@ -1,0 +1,12 @@
+version=1.0.0
+Export-Package org.ms123.common.git
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Git Service
+Bundle-ManifestVersion: 2
+Bundle-Name: GitService Bundle
+Bundle-SymbolicName:org.ms123.common.git
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

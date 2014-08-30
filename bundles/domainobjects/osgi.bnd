@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.domainobjects
+Import-Package javax.jdo.annotations,org.hibernate.validator.constraints,javax.validation,*
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: DomainObjects Service
+Bundle-ManifestVersion: 2
+Bundle-Name: DomainObjectsService Bundle
+Bundle-SymbolicName:org.ms123.common.domainobjects
+DynamicImport-Package:*
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *

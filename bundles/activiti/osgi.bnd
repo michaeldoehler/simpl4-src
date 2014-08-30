@@ -1,0 +1,14 @@
+version=1.0.0
+Export-Package org.ms123.common.activiti,org.ms123.common.activiti.process,org.ms123.common.activiti.task
+Import-Package *,org.codehaus.groovy.runtime.callsite,org.codehaus.groovy.reflection,org.codehaus.groovy.runtime,sun.reflect,org.apache.camel
+Private-Package: org.ms123.common.activiti*
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Activiti Service
+Bundle-ManifestVersion: 2
+Bundle-Name: ActivitiService Bundle
+Bundle-SymbolicName:org.ms123.common.activiti
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
+Service-Component: *
+-metatype: *
