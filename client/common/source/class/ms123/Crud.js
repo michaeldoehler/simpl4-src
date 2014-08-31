@@ -590,10 +590,17 @@ qx.Class.define("ms123.Crud", {
 			var uprops = ms123.config.ConfigManager.getUserProperties();
 			filter.modulename = mwidget.config;
 			var storeDesc = mwidget.storeDesc;
+			var _filter = filter;
+			console.log("_filter:"+wf.filtername);
+			if( wf.filtername && wf.filtername != "" ){
+				_filter = this._getFilter(wf.filtername, storeDesc);
+				_filter.filter = filter;
+			}
+			console.log("_filter:"+JSON.stringify(_filter,null,2));
 			var context = {
 				namespace:storeDesc.getNamespace(),
 				workflowName:wf.workflow,
-				parameter:{filter:filter},
+				parameter:{filter:_filter},
 				title: wf.menuname ? this.tr(wf.menuname).toString() : wf.workflow,
 				window_title: wf.menuname ? this.tr(wf.menuname).toString() : wf.workflow,
 				storeDesc:storeDesc,
@@ -666,6 +673,22 @@ qx.Class.define("ms123.Crud", {
 			ssController.setModel(model.getItems());
 			mwidget.stateSelect = ss;
 			return ss;
+		},
+
+		_getFilter:function(filterName,storeDesc){
+			var filter = null;
+			try {
+				filter = ms123.util.Remote.rpcSync("git:searchContent", {
+					reponame: storeDesc.getNamespace(),
+					name: filterName,
+					type: "sw.filter"
+				});
+				filter = filter.evalJSON();
+			} catch (e) {
+				ms123.form.Dialog.alert("DocumentMarkdown._getFilterField:" + e);
+				return;
+			}
+			return filter;
 		},
 		_enableActionMenuButtons: function (enable) {
 			for (var i = 0; i < this._actionMenuButtons.length; i++) {

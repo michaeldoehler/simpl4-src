@@ -115,6 +115,14 @@ qx.Class.define("ms123.settings.CommonPropertyEdit", {
 									}
 								},
 								{
+									"colname": "filtername",
+									"display": "Filter",
+									"type": "resourceselector",
+									"config":{
+										"type":"sw.filter"
+									}
+								},
+								{
 									"colname": "menuname",
 									"display": "Menuname",
 									"type": "text",
