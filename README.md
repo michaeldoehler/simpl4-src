@@ -18,8 +18,8 @@ $ git clone https://github.com/ms123s/simpl4-src.git simpl4
 ####Going to sourcedirectory
 ```bash
 $ cd simpl4
-$ gradle
-$ gradle deploy 
+$ gradlew
+$ gradlew deploy 
 ```
 ----
 

@@ -80,19 +80,3 @@ dependencies {
 	testCompile files("${repository}/org.apache.commons.collections_3.2.1.jar")
 	testCompile files("${repository}/hibernate-validator-4.2.0-ms.bar")
 }
-
-
-task gen_source << {
-	List modules = [
-		"users:User",
-		"groups:Group",
-		"metafields:Metafield",
-		"enumfields:Enumfield",
-		"enumdata:Enumdata"
-	]
-//	def gs = new org.ms123.common.utils.GenerateSource(); gs.doIt("xaddress", "org.ms123.common.dao",modules);
-}
-
-task mvel_test << {
-//	def mvel = new org.ms123.common.data.scripting.MVELEvaluator(); mvel.test();
-}
