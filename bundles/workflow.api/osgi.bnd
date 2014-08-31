@@ -1,7 +1,6 @@
 version=1.0.0
 Export-Package org.ms123.common.workflow.api
 Import-Package *
-Private-Package: org.ms123.common.workflow*
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.
 Bundle-Description: Workflow Service Api
