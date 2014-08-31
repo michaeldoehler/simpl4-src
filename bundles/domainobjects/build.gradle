@@ -24,4 +24,5 @@ dependencies {
   compile files("${repository}/org.osgi.core-4.3.1.jar")
  	compile files("${repository}/servlet-api-2.5.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
+  compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
 }
