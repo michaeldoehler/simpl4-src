@@ -55,8 +55,12 @@ public class SWDocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
 		ServiceTask task = new ServiceTask();
-		String clazz = getPropertyValueAsString(CLASSNAME, elementNode);
+		/*String clazz = getPropertyValueAsString(CLASSNAME, elementNode);
 		System.out.println("DocumentTask.class:" + clazz);
+		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
+		task.setImplementation(clazz);*/
+
+		String clazz = "org.ms123.common.workflow.TaskDocumentExecutor";
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 
