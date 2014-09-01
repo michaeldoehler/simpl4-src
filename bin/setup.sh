@@ -22,7 +22,7 @@ git add .
 git commit -m. -a
 
 cd ..
-git clone git://swstore.ms123.org/global.git
+https://github.com/ms123s/global-metadata.git global
 
 cd $SIMPL4DIR
 mkdir -p gitrepos/global_data/settings
