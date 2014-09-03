@@ -1,27 +1,170 @@
-.ui-datepicker {z-index:1200;}
-
-----------------------------------*/
-.ui-button { margin-left: -1px; }
-.ui-button-icon-only .ui-button-text { padding: 0.35em; } 
-
-
-.EditTable td input, .EditTable td select, .EditTable td textarea {width:90%;margin: 0em} //@@@MS
-.ui-jqdialog-content .EditTable { width: 100%; margin-bottom:0em;}
-
-
-.ui-jqdialog-content .EditTable { width: 100%; margin-bottom:0em;}
-
-.ui-jqdialog-content, .ui-jqdialog .ui-jqdialog-content {
-    background: none repeat scroll 0 0 transparent;
-    border: 0 none;
-    height: auto;
-    padding: 0.3em 0.2em;
+.LoadingIndicator, .StatusIndicator {
+	font-family:Verdana;
+	font-size:11px; 
+	display:block; 
+	background: white no-repeat 8px; 
+	padding:5px; 
+	padding-left:30px; 
+	position:absolute; 
+	top:0px; 
+	left:0px;
+	border:1px solid silver;
+	white-space:nowrap;
+	opacity:0.8;
 }
 
-.ui-jqdialog-content .DataTD {
-    border-bottom: 0 none;
-    border-left: 0 none;
-    border-right: 0 none;
-    padding: 1px;
-    vertical-align: top;
+.LoadingIndicator {
+	background-image: url('../../resource/ms123/open.png');
 }
+
+.StatusIndicator {
+	padding-left:10px; 
+}
+
+.Oryx_ShapeMenu .Oryx_MorphItem_disabled {
+	font-weight: bold;
+	cursor:default;
+	opacity:.3;
+	-moz-opacity:.3;
+	filter:alpha(opacity=30);
+	border: 1px solid #000;
+}
+
+.Oryx_hover, .Oryx_button:hover {
+	opacity: 0.75 !important;
+}
+
+.Oryx_down {
+	
+}
+
+.Oryx_button img {
+	position:relative;
+	width:16px;
+	height:16px;
+	top:1px;
+	left:1px;
+}
+
+.Oryx_ShapeMenu > .Oryx_Right {
+	margin-top:2px;
+	margin-left:2px;
+	padding-left:0px;
+	padding-right:0px;	
+}
+
+.Oryx_ShapeMenu > .Oryx_Left {
+	border-right-width:2px;
+	margin-top:2px;
+	margin-left:13px;
+	padding-left:0px;
+	padding-right:0px;		
+}
+
+.Oryx_ShapeMenu > .Oryx_Top {
+	border-bottom-width:2px;
+	margin-top:13px;
+	margin-left:2px;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+.Oryx_ShapeMenu > .Oryx_Bottom {
+	border-top-width:2px;
+	margin-top:2px;
+	margin-left:2px;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+.Oryx_Right .Oryx_button,
+.Oryx_Left .Oryx_button,
+.Oryx_Top .Oryx_button,
+.Oryx_Bottom .Oryx_button {
+	opacity: 0.5;
+}
+
+.Oryx_button.x-opacity-0 {
+	opacity: 0;
+	display:none;
+}
+
+.Oryx_button.x-opacity-10 {
+	opacity: 0.1;
+}
+
+.Oryx_button.x-opacity-20 {
+	opacity: 0.2;
+}
+
+.Oryx_button.x-opacity-50 {
+	opacity: 0.5;
+}
+
+.Oryx_Right:hover .Oryx_button,
+.Oryx_Left:hover .Oryx_button,
+.Oryx_Top:hover .Oryx_button,
+.Oryx_Bottom:hover .Oryx_button {
+	opacity: 0.7;
+	display:block;
+}
+
+
+.Oryx_button img {
+	top:1px;
+}
+
+.Oryx_Left img {
+	top:0px;
+}
+
+.Oryx_button {
+	width:16px;
+	height:16px;
+	padding:4px;
+	margin-left:1px;
+	position:absolute;
+}
+
+.Oryx_button_with_caption {
+	width:inherit;
+	height:16px;
+	padding:4px;
+	position:absolute;
+}
+
+
+
+/*** Resizer ***/
+
+.resizer_southeast,
+.resizer_northwest {
+	width:12px; 
+	height:12px; 
+	position:relative;
+	background-color: transparent;
+	background-repeat:no-repeat;
+}
+
+.resizer_southeast {
+	background-image:url(../../resource/ms123/se-handle-dark.gif);
+	cursor: se-resize;
+	background-position: 4px 4px;
+}
+
+.resizer_northwest {
+	background-image:url(../../resource/ms123/nw-handle-dark.gif);
+	cursor: nw-resize;
+	background-position: -2px -2px;
+}
+
+/*** Selection Frame ***/
+
+.Oryx_SelectionFrame{
+	position:absolute;
+	border:1px dotted gray;
+	background:none;
+}
+
+
+
