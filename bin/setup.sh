@@ -8,23 +8,8 @@ if [ ! -e "${SIMPL4DIR}/server/felix/config.ini" ] ; then
   exit 1
 fi
 
-
 cd $SIMPL4DIR
-mkdir -p gitrepos/global_data
-cd $SIMPL4DIR/gitrepos/global_data
-mkdir -p store/data
-git init
-cp  $SIMPL4DIR/etc/users-init-script.sql $SIMPL4DIR/gitrepos/global_data/store/data/script.sql
-echo '* -text' > $SIMPL4DIR/gitrepos/global_data/.gitattributes
-git config user.name "admin"
-git config user.email "admin@someplace.com"
-git add .
-git commit -m. -a
-
-cd ..
-https://github.com/ms123s/global-metadata.git global
-
-cd $SIMPL4DIR
+tar xf gitrepos.tgz
 mkdir -p gitrepos/global_data/settings
 
 LOGDIR=$SIMPL4DIR/log

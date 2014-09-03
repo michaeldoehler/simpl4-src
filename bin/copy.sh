@@ -93,7 +93,7 @@ cp $SRCTOPDIR/bin/bash.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/py.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/start.cmd $BINDIRECTORY
 cp $SRCTOPDIR/bin/createclasses.sh $BINDIRECTORY
-cp $SRCTOPDIR/bin/createmetaclasses.sh $BINDIRECTORY
+cp $SRCTOPDIR/bin/updatemetadata.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/createdb.sh $BINDIRECTORY
 
 #cp -r $TOPDIR/simpleworkflow/etc/ea $ETCDIRECTORY/
