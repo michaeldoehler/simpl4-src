@@ -27,6 +27,8 @@ ext.currentBranch = getCurrentBranch();
 ext.clientDir=gradle.getRootProject().getRootDir().toString()+"/client"
 ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/qooxdooBuild"
 ext.rootDir=gradle.getRootProject().getRootDir().toString()
+ext.docbookZipFile=gradle.getRootProject().getRootDir().toString()+"/bundles/docbook/src/main/resources/docbook.zip"
+ext.docbookOut=gradle.getRootProject().getRootDir().toString()+"/bundles/docbook/docbookUnzipped"
 ext.qoodooSDK="${rootDir}/build/.qooxdooSDK";
 ext.bundlesBuild="${rootDir}/build/bundlesBuild";
 ext.repository="${rootDir}/repository";
@@ -105,6 +107,12 @@ configure(subprojects - project(":client")){ s->
 		}
 	}
 	sourceSets.main.ext.classesDir = new File ( 'build/classes/main' )
+	task unzipDocbook(type: Copy) {
+		def zipFile = file("${docbookZipFile}")
+		into file(docbookOut)
+		from zipTree(zipFile)
+		outputs.upToDateWhen { file(docbookOut+"/xml").isDirectory() }
+	}
 
 	task projectClean (type:Task) {
 		doLast{
@@ -115,7 +123,11 @@ configure(subprojects - project(":client")){ s->
 		}
 	}
 	task makeBundle (type:Task){
-		dependsOn classes
+		if( shortName=="docbook"){
+			dependsOn classes,unzipDocbook
+		}else{
+			dependsOn classes
+		}
 		doLast{
 			 ant.zip( destfile:"tmp/bundle.zip",
 				 basedir:"build/classes/main",
