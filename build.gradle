@@ -25,7 +25,6 @@ ext.os = [Os.FAMILY_WINDOWS, Os.FAMILY_MAC, Os.FAMILY_UNIX].find {String family 
 ext.aspectjVersion = '1.7.1'
 ext.currentBranch = getCurrentBranch();
 ext.clientDir=gradle.getRootProject().getRootDir().toString()+"/client"
-ext.qooxdooBuildOutputDir=gradle.getRootProject().getRootDir().toString()+"/client/common/build"
 ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/qooxdooBuild"
 ext.rootDir=gradle.getRootProject().getRootDir().toString()
 ext.qoodooSDK="${rootDir}/build/.qooxdooSDK";
@@ -168,8 +167,17 @@ configure(project(":client")){
 			dependsOn unzipQooxdoo
 		}
 		doLast(){
-			compileQooxdoo();
-			gzipFile("${qooxdooBuildDir}/script/ms123.js", "${qooxdooBuildDir}/script/ms123.js.gz");
+			compileQooxdoo("common");
+			gzipFile("${qooxdooBuildDir}/common/script/ms123.js", "${qooxdooBuildDir}/common/script/ms123.js.gz");
+		}
+	}
+	task compileWebsite (type:Task) { 
+		if(!file(qoodooSDK).isDirectory()){
+			dependsOn unzipQooxdoo
+		}
+		doLast(){
+			compileQooxdoo("website");
+			gzipFile("${qooxdooBuildDir}/website/script/website.js", "${qooxdooBuildDir}/website/script/website.js.gz");
 		}
 	}
 	sourceSets {
@@ -249,27 +257,31 @@ def getShortName(name){
 	}
 }
 
-def compileQooxdoo() {
+def compileQooxdoo(what) {
 	def cache = "${rootDir}/build/.qooxdooCache";
 	if( os == "unix"){
 		exec {
-			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/common/config.json build".tokenize()
+			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()
 		}
 	}else{
 		exec {
-			commandLine "bin\\py.exe  ${qoodooSDK}/tool/bin/generator.py -I --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/common/config.json build".tokenize()
+			commandLine "bin\\py.exe  ${qoodooSDK}/tool/bin/generator.py -I --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()
 		}
 	}
-	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${qooxdooBuildDir}"){
-		fileset(dir:"${qooxdooBuildOutputDir}") {
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${qooxdooBuildDir}/${what}"){
+		fileset(dir:"${clientDir}/${what}/build") {
 		}
 	}
-	new groovy.util.AntBuilder().delete ( dir:"${qooxdooBuildOutputDir}" );
+	new groovy.util.AntBuilder().delete ( dir:"${clientDir}/${what}/build" );
 }
 
 def deployClientPart(destdir){
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build"){
-		fileset(dir:"${qooxdooBuildDir}") {
+		fileset(dir:"${qooxdooBuildDir}/common") {
+		}
+	}
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/website/build"){
+		fileset(dir:"${qooxdooBuildDir}/website") {
 		}
 	}
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
