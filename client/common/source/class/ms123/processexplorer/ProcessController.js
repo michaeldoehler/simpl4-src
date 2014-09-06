@@ -312,7 +312,8 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				var msg = msg.replace(/:java.lang.RuntimeException/g, "");
 				var msg = msg.replace(/:Line:/g, "<br/>Line:");
 
-				var message = "<b>" + this.tr("processes." + ((task!=null) ? "taskform":"startform")+".notstarted") + ": </b><pre style='font-size:10px'>" + msg + "</pre></div>";
+				msg = ms123.util.Text.explode( msg, 100 );
+				var message = "<b>" + this.tr("processes." + ((task!=null) ? "taskform":"startform")+".notstarted") + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
 				var alert = new ms123.form.Alert({
 					"message": message,
 					"windowWidth": 600,
