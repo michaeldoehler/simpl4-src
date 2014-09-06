@@ -34,6 +34,7 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.apache.commons.beanutils.*;
 import org.ms123.common.data.api.DataLayer;
+import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
 import org.osgi.service.event.Event;

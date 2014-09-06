@@ -32,6 +32,7 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RuntimeService;
 import org.apache.commons.beanutils.*;
 import org.ms123.common.data.api.DataLayer;
+import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.docbook.DocbookService;
 import org.ms123.common.git.GitService;
