@@ -1,6 +1,6 @@
 version='1.0.0'
 
 dependencies {
-	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
-	compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.store-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
 }

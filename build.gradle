@@ -149,12 +149,12 @@ configure(subprojects - project(":client")){ s->
 		}else{
 			dependsOn makeBundle
 		}
-		ant.mkdir  ( dir:"${bundlesBuild}/${currentBranch}" );
+		ant.mkdir  ( dir:"${bundlesBuild}" );
 		doLast{
 			if( shortName == "admin"){
 				ant.copy( file:"build/libs/bundles/${shortName}-1.0.0.jar", tofile:"${bundlesBuild}/org.ms123.admin-${version}.jar",overwrite:"true")
 			}else{
-				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"${bundlesBuild}/${currentBranch}",overwrite:"true")
+				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"${bundlesBuild}",overwrite:"true")
 			}
 		}
 	}

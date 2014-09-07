@@ -6,7 +6,7 @@ dependencies {
   compile files("${repository}/org.osgi.core-4.3.1.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/biz.aQute.bnd.jar")
-  compile files("${bundlesBuild}/${currentBranch}/org.ms123.common.rpc-1.0.0.jar")
+  compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
   compile files("${repository}/commons-io-2.4.jar")
   compile files("${repository}/org.apache.commons.lang_2.5.jar")
   compile files("${repository}/flexjson-2.1.bar")
