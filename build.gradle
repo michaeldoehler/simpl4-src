@@ -219,7 +219,7 @@ task buildAll(type: Task) {
 			if( prev ){
 				getProjectClean(s).dependsOn(getCopyRepo(prev));
 			}else{
-				getProjectClean(s).dependsOn(getCompileQooxdoo(":client"));
+				getProjectClean(s).dependsOn(getCompileQooxdoo(":client"),getCompileWebsite(":client"));
 			}
 			prev = s;
 		}
@@ -239,6 +239,9 @@ task deploy(type: Task) {
 
 def getCompileQooxdoo(name){
 	return gradle.rootProject.project(name).compileQooxdoo;
+}
+def getCompileWebsite(name){
+	return gradle.rootProject.project(name).compileWebsite;
 }
 def getProjectClean(name){
 	return gradle.rootProject.project(name).projectClean;
