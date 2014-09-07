@@ -177,33 +177,19 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.TextAreaField", {
 			var toolbar = new qx.ui.toolbar.ToolBar();
 			toolbar.setSpacing(5);
 
-			if(this.facade.editorType == "sw.camel"){
-				var buttonSave = new qx.ui.toolbar.Button(this.tr("save"), this.__getResourceUrl("disk.png"));
-				buttonSave.addListener("execute", function () {
-					var value = this.textArea.getValue();
-					var data = value;
-					var oldVal = this.data;
-					this.data = data;
-					this.fireDataEvent("changeValue", data, oldVal);
-					this.getChildControl("textfield").setValue(data);
-					this.facade.save.save();
-				}, this);
-				toolbar._add(buttonSave)
-			}
+			var buttonSave = new qx.ui.toolbar.Button(this.tr("save"), this.__getResourceUrl("disk.png"));
+			buttonSave.addListener("execute", function () {
+				var value = this.textArea.getValue();
+				var data = value;
+				var oldVal = this.data;
+				this.data = data;
+				this.fireDataEvent("changeValue", data, oldVal);
+				this.getChildControl("textfield").setValue(data);
+				this.facade.save.save();
+			}, this);
+			toolbar._add(buttonSave)
 
 			if(this.facade.editorType == "sw.process"){
-				var buttonSave = new qx.ui.toolbar.Button(this.tr("save"), this.__getResourceUrl("disk.png"));
-				buttonSave.addListener("execute", function () {
-					var value = this.textArea.getValue();
-					var data = value;
-					var oldVal = this.data;
-					this.data = data;
-					this.fireDataEvent("changeValue", data, oldVal);
-					this.getChildControl("textfield").setValue(data);
-					this.facade.save.save();
-				}, this);
-				toolbar._add(buttonSave)
-
 				var buttonDeploy = new qx.ui.toolbar.Button(this.tr("deploy"), "icon/16/actions/media-playback-start.png");
 				buttonDeploy.addListener("execute", function () {
 					var value = this.textArea.getValue();
