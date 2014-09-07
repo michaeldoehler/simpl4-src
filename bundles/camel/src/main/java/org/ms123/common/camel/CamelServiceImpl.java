@@ -102,7 +102,12 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelServi
 				_createRoutesFromJsonDescription( namespace);
 			}
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromJsonDescription:", e);
+			String msg = e.getMessage();
+			while (e.getCause() != null) {
+				e = e.getCause();
+				msg += "\n"+e.getMessage();
+			}
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromJsonDescription:"+msg);
 		}
 	}
 
@@ -115,13 +120,12 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelServi
 			m_gitService.putContent(namespace,path, CAMEL_TYPE, content);
 			_createRoutesFromJsonDescription(namespace,path);
 		} catch (Throwable e) {
-
-		System.err.println("--->saveRouteJsonDescription:cause("+e.getClass().getSimpleName()+"):\n" + e.getMessage());
-		while (e.getCause() != null) {
-			e = e.getCause();
-			System.err.println("\t:cause("+e.getClass().getSimpleName()+"):" + e.getMessage());
-		}
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:", e);
+			String msg = e.getMessage();
+			while (e.getCause() != null) {
+				e = e.getCause();
+				msg += "\n"+e.getMessage();
+			}
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:"+msg);
 		}
 	}
 	public void  saveGroovyScript(
@@ -133,13 +137,12 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelServi
 			m_gitService.putContent(namespace,path, GROOVY_TYPE, content);
 			_compileGroovyScripts(namespace, path,content);
 		} catch (Throwable e) {
-
-		System.err.println("--->saveRouteJsonDescription:cause("+e.getClass().getSimpleName()+"):\n" + e.getMessage());
-		while (e.getCause() != null) {
-			e = e.getCause();
-			System.err.println("\t:cause("+e.getClass().getSimpleName()+"):" + e.getMessage());
-		}
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:", e);
+			String msg = e.getMessage();
+			while (e.getCause() != null) {
+				e = e.getCause();
+				msg += "\n"+e.getMessage();
+			}
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:"+msg);
 		}
 	}
 	public List<String> getContextNames(
