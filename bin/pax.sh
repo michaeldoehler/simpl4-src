@@ -48,15 +48,6 @@ if [ -z "$DESTTOPDIR" ] ; then
 fi
 SERVERDIR="$DESTTOPDIR/server"
 export REPOSITORY="$SRCTOPDIR/repository"
-export BUNDLESBUILD="$SRCTOPDIR/build/bundlesBuild"
-
-echo "================="
-echo "Create osgi-env ->"
-echo "================="
-echo -e "\t:SRCTOPDIR=$SRCTOPDIR"
-echo -e "\t:DESTTOPDIR=$DESTTOPDIR"
-echo -e "\t:REPOSITORY=$REPOSITORY"
-echo -e "\t:BUNDLESBUILD=$BUNDLESBUILD"
 
 
 #########################################################
@@ -67,7 +58,20 @@ CURRENTBRANCH=`git rev-parse --abbrev-ref HEAD`
 
 cd $DESTTOPDIR
 git checkout $CURRENTBRANCH >/dev/null 2>&1
+
+export BUNDLESBUILD="$SRCTOPDIR/build/${CURRENTBRANCH}/bundlesBuild"
+
+#########################################################
+# info
+#########################################################
+echo "================="
+echo "Create osgi-env ->"
+echo "================="
+echo -e "\t:SRCTOPDIR=$SRCTOPDIR"
+echo -e "\t:DESTTOPDIR=$DESTTOPDIR"
+echo -e "\t:REPOSITORY=$REPOSITORY"
 echo -e "\t:CURRENTBRANCH=$CURRENTBRANCH"
+echo -e "\t:BUNDLESBUILD=$BUNDLESBUILD"
 #########################################################
 # main
 #########################################################

@@ -25,12 +25,12 @@ ext.os = [Os.FAMILY_WINDOWS, Os.FAMILY_MAC, Os.FAMILY_UNIX].find {String family 
 ext.aspectjVersion = '1.7.1'
 ext.currentBranch = getCurrentBranch();
 ext.clientDir=gradle.getRootProject().getRootDir().toString()+"/client"
-ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/qooxdooBuild"
+ext.qooxdooBuildDir=gradle.getRootProject().getRootDir().toString()+"/build/${currentBranch}/qooxdooBuild"
 ext.rootDir=gradle.getRootProject().getRootDir().toString()
 ext.docbookZipFile=gradle.getRootProject().getRootDir().toString()+"/bundles/docbook/src/main/resources/docbook.zip"
 ext.docbookOut=gradle.getRootProject().getRootDir().toString()+"/bundles/docbook/docbookUnzipped"
-ext.qoodooSDK="${rootDir}/build/.qooxdooSDK";
-ext.bundlesBuild="${rootDir}/build/bundlesBuild";
+ext.qoodooSDK="${rootDir}/build/${currentBranch}/.qooxdooSDK";
+ext.bundlesBuild="${rootDir}/build/${currentBranch}/bundlesBuild";
 ext.repository="${rootDir}/repository";
 ext.licenseBlock=	{
 	header rootProject.file('etc/license.txt')
@@ -270,7 +270,7 @@ def getShortName(name){
 }
 
 def compileQooxdoo(what) {
-	def cache = "${rootDir}/build/.qooxdooCache";
+	def cache = "${rootDir}/build/${currentBranch}/.qooxdooCache";
 	if( os == "unix"){
 		exec {
 			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()

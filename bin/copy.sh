@@ -62,7 +62,7 @@ echo -e "\t:CURRENTBRANCH=$CURRENTBRANCH"
 #########################################################
 # copy
 #########################################################
-export BUNDLESBUILD="$SRCTOPDIR/build/bundlesBuild"
+export BUNDLESBUILD="$SRCTOPDIR/build/$CURRENTBRANCH/bundlesBuild"
 export REPOSITORY="$SRCTOPDIR/repository"
 export LIBDIRECTORY="$DESTTOPDIR/libs"
 export BINDIRECTORY="$DESTTOPDIR/bin"
