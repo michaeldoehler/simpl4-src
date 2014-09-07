@@ -21,6 +21,7 @@ package org.ms123.common.workflow;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.interceptor.SessionFactory;
 import org.activiti.engine.impl.persistence.entity.GroupEntityManager;
+import org.activiti.engine.impl.persistence.entity.GroupIdentityManager;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.auth.api.AuthService;
 import flexjson.*;
@@ -38,7 +39,7 @@ public class SWGroupManagerFactory implements SessionFactory {
 
 	@Override
 	public Class<?> getSessionType() {
-		return GroupEntityManager.class;
+    return GroupIdentityManager.class;
 	}
 
 	@Override

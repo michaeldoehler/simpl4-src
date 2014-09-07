@@ -21,6 +21,7 @@ package org.ms123.common.workflow;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.interceptor.SessionFactory;
 import org.activiti.engine.impl.persistence.entity.UserEntityManager;
+import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.auth.api.AuthService;
 
@@ -37,7 +38,7 @@ public class SWUserManagerFactory implements SessionFactory {
 
 	@Override
 	public Class<?> getSessionType() {
-		return UserEntityManager.class;
+    return UserIdentityManager.class;
 	}
 
 	@Override
