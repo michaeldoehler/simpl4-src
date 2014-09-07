@@ -169,7 +169,7 @@ configure(project(":client")){
 	task copyToRepo (type:Task) { }
 	task projectClean (type:Task) { }
 	task unzipQooxdoo(type: Copy) {
-		def zipFile = file("${clientDir}/qooxdoo-sdk-3.5.1.zip")
+		def zipFile = file("${clientDir}/qooxdoo-sdk.zip")
 		into file(qoodooSDK)
 		from zipTree(zipFile)
 		outputs.upToDateWhen { file(qoodooSDK).isDirectory() }
