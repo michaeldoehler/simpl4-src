@@ -54,7 +54,7 @@ public class ProcessInstanceDiagramResource extends BaseResource {
 		if (pde != null && pde.isGraphicalNotationDefined()) {
 			BpmnModel bpmnModel = getPE().getRepositoryService().getBpmnModel(pde.getId());
 			DefaultProcessDiagramGenerator dp = new DefaultProcessDiagramGenerator();
-			resource = dp.generateDiagram(bpmnModel, "png", getPE().getRuntimeService().getActiveActivityIds(m_processInstanceId));
+			resource = dp.generateDiagram(bpmnModel, "png", getPE().getRuntimeService().getActiveActivityIds(m_processInstanceId),new java.util.ArrayList(),null,null,DefaultProcessDiagramGenerator.class.getClassLoader(),1.0d);
 		} else {
 			throw new RuntimeException("Process instance with id " + m_processInstanceId + " has no graphic description");
 		}
