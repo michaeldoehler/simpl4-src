@@ -79,8 +79,8 @@ mkdir -p ${CLIENTLECACYDIRECTORY}/js
 cp $REPOSITORY/jdt-compiler-3.1.1.jar ${LIBDIRECTORY}
 cp $REPOSITORY/xml-w3c.jar ${LIBDIRECTORY}
 cp $REPOSITORY/jcommander-1.31-SNAPSHOT.jar ${LIBDIRECTORY}
-cp $BUNDLESBUILD/master/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
-cp $BUNDLESBUILD/master/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/flexjson-2.1.bar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 
