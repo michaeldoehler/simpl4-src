@@ -239,7 +239,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 					console.error("FieldEditor._createTable:" + data + " wrong value");
 				}
 			}
-			table.setFocusCellOnMouseMove(true);
+			table.setFocusCellOnPointerMove(true);
 
 			var selModel = table.getSelectionModel();
 			selModel.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);

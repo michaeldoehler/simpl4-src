@@ -302,7 +302,7 @@ qx.Class.define("ms123.util.BaseFieldSelector", {
 			var table = new qx.ui.table.Table(this._tableModel, customMap);
 			table.setStatusBarVisible(false);
 			table.setDroppable(true);
-			table.setFocusCellOnMouseMove(true);
+			table.setFocusCellOnPointerMove(true);
 			table.addListener("drop", this._handleDrop, this);
 
 
