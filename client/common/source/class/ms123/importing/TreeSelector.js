@@ -100,7 +100,7 @@ qx.Class.define("ms123.importing.TreeSelector", {
 					focusable: false,
 					hideRoot: false,
 					keepFocus: true,
-					openMode: "click",
+					openMode: "tap",
 					height: null,
 					itemHeight: 20,
 					//width: null,

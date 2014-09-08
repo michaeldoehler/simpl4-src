@@ -59,8 +59,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Button", {
 		}
 
 		this.base(arguments, "");
-		this.removeListener("mousedown", this._onMouseDown);
-		this.addListener("mousedown", this.__onMouseDown);
+
+		this.removeListener("pointerdown", this._onPointerDown);
+		this.addListener("pointerdown", this.__onPointerDown);
 
 		this.addListener("mouseover", this.hover.bind(this));
 		this.addListener("mouseout", this.reset.bind(this));
@@ -100,7 +101,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Button", {
 	 MEMBERS
 	 ******************************************************************************/
 	members: {
-		__onMouseDown: function (e) {
+		__onPointerDown: function (e) {
 			if (!e.isLeftPressed()) {
 				return;
 			}
@@ -111,11 +112,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Button", {
 				} else {
 					menu.exclude();
 				}
-				//e.stopPropagation();
 			}
 			this.capture(true);
-			//this.removeState("abandoned");
-			//this.addState("pressed");
 		},
 
 		_createContentElement: function () {

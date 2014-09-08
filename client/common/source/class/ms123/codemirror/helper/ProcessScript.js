@@ -181,7 +181,7 @@ qx.Class.define("ms123.codemirror.helper.ProcessScript", {
 					focusable: false,
 					hideRoot: false,
 					keepFocus: true,
-					openMode: "click",
+					openMode: "tap",
 					height: null,
 					itemHeight: 20,
 					//width: null,

@@ -103,7 +103,7 @@ qx.Class.define("ms123.Task", {
 					}, this, 200);
 				}
 			};
-			this._table.addListener("cellClick", tableCellEvents, this);
+			this._table.addListener("cellTap", tableCellEvents, this);
 
 			var toolbar = new qx.ui.toolbar.ToolBar();
 			notAssignedButton = new qx.ui.toolbar.Button(this.tr("tasks.table.not_assigned"), "icon/22/actions/view-fullscreen.png");

@@ -177,7 +177,7 @@ qx.Class.define("ms123.util.TableEdit", {
 			var booleanCellRendererFactory = new qx.ui.table.cellrenderer.Dynamic(this._booleanCellRendererFactoryFunc);
 			var booleanCellEditorFactory = new qx.ui.table.celleditor.Dynamic(this._booleanCellEditorFactoryFunc);
 
-			table.addListener("cellClick", this._onCellClick, this, false);
+			table.addListener("cellTap", this._onCellClick, this, false);
 			this._booleanCols = [];
 			for (var i = 0; i < tableColumns.length; i++) {
 				var col = tableColumns[i];

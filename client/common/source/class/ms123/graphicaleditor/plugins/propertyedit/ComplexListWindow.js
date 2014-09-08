@@ -175,7 +175,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				}
 			};
 			var table = new qx.ui.table.Table(tableModel, customMap);
-			table.addListener("cellClick", this.onCellClick, this, false);
+			table.addListener("cellTap", this.onCellClick, this, false);
 			var selModel = table.getSelectionModel();
 			selModel.setSelectionMode(qx.ui.table.selection.Model.NO_SELECTION);
 			selModel.addListener("changeSelection", function (e) {
@@ -254,7 +254,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 
 
 			var data = this.data;
-console.log("Data:"+data);
 			if (data == undefined || !data || data == "") {;
 			} else {
 				try{
@@ -271,7 +270,7 @@ console.log("Data:"+data);
 
 			//table.setDraggable(true);
 			table.setDroppable(true);
-			table.setFocusCellOnMouseMove(true);
+			table.setFocusCellOnPointerMove(true);
 
 			table.addListener("drop", this._handleDrop, this);
 

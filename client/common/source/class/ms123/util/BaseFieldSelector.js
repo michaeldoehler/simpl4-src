@@ -317,7 +317,7 @@ qx.Class.define("ms123.util.BaseFieldSelector", {
 					tcm.setDataCellRenderer(i, booleanCellRendererFactory);
 					tcm.setCellEditorFactory(i, booleanCellEditorFactory);
 					table.getTableModel().setColumnEditable(i, true);
-					table.addListener("cellClick", this._onCellClick, this, false); //@@@MS Achtung colnum fix
+					table.addListener("cellTap", this._onCellClick, this, false); //@@@MS Achtung colnum fix
 				}
 				if (col.type == "DoubleSelectBox") {
 					tcm.setDataCellRenderer(i, new ms123.util.MultiValueRenderer());

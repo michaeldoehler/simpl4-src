@@ -555,7 +555,7 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 			gridConfig.storeDesc= this.__storeDesc;
 			var table = new ms123.widgets.Table(gridConfig);
 
-			table.getTable().addListener("cellClick", function (e) {
+			table.getTable().addListener("cellTap", function (e) {
 				if (e.getButton() != "left") { 
 					return;
 				}

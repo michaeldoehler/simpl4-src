@@ -378,7 +378,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			this._tableInstance = table;
 			var tcm = table.getTableColumnModel();
 
-			table.addListener("cellClick", function (e) {
+			table.addListener("cellTap", function (e) {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				if( colnum != 2 ) return;
@@ -525,7 +525,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				}
 			};
 			var table = new qx.ui.table.Table(tableModel, customMap);
-			table.addListener("cellClick", function (e) {
+			table.addListener("cellTap", function (e) {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				var map = tableModel.getRowDataAsMap(rownum);
@@ -594,7 +594,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			var variables = [];
 			var variablesNames = [];
 			var table = new qx.ui.table.Table(tableModel, customMap);
-			table.addListener("cellClick", function (e) {
+			table.addListener("cellTap", function (e) {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				var map = tableModel.getRowDataAsMap(rownum);
