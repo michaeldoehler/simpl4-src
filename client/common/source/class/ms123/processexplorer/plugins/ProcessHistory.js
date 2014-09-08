@@ -251,6 +251,10 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			if(!id || id.toLowerCase() == "starterror" ) return;
 			var source = ms123.util.Remote.rpcSync("activiti:getInstanceDiagram", { processInstanceId:id });
 			var image = new qx.ui.basic.Image(source);
+			//image.setScale(true);
+			//image.setWidth(500);
+			image.setAllowShrinkY(false);
+			image.setAllowGrowY(false);
 			this._currentDiagram = image;
 			this._diagramPage.add(image);
 			this._diagramPage.show();
