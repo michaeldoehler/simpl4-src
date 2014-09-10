@@ -862,7 +862,13 @@ qx.Class.define("ms123.form.Form", {
 						}, formElement)
 					}, {
 						"converter": qx.lang.Function.bind(function (selection) {
-							var value = selection[0].getModel().getValue();
+							var value = null;
+							try{
+								value = selection[0].getModel().getValue();
+							}catch(e){
+								console.error("form.Form.selectbox:"+e);
+								console.debug(e.stack);
+							}
 							var key = this.getUserData("key");
 							return value;
 						}, formElement)
