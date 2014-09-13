@@ -101,22 +101,7 @@ qx.Class.define('website.HtmlContentWidget', {
 			});
 			this._mainWidget = widget;
 			widget.addListenerOnce("appear", function () {
-				if (shape.properties.ws_js) {
-					if (Array.isArray(shape.properties.ws_js)) {
-						for (var i = 0; i < shape.properties.ws_js.length; i++) {
-							var js = shape.properties.ws_js[i];
-							console.log("js:"+js);
-							try{
-								eval(js);
-							}catch(e){
-								console.error("Eval:"+e);
-								console.log(e.stack);
-							}
-						}
-					} else {
-						eval(shape.properties.ws_js);
-					}
-				}
+				this.evalJS(shape);
 				var c = widget.getContentElement().getDomElement();
 				c.id = this._contentId.replace(/\./, "");
 				var area = q("#" + this._contentId.replace(/\./, ""));
@@ -130,6 +115,24 @@ qx.Class.define('website.HtmlContentWidget', {
 			console.log("destruct:" + this);
 			var eventBus = qx.event.message.Bus;
 			eventBus.unsubscribe("itemSelected", this._itemSelected, this);
+		},
+		evalJS: function (shape) {
+			if (shape.properties.ws_js) {
+				if (Array.isArray(shape.properties.ws_js)) {
+					for (var i = 0; i < shape.properties.ws_js.length; i++) {
+						var js = shape.properties.ws_js[i];
+						console.log("js:"+js);
+						try{
+							eval(js);
+						}catch(e){
+							console.error("Eval:"+e);
+							console.log(e.stack);
+						}
+					}
+				} else {
+					eval(shape.properties.ws_js);
+				}
+			}
 		},
 		scrollTo: function (href) {
 			if (!this._mainWidget.getContentElement().getDomElement()) {
