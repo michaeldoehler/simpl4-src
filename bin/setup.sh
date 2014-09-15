@@ -1,10 +1,14 @@
 #!/bin/bash
-
-SIMPL4DIR=`pwd`
+echo "In setup.sh:$1"
+if [ -n "$1" ] ; then
+    SIMPL4DIR="$1"
+else
+    SIMPL4DIR=`pwd`
+fi 
 echo "Setup in $SIMPL4DIR"
 
 if [ ! -e "${SIMPL4DIR}/server/felix/config.ini" ] ; then
-  echo "Not a simpl4 installation"
+  echo "Not a simpl4 installation" 
   exit 1
 fi
 
@@ -12,6 +16,14 @@ cd $SIMPL4DIR
 tar xf gitrepos.tgz
 mkdir -p gitrepos/global_data/settings
 
+
+JAVAEXEC=java
+if [ -d "$SIMPL4DIR/jre" ] ; then
+    JAVAEXEC="%SIMPL4DIR%\\\\jre\\\\bin\\\\java"
+fi
+
+SIMPL4DIR=$(echo $SIMPL4DIR| sed "s!\\\!\\\\\\\\!g")
+echo "SIMPL4DIR:$SIMPL4DIR"
 LOGDIR=$SIMPL4DIR/log
 mkdir -p log
 
@@ -21,10 +33,13 @@ sed    "s!_BASEDIR_!$SIMPL4DIR!g" etc/logback.xml.tpl > etc/logback.xml
 sed -i "s!_LOGDIR_!$LOGDIR!g" etc/logback.xml
 sed    "s!_BASEDIR_!$SIMPL4DIR!g" etc/config/org/ops4j/pax/logging.config.tpl > etc/config/org/ops4j/pax/logging.config
 sed    "s!_BASEDIR_!$SIMPL4DIR!g" server/run.bat.tpl > server/run.bat
+sed -i "s!_JAVAEXEC_!$JAVAEXEC!g" server/run.bat
+
+
+
 cp etc/branding.example etc/branding
 
 
 mkdir -p workspace/configadm/org/ops4j/pax/
 cp etc/logging.config workspace/configadm/org/ops4j/pax/
-
 
