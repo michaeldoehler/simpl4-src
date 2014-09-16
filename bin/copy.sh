@@ -67,6 +67,7 @@ export REPOSITORY="$SRCTOPDIR/repository"
 export LIBDIRECTORY="$DESTTOPDIR/libs"
 export BINDIRECTORY="$DESTTOPDIR/bin"
 export ETCDIRECTORY="$DESTTOPDIR/etc"
+export SERVERDIRECTORY="$DESTTOPDIR/server"
 export CLIENTDIRECTORY="$DESTTOPDIR/client"
 export CLIENTLECACYDIRECTORY="$DESTTOPDIR/client/legacy"
 export FROMCLIENT=$SRCTOPDIR/client
@@ -86,25 +87,27 @@ cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 
 
 cp $SRCTOPDIR/bin/sw $BINDIRECTORY
-cp $SRCTOPDIR/bin/start.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.bat $BINDIRECTORY
 cp $SRCTOPDIR/bin/bash.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/py.exe $BINDIRECTORY
+cp $SRCTOPDIR/bin/start.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/start.cmd $BINDIRECTORY
 cp $SRCTOPDIR/bin/createclasses.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/updatemetadata.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/createdb.sh $BINDIRECTORY
 
 #cp -r $TOPDIR/simpleworkflow/etc/ea $ETCDIRECTORY/
-cp -r $SRCTOPDIR/etc/shell.init.script $ETCDIRECTORY/
-cp -r $SRCTOPDIR/etc/users-init-script.sql $ETCDIRECTORY/
-cp -r $SRCTOPDIR/etc/branding.example $ETCDIRECTORY/
-cp -r $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
-cp -r $SRCTOPDIR/etc/logging.config.tpl $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/shell.init.script $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/users-init-script.sql $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/branding.example $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/logging.config.tpl $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/config $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/gittemplate $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/images $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/run.bat.tpl $SERVERDIRECTORY/
+cp    $SRCTOPDIR/etc/README-deployed.md $DESTDIRECTORY/README.md
 
 
 cp $SRCTOPDIR/client/start.html $CLIENTDIRECTORY
