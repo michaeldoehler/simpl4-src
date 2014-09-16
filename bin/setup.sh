@@ -5,7 +5,12 @@ if [ -n "$1" ] ; then
 else
     SIMPL4DIR=`pwd`
 fi 
-echo "Setup in $SIMPL4DIR"
+if [ -n "$2" ] ; then
+    JETTYPORT="$2"
+else
+    JETTYPORT=8080
+fi 
+echo "Setup in $SIMPL4DIR/Port=$JETTYPORT"
 
 if [ ! -e "${SIMPL4DIR}/server/felix/config.ini" ] ; then
   echo "Not a simpl4 installation" 
@@ -34,6 +39,7 @@ sed -i "s!_LOGDIR_!$LOGDIR!g" etc/logback.xml
 sed    "s!_BASEDIR_!$SIMPL4DIR!g" etc/config/org/ops4j/pax/logging.config.tpl > etc/config/org/ops4j/pax/logging.config
 sed    "s!_BASEDIR_!$SIMPL4DIR!g" server/run.bat.tpl > server/run.bat
 sed -i "s!_JAVAEXEC_!$JAVAEXEC!g" server/run.bat
+sed -i "s!_JETTYPORT_!$JETTYPORT!g" server/run.bat
 
 
 
