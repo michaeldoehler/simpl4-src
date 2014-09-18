@@ -40,4 +40,5 @@ include 'bundles/rpc',
 	'bundles/ea',
 	'bundles/bhs',
 	'bundles/admin',
+	'bundles/launcher',
 	'client'

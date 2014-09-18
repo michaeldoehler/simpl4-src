@@ -144,14 +144,14 @@ configure(subprojects - project(":client")){ s->
 		}
 	}
 	task copyToRepo (type:Task) {
-		if( shortName == "admin"){
+		if( shortName == "admin" || shortName == "launcher"){
 			dependsOn jar
 		}else{
 			dependsOn makeBundle
 		}
 		ant.mkdir  ( dir:"${bundlesBuild}" );
 		doLast{
-			if( shortName == "admin"){
+			if( shortName == "admin" || shortName == "launcher"){
 				ant.copy( file:"build/libs/bundles/${shortName}-1.0.0.jar", tofile:"${bundlesBuild}/org.ms123.admin-${version}.jar",overwrite:"true")
 			}else{
 				ant.copy( file:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar", todir:"${bundlesBuild}",overwrite:"true")
