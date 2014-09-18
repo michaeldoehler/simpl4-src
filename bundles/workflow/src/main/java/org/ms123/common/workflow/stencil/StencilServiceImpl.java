@@ -66,6 +66,7 @@ public class StencilServiceImpl extends BaseStencilServiceImpl implements org.ms
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("StencilServiceImpl deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/
