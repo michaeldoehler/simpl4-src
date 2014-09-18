@@ -210,8 +210,7 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		ds.setUser("sa");
 		ds.setPassword("");
 		ds.setURL(url);
-		m_dataSource = new DataSourceWrapper();
-		m_dataSource.setDataSource(ds);
+		m_dataSource = new DataSourceWrapper(ds);
 		return m_dataSource;
 	}
 	private SpringProcessEngineConfiguration initProcessEngine(BundleContext bundleContext) {
@@ -296,9 +295,6 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		return null;
 	}
 
-	private DataSource wrapDataSource(DataSource src){
-		return ds;
-	}
 	public void executeScriptTask( String executionId, String category, String processDefinitionKey, String pid, String script, Map newVariables, String taskName ){
 		TaskScriptExecutor sce = new TaskScriptExecutor();
 		VariableScope vs = new RuntimeVariableScope(m_processEngine.getRuntimeService(), executionId);

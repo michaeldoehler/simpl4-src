@@ -32,6 +32,11 @@ import java.util.ArrayList;
 public class DataSourceWrapper implements DataSource {
 	private DataSource dataSource;
 
+
+	public DataSourceWrapper(DataSource ds){
+		this.dataSource = ds;
+	}
+
 	List<Connection> m_connList = new ArrayList();
 	public DataSource getDataSource() {
 		return dataSource;
