@@ -44,7 +44,7 @@ sed -i "s!_JAVAEXEC_!$JAVAEXEC!g" server/run.bat
 sed -i "s!_JETTYPORT_!$JETTYPORT!g" server/run.bat
 #sed    "s!_BASEDIR_!$SIMPL4DIR!g" bin/installservice.bat.tpl > bin/installservice.bat
 #sed -i "s!_JETTYPORT_!$JETTYPORT!g" bin/installservice.bat
-sed    "s!_BASEDIR_!$SIMPL4DIR!g" bin/uninstallservice.bat.tpl > bin/uninstallservice.bat
+#sed    "s!_BASEDIR_!$SIMPL4DIR!g" bin/uninstallservice.bat.tpl > bin/uninstallservice.bat
 
 cp etc/branding.example etc/branding
 

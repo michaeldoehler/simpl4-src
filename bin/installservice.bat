@@ -27,7 +27,23 @@ set J=%J%#-Ddrools.dialect.java.compiler=JANINO
 set J=%J%#-Dkaraf.shell.init.script=%SIMPL4DIR%/etc/shell.init.script
 set J=%J%#-Dfelix.config.properties=file:felix/config.ini
 
+
+@echo off
+SC QUERY %SERVICE_NAME% | find "RUNNING" >nul
+IF %ERRORLEVEL% == 0 (
+	ECHO "Service is RUNNING.Stopping .."
+	%SIMPL4DIR%\bin\%SERVICE_NAME%.exe //SS//%SERVICE_NAME%  
+)
+SC QUERY %SERVICE_NAME% | find "STOPPED" >nul
+IF %ERRORLEVEL% == 0 (
+	ECHO STOPPED
+	ECHO "Service is STOPPED.Removing .."
+	%SIMPL4DIR%\bin\%SERVICE_NAME%.exe //DS//%SERVICE_NAME%  
+)
+
+
 @echo on
-%SIMPL4DIR%\bin\%SERVICE_NAME%.exe //DS//%SERVICE_NAME%  
+ECHO "Starting .."
 %SIMPL4DIR%\bin\%SERVICE_NAME%.exe //IS//%SERVICE_NAME%  --StartPath=%SIMPL4DIR%\server --Description="Simpl4 Service" --Install=%SIMPL4DIR%\bin\%SERVICE_NAME%.exe --Jvm=%JVMDLL% --StartMode=jvm --StartClass=%LAUNCHER% --StartMethod=serviceStart --StopMode=jvm --StopClass=%LAUNCHER% --StopMethod=serviceStop --LogPath=%SIMPL4DIR%\log --StdOutput=auto --StdError=auto --Startup=auto ++JvmOptions=%J% --Classpath=%CP%
+%SIMPL4DIR%\bin\%SERVICE_NAME%.exe //ES//%SERVICE_NAME%  
 
