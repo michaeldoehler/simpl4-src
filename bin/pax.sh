@@ -295,6 +295,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
 	scan-bundle:file:$REPOSITORY/spring-tx-3.1.4.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/spring-jdbc-3.1.4.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
@@ -310,6 +311,7 @@ ${localbundles} \
 rm -f $SRCTOPDIR/etc/felix.xml 
 sed -i "s/javax.transaction.xa/dummy/g" $SERVERDIR/felix/config.ini
 sed -i "s/javax.transaction/dummy/g" $SERVERDIR/felix/config.ini
+sed -i "s/,javax.sql,/,dummy,/g" $SERVERDIR/felix/config.ini
 chmod +x $SERVERDIR/run.sh
 
 sed -i 's/startLocalConsole=true/startLocalConsole=$START_CONSOLE/' $SERVERDIR/run.sh
