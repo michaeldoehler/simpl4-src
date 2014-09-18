@@ -1,5 +1,5 @@
 @echo off
-title SIMPFLO 
+title SIMPL4 
 setx SIMPL4DIR _BASEDIR_
 set SIMPL4DIR=_BASEDIR_
 set JETTY_PORT=80

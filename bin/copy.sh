@@ -79,9 +79,11 @@ mkdir -p ${CLIENTLECACYDIRECTORY}/css/images
 mkdir -p ${CLIENTLECACYDIRECTORY}/js
 cp $REPOSITORY/jdt-compiler-3.1.1.jar ${LIBDIRECTORY}
 cp $REPOSITORY/xml-w3c.jar ${LIBDIRECTORY}
+cp $REPOSITORY/felix-4.2.1.jar ${LIBDIRECTORY}
 cp $REPOSITORY/jcommander-1.31-SNAPSHOT.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/org.ms123.launcher-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/flexjson-2.1.bar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 
@@ -96,6 +98,9 @@ cp $SRCTOPDIR/bin/start.cmd $BINDIRECTORY
 cp $SRCTOPDIR/bin/createclasses.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/updatemetadata.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/createdb.sh $BINDIRECTORY
+cp $SRCTOPDIR/bin/prunsrv.exe $BINDIRECTORY/Simpl4Service.exe
+cp $SRCTOPDIR/bin/installservice.bat $BINDIRECTORY
+cp $SRCTOPDIR/bin/uninstallservice.bat $BINDIRECTORY
 
 #cp -r $TOPDIR/simpleworkflow/etc/ea $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/shell.init.script $ETCDIRECTORY/

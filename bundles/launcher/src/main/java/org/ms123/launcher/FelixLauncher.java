@@ -25,20 +25,21 @@ public class FelixLauncher {
 		if (args.length > 0) {
 			cmd = args[0];
 		}
+		info("windowsService:"+cmd+"/"+args.length);
 		if ("start".equals(cmd)) {
-			felixLauncherInstance.serviceStart();
+			felixLauncherInstance.serviceStart(args);
 		} else {
-			felixLauncherInstance.serviceStop();
+			felixLauncherInstance.serviceStop(args);
 		}
 	}
 
-	public static void serviceStart() {
-		info("serviceStart called");
+	public static void serviceStart(String args[]) {
+		info("serviceStart called:"+args.length);
 		start();
 	}
 
-	public static void serviceStop() {
-		info("serviceStop called");
+	public static void serviceStop(String args[]) {
+		info("serviceStop called:"+args.length);
 		terminate();
 	}
 
