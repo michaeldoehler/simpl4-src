@@ -126,7 +126,7 @@ public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("TeamServiceImpl deactivate");
 	}
 
 	private Map getObjectGraph(StoreDesc sdesc, String entityName, String id, Map mapping) {

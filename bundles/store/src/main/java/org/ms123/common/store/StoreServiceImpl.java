@@ -51,6 +51,7 @@ public class StoreServiceImpl implements StoreService {
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("StoreServiceImpl.deactivate");
 	}
 	/*BEGIN JSON-RPC-API*/
 	public Map getStoreDescriptions(

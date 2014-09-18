@@ -70,6 +70,7 @@ public class DocbookServiceImpl extends BaseDocbookServiceImpl implements Docboo
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("DocbookServiceImpl deactivate");
 	}
 
 	public void jsonToDocbookPdf(String namespace, String json, Map<String, Object> paramsIn, OutputStream os) throws Exception {

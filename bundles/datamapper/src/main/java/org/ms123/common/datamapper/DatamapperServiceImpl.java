@@ -84,7 +84,7 @@ public class DatamapperServiceImpl extends BaseDatamapperServiceImpl implements 
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("DatamapperServiceImpl deactivate");
 	}
 
 	/*BEGIN JSON-RPC-API*/

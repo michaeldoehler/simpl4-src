@@ -83,6 +83,7 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("ImportingServiceImpl deactivate");
 	}
 
 	private StoreDesc getStoreDesc(String ns){

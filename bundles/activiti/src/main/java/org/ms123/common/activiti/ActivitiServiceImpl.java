@@ -85,6 +85,7 @@ public class ActivitiServiceImpl extends BaseActivitiServiceImpl implements Acti
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("ActivitiServiceImpl.deactivate");
 	}
 
 	public ProcessEngine getPE() {

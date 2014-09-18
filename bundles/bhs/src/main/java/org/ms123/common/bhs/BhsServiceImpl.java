@@ -97,7 +97,7 @@ public class BhsServiceImpl extends BaseBhsServiceImpl implements BhsService{
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("BhsServiceImpl deactivate");
 	}
 
 	private List<Map> getAssemblyByPath(StoreDesc sdesc, String className, String path) throws Exception{

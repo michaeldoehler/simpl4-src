@@ -93,7 +93,7 @@ public class ManagementServiceImpl implements ManagementService {
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("ManagementServiceImpl deactivate");
 	}
 
 	protected void sendEmail(String to, String from, String subject, String text) throws Exception {

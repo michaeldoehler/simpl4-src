@@ -77,6 +77,7 @@ public class EntityServiceImpl extends BaseEntityServiceImpl implements org.ms12
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("EntityServiceImpl deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/

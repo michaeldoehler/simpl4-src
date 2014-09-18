@@ -101,7 +101,7 @@ public class UtilsServiceImpl implements UtilsService {
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("UtilsServiceImpl deactivate");
 	}
 
 	public List<Map> mapToList(Map<String, Map> map, Map mapping, String filter) {

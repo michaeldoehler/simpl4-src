@@ -81,6 +81,7 @@ public class SettingServiceImpl extends BaseSettingServiceImpl implements org.ms
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("SettingServiceImpl deactivate");
 	}
 
 	private StoreDesc getStoreDesc(String namespace){

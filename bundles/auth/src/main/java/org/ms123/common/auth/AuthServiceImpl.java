@@ -83,7 +83,7 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 
 	protected void deactivate() throws Exception {
 		m_logger.info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("AuthServiceImpl deactivate");
 	}
 
 	private StoreDesc getStoreDesc(){

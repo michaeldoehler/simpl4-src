@@ -100,8 +100,8 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("NucleusServiceImpl.deactivate");
 		closeAll();
-		debug("NucleusServiceImpl.deactivate");
 	}
 	public void handleEvent(Event event) {
 		debug("NucleusServiceImpl.Event: " + event);

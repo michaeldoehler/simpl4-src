@@ -81,6 +81,7 @@ public class EnumerationServiceImpl implements EnumerationService {
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("EnumerationServiceImpl.deactivate");
 	}
 
 	private Map read(InputStream is,Map options) throws Exception {
