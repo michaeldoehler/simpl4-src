@@ -1,4 +1,6 @@
 @echo off
+if %3 == off goto:eof
+
 set SERVICE_NAME=Simpl4Service
 set SIMPL4DIR=%1
 set JETTYPORT=%2
@@ -28,7 +30,6 @@ set J=%J%#-Dkaraf.shell.init.script=%SIMPL4DIR%/etc/shell.init.script
 set J=%J%#-Dfelix.config.properties=file:felix/config.ini
 
 
-@echo off
 SC QUERY %SERVICE_NAME% | find "RUNNING" >nul
 IF %ERRORLEVEL% == 0 (
 	ECHO "Service is RUNNING.Stopping .."
@@ -36,14 +37,12 @@ IF %ERRORLEVEL% == 0 (
 )
 SC QUERY %SERVICE_NAME% | find "STOPPED" >nul
 IF %ERRORLEVEL% == 0 (
-	ECHO STOPPED
 	ECHO "Service is STOPPED.Removing .."
 	%SIMPL4DIR%\bin\%SERVICE_NAME%.exe //DS//%SERVICE_NAME%  
 )
 
 
-@echo on
-ECHO "Starting .."
+ECHO "Starting service.."
 %SIMPL4DIR%\bin\%SERVICE_NAME%.exe //IS//%SERVICE_NAME%  --StartPath=%SIMPL4DIR%\server --Description="Simpl4 Service" --Install=%SIMPL4DIR%\bin\%SERVICE_NAME%.exe --Jvm=%JVMDLL% --StartMode=jvm --StartClass=%LAUNCHER% --StartMethod=serviceStart --StopMode=jvm --StopClass=%LAUNCHER% --StopMethod=serviceStop --LogPath=%SIMPL4DIR%\log --StdOutput=auto --StdError=auto --Startup=auto ++JvmOptions=%J% --Classpath=%CP%
 %SIMPL4DIR%\bin\%SERVICE_NAME%.exe //ES//%SERVICE_NAME%  
 

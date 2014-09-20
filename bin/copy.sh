@@ -106,6 +106,7 @@ cp $SRCTOPDIR/bin/uninstallservice.bat $BINDIRECTORY
 cp    $SRCTOPDIR/etc/shell.init.script $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/users-init-script.sql $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/branding.example $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/logo.ico $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logging.config.tpl $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/config $ETCDIRECTORY/
