@@ -196,7 +196,7 @@ qx.Class.define("ms123.ckeditor.plugins.ContextMenu", {
 							e.init(domEvent.$);
 
 							// ... so we can use it to place the menu to the mouse position.
-							this._.menu.placeToMouse(e);
+							this._.menu.placeToPointer(e);
 
 							// Now show the context menu.
 							this._.menu.show();

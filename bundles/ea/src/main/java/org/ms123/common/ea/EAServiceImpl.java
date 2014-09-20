@@ -73,6 +73,7 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 	}
 
 	protected void deactivate() throws Exception {
+		info("EAServiceImpl deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/

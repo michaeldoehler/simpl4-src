@@ -106,7 +106,7 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 					focusable: false,
 					hideRoot: true,
 					keepFocus: true,
-					openMode: "click",
+					openMode: "tap",
 					height: null,
 					itemHeight: 20,
 					//width: null,

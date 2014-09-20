@@ -58,8 +58,8 @@ qx.Class.define("ms123.graphicaleditor.DraggableButton", {
 		// Toolbar buttons should not support the keyboard events
 		this.removeListener("keydown", this._onKeyDown);
 		this.removeListener("keyup", this._onKeyUp);
-		this.removeListener("mousedown", this._onMouseDown);
-		this.addListener("mousedown", this.__onMouseDown);
+		this.removeListener("pointerdown", this._onPointerDown);
+		this.addListener("pointerdown", this.__onPointerDown);
 	},
 
 
@@ -95,7 +95,7 @@ qx.Class.define("ms123.graphicaleditor.DraggableButton", {
 	 * ****************************************************************************
 	 */
 	members: {
-		__onMouseDown: function (e) {
+		__onPointerDown: function (e) {
 			if (!e.isLeftPressed()) {
 				return;
 			}

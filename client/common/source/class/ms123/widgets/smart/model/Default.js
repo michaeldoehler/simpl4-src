@@ -172,7 +172,7 @@ qx.Class.define("ms123.widgets.smart.model.Default", {
 			this.__table = table;
 
 			// Prevent resetting the selection upon header clicks
-			table.setResetSelectionOnHeaderClick(false);
+			table.setResetSelectionOnHeaderTap(false);
 		},
 
 		// This gets called when the view is changed or re-applied. It

@@ -172,7 +172,7 @@ qx.Class.define('ms123.ruleseditor.DecisionTable', {
 		},
 
 		_addListeners: function () {
-			this.getTable().addListener('cellClick', function (e) {
+			this.getTable().addListener('cellTap', function (e) {
 				var table = this.getTable();
 				var vartype=null;
 				var col = table.getFocusedColumn();
@@ -184,7 +184,7 @@ qx.Class.define('ms123.ruleseditor.DecisionTable', {
 				if( vartype == "boolean") table.startEditing();
 			}, this);
 
-			this.getTable().addListener('cellDblClick', function (e) {
+			this.getTable().addListener('cellDblTap', function (e) {
 				this.startEditing();
 			}, this.getTable());
 		}

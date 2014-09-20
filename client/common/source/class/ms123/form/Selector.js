@@ -179,7 +179,6 @@ qx.Class.define("ms123.form.Selector", {
 			gridConfig.user = this._user;
 			gridConfig.storeDesc = this._storeDesc;
 			var table = new ms123.widgets.Table(gridConfig);
-			//table.addListener("cellDblClick", this._onCellDblClick, this, false);
 			table.addListener("dblclick", this._onCellDblClick, this);
 			this._table = table;
 			return table;

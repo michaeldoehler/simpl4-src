@@ -87,9 +87,6 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 
 	public void handleException(UserTransaction ut, Throwable e) {
 		System.err.println("-> SessionManager.handleException:" + e);
-		if (e instanceof RuntimeException) {
-			throw (RuntimeException) e;
-		}
 		if (ut != null) {
 			if (!(e instanceof javax.transaction.RollbackException)) {
 				try {
@@ -101,6 +98,9 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 					e1.printStackTrace();
 				}
 			}
+		}
+		if (e instanceof RuntimeException) {
+			throw (RuntimeException) e;
 		}
 		System.err.println("\t:cause:" + e.getMessage());
 		while (e.getCause() != null) {

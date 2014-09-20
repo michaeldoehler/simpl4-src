@@ -102,7 +102,7 @@ qx.Class.define("ms123.form.ConstraintEdit", {
 //			colModel.setDataCellRenderer(this._colNumAnno-1 , colRenderer );
 			
 
-			table.getTable().addListener("cellClick", function(e) {
+			table.getTable().addListener("cellTap", function(e) {
 //  			this.startEditing();
 			}, table.getTable());
 		}

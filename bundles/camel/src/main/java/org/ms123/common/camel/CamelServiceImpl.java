@@ -86,8 +86,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelServi
 	}
 
 	protected void deactivate() throws Exception {
-		m_logger.info("deactivate");
-		info("deactivate");
+		info("CamelServiceImpl deactivate");
 	}
 
 

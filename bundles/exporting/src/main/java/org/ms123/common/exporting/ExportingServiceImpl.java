@@ -82,6 +82,7 @@ public class ExportingServiceImpl extends BaseExportingServiceImpl implements Ex
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("ExportingServiceImpl deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/

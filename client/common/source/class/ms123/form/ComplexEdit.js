@@ -146,7 +146,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 			};
 			var table = new qx.ui.table.Table(tableModel, customMap);
 			table.addListener("dataEdited", this._dataEditListener,this);
-			table.addListener("cellClick", this._onCellClick, this, false);
+			table.addListener("cellTap", this._onCellClick, this, false);
 			var selModel = table.getSelectionModel();
 			selModel.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
 			selModel.addListener("changeSelection", function (e) {
@@ -239,7 +239,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 					console.error("FieldEditor._createTable:" + data + " wrong value");
 				}
 			}
-			table.setFocusCellOnMouseMove(true);
+			table.setFocusCellOnPointerMove(true);
 
 			var selModel = table.getSelectionModel();
 			selModel.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);

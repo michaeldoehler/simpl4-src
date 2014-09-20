@@ -69,6 +69,7 @@ public class FormServiceImpl extends BaseFormServiceImpl implements FormService 
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("FormServiceImpl deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/

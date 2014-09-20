@@ -151,6 +151,7 @@ public class DomainObjectsServiceImpl implements DomainObjectsService, EventHand
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("DomainObjectsServiceImpl.deactivate");
 	}
 
 	//Old Stuff(SourceGen and Compile)

@@ -112,6 +112,7 @@ public class NamespaceServiceImpl implements NamespaceService {
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("NamespaceServiceImpl.deactivate");
 	}
 
 	private List<String> getStringList(List<Map> mInstList, String key) {

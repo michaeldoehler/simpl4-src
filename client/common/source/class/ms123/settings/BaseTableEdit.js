@@ -121,7 +121,7 @@ qx.Class.define("ms123.settings.BaseTableEdit", {
 		},
 		propagateTable: function (table) {
 			this._table = table;
-			table.getTable().addListener("cellClick", this._onCellClick, this);
+			table.getTable().addListener("cellTap", this._onCellClick, this);
 			table.getTable().addListener("dblclick", this._onDblClick, this);
 		},
 		prepareColumns: function (columns) {

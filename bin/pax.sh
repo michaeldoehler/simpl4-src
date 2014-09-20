@@ -203,46 +203,46 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.ssh-2.3.0.jar \
 	scan-bundle:file:$REPOSITORY/org.eclipse.jgit-2.1.0.201209190230-r.bar \
 	scan-bundle:file:$REPOSITORY/org.json_2.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.auth-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.auth.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.data-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.data.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.form-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.libhelper-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.store-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.domainobjects-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.message-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.ea-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.bhs-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.entity-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.entity.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.enumeration-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.namespace-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.exporting-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.git-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.rpc-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.importing-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.datamapper-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.jetty-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.nucleus-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.nucleus.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.reporting-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.setting-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.setting.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.permission-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.permission.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.system-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.team-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.team.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.utils-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.management-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.stencil.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.workflow-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.workflow.api-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.activiti-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.camel-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.docbook-1.0.0.jar \
-  scan-bundle:file:$BUNDLESBUILD/$CURRENTBRANCH/org.ms123.common.smtp-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.data-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.data.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.form-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.libhelper-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.store-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.domainobjects-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.message-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.ea-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.bhs-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.entity-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.entity.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.enumeration-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.namespace-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.exporting-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.git-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.rpc-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.importing-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.datamapper-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.jetty-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.nucleus-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.nucleus.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.reporting-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.setting-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.setting.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.permission-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.permission.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.system-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.team-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.team.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.utils-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.management-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.stencil.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.workflow-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.workflow.api-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.activiti-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.camel-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.docbook-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.3.1.jar \
@@ -295,6 +295,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
 	scan-bundle:file:$REPOSITORY/spring-tx-3.1.4.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/spring-jdbc-3.1.4.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
@@ -310,6 +311,7 @@ ${localbundles} \
 rm -f $SRCTOPDIR/etc/felix.xml 
 sed -i "s/javax.transaction.xa/dummy/g" $SERVERDIR/felix/config.ini
 sed -i "s/javax.transaction/dummy/g" $SERVERDIR/felix/config.ini
+sed -i "s/,javax.sql,/,dummy,/g" $SERVERDIR/felix/config.ini
 chmod +x $SERVERDIR/run.sh
 
 sed -i 's/startLocalConsole=true/startLocalConsole=$START_CONSOLE/' $SERVERDIR/run.sh

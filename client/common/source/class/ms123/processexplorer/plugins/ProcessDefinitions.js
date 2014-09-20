@@ -166,7 +166,7 @@ console.log("id:"+id);
 			};
 			var table = new qx.ui.table.Table(this._tableModel, customMap);
 			table.highlightFocusedRow(false);
-			table.addListener("cellClick", this.onCellClick, this, false);
+			table.addListener("cellTap", this.onCellClick, this, false);
 			var tcm = table.getTableColumnModel();
 
 

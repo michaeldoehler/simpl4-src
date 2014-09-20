@@ -216,7 +216,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			this._tableInstance = table;
 			var tcm = table.getTableColumnModel();
 
-			table.addListener("cellClick", function (e) {
+			table.addListener("cellTap", function (e) {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				//if( colnum != 2 ) return;

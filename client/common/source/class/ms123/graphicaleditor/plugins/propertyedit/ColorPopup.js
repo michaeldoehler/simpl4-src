@@ -51,7 +51,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ColorPopup", {
 		this.add(this._button);
 
 		this._button.addListener("mousedown", function (e) {
-			this._colorPopup.placeToMouse(e)
+			this._colorPopup.placeToPointer(e)
 			this._colorPopup.show();
 		}, this);
 

@@ -138,7 +138,7 @@ public class GitServiceImpl implements GitService {
 
 	protected void deactivate() throws Exception {
 		info("deactivate");
-		System.out.println("deactivate");
+		System.out.println("GitServiceImpl deactivate");
 	}
 
 	public String getFileContent(String repoName, String path) throws Exception {

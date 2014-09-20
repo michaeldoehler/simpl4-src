@@ -533,7 +533,7 @@ debug("getFileResource:"+fr);
 	}
 
 	protected void deactivate() throws Exception {
-		info("deactivate");
+		info("JettyServiceImpl deactivate");
 		m_server.stop();
 	}
 

@@ -193,7 +193,7 @@ qx.Class.define("ms123.GlobalSearch", {
 				var map = list[i];
 				tableModel.addRowsAsMapArray([map], null, true);
 			}
-			table.addListener("cellClick", this._tableCellEvents, this);
+			table.addListener("cellTap", this._tableCellEvents, this);
 			return table;
 		},
 		_tableCellEvents: function (e) {

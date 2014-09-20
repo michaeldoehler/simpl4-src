@@ -1,5 +1,5 @@
 @echo off
-setx SIMPL4DIR %CD%
-set SIMPL4DIR=%CD%
-bin\bash.exe bin\setup.sh
+setx SIMPL4DIR %1
+set SIMPL4DIR=%1
+%1\bin\bash.exe %1\bin\setup.sh %1 %2
 

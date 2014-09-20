@@ -77,6 +77,7 @@ public class ReportingServiceImpl implements ReportingService {
 	}
 
 	protected void deactivate(ComponentContext context) {
+		System.out.println("ReportingServiceImpl.deactivate");
 	}
 
 	public String generateReport(Collection<Map> data, List<String> fieldsArray, List<String> aliasesArray, Map configMap, String type, Map options, OutputStream outputStream) throws Exception {

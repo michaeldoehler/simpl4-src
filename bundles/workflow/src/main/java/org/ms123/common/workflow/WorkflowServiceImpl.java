@@ -116,12 +116,14 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 	protected ProcessEngineFactory m_processEngineFactory;
+	private DataSource m_dataSource;
 
 	private String m_namespace;
 
 	private String m_workspace;
 
 	private ProcessEngine m_processEngine = null;
+	private ShiroJobExecutor m_shiroJobExecutor;
 
 	private EventAdmin m_eventAdmin;
 
@@ -172,8 +174,15 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		m_bundleContext.registerService(EventHandler.class.getName(), this, d);
 	}
 
-	protected void deactivate(ComponentContext context) {
+	protected void deactivate() {
 		System.out.println("WorkflowServiceImpl.deactivate");
+		m_shiroJobExecutor.shutdown();
+		if( m_processEngine != null){
+			m_processEngine.close();
+		}
+		((DataSourceWrapper)m_dataSource).destroy();
+		h2Close(m_dataSource);
+		m_dataSource = null;
 	}
 
 	private ClassLoader createFsClassLoader1(){
@@ -195,12 +204,14 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		return m_processEngine;
 	}
 
-	private static DataSource getDataSource(String url){
-		org.h2.jdbcx.JdbcDataSource xa = new org.h2.jdbcx.JdbcDataSource();
-		xa.setUser("sa");
-		xa.setPassword("");
-		xa.setURL(url);
-		return xa;
+	private DataSource getDataSource(String url){
+		if( m_dataSource!=null) return m_dataSource;
+		org.h2.jdbcx.JdbcDataSource ds = new org.h2.jdbcx.JdbcDataSource();
+		ds.setUser("sa");
+		ds.setPassword("");
+		ds.setURL(url);
+		m_dataSource = new DataSourceWrapper(ds);
+		return m_dataSource;
 	}
 	private SpringProcessEngineConfiguration initProcessEngine(BundleContext bundleContext) {
 		SpringProcessEngineConfiguration c = m_processEngineConfiguration;
@@ -220,8 +231,8 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		c.setDatabaseSchemaUpdate("true");
 		c.setJdbcMaxActiveConnections(100);
 		c.setJdbcMaxIdleConnections(25);
-		ShiroJobExecutor shiroJobExecutor = new ShiroJobExecutor(c.getBeans());
-		c.setJobExecutor(shiroJobExecutor);
+		m_shiroJobExecutor = new ShiroJobExecutor(c.getBeans());
+		c.setJobExecutor(m_shiroJobExecutor);
 
 		c.setClassLoader(createFsClassLoader1());
 		c.setJobExecutorActivate(true);
@@ -251,7 +262,7 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 			//c.getBeans().put(CamelService.CAMEL_SERVICE, m_camelService);
 			c.getBeans().put(PermissionService.PERMISSION_SERVICE, m_permissionService);
 			exManager.setProcessEngine(m_processEngine);
-			shiroJobExecutor.setProcessEngine(m_processEngine);
+			m_shiroJobExecutor.setProcessEngine(m_processEngine);
 		} catch (Exception e) {
 			m_logger.error("WorkflowServiceImpl.activate.initProcessEngine", e);
 			e.printStackTrace();
@@ -439,6 +450,21 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		return o;
 	}
 
+	public synchronized void h2Close(DataSource ds) {
+		java.sql.Connection conn = null;
+		try {
+			conn = ds.getConnection();
+			java.sql.Statement stat = conn.createStatement();
+			stat.execute("shutdown compact");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (Exception e) {
+			}
+		}
+	}
 
 	/* BEGIN JSON-RPC-API*/
 	@RequiresRoles("admin")

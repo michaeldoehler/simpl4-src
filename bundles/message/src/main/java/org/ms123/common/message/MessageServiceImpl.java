@@ -81,6 +81,7 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	protected void deactivate() throws Exception {
+		System.out.println("MessageServiceImpl.deactivate");
 	}
 
 	/* BEGIN JSON-RPC-API*/
