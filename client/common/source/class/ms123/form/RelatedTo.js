@@ -134,7 +134,9 @@ qx.Class.define("ms123.form.RelatedTo", {
 				control.setKeepActive(true);
 				control.addState("inner");
 				control.set({
-					decorator: "main"
+					decorator: "main",
+					padding: 2,
+					minWidth: 12
 				});
 				this._add(control);
 				break;
