@@ -1083,6 +1083,7 @@ qx.Class.define("ms123.oryx.Editor", {
 		},
 
 		catchKeyUpEvents: function (event) {
+			if (!this._isFocused()) return;
 			if (!this._isSeeable()) return;
 			if (!this._keyupEnabled) {
 				return;
