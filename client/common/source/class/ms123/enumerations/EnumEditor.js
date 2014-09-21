@@ -125,6 +125,7 @@ qx.Class.define("ms123.enumerations.EnumEditor", {
 			var gridConfig = {};
 			gridConfig.isMaster = true;
 			gridConfig.config = "enumfield";
+			gridConfig.loadBeforeEdit = false;
 			gridConfig.toolbar = new ms123.enumerations.EnumToolbar({save:this.__saveEnum.bind(this)});
 			var cm = new ms123.config.ConfigManager();
 			gridConfig.model = cm.getEntityModel("enumfield", ms123.StoreDesc.getGlobalMetaStoreDesc(), "main-grid", gridProps);
