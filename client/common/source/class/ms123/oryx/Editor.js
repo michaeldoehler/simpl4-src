@@ -126,7 +126,14 @@ qx.Class.define("ms123.oryx.Editor", {
 	/******************************************************************************
 	 PROPERTIES
 	 ******************************************************************************/
-	properties: {},
+	properties: {
+    // overridden
+    focusable :
+    {
+      refine : true,
+      init : true
+    }
+	},
 
 	/******************************************************************************
 	 MEMBERS
@@ -1068,6 +1075,13 @@ qx.Class.define("ms123.oryx.Editor", {
 			return false;
 		},
 
+		_isFocused:function(){
+			var fh = qx.ui.core.FocusHandler.getInstance()
+			var isFocused = fh.isFocused(this);
+			console.log("catchKeyDownEvents:"+isFocused+"/"+fh.getFocusedWidget());
+			return isFocused;
+		},
+
 		catchKeyUpEvents: function (event) {
 			if (!this._isSeeable()) return;
 			if (!this._keyupEnabled) {
@@ -1084,6 +1098,8 @@ qx.Class.define("ms123.oryx.Editor", {
 		},
 
 		catchKeyDownEvents: function (event) {
+	
+			if (!this._isFocused()) return;
 			if (!this._isSeeable()) return;
 			if (!this._keydownEnabled) {
 				return;
