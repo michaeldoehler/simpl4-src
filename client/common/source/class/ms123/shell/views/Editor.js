@@ -192,7 +192,8 @@ qx.Class.define("ms123.shell.views.Editor", {
 			this._realEditor = re;
 			re.addListener("save", function(e){
 				var data = e.getData();
-				this._saveContent( model, "stencil", data);
+				data = qx.lang.Json.parse(data);
+				this._saveStencil( model, data);
 			}, this);
 			return re;
 		},
@@ -266,6 +267,34 @@ qx.Class.define("ms123.shell.views.Editor", {
 			var params = {
 				method:"putContent",
 				service:"git",
+				parameter:rpcParams,
+				async: false,
+				context: this,
+				completed: completed,
+				failed: failed
+			}
+			ms123.util.Remote.rpcAsync(params);
+		},
+		_saveStencil: function (model, content) {
+			var path = model.getPath();
+			var completed = (function (e) {
+				ms123.form.Dialog.alert(this.tr("shell.stencil_saved"));
+			}).bind(this);
+
+			var failed = (function (e) {
+				ms123.form.Dialog.alert(this.tr("shell.stencil_save_failed")+":"+e.message);
+			}).bind(this);
+
+			var rpcParams = {
+				namespace:this.facade.storeDesc.getNamespace(),
+				name:path,
+				type:model.getType(),
+				data: content
+			};
+
+			var params = {
+				method:"saveAddonStencil",
+				service:"stencil",
 				parameter:rpcParams,
 				async: false,
 				context: this,

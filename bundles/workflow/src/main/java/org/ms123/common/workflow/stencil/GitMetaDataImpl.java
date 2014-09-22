@@ -78,16 +78,24 @@ class GitMetaDataImpl implements MetaData {
 	}
 
 	public Map<String, Object> getAddonStencil(String namespace, String name) throws Exception {
-		String ret = m_gitService.getContent(namespace, format(STENCIL_PATH, name));
+		String ret = m_gitService.getContent(namespace, format(STENCIL_PATH, baseName(name)));
 		return (Map) m_ds.deserialize(ret);
 	}
 
 	public void saveAddonStencil(String namespace, String name, Map<String, Object> desc) throws Exception {
-		m_gitService.putContent(namespace, format(STENCIL_PATH, name), STENCIL_TYPE, m_js.deepSerialize(desc));
+		m_gitService.putContent(namespace, format(STENCIL_PATH, baseName(name)), STENCIL_TYPE, m_js.deepSerialize(desc));
+	}
+	
+	private String baseName(String name){
+		int index = name.lastIndexOf("/");
+		if( index != -1){
+			name = name.substring(index+1);
+		}
+		return name;
 	}
 
 	public void deleteAddonStencil(String namespace, String name) throws Exception {
-		m_gitService.deleteObject(namespace, format(STENCIL_PATH, name));
+		m_gitService.deleteObject(namespace, format(STENCIL_PATH, baseName(name)));
 	}
 
 	public String getStencilView(String ssname, String viewpath) throws Exception {

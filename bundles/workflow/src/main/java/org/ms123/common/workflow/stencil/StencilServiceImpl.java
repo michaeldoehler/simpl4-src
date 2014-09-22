@@ -96,6 +96,9 @@ public class StencilServiceImpl extends BaseStencilServiceImpl implements org.ms
 			@PName("data")             Map data) throws RpcException {
 		try {
 			m_gitMetaData.saveAddonStencil(namespace, name, data);
+			List sList = new ArrayList();
+			sList.add( name);
+			_generateClasses(namespace,sList);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "StencilServiceImpl.saveStencil:", e);
 		} finally {
