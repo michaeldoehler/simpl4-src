@@ -126,14 +126,13 @@ class BaseDocbookServiceImpl {
 		db.toDocbook(namespace, json, out, paramsIn, paramsOut);
 	}
 
-	protected void websiteStart(String serverName, String namespace, String name, OutputStream out) throws Exception {
+	protected void websiteStart(String serverName, String namespace, String name, OutputStream out,String uri) throws Exception {
 		String json = m_gitService.searchContent(namespace, name, "sw.website");
 		WebsiteBuilder hb = new WebsiteBuilder(m_dataLayer, m_bc);
 		
 		String userAgent = org.ms123.common.system.ThreadContext.getThreadContext().getUserAgent().toString().toLowerCase();
 		String sua = org.ms123.common.system.ThreadContext.getThreadContext().getStringUserAgent().toLowerCase();
-		System.out.println("userAgent:"+userAgent);
-		System.out.println("sua:"+sua);
+		System.out.println("userAgent:"+userAgent+"/sua:"+sua+"/uri:"+uri);
 		if( userAgent.indexOf("bot") != -1 
 				|| userAgent.indexOf("crawler") != -1
 				|| sua.indexOf("google-site-verification") != -1
@@ -141,8 +140,12 @@ class BaseDocbookServiceImpl {
 				|| sua.indexOf("googlebot") != -1
 				|| sua.indexOf("w3c_validator") != -1
 			){
-			System.out.println("deliver_index:"+sua);
-			File indexFile = new File(System.getProperty("workspace"),"index.html"); //Zum testen
+			String indexFileName = "index.html";
+			if( uri.length() > 1 && uri.startsWith("/sw/website/mainpage-en")){ //@@@Bullshit
+				indexFileName = "index_en.html";
+			}
+			System.out.println("DeliverGooglePage:"+sua+"/page:"+indexFileName);
+			File indexFile = new File(System.getProperty("workspace"),indexFileName); 
 			if( indexFile.exists()){
 				copy(new FileInputStream(indexFile), out);
 				out.close();

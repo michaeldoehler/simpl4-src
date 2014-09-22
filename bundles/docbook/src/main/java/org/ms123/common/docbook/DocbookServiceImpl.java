@@ -112,7 +112,7 @@ public class DocbookServiceImpl extends BaseDocbookServiceImpl implements Docboo
 			String serverName = request.getServerName();
 
 			//response.setContentType("text/html; charset=utf-8");
-			websiteStart(serverName,namespace, name, response.getOutputStream());
+			websiteStart(serverName,namespace, name, response.getOutputStream(), request.getRequestURI());
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.getOutputStream().close();
 			System.out.println("website.dauer:"+( new java.util.Date().getTime()-starttime));
