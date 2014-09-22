@@ -50,32 +50,32 @@ qx.Class.define("ms123.graphicaleditor.plugins.Arrangement", {
 		}
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Arrangement.am,
+			'name': this.tr("ge.Arrangement.am"),
 			'functionality': this.alignShapes.bind(this, [config.arrangment_am]),
-			'group': ms123.oryx.Translation.Arrangement.groupA,
+			'group': this.tr("ge.Arrangement.groupA"),
 			'icon': this.__getResourceUrl("shape_align_middle.png"),
-			'description': ms123.oryx.Translation.Arrangement.amDesc,
+			'description': this.tr("ge.Arrangement.amDesc"),
 			'index': 1,
 			'minShape': 2
 		});
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Arrangement.ac,
+			'name': this.tr("ge.Arrangement.ac"),
 			'functionality': this.alignShapes.bind(this, [config.arrangment_ac]),
-			'group': ms123.oryx.Translation.Arrangement.groupA,
+			'group': this.tr("ge.Arrangement.groupA"),
 			'icon': this.__getResourceUrl("shape_align_center.png"),
-			'description': ms123.oryx.Translation.Arrangement.acDesc,
+			'description': this.tr("ge.Arrangement.acDesc"),
 			'index': 2,
 			'minShape': 2
 		});
 
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Arrangement.as,
+			'name': this.tr("ge.Arrangement.as"),
 			'functionality': this.alignShapes.bind(this, [ms123.oryx.Config.EDITOR_ALIGN_SIZE]),
-			'group': ms123.oryx.Translation.Arrangement.groupA,
+			'group': this.tr("ge.Arrangement.groupA"),
 			'icon': this.__getResourceUrl("shape_align_size.png"),
-			'description': ms123.oryx.Translation.Arrangement.asDesc,
+			'description': this.tr("ge.Arrangement.asDesc"),
 			'index': 3,
 			'minShape': 2
 		});

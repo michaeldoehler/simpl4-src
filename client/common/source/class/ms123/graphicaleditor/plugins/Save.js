@@ -38,33 +38,33 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 		this.editorType = main.context.editorType;
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Save.save,
+			'name': this.tr("ge.Save.save"),
 			'functionality': this.save.bind(this, false),
-			'group': ms123.oryx.Translation.Save.group,
+			'group': this.tr("ge.Save.group"),
 			'icon': this.__getResourceUrl("disk.png"),
-			'description': ms123.oryx.Translation.Save.saveDesc,
+			'description': this.tr("ge.Save.saveDesc"),
 			'index': 1,
 			'minShape': 0,
 			'maxShape': 0
 		});
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Save.showJson,
+			'name': this.tr("ge.Save.showJson"),
 			'functionality': this.showJson.bind(this),
-			'group': ms123.oryx.Translation.Save.group,
+			'group': this.tr("ge.Save.group"),
 			'icon': this.__getResourceUrl("json.png"),
-			'description': ms123.oryx.Translation.Save.showJsonDesc,
+			'description': this.tr("ge.Save.showJsonDesc"),
 			'index': 2,
 			'minShape': 0,
 			'maxShape': 0
 		});
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.Save.renewResourceIds,
+			'name': this.tr("ge.Save.renewResourceIds"),
 			'functionality': this.renewResourceIds.bind(this),
-			'group': ms123.oryx.Translation.Save.group,
+			'group': this.tr("ge.Save.group"),
 			'icon': "icon/16/actions/object-rotate-right.png",
-			'description': ms123.oryx.Translation.Save.renewResourceIdsDesc,
+			'description': this.tr("ge.Save.renewResourceIdsDesc"),
 			'index': 3,
 			'minShape': 0,
 			'maxShape': 0
@@ -72,21 +72,21 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 
 		if( this.editorType == "sw.process" ){
 			this.facade.offer({
-				'name': ms123.oryx.Translation.Save.deploy,
+				'name': this.tr("ge.Save.deploy"),
 				'functionality': this.deploy.bind(this, false),
-				'group': ms123.oryx.Translation.Save.group,
+				'group': this.tr("ge.Save.group"),
 				'icon': "icon/16/actions/media-playback-start.png",
-				'description': ms123.oryx.Translation.Save.deploy,
+				'description': this.tr("ge.Save.deploy"),
 				'index': 4,
 				'minShape': 0,
 				'maxShape': 0
 			});
 			this.facade.offer({
-				'name': ms123.oryx.Translation.Save.undeploy,
+				'name': this.tr("ge.Save.undeploy"),
 				'functionality': this.undeploy.bind(this, false),
-				'group': ms123.oryx.Translation.Save.group,
+				'group': this.tr("ge.Save.group"),
 				'icon': "icon/16/actions/media-playback-stop.png",
-				'description': ms123.oryx.Translation.Save.undeploy,
+				'description': this.tr("ge.Save.undeploy"),
 				'index': 5,
 				'minShape': 0,
 				'maxShape': 0
@@ -96,7 +96,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			this.facade.offer({
 				'name': this.tr("graphicaleditor.plugins.save.formtest"),
 				'functionality': this.formTest.bind(this),
-				'group': ms123.oryx.Translation.Save.group,
+				'group': this.tr("ge.Save.group"),
 				'icon': "icon/16/actions/check-spelling.png",
 				'description': "Formtest",
 				'index': 4,
@@ -109,7 +109,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			this.facade.offer({
 				'name': this.tr("graphicaleditor.plugins.save.doctest"),
 				'functionality': this.documentTest.bind(this),
-				'group': ms123.oryx.Translation.Save.group,
+				'group': this.tr("ge.Save.group"),
 				'icon': "icon/16/actions/check-spelling.png",
 				'description': "Documenttest",
 				'index': 4,
@@ -230,7 +230,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 		save: function () {
 			this.facade.raiseEvent({
 				type: ms123.oryx.Config.EVENT_LOADING_ENABLE,
-				text: ms123.oryx.Translation.Save.saving
+				text: this.tr("ge.Save.saving")
 			});
 
 			var json = this.facade.getJSON();

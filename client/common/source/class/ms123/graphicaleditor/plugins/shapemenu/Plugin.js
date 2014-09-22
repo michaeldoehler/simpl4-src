@@ -24,6 +24,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 	extend: ms123.oryx.core.AbstractPlugin,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -158,7 +159,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 						align: ms123.oryx.Config.SHAPEMENU_RIGHT,
 						group: 0,
 						//dragcallback: this.hideShapeMenu.bind(this),
-						msg: stencil.title() + " - " + ms123.oryx.Translation.ShapeMenuPlugin.clickDrag
+						msg: stencil.title() + " - " + this.tr("ge.ShapeMenuPlugin.clickDrag")
 					});
 
 					// Add button to shape menu
@@ -202,7 +203,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 						align: ms123.oryx.Config.SHAPEMENU_RIGHT,
 						group: 1,
 						//dragcallback: this.hideShapeMenu.bind(this),
-						msg: (isMorphing ? ms123.oryx.Translation.Edge : stencil.title()) + " - " + ms123.oryx.Translation.ShapeMenuPlugin.drag
+						msg: (isMorphing ? this.tr("ge.Edge") : stencil.title()) + " - " + this.tr("ge.ShapeMenuPlugin.drag")
 					});
 
 					// Add button to shape menu
@@ -245,7 +246,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 				icon: this.__getResourceUrl('wrench_orange.png'),
 				align: ms123.oryx.Config.SHAPEMENU_BOTTOM,
 				group: 0,
-				msg: ms123.oryx.Translation.ShapeMenuPlugin.morphMsg
+				msg: this.tr("ge.ShapeMenuPlugin.morphMsg")
 			});
 
 			this.shapeMenu.setNumberOfButtonsPerLevel(ms123.oryx.Config.SHAPEMENU_BOTTOM, 1)

@@ -26,6 +26,7 @@
 */
 qx.Class.define("ms123.oryx.core.stencilset.Property", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -111,7 +112,7 @@ qx.Class.define("ms123.oryx.core.stencilset.Property", {
 		}
 
 		if (!jsonProp.dateFormat) {
-			jsonProp.dateFormat = ms123.oryx.Translation.PropertyWindow.dateFormat || "m/d/y";
+			jsonProp.dateFormat = this.tr("ge.PropertyWindow.dateFormat") || "m/d/y";
 		}
 
 		if (!jsonProp.fill) {

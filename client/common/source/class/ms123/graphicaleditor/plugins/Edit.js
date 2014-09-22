@@ -23,6 +23,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -33,8 +34,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 		this.clipboard = new ms123.graphicaleditor.plugins.EditClipBoard();
 
 		this.facade.offer({
-			name: ms123.oryx.Translation.Edit.cut,
-			description: ms123.oryx.Translation.Edit.cutDesc,
+			name: this.tr("ge.Edit.cut"),
+			description: this.tr("ge.Edit.cutDesc"),
 			icon: this.__getResourceUrl("cut.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -42,14 +43,14 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 				keyAction: ms123.oryx.Config.KEY_ACTION_DOWN
 			}],
 			functionality: this.callEdit.bind(this, this.editCut),
-			group: ms123.oryx.Translation.Edit.group,
+			group: this.tr("ge.Edit.group"),
 			index: 1,
 			minShape: 1
 		});
 
 		this.facade.offer({
-			name: ms123.oryx.Translation.Edit.copy,
-			description: ms123.oryx.Translation.Edit.copyDesc,
+			name: this.tr("ge.Edit.copy"),
+			description: this.tr("ge.Edit.copyDesc"),
 			icon: this.__getResourceUrl("page_copy.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -57,14 +58,14 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 				keyAction: ms123.oryx.Config.KEY_ACTION_DOWN
 			}],
 			functionality: this.callEdit.bind(this, this.editCopy, [true, false]),
-			group: ms123.oryx.Translation.Edit.group,
+			group: this.tr("ge.Edit.group"),
 			index: 2,
 			minShape: 1
 		});
 
 		this.facade.offer({
-			name: ms123.oryx.Translation.Edit.paste,
-			description: ms123.oryx.Translation.Edit.pasteDesc,
+			name: this.tr("ge.Edit.paste"),
+			description: this.tr("ge.Edit.pasteDesc"),
 			icon: this.__getResourceUrl("page_paste.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -73,15 +74,15 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 			}],
 			functionality: this.callEdit.bind(this, this.editPaste),
 			isEnabled: this.clipboard.isOccupied.bind(this.clipboard),
-			group: ms123.oryx.Translation.Edit.group,
+			group: this.tr("ge.Edit.group"),
 			index: 3,
 			minShape: 0,
 			maxShape: 0
 		});
 
 		this.facade.offer({
-			name: ms123.oryx.Translation.Edit.del,
-			description: ms123.oryx.Translation.Edit.delDesc,
+			name: this.tr("ge.Edit.del"),
+			description: this.tr("ge.Edit.delDesc"),
 			icon: this.__getResourceUrl("cross.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -93,7 +94,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 				keyAction: ms123.oryx.Config.KEY_ACTION_DOWN
 			}],
 			functionality: this.callEdit.bind(this, this.editDelete),
-			group: ms123.oryx.Translation.Edit.group,
+			group: this.tr("ge.Edit.group"),
 			index: 4,
 			minShape: 1
 		});

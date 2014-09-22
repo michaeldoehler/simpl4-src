@@ -45,11 +45,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.SyntaxChecker", {
 		this.raisedEventIds = [];
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.SyntaxChecker.name,
+			'name': this.tr("ge.SyntaxChecker.name"),
 			'functionality': this.perform.bind(this),
-			'group': ms123.oryx.Translation.SyntaxChecker.group,
+			'group': this.tr("ge.SyntaxChecker.group"),
 			'icon': this.__getResourceUrl("checker_syntax.png"),
-			'description': ms123.oryx.Translation.SyntaxChecker.desc,
+			'description': this.tr("ge.SyntaxChecker.desc"),
 			'index': 0,
 			'toggle': true,
 			'minShape': 0,
@@ -95,17 +95,17 @@ qx.Class.define("ms123.graphicaleditor.plugins.SyntaxChecker", {
 						this.setActivated(false);
 						this.facade.raiseEvent({
 							type: ms123.oryx.Config.EVENT_LOADING_STATUS,
-							text: ms123.oryx.Translation.SyntaxChecker.noErrors,
+							text: this.tr("ge.SyntaxChecker.noErrors"),
 							timeout: 10000
 						});
-						//Ext.Msg.alert(ms123.oryx.Translation.Oryx.title, ms123.oryx.Translation.SyntaxChecker.noErrors);
+						//Ext.Msg.alert(this.tr("ge.Oryx.title"), this.tr("ge.SyntaxChecker.noErrors"));
 					}).bind(this),
 					onErrors: (function () {
 						this.enableDeactivationHandler(button);
 					}).bind(this),
 					onFailure: (function () {
 						this.setActivated(false);
-						//Ext.Msg.alert(ms123.oryx.Translation.Oryx.title, ms123.oryx.Translation.SyntaxChecker.invalid);
+						//Ext.Msg.alert(this.tr("ge.Oryx.title"), this.tr("ge.SyntaxChecker.invalid"));
 					}).bind(this)
 				});
 			}
@@ -211,7 +211,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.SyntaxChecker", {
 			//show a status message with a hint to the error messages in the tooltip
 			this.facade.raiseEvent({
 				type: ms123.oryx.Config.EVENT_LOADING_STATUS,
-				text: ms123.oryx.Translation.SyntaxChecker.notice,
+				text: this.tr("ge.SyntaxChecker.notice"),
 				timeout: 10000
 			});
 		},
@@ -230,7 +230,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.SyntaxChecker", {
 		},
 
 		parseSingleCodeToMsg: function (code) {
-			return ms123.oryx.Translation.SyntaxChecker[code] || code;
+			return this.tr("ge.SyntaxChecker")[code] || code;
 		},
 		/**
 		 * Resets all (displayed) errors

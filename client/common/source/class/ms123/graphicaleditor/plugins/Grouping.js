@@ -28,6 +28,7 @@
 */
 qx.Class.define("ms123.graphicaleditor.plugins.Grouping", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 
 	/******************************************************************************
 	 CONSTRUCTOR
@@ -37,21 +38,21 @@ qx.Class.define("ms123.graphicaleditor.plugins.Grouping", {
 		this.facade = facade;
 
 		this.facade.offer({
-			'name':ms123.oryx.Translation.Grouping.group,
+			'name':this.tr("ge.Grouping.group"),
 			'functionality': this.createGroup.bind(this),
-			'group': ms123.oryx.Translation.Grouping.grouping,
+			'group': this.tr("ge.Grouping.grouping"),
 			'icon': this.__getResourceUrl("shape_group.png"),
-			'description': ms123.oryx.Translation.Grouping.groupDesc,
+			'description': this.tr("ge.Grouping.groupDesc"),
 			'index': 1,
 			'minShape': 2,
 			'isEnabled': this.isEnabled.bind(this, false)});
 
 		this.facade.offer({
-			'name':ms123.oryx.Translation.Grouping.ungroup,
+			'name':this.tr("ge.Grouping.ungroup"),
 			'functionality': this.deleteGroup.bind(this),
-			'group': ms123.oryx.Translation.Grouping.grouping,
+			'group': this.tr("ge.Grouping.grouping"),
 			'icon': + this.__getResourceUrl("shape_ungroup.png"),
-			'description': ms123.oryx.Translation.Grouping.ungroupDesc,
+			'description': this.tr("ge.Grouping.ungroupDesc"),
 			'index': 2,
 			'minShape': 2,
 			'isEnabled': this.isEnabled.bind(this, true)});

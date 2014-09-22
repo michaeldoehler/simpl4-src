@@ -24,6 +24,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.View", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -55,11 +56,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.View", {
 
 		/* Register zoom in */
 		this.facade.offer({
-			'name': ms123.oryx.Translation.View.zoomIn,
+			'name': this.tr("ge.View.zoomIn"),
 			'functionality': this.zoom.bind(this, [1.0 + ms123.oryx.Config.ZOOM_OFFSET]),
-			'group': ms123.oryx.Translation.View.group,
+			'group': this.tr("ge.View.group"),
 			'icon': this.__getResourceUrl("magnifier_zoom_in.png"),
-			'description': ms123.oryx.Translation.View.zoomInDesc,
+			'description': this.tr("ge.View.zoomInDesc"),
 			'index': 1,
 			'minShape': 0,
 			'maxShape': 0,
@@ -70,11 +71,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.View", {
 
 		/* Register zoom out */
 		this.facade.offer({
-			'name': ms123.oryx.Translation.View.zoomOut,
+			'name': this.tr("ge.View.zoomOut"),
 			'functionality': this.zoom.bind(this, [1.0 - ms123.oryx.Config.ZOOM_OFFSET]),
-			'group': ms123.oryx.Translation.View.group,
+			'group': this.tr("ge.View.group"),
 			'icon': this.__getResourceUrl("magnifier_zoom_out.png"),
-			'description': ms123.oryx.Translation.View.zoomOutDesc,
+			'description': this.tr("ge.View.zoomOutDesc"),
 			'index': 2,
 			'minShape': 0,
 			'maxShape': 0,
@@ -85,12 +86,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.View", {
 
 		/* Register zoom standard */
 		this.facade.offer({
-			'name': ms123.oryx.Translation.View.zoomStandard,
+			'name': this.tr("ge.View.zoomStandard"),
 			'functionality': this.setAFixZoomLevel.bind(this, 1),
-			'group': ms123.oryx.Translation.View.group,
+			'group': this.tr("ge.View.group"),
 			'icon': this.__getResourceUrl("zoom_standard.png"),
 			'cls': 'icon-large',
-			'description': ms123.oryx.Translation.View.zoomStandardDesc,
+			'description': this.tr("ge.View.zoomStandardDesc"),
 			'index': 3,
 			'minShape': 0,
 			'maxShape': 0,
@@ -101,11 +102,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.View", {
 
 		/* Register zoom fit to model */
 		this.facade.offer({
-			'name': ms123.oryx.Translation.View.zoomFitToModel,
+			'name': this.tr("ge.View.zoomFitToModel"),
 			'functionality': this.zoomFitToModel.bind(this),
-			'group': ms123.oryx.Translation.View.group,
+			'group': this.tr("ge.View.group"),
 			'icon': this.__getResourceUrl("image.png"),
-			'description': ms123.oryx.Translation.View.zoomFitToModelDesc,
+			'description': this.tr("ge.View.zoomFitToModelDesc"),
 			'index': 4,
 			'minShape': 0,
 			'maxShape': 0

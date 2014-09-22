@@ -24,6 +24,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.Undo", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -35,8 +36,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.Undo", {
 		this.redoStack = [];
 		// Offers the functionality of undo                
 		this.facade.offer({
-			name: ms123.oryx.Translation.Undo.undo,
-			description: ms123.oryx.Translation.Undo.undoDesc,
+			name: this.tr("ge.Undo.undo"),
+			description: this.tr("ge.Undo.undoDesc"),
 			icon: this.__getResourceUrl("arrow_undo.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -44,7 +45,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Undo", {
 				keyAction: ms123.oryx.Config.KEY_ACTION_DOWN
 			}],
 			functionality: this.doUndo.bind(this),
-			group: ms123.oryx.Translation.Undo.group,
+			group: this.tr("ge.Undo.group"),
 			isEnabled: qx.lang.Function.bind(function () {
 				return this.undoStack.length > 0
 			}, this),
@@ -53,8 +54,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.Undo", {
 
 		// Offers the functionality of redo
 		this.facade.offer({
-			name: ms123.oryx.Translation.Undo.redo,
-			description: ms123.oryx.Translation.Undo.redoDesc,
+			name: this.tr("ge.Undo.redo"),
+			description: this.tr("ge.Undo.redoDesc"),
 			icon: this.__getResourceUrl("arrow_redo.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],
@@ -62,7 +63,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Undo", {
 				keyAction: ms123.oryx.Config.KEY_ACTION_DOWN
 			}],
 			functionality: this.doRedo.bind(this),
-			group: ms123.oryx.Translation.Undo.group,
+			group: this.tr("ge.Undo.group"),
 			isEnabled: qx.lang.Function.bind(function () {
 				return this.redoStack.length > 0
 			}, this),

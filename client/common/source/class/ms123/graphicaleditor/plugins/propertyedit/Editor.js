@@ -114,12 +114,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 
 		createMainAttributePanel: function () {
 			if (this.direction == "horizontal") {
-				var panel = new ms123.widgets.CollapsablePanel(ms123.oryx.Translation.PropertyWindow.oftenUsed, this.createSingleGridLayout());
+				var panel = new ms123.widgets.CollapsablePanel(this.tr("ge.PropertyWindow.oftenUsed"), this.createSingleGridLayout());
 				this.panelSpace.add(panel);
 				panel.setValue(true);
 				return panel;
 			} else {
-				var page = new qx.ui.tabview.Page(ms123.oryx.Translation.PropertyWindow.oftenUsed).set({
+				var page = new qx.ui.tabview.Page(this.tr("ge.PropertyWindow.oftenUsed")).set({
 					showCloseButton: false
 				});
 				page.setLayout(new qx.ui.layout.Grow());
@@ -135,12 +135,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 		},
 		createMoreAttributePanel: function () {
 			if (this.direction == "horizontal") {
-				var panel = new ms123.widgets.CollapsablePanel(ms123.oryx.Translation.PropertyWindow.moreProps, this.createSingleGridLayout());
+				var panel = new ms123.widgets.CollapsablePanel(this.tr("ge.PropertyWindow.moreProps"), this.createSingleGridLayout());
 				this.panelSpace.add(panel);
 				panel.setValue(true);
 				return panel;
 			} else {
-				var page = new qx.ui.tabview.Page(ms123.oryx.Translation.PropertyWindow.moreProps).set({
+				var page = new qx.ui.tabview.Page(this.tr("ge.PropertyWindow.moreProps")).set({
 					showCloseButton: false
 				});
 				page.setLayout(new qx.ui.layout.Grow());
@@ -337,9 +337,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 		setPropertyWindowTitle: function () {
 			var title = "";
 			if (this.shapeSelection.shapes.length == 1) {
-				title = ms123.oryx.Translation.PropertyWindow.title + ' (' + this.shapeSelection.shapes.first().getStencil().title() + ')';
+				title = this.tr("ge.PropertyWindow.title") + ' (' + this.shapeSelection.shapes.first().getStencil().title() + ')';
 			} else {
-				title = ms123.oryx.Translation.PropertyWindow.title + ' (' + this.shapeSelection.shapes.length + ' ' + ms123.oryx.Translation.PropertyWindow.selected + ')';
+				title = this.tr("ge.PropertyWindow.title") + ' (' + this.shapeSelection.shapes.length + ' ' + this.tr("ge.PropertyWindow.selected") + ')';
 			}
 			this.title.setValue(this.createTitleLabelText(title));
 		},

@@ -30,6 +30,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.AddDocker", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -38,11 +39,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.AddDocker", {
 		this.facade = facade;
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.AddDocker.add,
+			'name': this.tr("ge.AddDocker.add"),
 			'functionality': this.enableAddDocker.bind(this),
-			'group': ms123.oryx.Translation.AddDocker.group,
+			'group': this.tr("ge.AddDocker.group"),
 			'icon': this.__getResourceUrl("vector_add.png"),
-			'description': ms123.oryx.Translation.AddDocker.addDesc,
+			'description': this.tr("ge.AddDocker.addDesc"),
 			'index': 1,
 			'toggle': true,
 			'minShape': 0,
@@ -51,11 +52,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.AddDocker", {
 
 
 		this.facade.offer({
-			'name': ms123.oryx.Translation.AddDocker.del,
+			'name': this.tr("ge.AddDocker.del"),
 			'functionality': this.enableDeleteDocker.bind(this),
-			'group': ms123.oryx.Translation.AddDocker.group,
+			'group': this.tr("ge.AddDocker.group"),
 			'icon': this.__getResourceUrl("vector_delete.png"),
-			'description': ms123.oryx.Translation.AddDocker.delDesc,
+			'description': this.tr("ge.AddDocker.delDesc"),
 			'index': 2,
 			'toggle': true,
 			'minShape': 0,

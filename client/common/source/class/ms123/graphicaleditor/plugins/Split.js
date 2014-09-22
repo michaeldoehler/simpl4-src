@@ -48,8 +48,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.Split", {
 		});
 
 		/*this.facade.offer({
-			name: ms123.oryx.Translation.Split.toggleShapeMenu,
-			description: ms123.oryx.Translation.Split.toggleShapeMenuDesc,
+			name: this.tr("ge.Split.toggleShapeMenu"),
+			description: this.tr("ge.Split.toggleShapeMenuDesc"),
 			icon: this.__getResourceUrl("arrow_redo.png"),
 			keyCodes: [{
 				metaKeys: [ms123.oryx.Config.META_KEY_META_CTRL],

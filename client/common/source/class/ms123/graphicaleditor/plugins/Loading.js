@@ -23,6 +23,7 @@
 
 qx.Class.define("ms123.graphicaleditor.plugins.Loading", {
 	extend: qx.core.Object,
+	include: [qx.locale.MTranslation],
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -59,7 +60,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Loading", {
 	members: {
 		enableLoading: function (options) {
 			if (options.text) this.node.innerHTML = options.text + "...";
-			else this.node.innerHTML = ms123.oryx.Translation.Loading.waiting;
+			else this.node.innerHTML = this.tr("ge.Loading.waiting");
 			this.node.removeClassName('StatusIndicator');
 			this.node.addClassName('LoadingIndicator');
 			this.node.style.display = "block";
