@@ -49,6 +49,18 @@ qx.Class.define('ms123.entitytypes.EntitytypePlugin', {
 			var contextMenu = [
 			{
 				nodetypes: ["sw.entitytypes"],
+				clazz: ms123.entitytypes.FastEntitytypeCreate,
+				param: {
+					isNew: true,
+					mode: "entity"
+				},
+				menuicon: "resource/ms123/classwizard.png",
+				tabicon: "resource/ms123/classwizard.png",
+				title: this.tr("entitytypes.new_fast_entitytype_create"),
+				kind: "tab"
+			},
+			{
+				nodetypes: ["sw.entitytypes"],
 				clazz: ms123.entitytypes.EntitytypeEdit,
 				param: {
 					isNew: true,
@@ -61,14 +73,14 @@ qx.Class.define('ms123.entitytypes.EntitytypePlugin', {
 			},
 			{
 				nodetypes: ["sw.entitytypes"],
-				clazz: ms123.entitytypes.FastEntitytypeCreate,
+				clazz: ms123.entitytypes.DatabaseAdmin,
 				param: {
-					isNew: true,
-					mode: "entity"
+					isNew: false,
+					mode: "field"
 				},
-				menuicon: "resource/ms123/classwizard.png",
-				tabicon: "resource/ms123/classwizard.png",
-				title: this.tr("entitytypes.new_fast_entitytype_create"),
+				menuicon: "icon/16/actions/list-add.png",
+				tabicon: "resource/ms123/column.png",
+				title: "DatabaseAdmin",
 				kind: "tab"
 			},
 			{
@@ -137,6 +149,18 @@ qx.Class.define('ms123.entitytypes.EntitytypePlugin', {
 				},
 				tabicon: "resource/ms123/classwizard.png",
 				title: "%n",
+				kind: "tab"
+			},
+			{
+				nodetypes: ["sw.entitytypes"],
+				clazz: ms123.entitytypes.FastEntitytypeCreate,
+				param: {
+					isNew: true,
+					mode: "entity"
+				},
+				menuicon: "resource/ms123/classwizard.png",
+				tabicon: "resource/ms123/classwizard.png",
+				title: this.tr("entitytypes.new_fast_entitytype_create"),
 				kind: "tab"
 			},
 			{
