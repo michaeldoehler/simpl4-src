@@ -115,11 +115,15 @@ qx.Class.define("ms123.form.FormRendererGE", {
 				newContainer = page;
 				break;
 			case "label":
+				var text = properties.xf_text;
+				if( text.match(/^@/)){
+					text = this.tr(text.substring(1));
+				}				
 				if (container instanceof qx.ui.groupbox.GroupBox) {
-					container.setLegend(properties.xf_text);
+					container.setLegend(text);
 				}
 				if (container instanceof qx.ui.tabview.Page) {
-					var l = new qx.ui.basic.Label(properties.xf_text);
+					var l = new qx.ui.basic.Label(text);
 					this._getCurrentLineContainer(container).add(l,{ });
 					if( lineBreak){
 						var lineContainer = new qx.ui.container.Composite(new qx.ui.layout.HBox(ms123.form.FormRendererGE.SPACINGX));
