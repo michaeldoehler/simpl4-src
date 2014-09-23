@@ -948,6 +948,27 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
+
+	public void addRemoteOrigin(
+			@PName("name") 		String name, 
+			@PName("url") 		String url){
+		try {
+			String gitSpace = System.getProperty("git.repos");
+			File dir = new File(gitSpace, name);
+			if (!dir.exists()) {
+				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.setAddRemoteOrigin:Repo(" + name + ") not exists");
+			}
+			Git git = Git.open(dir);
+			StoredConfig config = git.getRepository().getConfig();
+			config.setString("remote", "origin", "url", url);
+			config.save();
+		} catch (Exception e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.addRemoteOrigin:", e);
+		} finally {
+		}
+	}
+
+
 	/* END JSON-RPC-API*/
 	/* Private Stuff*/
 	private Map getNodeMap(Node n, boolean isSubtree, File repoDir, Map<String, String> mapping) throws Exception {

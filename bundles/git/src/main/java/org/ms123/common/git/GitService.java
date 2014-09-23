@@ -61,4 +61,6 @@ public interface GitService {
 	public void deleteObjects(String repoName, String directory,String regex) throws RpcException;
 	public List<String> assetList( String repoName,  String name,  String type, Boolean onlyFirst) throws RpcException;
 	public FileHolderApi getFileHolder( String repoName, String path);
+	public void addRemoteOrigin(String repo, String url);
+
 }
