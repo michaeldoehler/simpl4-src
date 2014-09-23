@@ -70,6 +70,9 @@ qx.Class.define("website.Application", {
 			}, this);*/
 
 			this.setNamespaceAndPagename();
+			if( this._language ){
+				ms123.config.ConfigManager.setLanguage( this._language );
+			}
 			var nsList = [];
 			nsList.push(this._namespace);
 			this.setMessages(nsList, ms123.config.ConfigManager.getLanguage());
@@ -90,7 +93,15 @@ qx.Class.define("website.Application", {
 			var body = jQuery('#ms123id')[0];
 			this._namespace = body.getAttribute("space");
 			this._pageName = body.getAttribute("pagename");
-			console.log("Namespace:"+this._namespace+"|"+this._pageName);
+
+			var index = this._pageName.lastIndexOf("-");
+			if( index != -1){
+				var suffix = this._pageName.substring(index+1);
+				if( suffix.length == 2){
+					this._language = suffix;
+				}
+			}
+			console.log("Namespace:"+this._namespace+"|"+this._pageName+"|"+this._language);
 		},
 		_initLogging: function () {
 			qx.dev.Debug;
