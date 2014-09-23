@@ -89,54 +89,31 @@ qx.Class.define("ms123.namespaces.Manager", {
 		},
 		_createToolbar: function () {
 			var isRuntime = ms123.config.ConfigManager.isRuntime();
-console.error("isRuntime:"+isRuntime);
 			var toolbar = new qx.ui.toolbar.ToolBar();
-			this._buttonAdd = new qx.ui.toolbar.Button(this.tr("namespacesmanager.add"), "icon/16/actions/list-add.png");
-			this._buttonAdd.addListener("execute", function () {
+
+			this._buttonInstall = new qx.ui.toolbar.Button(this.tr("namespacesmanager.install"), "icon/16/actions/list-add.png");
+			this._buttonInstall.addListener("execute", function () {
 				this._table.stopEditing();
-				this._isAddRepo = true;
 				this._openForm();
 			}, this);
 			if( !isRuntime ){
-				this._buttonAdd.setEnabled(true);
-				toolbar._add(this._buttonAdd);
+				this._buttonInstall.setEnabled(true);
+				toolbar._add(this._buttonInstall);
 			}
-
-
-
-			this._buttonInstall = new qx.ui.toolbar.Button(this.tr("namespacesmanager.install"), "icon/16/actions/view-restore.png");
-			this._buttonInstall.addListener("execute", function () {
-				this._table.stopEditing();
-				this._isAddRepo = false;
-				this._openForm();
-				//this._install( );
-			}, this);
-			toolbar._add(this._buttonInstall);
-			this._buttonInstall.setEnabled(true);
-
-
-
-			toolbar.addSpacer();
-			this._buttonUninst = new qx.ui.toolbar.Button(this.tr("namespacesmanager.uninstall"), "icon/16/actions/edit-delete.png");
+			this._buttonUninst = new qx.ui.toolbar.Button(this.tr("namespacesmanager.uninstall"), "icon/16/actions/list-remove.png");
 			this._buttonUninst.addListener("execute", function () {
 				this._uninstNamespace( false );
 			}, this);
 			toolbar._add(this._buttonUninst);
 			this._buttonUninst.setEnabled(false);
 
-			toolbar.addSpacer();
-			this._buttonDel = new qx.ui.toolbar.Button(this.tr("namespacesmanager.del"), "icon/16/actions/list-remove.png");
-			this._buttonDel.addListener("execute", function () {
-				this._deleteNamespace( false );
-			}, this);
-			if( !isRuntime){
-				//@@@MS dangerous toolbar._add(this._buttonDel);
-				//this._buttonDel.setEnabled(false);
-			}
-
-
-			toolbar.addSpacer();
 			toolbar.addSeparator();
+			this._buttonPull = new qx.ui.toolbar.Button(this.tr("namespacesmanager.pull"), "icon/16/actions/go-bottom.png");
+			this._buttonPull.addListener("execute", function () {
+				this._pull( );
+			}, this);
+			toolbar._add(this._buttonPull);
+			this._buttonPull.setEnabled(false);
 
 			this._buttonPush = new qx.ui.toolbar.Button(this.tr("namespacesmanager.push"), "icon/16/actions/go-top.png");
 			this._buttonPush.addListener("execute", function () {
@@ -146,13 +123,6 @@ console.error("isRuntime:"+isRuntime);
 				toolbar._add(this._buttonPush);
 				this._buttonPush.setEnabled(false);
 			}
-
-			this._buttonPull = new qx.ui.toolbar.Button(this.tr("namespacesmanager.pull"), "icon/16/actions/go-bottom.png");
-			this._buttonPull.addListener("execute", function () {
-				this._pull( );
-			}, this);
-			toolbar._add(this._buttonPull);
-			this._buttonPull.setEnabled(false);
 
 			toolbar.addSpacer();
 			toolbar.addSeparator();
@@ -229,7 +199,7 @@ console.error("isRuntime:"+isRuntime);
 						ms123.util.Remote.rpcSync( "namespace:deleteNamespace",{ name:r.name,withRepository:false });
 						//ms123.util.Remote.rpcSync( "git:deleteRepository",{ name:"."+r.name +"_data"});
 						this._reload();
-						ms123.form.Dialog.alert(this.tr("namespacesmanager.unistalled"));
+						ms123.form.Dialog.alert(this.tr("namespacesmanager.uninstalled"));
 					}catch(e){
 						ms123.form.Dialog.alert("NamespacesManager._uninstNamespace:"+e.message);
 						return;
@@ -273,7 +243,6 @@ console.error("isRuntime:"+isRuntime);
 					if( this._buttonDown ) this._buttonDown.setEnabled(false);
 					if( this._buttonEdit ) this._buttonEdit.setEnabled(false);
 					if( this._buttonArchive) this._buttonArchive.setEnabled(false);
-					//if( this._buttonInstall) this._buttonInstall.setEnabled(false);
 					if( this._buttonPush) this._buttonPush.setEnabled(false);
 					if( this._buttonPull) this._buttonPull.setEnabled(false);
 					if( this._buttonDel ) this._buttonDel.setEnabled(false);
@@ -285,7 +254,6 @@ console.error("isRuntime:"+isRuntime);
 				if( this._buttonDown ) this._buttonDown.setEnabled(true);
 				if( this._buttonEdit) this._buttonEdit.setEnabled(true);
 				if( this._buttonArchive) this._buttonArchive.setEnabled(true);
-				//if( this._buttonInstall) this._buttonInstall.setEnabled(map._isInstalled ? false : true);
 				if( this._buttonUninst) this._buttonUninst.setEnabled(map._isInstalled ? true : false);
 				if( this._buttonPush) this._buttonPush.setEnabled(map._isModified ? true : false);
 				if( this._buttonPull) this._buttonPull.setEnabled(map._updateAvailable ? true : false);
@@ -349,16 +317,7 @@ console.error("isRuntime:"+isRuntime);
 					var f = qx.util.Serializer.toJson(m);
 					console.log("formData:" + f);
 					try{
-						if( self._isAddRepo ){
-							ms123.util.Remote.rpcSync( "namespace:createNamespace",{name:m.name,
-																																			url_data:m.url_data,
-																																			url_meta:m.url_meta,
-																																			templateName:"meta" });
-						}else{
-							ms123.util.Remote.rpcSync( "namespace:installNamespace",{name:m.name,
-																																			 url_data:m.url_data,
-																																			 url_meta:m.url_meta });
-						}
+						ms123.util.Remote.rpcSync( "namespace:installNamespace",{name:m.name, url_data:m.url_data, url_meta:m.url_meta });
 					}catch(e){
 						ms123.form.Dialog.alert("NamespacesManager.createNamespace:"+e.message);
 						return;

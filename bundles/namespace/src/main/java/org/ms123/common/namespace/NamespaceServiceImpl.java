@@ -152,8 +152,9 @@ public class NamespaceServiceImpl implements NamespaceService {
 		String gitSpace = System.getProperty("git.repos");
 		String simpl4Dir = System.getProperty("simpl4.dir");
 		File dest = new File(gitSpace, name);
+		File testFile = new File(dest,".gitignore");
 		File src = new File(simpl4Dir + "/etc", "gittemplate/" + templateName);
-		if (src.exists()) {
+		if (dest.exists() && !testFile.exists() && src.exists()) {
 			copyDirectory(src, dest);
 			m_gitService.add(name, ".");
 		}
@@ -182,54 +183,36 @@ public class NamespaceServiceImpl implements NamespaceService {
 
 	/* BEGIN JSON-RPC-API*/
 	@RequiresRoles("admin")
-	public void createNamespace(
-			@PName(NAME)               String name, 
-			@PName(URLMETA)            @POptional String url_meta, 
-			@PName(URLDATA)            @POptional String url_data, 
-			@PName("withClone")        @POptional @PDefaultBool(true) Boolean withClone, 
-			@PName("templateName")     @POptional String templateName) throws RpcException {
-		try {
-			//if( m_localOnly){
-				if( isEmpty(url_meta)){
-					m_gitService.createRepository(name);
-				}else{
-					m_gitService.cloneRepository(name, url_meta);
-					initRepo(name, templateName);
-				}
-				m_gitService.createRepository(GitServiceImpl.getDataRepoName(name));
-				initRepo(name, templateName);
-			/*}else{
-				RedmineApi ca = new RedmineApi(m_gitHost,m_apiKey);
-				int id = ca.createProject(name);
-				ca.createProject(GitServiceImpl.getDataRepoName(name),id);
-				if (withClone) {
-					Thread.sleep(1000L);
-					String host = "admin:"+m_apiKey+"@"+m_gitHost;
-					m_gitService.cloneRepository(name, "http://"+host+"/" + name + ".git");
-					m_gitService.cloneRepository(GitServiceImpl.getDataRepoName(name), "http://"+host+"/" + name +"/"+GitServiceImpl.getDataRepoName(name) + ".git");
-					initRepo(name, templateName);
-				}
-			}*/
-			sendEvent("created", name);
-		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "NamespaceServiceImpl.createNamespace:", e);
-		} finally {
-		}
-	}
-
-	@RequiresRoles("admin")
 	public void installNamespace(
 			@PName(NAME) String name,
-			@PName(URLMETA)            String url_meta, 
+			@PName(URLMETA)            @POptional String url_meta, 
 			@PName(URLDATA)            @POptional String url_data
 			) throws RpcException {
 		try {
-			m_gitService.cloneRepository(name, url_meta);
-			try{
-				m_gitService.createRepository(GitServiceImpl.getDataRepoName(name));
-			}catch(Exception e){
-				info("installNamespace.dataRepo:"+e.getMessage());
+			if(isEmpty(url_meta)){
+				m_gitService.createRepository(name);
+			}else{
+				m_gitService.cloneRepository(name, url_meta);
 			}
+			initRepo(name, "meta");
+			boolean dataRepoCreated=false;
+			if( url_data != null){
+				try{
+					m_gitService.cloneRepository(GitServiceImpl.getDataRepoName(name), url_data);
+					dataRepoCreated=true;
+				}catch(Exception e){
+					info("installNamespace.dataRepoClone:"+e.getMessage());
+				}
+			}
+			if( !dataRepoCreated){
+				try{
+					m_gitService.createRepository(GitServiceImpl.getDataRepoName(name));
+				}catch(Exception e){
+					info("installNamespace.dataRepoCreate:"+e.getMessage());
+				}
+			}
+			
+			initRepo(GitServiceImpl.getDataRepoName(name), "data");
 			sendEvent("installed", name);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "NamespaceServiceImpl.installNamespace:", e);
