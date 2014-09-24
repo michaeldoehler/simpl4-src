@@ -1,0 +1,915 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+	table {
+		border-collapse:collapse;
+		margin:1em;
+		padding:0;
+		background:#FFF;
+	}
+
+	th,td {
+		border:1px solid #000;
+		vertical-align:top;
+		text-align:left;
+		margin:0;
+		padding:.5em;
+	}
+
+	.left_th_colored {
+		background:#A3D8F5;
+	}
+
+	.right_th_colored {
+		background:#FFEFBC;
+	}
+
+
+	.left_td_colored,.left_td_colored pre {
+		background:#D9EBFB;
+	}
+
+	.right_td_colored {
+		background:#FFF7DC;
+	}
+
+	body {
+		color:#000;
+		font-family:Arial;
+		width:100%;
+		margin:0;
+		background:#fff;
+	}
+
+	#html-refcard h2,#html-refcard h3,#html-refcard h4 {
+		margin:.9em;
+	}
+
+	#html-refcard h2 {
+		color:#fff;
+		border-bottom:1px solid #000;
+		text-transform:uppercase;
+		margin-left:.5em;
+		line-height:1em;
+		padding:.4em;
+		background:#B2073B;
+	}
+
+	#html-refcard h3 {
+		margin-top:1em;
+		font-size:100%;
+	}
+
+	#html-refcard pre {
+		overflow:auto;
+		border:1px solid #333;
+		font-size:110%;
+		margin:0 0 0 .9em;
+		background:#fff5da;
+		padding:5px;
+	}
+
+	#html-refcard p {
+		line-height:130%;
+		margin:.9em;
+	}
+
+	#html-refcard a {
+		color:#2C4FA2;
+		font-weight:700;
+		text-decoration:none;
+	}
+
+	table td pre {
+		border:none;
+		font-size:110%;
+		margin:0 0 0 .9em;
+		background:#fff5da;
+	}
+
+	.hot_tip pre {
+		border:1px solid #b2073b;
+		font-size:110%;
+		margin:0 0 0 .9em;
+		background:#b2073b;
+	}
+
+	.hot_tip, .note {
+		border:1px solid black;
+		margin: 1em;
+		padding: .1em;
+	}
+
+	#html-refcard code {
+		margin-left:0;
+		font-size:110%;
+	}
+
+</style>
+  </head>
+  <body>
+    <div id="refcard-page-wrapper">
+      <div id="html-refcard">
+        <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type" />
+        <h2>Language Elements</h2>
+        <h3>Classes &amp; Scripts</h3>
+        <p>A Groovy class declaration looks like in Java. Default visibility modifier is public</p>
+        <pre>
+<code>class MyClass {
+void myMethod(String argument) {
+}
+}</code>
+</pre>
+        <p>When a .groovy file or any other source of Groovy code contains code that is not enclosed in a class declaration, then this code is considered a Script, e.g.</p>
+        <pre>
+<code>println "Hello World"</code>
+</pre>
+        <p>Scripts differ from classes in that they have a Binding that serves as a container for undeclared references (that are not allowed in classes).</p>
+        <pre>
+<code>println text // expected in Binding
+result = 1 // is put into Binding</code>
+</pre>
+        <h3>Optional Typing</h3>
+        <p>
+        <strong>Static</strong>types can be used like in Java and will be obeyed at runtime. 
+        <strong>Dynamic</strong>typing is used by replacing the type declaration with the def keyword. Formal parameters to method and closure declarations can even omit the def.</p>
+        <h3>Properties</h3>
+        <p>Properties are declared as fields with the 
+        <strong>default visibility modifier</strong>, no matter what type is used.</p>
+        <pre>
+<code>class MyClass {
+String stringProp
+def dynamicProp
+}</code>
+</pre>
+        <p>Java-style getters and setters are compiled into the bytecode automatically.</p>
+        <p>Properties are referred to like</p>
+        <pre>
+<code>println obj.stringProp // getter
+obj.dynamicProp = 1 // setter</code>
+</pre>
+        <p>regardless of whether obj was written in Java or Groovy, the respective getters/setters will be called.</p>
+        <h3>Multimethods</h3>
+        <p>Methods are dispatched by the runtime type, allowing code like</p>
+        <pre>
+<code>class Pers {
+String name
+boolean equals(Pers other) {
+name == other.name
+}
+}
+assert new Pers(name:'x') == new Pers(name:'x')
+assert new Pers(name:'x') != 1</code>
+</pre>
+        <h2>Operators</h2>
+        <h3>Customizable Operators</h3>
+        <p>Operators can be customized by implementing/ overriding the respective method.</p>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Operator</th>
+              <th class="right_th_colored">Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">a + b</td>
+              <td class="right_td_colored">a.plus(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a - b</td>
+              <td class="right_td_colored">a.minus(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a * b</td>
+              <td class="right_td_colored">a.multiply(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a / b</td>
+              <td class="right_td_colored">a.div(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a % b</td>
+              <td class="right_td_colored">a.mod(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a++ 
+              <br />++a</td>
+              <td class="right_td_colored">a.next()</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a-- 
+              <br />--a</td>
+              <td class="right_td_colored">a.previous()</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a**b</td>
+              <td class="right_td_colored">a.power(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a|b</td>
+              <td class="right_td_colored">a.or(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a&amp;b</td>
+              <td class="right_td_colored">a.and(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a^b</td>
+              <td class="right_td_colored">a.xor(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">~a</td>
+              <td class="right_td_colored">~a a.bitwiseNegate() // sometimes referred to as negate 
+              <br />| +a a.positive() // sometimes referred to as unaryMinus 
+              <br />| -a a.negative() // sometimes referred to as unaryPlus</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a[b]</td>
+              <td class="right_td_colored">a.getAt(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a[b] = c</td>
+              <td class="right_td_colored">a.putAt(b, c)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &lt;&lt; b</td>
+              <td class="right_td_colored">a.leftShift(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &gt;&gt; b</td>
+              <td class="right_td_colored">a.rightShift(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &gt;&gt;&gt; b</td>
+              <td class="right_td_colored">a.rightShiftUnsigned(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">switch(a){ case b: } 
+              <br />[a].grep(b) 
+              <br />if(a in b)</td>
+              <td class="right_td_colored">b.isCase(a) // b is a classifier</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a == b</td>
+              <td class="right_td_colored">a.equals(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a != b</td>
+              <td class="right_td_colored">! a.equals(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &lt;=&gt; b</td>
+              <td class="right_td_colored">a.compareTo(b)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &gt; b</td>
+              <td class="right_td_colored">a.compareTo(b) &gt; 0</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &gt;= b</td>
+              <td class="right_td_colored">a.compareTo(b) &gt;= 0</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &lt; b</td>
+              <td class="right_td_colored">a.compareTo(b) &lt; 0</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a &lt;= b</td>
+              <td class="right_td_colored">a.compareTo(b) &lt;= 0</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a as B</td>
+              <td class="right_td_colored">a.asType(B)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="hot_tip">
+          <p>Actively look for opportunities to implement operator methods in your own Groovy class. This often leads to more expressive code. Typical candidates are ==, &lt;=&gt;, +, -, &lt;&lt;, and isCase(). See also 
+          <em>Ranges</em>.</p>
+        </div>
+        <h3>Special Operators</h3>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Operators</th>
+              <th class="right_th_colored">Meaning</th>
+              <th class="right_th_colored">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">a ? b : c</td>
+              <td class="right_td_colored">if (a) b else c</td>
+              <td class="right_td_colored">ternary if</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a ?: b</td>
+              <td class="right_td_colored">a ? a : b</td>
+              <td class="right_td_colored">Elvis</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a?.b</td>
+              <td class="right_td_colored">a==null ? a : a.b</td>
+              <td class="right_td_colored">null safe</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a(*list)</td>
+              <td class="right_td_colored">a(list[0], list[1], ...)</td>
+              <td class="right_td_colored">spread</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">list*.a()</td>
+              <td class="right_td_colored">[list[0].a(), list[1].a() ...]</td>
+              <td class="right_td_colored">spread-dot</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a.&amp;b</td>
+              <td class="right_td_colored">reference to method b in object a as closure</td>
+              <td class="right_td_colored">method closure</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">a.@field</td>
+              <td class="right_td_colored">direct field access</td>
+              <td class="right_td_colored">dot-at</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Simple Datatypes</h2>
+        <h3>Numbers</h3>
+        <p>All Groovy numbers are objects, not primitive types. Literal declarations are:</p>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Type</th>
+              <th class="right_th_colored">Example literals</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">java.lang.Integer</td>
+              <td class="right_td_colored">15, 0x1234ffff</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">java.lang.Long</td>
+              <td class="right_td_colored">100L, 100l</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">java.lang.Float</td>
+              <td class="right_td_colored">1.23f, 4.56F</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">java.lang.Double</td>
+              <td class="right_td_colored">1.23d, 4.56D</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">java.math.BigInteger</td>
+              <td class="right_td_colored">123g, 456G</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">java.math.BigDecimal</td>
+              <td class="right_td_colored">1.23, 4.56, 1.4E4, 2.8e4, 1.23g, 1.23G</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Coercion rules for math operations are explained in Groovy in Action, chapter 3. Some examples to remember are:</p>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Expression</th>
+              <th class="right_th_colored">Result type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">1f * 2f</td>
+              <td class="right_td_colored">Double</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1f / 2f</td>
+              <td class="right_td_colored">Double</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(Byte)1 + (Byte)2</td>
+              <td class="right_td_colored">Integer</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1 * 2L</td>
+              <td class="right_td_colored">Long</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1 / 2</td>
+              <td class="right_td_colored">BigDecimal (0.5)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(int)(1/2)</td>
+              <td class="right_td_colored">Integer (0)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1.intdiv(2)</td>
+              <td class="right_td_colored">Integer (0)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Integer.MAX_VALUE+1</td>
+              <td class="right_td_colored">Integer</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">2**31</td>
+              <td class="right_td_colored">Integer</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">2**33</td>
+              <td class="right_td_colored">Long</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">2**3.5</td>
+              <td class="right_td_colored">Double</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">2G + 1G</td>
+              <td class="right_td_colored">BigInteger</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">2.5G + 1G</td>
+              <td class="right_td_colored">BigDecimal</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1.5G == 1.5F</td>
+              <td class="right_td_colored">Boolean (true)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">1.1G == 1.1F</td>
+              <td class="right_td_colored">1.1G == 1.1F</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Strings</h3>
+        <pre>
+<code>'literal String'
+'''literal
+multiline String'''
+def lang = 'Groovy'
+"GString for $lang"
+"$lang has ${lang.size()} chars"
+"""multiline GString with
+late eval at ${-&gt; new Date()}"""</code>
+</pre>
+        <p>Placeholders in GStrings are dereferenced at declaration time but their text representation is queried at GString -pString conversion time.</p>
+        <pre>
+<code>/String with unescaped \ included/</code>
+</pre>
+        <h3>Regular Expressions</h3>
+        <p class="nobottmargin">The regex find operator =~</p>
+        <p class="nobottmargin">The regex match operator ==~</p>
+        <p class="nobottmargin">The regex Pattern operator ~String</p>
+        <h4>Examples:</h4>
+        <pre>
+<code>def twister = 'she sells sea shells'</code>
+</pre>
+        <p class="nobottmargin">// contains word 'she'</p>
+        <pre>
+<code>assert twister =~ 'she'</code>
+</pre>
+        <p></p>
+        <p class="nobottmargin">// starts with 'she' and ends with 'shells'</p>
+        <pre>
+<code>assert twister ==~ /she.*shells/</code>
+</pre>
+        <p class="nobottmargin">// same precompiled</p>
+        <pre>
+<code>def pattern = ~/she.*shells/
+assert pattern.matcher(twister).matches()</code>
+</pre>
+        <p class="nobottmargin">// matches are iterable 
+        <br />// words that start with 'sh'</p>
+        <pre>
+<code>def shwords = (twister =~ /\bsh\w*/).collect{it}.join(' ')
+assert shwords == 'she shells'</code>
+</pre>
+        <p class="nobottmargin">// replace through logic</p>
+        <pre>
+<code>assert twister.replaceAll(/\w+/){
+it.size()
+} == '3 5 3 6'</code>
+</pre>
+        <p class="nobottmargin">// regex groups to closure params 
+        <br />// find words with same start and end</p>
+        <pre>
+<code>def matcher = (twister =~ /(\w)(\w+)\1/)
+matcher.each { full, first, rest -&gt;
+assert full in ['sells','shells']
+assert first == 's'
+}       </code>
+</pre>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Symbol</th>
+              <th class="right_th_colored">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">.</td>
+              <td class="right_td_colored">any character</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">^</td>
+              <td class="right_td_colored">start of line (or start of document, when in single-line mode)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">$</td>
+              <td class="right_td_colored">end of line (or end of document, when in single-line mode)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\d</td>
+              <td class="right_td_colored">digit character</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\D</td>
+              <td class="right_td_colored">any character except digits</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\s</td>
+              <td class="right_td_colored">whitespace character</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\S</td>
+              <td class="right_td_colored">any character except whitespace</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\w</td>
+              <td class="right_td_colored">word character</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\W</td>
+              <td class="right_td_colored">any character except word characters</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\b</td>
+              <td class="right_td_colored">word boundary</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">()</td>
+              <td class="right_td_colored">grouping</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(x|y)</td>
+              <td class="right_td_colored">x or y as in (Groovy|Java|Ruby)</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">\1</td>
+              <td class="right_td_colored">backmatch to group one, e.g. find doubled characters with (.)\1</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">x*</td>
+              <td class="right_td_colored">zero or more occurrences of x.</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">x+</td>
+              <td class="right_td_colored">one or more occurrences of x.</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">x?</td>
+              <td class="right_td_colored">zero or one occurrence of x.</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">x{m,n}</td>
+              <td class="right_td_colored">at least "m" and at most "n" occurrences of x.</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">x{m}</td>
+              <td class="right_td_colored">exactly "m" occurrences of x.</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">[a-f]</td>
+              <td class="right_td_colored">character class containing the characters 'a', 'b', 'c', 'd', 'e', 'f'</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">[^a]</td>
+              <td class="right_td_colored">character class containing any character except 'a'</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(?is:x)</td>
+              <td class="right_td_colored">switches mode when evaluating x; i turns on ignoreCase, s single-line mode</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(?=regex)</td>
+              <td class="right_td_colored">positive lookahead</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(?&lt;=text)</td>
+              <td class="right_td_colored">positive lookbehind</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Collective Datatypes</h2>
+        <h3>Ranges</h3>
+        <p>Ranges appear inclusively like 0..10 or half-exclusively like 0..&lt;10. They are often enclosed in parentheses since the range operator has low precedence.</p>
+        <pre>
+<code>assert (0..10).contains(5)
+assert (0.0..10.0).containsWithinBounds(3.5)
+for (item in 0..10) { println item }
+for (item in 10..0) { println item }
+(0..&lt;10).each { println it }</code>
+</pre>
+        <p>Integer ranges are often used for selecting sublists. Range boundaries can be of any type that defines previous(), next() and implements Comparable. Notable examples are String and Date.</p>
+        <h3>Lists</h3>
+        <p>Lists look like arrays but are of type java.util.List plus new methods.</p>
+        <pre>
+<code>[1,2,3,4] == (1..4)
+[1,2,3] + [1] == [1,2,3,1]
+[1,2,3] &lt;&lt; 1 == [1,2,3,1]
+[1,2,3,1] - [1] == [2,3]
+[1,2,3] * 2 == [1,2,3,1,2,3]
+[1,[2,3]].flatten() == [1,2,3]
+[1,2,3].reverse() == [3,2,1]
+[1,2,3].disjoint([4,5,6]) == true
+[1,2,3].intersect([4,3,1]) == [3,1]
+[1,2,3].collect{ it+3 } == [4,5,6]
+[1,2,3,1].unique().size() == 3
+[1,2,3,1].count(1) == 2
+[1,2,3,4].min() == 1
+[1,2,3,4].max() == 4
+[1,2,3,4].sum() == 10
+[4,2,1,3].sort() == [1,2,3,4]
+[4,2,1,3].findAll{it%2 == 0} == [4,2]
+def anims=['cat','kangaroo','koala']
+anims[2] == 'koala'
+def kanims = anims[1..2]
+anims.findAll{it =~ /k.*/} ==kanims
+anims.find{ it =~ /k.*/} ==kanims[0]
+anims.grep(~/k.*/) ==kanims     
+</code>
+</pre>
+        <p>The sort() method is often used and comes in three flavors:</p>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Sort call</th>
+              <th class="right_th_colored">Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">col.sort()</td>
+              <td class="right_td_colored">natural sort for comparable objects</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">col.sort { it.propname }</td>
+              <td class="right_td_colored">applying the closure to each item before comparing the results</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">col.sort { a,b -&gt; a &lt;=&gt; b }</td>
+              <td class="right_td_colored">closure defines a comparator for each comparison</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Lists can also be indexed with negative indexes and reversed ranges.</p>
+        <pre>
+<code>def list = [0,1,2]
+assert list[-1] == 2
+assert list[-1..0] == list.reverse()
+assert list == [list.head()] + list.tail()</code>
+</pre>
+        <p>Sublist assignments can make a list grow or shrink and lists can contain varying data types.</p>
+        <pre>
+<code>list[1..2] = ['x','y','z']
+assert list == [0,'x','y','z']</code>
+</pre>
+        <h3>Maps</h3>
+        <p>Maps are like lists that have an arbitrary type of key instead of integer. Therefore, the syntax is very much aligned.</p>
+        <pre>
+<code>def map = [a:0, b:1]</code>
+</pre>
+        <p>Maps can be accessed in a conventional square-bracket syntax or as if the key was a property of the map.</p>
+        <pre>
+<code>assert map['a'] == 0
+assert map.b == 1
+map['a'] = 'x'
+map.b = 'y'
+assert map == [a:'x', b:'y']</code>
+</pre>
+        <p>There is also an explicit get method that optionally takes a default value.</p>
+        <pre>
+<code>assert map.c == null
+assert map.get('c',2) == 2
+assert map.c == 2</code>
+</pre>
+        <p>Map iteration methods take the nature of Map.Entry objects into account.</p>
+        <pre>
+<code>map.each { entry -&gt;
+println entry.key
+println entry.value
+}
+map.each { key, value -&gt;
+println "$key $value"
+}
+for (entry in map) {
+println "$entry.key $entry.value"
+}</code>
+</pre>
+        <h3>GPath</h3>
+        <p>Calling a property on a list returns a list of the property for each item in the list.</p>
+        <pre>
+<code>employees.address.town</code>
+</pre>
+        <p>returns a list of town objects.</p>
+        <p>To do the same with method calls, use the spread-dot operator.</p>
+        <pre>
+<code>employees*.bonus(2008)</code>
+</pre>
+        <pre>
+<code>calls the bonus method on each employee and stores the
+result in a list.</code>
+</pre>
+        <h3>Closures</h3>
+        <p>Closures capture a piece of logic and the enclosing scope. They are first-class objects and can receive messages, can be returned from method calls, stored in fields, and used as arguments to a method call.</p>
+        <p>Use in method parameter</p>
+        <pre>
+<code>def forEach(int i, Closure yield){
+for (x in 1..i) yield(x)
+}</code>
+</pre>
+        <p>Use as last method argument</p>
+        <pre>
+<code>forEach(3) { num -&gt; println num }</code>
+</pre>
+        <p>Construct and assign to local variable</p>
+        <pre>
+<code>def squareIt = { println it * it}
+forEach(3, squareIt)</code>
+</pre>
+        <p>Bind leftmost closure param to fixed argument</p>
+        <pre>
+<code>def multIt = {x, y -&gt; println x * y}
+forEach 3, multIt.curry(2)
+forEach 3, multIt.curry('-')</code>
+</pre>
+        <p>Closure parameter list examples:</p>
+        <p>Closure.isCase(b) sends b to the closure and returns the call result as boolean. Use as in</p>
+        <pre>
+<code>switch ('xy'){
+case {it.startsWith('x')} :...
+}
+[0,1,2].grep { it%2 == 0 }</code>
+</pre>
+        <h2>GDK</h2>
+        <h3>Methods for java.lang.Object</h3>
+        <p>Get object info</p>
+        <pre>
+<code>println obj.dump()</code>
+</pre>
+        <p>or in a GUI</p>
+        <pre>
+<code>import groovy.inspect.swingui.*
+ObjectBrowser.inspect(obj)</code>
+</pre>
+        <p>Print properties, methods, and fields of obj</p>
+        <pre>
+<code>println obj.properties
+println obj.class.methods.name
+println obj.class.fields.name</code>
+</pre>
+        <p>Two ways to invoke a method dynamically</p>
+        <pre>
+<code>obj.invokeMethod(name, paramsAry)
+obj."$name"(params)</code>
+</pre>
+        <p>Further methods</p>
+        <pre>
+<code>is(other) // identity check
+isCase(candidate) //default:equality
+obj.identity {...}; obj.with {...}
+print(); print(value),
+println(); println(value)
+printf(formatStr, value)
+printf(formatStr, value[])
+sleep(millis)
+sleep(millis) { onInterrupt }
+use(categoryClass) { ... }
+use(categoryClassList) { ... }</code>
+</pre>
+        <p>Every object is iterable in Groovy,even if it was implemented in Java. See Groovy in Action, chapter 9 on what strategy Groovy applies to make this happen.</p>
+        <p>Not only can you use any obj in loops like</p>
+        <pre>
+<code>for (element in obj) { ... }</code>
+</pre>
+        <p>but you can also apply the following iterative objects methods:</p>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Closure</th>
+              <th class="right_th_colored">Parameters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">{ ... }</td>
+              <td class="right_td_colored">zero or one (implicit 'it')</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">{-&gt; ... }</td>
+              <td class="right_td_colored">zero</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">{x -&gt; ... }</td>
+              <td class="right_td_colored">one</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">{x=1 -&gt; ... }</td>
+              <td class="right_td_colored">one or zero with default</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">{x,y -&gt; ... }</td>
+              <td class="right_td_colored">two</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">{ String x -&gt; ... }</td>
+              <td class="right_td_colored">one with static type</td>
+            </tr>
+          </tbody>
+        </table>
+        <table cellspacing="0" cellpadding="0">
+          <thead>
+            <tr>
+              <th class="left_th_colored">Returns</th>
+              <th class="right_th_colored">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="left_td_colored">Boolean</td>
+              <td class="right_td_colored">any {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">List</td>
+              <td class="right_td_colored">collect {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Collection</td>
+              <td class="right_td_colored">collect(Collection collection) {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(void)</td>
+              <td class="right_td_colored">each {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">(void)</td>
+              <td class="right_td_colored">eachWithIndex {item, index-&gt; ...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Boolean</td>
+              <td class="right_td_colored">every {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Object</td>
+              <td class="right_td_colored">find {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">List</td>
+              <td class="right_td_colored">findAll {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Integer</td>
+              <td class="right_td_colored">findIndexOf {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Integer</td>
+              <td class="right_td_colored">findIndexOf(startIndex) {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Integer</td>
+              <td class="right_td_colored">findLastIndexOf {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Integer</td>
+              <td class="right_td_colored">findLastIndexOf(startIndex) {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">List</td>
+              <td class="right_td_colored">findIndexValues {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">List</td>
+              <td class="right_td_colored">findIndexValues(startIndex) {...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">Object</td>
+              <td class="right_td_colored">inject(startValue) {temp, item -&gt; ...}</td>
+            </tr>
+            <tr>
+              <td class="left_td_colored">List</td>
+              <td class="right_td_colored">grep(Object classifier) 
+              <br />// uses classifier.isCase(item)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="hot_tip">
+          <p>Implement the iterator() method that returns an Iterator object to give your own Groovy class meaningful iterable behavior with the above methods.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
