@@ -212,10 +212,12 @@ public class GitServiceImpl implements GitService {
 		return name+"_data";
 	}
 	public static boolean hasStoreCfg(File file){
-		String storeFileName = "store.cfg";
 		File storeCfgFile = new File(file, STORE_CFG);
 		if (storeCfgFile.exists()) {
-			return true;
+			File disabledFile = new File(file, "disabled");
+			if (!disabledFile.exists()) {
+				return true;
+			}
 		}
 		return false;
 	}
