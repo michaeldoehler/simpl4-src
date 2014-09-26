@@ -30,6 +30,8 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		this._side = side;
 		this._formatOnly = formatOnly === true;
 		this.setLayout(new qx.ui.layout.VBox(10));
+		var statusLabel = this._createStatusDisplay();
+		this.add(statusLabel);
 		var sb = this._createFormatSelectBox();
 		this.add(sb);
 		if( this._formatOnly === false){
@@ -47,6 +49,14 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		this._uploadEnabled = false;
 		this._enableDisable(false);
 		this._cache={};
+		this._currentFormat;
+		this._currentKind;
+		this._setStatus();
+		this.addListener("changeValue", function(e){
+			var data = e.getData();
+			console.log("ChangeValue:"+data);
+			this._setStatus();
+		},this);
 	},
 
 	properties: {},
@@ -100,7 +110,11 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			this._formatSelectBox = selectBox;
 			selectBox.addListener("changeSelection",function(e){
 				var format = this._formatSelectBox.getSelection()[0].getModel();
+				this._currentFormat=format;
 				this.fireDataEvent("formatChanged", format, null);
+
+				var data = 	this._cache[this._getCacheKey()];
+				this.fireDataEvent("changeValue", data, null);
 				if( this._buttomFromExample){
 					this._enableDisable(this._buttomFromExample.getValue());
 				}
@@ -115,6 +129,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			selectables.each( function( s ){
 				console.log("model="+s.getModel()+"/"+format);
 				if( s.getModel()== format){
+					this._currentFormat=format;
 					self._formatSelectBox.setSelection([s]);
 				}
 			});
@@ -124,21 +139,32 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
 			var rg = new qx.ui.form.RadioGroup();
 			var button1 = new qx.ui.form.RadioButton(this.tr("datamapper.from_example"));
-			this._fromExampleRadio = button1;
+			button1.setUserData("kind","from_example");
 			button1.addListener("changeValue", function (ev) {
 				this._uploadEnabled = false;
 				this._enableDisable(false);
 			}, this);
 			container.add(button1);
+
 			var button2 = new qx.ui.form.RadioButton(this.tr("datamapper.user_defined"));
-			this._userDefinedRadio = button2;
+			button2.setUserData("kind","user_defined");
 			button2.setValue(true);
+			this._currentKind = "user_defined";
 			button2.addListener("changeValue", function (ev) {
 				this._uploadEnabled = true;
 				this._enableDisable(true);
 			}, this);
 			container.add(button2);
 			rg.add(button1, button2);
+
+			rg.addListener("changeSelection", function (ev) {
+				console.log("RadioGroupChange:"+rg.getSelection());
+				this._currentKind=rg.getSelection()[0].getUserData("kind");
+				var data = 	this._cache[this._getCacheKey()];
+				this.fireDataEvent("changeValue", data, null);
+			}, this);
+
+
 			this._buttomFromExample = button1;
 			this._setInternal = false;
 			return container;
@@ -173,12 +199,6 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				var flag = format == ms123.datamapper.Config.FORMAT_CSV && this._uploadEnabled === true;
 				this._csvForm.setVisibility(!flag ? "excluded" : "visible");
 			}
-			if( this._userDefinedRadio){
-				/*this._userDefinedRadio.setEnabled(!this._isPOJO());
-				if( this._isPOJO()){
-					this._fromExampleRadio.setValue(true);
-				}*/
-			}
 			this._setInternal = false;
 		},
 		_createEditFieldButton: function () {
@@ -186,12 +206,12 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			this._editFiedsButton.addListener("execute", function (ev) {
 				this._facade.format = this._formatSelectBox.getSelection()[0].getModel();
 				this._fieldsEditor = this._createFieldsEditor(this._facade.format);
-				var data = this._cache[this._facade.format];
+				var data = this._cache[this._getCacheKey()];
 				this._fieldsEditor.setValue( data );
 				this._fieldsEditor.addListener("changeValue", function (ev) {
 					var format = this._formatSelectBox.getSelection()[0].getModel();
-					this._cache[format] = ev.getData();
 					var data = ev.getData();
+					this._cache[this._getCacheKey()] = data;
 					data.format= format;
 					this.fireDataEvent("changeValue", data, null);
 				}, this);
@@ -217,6 +237,25 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				}else{
 					return new ms123.datamapper.create.MapFieldsEditor(this._facade,this._side,true);
 				}	
+			}
+		},
+		_createStatusDisplay: function () {
+			var container = new qx.ui.container.Composite(new qx.ui.layout.Dock());
+			var statusLabel = new qx.ui.basic.Label(this.tr("datamapper.status"));
+			this._statusField  = new qx.ui.form.TextField();
+			this._statusField.setReadOnly(true);
+			this._statusField.setBackgroundColor("gray");
+			//container.add(statusLabel,{edge:"west"});
+			container.add(this._statusField,{edge:"center"});
+			return container;
+		},
+		_setStatus:function(){
+			if( this._cache[this._getCacheKey()]){
+				this._statusField.setValue(this.tr("datamapper.status_ready"));
+				this._statusField.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
+			}else{
+				this._statusField.setValue(this.tr("datamapper.status_notready"));
+				this._statusField.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_NOTREADY);
 			}
 		},
 		_createUploadContainer: function () {
@@ -265,6 +304,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				if( this._use == ms123.datamapper.Config.USE_IMPORT){
 					var ret =qx.lang.Json.parse( uploadForm.getIframeTextContent()); 
 					ret.result.fileId = "internal";
+					this._cache[this._getCacheKey()] = ret.result;
 					this.fireDataEvent("changeValue", ret.result, null);
 				}else{
 					this._getMetaData(id);
@@ -341,6 +381,9 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				ms123.form.Dialog.alert("UploadWindow._saveFile:" + e);
 				return null;
 			}
+		},
+		_getCacheKey:function(){
+			return this._currentFormat+"_"+this._currentKind;
 		},
 		_getConfig:function(){
 			var format = this._formatSelectBox.getSelection()[0].getModel();

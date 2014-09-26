@@ -47,6 +47,8 @@ qx.Class.define("ms123.datamapper.Config", {
 		BG_COLOR_STRUCTURE_CONNECTED: "#E0E0E0",
 		BG_COLOR_STRUCTURE_SELECTED: "#E0E0E0",
 		BG_COLOR_ATTRIBUTE_CONNECTED: "#F0F0F0",
+		BG_COLOR_READY: "#aff97a",
+		BG_COLOR_NOTREADY: "#edeaea",
 		STRUCTURE_MAPPING:"structureMapping",
 		ATTRIBUTE_MAPPING:"attributeMapping",
 		STRUCTURE_SCOPE:"collectionScope",

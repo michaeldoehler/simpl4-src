@@ -41,22 +41,31 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 		this.add(container, {
 			edge: "center"
 		});
-		input.typeSelector.addListener("changeValue", function (ev) {
+		input.formatSelector.addListener("changeValue", function (ev) {
 			this._inputValue = ev.getData();
-			if (this._outputValue) {
+			if (this._inputValue && this._outputValue) {
 				this._createButton.setEnabled(true);
+				this._createButton.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
+			}else{
+				this._createButton.setEnabled(false);
+				this._createButton.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_NOTREADY);
 			}
 			console.log("MappingCreator.input:"+JSON.stringify(this._inputValue,null,2));
 		}, this);
-		output.typeSelector.addListener("changeValue", function (ev) {
+		output.formatSelector.addListener("changeValue", function (ev) {
 			this._outputValue = ev.getData();
-			if (this._inputValue) {
+			if (this._inputValue && this._outputValue) {
 				this._createButton.setEnabled(true);
+				this._createButton.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
+			}else{
+				this._createButton.setEnabled(false);
+				this._createButton.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_NOTREADY);
 			}
 			console.log("MappingCreator.output:",this._outputValue);
 		}, this);
 
 		this._createButton = new qx.ui.form.Button(this.tr("datamapper.create_mapping"), "icon/16/actions/dialog-ok.png");
+		this._createButton.setDecorator(null);
 		this._createButton.addListener("execute", function () {
 			var data = {
 				input: this._inputValue,
@@ -90,13 +99,13 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 			});
 			gb.setLayout(new qx.ui.layout.Dock());
 
-			var ts = new ms123.datamapper.create.FormatSelector(this._facade,side,false);
-			gb.add(ts, {
+			var fs = new ms123.datamapper.create.FormatSelector(this._facade,side,false);
+			gb.add(fs, {
 				edge: "center"
 			});
 			return {
 				groupBox: gb,
-				typeSelector: ts
+				formatSelector: fs
 			};
 		}
 	}
