@@ -67,6 +67,9 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 		this._createButton = new qx.ui.form.Button(this.tr("datamapper.create_mapping"), "icon/16/actions/dialog-ok.png");
 		this._createButton.setDecorator(null);
 		this._createButton.addListener("execute", function () {
+			if( this._outputValue == ms123.datamapper.Config.KIND_LIKE_INPUT){
+				this._outputValue = this._inputValue;
+			}
 			var data = {
 				input: this._inputValue,
 				output: this._outputValue
@@ -77,6 +80,7 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 				data.fileId = this._inputValue.fileId;
 				delete this._inputValue.fileId;
 			}
+			console.log("MappingCreator.ready:"+JSON.stringify(data,null,2));
 			this.fireDataEvent("ready", data, null);
 		}, this);
 		this._createButton.setEnabled(false);

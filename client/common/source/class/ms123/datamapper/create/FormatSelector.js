@@ -30,8 +30,10 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		this._side = side;
 		this._formatOnly = formatOnly === true;
 		this.setLayout(new qx.ui.layout.VBox(10));
-		var statusLabel = this._createStatusDisplay();
-		this.add(statusLabel);
+		if( this._formatOnly === false){
+			var statusLabel = this._createStatusDisplay();
+			this.add(statusLabel);
+		}
 		var sb = this._createFormatSelectBox();
 		this.add(sb);
 		if( this._formatOnly === false){
@@ -46,7 +48,6 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			this._createUploadContainer();
 			this.add(this._uploadContainer,{flex:1});
 		}
-		this._uploadEnabled = false;
 		this._enableDisable(false);
 		this._cache={};
 		this._currentFormat;
@@ -54,7 +55,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		this._setStatus();
 		this.addListener("changeValue", function(e){
 			var data = e.getData();
-			console.log("ChangeValue:"+data);
+			console.log("ChangeValue("+this._side+"):"+data);
 			this._setStatus();
 		},this);
 	},
@@ -115,9 +116,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 
 				var data = 	this._cache[this._getCacheKey()];
 				this.fireDataEvent("changeValue", data, null);
-				if( this._buttomFromExample){
-					this._enableDisable(this._buttomFromExample.getValue());
-				}
+				this._enableDisable();
 				this._setRpcHeader(this._uploadForm, this.__id);
 			},this);
 			container.add(selectBox);
@@ -139,33 +138,40 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
 			var rg = new qx.ui.form.RadioGroup();
 			var button1 = new qx.ui.form.RadioButton(this.tr("datamapper.from_example"));
-			button1.setUserData("kind","from_example");
-			button1.addListener("changeValue", function (ev) {
-				this._uploadEnabled = false;
-				this._enableDisable(false);
-			}, this);
+			button1.setUserData("kind",ms123.datamapper.Config.KIND_FROM_SAMPLE);
 			container.add(button1);
 
 			var button2 = new qx.ui.form.RadioButton(this.tr("datamapper.user_defined"));
-			button2.setUserData("kind","user_defined");
+			button2.setUserData("kind",ms123.datamapper.Config.KIND_USER_DEFINED);
 			button2.setValue(true);
-			this._currentKind = "user_defined";
-			button2.addListener("changeValue", function (ev) {
-				this._uploadEnabled = true;
-				this._enableDisable(true);
-			}, this);
+			this._currentKind = ms123.datamapper.Config.KIND_USER_DEFINED;
 			container.add(button2);
-			rg.add(button1, button2);
+
+			if( this._use == ms123.datamapper.Config.USE_IMPORT && this._side == ms123.datamapper.Config.OUTPUT){
+				var button3 = new qx.ui.form.RadioButton(this.tr("datamapper.like_input"));
+				button3.setUserData("kind",ms123.datamapper.Config.KIND_LIKE_INPUT);
+				button3.setValue(false);
+				container.add(button3);
+			}
+
+			if( button3){
+				rg.add(button1, button2, button3);
+			}else{
+				rg.add(button1, button2);
+			}
 
 			rg.addListener("changeSelection", function (ev) {
-				console.log("RadioGroupChange:"+rg.getSelection());
 				this._currentKind=rg.getSelection()[0].getUserData("kind");
 				var data = 	this._cache[this._getCacheKey()];
+				if( this._currentKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
+					data = ms123.datamapper.Config.KIND_LIKE_INPUT;
+				}
+				this._enableDisable();
 				this.fireDataEvent("changeValue", data, null);
 			}, this);
 
 
-			this._buttomFromExample = button1;
+			this._buttonFromExample = button1;
 			this._setInternal = false;
 			return container;
 		},
@@ -188,15 +194,27 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				 return;
 			}
 			this._setInternal = true;
+			var uploadEnabled=false;
+			var editFieldsEnabled = false;
+			var currKind = this._currentKind;
 			if (this._editFiedsButton && this._uploadContainer) {
-				var vis = (!flag || this._isPOJO()) ? "visible" : "excluded";
-				this._editFiedsButton.setVisibility(vis);
-				var vis = (flag && !this._isPOJO()) ? "visible" : "excluded";
-				this._uploadContainer.setVisibility(vis);
+				if( currKind == ms123.datamapper.Config.KIND_FROM_SAMPLE){
+					uploadEnabled=true;
+				}else if( currKind == ms123.datamapper.Config.KIND_USER_DEFINED){
+					editFieldsEnabled=true;
+				}else if( currKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
+				}
+				if( this._isPOJO() && currKind!=ms123.datamapper.Config.KIND_LIKE_INPUT){
+					uploadEnabled=false;
+					editFieldsEnabled=true;
+				}
+				this._uploadContainer.setVisibility(uploadEnabled ? "visible" : "excluded");
+				this._editFiedsButton.setVisibility(editFieldsEnabled ? "visible" : "excluded");
+				
 			}
 			if( this._csvForm){
 				var format = this._formatSelectBox.getSelection()[0].getModel();
-				var flag = format == ms123.datamapper.Config.FORMAT_CSV && this._uploadEnabled === true;
+				var flag = format == ms123.datamapper.Config.FORMAT_CSV && uploadEnabled === true;
 				this._csvForm.setVisibility(!flag ? "excluded" : "visible");
 			}
 			this._setInternal = false;
@@ -232,7 +250,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			case ms123.datamapper.Config.FORMAT_FW:
 				return new ms123.datamapper.create.FWFieldsEditor(this._facade,this._side);
 			case ms123.datamapper.Config.FORMAT_POJO:
-				if( this._uploadEnabled){
+				if( this._currentKind==ms123.datamapper.Config.KIND_FROM_SAMPLE){
 					return new ms123.datamapper.create.PojoFieldsEditor(this._facade,this._side);
 				}else{
 					return new ms123.datamapper.create.MapFieldsEditor(this._facade,this._side,true);
@@ -250,7 +268,10 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			return container;
 		},
 		_setStatus:function(){
-			if( this._cache[this._getCacheKey()]){
+			if( this._formatOnly !== false){
+				return;
+			}
+			if( this._cache[this._getCacheKey()] || this._currentKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
 				this._statusField.setValue(this.tr("datamapper.status_ready"));
 				this._statusField.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
 			}else{
