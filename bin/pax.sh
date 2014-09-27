@@ -296,6 +296,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/spring-tx-3.1.4.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/spring-jdbc-3.1.4.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
+	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
