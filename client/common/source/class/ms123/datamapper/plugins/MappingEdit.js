@@ -95,6 +95,19 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			this._updateMappings();
 		}, this);
 
+		var scrollbarYOutput = this._outputTree.getTree().getChildControl("scrollbar-y");
+		scrollbarYOutput.addListener("scroll", function (e) {
+			qx.event.Timer.once(function () {
+				this._jsPlumb.repaintEverything();
+			}, this, 200);
+		}, this);
+		var scrollbarXOutput = this._outputTree.getTree().getChildControl("scrollbar-x");
+		scrollbarXOutput.addListener("scroll", function (e) {
+			qx.event.Timer.once(function () {
+				this._jsPlumb.repaintEverything();
+			}, this, 200);
+		}, this);
+
 		var scrollbarY = this._inputTree.getTree().getChildControl("scrollbar-y");
 		scrollbarY.addListener("scroll", function (e) {
 			qx.event.Timer.once(function () {
