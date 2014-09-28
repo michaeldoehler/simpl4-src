@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
 @groovy.transform.TypeChecked
 public class Transformer implements Constants{
 	private static final Log m_logger = LogFactory.getLog(Transformer.class);
-	private JSONSerializer m_js = new JSONSerializer();
+	private static JSONSerializer m_js = new JSONSerializer();
 	private  JSONDeserializer m_ds = new JSONDeserializer();
 	protected NucleusService m_nucleusService;
 	private String m_configName;
@@ -108,7 +108,7 @@ public class Transformer implements Constants{
 			if( config.mapping == null || ((List)config.mapping).size() == 0){
 				throw new RuntimeException("No mapping");
 			}
-			Context context = createContext(config);
+			Context context = createContext(config,m_configName);
 			Bean bean = createBeans(context);
 			if( bean == null){
 				throw new RuntimeException("No Bean");
@@ -176,13 +176,14 @@ public class Transformer implements Constants{
 		input.root=false;
 		config.input = csvSet;
 	}
-	private Context createContext(Map config){
+	private Context createContext(Map config,String configName){
 		def context =  new Context();
 		context.mappings = (List<Map>)config.mapping;
 		context.inputTree=  (Map)config.input;
 		context.outputTree= setPath((Map)config.output,"");
 		context.elementIds= [:];
 		context.transformer= this;
+		context.configName= configName;
 		context.beanValues = new HashMap();
 		context.scriptCache = new HashMap();
 		context.beanUtilsBean = BeanUtilsBean.newInstance();
@@ -264,7 +265,7 @@ public class Transformer implements Constants{
 			listBean = new Bean(getClass(context,outputNode), lid, _selector);
 			debug("+++newMapBean:"+beanName+"\t\t\tselector:"+_selector+",id:"+lid+",typeout:"+outputNode.type);
 		}else{
-			listBean = new Bean(ArrayList.class, lid, _selector);
+			listBean = new Bean(getListClass(context), lid, _selector);
 			debug("+++newListBean:"+beanName+"\t\t\tselector:"+_selector+",id:"+lid+",typeout:"+outputNode.type);
 		}
 
@@ -497,6 +498,13 @@ public class Transformer implements Constants{
 		Thread.currentThread().setContextClassLoader(m_nucleusService.getClassLoader(m_storeDesc));
 		return saveCl;
 	}
+	private Class getListClass(Context context){
+		if( context.outputTree.format != FORMAT_POJO ){
+			return HashSet.class;
+		}
+		return ArrayList.class;
+	}
+	
 	private Class getClass(Context context, Map node){
 		if( context.outputTree.format != FORMAT_POJO ){
 			return HashMap.class;
@@ -590,6 +598,7 @@ public class Transformer implements Constants{
 		Transformer transformer;
 		long internalId=0;
 		long level=0;
+		String configName;
 		Map<String,Map<String,Map<String,Object>>>  beanValues;
 		Map<String,Map<String,Script>>  scriptCache;
 		BeanUtilsBean beanUtilsBean;
@@ -641,8 +650,8 @@ public class Transformer implements Constants{
 						String wireId = context.listBeanMap.get(beanId);
 						debug(tabs+"EndPathMap:"+beanNode.path+"\t|values:"+values+"/"+beanId+"/"+wireId);
 						Object beanList = beanContext.getBean(wireId);
-						debug("ListBean---------------------------------------");
-						debug(beanList);
+						//debug("ListBean---------------------------------------");
+						//debug(Transformer.m_js.deepSerialize(beanList));
 
 						for( String key in values.keySet()){
 							String propertyName = key;
@@ -800,7 +809,7 @@ public class Transformer implements Constants{
 				debug(getTabs(context)+"Decode:"+data+",in("+inputNode[NODENAME]+","+inputNode.fieldType+","+inputNode.fieldFormat+") -> out("+outputNode[NODENAME]+","+outputNode.fieldType+"):"+o+"/"+clazz);
 				return o;
 			}catch( ConversionException e){
-				throw new RuntimeException("<b>Datamapper("+m_configName+"):</b>"+e.getMessage()+":(Path:"+inputNode.path+",Type:"+inputNode.fieldType+",Format:"+inputNode.fieldFormat+"):input:"+data);
+				throw new RuntimeException("<b>Datamapper("+context.configName+"):</b>"+e.getMessage()+":(Path:"+inputNode.path+",Type:"+inputNode.fieldType+",Format:"+inputNode.fieldFormat+"):input:"+data);
 			}
 		}
 		private ConvertDesc _getConverter(String type,String format){
