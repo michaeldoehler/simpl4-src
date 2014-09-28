@@ -81,9 +81,9 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		String json = m_gitService.searchContent(sdesc.getNamespace(), datamapperConfigName, "sw.datamapper");
 			datamapperConfig = (Map)m_ds.deserialize(json);
 		}
-		traverseTree( side == INPUT ? datamapperConfig.input as Map : datamapperConfig.output as Map);
-		println("Entities:"+m_js.deepSerialize(m_entityList));
-		println("Relation:"+m_js.deepSerialize(m_relationList));
+		Map inputTree =  side == INPUT ? datamapperConfig.input as Map : datamapperConfig.output as Map;
+		println("InputTree:"+m_js.deepSerialize(inputTree));
+		traverseTree( inputTree);
 		if( !infoOnly){
 			for(Map et : m_entityList ){
 				m_gitMetaData.saveEntitytype(storeId, (String)et.get("name"), et);
