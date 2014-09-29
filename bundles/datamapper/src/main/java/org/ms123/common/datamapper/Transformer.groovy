@@ -415,7 +415,7 @@ public class Transformer implements Constants{
 		return (context.internalId);
 	}
 	private void debug(String msg){
-		println(msg);
+		//println(msg);
 		m_logger.debug(msg);
 	}
 
@@ -499,7 +499,7 @@ public class Transformer implements Constants{
 		return saveCl;
 	}
 	private Class getListClass(Context context){
-		if( context.outputTree.format != FORMAT_POJO ){
+		if( context.outputTree.format == FORMAT_POJO ){
 			return HashSet.class;
 		}
 		return ArrayList.class;
@@ -581,6 +581,7 @@ public class Transformer implements Constants{
 			}
 			throw new RuntimeException("<b>Datamapper("+m_configName+"):</b>"+e.getMethod() + "("+ a + ") not found -> "+ scriptname);
 		}catch(Exception ex){
+			ex.printStackTrace();
 			Map newVars = new HashMap(vars);
 			newVars.remove(SCRIPT_NAME);
 			newVars.remove(SCRIPT_SOURCE);
@@ -682,6 +683,9 @@ public class Transformer implements Constants{
 								Map bean = (Map)event.getBean();
 								bean.put(propertyName, ores);
 							}else{
+def clazz=null;
+if( ores!=null) clazz=ores.getClass();
+debug("setProperty:"+event.getBean()+"/"+propertyName+"="+ores+"/"+clazz);
 								context.beanUtilsBean.setProperty(event.getBean(),propertyName,ores);
 							}
 						}
@@ -756,7 +760,7 @@ public class Transformer implements Constants{
 			return false;
 		}
 		private void debug(Object msg){
-			println(msg);
+			//println(msg);
 			m_logger.debug(msg);
 		}
 	}
@@ -872,7 +876,7 @@ public class Transformer implements Constants{
 			return tabs;
 		}
 		private void debug(Object msg){
-			println(msg);
+			//println(msg);
 			m_logger.debug(msg);
 		}
 	}
