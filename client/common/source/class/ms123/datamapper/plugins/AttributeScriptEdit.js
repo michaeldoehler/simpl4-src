@@ -118,7 +118,6 @@ qx.Class.define("ms123.datamapper.plugins.AttributeScriptEdit", {
 			return str;
 		},
 		_selectionChanged: function () {
-console.error("_selectionChanged");
 			this._cleanScripts();
 			var selItem = this._tree.getSelection()[0];
 			if (selItem == null) {

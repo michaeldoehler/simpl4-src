@@ -121,7 +121,7 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 			modelData.root = true;
 			this._prepareModelData(modelData, "");
 			var temp = qx.lang.Json.stringify(modelData, null, 2);
-			console.log("PreparedModelData:" + temp);
+			//console.log("PreparedModelData:" + temp);
 
 			var model = qx.data.marshal.Json.createModel(modelData, true);
 			this._treeController.setModel(model);
@@ -155,7 +155,7 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 			return tree;
 		},
 		_treeClick: function (e) {
-			console.log("treeClick:" + e.getData());
+			//console.log("treeClick:" + e.getData());
 		},
 		_setup: function () {
 			var self = this;
@@ -175,12 +175,12 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 				bindItem: (function (controller, item, id) {
 					controller.bindProperty("name", "title", {
 						converter:function(data, model, source, target) {
-							console.log("converterName:"+data+"/"+source+"/"+target);
+							//console.log("converterName:"+data+"/"+source+"/"+target);
 							target.setTitle( model.getName());
 							return data;
 						},
 						onUpdate : function(source, target, data) {
-							console.log("onUpdataName:"+data+"/"+source+"/"+target);
+							//console.log("onUpdataName:"+data+"/"+source+"/"+target);
 						}
 					}, item, id);
 					controller.bindProperty(controller.getIconPath(), "icon", controller.getIconOptions(), item, id);
@@ -239,7 +239,7 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 			var children = model.getChildren();
 
 			this._prepareModelData(data, model.getPath());
-			console.log("Data:" + JSON.stringify(data, null, 2));
+			//console.log("Data:" + JSON.stringify(data, null, 2));
 			var m = qx.data.marshal.Json.createModel(data, true);
 			children.push( m);
 			return m;

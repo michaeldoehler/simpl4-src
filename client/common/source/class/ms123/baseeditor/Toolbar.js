@@ -74,7 +74,6 @@ qx.Class.define("ms123.baseeditor.Toolbar", {
 		registryChanged: function (pluginsData) {
 			// Sort plugins by group and index
 			var newPlugs = pluginsData.sortBy((function (value) {
-				console.log("value:" + value);
 				return ((this.groupIndex[value.group] != undefined ? this.groupIndex[value.group] : "") + value.group + "" + value.index).toLowerCase();
 			}).bind(this));
 			var plugs = $A(newPlugs).findAll(qx.lang.Function.bind(function (value) {

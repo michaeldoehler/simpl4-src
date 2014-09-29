@@ -53,6 +53,7 @@ qx.Class.define("ms123.datamapper.create.PojoFieldsEditor", {
 		},
 		getValue: function () {
 			var data = qx.lang.Json.parse(qx.util.Serializer.toJson(this._form.getData()));
+console.log("_createModel.data:"+JSON.stringify(data,null,2));
 			var model = this._createModel(data.entity);	
 			return model;
 		},

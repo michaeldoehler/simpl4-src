@@ -171,9 +171,9 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			sb.addListener("changeSelection", function (e) {
 				var item = this._structureSelectBox.getSelection()[0];
 				if (item) {
-					console.log("changeSelection:" + item.getModel());
+					//console.log("changeSelection:" + item.getModel());
 				} else {
-					console.log("changeSelection:to null");
+					//console.log("changeSelection:to null");
 				}
 				if (this._internalUse === true) return;
 				var item = this._structureSelectBox.getSelection()[0];
@@ -190,7 +190,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			if (item) {
 				return item.getUserData(ms123.datamapper.Config.MAPPING_PARAM);
 			}
-			console.error("_getSelectedStructureMapping:null");
+			//console.error("_getSelectedStructureMapping:null");
 			return null;
 		},
 		_removeStructureMapping: function () {
@@ -234,7 +234,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 					this.oldMap2parent = smapping.map2parent;
 				},
 				execute: function () {
-					console.log("Setting:" + this.newName);
+					//console.log("Setting:" + this.newName);
 					this.mapping.name = this.data.name;
 					this.mapping.map2parent = this.data.map2parent;
 					this.item.setLabel(this.data.name);
@@ -469,7 +469,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			var se = new ms123.datamapper.edit.StructureEditor(this._facade, this._config, this,this.tr("datamapper.structure_editor"));
 			se.addListener("changeValue", function (ev) {
 				var mapping = ev.getData();
-				console.log("mapping:" + JSON.stringify(mapping, null, 2));
+				//console.log("mapping:" + JSON.stringify(mapping, null, 2));
 				mapping.type = ms123.datamapper.Config.STRUCTURE_MAPPING;
 				mapping.id = ms123.util.IdGen.id();
 				mapping.children = {};
@@ -529,7 +529,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 					}
 				});
 			});
-			console.log("result:" + result);
+			//console.log("result:" + result);
 			return result;
 		},
 		_getMappingByConnection: function (conn) {
@@ -577,7 +577,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 				var children = m.children;
 				m.children = {};
 				commandList.push(self.createCommandInsertRemoveMapping(m, false));
-				console.log("children2:" + children);
+				//console.log("children2:" + children);
 				children.each(function (ck) {
 					commandList.push(self.createCommandInsertRemoveMapping(ck, false));
 				});
@@ -681,7 +681,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 					}
 				});
 			});
-			console.log("HIT:" + hit+"/"+id+"/"+side+"/"+attrMapping.length);
+			//console.log("HIT:" + hit+"/"+id+"/"+side+"/"+attrMapping.length);
 			return {
 				hit: hit,
 				sid: sid,
@@ -748,14 +748,14 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			var self = this;
 			keys.each(function (k) {
 				var mapping = self._mappings[k];
-				console.log("Disable:" + mapping.type + "/" + mapping.conn.id);
+				//console.log("Disable:" + mapping.type + "/" + mapping.conn.id);
 				mapping.conn.setType("structure");
 				mapping.conn.setDetachable(false);
 				mapping.conn.endpoints[0].removeClass("endpointEnabled");
 				mapping.conn.endpoints[1].removeClass("endpointEnabled");
 				Object.keys(mapping.children).each(function (k) {
 					var m = mapping.children[k];
-					console.log("\t----->Disable:" + m.type + "/" + m.conn.id);
+					//console.log("\t----->Disable:" + m.type + "/" + m.conn.id);
 					m.conn.setType("attribute");
 					m.conn.setDetachable(false);
 					m.conn.endpoints[0].removeClass("endpointEnabled");
@@ -804,17 +804,17 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			var inputItem = this.getTreeItemById(mapping.input.id, ms123.datamapper.Config.INPUT);
 			var outputItem = this.getTreeItemById(mapping.output.id, ms123.datamapper.Config.OUTPUT);
 
-			console.log("inputItem is:" + inputItem.isOpen());
+			//console.log("inputItem is:" + inputItem.isOpen());
 			inputItem.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_STRUCTURE_SELECTED);
 			outputItem.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_STRUCTURE_SELECTED);
 			mapping.conn.setType("structureSelected");
 			mapping.conn.setDetachable(true);
 			mapping.conn.endpoints[0].addClass("endpointEnabled");
 			mapping.conn.endpoints[1].addClass("endpointEnabled");
-			console.log("\nEnable:" + mapping.type + "/" + mapping.conn.id);
+			//console.log("\nEnable:" + mapping.type + "/" + mapping.conn.id);
 			Object.keys(mapping.children).each(function (k) {
 				var m = mapping.children[k];
-				console.log("\t----->Enable:" + m.type + "/" + m.conn.id);
+				//console.log("\t----->Enable:" + m.type + "/" + m.conn.id);
 				m.conn.setType("attributeSelected");
 				m.conn.setDetachable(true);
 				m.conn.endpoints[0].addClass("endpointEnabled");
@@ -854,7 +854,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 				try {
 					jQuery(el).droppable("option", "disabled", false)
 				} catch (e) {
-					console.log("_handleAttribute:" + e + "/" + el);
+					//console.log("_handleAttribute:" + e + "/" + el);
 				}
 			}
 		},
@@ -889,7 +889,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 					var el = item.getContentElement().getDomElement();
 					var isSource = self._jsPlumb.isSource(el);
 					if (!isSource) {
-						console.log("makeSource:" + el + "/" + item.getModel().getPath());
+						//console.log("makeSource:" + el + "/" + item.getModel().getPath());
 						self._jsPlumb.makeSource(el, {
 							anchor: "RightMiddle",
 							filter: function (evt, el) {
@@ -942,7 +942,7 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 					var el = item.getContentElement().getDomElement();
 					var isTarget = self._jsPlumb.isTarget(el);
 					if (!isTarget) {
-						console.log("makeTarget:" + el + "/" + item.getModel().getPath() + "/" + jQuery(el).size());
+						//console.log("makeTarget:" + el + "/" + item.getModel().getPath() + "/" + jQuery(el).size());
 						self._jsPlumb.makeTarget(el, {
 							anchor: "LeftMiddle",
 							isTarget: true,
@@ -1134,7 +1134,6 @@ qx.Class.define("ms123.datamapper.plugins.MappingEdit", {
 			});
 		},
 		_raiseMappingChanged: function () {
-console.log("_raiseMappingChanged");
 			this._facade.raiseEvent({
 				type: ms123.datamapper.Config.EVENT_MAPPING_CHANGED
 			});
