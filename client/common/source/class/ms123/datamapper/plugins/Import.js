@@ -90,6 +90,21 @@ qx.Class.define("ms123.datamapper.plugins.Import", {
 			return new ms123.datamapper.edit.ImportUploadWindow(this._facade,{id:id}, this.tr("datamapper.upload_file"));
 		},
 		_execute: function (withoutSave) {
+			self = this;
+			var completed = function (ret) {
+				self._hideWait();
+				if(!qx.lang.Type.isString(ret)){
+					ret = JSON.stringify(ret,null,2);
+				}
+				this._msgArea.setValue( ret );
+			}
+			var failed = function (e) {
+				self._hideWait();
+				var msg = e.message;
+				msg = msg.replace(/Application error 500/g, "");
+				msg = msg.replace(/ImportingService.doImport:/g, "");
+				ms123.form.Dialog.alert("<b>Error</b>"+msg);
+			}
 			var rpcParams = {
 				storeId: this._facade.storeDesc.getStoreId(),
 				withoutSave:withoutSave,
@@ -99,26 +114,26 @@ qx.Class.define("ms123.datamapper.plugins.Import", {
 				service: "importing",
 				method: "doImport",
 				parameter: rpcParams,
-				async: false,
+				failed: failed,
+				completed: completed,
+				async: true,
 				context: this
 			}
-			try {
-				var map = ms123.util.Remote.rpcAsync(params);
-				var format = this._facade.getConfig().output.format;
-				if( format == ms123.datamapper.Config.FORMAT_JSON){
-					//map = JSON.stringify(map,null,2);
-				}
-				if(!qx.lang.Type.isString(map)){
-					map = JSON.stringify(map,null,2);
-				}
-				this._msgArea.setValue( map );
-			} catch (details) {
-				var msg = details.message;
-				console.log(details.stack);
-				msg = msg.replace(/Application error 500/g, "");
-				msg = msg.replace(/ImportingService.doImport:/g, "");
-				ms123.form.Dialog.alert("<b>Error</b>"+msg);
-			}
+			this._showWait();
+			ms123.util.Remote.rpcAsync(params);
+		},
+		_hideWait: function () {
+			this._waitdia.hide();
+		},
+		_showWait: function () {
+			this._waitdia = new ms123.form.Alert({
+				"message": "<h3>"+this.tr("datamapper.please_wait")+"</h3>",
+				"noOkButton": true,
+				"inWindow": true,
+				"hide": false,
+				"context": this
+			});
+			this._waitdia.show();
 		},
 		execute_import: function (e) {
 			this._execute(false);
