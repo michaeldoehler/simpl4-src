@@ -64,12 +64,9 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 	members: {
 		create: function () {
 			var allList = this._toStringList(this._getEntitytypes());
-			console.log("allList:" + JSON.stringify(allList, null, 2));
 			var ret = this._createEntitytypes(true);
-			this._newList = this._toStringList(ret.entityList);
-			console.log("newList:" + JSON.stringify(this._newList, null, 2));
-			this._existsList = this._getExistsList(allList, this._newList);
-			console.log("existsList:" + JSON.stringify(this._existsList, null, 2));
+			var newList = this._toStringList(ret.entityList);
+			this._existsList = this._getExistsList(allList, newList);
 
 			var message = "<b>" + this.tr("datamapper.create_classes") + "</b><br/><br/>";
 			message += this.tr("datamapper.classes_exists") + ":<br/>";
@@ -78,16 +75,8 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 				message += "<li>" + this._existsList[i] + "</li>";
 
 			}
-			message += "</ul><br/>";
-
-			message += this.tr("datamapper.new_classes") + ":<br/>";
-			message += "<ul>";
-			for (var i = 0; i < this._newList.length; i++) {
-				message += "<li>" + this._newList[i] + "</li>";
-
-			}
-			message += "</ul><br/>";
-			this._createForm(message);
+			message += "</ul>";
+			this._createForm(message,newList);
 		},
 		_getExistsList: function (allList, newList) {
 			var retList = [];
@@ -200,7 +189,32 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 			//this._setEntityProperties(data.name);
 			ms123.config.ConfigManager.clearCache();
 		},
-		_createForm: function (message) {
+		_getEntityEditConfig: function () {
+			var items = [
+				{
+				id: "entityname",
+				width: 300,
+				type: "TextField",
+				name: "%datamapper.entity"
+			}, {
+				id: "create",
+				type: "CheckBox",
+				width: 60,
+				name: "%datamapper.entity_create"
+			}, {
+				id: "depend",
+				type: "CheckBox",
+				width: 60,
+				name: "%datamapper.entity_depend"
+			}];
+			return items;
+		},
+		_createForm: function (message,entityList) {
+			var evalue = [];
+			for( var i=0; i < entityList.length;i++){
+				evalue.push({entityname:entityList[i], create:true,depend:true});
+			}
+			var svalue = JSON.stringify(evalue);
 			var buttons = [{
 				'label': this.tr("datamapper.generate_classes"),
 				'icon': "icon/22/actions/dialog-ok.png",
@@ -212,6 +226,15 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 				'value': 2
 			}];
 			var formData = {
+				"entities": {
+          'rowflex':1,
+					'height': 200,
+          'type': "ComplexEdit",
+          'caption': this.tr("datamapper.new_classes"),
+					'toolbar':false,
+          'config':this._getEntityEditConfig(),
+          'value':svalue
+        },
 				"createSettings": {
 					'type': "CheckBox",
 					'label': this.tr("datamapper.with_msgs_and_settings"),
@@ -221,7 +244,7 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 					'height': 40,
 					'type': "RadioGroup",
 					'label': this.tr("datamapper.exist_classes"),
-					'value': "change",
+					'value': "overwrite",
 					'options': [{
 						value: "overwrite",
 						label: this.tr("datamapper.overwrite_classes")
