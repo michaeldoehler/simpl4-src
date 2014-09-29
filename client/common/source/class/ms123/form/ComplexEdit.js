@@ -30,6 +30,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 		this._currentTableIndex = -1;
 		this._currentFieldCounter = 1;
 		this._config = context.config;
+		this._hasToolbar = context.toolbar !== false;
 		this._key = key;
 
 		var gb = new qx.ui.groupbox.GroupBox(context.caption);
@@ -108,12 +109,17 @@ qx.Class.define('ms123.form.ComplexEdit', {
 			} catch (e) {}
 		},
 		_dataEditListener:function(e){
-			if( this._inDataEditListener === true) return;
-			this._inDataEditListener = true;
+			console.log("_dataEditListener");
+			this._fireDataEvent();
+		},
+		_fireDataEvent:function(){
+			console.log("_fireDataEvent");
+			if( this._inFireDataEvent === true) return;
+			this._inFireDataEvent = true;
 			var newData = this._getTableData();
 			this.fireDataEvent("changeValue", newData, this._oldData);
 			this._oldData = newData;
-			this._inDataEditListener = false;
+			this._inFireDataEvent = false;
 		},
 		_createTable: function () {
 			var dialogWidth = 0;
@@ -160,6 +166,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 			var selModel = table.getSelectionModel();
 			selModel.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
 			selModel.addListener("changeSelection", function (e) {
+				if( !this._hasToolbar ) return;
 				var index = selModel.getLeadSelectionIndex();
 				var count = selModel.getSelectedCount();
 				if (count == 0) {
@@ -382,6 +389,7 @@ qx.Class.define('ms123.form.ComplexEdit', {
 			} else {
 				this._tableModel.setValue(colnum, rownum, true);
 			}
+			this._fireDataEvent();
 		},
 		// useit checkbox
 		getCheckBox: function () {

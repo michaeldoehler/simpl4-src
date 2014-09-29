@@ -135,6 +135,7 @@ public class EntityServiceImpl extends BaseEntityServiceImpl implements org.ms12
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("datamapperConfigName")        @POptional     String datamapperConfigName, 
 			@PName("datamapperConfig")          @POptional   Map datamapperConfig, 
+			@PName("strategy")          @POptional  List<Map> strategy,
 			@PName("side")            String side,
 			@PName("infoOnly")           @POptional @PDefaultBool(false) Boolean infoOnly
 				) throws RpcException {
@@ -143,7 +144,7 @@ public class EntityServiceImpl extends BaseEntityServiceImpl implements org.ms12
 			if( datamapperConfig == null && datamapperConfigName == null){
 				throw new RpcException(ERROR_FROM_METHOD, 100, "EntityService.createEntitytypes:no datamapperConfig");
 			}
-			return gc.createEntitytypes(storeId, datamapperConfigName, datamapperConfig, side,infoOnly);
+			return gc.createEntitytypes(storeId, datamapperConfigName, datamapperConfig, strategy,side,infoOnly);
 		} catch (Exception e) {
 			if( e instanceof RpcException) throw (RpcException)e;
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "EntityService.saveEntitytype:", e);

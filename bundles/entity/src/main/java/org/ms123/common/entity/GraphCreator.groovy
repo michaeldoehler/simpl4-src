@@ -69,14 +69,16 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 	protected UtilsService m_utilsService;
 	protected GitService m_gitService;
 	protected MetaData m_gitMetaData;
+	protected List<Map> m_strategy;
 
 	protected GraphCreator(EntityServiceImpl esi){
 		m_gitService = esi.m_gitService
 		m_gitMetaData = esi.m_gitMetaData
 		m_js.prettyPrint(true);
 	}
-	public Map createEntitytypes(String storeId, String datamapperConfigName, Map datamapperConfig, String side, boolean infoOnly){
+	public Map createEntitytypes(String storeId, String datamapperConfigName, Map datamapperConfig, List<Map> strategy, String side, boolean infoOnly){
 		StoreDesc sdesc = StoreDesc.get(storeId);
+		m_strategy = strategy;
 		if( datamapperConfigName != null){
 		String json = m_gitService.searchContent(sdesc.getNamespace(), datamapperConfigName, "sw.datamapper");
 			datamapperConfig = (Map)m_ds.deserialize(json);
@@ -86,7 +88,9 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		traverseTree( inputTree);
 		if( !infoOnly){
 			for(Map et : m_entityList ){
-				m_gitMetaData.saveEntitytype(storeId, (String)et.get("name"), et);
+				if( isCreateEnabled( (String)et.get("name"))){
+					m_gitMetaData.saveEntitytype(storeId, (String)et.get("name"), et);
+				}
 			}
 
 			List<Map> relations = m_gitMetaData.getRelations(storeId);
@@ -97,6 +101,15 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		return [ entityList: m_entityList, relationList : m_relationList ];
 	}
 
+	private boolean isCreateEnabled(String name){
+		if( m_strategy==null) return true;
+		for( Map emap : m_strategy){
+			if( name.equals(emap.get("entityname")) && (Boolean)emap.get("create")){
+				return true;
+			}
+		}
+		return false;
+	}
 	private List<Map> removeExtingRelations(List<Map> relations, List<Map> entityList){
 		List<Map> newRelations = new ArrayList();
 		for( Map relation : relations ){
@@ -156,8 +169,16 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		fields[field.name as String] = field;
 	}
 
+	private String getBasename(Map<String,String> entity){
+		String entityName = entity.get("name");
+		int dot = entityName.lastIndexOf(".");
+		if( dot == -1) return entityName;
+		return entityName.substring(dot+1);
+	}
 	private void createRelation(Map leftEntity,Map rightEntity,String type){
 		Map relation = [:];
+		if( !isCreateEnabled( getBasename(leftEntity))) return;
+		if( !isCreateEnabled( getBasename(rightEntity))) return;
 		relation.rightmodule= "data."+(rightEntity.name as String);
     relation.leftfield= null;
     relation.leftmodule= "data."+(leftEntity.name as String);

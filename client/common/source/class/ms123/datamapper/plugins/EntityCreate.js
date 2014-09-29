@@ -64,7 +64,7 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 	members: {
 		create: function () {
 			var allList = this._toStringList(this._getEntitytypes());
-			var ret = this._createEntitytypes(true);
+			var ret = this._createEntitytypes(true,null);
 			var newList = this._toStringList(ret.entityList);
 			this._existsList = this._getExistsList(allList, newList);
 
@@ -118,12 +118,13 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 				return null;
 			}
 		},
-		_createEntitytypes: function (infoOnly) {
+		_createEntitytypes: function (infoOnly,strategy) {
 			try {
 				var ret = ms123.util.Remote.rpcSync("entity:createEntitytypes", {
 					storeId: this._facade.storeDesc.getStoreId(),
 					datamapperConfig: this._facade.getConfig(),
 					side: this._side,
+					strategy: strategy,
 					infoOnly: infoOnly
 				});
 				return ret;
@@ -174,19 +175,17 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 				return;
 			}
 		},
-		_doAll: function (flags) {
-			var kind = flags.get("kind");
-			var createSettings = flags.get("createSettings");
+		_doAll: function (options) {
+			var kind = options.get("kind");
+			var createSettings = options.get("createSettings");
 			if (kind == "overwrite") {
 				this._cleanTables();
-				//this._removeSettings();
 			}
-			var ret = this._createEntitytypes(false);
+			var ret = this._createEntitytypes(false,options.get("entities"));
 			if (createSettings) {
 				this._createSettings(ret.entityList);
 			}
 			this._createClasses(false);
-			//this._setEntityProperties(data.name);
 			ms123.config.ConfigManager.clearCache();
 		},
 		_getEntityEditConfig: function () {

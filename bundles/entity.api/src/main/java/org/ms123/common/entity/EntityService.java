@@ -39,5 +39,5 @@ public interface EntityService {
 	public void deleteEntitytypes( String storeId) throws RpcException;
 	public List<Map> getEntitytypes(String storeId) throws RpcException;
 	public Map<String, Object> getEntitytype(String storeId,  String name) throws RpcException;
-	public Map createEntitytypes( String storeId, String dataMapperConfigName, Map dataMapperConfig, String side,Boolean infoOnly) throws RpcException;
+	public Map createEntitytypes( String storeId, String dataMapperConfigName, Map dataMapperConfig, List<Map> strategy, String side,Boolean infoOnly) throws RpcException;
 }
