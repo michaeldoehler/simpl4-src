@@ -71,10 +71,12 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			new ms123.baseeditor.Undo(this._facade);
 			var isDefaultsEnabled = config.output.format == ms123.datamapper.Config.FORMAT_POJO;
 			if( isDefaultsEnabled){
-				var mainEntity = config.output.cleanName;
-				var cm = new ms123.config.ConfigManager();
-				var e = cm.getEntity(mainEntity, this._facade.storeDesc);
-				if( e==null) isDefaultsEnabled = false;
+				var mainEntity = this._getMainEntity(config.output);
+				if( mainEntity==null){
+					 isDefaultsEnabled = false;
+				}else{
+					config.output.cleanName = mainEntity;
+				}
 			}
 			new ms123.datamapper.plugins.ViewSwitch(this._facade, isDefaultsEnabled);
 			new ms123.datamapper.plugins.Save(this._facade);
@@ -217,6 +219,18 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			data.mapping = this._facade.mappingEdit.getCleanMappings();
 			data.fileId = this._facade.preview.getFileId();
 			return data;
+		},
+		_getMainEntity:function(tree){
+			var mainEntity = tree.cleanName;
+			var cm = new ms123.config.ConfigManager();
+			if( cm.getEntity(mainEntity, this._facade.storeDesc)){
+				return mainEntity;
+			}
+			for( var i=0; i < tree.children.length;i++){
+				var me = this._getMainEntity(tree.children[i]);	
+				if( me) return me;
+			}
+			return null;
 		},
 		_save: function (data) {
 			if( !data){
