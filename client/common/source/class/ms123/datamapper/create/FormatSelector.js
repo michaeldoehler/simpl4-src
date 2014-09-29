@@ -50,7 +50,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		}
 		this._enableDisable(false);
 		this._cache={};
-		this._currentFormat;
+		this._currentFormat = this._formatSelectBox.getSelection()[0].getModel();
 		this._currentKind;
 		this._setStatus();
 		this.addListener("changeValue", function(e){
@@ -164,7 +164,10 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				this._currentKind=rg.getSelection()[0].getUserData("kind");
 				var data = 	this._cache[this._getCacheKey()];
 				if( this._currentKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
-					data = ms123.datamapper.Config.KIND_LIKE_INPUT;
+					data = {
+							kind: ms123.datamapper.Config.KIND_LIKE_INPUT,
+							format: this._currentFormat
+					}
 				}
 				this._enableDisable();
 				this.fireDataEvent("changeValue", data, null);
