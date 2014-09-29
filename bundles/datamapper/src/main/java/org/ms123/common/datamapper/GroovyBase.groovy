@@ -106,11 +106,11 @@ public abstract class GroovyBase extends Script implements Constants {
 	]
 
 	public void setProperty(String name,Object value){
-		System.out.println("GroovyBase.setProperty:"+value);
+		//System.out.println("GroovyBase.setProperty:"+value);
 		m_properties.put(name,value);
 	}
 	public Object getProperty(String name){
-		System.out.println("GroovyBase.getProperty:"+name);
+		//System.out.println("GroovyBase.getProperty:"+name);
 		Object o = m_properties.get(name);
 		if( o != null ) return o;
 		return super.getProperty(name);
@@ -144,9 +144,9 @@ public abstract class GroovyBase extends Script implements Constants {
 		argsStr = ")";
 
 		try{
-			print("calling:"+name+argsStr);
+			//print("calling:"+name+argsStr);
 			def ret = conv.convert( c.toClazz, args[0]);
-			println(" -> "+ret+"/"+ret.getClass());
+			//println(" -> "+ret+"/"+ret.getClass());
 			return ret;
 		}catch(Exception e){
 			throw new RuntimeException("<b>Datamapper("+getConfigName()+"):</b>"+constructErrorMessage(e,name));
