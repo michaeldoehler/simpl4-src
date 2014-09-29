@@ -37,10 +37,12 @@ qx.Class.define('ms123.form.ComplexEdit', {
 		gb.setLayout(new qx.ui.layout.Dock());
 
 		var table = this._createTable();
-		var toolbar = this._createToolbar();
-		gb.add(toolbar, {
-			edge: "north"
-		});
+		if( context.toolbar !== false ){
+			var toolbar = this._createToolbar();
+			gb.add(toolbar, {
+				edge: "north"
+			});
+		}
 		gb.add(table, {
 			edge: "center"
 		});
@@ -125,7 +127,15 @@ qx.Class.define('ms123.form.ComplexEdit', {
 				var header = items[i].name;
 				var type = items[i].type;
 				colIds.push(id);
+				if( header.match(/^%/)){
+					header = this.tr(header.substring(1));
+				}
 				colHds.push(header);
+
+				if (type.toLowerCase() == "checkbox") {
+					type = ms123.oryx.Config.TYPE_BOOLEAN;
+					items[i].type = type;
+				}
 
 				if (type == ms123.oryx.Config.TYPE_CHOICE) {
 					type = ms123.oryx.Config.TYPE_STRING;

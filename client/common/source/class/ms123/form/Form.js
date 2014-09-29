@@ -612,6 +612,7 @@ qx.Class.define("ms123.form.Form", {
 					context.storeDesc = this.__storeDesc;
 					context.config = fieldData.config;
 					context.caption = fieldData.caption;
+					context.toolbar = fieldData.toolbar;
 					formElement = new ms123.form.ComplexEdit(context, key);
 					if (this._useitCheckboxes) {
 						var cb = formElement.getCheckBox();
