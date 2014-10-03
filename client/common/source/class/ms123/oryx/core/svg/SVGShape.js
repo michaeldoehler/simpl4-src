@@ -308,6 +308,8 @@ qx.Class.define("ms123.oryx.core.svg.SVGShape", {
 			}
 
 			//anchors
+			var leftSet = false;
+			var topSet = false;
 			var anchorAttr = this.element.getAttributeNS(ms123.oryx.Config.NAMESPACE_ORYX, "anchors");
 			if (anchorAttr) {
 				anchorAttr = anchorAttr.replace("/,/g", " ");
@@ -317,20 +319,36 @@ qx.Class.define("ms123.oryx.core.svg.SVGShape", {
 					switch (anchors[i].toLowerCase()) {
 					case "left":
 						this.anchorLeft = true;
+						leftSet=true;
 						break;
 					case "right":
 						this.anchorRight = true;
 						break;
 					case "top":
 						this.anchorTop = true;
+						leftSet=false;
 						break;
 					case "bottom":
 						this.anchorBottom = true;
+						this.anchorTop = false;
 						break;
 					}
 				}
 			}
+			if( this.anchorBottom && leftSet==false){
+				this.anchorLeft= false;
+			}
 
+			if( this.anchorBottom && topSet==false){
+				this.anchorTop= false;
+			}
+			if( this.anchorRight && leftSet==false){
+				this.anchorLeft= false;
+			}
+
+			if( this.anchorRight && topSet==false){
+				this.anchorTop= false;
+			}
 			//allowDockers and resizeMarkerMid
 			if (ms123.oryx.Editor.checkClassType(this.element, SVGPathElement)) {
 				var allowDockersAttr = this.element.getAttributeNS(ms123.oryx.Config.NAMESPACE_ORYX, "allowDockers");
