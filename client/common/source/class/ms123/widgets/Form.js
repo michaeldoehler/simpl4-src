@@ -963,6 +963,7 @@ console.log("val:"+p+"="+val);
 			}
 		},
 	 _expandString:function(str, binding) {
+			if( !str) return "";
 			var countRepl = 0;
 			var countPlainStr = 0;
 			var replacement = null;
