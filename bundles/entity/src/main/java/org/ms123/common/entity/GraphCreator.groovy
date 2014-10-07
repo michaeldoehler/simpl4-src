@@ -162,6 +162,9 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		field.name = treeNode.name;
 		def type = treeNode.fieldType;
 		if( type == "byte") type = "binary";
+		if( type == "double") type = "decimal";
+		if( type == "integer") type = "number";
+		if( type == "long") type = "number";
 		field.datatype = type;
 		field.edittype = getEditType(type as String);
 		field.enabled = true;

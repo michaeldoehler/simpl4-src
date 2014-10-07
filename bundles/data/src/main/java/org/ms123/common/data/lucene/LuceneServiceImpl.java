@@ -480,6 +480,8 @@ public class LuceneServiceImpl implements org.ms123.common.data.api.LuceneServic
 			AbstractField field = null;
 			AbstractField ft_field = null;
 			String dt = (String) m.get("datatype");
+			if( "decimal".equals(dt)) dt = "double";
+			if( "number".equals(dt)) dt = "integer";
 			if ("date".equals(dt)) {
 				Date date = (Date) inMap.get(name);
 				String value = DateTools.dateToString(date, DateTools.Resolution.DAY);
