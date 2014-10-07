@@ -70,12 +70,15 @@ qx.Class.define("ms123.datamapper.plugins.EntityCreate", {
 
 			var message = "<b>" + this.tr("datamapper.create_classes") + "</b><br/><br/>";
 			message += this.tr("datamapper.classes_exists") + ":<br/>";
-			message += "<ul>";
-			for (var i = 0; i < this._existsList.length; i++) {
-				message += "<li>" + this._existsList[i] + "</li>";
-
+			if( this._existsList.length >0){
+				message += "<ul>";
+				for (var i = 0; i < this._existsList.length; i++) {
+					message += "<li>" + this._existsList[i] + "</li>";
+				}
+				message += "</ul>";
+			}else{
+				message += "<div>-----</div>";
 			}
-			message += "</ul>";
 			this._createForm(message,newList);
 		},
 		_getExistsList: function (allList, newList) {
