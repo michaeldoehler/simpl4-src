@@ -255,7 +255,16 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}
 		target = target.substring(("/" + namespace + "/").length());
 		debug("m_basedir:"+m_basedir+"|target:"+target);
-		if (target.endsWith("start.html")) {
+		if( (target.startsWith("resource/s4") || namespace.equals("s4")) && target.indexOf("s4c/build") == -1){
+			target = "s4c/build/"+target;
+		}
+		if (target.endsWith("start.html") && namespace.equals("s4")) {
+			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/s4c.html"));
+			response.setContentType("text/html;charset=UTF-8");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
+		}else if (target.endsWith("start.html")) {
 			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/start.html"));
 			response.setContentType("text/html;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());

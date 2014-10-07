@@ -183,6 +183,15 @@ configure(project(":client")){
 			gzipFile("${qooxdooBuildDir}/common/script/ms123.js", "${qooxdooBuildDir}/common/script/ms123.js.gz");
 		}
 	}
+	task compileS4c (type:Task) { 
+		if(!file(qoodooSDK).isDirectory()){
+			dependsOn unzipQooxdoo
+		}
+		doLast(){
+			compileQooxdoo("s4c");
+			gzipFile("${qooxdooBuildDir}/s4c/script/s4c.js", "${qooxdooBuildDir}/s4c/script/s4c.js.gz");
+		}
+	}
 	task compileWebsite (type:Task) { 
 		if(!file(qoodooSDK).isDirectory()){
 			dependsOn unzipQooxdoo
@@ -297,6 +306,10 @@ def deployClientPart(destdir){
 	}
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/website/build"){
 		fileset(dir:"${qooxdooBuildDir}/website") {
+		}
+	}
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/s4c/build"){
+		fileset(dir:"${qooxdooBuildDir}/s4c") {
 		}
 	}
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
