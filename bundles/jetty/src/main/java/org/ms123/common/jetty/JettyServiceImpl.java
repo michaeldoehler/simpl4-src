@@ -255,11 +255,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}
 		target = target.substring(("/" + namespace + "/").length());
 		debug("m_basedir:"+m_basedir+"|target:"+target);
-		if( (target.startsWith("resource/s4") || namespace.equals("s4")) && target.indexOf("s4c/build") == -1){
-			target = "s4c/build/"+target;
-		}
-		if (target.endsWith("start.html") && namespace.equals("s4")) {
-			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/s4c.html"));
+		if (target.endsWith("mobile.html")) {
+			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/mobile.html"));
 			response.setContentType("text/html;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
@@ -288,14 +285,16 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			m_docbookService.getAsset(ns, assetName, "image/"+ext, request, response);
 		} else if (target.endsWith(".css")) {
 		target = removeFirstSegmentInCaseWebsite(target);
-			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/css;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".js.gz")) {
 		target = removeFirstSegmentInCaseWebsite(target);
-			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/javascript;charset=UTF-8");
 			response.setHeader("Content-Encoding","gzip");
 			response.addDateHeader("Date", new java.util.Date().getTime());
@@ -304,7 +303,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		} else if (target.endsWith(".js")) {
 		target = removeFirstSegmentInCaseWebsite(target);
 
-			FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/javascript;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
@@ -396,8 +396,21 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		if (fr.exists()) {
 			return fr;
 		}
+		fr = new FileResource(new URL("file:" + basedir + "/client/mobile/build/" + target));
+		if (fr.exists()) {
+			return fr;
+		}
 		fr = new FileResource(new URL("file:" + basedir + "/client/" + target));
-debug("getFileResource:"+fr);
+		debug("getFileResource:"+fr);
+		return fr;
+	}
+	private FileResource getFileResource2(String basedir, String target) throws Exception {
+		FileResource fr = new FileResource(new URL("file:" + basedir + "/client/" + target));
+		if (fr.exists()) {
+			return fr;
+		}
+		fr = new FileResource(new URL("file:" + basedir + "/client/mobile/build/" + target));
+		debug("getFileResource:"+fr);
 		return fr;
 	}
 

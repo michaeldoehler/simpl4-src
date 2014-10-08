@@ -117,7 +117,7 @@ cp    $SRCTOPDIR/etc/README-deployed.md $DESTDIRECTORY/README.md
 
 
 cp $SRCTOPDIR/client/start.html $CLIENTDIRECTORY
-cp $SRCTOPDIR/client/s4c.html $CLIENTDIRECTORY
+cp $SRCTOPDIR/client/mobile.html $CLIENTDIRECTORY
 cp $SRCTOPDIR/client/website.html $CLIENTDIRECTORY
 
 cp $FROMCLIENT/legacy/css/xaddr.css $CLIENTLECACYDIRECTORY/css

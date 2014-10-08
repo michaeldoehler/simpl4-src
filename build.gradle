@@ -183,13 +183,13 @@ configure(project(":client")){
 			gzipFile("${qooxdooBuildDir}/common/script/ms123.js", "${qooxdooBuildDir}/common/script/ms123.js.gz");
 		}
 	}
-	task compileS4c (type:Task) { 
+	task compileMobile (type:Task) { 
 		if(!file(qoodooSDK).isDirectory()){
 			dependsOn unzipQooxdoo
 		}
 		doLast(){
-			compileQooxdoo("s4c");
-			gzipFile("${qooxdooBuildDir}/s4c/script/s4c.js", "${qooxdooBuildDir}/s4c/script/s4c.js.gz");
+			compileQooxdoo("mobile");
+			gzipFile("${qooxdooBuildDir}/mobile/script/mobile.js", "${qooxdooBuildDir}/mobile/script/mobile.js.gz");
 		}
 	}
 	task compileWebsite (type:Task) { 
@@ -284,6 +284,7 @@ def getShortName(name){
 def compileQooxdoo(what) {
 	def cache = "${rootDir}/build/${currentBranch}/.qooxdooCache";
 	if( os == "unix"){
+			println( "commandLine \"python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build\".tokenize()")
 		exec {
 			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()
 		}
@@ -308,8 +309,8 @@ def deployClientPart(destdir){
 		fileset(dir:"${qooxdooBuildDir}/website") {
 		}
 	}
-	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/s4c/build"){
-		fileset(dir:"${qooxdooBuildDir}/s4c") {
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/mobile/build"){
+		fileset(dir:"${qooxdooBuildDir}/mobile") {
 		}
 	}
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
