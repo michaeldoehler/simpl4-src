@@ -280,6 +280,17 @@ public class DocbookServiceImpl extends BaseDocbookServiceImpl implements Docboo
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DocbookServiceImpl.jsonToDocbookPdf:", e);
 		}
 	}
+	public String getHtml(
+			@PName(StoreDesc.NAMESPACE) String namespace, 
+			@PName("name")         String name 
+			) throws RpcException {
+		try {
+			File indexFile = new File(System.getProperty("workspace"),name); 
+				return readFileToString(indexFile);
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DocbookServiceImpl.getAsset:", e);
+		}
+	}
 
 	/* END JSON-RPC-API*/
 	@Reference(target = "(kind=jdo)", dynamic = true, optional = true)
