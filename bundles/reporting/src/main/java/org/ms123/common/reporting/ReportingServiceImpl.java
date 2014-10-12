@@ -82,22 +82,21 @@ public class ReportingServiceImpl implements ReportingService {
 
 	public String generateReport(Collection<Map> data, List<String> fieldsArray, List<String> aliasesArray, Map configMap, String type, Map options, OutputStream outputStream) throws Exception {
 		Map params = new HashMap();
-		System.out.println("xgenerateReport.options:" + options);
-		System.out.println("xgenerateReport.datasize:" + data.size());
-		System.out.println("xgenerateReport.data:" + data);
-		System.out.println("xgenerateReport.type:" + type + "," + fieldsArray);
 		Style detailStyle = new Style();
 		Style headerStyle = new Style();
-		headerStyle.setFont(Font.ARIAL_BIG_BOLD);
+		headerStyle.setFont(Font.ARIAL_MEDIUM_BOLD);
 		//		headerStyle.setBorderBottom(Border.PEN_2_POINT);
-		headerStyle.setHorizontalAlign(HorizontalAlign.CENTER);
+		headerStyle.setHorizontalAlign(HorizontalAlign.LEFT);
 		headerStyle.setVerticalAlign(VerticalAlign.MIDDLE);
-		headerStyle.setBackgroundColor(Color.decode("#2891eb"));
+		headerStyle.setBackgroundColor(Color.decode("#999999"));
 		headerStyle.setTextColor(Color.WHITE);
 		headerStyle.setTransparency(Transparency.OPAQUE);
+		Style oddStyle = new Style();
+		oddStyle.setBackgroundColor(Color.decode("#f0f0f0"));
+
 		int percentEach = 100 / fieldsArray.size();
-		System.out.println("xgenerateReport.percentEachColumn:" + percentEach);
 		DynamicReportBuilder drb = new DynamicReportBuilder();
+		drb.setOddRowBackgroundStyle( oddStyle);
 		int i = 0;
 		for (String field : fieldsArray) {
 			boolean isDate = false;
@@ -119,7 +118,6 @@ public class ReportingServiceImpl implements ReportingService {
 				col.setTitle(field.replace('$', '!'));
 			}
 			//Replace $-Sign in Vars, Jasper don't like it
-System.out.println("Field:"+field+"|"+dt+"|"+isDate);
 			col.setColumnProperty(field.replace('$', '!'), dt);
 			List<Map> data_new = new ArrayList<Map>();
 			for (Map m : data) {
