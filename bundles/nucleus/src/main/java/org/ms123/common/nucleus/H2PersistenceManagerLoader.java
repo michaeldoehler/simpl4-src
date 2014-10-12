@@ -84,19 +84,18 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 	protected synchronized void setDataSources() {
 		boolean b_script = false;
 		JdbcDataSource xa = new JdbcDataSource();
-		File f = new File(m_baseDir,"swlock");
-		if( !f.exists()){
-			f = new File(m_baseDir,"script.sql");
-			if( f.exists()){
+		File fDB = new File(m_baseDir,"dbh2.h2.db");
+		File fLock = new File(m_baseDir,"swlock");
+		if( !fLock.exists() || !fDB.exists() ){
+			File fScript = new File(m_baseDir,"script.sql");
+			if( fScript.exists()){
 				b_script=true;
-				f = new File(m_baseDir,"dbh2.h2.db");
-				if( f.exists()){
-					f.delete();
+				if( fDB.exists()){
+					fDB.delete();
 				}
 			}
-		}else{
-			f.delete();
 		}
+		if( fLock.exists()) fLock.delete();
 		debug("setDataSources:"+m_baseDir+","+b_script);
 		xa.setUser("sa");
 		xa.setPassword("sa");
