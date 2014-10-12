@@ -1,14 +1,6 @@
-/* ************************************************************************
-
-   Copyright:
-
-   License:
-
-   Authors:
-
-************************************************************************ */
 
 /**
+ * Mobile page responsible for showing the different showcases.
  */
 qx.Class.define("mobile.page.Overview",
 {
@@ -18,8 +10,13 @@ qx.Class.define("mobile.page.Overview",
   {
     this.base(arguments);
     this.setTitle("Overview");
-    this.setShowBackButton(true);
-    this.setBackButtonText("Back");
+  },
+
+
+  events :
+  {
+    /** The page to show */
+    "show" : "qx.event.type.Data"
   },
 
 
@@ -30,25 +27,40 @@ qx.Class.define("mobile.page.Overview",
     {
       this.base(arguments);
 
-      this.getContent().add(new qx.ui.mobile.basic.Label("Your first app."));
+      var list = new qx.ui.mobile.list.List({
+        configureItem : function(item, data, row)
+        {
+          item.setTitle(data.title);
+          item.setSubtitle(data.subtitle);
+          item.setShowArrow(true);
+        }
+      });
 
-var e = new qx.ui.mobile.embed.Html(this._getHtml("s4", "index.html"));
-this.getContent().add(e);
-    },
+      var data = [
+          {title : "Basic Widgets", subtitle : "Buttons, Labels, Images, Atoms...", path:"basic"},
+          {title : "Dialog Widgets", subtitle : "Popups, Confirm Dialogs...", path:"testhtml"},
+          {title : "Form Elements", subtitle : "TextField, TextArea, Checkboxes...", path:"form"},
+          {title : "List", subtitle : "A large list", path:"list"},
+          {title : "Carousel", subtitle : "A carousel container", path:"carousel"},
+          {title : "Drawer", subtitle : "Create a drawer container", path:"drawer"},
+          {title : "Tab Bar", subtitle : "Using tabs to switch views", path:"tab"},
+          {title : "Toolbar", subtitle : "Toolbar buttons and separators", path:"toolbar"},
+          {title : "Maps", subtitle : "Geolocation on a fullscreen map", path:"maps"},
+          {title : "Canvas", subtitle : "Draw onto a HTML5 canvas", path:"canvas"},
+          {title : "Events", subtitle : "Touch, Tap, Swipe...", path:"event"},
+          {title : "Data Binding", subtitle : "See how data binding works", path:"databinding"},
+          {title : "Page Transitions", subtitle : "Slide, Fade, Cube...", path:"animation"},
+          {title : "Theming", subtitle : "Modify the look of an app...", path:"theming"}
+      ];
 
-		_getHtml: function (namespace, name) {
-			ms123.util.Remote._username="admin";
-			ms123.util.Remote._password="admin";
-			return ms123.util.Remote.rpcSync("docbook:getHtml", {
-				namespace: namespace,
-				name: name
-			});
-		},
+      list.setModel(new qx.data.Array(data));
+      list.addListener("changeSelection", function(evt) {
+        var path = data[evt.getData()].path;
+        qx.core.Init.getApplication().getRouting().executeGet("/"+path);
+      }, this);
 
-    // overridden
-    _back : function()
-    {
-      qx.core.Init.getApplication().getRouting().back();
+      this.getContent().add(list);
+
     }
   }
 });

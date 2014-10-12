@@ -49,17 +49,28 @@ qx.Class.define("mobile.Application",
 
       var login = new mobile.page.Login();
       var overview = new mobile.page.Overview();
+      var basic = new mobile.page.Basic();
+      var testhtml = new mobile.page.Testhtml();
 
       // Add the pages to the page manager.
-      var manager = new qx.ui.mobile.page.Manager(false);
+      var manager = new qx.ui.mobile.page.Manager();
+      manager.addMaster(overview);
       manager.addDetail([
+        basic,
         login,
-        overview
+				testhtml
       ]);
 
+      if (qx.core.Environment.get("device.type") == "tablet" ||
+       qx.core.Environment.get("device.type") == "desktop") {
+        this.getRouting().onGet("/.*", this._show, overview);
+        this.getRouting().onGet("/", this._show, basic);
+      }
       // Initialize the application routing
-      this.getRouting().onGet("/", this._show, login);
-      this.getRouting().onGet("/overview", this._show, overview);
+      this.getRouting().onGet("/", this._show, overview);
+      this.getRouting().onGet("/basic", this._show, basic);
+      this.getRouting().onGet("/login", this._show, login);
+      this.getRouting().onGet("/testhtml", this._show, testhtml);
 
       this.getRouting().init();
     },

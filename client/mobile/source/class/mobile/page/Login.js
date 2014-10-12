@@ -12,7 +12,7 @@
  */
 qx.Class.define("mobile.page.Login",
 {
-  extend : qx.ui.mobile.page.NavigationPage,
+  extend : mobile.page.Abstract,
 
   construct : function()
   {
