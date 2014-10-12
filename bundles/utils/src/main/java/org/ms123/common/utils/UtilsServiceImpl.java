@@ -349,9 +349,9 @@ public class UtilsServiceImpl implements UtilsService {
 		Bindings b = se.createBindings();
 		b.putAll(params);
 		b.put("jdo", m_dataLayer);
-		b.put("ws", lookupServiceByName("org.ms123.common.workflow.WorkflowService"));
-		b.put("ss", lookupServiceByName("org.ms123.common.setting.SettingService"));
-		b.put("et", lookupServiceByName("org.ms123.common.entity.EntityService"));
+		b.put("ws", lookupServiceByName("org.ms123.common.workflow.api.WorkflowService"));
+		b.put("ss", lookupServiceByName("org.ms123.common.setting.api.SettingService"));
+		b.put("et", lookupServiceByName("org.ms123.common.entity.api.EntityService"));
 		b.put("storeDesc", sdesc);
 		b.put("home", System.getProperty("simpl4.dir"));
 		b.put("log", m_logger);
