@@ -91,12 +91,12 @@ public class ReportingServiceImpl implements ReportingService {
 		headerStyle.setBackgroundColor(Color.decode("#999999"));
 		headerStyle.setTextColor(Color.WHITE);
 		headerStyle.setTransparency(Transparency.OPAQUE);
+
 		Style oddStyle = new Style();
 		oddStyle.setBackgroundColor(Color.decode("#f0f0f0"));
 
 		int percentEach = 100 / fieldsArray.size();
 		DynamicReportBuilder drb = new DynamicReportBuilder();
-		drb.setOddRowBackgroundStyle( oddStyle);
 		int i = 0;
 		for (String field : fieldsArray) {
 			boolean isDate = false;
@@ -139,14 +139,18 @@ public class ReportingServiceImpl implements ReportingService {
 			drb.addColumn(col.build());
 			i++;
 		}
-		drb.setPrintBackgroundOnOddRows(true);
-		if (type == "xls" || type == "csv") {
+		if ("xls".equals(type) || "csv".equals(type)) {
 			drb.setPrintBackgroundOnOddRows(false);
 			drb.setIgnorePagination(true);
 			drb.setMargins(0, 0, 0, 0);
 		}
-		if (type == "html") {
-			//drb.setPrintBackgroundOnOddRows(false)			
+		if ("pdf".equals(type)) {
+			drb.setOddRowBackgroundStyle( oddStyle);
+			drb.setPrintBackgroundOnOddRows(true);
+		}
+		if ("html".equals(type)) {
+			drb.setOddRowBackgroundStyle( oddStyle);
+			drb.setPrintBackgroundOnOddRows(true);
 			drb.setIgnorePagination(true);
 			drb.setMargins(0, 0, 0, 0);
 		}
