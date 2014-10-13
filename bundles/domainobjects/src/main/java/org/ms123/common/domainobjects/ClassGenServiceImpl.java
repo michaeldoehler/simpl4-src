@@ -672,7 +672,7 @@ public class ClassGenServiceImpl implements ClassGenService {
 					generateConstraints(f, (List) co);
 				}
 			}
-			if (!datatype.equals("binary") && !datatype.equals("fulltext") && !isGraphical && !datatype.startsWith("map_") || !datatype.startsWith("list_")) {
+			if (!datatype.equals("binary") && !datatype.equals("fulltext") && !isGraphical && !datatype.startsWith("map_") && !datatype.startsWith("list_")) {
 				Annotation ann = new Annotation("javax.jdo.annotations.Index", constPool);
 				ann.addMemberValue("name", new StringMemberValue("index_" + classname.replaceAll("\\.", "_").toLowerCase() + "_" + name, constPool));
 				fieldAttr.addAnnotation(ann);
