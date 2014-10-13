@@ -176,7 +176,7 @@ qx.Class.define("ms123.Crud", {
 				search.addListenerOnce("appear", function () {
 					search.scrollToEnd();
 				}, this);
-			search.setHeight(48);
+			search.setHeight(50);
 			this._doLayout(page, sidebar, search, mwidget.table, details);
 			try {
 				search.scrollToEnd();

@@ -54,8 +54,8 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 		this._createChildControl("arrow");
 
 		// Register listener
-		this.addListener("click", this._onClick, this);
-		this.addListener("mousewheel", this._onMouseWheel, this);
+		this.addListener("tap", this._onClick, this);
+		this.addListener("roll", this._onMouseWheel, this);
 		this.addListener("changeSelection", this.__onChangeSelection, this);
 	},
 
@@ -129,7 +129,6 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 					}
 				});
 				this.__changeListenerDisabled = false;
-				control.addListener("mousedown", this._onTreeMouseDown, this);
 				control.addListener("open", this._onOpen, this);
 				break;
 
@@ -159,7 +158,7 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 				control = new qx.ui.popup.Popup(new qx.ui.layout.VBox);
 				control.setAutoHide(false);
 				control.setKeepActive(true);
-				control.addListener("mouseup", this.close, this);
+				control.addListener("tap", this.close, this);
 				control.add(this.__getTree());
 				break;
 			}
@@ -205,7 +204,13 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 			if (label && label.translate) {
 				label = label.translate();
 			}
-			label == null ? atom.resetLabel() : atom.setLabel(label);
+			if( label == null){
+				atom.resetLabel();
+				atom.setToolTipText(null);
+			}else{
+				atom.setLabel(label);
+				atom.setToolTipText(label);
+			}
 		},
 		_defaultFormat: function (item) {
 			var delim = "";
@@ -328,6 +333,7 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 		 * param e {qx.event.type.Data} Data event.
 		 */
 		__onChangeSelection: function (e) {
+			console.log("__onChangeSelection");
 			var item = e.getData()[0];
 			if( !item ) return;
 			var tree = this.__getTree();
@@ -351,6 +357,7 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 		 * Hides the list popup.
 		 */
 		close: function () {
+			  console.log("popup.close");
 				this.__globalSearchString = null;
 			if (this.notClose) {
 				this.notClose = false;
@@ -375,12 +382,12 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 		 * param e {qx.event.type.Mouse} Mouse event
 		 */
 		_onMouseWheel: function (e) {
-			console.log("_onMouseWheel:" + this.getChildControl("popup").isVisible());
+			console.log("_onMouseWheel:" + e+"/"+JSON.stringify(e.getDelta(),null,2));
 			if (this.getChildControl("popup").isVisible()) {
 				return;
 			}
 
-			var direction = e.getWheelDelta("y") > 0 ? 1 : -1;
+			var direction = e.getDelta()["y"] > 0 ? 1 : -1;
 			var selectables = this.__selectableItems; // this.getSelectables(true);
 			var selected = this.getSelection();
 			console.log("_onMouseWheel.selected:" + selected);
@@ -514,32 +521,8 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 			sel.splice(0, 1, item);
 		},
 
-		// overridden
-		_onTreeMouseDown: function (e) {
-			var tree = this.__getTree()
-			var item = tree.getSelection().getItem(0);
-			console.log("_onTreeMouseDown:" + item.getTitle());
-
-			if (!this._isItemSelectable(item)) {
-				console.log("_onTreeMouseDown.Not selectable");
-				this.notClose = true;
-				return;
-			}
-			if (tree.isQuickSelection()) {
-				if (this.__preSelectedItem) {
-					if (this._isItemSelectable(this.__preSelectedItem)) {
-						this.setSelection([this.__preSelectedItem]);
-						this.__preSelectedItem = null;
-					} else {
-						this.notClose = true;
-					}
-				}
-			} else {
-				this.setSelection([item]);
-			}
-		},
-
 		_onTreeChangeSelection: function (e) {
+			console.log("_onTreeChangeSelection");
 			var tree = this.__getTree();
 			if( !tree ) return;
 			var selection = tree.getSelection();
@@ -551,17 +534,7 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 				console.log("_onTreeChangeSelection.Not selectable");
 				return;
 			}
-			var popup = this.getChildControl("popup");
-			if (this.__getTree().isQuickSelection()) {
-				if (popup.isVisible()) {
-					this.__preSelectedItem = item;
-				} else {
-					this.setSelection([item]);
-					this.__preSelectedItem = null;
-				}
-			} else {
-				this.setSelection([item]);
-			}
+			this.setSelection([item]);
 			this.__updateLabel();
 		},
 
