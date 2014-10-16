@@ -2531,7 +2531,7 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 	}
 	protected void debug(String message) {
 		m_logger.debug(message);
-		System.out.println(message);
+		//System.out.println(message);
 	}
 	protected void info(String message) {
 		m_logger.info(message);
