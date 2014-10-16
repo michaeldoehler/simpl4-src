@@ -25,6 +25,7 @@ import org.eclipse.jgit.util.*;
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -213,7 +214,7 @@ public class FileHolder extends StoredConfig implements FileHolderApi{
 		final FileSnapshot newSnapshot = FileSnapshot.save(getFile());
 		DelimiterInputStream dis = null;
 		try {
-			dis = new DelimiterInputStream(new FileInputStream(getFile()));
+			dis = new DelimiterInputStream(new BufferedInputStream(new FileInputStream(getFile())));
 			byte[] array = new byte[] { 45, 45, 10 };
 			byte[] in = dis.readTill(array);
 			final ObjectId newHash = hash(in);
