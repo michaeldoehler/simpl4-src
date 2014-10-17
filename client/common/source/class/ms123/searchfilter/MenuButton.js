@@ -179,10 +179,10 @@ qx.Class.define("ms123.searchfilter.MenuButton", {
 
 			// add buttons to menu
 			menu.add(this.addButton);
-			menu.add(this.addExistsSubSelectButton);
 			menu.add(this.changeButton);
 			menu.add(this.insertParentButton);
 			menu.add(this.delButton);
+			menu.add(this.addExistsSubSelectButton);
 			menu.add(this.changeLabelButton);
 
 			this.setMenu(menu);
