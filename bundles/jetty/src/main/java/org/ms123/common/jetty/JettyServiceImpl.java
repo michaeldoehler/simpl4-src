@@ -331,6 +331,22 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
+		} else if (target.endsWith(".woff")) {
+			target = removeFirstSegmentInCaseWebsite(target);
+			debug("handleStatic:"+m_basedir+"|"+target);
+			FileResource fr = getFileResource(m_basedir, target);
+			response.setContentType("application/x-font-woff");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
+		} else if (target.endsWith(".ttf")) {
+			target = removeFirstSegmentInCaseWebsite(target);
+			debug("handleStatic:"+m_basedir+"|"+target);
+			FileResource fr = getFileResource(m_basedir, target);
+			response.setContentType("application/x-font-ttf");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".pdf")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			debug("handleStatic:"+m_basedir+"|"+target);
