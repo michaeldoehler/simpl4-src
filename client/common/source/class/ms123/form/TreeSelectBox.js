@@ -382,32 +382,38 @@ qx.Class.define("ms123.form.TreeSelectBox", {
 		 * param e {qx.event.type.Mouse} Mouse event
 		 */
 		_onMouseWheel: function (e) {
-			console.log("_onMouseWheel:" + e+"/"+JSON.stringify(e.getDelta(),null,2));
-			if (this.getChildControl("popup").isVisible()) {
+			e.stopPropagation();
+			e.preventDefault();
+			var vis = this.getChildControl("popup").isVisible();
+			console.log("_onMouseWheel:" + e+"/"+JSON.stringify(e.getDelta(),null,2)+"/vis:"+vis);
+			if (vis) {
+				return;
+			}
+			if( e.getDelta()["axis"] == "x"){
+				return;
+			}
+			var y = e.getDelta()["y"];
+			if( Math.abs(y) < 3 ){
+				console.log("_onMouseWheel.axisy:"+y);
 				return;
 			}
 
-			var direction = e.getDelta()["y"] > 0 ? 1 : -1;
+			var direction = y > 0 ? 1 : -1;
 			var selectables = this.__selectableItems; // this.getSelectables(true);
 			var selected = this.getSelection();
-			console.log("_onMouseWheel.selected:" + selected);
 
 			if (!selected || selected.length == 0) {
 				selected = [selectables[0]];
-			} else {}
+			} 
 
 			var index = selectables.indexOf(selected[0]) + direction;
 			var max = selectables.length - 1;
-
-			// Limit
 			if (index < 0) {
 				index = 0;
 			} else if (index >= max) {
 				index = max;
 			}
 			this.setSelection([selectables[index]]);
-			e.stopPropagation();
-			e.preventDefault();
 		},
 
 		// overridden
