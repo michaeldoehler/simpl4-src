@@ -47,24 +47,27 @@ public class ActivitiComponent extends org.activiti.camel.ActivitiComponent {
 	@Override
 	public void setCamelContext(CamelContext context) {
 		super.setCamelContext(context);
-		m_workflowService = getByType(context, WorkflowService.class);
-		m_permissionService = getByType(context, PermissionService.class);
-		info("PermissionService:"+m_permissionService);
-		info("WorkflowService:"+m_workflowService);
+		getServices(context);
+	}
+
+	private void getServices(CamelContext context){
+		if( m_workflowService == null){
+			m_permissionService = getByType(context, PermissionService.class);
+			m_workflowService = getByType(context, WorkflowService.class);
+			info("PermissionService:"+m_permissionService);
+			info("WorkflowService:"+m_workflowService);
+		}
 	}
 
 	private <T> T getByType(CamelContext ctx, Class<T> kls) {
-		Map<String, T> looked = ctx.getRegistry().lookupByType(kls);
-		info("getByType:" + kls + "=" + looked);
-		if (looked.isEmpty()) {
-			return null;
-		}
-		return looked.values().iterator().next();
+		return kls.cast(ctx.getRegistry().lookupByName(kls.getName()));
 	}
 
 	@Override
 	protected Endpoint createEndpoint(String s, String s1, Map<String, Object> stringObjectMap) throws Exception {
-		ActivitiEndpoint ae = new ActivitiEndpoint(s, getCamelContext(), m_workflowService, m_permissionService);
+		CamelContext cc = getCamelContext();
+		getServices(cc);
+		ActivitiEndpoint ae = new ActivitiEndpoint(s, cc, m_workflowService, m_permissionService);
 		info("createEndpoint:" + s );
 		ae.setCopyVariablesToProperties(this.copyVariablesToProperties);
 		ae.setCopyVariablesToBodyAsMap(this.copyVariablesToBodyAsMap);

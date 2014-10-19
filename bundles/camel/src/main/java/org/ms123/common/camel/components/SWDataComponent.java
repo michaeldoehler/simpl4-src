@@ -48,12 +48,8 @@ public class SWDataComponent extends DefaultComponent {
 		m_dataLayer = getByType(context, DataLayer.class);
 	}
 
-	private <T> T getByType(CamelContext ctx, Class<T> clazz) {
-		Map<String, T> looked = ctx.getRegistry().lookupByType(clazz);
-		if (looked.isEmpty()) {
-			return null;
-		}
-		return looked.values().iterator().next();
+	private <T> T getByType(CamelContext ctx, Class<T> kls) {
+		return kls.cast(ctx.getRegistry().lookupByName(kls.getName()));
 	}
 
 	protected DataLayer getDataLayer() {
