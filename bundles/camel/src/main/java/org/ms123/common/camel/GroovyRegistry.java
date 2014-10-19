@@ -26,6 +26,8 @@ import java.io.File;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import org.apache.camel.NoSuchBeanException;
 import org.apache.camel.spi.Registry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
@@ -43,20 +45,20 @@ public class GroovyRegistry implements Registry {
 	}
 
 	public Object lookupByName(String name) {
-		System.err.println("lookupByName1:" + name);
+		debug("lookupByName1:" + name);
 		try {
 			Class clazz = m_fsClassLoader.loadClass(name);
 			Object obj = clazz.newInstance();
-			System.err.println("lookupByName2:" + clazz + "/" + obj);
+			debug("lookupByName2:" + clazz + "/" + obj);
 			return obj;
 		} catch (Throwable e) {
-			System.err.println("lookupByNameError(" + name + "):" + e);
+			debug("lookupByNameError(" + name + "):" + e);
 		}
 		return null;
 	}
 
 	public <T> T lookupByNameAndType(String name, Class<T> type) {
-		System.out.println("lookupByNameAndType:" + name + "/" + type);
+		debug("lookupByNameAndType:" + name + "/" + type);
 		Object answer = lookupByName(name);
 		if (answer == null) {
 			return null;
@@ -70,7 +72,7 @@ public class GroovyRegistry implements Registry {
 	}
 
 	public <T> Map<String, T> findByTypeWithName(Class<T> type) {
-		System.out.println("findByTypeWithName:" + type);
+		debug("findByTypeWithName:" + type);
 		Map<String, T> result = new HashMap<String, T>();
 		T answer = lookupByNameAndType(type.getName(), type);
 		if (answer != null) {
@@ -80,7 +82,7 @@ public class GroovyRegistry implements Registry {
 	}
 
 	public <T> Set<T> findByType(Class<T> type) {
-		System.out.println("findByType:" + type);
+		debug("findByType:" + type);
 		Set<T> result = new HashSet<T>();
 		T answer = lookupByNameAndType(type.getName(), type);
 		if (answer != null) {
@@ -104,4 +106,8 @@ public class GroovyRegistry implements Registry {
 	public void newClassLoader() {
 		m_fsClassLoader = new FileSystemClassLoader(GroovyRegistry.class.getClassLoader(), m_locations);
 	}
+	private static void debug(String msg) {
+		m_logger.debug(msg);
+	}
+	private static final Logger m_logger = LoggerFactory.getLogger(GroovyRegistry.class);
 }

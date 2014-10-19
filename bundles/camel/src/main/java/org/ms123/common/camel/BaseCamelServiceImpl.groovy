@@ -316,6 +316,7 @@ abstract class BaseCamelServiceImpl implements Constants,CamelService {
 			context.addRouteDefinition(rd );
 			re.lastError = null;
 		}catch(Exception e){
+			e.printStackTrace();
 			context.removeRouteDefinition(rd);
 			re.lastError = e.getMessage();
 			if( e instanceof FailedToCreateRouteException){
