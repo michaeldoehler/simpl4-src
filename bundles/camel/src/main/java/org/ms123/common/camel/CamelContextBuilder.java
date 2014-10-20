@@ -84,7 +84,7 @@ public class CamelContextBuilder {
 		sr.put(DataLayer.DATA_LAYER, or.lookupByNameAndType("dataLayer", DataLayer.class));
 		sr.put("datamapper", or.lookupByName(DatamapperService.class.getName()));
 		sr.put("namespace", namespace);
-		sr.put("sleepBean", new BaseCamelServiceImpl.SleepBean());
+	//	sr.put("sleepBean", new BaseCamelServiceImpl.SleepBean());
 		sr.put("activiti", new ActivitiComponent());
 		sr.put("swdata", new SWDataComponent());
 
