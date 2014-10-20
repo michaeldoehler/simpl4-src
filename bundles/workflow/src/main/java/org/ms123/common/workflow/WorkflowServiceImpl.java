@@ -59,6 +59,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import aQute.bnd.annotation.metatype.*;
 import aQute.bnd.annotation.component.*;
 import org.ms123.common.utils.ScriptEngineService;
@@ -276,23 +277,20 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
   }
 
 	public CamelContext getCamelContextForProcess(String namespace, String processname) {
-		if( true) throw new RuntimeException("WorkflowServiceImpl.getCamelContextForProcess not allowed");
-		/*System.out.println("getCamelContextForProcess:"+namespace+"/"+processname);
-		String processJson = m_gitService.searchContent(namespace, processname, "sw.process");
-		Map shape = (Map) m_ds.deserialize(processJson);
-		Map<String, Object> properties = (Map) shape.get("properties");
-		String camelName = (String) properties.get("camelroutes");
+		throw new RuntimeException("WorkflowServiceImpl.getCamelContextForProcess not allowed");
+	}
 
-		System.out.println("m_camelService:"+m_camelService);//@@@MS Hack, waiting for camelService
-		while (m_camelService == null) {
-			try {
-				Thread.sleep(200L);
-			} catch (Exception x) {
-			}
-			System.out.println("m_camelService2:"+m_camelService);
+	public Object lookupServiceByName(String name) {
+		BundleContext bc = m_bundleContext;
+		Object service = null;
+		ServiceReference sr = bc.getServiceReference(name);
+		if (sr != null) {
+			service = bc.getService(sr);
 		}
-		return m_camelService.getCamelContext(namespace,camelName);*/
-		return null;
+		if (service == null) {
+			throw new RuntimeException("CamelBehaviorDefaultImpl.Cannot resolve service:" + name);
+		}
+		return service;
 	}
 
 	public void executeScriptTask( String executionId, String category, String processDefinitionKey, String pid, String script, Map newVariables, String taskName ){
@@ -300,7 +298,6 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		VariableScope vs = new RuntimeVariableScope(m_processEngine.getRuntimeService(), executionId);
 		sce.execute(category,processDefinitionKey, pid, script, newVariables, vs,taskName, m_dataLayer,(WorkflowService)this);
 	}
-
 
 	private ActivitiListener createListener(String event, String clazz) {
 		ActivitiListener listener = new ActivitiListener();

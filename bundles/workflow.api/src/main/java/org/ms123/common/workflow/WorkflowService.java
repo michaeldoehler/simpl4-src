@@ -29,4 +29,5 @@ public interface WorkflowService {
 	public ProcessEngine getProcessEngine();
 	public CamelContext getCamelContextForProcess(String namespace, String name);
 	public void executeScriptTask( String executionId, String category, String processDefinitionKey, String pid, String script, Map newVariables, String taskName );
+	public Object  lookupServiceByName( String name);
 }
