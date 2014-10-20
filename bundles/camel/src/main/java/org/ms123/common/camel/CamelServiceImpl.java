@@ -136,12 +136,13 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelServi
 			m_gitService.putContent(namespace,path, GROOVY_TYPE, content);
 			_compileGroovyScripts(namespace, path,content);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			String msg = e.getMessage();
 			while (e.getCause() != null) {
 				e = e.getCause();
 				msg += "\n"+e.getMessage();
 			}
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:"+msg);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveGroovyScript:"+msg);
 		}
 	}
 	public List<String> getContextNames(
