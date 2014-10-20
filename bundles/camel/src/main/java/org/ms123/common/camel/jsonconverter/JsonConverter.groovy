@@ -146,6 +146,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 		def	dataFormatDef = new DataFormatDefinition(getFormatName());	
 		def routeContext = new DefaultRouteContext(ctx.modelCamelContext);
 		def dataFormat = dataFormatDef.getDataFormat(routeContext);
+		println("FormatName:"+getFormatName()+"="+dataFormat);
 		IntrospectionSupport.setProperties(dataFormat,map);
 		prettyPrint("dataFormatType",dataFormat);
 		return dataFormat;
