@@ -21,7 +21,8 @@ package org.ms123.common.camel.components;
 import java.util.Map;
 import java.util.HashMap;
 import org.ms123.common.camel.CamelService;
-import org.ms123.common.workflow.api.WorkflowService;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.ProcessEngine;
@@ -38,9 +39,13 @@ public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehav
 
 	protected void setAppropriateCamelContext(ActivityExecution execution) {
 		info("getProcessVariables:" + execution.getVariables());
+		Map vars = execution.getVariables();
+		String ns = (String) vars.get("__namespace");
 		Map beans = Context.getProcessEngineConfiguration().getBeans();
 		setCategoryAndName(execution);
-		camelContextObj = (CamelContext) ((WorkflowService) beans.get(WorkflowService.WORKFLOW_SERVICE)).getCamelContextForProcess(m_category, m_processDefinitionKey);
+		CamelService cs = (CamelService) lookupServiceByName(CamelService.class.getName());
+		info("m_category:" + m_category + "/" + ns + "/" + cs);
+		camelContextObj = cs.getCamelContext(ns, "default");
 		info("camelContextObj:" + camelContextObj);
 	}
 
@@ -67,9 +72,25 @@ public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehav
 		info("Name:" + processDefinition.getName());
 		info("Key:" + processDefinition.getKey());
 	}
+
+	public Object lookupServiceByName(String name) {
+		Map beans = Context.getProcessEngineConfiguration().getBeans();
+		BundleContext bc = (BundleContext) beans.get("bundleContext");
+		Object service = null;
+		ServiceReference sr = bc.getServiceReference(name);
+		if (sr != null) {
+			service = bc.getService(sr);
+		}
+		if (service == null) {
+			throw new RuntimeException("CamelBehaviorDefaultImpl.Cannot resolve service:" + name);
+		}
+		return service;
+	}
+
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
+
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(CamelBehaviorDefaultImpl.class);
 }
