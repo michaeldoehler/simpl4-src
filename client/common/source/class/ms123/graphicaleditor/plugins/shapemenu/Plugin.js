@@ -240,9 +240,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 
 			// Create the button to show the morph menu
 			var button = new ms123.graphicaleditor.plugins.shapemenu.Button({
-				hovercallback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? this.showMorphMenu.bind(this) : undefined),
-				resetcallback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? this.hideMorphMenu.bind(this) : undefined),
-				callback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? undefined : this.toggleMorphMenu.bind(this)),
+			//	hovercallback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? this.showMorphMenu.bind(this) : undefined),
+			//	resetcallback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? this.hideMorphMenu.bind(this) : undefined),
+			//	callback: (ms123.oryx.Config.ENABLE_MORPHMENU_BY_HOVER ? undefined : this.toggleMorphMenu.bind(this)),
 				icon: this.__getResourceUrl('wrench_orange.png'),
 				align: ms123.oryx.Config.SHAPEMENU_BOTTOM,
 				group: 0,
@@ -262,7 +262,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 		},
 
 		hideMorphMenu: function () {
-			return;
 			this.morphMenu.hide();
 			this._morphMenuShown = false;
 		},
