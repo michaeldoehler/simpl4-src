@@ -28,6 +28,7 @@ import org.ms123.common.utils.Utils;
 
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.workflow.api.WorkflowService;
+import org.ms123.common.camel.api.CamelService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.framework.BundleContext;
 
@@ -48,6 +49,7 @@ public class GroovyTaskDsl {
 		vars.put("__sessionContext", sc);
 		vars.put("__eventAdmin", ea);
 		vars.put("__workflowService", ws);
+		vars.put("__camelService", ws.lookupServiceByName(CamelService.class.getName()));
 		vars.put("__pid", pid);
 		vars.put("__namespace", namespace);
 		vars.put("__processDefinitionKey", processDefinitionKey);

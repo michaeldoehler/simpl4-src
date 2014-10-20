@@ -25,6 +25,7 @@ import java.text.*;
 import java.util.concurrent.TimeUnit;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.libhelper.Inflector;
+import org.ms123.common.camel.api.CamelService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.Event;
 import org.osgi.framework.BundleContext;
@@ -180,8 +181,8 @@ public abstract class GroovyTaskDslBase extends Script {
 
 	public CamelContext getCamelContext() {
 		if (m_camelContext == null){
-			WorkflowService ws = (WorkflowService) this.getBinding().getVariable("__workflowService");
-			m_camelContext = ws.getCamelContextForProcess(getNamespace(), getProcessDefinitionKey());
+			CamelService ws = (CamelService) this.getBinding().getVariable("__camelService");
+			m_camelContext = ws.getCamelContext(getNamespace(), CamelService.DEFAULT_CONTEXT );
 		}
 		return m_camelContext;
 	}
