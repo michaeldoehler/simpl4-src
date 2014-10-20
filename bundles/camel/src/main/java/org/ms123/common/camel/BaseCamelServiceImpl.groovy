@@ -94,7 +94,7 @@ import static org.ms123.common.system.LogService.LOG_TIME;
  */
 @groovy.transform.CompileStatic
 @groovy.transform.TypeChecked
-abstract class BaseCamelServiceImpl implements Constants,CamelService {
+abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.api.CamelService {
 	private static final Logger m_logger = LoggerFactory.getLogger(BaseCamelServiceImpl.class);
 
 	protected Inflector m_inflector = Inflector.getInstance();

@@ -58,7 +58,7 @@ import org.apache.camel.processor.interceptor.Tracer;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.data.api.DataLayer;
-import org.ms123.common.camel.CamelService;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.camel.CamelContextBuilder;
 import org.ms123.common.camel.trace.*;
 import org.ms123.common.camel.GroovyRegistry;

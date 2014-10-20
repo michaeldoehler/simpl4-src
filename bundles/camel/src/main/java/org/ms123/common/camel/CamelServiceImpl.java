@@ -41,6 +41,7 @@ import org.ms123.common.git.GitService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.system.LogService;
 import org.ms123.common.utils.Inflector;
 import groovy.lang.GroovyShell;
@@ -69,7 +70,7 @@ import org.osgi.service.event.EventAdmin;
 /** CamelService implementation
  */
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=camel" })
-public class CamelServiceImpl extends BaseCamelServiceImpl implements CamelService{
+public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.common.camel.api.CamelService{
 
 	public CamelServiceImpl(){
 		info("CamelServiceImpl construct");

@@ -241,6 +241,7 @@ ${localbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.workflow.api-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.activiti-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.camel-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.camel.api-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.docbook-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \

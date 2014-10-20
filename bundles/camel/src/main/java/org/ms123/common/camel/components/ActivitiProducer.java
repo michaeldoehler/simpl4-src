@@ -29,7 +29,7 @@ import org.activiti.camel.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
 import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.camel.CamelService;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.system.ThreadContext;
 import java.util.Map;

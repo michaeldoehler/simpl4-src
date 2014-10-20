@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel;
+package org.ms123.common.camel.api;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import java.util.*;
 
 public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
+	public final String DEFAULT_CONTEXT = "default";
 	public CamelContext getCamelContext(String namespace, String name);
 	public void saveHistory(Exchange exchange);
 }

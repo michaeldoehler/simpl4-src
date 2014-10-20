@@ -20,7 +20,6 @@ package org.ms123.common.camel.components;
 
 import java.util.Map;
 import java.util.HashMap;
-import org.ms123.common.camel.CamelService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
@@ -29,6 +28,7 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.ms123.common.camel.api.CamelService;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.CamelContext;
@@ -45,7 +45,7 @@ public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehav
 		setCategoryAndName(execution);
 		CamelService cs = (CamelService) lookupServiceByName(CamelService.class.getName());
 		info("m_category:" + m_category + "/" + ns + "/" + cs);
-		camelContextObj = cs.getCamelContext(ns, "default");
+		camelContextObj = cs.getCamelContext(ns, CamelService.DEFAULT_CONTEXT);
 		info("camelContextObj:" + camelContextObj);
 	}
 
