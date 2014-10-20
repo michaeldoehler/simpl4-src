@@ -85,6 +85,8 @@ public class CamelContextBuilder {
 		sr.put("datamapper", or.lookupByName(DatamapperService.class.getName()));
 		sr.put("namespace", namespace);
 		sr.put("sleepBean", new BaseCamelServiceImpl.SleepBean());
+		sr.put("activiti", new ActivitiComponent());
+		sr.put("swdata", new SWDataComponent());
 
 		TransactionService ts = (TransactionService)or.lookupByName(TransactionService.class.getName());
 		sr.put(org.springframework.transaction.PlatformTransactionManager.class.getName(), ts.getPlatformTransactionManager());
@@ -128,10 +130,7 @@ public class CamelContextBuilder {
 			camelContext.setTracing(true);
 		}
 		camelContext.getProperties().put(Exchange.LOG_DEBUG_BODY_STREAMS, "true");
-		camelContext.addComponent("activiti", new ActivitiComponent());
-		camelContext.addComponent("swdata", new SWDataComponent());
 		camelContext.setMessageHistory(true);
-		System.out.println("TestClass2:"+camelContext.getRegistry().lookupByName("Test"));
 		return camelContext;
 	}
 
