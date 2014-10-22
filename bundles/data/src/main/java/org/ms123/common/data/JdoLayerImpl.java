@@ -626,7 +626,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		m_triggerService.applyDeleteRules(sessionContext, entityName, objectDelete);
 		//@@@MS should be reverse 
 		pm.deletePersistent(objectDelete);
-		if (sdesc.isDataPack()) {
+		if (sdesc.isDataPack() && !"teamintern".equals(entityName)) {
 			sessionContext.getLuceneSession().deleteFromIndex(objectDelete);
 		}
 		return retMap;
