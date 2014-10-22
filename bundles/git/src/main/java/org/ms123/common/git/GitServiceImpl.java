@@ -494,7 +494,7 @@ public class GitServiceImpl implements GitService {
 			File file = new File(gitDir, path);
 			debug("getContent.file:"+file.toString()+"/exists:"+file.exists()+"/gitDir:"+gitDir);
 			if (!file.exists()) {
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.getContent:File(" + repoName + "/" + path + ") not exists");
+				throw new RpcException(ERROR_FROM_METHOD, 101, "GitService.getContent:File(" + repoName + "/" + path + ") not exists");
 			}
 			FileHolder fr = new FileHolder(file);
 			return fr.getContent();
@@ -518,7 +518,7 @@ public class GitServiceImpl implements GitService {
 			File file = new File(gitDir, path);
 			debug("getContent.file:"+file.toString()+"/exists:"+file.exists()+"/gitDir:"+gitDir);
 			if (!file.exists()) {
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.getContent:File(" + repoName + "/" + path + ") not exists");
+				throw new RpcException(ERROR_FROM_METHOD, 101, "GitService.getContent:File(" + repoName + "/" + path + ") not exists");
 			}
 			return readFileToString(file);
 		} catch (Exception e) {

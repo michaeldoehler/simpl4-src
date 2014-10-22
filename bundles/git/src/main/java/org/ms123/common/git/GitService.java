@@ -48,6 +48,7 @@ public interface GitService {
 
 	public boolean exists( String repoName, String path) throws RpcException;
 	public String getContent(String repoName, String path) throws RpcException;
+	public String getContentRaw(String repoName, String path) throws RpcException;
 	public String searchContent(String repoName, String name, String type) throws RpcException;
 	public File searchFile(String repoName, String name, String type) throws RpcException;
 
