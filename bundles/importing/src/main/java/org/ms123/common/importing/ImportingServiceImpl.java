@@ -314,7 +314,7 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 				int ind = fileContent.indexOf(";base64,");
 				bytes = Base64.decode(fileContent.substring(ind+8));
 			}
-
+			bytes = convertToUTF8(bytes);
 			setProperty(obj, USER, getUserName());
 			setProperty(obj, CONTENT, bytes);
 			if (settings != null) {

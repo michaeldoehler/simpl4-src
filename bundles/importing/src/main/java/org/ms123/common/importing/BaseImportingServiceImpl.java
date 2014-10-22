@@ -21,6 +21,8 @@ package org.ms123.common.importing;
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 import java.io.*;
+import java.nio.charset.*;
+import java.nio.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.jdo.Extent;
@@ -533,6 +535,33 @@ System.out.println("Mapping:"+mappings);
 			return rootmap;
 		} finally {
 		}
+	}
+
+	protected byte[] convertToUTF8(byte bytes[] ) throws Exception{
+		String sch = detectCharset(bytes);
+		if( "UTF-8".equals(sch)) return bytes;
+
+		CharsetDecoder chDecoder = Charset.forName(sch).newDecoder();  
+		ByteBuffer bbuf = ByteBuffer.wrap(bytes);  
+		CharBuffer cbuf = chDecoder.decode(bbuf);  
+
+		CharsetEncoder utf8encoder = Charset.forName("UTF-8").newEncoder();  
+		return utf8encoder.encode(cbuf).array();
+	}
+	protected synchronized String detectCharset(byte[] content) throws Exception {
+		if( content == null || content.length==0) return null;
+		ByteArrayInputStream bis = new ByteArrayInputStream(content);
+		try {
+			org.apache.tika.parser.txt.UniversalEncodingDetector ued = new org.apache.tika.parser.txt.UniversalEncodingDetector();
+			Charset charset = ued.detect(bis,new org.apache.tika.metadata.Metadata());
+			System.out.println("detectCharset:" + charset);
+			return charset.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			bis.close();
+		}
+		return "unknown";
 	}
 	protected synchronized String detectFileType(byte[] content) throws Exception {
 		if( content == null || content.length==0) return null;
