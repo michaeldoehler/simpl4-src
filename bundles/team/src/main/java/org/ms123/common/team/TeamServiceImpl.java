@@ -44,6 +44,7 @@ import org.ms123.common.utils.*;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.auth.api.AuthService;
+import org.ms123.common.git.GitService;
 import org.ms123.common.entity.api.EntityService;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.libhelper.Bean2Map;
@@ -74,48 +75,13 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
  */
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=team" })
-public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
+public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.common.team.api.TeamService {
 
 	protected Inflector m_inflector = Inflector.getInstance();
 
-
-	private AuthService m_authService;
-
-	private EntityService m_entityService;
-
-	private PermissionService m_permissionService;
-
 	private NucleusService m_nucleusService;
 
-	private static String GROUPS = "groups";
-
-	private static int READ = 1;
-	private static int WRITE = 2;
-	private static int NOACCESS = -1;
-	private static int INACTIVE = 1;
-
-	private static int ACTIVE = 2;
-
-	private static final String ADMINROLE = "admin";
-
-	private static final String TEAM_ENTITY = "team";
-
-	private static final String TEAM_ID = "teamid";
-	private static final String TEAM_NAME = "name";
-	private static final String DESCRIPTION = "description";
-	private static final String USER_READ = "userRead";
-	private static final String USER_MANAGE = "userManage";
-	private static final String USER_CREATE = "userCreate";
-
-	private static final String TEAMINTERN_ENTITY = "teamintern";
-
-	private DataLayer m_dataLayer;
-
 	private Bean2Map m_b2m = new Bean2Map();
-
-	private Map<String,Map> m_adminTreeCache = new HashMap();
-
-	
 
 	public TeamServiceImpl() {
 	}
@@ -125,7 +91,7 @@ public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
 	}
 
 	protected void deactivate() throws Exception {
-		m_logger.info("deactivate");
+		info("deactivate");
 		System.out.println("TeamServiceImpl deactivate");
 	}
 
@@ -209,41 +175,14 @@ public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
 			@PName(USER_CREATE)     		List<String> userCreate 
 			) throws RpcException {
 
-
-		if(!checkTeamid(teamid)){
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.createTeam:teamid wrong");
-		}
 		try {
-			String parentTeamId = getParentTeamid(teamid);
-			name = getTeamName(name, teamid);
-			m_adminTreeCache = new HashMap();
-			StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
-			SessionContext sessionContext = m_dataLayer.getSessionContext(sdesc);
-			String userName = sessionContext.getUserName();
-			if ("root".equals(parentTeamId)) {
-				Map userProps = m_authService.getUserProperties(userName);
-				if (!getBoolean(userProps.get("team_manage"), false)) {
-					throw new RpcException(ERROR_FROM_METHOD, PERMISSION_DENIED, "TeamService:createTeam not allowed");
-				}
-			} else {
-				Class clazz = sessionContext.getClass(TEAMINTERN_ENTITY);
-				PersistenceManager pm = sessionContext.getPM();
-				Object objectParent = pm.getObjectById(clazz, parentTeamId);
-				String[] permittedUser = getArray(objectParent, "userCreate");
-				if (!contains(permittedUser, userName)) {
-					throw new RuntimeException("createTeam2 not allowed");
-				}
-			}
-			Map<String,Object> data = new HashMap();
-			data.put(TEAM_NAME,name);
-			data.put(TEAM_ID,teamid);
-			data.put(DESCRIPTION,description);
-			data.put(USER_READ,userRead);
-			data.put(USER_CREATE,userCreate);
-			data.put(USER_MANAGE,userManage);
-			Map ret = m_dataLayer.insertObject(data, sdesc, "children", TEAMINTERN_ENTITY, parentTeamId);
+			Map ret = _createTeam(namespace,teamid,name,description,userRead,userManage,userCreate);
+			createSubTeams(namespace,teamid,name,description,userRead,userManage,userCreate);
 			return ret;
 		} catch (Throwable e) {
+			if( e instanceof RpcException){
+				throw (RpcException)e;
+			}
 			if( e instanceof RuntimeException){
 				if( ((RuntimeException)e).getCause() instanceof javax.transaction.RollbackException){
 					throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.createTeam:team exists '"+teamid+"'");
@@ -653,84 +592,6 @@ public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
 			return (int) (validTo1 - validTo2);
 		}
 	}
-	private boolean contains(String[] arr, String s) {
-		int len = arr.length;
-		for (int i = 0; i < len; i++) {
-			if (arr[i].equals(s))
-				return true;
-		}
-		return false;
-	}
-
-	private String[] getArray(Object data, String prop) {
-		Object obj = null;
-		if( data instanceof Map){
-			 obj = (Object) ((Map)data).get(prop);
-		}else{
-			try{
-				obj =  PropertyUtils.getProperty(data, prop);
-			}catch(Exception e){
-				e.printStackTrace();
-				return new String[0];
-			}
-		}
-		if (obj instanceof String) {
-			if (obj != null) {
-				return ((String)obj).split(",");
-			}
-		}
-		if (obj instanceof List) {
-			return (String[]) ((List) obj).toArray(new String[0]);
-		}
-		return new String[0];
-	}
-
-	private boolean getBoolean(Map m, String key, boolean def) {
-		return (Boolean) ((m.get(key) != null) ? m.get(key) : def);
-	}
-
-	private boolean getBoolean(Object val, boolean def) {
-		try {
-			if (val instanceof Boolean) {
-				return (Boolean) val;
-			}
-		} catch (Exception e) {
-		}
-		return def;
-	}
-
-	private boolean checkTeamid(String s){
-		if( s==null ) return false;
-		String path[] = s.split("\\.");
-		for( String seg : path){
-			boolean ok = seg.matches("^[0-9A-Za-z_\\-]{1,32}$");
-			if(!ok){
-				info("checkTeamid:"+s+" -> false");
-				return false;
-			}
-		}
-		info("checkTeamid:"+s+" -> true");
-		return true;
-	}
-	private String getParentTeamid( String teamid){
-		int ind = teamid.lastIndexOf(".");
-		return teamid.substring(0,ind);
-	}
-	private String getTeamName( String name, String teamid){
-		if(name != null) return name;
-		int ind = teamid.lastIndexOf(".");
-		return teamid.substring(ind+1);
-	}
-
-	protected void debug(String message) {
-		//m_logger.debug(message);
-		System.out.println(message);
-	}
-	protected void info(String message) {
-		m_logger.info(message);
-		System.out.println(message);
-	}
-	private static final Logger m_logger = LoggerFactory.getLogger(TeamServiceImpl.class);
 
 	/* END JSON-RPC-API*/
 	@Reference(target = "(kind=jdo)", dynamic = true, optional = true)
@@ -757,6 +618,11 @@ public class TeamServiceImpl implements org.ms123.common.team.api.TeamService {
 		System.out.println("TeamServiceImpl.setNucleusService:" + paramNucleusService);
 	}
 
+	@Reference(dynamic = true, optional = true)
+	public void setGitService(GitService gitService) {
+		System.out.println("TeamServiceImpl.setGitService:" + gitService);
+		this.m_gitService = gitService;
+	}
 	@Reference(dynamic = true)
 	public void setPermissionService(PermissionService paramPermissionService) {
 		this.m_permissionService = paramPermissionService;
