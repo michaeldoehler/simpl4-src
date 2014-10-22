@@ -71,6 +71,10 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 				var format = this._outputValue.format;
 				ms123.util.Clone.merge(this._outputValue, this._inputValue);
 				this._outputValue.format = format;
+				console.log("_inputValue.format:"+this._inputValue.format);
+				if( this._inputValue.format == ms123.datamapper.Config.FORMAT_CSV){
+					this._outputValue.type = ms123.datamapper.Config.NODETYPE_COLLECTION;
+				}
 			}
 			var data = {
 				input: this._inputValue,
