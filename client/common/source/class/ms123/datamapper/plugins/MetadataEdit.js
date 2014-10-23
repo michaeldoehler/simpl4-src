@@ -107,7 +107,7 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			parentSpecRelationSelect.add(listItem);
 			for(var i=0; i < relList.length; i++){
 				var relMap = relList[i];
-				var leftfield = relMap.leftfield || this._baseName(relMap.leftmodule);
+				var leftfield = relMap.leftfield || this._baseName(relMap.rightmodule);
 				listItem = new qx.ui.form.ListItem(this.tr(relMap.leftmodule)+","+leftfield,null,relMap.leftmodule+","+leftfield);
 				parentSpecRelationSelect.add(listItem);
 			}
@@ -118,7 +118,7 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 	    var parentSpecRelationLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_relation")).set({
 				rich:true
 			});
-	    var parentSpecLookupLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_entity_lookup")).set({
+	    var parentSpecLookupLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_lookup")).set({
 				rich:true
 			});
 			container.add(parentSpecRelationLabel);

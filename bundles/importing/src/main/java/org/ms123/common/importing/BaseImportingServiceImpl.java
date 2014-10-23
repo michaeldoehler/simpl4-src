@@ -123,7 +123,7 @@ public class BaseImportingServiceImpl implements Constants {
 			String relation = parentSpec.get("relation");
 			if(!isEmpty(parentLookup) && !isEmpty(relation)){
 				String s[] = relation.split(",");
-				parentClazz = sc.getClass(s[0]);
+				parentClazz = sc.getClass(getBaseName(s[0]));
 				parentFieldName = s[1];
 				if( parentLookup.matches(FIELDNAME_REGEX)){
 					parentQuery = parentLookup+ " == ${"+parentLookup+"}";
@@ -198,6 +198,14 @@ public class BaseImportingServiceImpl implements Constants {
 		return null;
 	}
 
+	private String getBaseName(String name) {
+		if (name == null || name.trim().equals(""))
+			return null;
+		int lindex = name.lastIndexOf(".");
+		if (lindex == -1)
+			return name;
+		return name.substring(lindex + 1).toLowerCase();
+	}
 
 	private String getPrimaryKey(Class clazz) throws Exception {
 		System.out.print("----->getPrimaryKey.clazz:" + clazz +" -> ");
@@ -293,6 +301,7 @@ public class BaseImportingServiceImpl implements Constants {
 			script.setBinding(binding);
 			return script.run();
 		} catch (Throwable e) {
+			e.printStackTrace();
 			String msg = Utils.formatGroovyException(e, expr);
 			throw new RuntimeException(msg);
 		}
