@@ -1,6 +1,6 @@
 version=1.0.0
 Export-Package org.ms123.common.importing
-Import-Package *
+Import-Package *,org.codehaus.groovy.runtime.callsite,org.codehaus.groovy.reflection
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.
 Bundle-Description: Importing Service
