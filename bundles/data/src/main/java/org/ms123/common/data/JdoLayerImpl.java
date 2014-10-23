@@ -386,6 +386,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	}
 
 	public void insertIntoMaster(SessionContext sc, Object objectInsert, String entityName, Object objectMaster, String fieldName) throws Exception {
+		debug("insertIntoMaster:"+objectMaster+"/"+entityName+"/"+fieldName);
 		if (objectMaster == null)
 			return;
 		String propertyName = fieldName;
@@ -396,6 +397,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		if( clazz == null){
 			clazz = PropertyUtils.getPropertyType(objectMaster, fieldName);
 		}
+		debug("\tinsertIntoMaster.class:"+clazz);
 		if (clazz != null) {
 			if (clazz.equals(java.util.List.class) || clazz.equals(java.util.Set.class)) {
 				Collection l = (Collection) PropertyUtils.getProperty(objectMaster, propertyName);
