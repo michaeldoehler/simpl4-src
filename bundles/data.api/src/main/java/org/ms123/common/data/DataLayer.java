@@ -86,6 +86,8 @@ public interface DataLayer {
 
 	public void insertIntoMaster(SessionContext sc, Object objectInsert, String entityName, Class masterClazz, String fieldName, Object masterId) throws Exception;
 
+	public void insertIntoMaster(SessionContext sc, Object objectInsert, String entityName, Object objectMaster, String fieldName) throws Exception;
+
 	public void makePersistent(SessionContext sessionContext, Object objectInsert);
 
 	public String constructEntityName(SessionContext sessionContext, String entityName, String entityNameParent);

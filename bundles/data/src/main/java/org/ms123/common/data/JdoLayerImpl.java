@@ -377,10 +377,17 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	}
 
 	public void insertIntoMaster(SessionContext sc, Object objectInsert, String entityName, Class masterClazz, String fieldName, Object masterId) throws Exception {
-		if (masterClazz == null)
+		if (masterClazz == null){
 			return;
+		}
 		PersistenceManager pm = sc.getPM();
 		Object objectMaster = pm.getObjectById(masterClazz, masterId);
+		insertIntoMaster(sc,objectInsert,entityName,objectMaster,fieldName);
+	}
+
+	public void insertIntoMaster(SessionContext sc, Object objectInsert, String entityName, Object objectMaster, String fieldName) throws Exception {
+		if (objectMaster == null)
+			return;
 		String propertyName = fieldName;
 		if (fieldName.equals(entityName)) {
 			propertyName = m_inflector.pluralize(entityName).toLowerCase();
