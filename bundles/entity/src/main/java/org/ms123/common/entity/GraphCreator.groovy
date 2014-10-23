@@ -120,11 +120,13 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 		return newRelations;
 	}
 	private boolean relationContainsEntity(Map<String,String> r, List<Map> etList){
+		boolean leftFound = false;
+		boolean rightFound = false;
 		for( Map<String,String> et : etList){
-			if( r.rightmodule == "data."+et.name) return true;
-			if( r.leftmodule == "data."+et.name) return true;
+			if( r.rightmodule == "data."+et.name) rightFound=true;
+			if( r.leftmodule == "data."+et.name) leftFound=true;;
 		}
-		return false;
+		return leftFound && rightFound;
 	}
 
 	private void traverseTree(Map tree){
