@@ -265,7 +265,7 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 				Object ret = m_datamapper.transform(data_sdesc.getNamespace(), settings, null, new String(content));
 				if( withoutSave) return ret;
 				sessionContext = m_dataLayer.getSessionContext(data_sdesc);
-				return persistObjects(sessionContext,ret,withoutSave, -1);
+				return persistObjects(sessionContext,ret,settings, withoutSave, -1);
 			}else{
 				return doImport(data_sdesc, settings, content, withoutSave, max);
 			}

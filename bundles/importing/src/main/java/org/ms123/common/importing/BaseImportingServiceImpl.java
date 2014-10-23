@@ -54,11 +54,15 @@ import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.libhelper.Bean2Map;
 import org.ms123.common.libhelper.Inflector;
+import org.ms123.common.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.ms123.common.utils.UtilsService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import groovy.lang.*;
+import org.codehaus.groovy.control.*;
+import org.apache.commons.beanutils.BeanMap;
 
 /** BaseImportingService implementation
  */
@@ -71,6 +75,7 @@ public class BaseImportingServiceImpl implements Constants {
 
 	private Bean2Map m_b2m = new Bean2Map();
 
+	private String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 	protected DataLayer m_dataLayer;
 	protected DatamapperService m_datamapper;
 
@@ -93,9 +98,213 @@ public class BaseImportingServiceImpl implements Constants {
 		m_js.prettyPrint(true);
 	}
 
-	/* P U B L I C - A P I  */
+	/*NEWIMPORT*/
+	protected List<Map> persistObjects(SessionContext sc, Object obj, Map settings, boolean withoutSave, int max){
+		List<Map> retList = new ArrayList();
+		UserTransaction ut = sc.getUserTransaction();
+		String mainEntity = null;
+		Collection<Object> resultList = null;
+		if( obj instanceof Collection ){
+			resultList = (Collection)obj;
+		}else{
+			resultList = new ArrayList();
+			resultList.add(obj);
+		}
+		Map outputTree = (Map)settings.get("output");
+		Map<String,String> parentSpec = (Map)outputTree.get("parentSpec");
+		System.out.println("persistObjects:"+resultList+",parentSpec:"+parentSpec);
+		String parentFieldName=null;
+		Class parentClazz = null;
+		String parentQuery = null;
+		PersistenceManager pm = sc.getPM();
+		GroovyShell groovyShell=null;
+		if( parentSpec != null){
+			String parentLookup = parentSpec.get("lookup");
+			String relation = parentSpec.get("relation");
+			if(!isEmpty(parentLookup) && !isEmpty(relation)){
+				String s[] = relation.split(",");
+				parentClazz = sc.getClass(s[0]);
+				parentFieldName = s[1];
+				if( parentLookup.matches(FIELDNAME_REGEX)){
+					parentQuery = parentLookup+ " == ${"+parentLookup+"}";
+				}else if( parentLookup.matches(FIELDNAME_REGEX+","+FIELDNAME_REGEX)){
+					s = parentLookup.split(",");
+					parentQuery = s[0]+ " == ${"+s[1]+"}";
+				}else{
+					parentQuery = parentLookup;
+				}
+				groovyShell = new GroovyShell(this.getClass().getClassLoader(), new Binding(), new CompilerConfiguration());
+			}
+		}
+		try {
+			int num = 0;
+			if( resultList.size() > 0){
+				Class clazz = resultList.iterator().next().getClass();
+				mainEntity = m_inflector.getEntityName(clazz.getSimpleName());
+				String pk = getPrimaryKey(clazz);
+				sc.setPrimaryKey(pk);
+			}
+			for (Object object : resultList) {
+				if (max != -1 && num >= max){
+					break;
+				}
+				Map m = SojoObjectFilter.getObjectGraph(object, sc,2);
+				retList.add(m);
+				List cv = sc.validateObject(m, mainEntity);
+				System.out.println("cv:"+cv+"/"+m);
+				if (cv == null && m.get("_duplicated_id_") == null) {
+					if(!withoutSave){
+						ut.begin();
+						if( parentClazz != null){
+							Object parentObject = getParentObject(groovyShell, pm,parentClazz,object,parentQuery);
+							m_dataLayer.insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
+						}
+						m_dataLayer.makePersistent(sc, object);
+						System.out.println("\tpersist:"+m_js.serialize(object));
+						ut.commit();
+					}
+				} else {
+					m.put("constraintViolations", cv);
+				}
+				num++;
+				if ((num % 1000) == 0) {
+					System.out.println("commit1++++++++:" + num);
+				}
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+			sc.handleException(ut, e);
+		} finally {
+			sc.handleFinally(ut);
+		}
+		return retList;
+	}
+
+	private Object getParentObject(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
+		String filter = expandString(shell,queryString, new BeanMap(child));
+		System.out.println("getParentObject:"+filter);
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, filter);
+		try {
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			if (iter.hasNext()) {
+				Object obj = iter.next();
+				return obj;
+			}
+		} finally {
+			q.closeAll();
+		}
+		return null;
+	}
+
+
+	private String getPrimaryKey(Class clazz) throws Exception {
+		System.out.print("----->getPrimaryKey.clazz:" + clazz +" -> ");
+		Field[] fields = clazz.getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			java.lang.annotation.Annotation[] anns = fields[i].getDeclaredAnnotations();
+			for (int j = 0; j < anns.length; j++) {
+				try {
+					Class atype = anns[j].annotationType();
+					if (!(anns[j] instanceof javax.jdo.annotations.PrimaryKey)) {
+						continue;
+					}
+					System.out.println(fields[i].getName());
+					return fields[i].getName();
+				} catch (Exception e) {
+					System.out.println("getPrimaryKey.e:" + e);
+				}
+			}
+		}
+		throw new RuntimeException("JdoLayerImpl.getPrimaryKey("+clazz+"):no_primary_key");
+	}
+
+	protected byte[] convertToUTF8(byte bytes[] ) throws Exception{
+		String sch = detectCharset(bytes);
+		if( "UTF-8".equals(sch)) return bytes;
+
+		CharsetDecoder chDecoder = Charset.forName(sch).newDecoder();  
+		ByteBuffer bbuf = ByteBuffer.wrap(bytes);  
+		CharBuffer cbuf = chDecoder.decode(bbuf);  
+
+		CharsetEncoder utf8encoder = Charset.forName("UTF-8").newEncoder();  
+		return utf8encoder.encode(cbuf).array();
+	}
+
+	protected synchronized String detectCharset(byte[] content) throws Exception {
+		if( content == null || content.length==0) return null;
+		ByteArrayInputStream bis = new ByteArrayInputStream(content);
+		try {
+			org.apache.tika.parser.txt.UniversalEncodingDetector ued = new org.apache.tika.parser.txt.UniversalEncodingDetector();
+			Charset charset = ued.detect(bis,new org.apache.tika.metadata.Metadata());
+			System.out.println("detectCharset:" + charset);
+			return charset.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			bis.close();
+		}
+		return "unknown";
+	}
+
+	protected synchronized String detectFileType(byte[] content) throws Exception {
+		if( content == null || content.length==0) return null;
+		ByteArrayInputStream bis = new ByteArrayInputStream(content);
+		try {
+			Tika tika = new Tika();
+			String ftype = tika.detect(bis);
+			System.out.println("getFileModel.ftype:" + ftype);
+			return ftype;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			bis.close();
+		}
+		return "unknown";
+	}
+
+	private synchronized String expandString(GroovyShell shell, String str, Map<String,String> vars) {
+		String newString = "";
+		int openBrackets = 0;
+		int first = 0;
+		for (int i = 0; i < str.length(); i++) {
+			if (i < str.length() - 2 && str.substring(i, i + 2).compareTo("${") == 0) {
+				if (openBrackets == 0) {
+					first = i + 2;
+				}
+				openBrackets++;
+			} else if (str.charAt(i) == '}' && openBrackets > 0) {
+				openBrackets -= 1;
+				if (openBrackets == 0) {
+					newString += eval(shell, str.substring(first, i), vars);
+				}
+			} else if (openBrackets == 0) {
+				newString += str.charAt(i);
+			}
+		}
+		return newString;
+	}
+
+	private Object eval(GroovyShell shell,String expr, Map<String,String> vars) {
+		try {
+			Script script = shell.parse(expr);
+			Binding binding = new Binding(vars);
+			script.setBinding(binding);
+			return script.run();
+		} catch (Throwable e) {
+			String msg = Utils.formatGroovyException(e, expr);
+			throw new RuntimeException(msg);
+		}
+	}
+
+	private boolean isEmpty(String s) {
+		return (s == null || "".equals(s.trim()));
+	}
+
+
+	/*OLDIMPORT*/
 	public List _getImportings(StoreDesc sdesc, String prefix, Map mapping) throws Exception {
-System.out.println("_getImportings:"+sdesc);
 		Map filtersMap = new HashMap();
 		Map field1 = new HashMap();
 		field1.put("field", IMPORTING_ID);
@@ -132,6 +341,49 @@ System.out.println("_getImportings:"+sdesc);
 			return getCsvModel(content,ftype, sourceSetup);
 		} else {
 			return getXmlModel(content);
+		}
+	}
+
+	private  Map getXmlModel(byte[] content) throws Exception {
+		System.out.println("ImportingServiceImpl.activate:" + m_smooksFactory.createInstance());
+		Smooks smooks = m_smooksFactory.createInstance();
+		try {
+			XmlTreeBuilder xtb = new XmlTreeBuilder();
+			smooks.addVisitor(xtb, "*");
+			ExecutionContext executionContext = smooks.createExecutionContext();
+			ByteArrayInputStream is = new ByteArrayInputStream(content);
+			JavaResult result = new JavaResult();
+			smooks.filterSource(executionContext, new StreamSource(is), result);
+			System.out.println("Smooks:" + xtb);
+			return xtb.getTreeMap();
+		} finally {
+			smooks.close();
+		}
+	}
+
+	private Map getCsvModel(byte[] content, String ftype, Map sourceSetup) throws Exception {
+		JSONDeserializer ds = new JSONDeserializer();
+		try {
+			ByteArrayInputStream is = new ByteArrayInputStream(content);
+			CSVParse parser = getCSVParser(is, sourceSetup);
+			String[] line = parser.getLine();
+			Map rootmap = new HashMap();
+			rootmap.put("value", "csv-record");
+			rootmap.put("title", "csv-record");
+			rootmap.put("type", "element");
+			List<Map> childs = new ArrayList();
+			rootmap.put("children", childs);
+			for (int i = 0; i < line.length; i++) {
+				Map map = new HashMap();
+				childs.add(map);
+				map.put("value", line[i]);
+				map.put("title", line[i]);
+				map.put("type", "element");
+				map.put("children", new ArrayList());
+			}
+			System.out.println("getCsvModel:" + rootmap);
+			return rootmap;
+		} finally {
 		}
 	}
 	protected  Map doImport(StoreDesc data_sdesc, Map settings, byte[] content, boolean withoutSave, int max) throws Exception {
@@ -229,58 +481,6 @@ System.out.println("_getImportings:"+sdesc);
 			smooks.close();
 		}
 		return new HashMap();
-	}
-
-	protected List<Map> persistObjects(SessionContext sc, Object obj, boolean withoutSave, int max){
-		List<Map> retList = new ArrayList();
-		UserTransaction ut = sc.getUserTransaction();
-		String mainEntity = null;
-		Collection<Object> resultList = null;
-		if( obj instanceof Collection ){
-			resultList = (Collection)obj;
-		}else{
-			resultList = new ArrayList();
-			resultList.add(obj);
-		}
-		System.out.println("persistObjects:"+resultList);
-		try {
-			int num = 0;
-			if( resultList.size() > 0){
-				Class clazz = resultList.iterator().next().getClass();
-				mainEntity = m_inflector.getEntityName(clazz.getSimpleName());
-				String pk = getPrimaryKey(clazz);
-				sc.setPrimaryKey(pk);
-			}
-			for (Object o : resultList) {
-				if (max != -1 && num >= max){
-					break;
-				}
-				Map m = SojoObjectFilter.getObjectGraph(o, sc,2);
-				retList.add(m);
-				List cv = sc.validateObject(m, mainEntity);
-				System.out.println("cv:"+cv+"/"+m);
-				if (cv == null && m.get("_duplicated_id_") == null) {
-					if(!withoutSave){
-						ut.begin();
-						m_dataLayer.makePersistent(sc, o);
-						System.out.println("\tpersist:"+m_js.serialize(o));
-						ut.commit();
-					}
-				} else {
-					m.put("constraintViolations", cv);
-				}
-				num++;
-				if ((num % 1000) == 0) {
-					System.out.println("commit1++++++++:" + num);
-				}
-			}
-		} catch (Throwable e) {
-			e.printStackTrace();
-			sc.handleException(ut, e);
-		} finally {
-			sc.handleFinally(ut);
-		}
-		return retList;
 	}
 
 	protected  Map csvImport(SessionContext sc,List<Map> _mappings,List<Map> defaults, Map options, String mainEntity,  byte[] content) throws Exception {
@@ -409,13 +609,6 @@ System.out.println("Mapping:"+mappings);
 		return p;
 	}
 
-	private boolean getBoolean(Map map, String key, boolean def) {
-		try {
-			return ((Boolean) map.get(key)).booleanValue();
-		} catch (Exception e) {
-			return def;
-		}
-	}
 	private String getLastElement(String path) {
 		return getLastElement(path, ".");
 	}
@@ -471,111 +664,14 @@ System.out.println("Mapping:"+mappings);
 		}
 		return shortest_mapping;
 	}
-
-
-	private String getPrimaryKey(Class clazz) throws Exception {
-		System.out.print("----->getPrimaryKey.clazz:" + clazz +" -> ");
-		Field[] fields = clazz.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++) {
-			java.lang.annotation.Annotation[] anns = fields[i].getDeclaredAnnotations();
-			for (int j = 0; j < anns.length; j++) {
-				try {
-					Class atype = anns[j].annotationType();
-					if (!(anns[j] instanceof javax.jdo.annotations.PrimaryKey)) {
-						continue;
-					}
-					System.out.println(fields[i].getName());
-					return fields[i].getName();
-				} catch (Exception e) {
-					System.out.println("getPrimaryKey.e:" + e);
-				}
-			}
-		}
-		throw new RuntimeException("JdoLayerImpl.getPrimaryKey("+clazz+"):no_primary_key");
-	}
-
-	private  Map getXmlModel(byte[] content) throws Exception {
-		System.out.println("ImportingServiceImpl.activate:" + m_smooksFactory.createInstance());
-		Smooks smooks = m_smooksFactory.createInstance();
+	private boolean getBoolean(Map map, String key, boolean def) {
 		try {
-			XmlTreeBuilder xtb = new XmlTreeBuilder();
-			smooks.addVisitor(xtb, "*");
-			ExecutionContext executionContext = smooks.createExecutionContext();
-			ByteArrayInputStream is = new ByteArrayInputStream(content);
-			JavaResult result = new JavaResult();
-			smooks.filterSource(executionContext, new StreamSource(is), result);
-			System.out.println("Smooks:" + xtb);
-			return xtb.getTreeMap();
-		} finally {
-			smooks.close();
-		}
-	}
-
-	private Map getCsvModel(byte[] content, String ftype, Map sourceSetup) throws Exception {
-		JSONDeserializer ds = new JSONDeserializer();
-		try {
-			ByteArrayInputStream is = new ByteArrayInputStream(content);
-			CSVParse parser = getCSVParser(is, sourceSetup);
-			String[] line = parser.getLine();
-			Map rootmap = new HashMap();
-			rootmap.put("value", "csv-record");
-			rootmap.put("title", "csv-record");
-			rootmap.put("type", "element");
-			List<Map> childs = new ArrayList();
-			rootmap.put("children", childs);
-			for (int i = 0; i < line.length; i++) {
-				Map map = new HashMap();
-				childs.add(map);
-				map.put("value", line[i]);
-				map.put("title", line[i]);
-				map.put("type", "element");
-				map.put("children", new ArrayList());
-			}
-			System.out.println("getCsvModel:" + rootmap);
-			return rootmap;
-		} finally {
-		}
-	}
-
-	protected byte[] convertToUTF8(byte bytes[] ) throws Exception{
-		String sch = detectCharset(bytes);
-		if( "UTF-8".equals(sch)) return bytes;
-
-		CharsetDecoder chDecoder = Charset.forName(sch).newDecoder();  
-		ByteBuffer bbuf = ByteBuffer.wrap(bytes);  
-		CharBuffer cbuf = chDecoder.decode(bbuf);  
-
-		CharsetEncoder utf8encoder = Charset.forName("UTF-8").newEncoder();  
-		return utf8encoder.encode(cbuf).array();
-	}
-	protected synchronized String detectCharset(byte[] content) throws Exception {
-		if( content == null || content.length==0) return null;
-		ByteArrayInputStream bis = new ByteArrayInputStream(content);
-		try {
-			org.apache.tika.parser.txt.UniversalEncodingDetector ued = new org.apache.tika.parser.txt.UniversalEncodingDetector();
-			Charset charset = ued.detect(bis,new org.apache.tika.metadata.Metadata());
-			System.out.println("detectCharset:" + charset);
-			return charset.toString();
+			return ((Boolean) map.get(key)).booleanValue();
 		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			bis.close();
+			return def;
 		}
-		return "unknown";
 	}
-	protected synchronized String detectFileType(byte[] content) throws Exception {
-		if( content == null || content.length==0) return null;
-		ByteArrayInputStream bis = new ByteArrayInputStream(content);
-		try {
-			Tika tika = new Tika();
-			String ftype = tika.detect(bis);
-			System.out.println("getFileModel.ftype:" + ftype);
-			return ftype;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			bis.close();
-		}
-		return "unknown";
-	}
+
+	/*OLDIMPORT END*/
+
 }
