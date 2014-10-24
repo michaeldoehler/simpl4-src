@@ -268,7 +268,7 @@ public class Transformer implements Constants{
 		String _selector = (_m.map2parent as boolean) ? getParentSelector(selector) : selector;
 		if( isRoot && outputNode.type == NODETYPE_ELEMENT){
 			Class clazz = getClass(context,outputNode);
-			listBean = new Bean(clazz, lid, _selector, new LocalBeanFactory(clazz));
+			listBean = new Bean(clazz, lid, _selector, new LocalBeanFactory(clazz,m_beanFactory));
 			debug("+++newMapBean:"+beanName+"\t\t\tselector:"+_selector+",id:"+lid+",typeout:"+outputNode.type);
 		}else{
 			listBean = new Bean(getListClass(context), lid, _selector);
@@ -279,7 +279,7 @@ public class Transformer implements Constants{
 		String bid = beanName+getInternalId(context)+"_"+id;
 		debug("+++newHashMapBean:"+bid+",\t\t\tselector:"+selector+"|name:"+outputNode.name);
 		Class clazz = getClass(context,outputNode);
-		Bean mapBean = new Bean(clazz, bid, selector, new LocalBeanFactory(clazz));
+		Bean mapBean = new Bean(clazz, bid, selector, new LocalBeanFactory(clazz,m_beanFactory));
 		if( isRoot && outputNode.type == NODETYPE_ELEMENT){
 			debug("\t---bindList:"+beanName+"List,"+beanName);
 			mapBean = listBean;
@@ -314,7 +314,7 @@ public class Transformer implements Constants{
 							String name = elementNode.name as String;
 							String _id = getInternalId(context);
 							clazz = getClass(context,elementNode);
-							currentBean = new Bean(clazz, name+_id+"_"+elementNode.id as String, getParentSelector((String)inputNode.path), new LocalBeanFactory(clazz));
+							currentBean = new Bean(clazz, name+_id+"_"+elementNode.id as String, getParentSelector((String)inputNode.path), new LocalBeanFactory(clazz,m_beanFactory));
 							context.elementIds[(String)elementNode.id] = currentBean;
 						}
 						lastBean.bindTo( pe, currentBean);
@@ -891,13 +891,15 @@ debug("setProperty:"+event.getBean()+"/"+propertyName+"="+ores+"/"+clazz);
 
 	private static  class LocalBeanFactory<T> implements Factory<T> {
 		Class clazz;
-		public LocalBeanFactory(Class clazz) {
+		BeanFactory beanFactory;
+		public LocalBeanFactory(Class clazz, BeanFactory bf) {
 			this.clazz = clazz;
+			this.beanFactory=bf;
 		}
 
 		public T create(ExecutionContext executionContext) {
-			if( m_beanFactory != null){
-				return m_beanFactory.create(clazz);
+			if( beanFactory != null){
+				return beanFactory.create(clazz);
 			}else{
 				return clazz.newInstance();
 			}
