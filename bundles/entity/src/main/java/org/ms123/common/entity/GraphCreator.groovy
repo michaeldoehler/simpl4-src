@@ -157,6 +157,7 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 	}
 	private String getEditType(String datatype){
 		if("date".equals(datatype))return "date";
+		if("boolean".equals(datatype))return "checkbox";
 		return "text";
 	}
 	private void addField(Map entityMap,Map treeNode){
