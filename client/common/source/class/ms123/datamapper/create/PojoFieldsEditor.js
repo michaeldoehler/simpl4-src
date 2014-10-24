@@ -25,8 +25,11 @@ qx.Class.define("ms123.datamapper.create.PojoFieldsEditor", {
 	 CONSTRUCTOR
 	 ******************************************************************************/
 	construct: function (facade, data) {
-		var title = this.tr("datamapper.define") + this.tr("Pojo");
-		this.base(arguments,facade,null,title,data);
+		this._facade=facade;
+		if( !facade.mainEntity){
+			var title = this.tr("datamapper.define") + this.tr("Pojo");
+			this.base(arguments,facade,null,title,data);
+		}
 	},
 
 	/******************************************************************************
@@ -53,8 +56,7 @@ qx.Class.define("ms123.datamapper.create.PojoFieldsEditor", {
 		},
 		getValue: function () {
 			var data = qx.lang.Json.parse(qx.util.Serializer.toJson(this._form.getData()));
-console.log("_createModel.data:"+JSON.stringify(data,null,2));
-			var model = this._createModel(data.entity);	
+			var model = this.createModel(data.entity);	
 			return model;
 		},
 		setValue: function (value) {
@@ -62,10 +64,9 @@ console.log("_createModel.data:"+JSON.stringify(data,null,2));
 				this._form.setData({entity:value.entity});
 			}
 		},
-		_createModel:function(entity){
+		createModel:function(entity){
 			var cm = new ms123.config.ConfigManager();
 			var entityTree = cm.getEntityTree(this._facade.storeDesc,entity,4,false);
-console.log("_createModel:"+JSON.stringify(entityTree,null,2));
 			var newTree = this._traverse( entityTree,{} );
 			newTree.entity = entity;
 			return newTree;

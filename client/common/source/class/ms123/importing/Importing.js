@@ -251,11 +251,11 @@ qx.Class.define("ms123.importing.Importing", {
 							context.user = self._user;
 							context.storeDesc = self.__storeDesc;
 							context.prefix = self.__prefix;
-							context.mainEntity = mainEntity;
+							context.mainEntity = mainEntity || self.__mainEntity;
 							context.fileType = fileType;
 							context.id = id;
 							context.parentWidget = self._rightWidget;
-							console.log("step1");
+							console.log("step1:"+mainEntity+"/"+self.__mainEntity);
 
 							if( ms123.config.ConfigManager.isDatamapperImport()){
 								new ms123.importing.ImportDatamapperDialog(context);

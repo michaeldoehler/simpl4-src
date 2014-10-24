@@ -31,6 +31,15 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 		var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(2));
 		var input = this._createGroupBox(this.tr("datamapper.input"),ms123.datamapper.Config.INPUT);
 		var output = this._createGroupBox(this.tr("datamapper.output"),ms123.datamapper.Config.OUTPUT);
+		if( this._facade.mainEntity){
+			console.error("Step1");
+			output.formatSelector.setEnabled(false);
+			var pf = new ms123.datamapper.create.PojoFieldsEditor(this._facade,ms123.datamapper.Config.OUTPUT);
+			var data = pf.createModel(this._facade.mainEntity);
+			data.format= ms123.datamapper.Config.FORMAT_POJO;
+			this._outputValue=data;
+			this._outputValue.type = ms123.datamapper.Config.NODETYPE_COLLECTION;
+		}
 
 		container.add(input.groupBox, {
 			width: "50%"
@@ -71,8 +80,8 @@ qx.Class.define('ms123.datamapper.MappingCreator', {
 				var format = this._outputValue.format;
 				ms123.util.Clone.merge(this._outputValue, this._inputValue);
 				this._outputValue.format = format;
-				console.log("_inputValue.format:"+this._inputValue.format);
-				if( this._inputValue.format == ms123.datamapper.Config.FORMAT_CSV){
+				if( this._inputValue.format == ms123.datamapper.Config.FORMAT_CSV ||
+						this._outputValue.format == ms123.datamapper.Config.FORMAT_POJO){
 					this._outputValue.type = ms123.datamapper.Config.NODETYPE_COLLECTION;
 				}
 			}

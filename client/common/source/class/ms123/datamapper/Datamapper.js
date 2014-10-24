@@ -27,6 +27,7 @@ qx.Class.define('ms123.datamapper.Datamapper', {
 		this._use = context.use;
 		this._facade.use = this._use;
 		this._facade.importingid = context.importingid;
+		this._facade.mainEntity = context.mainEntity;
 
 console.log("datamapper.importingid:"+this._facade.importingid);
 		var deco = new ms123.util.RoundSingleBorder(1, "solid", "white", 1);

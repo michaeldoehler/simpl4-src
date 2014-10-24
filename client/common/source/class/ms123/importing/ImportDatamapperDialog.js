@@ -69,6 +69,7 @@ qx.Class.define("ms123.importing.ImportDatamapperDialog", {
 			context.storeDesc = this.__storeDesc;
 			context.use=ms123.datamapper.Config.USE_IMPORT;
 			context.importingid= this.__prefix + "/" + this.__id;
+			context.mainEntity= this.__mainEntity;
 			var dm = new ms123.datamapper.Datamapper(context);
 			dm.addListener("save2", function(e){
 				var settings = e.getData();

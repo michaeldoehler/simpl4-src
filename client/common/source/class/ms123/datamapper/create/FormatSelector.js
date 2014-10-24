@@ -58,6 +58,10 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			console.log("ChangeValue("+this._side+"):"+data);
 			this._setStatus();
 		},this);
+		if( side == ms123.datamapper.Config.OUTPUT && facade.mainEntity){
+			this._statusField.setValue(this.tr("datamapper.status_ready"));
+			this._statusField.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
+		}
 	},
 
 	properties: {},
