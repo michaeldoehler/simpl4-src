@@ -22,6 +22,7 @@ import org.apache.camel.Exchange;
 import org.ms123.common.rpc.RpcException;
 
 public interface DatamapperService {
+	public Object transform( String namespace,Map config,  String configName, String data, BeanFactory bf) throws Exception;
 	public Object transform( String namespace,Map config,  String configName, String data) throws Exception;
 	public Object transform( String body, String configName, Exchange exchange) throws Exception;
 	public Object getMetaData( Map config, String fileContent) throws RpcException;

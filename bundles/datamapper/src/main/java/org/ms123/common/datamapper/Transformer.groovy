@@ -68,10 +68,15 @@ public class Transformer implements Constants{
 	protected NucleusService m_nucleusService;
 	private String m_configName;
 	private StoreDesc m_storeDesc;
+	private BeanFactory m_beanFactory;
 
 	public Transformer(String namespace,String configName, NucleusService ns){
+		this( namespace, configName, ns, null);
+	}
+	public Transformer(String namespace,String configName, NucleusService ns, BeanFactory bf){
 		m_configName = configName == null ? "-" : configName;
 		m_nucleusService = ns;
+		m_beanFactory = bf;
 		m_storeDesc = StoreDesc.getNamespaceData(namespace);
 		m_js.prettyPrint(true);
 	}
@@ -262,7 +267,8 @@ public class Transformer implements Constants{
 		Map _m = mapping;
 		String _selector = (_m.map2parent as boolean) ? getParentSelector(selector) : selector;
 		if( isRoot && outputNode.type == NODETYPE_ELEMENT){
-			listBean = new Bean(getClass(context,outputNode), lid, _selector);
+			Class clazz = getClass(context,outputNode);
+			listBean = new Bean(clazz, lid, _selector, new LocalBeanFactory(clazz));
 			debug("+++newMapBean:"+beanName+"\t\t\tselector:"+_selector+",id:"+lid+",typeout:"+outputNode.type);
 		}else{
 			listBean = new Bean(getListClass(context), lid, _selector);
@@ -272,7 +278,8 @@ public class Transformer implements Constants{
 
 		String bid = beanName+getInternalId(context)+"_"+id;
 		debug("+++newHashMapBean:"+bid+",\t\t\tselector:"+selector+"|name:"+outputNode.name);
-		Bean mapBean = new Bean(getClass(context,outputNode), bid, selector);
+		Class clazz = getClass(context,outputNode);
+		Bean mapBean = new Bean(clazz, bid, selector, new LocalBeanFactory(clazz));
 		if( isRoot && outputNode.type == NODETYPE_ELEMENT){
 			debug("\t---bindList:"+beanName+"List,"+beanName);
 			mapBean = listBean;
@@ -306,7 +313,8 @@ public class Transformer implements Constants{
 						if( currentBean == null){
 							String name = elementNode.name as String;
 							String _id = getInternalId(context);
-							currentBean = new Bean(getClass(context,elementNode), name+_id+"_"+elementNode.id as String, getParentSelector((String)inputNode.path));
+							clazz = getClass(context,elementNode);
+							currentBean = new Bean(clazz, name+_id+"_"+elementNode.id as String, getParentSelector((String)inputNode.path), new LocalBeanFactory(clazz));
 							context.elementIds[(String)elementNode.id] = currentBean;
 						}
 						lastBean.bindTo( pe, currentBean);
@@ -881,47 +889,18 @@ debug("setProperty:"+event.getBean()+"/"+propertyName+"="+ores+"/"+clazz);
 		}
 	}
 
-	public class BeanFactory<T> implements Factory<T> {
+	private static  class LocalBeanFactory<T> implements Factory<T> {
 		Class clazz;
-		public BeanFactory(Class clazz) {
+		public LocalBeanFactory(Class clazz) {
 			this.clazz = clazz;
 		}
 
 		public T create(ExecutionContext executionContext) {
-			return clazz.newInstance();
+			if( m_beanFactory != null){
+				return m_beanFactory.create(clazz);
+			}else{
+				return clazz.newInstance();
+			}
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

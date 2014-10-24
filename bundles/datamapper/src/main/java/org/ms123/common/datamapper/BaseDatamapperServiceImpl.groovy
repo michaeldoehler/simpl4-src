@@ -104,6 +104,9 @@ abstract class BaseDatamapperServiceImpl implements Constants,DatamapperService 
 	}
 
 	public Object transform( String namespace, Map config, String configName, String data) throws Exception {
+		return transform(namespace,config, configName, data,null);
+	}
+	public Object transform( String namespace, Map config, String configName, String data, BeanFactory bf) throws Exception {
 		Map mconfig = config;
 		if( namespace != null && configName != null){
 			String json = m_gitService.searchContent(namespace, configName, "sw.datamapper");
