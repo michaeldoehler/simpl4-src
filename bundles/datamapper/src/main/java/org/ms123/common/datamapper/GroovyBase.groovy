@@ -46,6 +46,7 @@ public abstract class GroovyBase extends Script implements Constants {
 
 	private Map converters = [
 		"str2bool":[ctClazz:BooleanConverter.class,toClazz:Boolean.class],
+		"str2boolean":[ctClazz:BooleanConverter.class,toClazz:Boolean.class],
 		"str2date":[ctClazz:DateConverter.class,toClazz:Date.class],
 		"str2decimal":[ctClazz:BigDecimalConverter.class,toClazz:BigDecimal.class],
 		"str2double":[ctClazz:DoubleConverter.class,toClazz:Double.class],
@@ -65,6 +66,7 @@ public abstract class GroovyBase extends Script implements Constants {
 
 		"num2str":[ctClazz:LongConverter.class,toClazz:String.class],
 		"num2bool":[ctClazz:BooleanConverter.class,toClazz:Boolean.class],
+		"num2boolean":[ctClazz:BooleanConverter.class,toClazz:Boolean.class],
 
 		"number2string":[ctClazz:LongConverter.class,toClazz:String.class],
 		"number2boolean":[ctClazz:BooleanConverter.class,toClazz:Boolean.class],
