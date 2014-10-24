@@ -126,10 +126,12 @@ public class BaseImportingServiceImpl implements Constants {
 				parentClazz = sc.getClass(getBaseName(s[0]));
 				parentFieldName = s[1];
 				if( parentLookup.matches(FIELDNAME_REGEX)){
-					parentQuery = parentLookup+ " == ${"+parentLookup+"}";
+					String q= isString(parentClazz,parentLookup) ? "'" : "";
+					parentQuery = parentLookup+ " == "+q+"${"+parentLookup+"}"+q;
 				}else if( parentLookup.matches(FIELDNAME_REGEX+","+FIELDNAME_REGEX)){
 					s = parentLookup.split(",");
-					parentQuery = s[0]+ " == ${"+s[1]+"}";
+					String q= isString(parentClazz,s[1]) ? "'" : "";
+					parentQuery = s[0]+ " == "+q+"${"+s[1]+"}"+q;
 				}else{
 					parentQuery = parentLookup;
 				}
@@ -205,6 +207,15 @@ public class BaseImportingServiceImpl implements Constants {
 		if (lindex == -1)
 			return name;
 		return name.substring(lindex + 1).toLowerCase();
+	}
+
+	private boolean isString(Class c, String fieldName){
+		try{
+			Field f = c.getDeclaredField(fieldName);
+			return f.getType().isAssignableFrom(String.class);
+		}catch(Exception e){
+			return false;
+		}
 	}
 
 	private String getPrimaryKey(Class clazz) throws Exception {
