@@ -90,16 +90,14 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			var stack = new qx.ui.container.Stack();
 			var editor = this._createEditor(config);
 			var preview = this._createPreview(config);
+			stack.add(preview);
+			stack.add(editor);
 			var defaults = null;
 			if( isDefaultsEnabled ){
 				defaults = this._createDefaults(config);
-			}
-
-			stack.add(preview);
-			stack.add(editor);
-			if( defaults ){
 				stack.add(defaults);	
 			}
+
 			this.add(stack, {
 				edge: "center"
 			});
@@ -136,6 +134,7 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			var mainEntity = config.output.cleanName;
 			var d = new ms123.datamapper.plugins.Defaults(this._facade,config);
 			d.setup(mainEntity,3);
+			d.setValue( config.defaults);
 			this._facade.defaults = d;
 			container.add(d, {
 				edge: "center"
@@ -237,8 +236,12 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			if( !data){
 				data = this._getConfig();
 			}
+			if( this._facade.defaults){
+				data.defaults = this._facade.defaults.getValue();
+			}
 			this.fireDataEvent("save2", data);
 			this.fireDataEvent("save", JSON.stringify(data,null,2));
+			console.debug("Def:"+JSON.stringify(this._facade.defaults.getValue(),null,2));
 		},
 		_update: function () {
 			if(this._inputAreaToolbar)this._inputAreaToolbar.onUpdate();

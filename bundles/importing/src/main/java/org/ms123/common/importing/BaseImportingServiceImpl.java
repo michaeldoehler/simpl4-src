@@ -71,7 +71,7 @@ public class BaseImportingServiceImpl implements Constants {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(BaseImportingServiceImpl.class);
 
-	protected Inflector m_inflector = Inflector.getInstance();
+	protected static Inflector m_inflector = Inflector.getInstance();
 
 	private Bean2Map m_b2m = new Bean2Map();
 
@@ -200,6 +200,41 @@ public class BaseImportingServiceImpl implements Constants {
 		return null;
 	}
 
+	protected static class BeanFactory implements org.ms123.common.datamapper.BeanFactory{
+		private SessionContext m_sc;
+		private Map m_settings;
+		private List<Map> m_defaults;
+		public BeanFactory(SessionContext sc, Map settings){
+			m_sc = sc;
+			m_settings = settings;
+			m_defaults = (List)settings.get("defaults");
+		}
+		public Object create(Class clazz){
+			try{
+				System.out.println("BeanFactory:"+clazz);
+				Object bean = clazz.newInstance();
+				if( m_defaults != null){
+					Map defaults = getDefaults(clazz.getSimpleName(),m_defaults);
+					if (defaults != null) {
+						m_sc.populate(defaults, bean);
+					}
+				}
+				return bean;
+			}catch(Exception e){
+				throw new RuntimeException("BeanFactory.create", e);
+			}
+		}
+	}
+
+	private static Map<String, Object> getDefaults(String entityName, List<Map> defaults) {
+		entityName = m_inflector.getEntityName(entityName);
+		for (Map m : defaults) {
+			if (entityName.toLowerCase().equals((m_inflector.getEntityName((String) m.get("name"))).toLowerCase())) {
+				return (Map) m.get("content");
+			}
+		}
+		return null;
+	}
 	private String getBaseName(String name) {
 		if (name == null || name.trim().equals(""))
 			return null;
