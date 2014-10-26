@@ -18,31 +18,33 @@
  */
 package org.ms123.common.nucleus;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import javax.jdo.PersistenceManagerFactory;
-import java.util.*;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 import java.io.File;
+import java.util.*;
+import javax.jdo.Extent;
+import javax.jdo.JDOEnhancer;
+import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Extent;
 import javax.jdo.Query;
-import javax.jdo.JDOHelper;
-import javax.jdo.JDOEnhancer;
-import javax.jdo.Transaction;
-import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
-import org.postgresql.xa.PGXADataSource;
-import org.postgresql.ds.PGPoolingDataSource;
+import javax.jdo.Transaction;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
+import org.ms123.common.libhelper.FileSystemClassLoader;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.system.TransactionService;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.postgresql.ds.PGPoolingDataSource;
+import org.postgresql.xa.PGXADataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 @SuppressWarnings("unchecked")
 public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManagerLoader {
+	private PoolingDataSource m_poolingDataSource;
 
 	public PostgresqlPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
 		super(bundleContext, sdesc, baseDirs, props, ts);
@@ -63,6 +65,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 	}
 
 	protected void setDataSources() {
+		debug("OpenPostgresql:"+m_sdesc);
 		if( m_transactionService.getJtaLocator().equals("jotm")){
 			PGXADataSource xa = new PGXADataSource();
 			xa.setUser("postgres");
@@ -76,12 +79,15 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 			PoolingDataSource ds = new PoolingDataSource();
 			ds.setClassName("org.postgresql.xa.PGXADataSource");
 			ds.setUniqueName(m_sdesc.toString());
-			ds.setMaxPoolSize(15);
+			ds.setMaxPoolSize(25);
 			ds.setAllowLocalTransactions(true);
-			ds.setTestQuery("SELECT 1");
+			ds.setEnableJdbc4ConnectionTest(true);
+			ds.setTestQuery(null);
+			ds.getDriverProperties().put("databaseName", m_sdesc.getDatabaseName());
 			ds.getDriverProperties().setProperty("user", "postgres");
 			ds.getDriverProperties().setProperty("serverName", "localhost");    
 			m_props.put("datanucleus.ConnectionFactory", ds);
+			m_poolingDataSource=ds;
 		}
 
 		// nontx
@@ -91,4 +97,22 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		pd.setDatabaseName(m_sdesc.getDatabaseName());
 		m_props.put("datanucleus.ConnectionFactory2", pd);
 	}
+	public synchronized void close() {
+		debug("ClosePostgresql:"+m_sdesc);
+		super.close();
+		if(m_poolingDataSource != null){
+			m_poolingDataSource.close();
+		}
+	}
+	public String toString(){
+		return "[PostgresqlPersistenceManagerLoader:"+m_sdesc+"]";
+	}
+	protected void debug(String msg) {
+		m_logger.debug(msg);
+	}
+	protected void info(String msg) {
+		System.out.println(msg);
+		m_logger.info(msg);
+	}
+	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(PostgresqlPersistenceManagerLoader.class);
 }
