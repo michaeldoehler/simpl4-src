@@ -115,6 +115,7 @@ qx.Class.define("ms123.importing.Defaults", {
 		},
 
 		setValue: function (value) {
+			if( value == null) return;
 			var modList = value; //qx.lang.Json.parse(value);
 			for (var i = 0; i < modList.length; i++) {
 				var modDesc = modList[i];
