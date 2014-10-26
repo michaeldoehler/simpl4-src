@@ -18,46 +18,34 @@
  */
 package org.ms123.common.system;
 
-import java.util.ArrayList;
+import aQute.bnd.annotation.component.*;
+import aQute.bnd.annotation.metatype.*;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Date;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Bundle;
-import aQute.bnd.annotation.metatype.*;
-import aQute.bnd.annotation.component.*;
-import static org.apache.commons.beanutils.PropertyUtils.setProperty;
-import org.springframework.transaction.jta.JtaTransactionManager;
-import org.ms123.common.rpc.PName;
-import org.ms123.common.rpc.POptional;
-import org.ms123.common.rpc.RpcException;
-import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
-import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
-import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.ms123.common.system.tm.BitronixTransactionServiceImpl;
 
 /** TransactionService implementation
  */
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=transaction" })
-public class TransactionServiceImpl extends BaseTransactionServiceImpl implements TransactionService {
+public class TransactionServiceImpl implements TransactionService {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(TransactionServiceImpl.class);
-
+	TransactionService m_ts =null;
 	public TransactionServiceImpl() {
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 		info("TransactionEventHandlerService.activate.props:" + props);
 		try {
-			Bundle b = bundleContext.getBundle();
-			m_bundleContext = bundleContext;
-			m_jotm = new org.objectweb.jotm.Jotm(true, false);
-			m_jta = new JtaTransactionManager(this.getTransactionManager());
+			m_ts = new BitronixTransactionServiceImpl();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -69,5 +57,33 @@ public class TransactionServiceImpl extends BaseTransactionServiceImpl implement
 
 	protected void deactivate() throws Exception {
 		info("TransactionServiceImpl.deactivate");
+	}
+
+	public UserTransaction getUserTransaction(){
+		return m_ts.getUserTransaction();
+	}
+
+	public TransactionManager getTransactionManager(){
+		return m_ts.getTransactionManager();
+	}
+
+	public PlatformTransactionManager getPlatformTransactionManager(){
+		return m_ts.getPlatformTransactionManager();
+	}
+
+	public String getJtaLocator(){	
+		return m_ts.getJtaLocator();
+	}
+
+	public TransactionTemplate getTransactionTemplate(){
+		return m_ts.getTransactionTemplate();
+	}
+
+	public TransactionTemplate getTransactionTemplate(boolean propagation_requires_new){
+		return m_ts.getTransactionTemplate(propagation_requires_new);
+	}
+	protected static void info(String msg) {
+		System.out.println(msg);
+		m_logger.info(msg);
 	}
 }

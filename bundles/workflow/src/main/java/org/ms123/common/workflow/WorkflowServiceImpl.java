@@ -104,6 +104,7 @@ import org.apache.camel.CamelContext;
 import javax.sql.DataSource;
 import org.ms123.common.workflow.api.WorkflowService;
 import org.activiti.engine.impl.interceptor.CommandContextFactory;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 /** WorkflowService implementation
  */
@@ -207,12 +208,31 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 
 	private DataSource getDataSource(String url){
 		if( m_dataSource!=null) return m_dataSource;
-		org.h2.jdbcx.JdbcDataSource ds = new org.h2.jdbcx.JdbcDataSource();
-		ds.setUser("sa");
-		ds.setPassword("");
-		ds.setURL(url);
-		m_dataSource = new DataSourceWrapper(ds);
+
+		DataSource _ds = null;
+		if( m_transactionService.getJtaLocator().equals("bitronix")){
+			_ds = getPoolingDataSource(url);
+		}else{
+			org.h2.jdbcx.JdbcDataSource ds = new org.h2.jdbcx.JdbcDataSource();
+			ds.setUser("sa");
+			ds.setPassword("");
+			ds.setURL(url);
+			_ds = ds;
+		}
+		m_dataSource = new DataSourceWrapper(_ds);
 		return m_dataSource;
+	}
+	private PoolingDataSource getPoolingDataSource(String url){
+		PoolingDataSource ds = new PoolingDataSource();
+		ds.setClassName("org.h2.jdbcx.JdbcDataSource");
+		ds.setUniqueName("activiti");
+		ds.setMaxPoolSize(15);
+		ds.setAllowLocalTransactions(true);
+		ds.setTestQuery("SELECT 1");
+		ds.getDriverProperties().setProperty("user", "sa");
+		ds.getDriverProperties().setProperty("password", "");
+		ds.getDriverProperties().setProperty("URL", url);    
+		return ds;
 	}
 	private SpringProcessEngineConfiguration initProcessEngine(BundleContext bundleContext) {
 		SpringProcessEngineConfiguration c = m_processEngineConfiguration;
@@ -448,17 +468,21 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 	}
 
 	public synchronized void h2Close(DataSource ds) {
-		java.sql.Connection conn = null;
-		try {
-			conn = ds.getConnection();
-			java.sql.Statement stat = conn.createStatement();
-			stat.execute("shutdown compact");
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
+		if( m_transactionService.getJtaLocator().equals("bitronix")){
+			((PoolingDataSource)((DataSourceWrapper)m_dataSource).getDataSource()).close();
+		}else{
+			java.sql.Connection conn = null;
 			try {
-				conn.close();
+				conn = ds.getConnection();
+				java.sql.Statement stat = conn.createStatement();
+				stat.execute("shutdown compact");
 			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					conn.close();
+				} catch (Exception e) {
+				}
 			}
 		}
 	}

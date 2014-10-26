@@ -46,5 +46,6 @@ dependencies {
 	  compile files("${repository}/sojo-1.0.0.bar")
 		compile files("${repository}/spring-core-3.1.4.RELEASE.jar")
 		compile files("${repository}/spring-tx-3.1.4.RELEASE.jar")
+		compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")
     compile files('build/classes/main')
 }

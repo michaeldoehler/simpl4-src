@@ -20,7 +20,6 @@ package org.ms123.common.system;
 
 import javax.transaction.UserTransaction;
 import javax.transaction.TransactionManager;
-import org.objectweb.jotm.Jotm;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -32,7 +31,7 @@ public interface TransactionService {
 
 	public PlatformTransactionManager getPlatformTransactionManager();
 
-	public Jotm getJotm();
+	public String getJtaLocator();
 
 	public TransactionTemplate getTransactionTemplate();
 

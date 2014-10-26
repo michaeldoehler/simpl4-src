@@ -177,7 +177,7 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/jaxb-xjc-2.1.9-osgi.jar \
   scan-bundle:file:$REPOSITORY/jdom-1.1.bar \
 	scan-bundle:file:$REPOSITORY/jettison-1.2.jar \
-  scan-bundle:file:$REPOSITORY/jms-1.1.bar \
+  scan-bundle:file:$REPOSITORY/jms-api-1.1-rev-1.bar \
   scan-bundle:file:$REPOSITORY/joda-time-2.3.jar \
   scan-bundle:file:$REPOSITORY/jotm-core-2.2.3.jar \
 	scan-bundle:file:$REPOSITORY/jsch-0.1.44-1.bar \
@@ -299,6 +299,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
+	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
 	--platform=f \

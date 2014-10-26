@@ -34,6 +34,7 @@ import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
 import java.sql.Statement;
 import java.sql.Connection;
+import javax.sql.DataSource;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.h2.jdbcx.JdbcDataSource;
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.system.TransactionService;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 /**
  */
@@ -49,9 +51,10 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 
 	private String m_baseDir;
 
-	private BasicManagedDataSource m_ds1;
+	private BasicManagedDataSource m_basicMangedDataSource;
+	private PoolingDataSource m_poolingDataSource;
 
-	private JdbcDataSource m_ds2;
+	private JdbcDataSource m_nonTxDataSource;
 
 	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
 		super(bundleContext, sdesc, baseDirs, props, ts);
@@ -83,7 +86,6 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 
 	protected synchronized void setDataSources() {
 		boolean b_script = false;
-		JdbcDataSource xa = new JdbcDataSource();
 		File fDB = new File(m_baseDir,"dbh2.h2.db");
 		File fLock = new File(m_baseDir,"swlock");
 		if( !fLock.exists() || !fDB.exists() ){
@@ -97,17 +99,18 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		}
 		if( fLock.exists()) fLock.delete();
 		debug("setDataSources:"+m_baseDir+","+b_script);
-		xa.setUser("sa");
-		xa.setPassword("sa");
-		xa.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");
-		BasicManagedDataSource b = new BasicManagedDataSource();
-		m_ds1 = b;
-		b.setTransactionManager(m_transactionService.getTransactionManager());
-		b.setXaDataSourceInstance(xa);
+
+		Object b = null;
+		if( m_transactionService.getJtaLocator().equals("jotm")){
+			b = getBasicManagedDatasource();
+		}else{
+			b = getPoolingDataSource();
+		}
 		m_props.put("datanucleus.ConnectionFactory", b);
-		JdbcDataSource pd = new JdbcDataSource();
+
 		// nontx
-		m_ds2 = pd;
+		JdbcDataSource pd = new JdbcDataSource();
+		m_nonTxDataSource = pd;
 		pd.setUser("sa");
 		pd.setPassword("sa");
 		pd.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");
@@ -118,6 +121,31 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		}else{
 			createScript(pd);
 		}
+	}
+	private BasicManagedDataSource getBasicManagedDatasource(){
+		JdbcDataSource xa = new JdbcDataSource();
+		xa.setUser("sa");
+		xa.setPassword("sa");
+		xa.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");
+		BasicManagedDataSource b = new BasicManagedDataSource();
+		m_basicMangedDataSource = b;
+		b.setTransactionManager(m_transactionService.getTransactionManager());
+		b.setXaDataSourceInstance(xa);
+		return b;
+	}
+
+	private PoolingDataSource getPoolingDataSource(){
+		PoolingDataSource ds = new PoolingDataSource();
+		ds.setClassName("org.h2.jdbcx.JdbcDataSource");
+		ds.setUniqueName(m_sdesc.toString());
+		ds.setMaxPoolSize(15);
+		ds.setAllowLocalTransactions(true);
+		ds.setTestQuery("SELECT 1");
+		ds.getDriverProperties().setProperty("user", "sa");
+		ds.getDriverProperties().setProperty("password", "sa");
+		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");    
+		m_poolingDataSource = ds;
+		return ds;
 	}
 
 	private void createScript(JdbcDataSource pd){
@@ -162,10 +190,15 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		super.close();
 		Connection conn = null;
 		try {
-			conn = m_ds2.getConnection();
+			conn = m_nonTxDataSource.getConnection();
 			Statement stat = conn.createStatement();
 			stat.execute("SCRIPT NOPASSWORDS TO '"+m_baseDir+"/script.sql'");
-			m_ds1.close();
+			if(m_basicMangedDataSource != null){
+				m_basicMangedDataSource.close();
+			}
+			if(m_poolingDataSource != null){
+				m_poolingDataSource.close();
+			}
 			stat.execute("shutdown compact");
 			new File(m_baseDir,"swlock").delete();
 		} catch (Exception e) {

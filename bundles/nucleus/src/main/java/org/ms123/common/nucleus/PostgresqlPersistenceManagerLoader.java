@@ -37,6 +37,7 @@ import org.postgresql.ds.PGPoolingDataSource;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.system.TransactionService;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 /**
  */
@@ -62,19 +63,31 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 	}
 
 	protected void setDataSources() {
-		PGXADataSource xa = new PGXADataSource();
-		xa.setUser("postgres");
-		xa.setServerName("localhost");
-		xa.setDatabaseName(m_sdesc.getDatabaseName());
-		BasicManagedDataSource b = new BasicManagedDataSource();
-		b.setTransactionManager(m_transactionService.getTransactionManager());
-		b.setXaDataSourceInstance(xa);
-		m_props.put("datanucleus.ConnectionFactory", b);
-		PGPoolingDataSource pd = new PGPoolingDataSource();
+		if( m_transactionService.getJtaLocator().equals("jotm")){
+			PGXADataSource xa = new PGXADataSource();
+			xa.setUser("postgres");
+			xa.setServerName("localhost");
+			xa.setDatabaseName(m_sdesc.getDatabaseName());
+			BasicManagedDataSource b = new BasicManagedDataSource();
+			b.setTransactionManager(m_transactionService.getTransactionManager());
+			b.setXaDataSourceInstance(xa);
+			m_props.put("datanucleus.ConnectionFactory", b);
+		}else{
+			PoolingDataSource ds = new PoolingDataSource();
+			ds.setClassName("org.postgresql.xa.PGXADataSource");
+			ds.setUniqueName(m_sdesc.toString());
+			ds.setMaxPoolSize(15);
+			ds.setAllowLocalTransactions(true);
+			ds.setTestQuery("SELECT 1");
+			ds.getDriverProperties().setProperty("user", "postgres");
+			ds.getDriverProperties().setProperty("serverName", "localhost");    
+			m_props.put("datanucleus.ConnectionFactory", ds);
+		}
+
 		// nontx
+		PGPoolingDataSource pd = new PGPoolingDataSource();
 		pd.setUser("postgres");
 		pd.setServerName("localhost");
-		//pd.setDatabaseName(getDbName(null));
 		pd.setDatabaseName(m_sdesc.getDatabaseName());
 		m_props.put("datanucleus.ConnectionFactory2", pd);
 	}
