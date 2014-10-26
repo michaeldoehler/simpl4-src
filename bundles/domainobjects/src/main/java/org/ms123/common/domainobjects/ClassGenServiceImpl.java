@@ -240,7 +240,8 @@ public class ClassGenServiceImpl implements ClassGenService {
 					addAnnotationOne(f, "javax.jdo.annotations.Key", "a#types", "java.lang.String");
 					addAnnotationOne(f, "javax.jdo.annotations.Value", "a#types", rightEntity);
 				}else{
-					addAnnotationTwo(f, "javax.jdo.annotations.Element", "a#types", rightEntity, "column", removePackageName(rightEntity).replace('.', '_').toLowerCase());
+					addAnnotationThree(f, "javax.jdo.annotations.Element", "a#types", 
+									rightEntity, "column", removePackageName(rightEntity).replace('.', '_').toLowerCase(),"dependent","true" );
 				}
 			} else if (manyToMany) {
 				addAnnotationTwo(f, "javax.jdo.annotations.Element", "a#types", rightEntity, "column", (leftField + "_id").toLowerCase());
@@ -402,6 +403,31 @@ public class ClassGenServiceImpl implements ClassGenService {
 			key2 = key2.substring(2);
 		}
 		anno.addMemberValue(key2, createMemberValue(type, value2, constPool));
+		attr.addAnnotation(anno);
+	}
+
+	private void addAnnotationThree(CtField ctField, String classname, String key1, Object value1, String key2, Object value2, String key3, Object value3) {
+		AnnotationsAttribute attr = getAnnotationsAttribute(ctField);
+		ConstPool constPool = ctField.getDeclaringClass().getClassFile().getConstPool();
+		Annotation anno = new Annotation(classname, constPool);
+		String type = getTypeFromKey(key1);
+		if (type != null){
+			key1 = key1.substring(2);
+		}
+		anno.addMemberValue(key1, createMemberValue(type, value1, constPool));
+
+		type = getTypeFromKey(key2);
+		if (type != null){
+			key2 = key2.substring(2);
+		}
+		anno.addMemberValue(key2, createMemberValue(type, value2, constPool));
+
+		type = getTypeFromKey(key3);
+		if (type != null){
+			key3 = key3.substring(2);
+		}
+		anno.addMemberValue(key3, createMemberValue(type, value3, constPool));
+
 		attr.addAnnotation(anno);
 	}
 
