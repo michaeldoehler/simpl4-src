@@ -41,7 +41,7 @@ public class JotmTransactionServiceImpl implements TransactionService{
 
 	protected JtaTransactionManager m_jta;
 
-	protected JotmTransactionServiceImpl() throws Exception{
+	public JotmTransactionServiceImpl() throws Exception{
 			m_jotm = new org.objectweb.jotm.Jotm(true, false);
 			m_jta = new JtaTransactionManager(m_jotm.getTransactionManager());
 	}
