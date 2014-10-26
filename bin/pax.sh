@@ -168,7 +168,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/ezmorph-1.0.6.jar \
   scan-bundle:file:$REPOSITORY/flexjson-2.1.bar \
   scan-bundle:file:$REPOSITORY/guava-10.0-rc3.bar \
-	scan-bundle:file:$REPOSITORY/h2-1.3.170.jar \
+	scan-bundle:file:$REPOSITORY/h2-1.4.182.jar \
   scan-bundle:file:$REPOSITORY/hibernate-5.0.1.jar \
 	scan-bundle:file:$REPOSITORY/hsqldb.jar \
 	scan-bundle:file:$REPOSITORY/itext-2.1.7.bar \
