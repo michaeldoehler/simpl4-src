@@ -182,9 +182,14 @@ public abstract class TaskBaseExecutor {
 	}
 
 	protected TransactionService getTransactionService() {
-		Map beans = Context.getProcessEngineConfiguration().getBeans();
-		TransactionService gs = (TransactionService) beans.get("transactionService");
-		return gs;
+		if( m_workflowService != null){
+			TransactionService ts = (TransactionService)m_workflowService.lookupServiceByName("org.ms123.common.system.TransactionService");
+			return ts;
+		}else{
+			Map beans = Context.getProcessEngineConfiguration().getBeans();
+			TransactionService ts = (TransactionService) beans.get("transactionService");
+			return ts;
+		}
 	}
 
 	protected void setValue(DelegateExecution execution, String processvar, Object value) throws Exception {
@@ -233,7 +238,7 @@ public abstract class TaskBaseExecutor {
 			dsl = new GroovyTaskDsl(sc, getEventAdmin(execution), ws, tc.getCategory(), tc.getProcessDefinitionKey(),
 					execution.getProcessInstanceId(), getInfo(tc), vars);
 		} else {
-			dsl = new GroovyTaskDsl(sc, null, null, tc.getCategory(), tc.getProcessDefinitionKey(), tc.getPid(),
+			dsl = new GroovyTaskDsl(sc, null, ws, tc.getCategory(), tc.getProcessDefinitionKey(), tc.getPid(),
 					tc.getHint(), vars);
 		}
 		return dsl;

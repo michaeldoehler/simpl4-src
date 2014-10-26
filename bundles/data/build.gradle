@@ -31,7 +31,6 @@ dependencies {
 	compile files("${repository}/httpclient-osgi-4.3.1.jar")
 	compile files("${repository}/httpcore-osgi-4.3.jar")
 	compile files("${repository}/joda-time-2.3.jar")
-	compile files("${repository}/jotm-core-2.2.3.jar")
 	compile files("${repository}/json-lib-2.3-jdk15.jar")
 	compile files("${repository}/jta-1.1.jar")
   compile files("${repository}/lucene-core-3.6.2.bar")
