@@ -54,7 +54,7 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 	private BasicManagedDataSource m_basicMangedDataSource;
 	private PoolingDataSource m_poolingDataSource;
 
-	private JdbcDataSource m_nonTxDataSource;
+	private JdbcConnectionPool m_nonTxPool;
 
 	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
 		super(bundleContext, sdesc, baseDirs, props, ts);
@@ -85,15 +85,20 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 	}
 
 	protected synchronized void setDataSources() {
+		debug("OpenH2:"+m_sdesc);
 		boolean b_script = false;
-		File fDB = new File(m_baseDir,"dbh2.h2.db");
+		File fDB1 = new File(m_baseDir,"dbh2.h2.db");
+		File fDB2 = new File(m_baseDir,"dbh2.mv.db");
 		File fLock = new File(m_baseDir,"swlock");
-		if( !fLock.exists() || !fDB.exists() ){
+		if( !fLock.exists() || (!fDB1.exists() && !fDB2.exists()) ){
 			File fScript = new File(m_baseDir,"script.sql");
 			if( fScript.exists()){
 				b_script=true;
-				if( fDB.exists()){
-					fDB.delete();
+				if( fDB1.exists()){
+					fDB1.delete();
+				}
+				if( fDB2.exists()){
+					fDB2.delete();
 				}
 			}
 		}
@@ -110,16 +115,16 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 
 		// nontx
 		JdbcDataSource pd = new JdbcDataSource();
-		m_nonTxDataSource = pd;
 		pd.setUser("sa");
 		pd.setPassword("sa");
-		pd.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");
+		pd.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107;MV_STORE=TRUE;MVCC=TRUE;DB_CLOSE_ON_EXIT=false;");
 		JdbcConnectionPool pool = JdbcConnectionPool.create(pd);
+		m_nonTxPool = pool;
 		m_props.put("datanucleus.ConnectionFactory2", pool);
 		if(b_script){
-			createDBFromScript(pd);
+			createDBFromScript(pool);
 		}else{
-			createScript(pd);
+			createScript(pool);
 		}
 	}
 	private BasicManagedDataSource getBasicManagedDatasource(){
@@ -143,12 +148,12 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		ds.setTestQuery("SELECT 1");
 		ds.getDriverProperties().setProperty("user", "sa");
 		ds.getDriverProperties().setProperty("password", "sa");
-		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");    
+		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;MV_STORE=TRUE;MVCC=TRUE;CACHE_SIZE=33107;DB_CLOSE_ON_EXIT=FALSE");    
 		m_poolingDataSource = ds;
 		return ds;
 	}
 
-	private void createScript(JdbcDataSource pd){
+	private void createScript(JdbcConnectionPool pd){
 		debug("createScript:"+m_baseDir);
 		Connection	conn = null;
 		try{
@@ -166,11 +171,11 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 			}
 		}
 	}
-	private void createDBFromScript(JdbcDataSource pd){
+	private void createDBFromScript(JdbcConnectionPool pool){
 		debug("createDBFromScript:"+m_baseDir);
 		Connection	conn = null;
 		try{
-			conn = pd.getConnection();
+			conn = pool.getConnection();
 			Statement stat = conn.createStatement();
 			stat.execute("RUNSCRIPT FROM '"+m_baseDir+"/script.sql'");
 			File f = new File(m_baseDir,"swlock");
@@ -190,22 +195,24 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		super.close();
 		Connection conn = null;
 		try {
-			conn = m_nonTxDataSource.getConnection();
+			conn = m_nonTxPool.getConnection();
 			Statement stat = conn.createStatement();
 			stat.execute("SCRIPT NOPASSWORDS TO '"+m_baseDir+"/script.sql'");
-			if(m_basicMangedDataSource != null){
-				m_basicMangedDataSource.close();
-			}
-			if(m_poolingDataSource != null){
-				m_poolingDataSource.close();
-			}
 			stat.execute("shutdown compact");
 			new File(m_baseDir,"swlock").delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				conn.close();
+				if(m_nonTxPool != null){
+					m_nonTxPool.dispose();
+				}
+				if(m_basicMangedDataSource != null){
+					m_basicMangedDataSource.close();
+				}
+				if(m_poolingDataSource != null){
+					m_poolingDataSource.close();
+				}
 			} catch (Exception e) {
 			}
 		}
