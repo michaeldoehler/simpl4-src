@@ -70,8 +70,6 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 
 	private Map<StoreDesc, AbstractPersistenceManagerLoader> m_loaders = new HashMap<StoreDesc, AbstractPersistenceManagerLoader>();
 
-	private org.objectweb.jotm.Jotm m_jotm;
-
 	private BundleContext m_bc;
 	private TransactionService m_transactionService;
 
@@ -141,12 +139,12 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 		}
 	}
 	public UserTransaction getUserTransaction() {
-		UserTransaction utx = m_jotm.getUserTransaction();
+		UserTransaction utx = m_transactionService.getUserTransaction();
 		return utx;
 	}
 
 	public TransactionManager getTransactionManager() {
-		TransactionManager tm = m_jotm.getTransactionManager();
+		TransactionManager tm = m_transactionService.getTransactionManager();
 		return tm;
 	}
 
@@ -166,15 +164,15 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 			AbstractPersistenceManagerLoader pml = null;
 			if (sdesc.getStore().equals(StoreDesc.STORE_RDBMS)) {
 				if (sdesc.getVendor().equals(StoreDesc.VENDOR_PG)) {
-					pml = new PostgresqlPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_jotm);
+					pml = new PostgresqlPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
 				} else if (sdesc.getVendor().equals(StoreDesc.VENDOR_HSQL)) {
-					pml = new HsqldbPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_jotm);
+					pml = new HsqldbPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
 				} else if (sdesc.getVendor().equals(StoreDesc.VENDOR_H2)) {
-					pml = new H2PersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_jotm);
+					pml = new H2PersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
 				}
 			}
 			if (sdesc.getStore().equals(StoreDesc.STORE_FILE)) {
-				pml = new FilePersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_jotm);
+				pml = new FilePersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
 			}
 			debug("createFactory.pml:" + pml);
 			if (pml == null)
@@ -404,7 +402,6 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 	public void setTransactionService(TransactionService paramTransactionService) {
 		this.m_transactionService = paramTransactionService;
 		System.out.println("TransactionServiceImpl.setTransactionService:" + paramTransactionService);
-		m_jotm = m_transactionService.getJotm();
 	}
 
 	protected static void debug(String msg) {

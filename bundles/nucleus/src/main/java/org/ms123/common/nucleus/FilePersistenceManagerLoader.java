@@ -32,8 +32,8 @@ import javax.jdo.JDOEnhancer;
 import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
-import org.objectweb.jotm.Jotm;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.TransactionService;
 
 /**
  */
@@ -42,8 +42,8 @@ public class FilePersistenceManagerLoader extends AbstractPersistenceManagerLoad
 
 	private String m_baseDir;
 
-	public FilePersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, Jotm jotm) {
-		super(bundleContext, sdesc, baseDirs, props, jotm);
+	public FilePersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, props, ts);
 	}
 
 	protected void init() {
@@ -61,7 +61,7 @@ public class FilePersistenceManagerLoader extends AbstractPersistenceManagerLoad
 		m_props.put("javax.jdo.option.ConnectionURL", "file:file:" + m_baseDir);
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
-		m_props.put("datanucleus.jtaLocator", "jotm");
+		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
 	}
 }

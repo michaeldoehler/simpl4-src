@@ -35,8 +35,8 @@ import org.ms123.common.libhelper.BundleDelegatingClassLoader;
 import org.ms123.common.libhelper.ClassLoaderWrapper;
 import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import javax.jdo.spi.*;
-import org.objectweb.jotm.Jotm;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.TransactionService;
 
 /**
  */
@@ -49,7 +49,7 @@ public abstract class AbstractPersistenceManagerLoader {
 
 	protected ClassLoader m_classLoader;
 
-	protected Jotm m_jotm;
+	protected TransactionService m_transactionService;
 
 	protected StoreDesc m_sdesc;
 
@@ -59,8 +59,8 @@ public abstract class AbstractPersistenceManagerLoader {
 
 	protected Map m_props;
 
-	public AbstractPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, Jotm jotm) {
-		m_jotm = jotm;
+	public AbstractPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+		m_transactionService = ts;
 		m_sdesc = sdesc;
 		m_bundleContext = bundleContext;
 		m_baseDirs = baseDirs;

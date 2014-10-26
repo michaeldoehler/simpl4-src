@@ -32,7 +32,6 @@ import javax.jdo.JDOEnhancer;
 import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
-import org.objectweb.jotm.Jotm;
 import java.sql.Statement;
 import java.sql.Connection;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
@@ -41,6 +40,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.TransactionService;
 
 /**
  */
@@ -53,8 +53,8 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 
 	private JdbcDataSource m_ds2;
 
-	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, Jotm jotm) {
-		super(bundleContext, sdesc, baseDirs, props, jotm);
+	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, props, ts);
 	}
 
 	protected void init() {
@@ -75,7 +75,7 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		m_props.put("datanucleus.validateTables", "false");
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
-		m_props.put("datanucleus.jtaLocator", "jotm");
+		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
 		m_props.put("datanucleus.validateConstraints", "false");
 		//		m_props.put("datanucleus.identifier.case", "PreserveCase");
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
@@ -102,7 +102,7 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		xa.setURL("jdbc:h2:file:" + m_baseDir + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;CACHE_SIZE=33107");
 		BasicManagedDataSource b = new BasicManagedDataSource();
 		m_ds1 = b;
-		b.setTransactionManager(m_jotm.getTransactionManager());
+		b.setTransactionManager(m_transactionService.getTransactionManager());
 		b.setXaDataSourceInstance(xa);
 		m_props.put("datanucleus.ConnectionFactory", b);
 		JdbcDataSource pd = new JdbcDataSource();

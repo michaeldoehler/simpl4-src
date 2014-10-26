@@ -32,19 +32,19 @@ import javax.jdo.JDOEnhancer;
 import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
-import org.objectweb.jotm.Jotm;
 import org.postgresql.xa.PGXADataSource;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.TransactionService;
 
 /**
  */
 @SuppressWarnings("unchecked")
 public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManagerLoader {
 
-	public PostgresqlPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, Jotm jotm) {
-		super(bundleContext, sdesc, baseDirs, props, jotm);
+	public PostgresqlPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, props, ts);
 	}
 
 	protected void setProperties() {
@@ -56,7 +56,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		m_props.put("datanucleus.validateTables", "true");
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
-		m_props.put("datanucleus.jtaLocator", "jotm");
+		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
 		m_props.put("datanucleus.validateConstraints", "false");
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
 	}
@@ -67,7 +67,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		xa.setServerName("localhost");
 		xa.setDatabaseName(m_sdesc.getDatabaseName());
 		BasicManagedDataSource b = new BasicManagedDataSource();
-		b.setTransactionManager(m_jotm.getTransactionManager());
+		b.setTransactionManager(m_transactionService.getTransactionManager());
 		b.setXaDataSourceInstance(xa);
 		m_props.put("datanucleus.ConnectionFactory", b);
 		PGPoolingDataSource pd = new PGPoolingDataSource();

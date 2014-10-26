@@ -32,11 +32,11 @@ import javax.jdo.JDOEnhancer;
 import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
-import org.objectweb.jotm.Jotm;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.hsqldb.jdbc.pool.JDBCXADataSource;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.TransactionService;
 
 /**
  */
@@ -45,8 +45,8 @@ public class HsqldbPersistenceManagerLoader extends AbstractPersistenceManagerLo
 
 	private String m_baseDir;
 
-	public HsqldbPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, Jotm jotm) {
-		super(bundleContext, sdesc, baseDirs, props, jotm);
+	public HsqldbPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, props, ts);
 	}
 
 	protected void init() {
@@ -67,7 +67,7 @@ public class HsqldbPersistenceManagerLoader extends AbstractPersistenceManagerLo
 		m_props.put("datanucleus.validateTables", "false");
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
-		m_props.put("datanucleus.jtaLocator", "jotm");
+		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
 		m_props.put("datanucleus.validateConstraints", "false");
 		//		m_props.put("datanucleus.identifier.case", "PreserveCase");
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
@@ -84,7 +84,7 @@ public class HsqldbPersistenceManagerLoader extends AbstractPersistenceManagerLo
 		xa.setUrl("jdbc:hsqldb:file:" + m_baseDir + "/db;hsqldb.write_delay_millis=0");
 		//xa.setDatabaseName(getDbName(null));
 		BasicManagedDataSource b = new BasicManagedDataSource();
-		b.setTransactionManager(m_jotm.getTransactionManager());
+		b.setTransactionManager(m_transactionService.getTransactionManager());
 		b.setXaDataSourceInstance(xa);
 		m_props.put("datanucleus.ConnectionFactory", b);
 		JDBCDataSource pd = new JDBCDataSource();
