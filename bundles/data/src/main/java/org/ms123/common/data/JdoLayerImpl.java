@@ -119,7 +119,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	private SettingService m_settingService;
 	private GitService m_gitService;
 
-	private LuceneService m_luceneService;
+//	private LuceneService m_luceneService;
 
 	private NucleusService m_nucleusService;
 
@@ -299,7 +299,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		StoreDesc sdesc = sessionContext.getStoreDesc();
 		String name = objectInsert.getClass().getSimpleName().toLowerCase();
 		if (sdesc.isDataPack() && "teamintern".equals(name) == false) { //@@@MS Konfigurierbar machen
-			sessionContext.getLuceneSession().addToIndex(objectInsert);
+//			sessionContext.getLuceneSession().addToIndex(objectInsert);
 		}
 	}
 
@@ -581,7 +581,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				}
 				debug("SEDSC:" + sdesc);
 				if (sdesc.isDataPack()) {
-					sessionContext.getLuceneSession().addToIndex(objectUpdate);
+					//sessionContext.getLuceneSession().addToIndex(objectUpdate);
 				}
 				m_triggerService.applyUpdateRules(sessionContext, entityName, objectUpdate,objectUpdatePre);
 			}else{
@@ -636,7 +636,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		//@@@MS should be reverse 
 		pm.deletePersistent(objectDelete);
 		if (sdesc.isDataPack() && !"teamintern".equals(entityName)) {
-			sessionContext.getLuceneSession().deleteFromIndex(objectDelete);
+			//sessionContext.getLuceneSession().deleteFromIndex(objectDelete);
 		}
 		return retMap;
 	}
@@ -1212,14 +1212,14 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			if (params.get("filter") != null) {
 				filtersMap = (Map) params.get("filter");
 			}
-			if (params.get("luceneQuery") != null && "".equals(params.get("luceneQuery")) == false) {
+			/*if (params.get("luceneQuery") != null && "".equals(params.get("luceneQuery")) == false) {
 				filtersMap = createFiltersMapFromLuceneQuery(sessionContext, entityName, (String) params.get("luceneQuery"));
 				if (filtersMap == null) {
 					Map ret = new HashMap();
 					ret.put("rows", new ArrayList());
 					return ret;
 				}
-			}
+			}*/
 			QueryBuilder qb = new QueryBuilder("pg", sdesc, entityName, hasTeamSecurity, sessionContext.getConfigName(), sessionContext, joinFields, filtersMap, (Map) params, fieldSets);
 			qb.addSelector(entityName);
 			List<String> fieldsArray = null;
@@ -1535,7 +1535,7 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return retMap;
 	}
 
-	private Map createFiltersMapFromLuceneQuery(SessionContext sessionContext, String entityName, String query) {
+/*	private Map createFiltersMapFromLuceneQuery(SessionContext sessionContext, String entityName, String query) {
 		Map ret = new HashMap();
 		ret.put("connector", "or");
 		List<Map> children = new ArrayList();
@@ -1553,7 +1553,7 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 			children.add(cmap);
 		}
 		return ret;
-	}
+	}*/
 
 	private String getStateWhere(String field, String state){
 		String w =null;
@@ -1743,10 +1743,10 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 			sessionContext.setTeamService(m_teamService);
 			sessionContext.setStoreDesc(sdesc);
 			if (sdesc.isDataPack()) {
-				LuceneSession ls = m_luceneService.createSession(sdesc);
-				ls.setSessionContext(sessionContext);
-				ls.setTransactionManager(m_nucleusService.getTransactionManager());
-				sessionContext.setLuceneSession(ls);
+				//LuceneSession ls = m_luceneService.createSession(sdesc);
+				//ls.setSessionContext(sessionContext);
+				//ls.setTransactionManager(m_nucleusService.getTransactionManager());
+				//sessionContext.setLuceneSession(ls);
 			}
 			sessionContext.setDataLayer(this);
 			sessionContext.setUserProperties(sessionManager.getUserProperties());
@@ -2551,11 +2551,11 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		this.m_rulesService = rulesService;
 		System.out.println("JdoLayerImpl.setRulesService:" + rulesService);
 	}*/
-	@Reference(dynamic = true)
-	public void setLuceneService(LuceneService paramLuceneService) {
-		this.m_luceneService = paramLuceneService;
-		info("JdoLayerImpl.setLuceneService:" + paramLuceneService);
-	}
+	//@Reference(dynamic = true)
+	//public void setLuceneService(LuceneService paramLuceneService) {
+	//	this.m_luceneService = paramLuceneService;
+	//	info("JdoLayerImpl.setLuceneService:" + paramLuceneService);
+	//}
 
 	@Reference(dynamic = true)
 	public void setTriggerService(TriggerService paramTriggerService) {
