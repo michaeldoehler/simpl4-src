@@ -28,6 +28,7 @@ import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.entity.api.EntityService;
 import org.ms123.common.git.GitService;
 import org.ms123.common.auth.api.AuthService;
@@ -40,6 +41,10 @@ import org.slf4j.LoggerFactory;
 import static java.text.MessageFormat.format;
 import org.ms123.common.rpc.RpcException;
 import javax.jdo.PersistenceManager;
+import org.apache.commons.beanutils.BeanMap;
+import javax.jdo.Extent;
+import javax.jdo.Query;
+import javax.transaction.UserTransaction;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -60,6 +65,7 @@ public class BaseTeamServiceImpl {
 	protected GitService m_gitService;
 
 	protected EntityService m_entityService;
+	protected NucleusService m_nucleusService;
 
 	protected DataLayer m_dataLayer;
 
@@ -153,6 +159,65 @@ public class BaseTeamServiceImpl {
 				return null;
 			}
 			throw e;
+		}
+	}
+	private List<String> getChildTeamids(StoreDesc sdesc, String teamid) throws Exception {
+		List<String> ret = new ArrayList();
+		String filter = "teamid == '" + teamid + "'";
+		Class clazz = m_nucleusService.getClass(sdesc, m_inflector.getClassName("teamintern"));
+		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, filter);
+		try {
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			if (iter.hasNext()) {
+				Object obj = iter.next();
+				Set children = (Set)PropertyUtils.getProperty(obj, "children");
+				PropertyUtils.setProperty(obj, "children", new HashSet());
+
+				System.out.println("children:"+children);
+				for( Object c : children){
+					String id = (String)PropertyUtils.getProperty(c, "teamid");
+				System.out.println("\tid:"+id);
+					ret.add( id);
+				}
+			}
+		} finally {
+			q.closeAll();
+			pm.close();
+		}
+		return ret;
+	}
+	protected void _deleteTeam(StoreDesc sdesc, String teamid) throws Exception {
+		List<String> ret = new ArrayList();
+		String filter = "teamid == '" + getParentTeamid(teamid) + "'";
+		Class clazz = m_nucleusService.getClass(sdesc, m_inflector.getClassName("teamintern"));
+		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, filter);
+		UserTransaction ut = m_nucleusService.getUserTransaction();
+		try {
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			if (iter.hasNext()) {
+				Object obj = iter.next();
+				Set children = (Set)PropertyUtils.getProperty(obj, "children");
+				ut.begin();
+				for( Object c : children){
+					String _teamid = (String)PropertyUtils.getProperty(c, "teamid");
+					System.out.println("Team._teamid:"+_teamid);
+					if( teamid.equals(_teamid)){
+						System.out.println("\tfoundTeam:"+teamid);
+						children.remove(c);
+						pm.deletePersistent(c);
+					}
+				}
+				ut.commit();
+			}
+		} finally {
+			q.closeAll();
+			pm.close();
 		}
 	}
 

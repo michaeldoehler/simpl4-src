@@ -79,8 +79,6 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 
 	protected Inflector m_inflector = Inflector.getInstance();
 
-	private NucleusService m_nucleusService;
-
 	private Bean2Map m_b2m = new Bean2Map();
 
 	public TeamServiceImpl() {
@@ -219,14 +217,14 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 		}
 	}
 
-	public Map deleteTeam(
+	@RequiresRoles("admin")
+	public void deleteTeam(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName(TEAM_ID)            String teamid) throws RpcException {
 		try {
 			m_adminTreeCache = new HashMap();
 			StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
-			Map ret = m_dataLayer.deleteObject(null, sdesc, TEAMINTERN_ENTITY, teamid);
-			return ret;
+			_deleteTeam(sdesc,teamid);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.deleteTeam:", e);
 		} finally {
