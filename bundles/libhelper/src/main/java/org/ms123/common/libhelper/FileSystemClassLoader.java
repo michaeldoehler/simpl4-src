@@ -34,6 +34,7 @@ import static org.apache.commons.io.FileUtils.readFileToByteArray;
 public class FileSystemClassLoader extends ClassLoader {
 
 	private File[] locations;
+	private String[] includePattern;
 
 	private boolean loadCustomClassFirst = true;
 
@@ -47,8 +48,12 @@ public class FileSystemClassLoader extends ClassLoader {
 	}
 
 	public FileSystemClassLoader(ClassLoader parent, File[] locations) {
+		this(parent,locations,null);
+	}
+	public FileSystemClassLoader(ClassLoader parent, File[] locations, String[] includePattern) {
 		super(parent);
 		this.locations = locations;
+		this.includePattern = includePattern;
 		for( File f : locations){
 			debug("location:"+f.toString());
 		}
@@ -122,9 +127,23 @@ public class FileSystemClassLoader extends ClassLoader {
 	protected byte[] findClassBytes(String className) throws IOException {
 		byte[] classData = null;
 		String relativeClassFile = className.replace('.', '/') + ".class";
+		boolean include = includePattern==null;
+	
+		if( !include){
+			for (int i = 0; i < includePattern.length; i++) {
+				if( className.matches(includePattern[i])){
+					include=true;
+					break;
+				}
+			}
+		}
+		debug("findClassBytes:"+className+"="+include+"/"+includePattern[0]);
+		if(!include){
+			 return null;
+		}
 		for (int i = 0; i < locations.length; i++) {
 			File file = new File(locations[i], relativeClassFile);
-			debug("findClassBytes.file:"+file+"/"+file.exists());
+			debug("\tfindClassBytes.file:"+file+"/"+file.exists());
 			if (file.exists()) {
 				classData = readFileToByteArray(file);
 				break;
