@@ -259,7 +259,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 			} catch (Exception e1) {
 				debug("NucleusServiceImpl.getClass:" + sdesc + "/pack:" + pack + "/cn:" + className + " not found, trying common_ns");
 				try{
-					return getClassLoader(sdesc).loadClass(StoreDesc.PACK_AID + "." + className);
+					return m_aidClassLoader.loadClass(StoreDesc.PACK_AID + "." + className);
 				}catch(Exception e2){
 					throw new RuntimeException("NucleusServiceImpl.getClass(:"+className+")",e1);
 				}
