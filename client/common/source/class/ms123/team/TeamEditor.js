@@ -896,7 +896,7 @@ qx.Class.define("ms123.team.TeamEditor", {
 				"callback": function (m) {
 					if (m !== undefined) {
 						var val = m.get("entities");
-						if (val.length > 0) {
+						if (val && val.length > 0) {
 							var usage = self._getTeamUsage(val);
 							for (var i = 0; i < usage.length; i++) {
 								var u = usage[i];
