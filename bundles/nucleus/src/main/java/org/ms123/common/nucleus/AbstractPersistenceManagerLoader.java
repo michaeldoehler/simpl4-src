@@ -54,16 +54,18 @@ public abstract class AbstractPersistenceManagerLoader {
 	protected StoreDesc m_sdesc;
 
 	protected BundleContext m_bundleContext;
+	protected ClassLoader  m_aidClassLoader;
 
 	protected File[] m_baseDirs;
 
 	protected Map m_props;
 
-	public AbstractPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
+	public AbstractPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, ClassLoader aidClassLoader, Map props, TransactionService ts) {
 		m_transactionService = ts;
 		m_sdesc = sdesc;
 		m_bundleContext = bundleContext;
 		m_baseDirs = baseDirs;
+		m_aidClassLoader = aidClassLoader;
 		m_props = props;
 		init();
 		setProperties();
@@ -84,9 +86,15 @@ public abstract class AbstractPersistenceManagerLoader {
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
 		try {
 			ClassLoader bundleDelegatingCL = new BundleDelegatingClassLoader(m_bundleContext.getBundle());
+
+			ClassLoaderWrapper wrapCL = new ClassLoaderWrapper(m_aidClassLoader, bundleDelegatingCL);
+
 			File[] locations = new File[1];
 			locations[0] = new File(m_baseDirs[0], "classes");
-			FileSystemClassLoader filesystemCL = new FileSystemClassLoader(bundleDelegatingCL, locations);
+			String[] includePattern = new String[1];
+			includePattern[0] = "^"+m_sdesc.getNamespace()+"\\..*";
+			FileSystemClassLoader filesystemCL = new FileSystemClassLoader(wrapCL, locations, includePattern);
+
 			m_classLoader = filesystemCL;
 			ClassLoaderWrapper contextWrappweCL = new ClassLoaderWrapper(bundleDelegatingCL, PostgresqlPersistenceManagerLoader.class.getClassLoader(), PersistenceManagerFactory.class.getClassLoader(), previous);
 			Thread.currentThread().setContextClassLoader(contextWrappweCL);

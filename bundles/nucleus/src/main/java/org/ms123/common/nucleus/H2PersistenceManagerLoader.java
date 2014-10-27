@@ -56,8 +56,8 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 
 	private JdbcConnectionPool m_nonTxPool;
 
-	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
-		super(bundleContext, sdesc, baseDirs, props, ts);
+	public H2PersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, ClassLoader aidClassLoader,Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, aidClassLoader, props, ts);
 	}
 
 	protected void init() {

@@ -56,6 +56,8 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.ms123.common.system.TransactionService;
 import org.ms123.common.git.GitService;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.libhelper.FileSystemClassLoader;
+import org.ms123.common.libhelper.BundleDelegatingClassLoader;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import org.ms123.common.rpc.PDefaultBool;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
@@ -72,6 +74,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 
 	private BundleContext m_bc;
 	private TransactionService m_transactionService;
+	private ClassLoader m_aidClassLoader;
 
 	private List<AbstractPersistenceManagerLoader> m_openList = new ArrayList();
 
@@ -149,7 +152,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 	}
 
 	private synchronized void createFactory(StoreDesc sdesc) {
-		debug("createFactory:" + sdesc);
+		debug("createFactory:" + sdesc+"/"+m_loaders);
 		if( sdesc == null) return;
 		try {
 			if (m_openList.size() > 0) {
@@ -158,21 +161,24 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 				}
 				m_openList.clear();
 			}
+			if( m_aidClassLoader == null){
+				createAidClassLoader(sdesc.getBaseDir());
+			}
 			Map<String, Object> props = new HashMap<String, Object>();
 			File[] baseDirs = new File[1];
 			baseDirs[0] = sdesc.getBaseDir();
 			AbstractPersistenceManagerLoader pml = null;
 			if (sdesc.getStore().equals(StoreDesc.STORE_RDBMS)) {
 				if (sdesc.getVendor().equals(StoreDesc.VENDOR_PG)) {
-					pml = new PostgresqlPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
+					pml = new PostgresqlPersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
 				} else if (sdesc.getVendor().equals(StoreDesc.VENDOR_HSQL)) {
-					pml = new HsqldbPersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
+					pml = new HsqldbPersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
 				} else if (sdesc.getVendor().equals(StoreDesc.VENDOR_H2)) {
-					pml = new H2PersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
+					pml = new H2PersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
 				}
 			}
 			if (sdesc.getStore().equals(StoreDesc.STORE_FILE)) {
-				pml = new FilePersistenceManagerLoader(m_bc, sdesc, baseDirs, props, m_transactionService);
+				pml = new FilePersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
 			}
 			debug("createFactory.pml:" + pml);
 			if (pml == null)
@@ -295,6 +301,15 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 			pml = m_loaders.get(sdesc);
 		}
 		return pml.getEnhancer();
+	}
+
+	private void createAidClassLoader(File baseDir){
+		File[] locations = new File[1];
+		locations[0] = new File(baseDir, "classes");
+		String[] includePattern = new String[1];
+		includePattern[0] = "^aid\\..*";
+		ClassLoader bundleDelegatingCL = new BundleDelegatingClassLoader(m_bc.getBundle());
+		m_aidClassLoader = new FileSystemClassLoader(bundleDelegatingCL, locations, includePattern);
 	}
 
 	private void printMap(String header, Map map) {

@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManagerLoader {
 	private PoolingDataSource m_poolingDataSource;
 
-	public PostgresqlPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, Map props, TransactionService ts) {
-		super(bundleContext, sdesc, baseDirs, props, ts);
+	public PostgresqlPersistenceManagerLoader(BundleContext bundleContext, StoreDesc sdesc, File[] baseDirs, ClassLoader aidClassLoader,Map props, TransactionService ts) {
+		super(bundleContext, sdesc, baseDirs, aidClassLoader,props, ts);
 	}
 
 	protected void setProperties() {
