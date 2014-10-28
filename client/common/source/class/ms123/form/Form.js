@@ -552,25 +552,15 @@ qx.Class.define("ms123.form.Form", {
 					break;
 
 				case "selectbox":
-					formElement = new qx.ui.form.SelectBox();
-					var model = qx.data.marshal.Json.createModel(this._correctOptions(fieldData.options));
-					var lc = new qx.data.controller.List(model, formElement, "label");
-
-					var delegate = {
-						createItem: function () {
-							return new ms123.form.TooltipListItem();
-						},
-
-						bindItem: function (controller, item, index) {
-							controller.bindProperty("tooltip", "tooltip", null, item, index);
-							controller.bindProperty("", "model", null, item, index);
-							controller.bindProperty(controller.getLabelPath(), "label", controller.getLabelOptions(), item, index);
-							if (controller.getIconPath() != null) {
-								controller.bindProperty(controller.getIconPath(), "icon", this.getIconOptions(), item, index);
-							}
-						}
-					};
-					lc.setDelegate(delegate);
+					if( !fieldData.selectable_items ){
+						formElement = new ms123.form.SelectBox();
+					formElement.setUserData("key",key);
+						formElement.createList(this._correctOptions(fieldData.options));
+					}else{
+						formElement = new ms123.form.SelectBox(fieldData.selectable_items);
+						formElement.createList([]);
+						fieldData.options=null;
+					}
 
 					if (this._useitCheckboxes) {
 						var cb = new qx.ui.form.CheckBox();
@@ -839,7 +829,7 @@ qx.Class.define("ms123.form.Form", {
 					 * single selection form elements
 					 */
 				case "selectbox":
-					if (fieldData.options == null || fieldData.options.length == 0) break; //@@@MS NO option
+					//if (fieldData.options == null || fieldData.options.length == 0) break; //@@@MS NO option
 					this._formController.addTarget(
 					formElement, "selection", key, true, {
 						"converter": qx.lang.Function.bind(function (value) {
@@ -848,7 +838,7 @@ qx.Class.define("ms123.form.Form", {
 							selectables.forEach(function (selectable) {
 								var key = this.getUserData("key");
 								try {
-									if (selectable.getModel().getValue() === value) {
+									if (selectable.getModel() && selectable.getModel().getValue() == value) {
 										selected = selectable;
 									}
 								} catch (e) {
@@ -857,7 +847,11 @@ qx.Class.define("ms123.form.Form", {
 							}, this);
 
 							if (!selected) {
-								return [selectables[0]];
+								if( selectables && selectables.length>0){
+									return [selectables[0]];
+								}else{
+									return [];
+								}
 							}
 							return [selected];
 						}, formElement)
@@ -865,7 +859,10 @@ qx.Class.define("ms123.form.Form", {
 						"converter": qx.lang.Function.bind(function (selection) {
 							var value = null;
 							try{
-								value = selection[0].getModel().getValue();
+								if( selection && selection.length>0){
+									if( selection[0].getModel())
+									value = selection[0].getModel().getValue();
+								}
 							}catch(e){
 								console.error("form.Form.selectbox:"+e);
 								console.debug(e.stack);

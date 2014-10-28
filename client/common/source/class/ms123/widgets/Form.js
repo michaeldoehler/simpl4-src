@@ -375,6 +375,9 @@ qx.Class.define('ms123.widgets.Form', {
 				if (col.selectable_items) {
 					fieldData._select = col.selectable_items.getItemsAsMap();
 					fieldData.options = col.selectable_items.getItems();
+					if (typeof fieldData.options == 'string'){
+						fieldData.selectable_items = col.selectable_items;
+					}
 				}
 			} else if (col.edittype && col.edittype == 'treeselect') {
 				fieldData.type = "TreeSelectBox";
@@ -690,7 +693,7 @@ console.log("val:"+p+"="+val);
 						if (this.formData[p].type == "SelectBox") { //@@@MS First value as default
 							if (this.formData[p].defaultValue) {
 								m.set(p, this.formData[p].defaultValue);
-							} else if (this.formData[p].options.length > 0) {
+							} else if (this.formData[p].options && this.formData[p].options.length > 0) {
 								var o = this.formData[p].options[0];
 								m.set(p, o.value);
 							}
@@ -735,7 +738,8 @@ console.log("val:"+p+"="+val);
 			var m = this.form.getModel();
 			m.addListener("changeBubble", this.__changeListener, this);
 		},
-		__changeListener: function () {
+		__changeListener: function (e) {
+			var eventData = e ? e.getData() : {};
 			var m = this.form.getModel();
 			var props = qx.Class.getProperties(m.constructor);
 			var items = this.form.getItems();
@@ -749,6 +753,9 @@ console.log("val:"+p+"="+val);
 			for (var i = 0, l = props.length; i < l; i++) {
 				var p = props[i];
 				if (items[p]) {
+					if( items[p].updateEvent){
+						items[p].updateEvent(eventData);
+					}
 					var enabledExpr = items[p].getUserData("enabled");
 					if (enabledExpr) {
 						try {
