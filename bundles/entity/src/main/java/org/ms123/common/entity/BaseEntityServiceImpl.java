@@ -357,7 +357,7 @@ System.out.println("className:"+className);
 		List<Map> items = (List) selItem.get("items");
 		debug("getEnumeration:"+enumDescription);
 		debug("items:"+items);
-		if( items==null){
+		if( items==null || enumDescription.startsWith("sw.filter")){
 			return new HashMap();
 		}
 		try {
