@@ -474,8 +474,8 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 					desc: this._createNewFilterProps()
 				});
 
-				this._currentData = data;
-				this._resultTable.setData(data);
+				this._currentData = data.rows;
+				this._resultTable.setData(data.rows);
 			}, this);
 			toolbar._add(buttonRefresh)
 
@@ -579,8 +579,8 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 
 			//var baseurl = "xdata/execute-filter/" + name;
 			//var data = ms123.util.Remote.sendSync(baseurl);
-			this._currentData = data;
-			this._resultTable.setData(data);
+			this._currentData = data.rows;
+			this._resultTable.setData(data.rows);
 		},
 		_buildModel: function (columns, props) {
 			var model = {

@@ -390,7 +390,7 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DataService.upload:", e);
 		}
 	}
-	public List executeFilter(
+	public Map executeFilter(
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("desc")             Map filterDesc, 
 			@PName("params")             @POptional Map params, 
@@ -400,14 +400,19 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 		try {
 			if( params ==null) params = new HashMap();
 			Map ret = sc.executeFilter(filterDesc,params);
-			if (ret != null) {
+			if (ret != null && ret.get("rows") != null) {
 				List retList = (List) ret.get("rows");
 				if (mapping != null) {
 					retList = m_utilsService.listToList(retList, mapping,null);
 				}
-				return retList;
+				ret.put("rows", retList);
+				return ret;
 			}
-			return new ArrayList();
+			if( ret == null){
+				ret = new HashMap();
+			}
+			ret.put("rows", new ArrayList());
+			return ret;
 		} catch (PermissionException e) {
 			sc.handleException(e);
 			throw new RpcException(ERROR_FROM_METHOD, PERMISSION_DENIED, "DataService.executeFilter", e);
@@ -419,23 +424,29 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 		}
 	}
 
-	public List executeFilterByName(
+	public Map executeFilterByName(
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("name")             String name, 
+			@PName("params")             @POptional Map params, 
 			@PName("mapping")          @POptional Map mapping) throws RpcException {
 		StoreDesc sdesc = StoreDesc.get(storeId);
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		try {
-			Map ret = sc.executeNamedFilter(name);
+			Map ret = sc.executeNamedFilter(name,params);
 			System.out.println("ret:" + ret);
-			if (ret != null) {
+			if (ret != null && ret.get("rows") != null) {
 				List retList = (List) ret.get("rows");
 				if (mapping != null) {
 					retList = m_utilsService.listToList(retList, mapping,null);
 				}
-				return retList;
+				ret.put("rows", retList);
+				return ret;
 			}
-			return new ArrayList();
+			if( ret == null){
+				ret = new HashMap();
+			}
+			ret.put("rows", new ArrayList());
+			return ret;
 		} catch (PermissionException e) {
 			sc.handleException(e);
 			throw new RpcException(ERROR_FROM_METHOD, PERMISSION_DENIED, "DataService.executeFilterByName", e);

@@ -50,7 +50,7 @@ qx.Class.define("ms123.form.TableSelect", {
 			});
 			console.log("data:" + qx.util.Serializer.toJson(data));
 		}
-		this._table = this._createTable(data, config.columns, multiselection);
+		this._table = this._createTable(data.rows, config.columns, multiselection);
 		this.add(this._table, {
 			edge: "center"
 		});
