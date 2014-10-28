@@ -321,6 +321,23 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		return contentMap;
 	}
 
+	private void getMissingFilterParameter(Map<String, Object> filter, List<String> missingParamList,Map params) {
+		String label = (String) filter.get("label");
+		if (filter.get("connector") == null && label != null) {
+			if (label.matches("^[a-zA-Z].*")) {
+				if( params.get(label) == null){
+					missingParamList.add(label);
+				}
+			}
+		}
+		List<Map> children = (List) filter.get("children");
+		if( children != null){
+			for (Map<String,Object> c : children) {
+				getMissingFilterParameter(c, missingParamList,params);
+			}
+		}
+	}
+
 	public Map executeNamedFilter(String name, Map<String, Object> fparams) {
 		name = getName(name);
 		String filterJson = m_gitService.searchContent( m_sdesc.getNamespace(), name, "sw.filter" );
@@ -329,6 +346,13 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	}
 
 	public Map executeFilter(Map filterDesc, Map<String, Object> fparams) {
+		List<String> missingParamList = new ArrayList();
+		getMissingFilterParameter((Map)filterDesc.get("filter"), missingParamList,fparams);
+		if( missingParamList.size() > 0){
+			Map ret = new HashMap();
+			ret.put("missingParamList", missingParamList);
+			return ret;
+		}
 		String entityName = (String)filterDesc.get("modulename");
 		m_js.prettyPrint(true);
 		System.out.println("executeFilter:"+m_js.deepSerialize(filterDesc));
@@ -360,6 +384,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		filter = addExclusionFilter(filter,(List)filterDesc.get("exclusion"));
 		System.out.println("FilterWith:"+m_js.deepSerialize(filter));
 		params.put("filter", filter);
+		params.put("orderby", fieldList.get(0));
 		params.put("filterParams", fparams);
 		params.put("pageSize", "0");
 		Map<String, Object> ret = m_dataLayer.query(this, params, m_sdesc, entityName);

@@ -59,6 +59,9 @@ qx.Class.define("ms123.SelectableItems", {
 		getItemsAsMap: function () {
 			return this._list2map(this.getItems());
 		},
+		getMissingParamList: function () {
+			return this._missingParamList;
+		},
 		_evalUrl: function () {
 
 			if (this._url instanceof Array) {
@@ -246,14 +249,19 @@ qx.Class.define("ms123.SelectableItems", {
 					console.log("Namespace:"+JSON.stringify(this._varMap,null,2));
 					console.log("Namespace:"+this._storeDesc);
 					var storeId = this._varMap.STORE_ID || this._storeDesc.getStoreId();
-					itemsRet = ms123.util.Remote.rpcSync("data:executeFilterByName", {
+					var ret = ms123.util.Remote.rpcSync("data:executeFilterByName", {
 						name: name,
+						params:this._varMap,
 						storeId: storeId,
 						mapping: mapping
 					});
+					if( ret.missingParamList){
+						this._missingParamList = ret.missingParamList;
+						return this._url;
+					}
+					itemsRet = ret.rows;
 				}
 			} catch (e) {
-				//ms123.form.Dialog.alert("SelectableItems._handleEnumDescricption:" + url + "/" + e);
 				console.error("SelectableItems._handleEnumDescricption:" + url + "/" + e);
 				console.error(e.stack);
 				return null;
@@ -277,6 +285,21 @@ qx.Class.define("ms123.SelectableItems", {
 				ret[o["value"]] = o;
 			}
 			return ret;
+		},
+
+		_getFilterParams:function(filter,paramList){
+			var label = filter["label"];
+			if (filter["connector"] == null && label != null) {
+				label = label.toLowerCase();
+				if (label.match(/^[a-z].*/)) {
+					paramList.push(label);
+				}
+			}
+			var children = filter["children"];
+			for (var i = 0; i < children.length; i++) {
+				var c = children[i];
+				this._getFilterParams(c,paramList);
+			}
 		},
 		_evalJson: function (text) {
 			var trim = /^(\s|\u00A0)+|(\s|\u00A0)+$/g;
