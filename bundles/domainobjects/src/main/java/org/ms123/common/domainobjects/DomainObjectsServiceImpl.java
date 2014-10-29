@@ -429,6 +429,7 @@ System.out.println("Enhancer.close:"+sdesc);
 			StoreDesc sdesc = StoreDesc.get(storeId);
 			createClasses(sdesc);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DomainObjectsServiceImpl.createClasses:", e);
 		}
 	}
