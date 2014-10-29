@@ -36,6 +36,7 @@ qx.Class.define("ms123.form.SelectBox", {
 	construct: function (selectable_items) {
 		this.base(arguments);
 		this._selectable_items = selectable_items;
+    this.getChildControl("list").setQuickSelection(false);
 	},
 
 
@@ -104,24 +105,27 @@ qx.Class.define("ms123.form.SelectBox", {
 			this.setModelSelection([]);
 			this._selectable_items.setVarMap(vars);
 			var items = this._selectable_items.getItems();
-			if (items.length == null) return;
+	    if(typeof items == "string" || items.length == null)return;
 			var listModel = this._listController.getModel();
 			listModel.splice(0, listModel.getLength());
 			var newElements = qx.data.marshal.Json.createModel(this._correctOptions(items), true);
 			listModel.append(newElements);
 		},
 		beforeSave: function (context) {},
-		beforeAdd: function (context) {},
 		updateEvent: function (eventData) {
 			if (this._selectable_items == null) return;
 			var name = eventData.name;
 			var value = eventData.value;
-			console.log("updateEvent:" + this.getUserData("key") + "/" + name + "=" + value);
+			console.log("updateEvent.in:" + this.getUserData("key") + "/field:" + name + "=" + value+"/missingParamList:"+this._missingParamList);
 			if (this._missingParamList && this._missingParamList.indexOf(name) >= 0) {
 				var vars = {};
 				vars[name] = value;
 				this._refreshItems(vars);
 			}
+		},
+		beforeAdd: function (context) {
+			if (this._selectable_items == null) return;
+			this._missingParamList = this._selectable_items.getMissingParamList();
 		},
 		beforeEdit: function (context) {
 			if (this._selectable_items == null) return;
