@@ -49,6 +49,7 @@ import org.ms123.common.libhelper.Inflector;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.BeanMap;
 import org.ms123.common.data.api.DataLayer;
+import org.apache.commons.lang.StringUtils;
 
 @SuppressWarnings("unchecked")
 public class SessionContextImpl implements org.ms123.common.data.api.SessionContext{
@@ -374,6 +375,14 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 				}
 			}
 		}
+		String orderby=null; //Needs a better solution
+		for( String field : fieldList){
+			if( StringUtils.countMatches(field,"$") ==0){
+				orderby=field;
+				break;
+			}
+		}
+		System.out.println("orderby:"+orderby);
 		System.out.println("fieldList:"+fieldList);
 		List moduleList = new ArrayList();
 		String clazzName = m_inflector.getClassName(entityName);
@@ -384,7 +393,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		filter = addExclusionFilter(filter,(List)filterDesc.get("exclusion"));
 		System.out.println("FilterWith:"+m_js.deepSerialize(filter));
 		params.put("filter", filter);
-		params.put("orderby", fieldList.get(0));
+		params.put("orderby", orderby);
 		params.put("filterParams", fparams);
 		params.put("pageSize", "0");
 		Map<String, Object> ret = m_dataLayer.query(this, params, m_sdesc, entityName);

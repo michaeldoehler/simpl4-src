@@ -196,6 +196,7 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 
 			this._fieldSelector.setTreeModel(this._translateModel(treeModel));
 			this._fieldSelector.createTable(fscontext.tableColumns);
+			this._fieldSelector._table.getTableColumnModel().getHeaderCellRenderer(0).setToolTip(this.tr("filtereditor.sorthelp"));
 
 			var fields = this._filterProps.fields;
 			if (!fields || fields == "") {
