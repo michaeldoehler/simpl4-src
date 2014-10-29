@@ -30,6 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.TransactionDefinition;
 import org.ms123.common.system.TransactionService;
 import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.TransactionManagerServices;
 
 /**
  *
@@ -44,6 +45,7 @@ public class BitronixTransactionServiceImpl implements TransactionService{
 
 	public BitronixTransactionServiceImpl() throws Exception{
 			m_btm = new BitronixTransactionManager();
+    	TransactionManagerServices.getConfiguration().setDefaultTransactionTimeout(36000);;
 			m_jta = new JtaTransactionManager((UserTransaction)m_btm,(TransactionManager)m_btm);
 	}
 	public UserTransaction getUserTransaction() {
