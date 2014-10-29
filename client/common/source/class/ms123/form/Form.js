@@ -554,8 +554,7 @@ qx.Class.define("ms123.form.Form", {
 				case "selectbox":
 					if( !fieldData.selectable_items ){
 						formElement = new ms123.form.SelectBox();
-					formElement.setUserData("key",key);
-						formElement.createList(this._correctOptions(fieldData.options));
+						formElement.createList(fieldData.options);
 					}else{
 						formElement = new ms123.form.SelectBox(fieldData.selectable_items);
 						formElement.createList([]);
@@ -860,8 +859,9 @@ qx.Class.define("ms123.form.Form", {
 							var value = null;
 							try{
 								if( selection && selection.length>0){
-									if( selection[0].getModel())
-									value = selection[0].getModel().getValue();
+									if( selection[0].getModel()){
+										value = selection[0].getModel().getValue();
+									}
 								}
 							}catch(e){
 								console.error("form.Form.selectbox:"+e);
@@ -1313,21 +1313,6 @@ qx.Class.define("ms123.form.Form", {
 			return this._formElementMap[resourceId];
 		},
 
-		_correctOptions: function (options) {
-			for (var i = 0; i < options.length; i++) {
-				var o = options[i];
-				if (!o.value === undefined) {
-					o.value = null;
-				}
-				if (o.label === undefined) {
-					o.label = null;
-				}
-				if (o.tooltip === undefined) {
-					o.tooltip = null;
-				}
-			}
-			return options;
-		},
 		selectTab: function (tabid) {
 			if (this.view instanceof ms123.form.FormTabRenderer) {
 				this.view.selectTab(tabid);

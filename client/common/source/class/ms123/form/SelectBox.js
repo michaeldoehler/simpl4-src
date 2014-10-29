@@ -63,7 +63,7 @@ qx.Class.define("ms123.form.SelectBox", {
 			if (typeof options == 'string') {
 				return;
 			}
-			var model = qx.data.marshal.Json.createModel(options);
+			var model = qx.data.marshal.Json.createModel(this._correctOptions(options));
 			var lc = new qx.data.controller.List(model, this, "label");
 			this._listController = lc;
 
@@ -83,6 +83,21 @@ qx.Class.define("ms123.form.SelectBox", {
 			};
 			lc.setDelegate(delegate);
 		},
+		_correctOptions: function (options) {
+			for (var i = 0; i < options.length; i++) {
+				var o = options[i];
+				if (!o.value === undefined) {
+					o.value = null;
+				}
+				if (o.label === undefined) {
+					o.label = null;
+				}
+				if (o.tooltip === undefined) {
+					o.tooltip = null;
+				}
+			}
+			return options;
+		},
 		_refreshItems: function (vars) {
 			console.log("_refreshItems.Vars:" + JSON.stringify(vars, null, 2));
 			this.resetSelection();
@@ -92,7 +107,7 @@ qx.Class.define("ms123.form.SelectBox", {
 			if (items.length == null) return;
 			var listModel = this._listController.getModel();
 			listModel.splice(0, listModel.getLength());
-			var newElements = qx.data.marshal.Json.createModel(items, true);
+			var newElements = qx.data.marshal.Json.createModel(this._correctOptions(items), true);
 			listModel.append(newElements);
 		},
 		beforeSave: function (context) {},
