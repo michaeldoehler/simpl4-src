@@ -869,6 +869,7 @@ qx.Class.define('ms123.widgets.Table', {
 			this.__dataAccess.query(p);
 		},
 		_showDetails: function (details) {
+			console.log("_showDetails:"+details.stack);
 			ms123.form.Dialog.alert(details.message);
 		},
 		_buildUrl: function (withOrderby) {
