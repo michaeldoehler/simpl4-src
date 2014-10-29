@@ -137,7 +137,7 @@ public class FileSystemClassLoader extends ClassLoader {
 				}
 			}
 		}
-		debug("findClassBytes:"+className+"="+include+"/"+includePattern[0]);
+		debug("findClassBytes:"+className+"="+include+"/"+(includePattern != null ? includePattern[0] : ""));
 		if(!include){
 			 return null;
 		}
