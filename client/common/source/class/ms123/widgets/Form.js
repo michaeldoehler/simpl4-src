@@ -739,7 +739,7 @@ console.log("val:"+p+"="+val);
 			m.addListener("changeBubble", this.__changeListener, this);
 		},
 		__changeListener: function (e) {
-			var eventData = e ? e.getData() : {};
+			var eventData = e ? e.getData() : null;
 			var m = this.form.getModel();
 			var props = qx.Class.getProperties(m.constructor);
 			var items = this.form.getItems();
@@ -753,7 +753,7 @@ console.log("val:"+p+"="+val);
 			for (var i = 0, l = props.length; i < l; i++) {
 				var p = props[i];
 				if (items[p]) {
-					if( items[p].updateEvent){
+					if( eventData && items[p].updateEvent){
 						items[p].updateEvent(eventData);
 					}
 					var enabledExpr = items[p].getUserData("enabled");
