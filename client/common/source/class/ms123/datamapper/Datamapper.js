@@ -238,10 +238,10 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			}
 			if( this._facade.defaults){
 				data.defaults = this._facade.defaults.getValue();
+				console.debug("Def:"+JSON.stringify(this._facade.defaults.getValue(),null,2));
 			}
 			this.fireDataEvent("save2", data);
 			this.fireDataEvent("save", JSON.stringify(data,null,2));
-			console.debug("Def:"+JSON.stringify(this._facade.defaults.getValue(),null,2));
 		},
 		_update: function () {
 			if(this._inputAreaToolbar)this._inputAreaToolbar.onUpdate();
