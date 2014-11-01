@@ -25,7 +25,6 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.camel.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
 import org.ms123.common.permission.api.PermissionService;
@@ -159,7 +158,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 			throw new RuntimeException("Couldn't find activity " + m_activity + " for processId " + processInstanceId);
 		}
 		Map vars = execution.getProcessVariables();
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint());
+		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(), getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		Map props = exchange.getProperties();
 		Map headers = exchange.getIn().getHeaders();
 		logCamel(exchange);
@@ -170,7 +169,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 	private Map getCamelVariablenMap(Exchange exchange){
 		m_js.prettyPrint(true);
 		Map camelMap = new HashMap();
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint());
+		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		//String e1 = m_js.deepSerialize(exVars);
 		//System.out.println("e1:"+e1);
 		camelMap.putAll(exVars);
@@ -183,7 +182,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		return camelMap;
 	}
 	private void logCamel(Exchange exchange){
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint());
+		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		Map props = exchange.getProperties();
 		Map headers = exchange.getIn().getHeaders();
 		info("exchangeVars:"+exVars);

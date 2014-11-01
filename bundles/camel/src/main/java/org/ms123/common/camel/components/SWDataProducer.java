@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.CamelContext;
 import org.apache.camel.util.MessageHelper;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ObjectHelper;
@@ -62,6 +63,7 @@ public class SWDataProducer extends DefaultProducer {
 
 	public SWDataProducer(SWDataEndpoint endpoint) {
 		super(endpoint);
+		CamelContext camelContext = endpoint.getCamelContext();
 		m_endpoint = endpoint;
 		m_dataLayer = endpoint.getDataLayer();
 		m_options = endpoint.getOptions();
@@ -82,7 +84,10 @@ public class SWDataProducer extends DefaultProducer {
 		if (path.length > 2) {
 			m_filterName = path[2].split("\\?")[0];
 		}
-		m_permissionService = CamelContextHelper.mandatoryLookup(endpoint.getCamelContext(), PermissionService.class.getName(), PermissionService.class);
+		if( m_namespace == null){
+			m_namespace = (String)CamelContextHelper.mandatoryLookup(camelContext, "namespace");
+		}
+		m_permissionService = CamelContextHelper.mandatoryLookup(camelContext, PermissionService.class.getName(), PermissionService.class);
 	}
 
 	public void process(Exchange exchange) throws Exception {
@@ -198,7 +203,8 @@ public class SWDataProducer extends DefaultProducer {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
 		SessionContext sc = getSessionContext();
 		List result = null;
-		Map retMap = sc.executeNamedFilter(filterName, m_options);
+		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
+		Map retMap = sc.executeNamedFilter(filterName, exVars,m_options);
 		if (retMap == null) {
 			result = new ArrayList();
 		} else {
@@ -213,7 +219,8 @@ public class SWDataProducer extends DefaultProducer {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
 		SessionContext sc = getSessionContext();
 		Map result = null;
-		Map retMap = sc.executeNamedFilter(filterName, m_options);
+		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
+		Map retMap = sc.executeNamedFilter(filterName, exVars,m_options);
 		if (retMap == null) {
 		} else {
 			List rows = (List) retMap.get("rows");
