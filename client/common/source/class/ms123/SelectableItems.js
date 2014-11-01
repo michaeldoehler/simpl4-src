@@ -252,6 +252,7 @@ qx.Class.define("ms123.SelectableItems", {
 					var ret = ms123.util.Remote.rpcSync("data:executeFilterByName", {
 						name: name,
 						params:this._varMap,
+						checkParams:true,
 						storeId: storeId,
 						mapping: mapping
 					});

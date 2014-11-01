@@ -322,11 +322,14 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		return contentMap;
 	}
 
+	private boolean isEmpty(String s) {
+		return (s == null || "".equals(s.trim()));
+	}
 	private void getMissingFilterParameter(Map<String, Object> filter, List<String> missingParamList,Map params) {
 		String label = (String) filter.get("label");
 		if (filter.get("connector") == null && label != null) {
 			if (label.matches("^[a-zA-Z].*")) {
-				if( params.get(label) == null){
+				if(params.get(label) == null){
 					missingParamList.add(label);
 				}
 			}
@@ -340,19 +343,27 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	}
 
 	public Map executeNamedFilter(String name, Map<String, Object> fparams) {
+		return executeNamedFilter(name,fparams,new HashMap());
+	}
+	public Map executeNamedFilter(String name, Map<String, Object> fparams, Map<String, Object> options) {
 		name = getName(name);
 		String filterJson = m_gitService.searchContent( m_sdesc.getNamespace(), name, "sw.filter" );
 		Map contentMap = (Map) m_ds.deserialize(filterJson);
-		return executeFilter(contentMap,fparams);
+		return executeFilter(contentMap,fparams,options);
 	}
 
 	public Map executeFilter(Map filterDesc, Map<String, Object> fparams) {
+		return executeFilter(filterDesc,fparams, new HashMap());
+	}
+	public Map executeFilter(Map filterDesc, Map<String, Object> fparams,  Map<String, Object> options) {
 		List<String> missingParamList = new ArrayList();
-		getMissingFilterParameter((Map)filterDesc.get("filter"), missingParamList,fparams);
-		if( missingParamList.size() > 0){
-			Map ret = new HashMap();
-			ret.put("missingParamList", missingParamList);
-			return ret;
+		if( getBoolean(options, CHECK_PARAMS, false )){
+			getMissingFilterParameter((Map)filterDesc.get("filter"), missingParamList,fparams);
+			if( missingParamList.size() > 0){
+				Map ret = new HashMap();
+				ret.put("missingParamList", missingParamList);
+				return ret;
+			}
 		}
 		String entityName = (String)filterDesc.get("modulename");
 		m_js.prettyPrint(true);
@@ -399,9 +410,12 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		Map<String, Object> ret = m_dataLayer.query(this, params, m_sdesc, entityName);
 		List<Map> rows = (List) ret.get("rows");
 		List<Map> retList = new ArrayList();
-		for (Map row : rows) {
-			Object obj = row.get(clazzName);
-			retList.add(SojoFilterInterceptor.filterFields(obj, this, fieldList, aliasList));
+		boolean isAdmin = m_permissionService.hasAdminRole();
+		if( !isAdmin || !getBoolean(options, GET_OBJECT, false) ){
+			for (Map row : rows) {
+				Object obj = row.get(clazzName);
+				retList.add(SojoFilterInterceptor.filterFields(obj, this, fieldList, aliasList));
+			}
 		}
 		ret.put("rows", retList);
 		return ret;
@@ -534,6 +548,13 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 			return s;
 		}
 		return s.substring(i+1);
+	}
+	private boolean getBoolean(Map m, String key, boolean _def) {
+		try {
+			return (Boolean) m.get(key);
+		} catch (Exception e) {
+		}
+		return _def;
 	}
 	private Map addExclusionFilter(Map filter, List<Map> exclusion){
 		if (exclusion != null && exclusion.size() > 0) {

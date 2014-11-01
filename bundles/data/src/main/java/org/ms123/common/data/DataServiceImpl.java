@@ -394,11 +394,14 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("desc")             Map filterDesc, 
 			@PName("params")             @POptional Map params, 
+			@PName("checkParams")       @POptional  @PDefaultBool(false) Boolean checkParams, 
 			@PName("mapping")          @POptional Map mapping) throws RpcException {
 		StoreDesc sdesc = StoreDesc.get(storeId);
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		try {
 			if( params ==null) params = new HashMap();
+			Map options = new HashMap();
+			options.put(SessionContext.CHECK_PARAMS, checkParams);
 			Map ret = sc.executeFilter(filterDesc,params);
 			if (ret != null && ret.get("rows") != null) {
 				List retList = (List) ret.get("rows");
@@ -428,11 +431,14 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("name")             String name, 
 			@PName("params")             @POptional Map params, 
+			@PName("checkParams")       @POptional  @PDefaultBool(false) Boolean checkParams, 
 			@PName("mapping")          @POptional Map mapping) throws RpcException {
 		StoreDesc sdesc = StoreDesc.get(storeId);
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		try {
-			Map ret = sc.executeNamedFilter(name,params);
+			Map options = new HashMap();
+			options.put(SessionContext.CHECK_PARAMS, checkParams);
+			Map ret = sc.executeNamedFilter(name,params,options);
 			System.out.println("ret:" + ret);
 			if (ret != null && ret.get("rows") != null) {
 				List retList = (List) ret.get("rows");

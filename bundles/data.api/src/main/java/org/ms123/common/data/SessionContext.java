@@ -40,6 +40,8 @@ import org.ms123.common.team.api.TeamService;
 
 public interface SessionContext {
 
+	public static String GET_OBJECT = "getObject";
+	public static String CHECK_PARAMS = "checkParams";
 	public void setUserProperties(Map data);
 
 	public Map getUserProperties();
@@ -130,8 +132,10 @@ public interface SessionContext {
 	public Map getNamedFilter(String name);
 
 	public Map executeNamedFilter(String name, Map<String, Object> fparams);
+	public Map executeNamedFilter(String name, Map<String, Object> fparams,Map<String, Object> options);
 
 	public Map executeFilter(Map filterDesc, Map<String, Object> fparams);
+	public Map executeFilter(Map filterDesc, Map<String, Object> fparams,Map<String, Object> options);
 
 	public List query(String entityName, Map filtersMap);
 
