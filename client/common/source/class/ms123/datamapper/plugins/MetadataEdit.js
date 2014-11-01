@@ -103,8 +103,10 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 				width:150
 			});
 			this._relationSelect = parentSpecRelationSelect;
-			var listItem = new qx.ui.form.ListItem("------");
+			var listItem = new qx.ui.form.ListItem("------",null,"-");
 			parentSpecRelationSelect.add(listItem);
+			//listItem = new qx.ui.form.ListItem(this.tr("datamapper.merge_with_base_objects"),null,"merge");
+			//parentSpecRelationSelect.add(listItem);
 			for(var i=0; i < relList.length; i++){
 				var relMap = relList[i];
 				var leftfield = relMap.leftfield || this._baseName(relMap.rightmodule);
@@ -127,6 +129,18 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 		  var tf = new qx.ui.form.TextField(this._parentSpecLookupValue);
 			this._parentSpecLookupTextField = tf;
 			container.add(tf);
+
+			parentSpecRelationSelect.addListener("changeSelection",function(e){ //@@@MS not ready yet
+				var sel = parentSpecRelationSelect.getSelection()[0].getModel();
+				console.log("data:",sel);
+				if( sel.match(/^-/)){
+					parentSpecLookupLabel.exclude();
+					tf.exclude();
+				}else{
+					parentSpecLookupLabel.show();
+					tf.show();
+				}
+			},this)
 
 			var parentSpec = this._facade.getConfig().output.parentSpec;
 			if( parentSpec && parentSpec.lookup && parentSpec.relation ){
@@ -248,7 +262,6 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 		},
 		_baseName:function(s){
 			var dot = s.lastIndexOf(".");
-console.log("_baseName:"+s+"/"+dot);
 			return dot == -1 ? s : s.substring(dot+1);
 		},
 		_getStoreId:function(){
