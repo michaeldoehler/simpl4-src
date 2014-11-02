@@ -110,7 +110,7 @@ do
 done
 
 camelbundles=""
-for i in $REPOSITORY/camel-2.12.1/*jar
+for i in $REPOSITORY/camel-2.14-ms/*jar
 do
 	camelbundles=${camelbundles}"scan-bundle:file:$i "
 done
@@ -130,7 +130,7 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.lang_2.5.jar \
 	scan-bundle:file:$REPOSITORY/derby-10.5.3.0_1.jar \
-	scan-bundle:file:$REPOSITORY/groovy-all-2.2.2-indy.jar \
+	scan-bundle:file:$REPOSITORY/groovy-all-2.3.7-indy.jar \
 	scan-bundle:file:$REPOSITORY/mail-1.4.7.bar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.bundlerepository-1.6.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.eventadmin-1.2.2.jar \
@@ -278,9 +278,9 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/UserAgentUtils-1.9-snapshot.bar \
 	scan-bundle:file:$REPOSITORY/commons-jxpath-1.3.jar \
 	scan-bundle:file:$REPOSITORY/herold-6.1.0.bar  \
-	scan-bundle:file:$REPOSITORY/spring-beans-3.1.4.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-context-3.1.4.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-core-3.1.4.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/spring-beans-3.2.5.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/spring-context-3.2.5.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/spring-core-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.servicemix.bundles.commons-csv-1.0-r706899_5.jar \
 	scan-bundle:file:$REPOSITORY/jsp-api-2.0.bar  \
 	scan-bundle:file:$REPOSITORY/xstream-1.4.7.jar  \
@@ -294,8 +294,8 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/commons-lang3-3.3.2.jar \
 	scan-bundle:file:$REPOSITORY/concurrentlinkedhashmap-lru-1.4.jar  \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
-	scan-bundle:file:$REPOSITORY/spring-tx-3.1.4.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-jdbc-3.1.4.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/spring-tx-3.2.5.RELEASE.jar \
+	scan-bundle:file:$REPOSITORY/spring-jdbc-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
