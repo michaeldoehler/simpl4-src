@@ -3,9 +3,9 @@ version='1.0.0'
 dependencies {
 	compile files("${repository}/activiti-5.16/activiti-camel-5.16.jar")
 	compile files("${repository}/activiti-5.16/activiti-engine-5.16.jar")
-	compile files("${repository}/camel-2.12.1/camel-core-2.12.1.jar")
-	compile files("${repository}/camel-2.12.1/camel-core-osgi-2.12.1.jar")
-	compile files("${repository}/camel-2.12.1/camel-spring-2.12.1.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-osgi-2.14-ms.jar")
+	compile files("${repository}/camel-2.14-ms/camel-spring-2.14-ms.jar")
   compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
  	compile files("${repository}/commons-io-2.4.jar")
 	compile files("${repository}/commons-lang3-3.3.2.jar")
@@ -32,7 +32,7 @@ dependencies {
   compile files("${repository}/pax-logging-api-1.7.1.jar")
   compile files("${repository}/servlet-api-2.5.jar")
   compile files("${repository}/slf4j-api-1.6.1.jar")
-	compile files("${repository}/spring-tx-3.1.4.RELEASE.jar")
+	compile files("${repository}/spring-tx-3.2.5.RELEASE.jar")
 	compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
   compile files('build/classes/main')
 }

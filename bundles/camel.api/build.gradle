@@ -1,7 +1,7 @@
 version='1.0.0'
 dependencies {
   compile files("${repository}/biz.aQute.bnd.jar")
-	compile files("${repository}/camel-2.12.1/camel-core-2.12.1.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
 	compile files("build/classes/main")

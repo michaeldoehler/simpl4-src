@@ -20,5 +20,5 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
 	compile files("${repository}/object-traverser.bar")
-	compile files("${repository}/camel-2.12.1/camel-core-2.12.1.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
 }

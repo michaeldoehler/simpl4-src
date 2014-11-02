@@ -1,7 +1,7 @@
 version='1.0.0'
 
 dependencies {
-	compile files("${repository}/camel-2.12.1/camel-core-2.12.1.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
   compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
 	compile files("${repository}/commons-io-2.4.jar")
   compile files("${repository}/commons-logging-1.1.1.jar")
