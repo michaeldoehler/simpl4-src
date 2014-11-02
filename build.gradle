@@ -317,6 +317,10 @@ def deployClientPart(destdir){
 		fileset(dir:"${rootDir}/client/common/source/resource/openseadragon") {
 		}
 	}
+	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/eip"){
+		fileset(dir:"${rootDir}/client/common/source/resource/eip") {
+		}
+	}
 }
 
 
