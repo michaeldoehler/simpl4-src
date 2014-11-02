@@ -116,7 +116,30 @@ public class ExportingServiceImpl extends BaseExportingServiceImpl implements Ex
 				return tmpRet;
 			}
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "ExportingService.getExportings:", e);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "ExportingService.exportData:", e);
+		}
+	}
+
+	public void exportJSON(
+			@PName(StoreDesc.STORE_ID) String storeId, 
+			@PName("filename") String filename, 
+			@PName(FILTERDESC)             Map filterDesc, 
+			HttpServletResponse response) throws RpcException {
+		try {
+			SessionContext sc = m_dataLayer.getSessionContext(StoreDesc.get(storeId));
+			Map result = sc.executeFilter( filterDesc,null);
+			response.setContentType("application/json; charset=utf-8");
+			JSONSerializer js = new JSONSerializer();
+			js.prettyPrint(true);
+			String ret = js.deepSerialize(result.get("rows"));
+
+			response.addHeader("Content-Disposition", "attachment;filename=\""+filename+"\"");
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.getWriter().write(ret);
+			response.getWriter().flush();
+			response.getWriter().close();
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "ExportingService.exportJSON:", e);
 		}
 	}
 

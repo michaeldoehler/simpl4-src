@@ -460,6 +460,7 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 				context.aliases = this._currentAliases;
 				context.mainModule = this._currentMainModule;
 				context.storeDesc = this.__storeDesc;
+				context.filterDesc = this._createNewFilterProps();
 				context.noXML = true;
 				new ms123.exporter.ExportDialog(context);
 			}, this);

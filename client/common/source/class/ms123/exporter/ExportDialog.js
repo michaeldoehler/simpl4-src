@@ -68,6 +68,7 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 			if( context.noXML && context.noXML == true){
 				this._withXML = false;
 			}
+			this._withJSON = context.filterDesc != null;
 
     	this._fieldsArray = qx.lang.Json.parse(context.fields);
 			this._makeOrderbyOptions( this._fieldsArray );
@@ -87,6 +88,8 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 					this._form = this._xmlForm;
 				}else if( pid == "xls" ){
 					this._form = this._xlsForm;
+				}else if( pid == "json" ){
+					this._form = this._jsonForm;
 				}
       }, this);
 		},
@@ -171,6 +174,19 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 				this._xmlPage.add( this._createXMLControls(), { edge:"center", left: 50, top: 50 });
 				this._xmlPage.add( this._createXMLHiddenForm(), { edge:"south", left: 0, top: 0 });
 				this._mainTabs.add(this._xmlPage, {
+					edge: 0
+				});
+			}
+			if( this._withJSON == true ){
+				this._JSONPage = new qx.ui.tabview.Page("JSON","ms123/json.png").set({
+					showCloseButton: false
+				});
+				this._JSONPage.setDecorator(null);
+				this._JSONPage.setLayout(new qx.ui.layout.Dock());
+				this._JSONPage.setUserData("id", "json");
+				this._JSONPage.add( this._createJSONControls(), { edge:"center", left: 50, top: 50 });
+				this._JSONPage.add( this._createJSONHiddenForm(), { edge:"south", left: 0, top: 0 });
+				this._mainTabs.add(this._JSONPage, {
 					edge: 0
 				});
 			}
@@ -371,6 +387,30 @@ qx.Class.define("ms123.exporter.ExportDialog", {
       });
 			return this._xmlForm;
 		},
+		_createJSONControls: function () {
+			var formData = {
+				"filename" : {
+					'type'  : "TextField",
+					'label' : this.tr("export.csv.filename"),
+					'validation': {
+						required: true,
+						validator: "/^[A-Za-z]([0-9A-Za-z_.]){2,20}$/"
+					},
+					'value' : "download.json"
+				}
+			}
+      this._jsonForm = new ms123.form.Form({
+				"tabs": [ { id:"tab1",layout:"single", lineheight:20 } ],
+        "formData": formData,
+        "allowCancel": true,
+        "inWindow": false,
+				"buttons":[],
+        "callback": function (m,v) {
+        },
+        "context": null
+      });
+			return this._jsonForm;
+		},
 		_createXLSControls: function () {
 			var formData = {
 				"header" : {
@@ -433,6 +473,15 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 			hiddenForm.setHeight(0);
 			return hiddenForm;
 		},
+		_createJSONHiddenForm: function () {
+			var jsonForm =
+				'<form id="downloadFormPOST-json" action="" method="post" accept-charset="UTF-8" target="_blank">' +
+				'<input type="hidden" name="__rpc__" value="">' +
+				'</form>';
+			var hiddenForm = new qx.ui.embed.Html(jsonForm); 
+			hiddenForm.setHeight(0);
+			return hiddenForm;
+		},
 		_createXLSHiddenForm: function () {
 			var htmlForm =
 				'<form id="downloadFormPOST-xls" action="" method="post" accept-charset="UTF-8" target="_top">' +
@@ -461,7 +510,7 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 				var m = this._form.getModel();
 				var options = qx.util.Serializer.toJson(m);
 				var orderby="";
-				if( this._format != "xml" ){
+				if( this._format != "xml" && this._format != "json" ){
 					var komma = "";
 					for( var i=0; i < m.getOrderby();i++){
 							orderby+= komma + this._fieldsArray[i];
@@ -476,19 +525,33 @@ qx.Class.define("ms123.exporter.ExportDialog", {
 				if( this._context.aliases){
 						aliases=qx.lang.Json.parse(this._context.aliases);
 				}
-				var rpc = {
-					"service": "exporting",
-					"method": "exportData",
-					"id": 31,
-					"params": {
-						storeId: this._context.storeDesc.getStoreId(),
-						filters:qx.lang.Json.parse(this._context.filter),
-						fields:qx.lang.Json.parse(this._context.fields),
-						aliases:aliases,
-						options:qx.lang.Json.parse(options),
-						orderby:orderby,
-						mainEntity:this._context.mainModule,
-						format:this._format
+				var rpc = null;
+				if( this._format == "json"){
+					rpc = {
+						"service": "exporting",
+						"method": "exportJSON",
+						"id": 31,
+						"params": {
+							storeId: this._context.storeDesc.getStoreId(),
+							filename: m.getFilename(),
+							filterDesc:this._context.filterDesc
+						}
+					}
+				}else{
+					rpc = {
+						"service": "exporting",
+						"method": "exportData",
+						"id": 31,
+						"params": {
+							storeId: this._context.storeDesc.getStoreId(),
+							filters:qx.lang.Json.parse(this._context.filter),
+							fields:qx.lang.Json.parse(this._context.fields),
+							aliases:aliases,
+							options:qx.lang.Json.parse(options),
+							orderby:orderby,
+							mainEntity:this._context.mainModule,
+							format:this._format
+						}
 					}
 				};
 				downloadForm.action = "/rpc/__rpcForm__?credentials=" + credentials;

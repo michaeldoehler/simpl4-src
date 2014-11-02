@@ -33,4 +33,5 @@ public interface Constants {
 	public static final String ORDERBY = "orderby";
 
 	public static final String MAIN_ENTITY = "mainEntity";
+	public static final String FILTERDESC = "filterDesc";
 }
