@@ -74,6 +74,9 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		String previousNode = msg.getPreviousNode();
 		Map<String, Object> props = new HashMap<String, Object>();
 		IntrospectionSupport.getProperties(msg, props, null);
+		props.put("body", checkLength((String)props.get("body"), 9128));
+		props.put("outBody", checkLength((String)props.get("outBody"), 9128));
+		props.put("toNode", null);
 		String contextName = exchange.getContext().getName();
 		props.put("contextName", contextName);
 		props.put("direction", direction);
@@ -109,6 +112,13 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		return routeId;
 	}
 
+	private String checkLength(String s,int len){
+		if( s==null) return s;
+		if( s.length()>len){
+			return s.substring(0,len) + " ...";
+		}
+		return s;
+	}
 	private Throwable extractCausedByException(Exchange exchange) {
 		Throwable cause = exchange.getException();
 		if (cause == null) {

@@ -140,7 +140,6 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 						Exception camelException = exchange.getException();
 						info("camelException:"+camelException);
 						printHistory(exchange);
-		info("createLogEntry.saveHistory.BaseCamelBehavior.execute.async");
 						camelService.saveHistory(exchange);
 						try{
 							info("Context stop");
@@ -171,7 +170,6 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 				}
 			}finally{
 				printHistory(exchange);
-		info("createLogEntry.saveHistory.BaseCamelBehavior.execute.sync");
 				camelService.saveHistory(exchange);
 				m_camelContext.stop();
 			}
