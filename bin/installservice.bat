@@ -7,7 +7,7 @@ set JETTYPORT=%2
 set LAUNCHER=org.ms123.launcher.FelixLauncher
 set JVMDLL=%SIMPL4DIR%\jre\bin\client\jvm.dll
 
-set CP=%SIMPL4DIR%/libs/jdt-compiler-3.1.1.jar;%SIMPL4DIR%/libs/xml-w3c.jar;%SIMPL4DIR%/libs/felix-4.2.1.jar;%SIMPL4DIR%/libs/org.ms123.launcher-1.0.0.jar
+set CP=%SIMPL4DIR%/libs/jdt-compiler-3.1.1.jar;%SIMPL4DIR%/libs/xml-w3c.jar;%SIMPL4DIR%/libs/org.apache.felix.main-4.4.1.jar;%SIMPL4DIR%/libs/org.ms123.launcher-1.0.0.jar
 
 set J=-Xmx500m
 set J=%J%#-XX:MaxPermSize=256m

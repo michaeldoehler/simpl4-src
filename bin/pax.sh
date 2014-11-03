@@ -94,6 +94,8 @@ vmOptions="\
  -Dfelix.fileinstall.dir=\$SIMPL4DIR/gitrepos/.bundles \
  -Dorg.ops4j.pax.logging.DefaultServiceLog.level=ERROR \
  -Ddrools.dialect.java.compiler=JANINO \
+ -Dkaraf.local.roles=admin,manager \
+ -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
@@ -116,15 +118,14 @@ do
 done
 
 $SRCTOPDIR/bin/pax-run.sh \
-	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.2.7-SNAPSHOT.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-4.3.1.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint-1.0.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx.api-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.util-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.proxy-1.0.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.jndi-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.collections_3.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.fileupload_1.2.1.jar \
 	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
@@ -138,7 +139,7 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.http.whiteboard-2.0.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.metatype-1.0.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.scr-1.6.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.felix.fileinstall-3.2.6.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.felix.fileinstall-3.4.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.webconsole-3.1.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.webconsole.plugins.event-1.0.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.webconsole.plugins.memoryusage-1.0.2.jar \
@@ -190,17 +191,19 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/mysql-connector-java-5.1.6.bar \
 	scan-bundle:file:$REPOSITORY/object-traverser.bar \
   scan-bundle:file:$REPOSITORY/ops4j-base-lang-1.2.2.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.felix.shell-1.2.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.boot-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.config-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.modules-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.commands-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.config-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.console-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.dev-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.osgi-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.packages-2.3.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.ssh-2.3.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.felix.shell-1.4.3.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.boot-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.config-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.modules-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.commands-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.config-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.table-3.0.2.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.console-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/jline-2.12.jar \
+	scan-bundle:file:$REPOSITORY/org.jledit.core_0.2.1.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.osgi-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.packages-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.ssh-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/org.eclipse.jgit-2.1.0.201209190230-r.bar \
 	scan-bundle:file:$REPOSITORY/org.json_2.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth-1.0.0.jar \
@@ -261,7 +264,7 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/shiro-core-1.2.0.jar \
   scan-bundle:file:$REPOSITORY/freemarker-2.3.15.bar \
   scan-bundle:file:$REPOSITORY/sojo-1.0.0.bar \
-	scan-bundle:file:$REPOSITORY/sshd-core-0.8.0.jar \
+	scan-bundle:file:$REPOSITORY/sshd-core-0.12.0.jar \
   scan-bundle:file:$REPOSITORY/tika-core-1.5-SNAPSHOT.jar \
   scan-bundle:file:$REPOSITORY/tika-bundle-1.5-SNAPSHOT.jar \
   scan-bundle:file:$REPOSITORY/xom-1.2.7.jar \
@@ -300,6 +303,9 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
+	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.core-3.0.2.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.command-2.4.0.jar \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
 	--platform=f \

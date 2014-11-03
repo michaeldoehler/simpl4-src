@@ -1,7 +1,7 @@
 
 <platform>
-  <name>Felix 4.2.1</name>
-  <system>file:__REPOSITORY__/felix-4.2.1.jar</system>
+  <name>Felix 4.4.1</name>
+  <system>file:__REPOSITORY__/org.apache.felix.main-4.4.1.jar</system>
 
   <packages>
 	  org.eclipse.jdt.core.compiler,
@@ -9,16 +9,16 @@
 		org.eclipse.jdt.internal.compiler.env,
 		org.eclipse.jdt.internal.compiler.classfmt,
 		org.eclipse.jdt.internal.compiler.problem,
-    org.osgi.framework; version=1.6.0,
-    org.osgi.framework.launch; version=1.0.0,
+    org.osgi.framework; version=1.7.0,
+    org.osgi.framework.launch; version=1.1.0,
     org.osgi.framework.hooks.service; version=1.1.0,
 		org.osgi.framework.hooks.weaving; version=1.0.0,
-		org.osgi.framework.startlevel;  version=1.0.0,
-		org.osgi.framework.wiring;  version=1.0.0,
+		org.osgi.framework.startlevel;  version=1.1.0,
+		org.osgi.framework.wiring;  version=1.1.0,
     org.osgi.service.packageadmin; version=1.2.0,
     org.osgi.service.startlevel; version=1.1.0,
     org.osgi.service.url; version=1.0.0,
-    org.osgi.util.tracker;version=1.5.0,
+    org.osgi.util.tracker;version=1.5.1,
 		javax.time.calendar,
 	  sun.rmi.registry,
 		com.sun.org.apache.xerces.internal.jaxp.validation,
