@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.ms123.common.system.tm.BitronixTransactionServiceImpl;
+import org.ms123.common.system.tm.JotmTransactionServiceImpl;
 
 /** TransactionService implementation
  */
@@ -46,6 +47,7 @@ public class TransactionServiceImpl implements TransactionService {
 		info("TransactionEventHandlerService.activate.props:" + props);
 		try {
 			m_ts = new BitronixTransactionServiceImpl();
+			//m_ts = new JotmTransactionServiceImpl();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

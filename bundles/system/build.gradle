@@ -21,4 +21,5 @@ dependencies {
 	compile files("${repository}/spring-tx-3.2.5.RELEASE.jar")
 	compile files("${repository}/spring-beans-3.2.5.RELEASE.jar")
   compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
+  compile files("${repository}/xbean-naming-3.18.jar")
 }
