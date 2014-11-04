@@ -95,7 +95,7 @@ vmOptions="\
  -Dorg.ops4j.pax.logging.DefaultServiceLog.level=ERROR \
  -Ddrools.dialect.java.compiler=JANINO \
  -Dkaraf.local.roles=admin,manager \
- -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory
+ -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory \
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
