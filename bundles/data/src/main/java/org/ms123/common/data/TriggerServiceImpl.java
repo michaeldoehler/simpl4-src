@@ -18,53 +18,52 @@
  */
 package org.ms123.common.data;
 
+import aQute.bnd.annotation.component.*;
+import aQute.bnd.annotation.metatype.*;
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.*;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
+import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
-import org.apache.aries.blueprint.ExtendedBlueprintContainer;
+import javax.jdo.Query;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.ms123.common.setting.api.SettingService;
-import org.ms123.common.data.query.QueryBuilder;
-import org.ms123.common.data.scripting.MVELEvaluator;
-import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.activiti.ActivitiService;
-import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.team.api.TeamService;
-import org.ms123.common.store.StoreDesc;
-import org.ms123.common.libhelper.Bean2Map;
-import org.ms123.common.libhelper.Inflector;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
+import org.ms123.common.data.query.QueryBuilder;
+import org.ms123.common.data.scripting.MVELEvaluator;
+import org.ms123.common.libhelper.Bean2Map;
+import org.ms123.common.libhelper.Inflector;
+import org.ms123.common.nucleus.api.NucleusService;
+import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.setting.api.SettingService;
+import org.ms123.common.store.StoreDesc;
+import org.ms123.common.system.ThreadContext;
+import org.ms123.common.team.api.TeamService;
+import org.ms123.common.utils.UtilsServiceImpl;
 import org.mvel2.MVEL;
 import org.mvel2.optimizers.OptimizerFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.blueprint.container.BlueprintContainer;
-import static org.apache.commons.beanutils.PropertyUtils.getProperty;
-import static org.apache.commons.beanutils.PropertyUtils.setProperty;
-import org.ms123.common.utils.UtilsServiceImpl;
-import org.apache.commons.beanutils.BeanMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import java.util.*;
-import aQute.bnd.annotation.metatype.*;
-import aQute.bnd.annotation.component.*;
-import org.ms123.common.system.ThreadContext;
+import static org.apache.commons.beanutils.PropertyUtils.getProperty;
+import static org.apache.commons.beanutils.PropertyUtils.setProperty;
 
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true)
 public class TriggerServiceImpl implements TriggerService {
 
 	private BlueprintContainer m_blueprintContainer;
+	private BundleContext m_bundleContext;
 
 	private SettingService m_settingService;
 	private TeamService m_teamService;
@@ -89,6 +88,10 @@ public class TriggerServiceImpl implements TriggerService {
 		OptimizerFactory.setDefaultOptimizer("reflective");
 	}
 
+	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
+		info("TriggerService.activate:");
+		m_bundleContext = bundleContext;
+	}
 	public Map applyUpdateRules(SessionContext sessionContext, String entityName, Object update, Object preUpdate) throws Exception {
 		return applyRules(sessionContext, entityName, update, preUpdate, UPDATE);
 	}
@@ -202,7 +205,7 @@ public class TriggerServiceImpl implements TriggerService {
 	private void serviceAction(SessionContext sessionContext, Map action, String entity, Object insert, int operation) throws Exception {
 		PersistenceManager pm = sessionContext.getPM();
 		pm.flush();
-		BundleContext bc = ((org.apache.aries.blueprint.ExtendedBlueprintContainer) m_blueprintContainer).getBundleContext();
+		BundleContext bc = m_bundleContext;
 		String serviceCall = (String) action.get("servicecall");
 		int dot = serviceCall.lastIndexOf(".");
 		if (dot == -1) {
@@ -246,7 +249,7 @@ public class TriggerServiceImpl implements TriggerService {
 	private void processAction(SessionContext sessionContext, Map action, String entity, Object insert, Map triggerInfo) throws Exception {
 		PersistenceManager pm = sessionContext.getPM();
 		pm.flush();
-		BundleContext bc = ((org.apache.aries.blueprint.ExtendedBlueprintContainer) m_blueprintContainer).getBundleContext();
+		BundleContext bc = m_bundleContext;
 		String processCall = (String) action.get("processcall");
 		String startProcessUser = (String) action.get("startProcessUser");
 		debug("processAction:" + action + "/" + entity + "/" + insert );
@@ -578,8 +581,4 @@ public class TriggerServiceImpl implements TriggerService {
 		System.out.println("TriggerServiceImpl.setPermissionService:" + paramPermissionService);
 	}
 
-	@Reference(dynamic = true)
-	public void setBlueprintContainer(BlueprintContainer blueprintContainer) {
-		m_blueprintContainer = blueprintContainer;
-	}
 }

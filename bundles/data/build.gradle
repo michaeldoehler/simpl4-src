@@ -35,7 +35,6 @@ dependencies {
 	compile files("${repository}/jta-1.1.jar")
   compile files("${repository}/lucene-core-3.6.2.bar")
 	compile files("${repository}/mvel2-2.1.RC1.jar")
- 	compile files("${repository}/org.apache.aries.blueprint-1.0.0.jar")
 	compile files("${repository}/org.apache.commons.collections_3.2.1.jar")
 	compile files("${repository}/org.apache.commons.lang_2.5.jar")
   compile files("${repository}/org.apache.felix.scr-1.6.0.jar")
