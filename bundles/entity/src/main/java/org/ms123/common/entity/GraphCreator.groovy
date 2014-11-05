@@ -195,7 +195,7 @@ class GraphCreator implements org.ms123.common.entity.api.Constants, org.ms123.c
 	}
 
 	private void initEntityMap(Map entityMap,Map treeNode){
-		entityMap.name = treeNode.name;
+		entityMap.name = (treeNode.name as String).toLowerCase();
 		entityMap.description = "";
 		entityMap.default_fields = false;
 		entityMap.team_security = false;
