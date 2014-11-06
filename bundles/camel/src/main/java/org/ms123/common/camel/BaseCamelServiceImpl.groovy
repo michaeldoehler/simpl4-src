@@ -235,6 +235,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			if( cce == null){
 				if(list.size() == 0) {
 					//No enabled route
+					stopNotActiveRoutes(contextKey,[]);
 					continue;
 				}
 				cce = new ContextCacheEntry();
@@ -289,27 +290,30 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					}
 				}
 			}
-			//Remove not active Routes
-			List<String> ridList = [];
-			cce.context.getRouteDefinitions().each(){RouteDefinition rdef->
-				ridList.add(rdef.getId());
-			}
-			for( String rid in ridList){
-				if( !okList.contains(rid)){
-					info("Remove route:"+rid);
-					cce.context.stopRoute(rid);
-					cce.context.removeRoute(rid);
-					cce.routeEntryMap.remove(rid);
-				}
-			}
-			info("-->Context("+contextKey+"):status:"+cce.context.getStatus());
-			cce.context.getRouteDefinitions().each(){RouteDefinition rdef->
-				String rid = rdef.getId();
-				info("\tRoute("+rid+"):status:"+cce.context.getRouteStatus(rid));
-			}
+			stopNotActiveRoutes(contextKey,okList);
 		}
 	}
 
+	private void stopNotActiveRoutes(String contextKey, List okList){
+		ContextCacheEntry cce = m_contextCache.get(contextKey);
+		List<String> ridList = [];
+		cce.context.getRouteDefinitions().each(){RouteDefinition rdef->
+			ridList.add(rdef.getId());
+		}
+		for( String rid in ridList){
+			if( !okList.contains(rid)){
+				info("Remove route:"+rid);
+				cce.context.stopRoute(rid);
+				cce.context.removeRoute(rid);
+				cce.routeEntryMap.remove(rid);
+			}
+		}
+		info("-->Context("+contextKey+"):status:"+cce.context.getStatus());
+		cce.context.getRouteDefinitions().each(){RouteDefinition rdef->
+			String rid = rdef.getId();
+			info("\tRoute("+rid+"):status:"+cce.context.getRouteStatus(rid));
+		}
+	}
 
 	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
 		try{
