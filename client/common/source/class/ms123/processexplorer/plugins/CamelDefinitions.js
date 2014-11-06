@@ -202,7 +202,10 @@ qx.Class.define("ms123.processexplorer.plugins.CamelDefinitions", {
 		},
 		_setDataRouteTable: function (data) {
 			this._clearRouteTable();
-			this._routeTableModel.setDataAsMapArray(data, true);
+			try{
+				this._routeTableModel.setDataAsMapArray(data, true);
+			}catch(e){
+			}
 		},
 		_clearRouteTable: function () {
 			try{
