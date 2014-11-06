@@ -272,22 +272,29 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 				return "";
 		}
 	}
+	private static Map<String,ClassPropertyFilter> m_filterClassCache = new HashMap();
 	private static  class ClassPropertyFilterHandlerImpl implements ClassPropertyFilterHandler {
 		public ClassPropertyFilter getClassPropertyFilterByClass(Class pvFilterClass) {
-			return new ClassPropertyFilterImpl(pvFilterClass);
+			ClassPropertyFilter c = m_filterClassCache.get(pvFilterClass.toString());
+			if( c== null){	
+				c = new ClassPropertyFilterImpl(pvFilterClass);
+				System.out.println("ClassPropertyFilterImpl");
+				m_filterClassCache.put(pvFilterClass.toString(),c);
+			}
+			return c;
 		}
 	}
 
 	private static class ClassPropertyFilterImpl extends ClassPropertyFilter{
 		Class clazz;
-		Map<String,Boolean> cache = new HashMap();
+		Map<String,Boolean> m_cache = new HashMap();
 		public ClassPropertyFilterImpl(Class pvClass) {
 			super(pvClass);
 			clazz = pvClass;
 		}
 		public boolean isKnownProperty(String pvProperty) {
 			if("class".equals(pvProperty)) return false;
-		//	if("teamintern".equals(pvProperty)) return true;
+			//	if("teamintern".equals(pvProperty)) return true;
 			if("~unique-id~".equals(pvProperty)) return true;
 			if( clazz.equals(Set.class) || clazz.equals(List.class) ) return false;
 			boolean inc = isIncluded(pvProperty);
@@ -297,16 +304,18 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		}
 		private boolean isIncluded( String pvProperty ) {
 			try{
-				Boolean b = cache.get(pvProperty);
+				Boolean b = m_cache.get(pvProperty);
 				if( b!= null) return b;
+				System.out.println("isIncluded:"+pvProperty);
 				Field field = clazz.getDeclaredField(pvProperty);
 				if( field.isAnnotationPresent( JSON.class ) ) {
 					boolean isInc = field.getAnnotation( JSON.class ).include();
-					cache.put(pvProperty,isInc);
+					m_cache.put(pvProperty,isInc);
 					return isInc;
 				}
 			}catch(Exception e){
 			}
+			m_cache.put(pvProperty,true);
 			return true;
 		}
 	}
