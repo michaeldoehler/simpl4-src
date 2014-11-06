@@ -1,0 +1,10 @@
+#Server setup for jvisualvm
+export JMX="-Djava.rmi.server.hostname=simpl4.org -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxrem
+#Second port must be enabled in the firewall
+#show the port with netstat
+#DNAT    net,loc+ locd:172.17.0.14:35175 tcp  35175
+
+#Client
+jvisualvm
+add JMX Connection
+Connection: simpl4.org:9010
