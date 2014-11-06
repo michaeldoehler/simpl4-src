@@ -42,6 +42,7 @@ import net.sf.sojo.navigation.*;
 import net.sf.sojo.core.filter.ClassPropertyFilterHandler;
 import net.sf.sojo.core.filter.ClassPropertyFilter;
 import flexjson.*;
+import javax.jdo.annotations.Persistent;
 import org.ms123.common.data.api.SessionContext;
 
 @SuppressWarnings("unchecked")
@@ -77,16 +78,13 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 	}
 
 	public static Map filterFields(Object o, SessionContext sc, List<String> fieldList, List<String> aliasList) {
-		ObjectGraphWalker walker = new ObjectGraphWalker(new ClassPropertyFilterHandlerImpl());
-		//ObjectGraphWalker walker = new ObjectGraphWalker();
+		SojoFilterInterceptor interceptor = new SojoFilterInterceptor();
+		ObjectGraphWalker walker = new ObjectGraphWalker(interceptor.getClassPropertyFilterHandlerImpl());
 		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
 		walker.setIgnoreNullValues(true);
-		SojoFilterInterceptor interceptor = new SojoFilterInterceptor();
 		interceptor.setFields(fieldList, aliasList);
 		interceptor.setSessionContext(sc);
 		walker.addInterceptor(interceptor);
-//		m_js.prettyPrint(true);
-//		System.out.println("fieldList:"+m_js.deepSerialize(o));
 		walker.walk(o);
 		return interceptor.getResult();
 	}
@@ -272,22 +270,24 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 				return "";
 		}
 	}
-	private static Map<String,ClassPropertyFilter> m_filterClassCache = new HashMap();
-	private static  class ClassPropertyFilterHandlerImpl implements ClassPropertyFilterHandler {
+
+	private ClassPropertyFilterHandler getClassPropertyFilterHandlerImpl(){
+		return new ClassPropertyFilterHandlerImpl();
+	}
+	private Map<String,ClassPropertyFilter> m_filterClassCache = new HashMap();
+	private  class ClassPropertyFilterHandlerImpl implements ClassPropertyFilterHandler {
 		public ClassPropertyFilter getClassPropertyFilterByClass(Class pvFilterClass) {
 			ClassPropertyFilter c = m_filterClassCache.get(pvFilterClass.toString());
 			if( c== null){	
 				c = new ClassPropertyFilterImpl(pvFilterClass);
-				System.out.println("ClassPropertyFilterImpl");
 				m_filterClassCache.put(pvFilterClass.toString(),c);
 			}
 			return c;
 		}
 	}
 
-	private static class ClassPropertyFilterImpl extends ClassPropertyFilter{
+	private class ClassPropertyFilterImpl extends ClassPropertyFilter{
 		Class clazz;
-		Map<String,Boolean> m_cache = new HashMap();
 		public ClassPropertyFilterImpl(Class pvClass) {
 			super(pvClass);
 			clazz = pvClass;
@@ -304,18 +304,19 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		}
 		private boolean isIncluded( String pvProperty ) {
 			try{
-				Boolean b = m_cache.get(pvProperty);
-				if( b!= null) return b;
-				System.out.println("isIncluded:"+pvProperty);
 				Field field = clazz.getDeclaredField(pvProperty);
 				if( field.isAnnotationPresent( JSON.class ) ) {
 					boolean isInc = field.getAnnotation( JSON.class ).include();
-					m_cache.put(pvProperty,isInc);
+					return isInc;
+				}
+				if( field.isAnnotationPresent( Persistent.class ) ) {
+					Class type = field.getType();
+					boolean isInc = m_filterClassCache.get(type.toString())==null;
+					//System.out.println("isIncluded3:"+clazz+"."+pvProperty+"/"+type.toString()+"/"+isInc);
 					return isInc;
 				}
 			}catch(Exception e){
 			}
-			m_cache.put(pvProperty,true);
 			return true;
 		}
 	}
