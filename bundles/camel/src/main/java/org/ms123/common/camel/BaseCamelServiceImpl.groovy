@@ -172,7 +172,8 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		List<Map> resultList = new ArrayList();
 		ContextCacheEntry cce  = m_contextCache.get(contextKey);
 		if( cce == null){
-			throw new RuntimeException("_getRouteDefinitions:context:"+contextKey+" not found");
+			//throw new RuntimeException("_getRouteDefinitions:context:"+contextKey+" not found");
+			return resultList;
 		}
 		CamelContext cc = cce.context;
 		info("Def:"+cc.getRouteDefinitions());
@@ -228,7 +229,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 	protected synchronized void _createRoutesFromJsonDescription(String namespace,String path){
 		Map<String, List> routeJsonDescriptionMap = getRouteJsonDescriptionMap(namespace);
-
+		if( routeJsonDescriptionMap.size() == 0){
+			stopNotActiveRoutes( getContextKey(namespace,"default"), []);
+		}
 		for( String  contextKey : routeJsonDescriptionMap.keySet()){
 			List<Map> list = routeJsonDescriptionMap.get(contextKey);
 			ContextCacheEntry cce = m_contextCache.get(contextKey);
@@ -295,7 +298,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	private void stopNotActiveRoutes(String contextKey, List okList){
+		info("stopNotActiveRoutes:"+contextKey+"/"+okList);
 		ContextCacheEntry cce = m_contextCache.get(contextKey);
+		if( cce == null) return;
 		List<String> ridList = [];
 		cce.context.getRouteDefinitions().each(){RouteDefinition rdef->
 			ridList.add(rdef.getId());
