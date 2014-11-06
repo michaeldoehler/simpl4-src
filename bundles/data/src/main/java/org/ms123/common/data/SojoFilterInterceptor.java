@@ -280,6 +280,7 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 
 	private static class ClassPropertyFilterImpl extends ClassPropertyFilter{
 		Class clazz;
+		Map<String,Boolean> cache = new HashMap();
 		public ClassPropertyFilterImpl(Class pvClass) {
 			super(pvClass);
 			clazz = pvClass;
@@ -296,9 +297,13 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		}
 		private boolean isIncluded( String pvProperty ) {
 			try{
+				Boolean b = cache.get(pvProperty);
+				if( b!= null) return b;
 				Field field = clazz.getDeclaredField(pvProperty);
 				if( field.isAnnotationPresent( JSON.class ) ) {
-					return field.getAnnotation( JSON.class ).include();
+					boolean isInc = field.getAnnotation( JSON.class ).include();
+					cache.put(pvProperty,isInc);
+					return isInc;
 				}
 			}catch(Exception e){
 			}
