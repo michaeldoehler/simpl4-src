@@ -672,7 +672,7 @@ public class Transformer implements Constants{
 								delim = "/";
 							}
 							delim = "";
-							Script script = scriptMap.get(propertyName+"_"+beanId);
+							Script script = scriptMap.get(propertyName);
 							debug("END_FRAGMENT:"+script+"/"+propertyName+"/"+beanId);
 							if( script == null){
 								String evalStr = "";
@@ -682,8 +682,8 @@ public class Transformer implements Constants{
 									delim = "+'_'+";
 								}
 								debug(tabs+"evalStr:"+evalStr+"\t\t"+valMap+"|"+propertyName);
-								scriptMap.put(propertyName+"_"+beanId, transformer.parse(evalStr,((beanNode.path as String)+"_"+propertyName).replace((char)'/',(char)'_')));
-								script = scriptMap.get(propertyName+"_"+beanId);
+								scriptMap.put(propertyName, transformer.parse(evalStr,((beanNode.path as String)+"_"+propertyName).replace((char)'/',(char)'_')));
+								script = scriptMap.get(propertyName);
 							}
 
 							Object ores = transformer.run( script, valMap, (beanNode.path as String) +"/"+propertyName);
@@ -691,9 +691,6 @@ public class Transformer implements Constants{
 								Map bean = (Map)event.getBean();
 								bean.put(propertyName, ores);
 							}else{
-def clazz=null;
-if( ores!=null) clazz=ores.getClass();
-debug("setProperty:"+event.getBean()+"/"+propertyName+"="+ores+"/"+clazz);
 								context.beanUtilsBean.setProperty(event.getBean(),propertyName,ores);
 							}
 						}
@@ -727,7 +724,7 @@ debug("setProperty:"+event.getBean()+"/"+propertyName+"="+ores+"/"+clazz);
 
 						Map<String,Script> scriptMap = context.scriptCache.get(beanNode.path);
 						if( scriptMap.get(propertyName) == null){
-							scriptMap.put(propertyName+"_"+beanId, transformer.parse(script,((beanNode.path as String)+"/"+propertyName).replace((char)'/',(char)'_')));
+							scriptMap.put(propertyName, transformer.parse(script,((beanNode.path as String)+"/"+propertyName).replace((char)'/',(char)'_')));
 						}
 
 						String path = attrNode.path;
