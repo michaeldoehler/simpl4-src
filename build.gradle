@@ -74,7 +74,7 @@ configure(subprojects - project(":client")){ s->
 		vfs files("${rootDir}/repository/commons-logging-1.1.1.jar")
 		bnd files("${rootDir}/repository/biz.aQute.bnd.jar")
   	compile files("${rootDir}/repository/biz.aQute.bnd.jar")
-		compile files("${rootDir}/repository/groovy-all-2.3.7-indy.jar"); 
+		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar"); 
  		compile files("${rootDir}/repository/aspectjrt-1.7.1.jar")
 		compile files("${rootDir}/repository/shiro-aspectj-1.2.0.jar")
 		compile files("${rootDir}/repository/shiro-core-1.2.0.jar")

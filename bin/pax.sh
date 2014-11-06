@@ -131,7 +131,7 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.lang_2.5.jar \
 	scan-bundle:file:$REPOSITORY/derby-10.5.3.0_1.jar \
-	scan-bundle:file:$REPOSITORY/groovy-all-2.3.7-indy.jar \
+	scan-bundle:file:$REPOSITORY/groovy-all-2.2.2-indy.jar \
 	scan-bundle:file:$REPOSITORY/mail-1.4.7.bar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.bundlerepository-1.6.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.eventadmin-1.2.2.jar \
