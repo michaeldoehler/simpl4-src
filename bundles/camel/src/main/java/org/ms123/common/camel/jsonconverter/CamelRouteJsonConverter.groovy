@@ -41,7 +41,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
 /**
  */
-class CamelRouteJsonConverter extends BaseRouteJsonConverter implements Constansts{
+class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms123.common.camel.Constants{
 	def m_path;
 	def m_ctx;
 	def m_typesMap = [:];
@@ -50,6 +50,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements Constans
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
+		m_ctx.logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
 		fillShapeMap(rootShape);
 		fillTypesMap();
 		def startList = getStartList(rootShape);
@@ -156,6 +157,13 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements Constans
 		cc.addRouteDefinition(m_ctx.routeDefinition);
 		String text = generator.getRoutesText(cc);
 		System.out.println("Text:" + text);
+	}
+	protected boolean getBoolean(Map shape, String name,boolean _default) {
+		Map properties = (Map) shape.get(PROPERTIES);
+
+		Object value  = properties.get(name);
+		if( value == null) return _default;
+		return (boolean)value;
 	}
 	public static void main(String[] args) {
 		def fileContents = new File('/tmp/json.camel').text

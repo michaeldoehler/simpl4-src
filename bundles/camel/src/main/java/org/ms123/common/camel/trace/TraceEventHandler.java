@@ -44,6 +44,7 @@ import static org.ms123.common.system.LogService.LOG_KEY;
 import static org.ms123.common.system.LogService.LOG_TYPE;
 import static org.ms123.common.system.LogService.LOG_HINT;
 import static org.apache.camel.util.StringHelper.xmlEncode;
+import javax.xml.namespace.QName;
 
 @SuppressWarnings("unchecked")
 public class TraceEventHandler implements org.apache.camel.processor.interceptor.TraceEventHandler, Service {
@@ -68,6 +69,8 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 	}
 
 	public void logEntry(ProcessorDefinition<?> node, Processor target, TraceInterceptor traceInterceptor, Exchange exchange, String direction) throws Exception {
+		boolean loggingOff = getPropertyBoolean("loggingOff", node,exchange);
+		boolean logExceptionsOnly = getPropertyBoolean("logExceptionsOnly", node,exchange);
 		Date timestamp = new Date();
 		boolean hasException = extractCausedByException(exchange) != null;
 		TraceEventMessage msg = new TraceEventMessage(timestamp, node, exchange);
@@ -86,9 +89,11 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		props.put("resourceId", node.getId());
 		JSONSerializer js = new JSONSerializer();
 		js.prettyPrint(true);
-		info("routeId:" + routeId + "/" + extractRoute(node));
+		info("routeId:" + routeId + "/" + extractRoute(node)+"/shortName:"+node.getShortName()+"/"+node.getOtherAttributes()+"/"+loggingOff+"/"+logExceptionsOnly);
 		String breadcrumbId = (String) exchange.getIn().getHeaders().get(Exchange.BREADCRUMB_ID);
-		createLogEntry(exchange, contextName + "/" + routeId + "/" + breadcrumbId, props, hasException, js);
+		if( (loggingOff == false && logExceptionsOnly==false)|| hasException){
+			createLogEntry(exchange, contextName + "/" + routeId + "/" + breadcrumbId, props, hasException, js);
+		}
 	}
 
 	private void createLogEntry(Exchange exchange, String key, Map msg, boolean hasException, JSONSerializer js) {
@@ -102,6 +107,18 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		eventAdmin.sendEvent(new Event("log", props));
 	}
 
+	private boolean getPropertyBoolean(String name, ProcessorDefinition node, Exchange exchange){
+		Boolean ret = false;
+		Map<QName,Object> oa = node.getOtherAttributes();
+		if( oa != null){
+			ret = (Boolean)oa.get(new QName(name));
+			exchange.setProperty(name, ret);
+		}else{
+			Boolean b = (Boolean)exchange.getProperty(name);
+			ret = b != null ? b : false;
+		}
+		return ret != null ? ret.booleanValue() : false;
+	}
 	private String getRouteId(Exchange exchange) {
 		String routeId = null;
 		try {
