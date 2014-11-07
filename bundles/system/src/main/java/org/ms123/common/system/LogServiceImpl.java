@@ -83,7 +83,6 @@ public class LogServiceImpl extends BaseLogServiceImpl implements LogService, Ev
 
 	public void handleEvent(Event event) {
 		info("LogServiceImpl.handleEvent: " + event + ",key:" + event.getProperty(LOG_KEY) + ",type:" + event.getProperty(LOG_TYPE));
-		if( true) return;
 		StoreDesc sdesc = StoreDesc.getGlobalData();
 		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
 		UserTransaction ut = m_nucleusService.getUserTransaction();

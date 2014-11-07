@@ -173,6 +173,14 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 		}
 	}
 
+	public void syncWithEnpedia() throws RpcException {
+		try {
+			_syncWithEnpedia();
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "EAServiceImpl.syncWithEnpedia:", e);
+		} finally {
+		}
+	}
 	private Map _createOrUpdateContact(String email, Map data,Map communication, List<String> teams) throws Exception {
 		Map ret = null;
 		StoreDesc sdesc = StoreDesc.get("ea_data");

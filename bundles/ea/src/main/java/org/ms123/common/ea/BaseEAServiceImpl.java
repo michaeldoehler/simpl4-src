@@ -432,6 +432,62 @@ public class BaseEAServiceImpl implements Constants {
 		return null;
 	}
 
+	private static String EMAIL = "email";
+	protected void _syncWithEnpedia() throws Exception{
+		StoreDesc sdesc = StoreDesc.get("ea_data");
+		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
+		Class _contact = m_nucleusService.getClass(sdesc, "Contact");
+		Class _company = m_nucleusService.getClass(sdesc, "Company");
+		List<Map<String,String>> userList = csvToListOfMap("user-complete.csv");
+		try{
+			for( Map<String,String> userMap : userList){
+				String email = userMap.get(EMAIL);
+				Object c = getContact(pm,_contact,email);
+				if( c!= null){
+					System.out.println("+++Email found:"+email);
+				}else{
+					c = getContact(pm,_company,email);
+					if( c!= null){
+						System.out.println("===Email found:"+email);
+					}else{
+						System.out.println("---Email not found:"+email);
+					}
+				}
+			}
+		} finally {
+			pm.close();
+		}
+	}
+
+	private List<Map<String,String>> csvToListOfMap(String filename) throws Exception{
+		String basedir = System.getProperty("workspace") + "/../etc/ea/data";
+		LabeledCSVParser lp = new LabeledCSVParser(getCSVParser(new FileInputStream(new File(basedir,filename))));
+		String[] labels = lp.getLabels();
+		int num = 0;
+		List<Map<String,String>> retList = new ArrayList();
+		while (lp.getLine() != null) {
+			Map<String,String> map = new HashMap();
+			retList.add(map);
+			for( String label : labels){
+				map.put(label, lp.getValueByLabel(label));
+			}
+		}
+		return retList;
+	}
+	private Object getContact(PersistenceManager pm, Class clazz, String email) {
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, "(_state=='ok' or _state is null) && communication.mail1 == '" + email + "'");
+		Collection coll = (Collection) q.execute();
+		Iterator iter = coll.iterator();
+		if (iter.hasNext()) {
+			Object c = iter.next();
+			return c;
+		} else {
+			//System.out.println("number(" + nummer + ") not found");
+		}
+		return null;
+	}
+
 	private CSVParse getCSVParser(InputStream is) {
 		char delimeter = ',';
 		char quote = '"';

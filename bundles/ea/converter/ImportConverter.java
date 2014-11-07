@@ -317,6 +317,24 @@ System.out.println("i:"+i);
 		return retList;
 	}
 
+
+	private boolean compareOrtPlz(String ortCandidat,String plzCandidat,String ortCurrent, String plzCurrent){
+		boolean ort = false;
+		boolean plz = false;
+		
+		if( ortCandidat == null && ortCurrent == null){
+			ort = true;
+		}else if( ortCandidat != null && ortCandidat.equals(ortCurrent)){
+			ort = true;
+		}
+		if( plzCandidat == null && plzCurrent == null){
+			plz = true;
+		}else if( plzCandidat != null && plzCandidat.equals(plzCurrent)){
+			plz = true;
+		}
+		return ort && plz;
+	}
+
 	private String isDupCompany(List<Map<String, String>> allList, Map<String, String> candidat) {
 		for (Map current : allList) {
 			String id = isDupCompany(current, candidat);
@@ -342,9 +360,7 @@ System.out.println("i:"+i);
 		}
 		if (current != null && candidat != null) {
 			double od = 0;
-			if (ortCandidat.equals(ortCurrent)) {
-				od = 1.0;
-			} else if (plzCurrent.equals(plzCandidat)) {
+			if(compareOrtPlz( ortCandidat,plzCandidat,ortCurrent,plzCurrent)){
 				od = 1.0;
 			} else {
 				od = m_ortCmp.score(m_companyCmp.prepare(ortCurrent), m_companyCmp.prepare(ortCandidat));
