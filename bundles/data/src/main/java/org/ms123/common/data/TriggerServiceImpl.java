@@ -48,6 +48,7 @@ import org.ms123.common.store.StoreDesc;
 import org.ms123.common.system.ThreadContext;
 import org.ms123.common.team.api.TeamService;
 import org.ms123.common.utils.UtilsServiceImpl;
+import org.ms123.common.camel.api.CamelService;
 import org.mvel2.MVEL;
 import org.mvel2.optimizers.OptimizerFactory;
 import org.osgi.framework.BundleContext;
@@ -57,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.apache.commons.beanutils.PropertyUtils.getProperty;
 import static org.apache.commons.beanutils.PropertyUtils.setProperty;
+import org.apache.camel.ProducerTemplate;
 
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true)
@@ -71,6 +73,7 @@ public class TriggerServiceImpl implements TriggerService {
 	private NucleusService m_nucleusService;
 
 	private ActivitiService m_activitiService;
+	private CamelService m_camelService;
 
 	private PermissionService m_permissionService;
 
@@ -86,6 +89,7 @@ public class TriggerServiceImpl implements TriggerService {
 		MVELEvaluator evalator = new MVELEvaluator(null);
 		evalator.test();
 		OptimizerFactory.setDefaultOptimizer("reflective");
+		m_js.prettyPrint(true);
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
@@ -162,12 +166,14 @@ public class TriggerServiceImpl implements TriggerService {
 			Map props = new HashMap();
 			props.putAll(qb.getQueryParams());
 			props.put(m_inflector.getEntityName(entity), insert);
-			Set nowList = (Set) PropertyUtils.getProperty(insert, "_team_list");
-			Set preList = (Set) ((Map) preUpdate).get("_team_list");
-			if (nowList != null || preList != null) {
-				Map tc = _getTeamChangedFlags(preList, nowList);
-				props.put("team_changed", tc);
-				triggerInfo.put("teamsChanged", _getTeamChangedList(tc, preList, nowList));
+			if( PropertyUtils.isReadable(insert,"_team_list")){
+				Set nowList = (Set) PropertyUtils.getProperty(insert, "_team_list");
+				Set preList = (Set) ((Map) preUpdate).get("_team_list");
+				if (nowList != null || preList != null) {
+					Map tc = _getTeamChangedFlags(preList, nowList);
+					props.put("team_changed", tc);
+					triggerInfo.put("teamsChanged", _getTeamChangedList(tc, preList, nowList));
+				}
 			}
 			props.put(m_inflector.getEntityName(entity) + "_pre", preUpdate);
 			debug("props:" + props);
@@ -189,6 +195,7 @@ public class TriggerServiceImpl implements TriggerService {
 			boolean fieldActive = getBoolean(action.get("fieldactive"));
 			boolean serviceActive = getBoolean(action.get("serviceactive"));
 			boolean processActive = getBoolean(action.get("processactive"));
+			boolean camelActive = getBoolean(action.get("camelactive"));
 			if (fieldActive && operation != DELETE) {
 				fieldAction(sessionContext, action, insert, operation);
 			}
@@ -197,6 +204,9 @@ public class TriggerServiceImpl implements TriggerService {
 			}
 			if (processActive) {
 				processAction(sessionContext, action, entity, insert, triggerInfo);
+			}
+			if (camelActive) {
+				camelAction(sessionContext, action, entity, insert, triggerInfo);
 			}
 		}
 		return false;
@@ -245,6 +255,58 @@ public class TriggerServiceImpl implements TriggerService {
 		args[4] = pm;
 		Object ret = meth.invoke(o, args);
 	}
+	private void camelAction(SessionContext sessionContext, Map action, String entity, Object insert, Map triggerInfo) throws Exception {
+		PersistenceManager pm = sessionContext.getPM();
+		pm.flush();
+		BundleContext bc = m_bundleContext;
+		String camelCall = (String) action.get("camelcall");
+		String startCamelUser = (String) action.get("startCamelUser");
+		debug("camelAction:" + action + "/" + entity + "/" + insert );
+		StoreDesc sdesc = sessionContext.getStoreDesc();
+		String user = "admin";
+		if (startCamelUser.equals("user")) {
+			user = ThreadContext.getThreadContext().getUserName();
+		}
+		insert = sessionContext.getPM().detachCopy(insert);
+		Map paramMap = new HashMap();
+		triggerInfo.put("namespace", sdesc.getNamespace());
+		triggerInfo.put("targetEntity", entity);
+		triggerInfo.put("targetObject", SojoObjectFilter.getObjectGraph(insert, sessionContext));
+		paramMap.put("triggerInfo", triggerInfo);
+		m_js.prettyPrint(true);
+		System.out.println("paramMap:"+m_js.deepSerialize(paramMap));
+		new CamelThread(sdesc.getNamespace(), camelCall, user, paramMap).start();
+	}
+
+	private class CamelThread extends Thread {
+		String endpoint;
+		String ns;
+		String user;
+		Map paramMap;
+
+		public CamelThread(String ns, String endpoint, String user, Map paramMap) {
+			this.endpoint = endpoint;
+			this.ns = ns;
+			this.user = user;
+			this.paramMap = paramMap;
+		}
+
+		public void run() {
+			try {
+				ThreadContext.loadThreadContext(ns, user);
+				m_permissionService.loginInternal(ns);
+				ProducerTemplate template = m_camelService.getCamelContext(ns,CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+				template.sendBody(endpoint, paramMap);
+				debug("calling cameltemplate:" + endpoint + "/ns:" + ns + "/user:" + user);
+			} catch (Exception e) {
+				e.printStackTrace();
+				ThreadContext.getThreadContext().finalize(e);
+				m_logger.error("TriggerServiceImpl.CamelThread:", e);
+			} finally {
+				ThreadContext.getThreadContext().finalize(null);
+			}
+		}
+	}
 
 	private void processAction(SessionContext sessionContext, Map action, String entity, Object insert, Map triggerInfo) throws Exception {
 		PersistenceManager pm = sessionContext.getPM();
@@ -264,6 +326,8 @@ public class TriggerServiceImpl implements TriggerService {
 		triggerInfo.put("targetEntity", entity);
 		triggerInfo.put("targetObject", SojoObjectFilter.getObjectGraph(insert, sessionContext));
 		paramMap.put("triggerInfo", triggerInfo);
+		m_js.prettyPrint(true);
+		System.out.println("paramMap:"+m_js.deepSerialize(paramMap));
 		new ProcessThread(sdesc.getNamespace(), processCall, user, paramMap).start();
 	}
 
@@ -543,7 +607,7 @@ public class TriggerServiceImpl implements TriggerService {
 	}
 	protected static void debug(String message) {
 		m_logger.debug(message);
-		//System.out.println(message);
+		System.out.println(message);
 	}
 	protected static void info(String message) {
 		m_logger.info(message);
@@ -573,6 +637,12 @@ public class TriggerServiceImpl implements TriggerService {
 	public void setActivitiService(ActivitiService paramActivitiService) {
 		this.m_activitiService = paramActivitiService;
 		System.out.println("TriggerServiceImpl.setActivitiService:" + paramActivitiService);
+	}
+
+	@Reference(dynamic = true, optional = true)
+	public void setCamelService(CamelService paramCamelService) {
+		this.m_camelService = paramCamelService;
+		System.out.println("TriggerServiceImpl.setCamelService:" + paramCamelService);
 	}
 
 	@Reference(dynamic = true, optional = true)
