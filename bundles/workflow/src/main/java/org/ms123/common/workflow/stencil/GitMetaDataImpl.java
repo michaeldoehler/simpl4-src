@@ -40,7 +40,7 @@ import static java.text.MessageFormat.format;
 
 /**
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","deprecation"})
 class GitMetaDataImpl implements MetaData {
 
 	protected Inflector m_inflector = Inflector.getInstance();

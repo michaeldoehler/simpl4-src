@@ -47,5 +47,6 @@ dependencies {
 		compile files("${repository}/spring-core-3.2.5.RELEASE.jar")
 		compile files("${repository}/spring-tx-3.2.5.RELEASE.jar")
 		compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")
+		compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
     compile files('build/classes/main')
 }

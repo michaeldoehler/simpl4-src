@@ -27,7 +27,7 @@ import java.io.*;
 import java.util.*;
 import javax.jdo.PersistenceManager;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","deprecation"})
 public class MVELEvaluator {
 
 	private Map<String, Serializable> m_compiledExpr = new HashMap();

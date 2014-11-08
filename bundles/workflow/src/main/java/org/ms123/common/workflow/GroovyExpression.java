@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Manfred Sattler
  */
+@SuppressWarnings({"unchecked","deprecation"})
 public class GroovyExpression implements Expression {
 	private static final Logger m_logger = LoggerFactory.getLogger(GroovyExpression.class);
 	protected String m_expressionText;

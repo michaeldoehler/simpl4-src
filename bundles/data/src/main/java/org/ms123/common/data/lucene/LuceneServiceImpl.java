@@ -34,7 +34,6 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.AbstractField;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.NumericField;
-import org.apache.lucene.document.NumberTools;
 import org.apache.lucene.queryParser.*;
 import org.ms123.common.store.StoreDesc;
 // import org.slf4j.Logger; 
@@ -60,7 +59,7 @@ import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","deprecation"})
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=lucene" })
 public class LuceneServiceImpl implements org.ms123.common.data.api.LuceneService {
 

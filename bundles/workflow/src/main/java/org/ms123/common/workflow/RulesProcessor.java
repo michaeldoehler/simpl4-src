@@ -40,7 +40,7 @@ import flexjson.*;
 /**
  *
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","deprecation"})
 public class RulesProcessor {
 
 	protected JSONSerializer m_js = new JSONSerializer();

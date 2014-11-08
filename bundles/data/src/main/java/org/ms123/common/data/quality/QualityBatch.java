@@ -63,7 +63,7 @@ import static org.ms123.common.entity.api.Constants.STATE_NEW;
 import static org.ms123.common.entity.api.Constants.STATE_REFID;
 import static org.ms123.common.setting.api.Constants.GLOBAL_SETTINGS;
 
-@SuppressWarnings("all")
+@SuppressWarnings({"unchecked","deprecation"})
 public class QualityBatch implements Constants {
 
 	protected Inflector m_inflector = Inflector.getInstance();

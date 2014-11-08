@@ -80,6 +80,11 @@ configure(subprojects - project(":client")){ s->
 		compile files("${rootDir}/repository/shiro-core-1.2.0.jar")
 		aspectpath files("../../repository/shiro-aspectj-1.2.0.jar")
 	}
+	gradle.projectsEvaluated {
+		tasks.withType(JavaCompile) {
+			options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+		}
+	}
 
 	license licenseBlock
 	compileGroovy.options.define(

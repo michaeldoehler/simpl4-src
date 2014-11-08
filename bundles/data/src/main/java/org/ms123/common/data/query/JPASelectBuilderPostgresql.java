@@ -34,7 +34,7 @@ import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.data.api.SessionContext;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","deprecation"})
 public class JPASelectBuilderPostgresql extends JPASelectBuilder implements SelectBuilder {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(JPASelectBuilderPostgresql.class);
