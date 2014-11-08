@@ -64,7 +64,6 @@ public class FlexJsonDataFormat extends ServiceSupport implements DataFormat {
 
     @Override
     protected void doStart() throws Exception {
-			m_js.prettyPrint(true);
     }
 
     @Override
@@ -80,6 +79,7 @@ public class FlexJsonDataFormat extends ServiceSupport implements DataFormat {
     }
 
     public void setPrettyPrinting(Boolean prettyPrinting) {
+				m_js.prettyPrint(prettyPrinting);
         this.prettyPrinting = prettyPrinting;
     }
 

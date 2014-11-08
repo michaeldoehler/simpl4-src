@@ -147,7 +147,9 @@ abstract class JsonConverterImpl implements JsonConverter{
 		println("ParameterMap:"+map);
 		def dataFormatDef = null;
 		if( shapeProperties.json_library == "flexjson"){
-			dataFormatDef = new DataFormatDefinition(new org.ms123.common.camel.components.FlexJsonDataFormat());	
+			def ff = new org.ms123.common.camel.components.FlexJsonDataFormat();
+			ff.setPrettyPrinting(shapeProperties.json_prettyPrint);
+			dataFormatDef = new DataFormatDefinition(ff);	
 		}else{
 			dataFormatDef = new DataFormatDefinition(getFormatName());	
 		}
