@@ -314,10 +314,10 @@ def deployClientPart(destdir){
 		fileset(dir:"${qooxdooBuildDir}/website") {
 		}
 	}
-	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/mobile/build"){
+	/*@@@MS new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/mobile/build"){
 		fileset(dir:"${qooxdooBuildDir}/mobile") {
 		}
-	}
+	}*/
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
 		fileset(dir:"${rootDir}/client/common/source/resource/openseadragon") {
 		}
