@@ -52,11 +52,11 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 		this._cache={};
 		this._currentFormat = this._formatSelectBox.getSelection()[0].getModel();
 		this._currentKind;
-		this._setStatus();
+		this._setStatus(null);
 		this.addListener("changeValue", function(e){
 			var data = e.getData();
 			console.log("ChangeValue("+this._side+"):"+data);
-			this._setStatus();
+			this._setStatus(data);
 		},this);
 		if( side == ms123.datamapper.Config.OUTPUT && facade.mainEntity){
 			this._statusField.setValue(this.tr("datamapper.status_ready"));
@@ -274,11 +274,11 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			container.add(this._statusField,{edge:"center"});
 			return container;
 		},
-		_setStatus:function(){
+		_setStatus:function(data){
 			if( this._formatOnly !== false){
 				return;
 			}
-			if( this._cache[this._getCacheKey()] || this._currentKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
+			if( data || this._cache[this._getCacheKey()] || this._currentKind == ms123.datamapper.Config.KIND_LIKE_INPUT){
 				this._statusField.setValue(this.tr("datamapper.status_ready"));
 				this._statusField.setBackgroundColor(ms123.datamapper.Config.BG_COLOR_READY);
 			}else{
