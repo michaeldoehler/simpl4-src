@@ -286,7 +286,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/spring-core-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.servicemix.bundles.commons-csv-1.0-r706899_5.jar \
 	scan-bundle:file:$REPOSITORY/jsp-api-2.0.bar  \
-	scan-bundle:file:$REPOSITORY/xstream-1.4.7.jar  \
+	scan-bundle:file:$REPOSITORY/xstream-1.4.7-ms.jar  \
 	scan-bundle:file:$REPOSITORY/xpp3-1.1.4c.bar \
 	scan-bundle:file:$REPOSITORY/jettison-1.3.5.jar \
 	scan-bundle:file:$REPOSITORY/opencsv-2.3.bar \
