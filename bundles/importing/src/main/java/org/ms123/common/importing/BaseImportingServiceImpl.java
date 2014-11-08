@@ -116,6 +116,7 @@ public class BaseImportingServiceImpl implements Constants {
 		String parentFieldName=null;
 		Class parentClazz = null;
 		String parentQuery = null;
+		String updateQuery = null;
 		PersistenceManager pm = sc.getPM();
 		GroovyShell groovyShell=null;
 		if( parentSpec != null){
@@ -137,6 +138,19 @@ public class BaseImportingServiceImpl implements Constants {
 				}
 				groovyShell = new GroovyShell(this.getClass().getClassLoader(), new Binding(), new CompilerConfiguration());
 			}
+			String updateLookup = parentSpec.get("update");
+			Class mainClass=null;
+			if( resultList.size() > 0){
+				mainClass = resultList.iterator().next().getClass();
+			}
+			if( !isEmpty( updateLookup) && mainClass != null){
+				if( updateLookup.matches(FIELDNAME_REGEX)){
+					String q= isString(mainClass,updateLookup) ? "'" : "";
+					updateQuery = updateLookup+ " == "+q+"${"+updateLookup+"}"+q;
+				}else{
+					updateQuery = updateLookup;
+				}
+			}
 		}
 		try {
 			int num = 0;
@@ -157,8 +171,17 @@ public class BaseImportingServiceImpl implements Constants {
 				if (cv == null && m.get("_duplicated_id_") == null) {
 					if(!withoutSave){
 						ut.begin();
-						if( parentClazz != null){
-							Object parentObject = getParentObject(groovyShell, pm,parentClazz,object,parentQuery);
+						Object origObject = null;
+						if( updateQuery != null){
+							origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
+							System.out.println("origObject:"+origObject);
+							if( origObject != null){
+								sc.populate(m, origObject);
+								object = origObject;
+							}
+						}
+						if( origObject == null && parentClazz != null){
+							Object parentObject = getObjectByFilter(groovyShell, pm,parentClazz,object,parentQuery);
 							m_dataLayer.insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
 						}
 						m_dataLayer.makePersistent(sc, object);
@@ -182,9 +205,9 @@ public class BaseImportingServiceImpl implements Constants {
 		return retList;
 	}
 
-	private Object getParentObject(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
+	private Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
 		String filter = expandString(shell,queryString, new BeanMap(child));
-		System.out.println("getParentObject:"+filter);
+		System.out.println("getObjectByFilter:"+filter);
 		Extent e = pm.getExtent(clazz, true);
 		Query q = pm.newQuery(e, filter);
 		try {
@@ -356,39 +379,6 @@ public class BaseImportingServiceImpl implements Constants {
 	private boolean isEmpty(String s) {
 		return (s == null || "".equals(s.trim()));
 	}
-
-
-	/*OLDIMPORT*/
-	public List _getImportings(StoreDesc sdesc, String prefix, Map mapping) throws Exception {
-		Map filtersMap = new HashMap();
-		Map field1 = new HashMap();
-		field1.put("field", IMPORTING_ID);
-		field1.put("op", "bw");
-		if( prefix == null ) prefix = "alluser/";
-		field1.put("data", prefix);
-		field1.put("connector", null);
-		field1.put("children", new ArrayList());
-		List fieldList = new ArrayList();
-		fieldList.add(field1);
-		filtersMap.put("children", fieldList);
-		Map data = new HashMap();
-		data.put("filter", filtersMap);
-		List fields = new ArrayList();
-		fields.add(IMPORTING_ID);
-		fields.add(DESCRIPTION);
-		fields.add(JSON_BODY);
-		data.put("fields", fields);
-		Map result = m_dataLayer.query(data, sdesc, IMPORTING_ENTITY);
-		List<Map> resultList = (List) result.get("rows");
-		for (int i = 0; i < resultList.size(); i++) {
-			Map m = resultList.get(i);
-			m.put(SETTINGS, m_ds.deserialize((String) m.get(JSON_BODY)));
-			m.remove(JSON_BODY);
-		}
-		return m_utilsService.listToList(resultList, mapping, null);
-	}
-
-
 	public Map getFileModel(byte[] content, Map sourceSetup) throws Exception {
 		String ftype = detectFileType(content);
 		if( ftype == null ) return null;
@@ -441,6 +431,65 @@ public class BaseImportingServiceImpl implements Constants {
 		} finally {
 		}
 	}
+	protected String getUserName() {
+		return org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+	}
+	private CSVParse getCSVParser(InputStream is, Map options) {
+		char delimeter = ',';
+		String columnDelim = (String) options.get("columnDelim");
+		System.out.println("options:" + options);
+		if (columnDelim == null) {
+			throw new RuntimeException("ImportingServiceImpl.getCSVParser:not initialized");
+		}
+		if (columnDelim.toLowerCase().indexOf("tab") != -1) {
+			delimeter = '\t';
+		}
+		if (columnDelim.length() > 0) {
+			delimeter = columnDelim.charAt(0);
+		}
+		char quote = '"';
+		if (((String) options.get("quote")).length() > 0) {
+			quote = ((String) options.get("quote")).charAt(0);
+		}
+		CSVParse p;
+		if (options.get("excel") != null) {
+			p = new ExcelCSVParser(is, delimeter);
+		} else {
+			p = new CSVParser(is, delimeter);
+		}
+		p.changeQuote(quote);
+		return p;
+	}
+	public List _getImportings(StoreDesc sdesc, String prefix, Map mapping) throws Exception {
+		Map filtersMap = new HashMap();
+		Map field1 = new HashMap();
+		field1.put("field", IMPORTING_ID);
+		field1.put("op", "bw");
+		if( prefix == null ) prefix = "alluser/";
+		field1.put("data", prefix);
+		field1.put("connector", null);
+		field1.put("children", new ArrayList());
+		List fieldList = new ArrayList();
+		fieldList.add(field1);
+		filtersMap.put("children", fieldList);
+		Map data = new HashMap();
+		data.put("filter", filtersMap);
+		List fields = new ArrayList();
+		fields.add(IMPORTING_ID);
+		fields.add(DESCRIPTION);
+		fields.add(JSON_BODY);
+		data.put("fields", fields);
+		Map result = m_dataLayer.query(data, sdesc, IMPORTING_ENTITY);
+		List<Map> resultList = (List) result.get("rows");
+		for (int i = 0; i < resultList.size(); i++) {
+			Map m = resultList.get(i);
+			m.put(SETTINGS, m_ds.deserialize((String) m.get(JSON_BODY)));
+			m.remove(JSON_BODY);
+		}
+		return m_utilsService.listToList(resultList, mapping, null);
+	}
+
+	/*OLDIMPORT*/
 	protected  Map doImport(StoreDesc data_sdesc, Map settings, byte[] content, boolean withoutSave, int max) throws Exception {
 		List<Map> mappings = null;
 		List<Map> defaults = null;
@@ -593,9 +642,6 @@ System.out.println("Mapping:"+mappings);
 		ret.put("result", resultList);
 		return ret;
 	}
-	protected String getUserName() {
-		return org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
-	}
 	private List getListParameter(Map map, String key, boolean optional) {
 		Object o = map.get(key);
 		if (o instanceof String) {
@@ -637,32 +683,6 @@ System.out.println("Mapping:"+mappings);
 		return null;
 	}
 
-	private CSVParse getCSVParser(InputStream is, Map options) {
-		char delimeter = ',';
-		String columnDelim = (String) options.get("columnDelim");
-		System.out.println("options:" + options);
-		if (columnDelim == null) {
-			throw new RuntimeException("ImportingServiceImpl.getCSVParser:not initialized");
-		}
-		if (columnDelim.toLowerCase().indexOf("tab") != -1) {
-			delimeter = '\t';
-		}
-		if (columnDelim.length() > 0) {
-			delimeter = columnDelim.charAt(0);
-		}
-		char quote = '"';
-		if (((String) options.get("quote")).length() > 0) {
-			quote = ((String) options.get("quote")).charAt(0);
-		}
-		CSVParse p;
-		if (options.get("excel") != null) {
-			p = new ExcelCSVParser(is, delimeter);
-		} else {
-			p = new CSVParser(is, delimeter);
-		}
-		p.changeQuote(quote);
-		return p;
-	}
 
 	private String getLastElement(String path) {
 		return getLastElement(path, ".");

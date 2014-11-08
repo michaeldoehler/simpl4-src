@@ -105,8 +105,6 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			this._relationSelect = parentSpecRelationSelect;
 			var listItem = new qx.ui.form.ListItem("------",null,"-");
 			parentSpecRelationSelect.add(listItem);
-			//listItem = new qx.ui.form.ListItem(this.tr("datamapper.merge_with_base_objects"),null,"merge");
-			//parentSpecRelationSelect.add(listItem);
 			for(var i=0; i < relList.length; i++){
 				var relMap = relList[i];
 				var leftfield = relMap.leftfield || this._baseName(relMap.rightmodule);
@@ -123,14 +121,39 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 	    var parentSpecLookupLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_lookup")).set({
 				rich:true
 			});
+	    var delim = new qx.ui.basic.Label("<hr style='width:500px;'/>").set({
+				rich:true
+			});
+	    var parentSpecUpdateLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update")).set({
+				rich:true
+			});
+	    var parentSpecUpdateExprLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update_expr")).set({
+				rich:true
+			});
 			container.add(parentSpecRelationLabel);
 			container.add(parentSpecRelationSelect);
 			container.add(parentSpecLookupLabel);
-		  var tf = new qx.ui.form.TextField(this._parentSpecLookupValue);
+		  var tf = new qx.ui.form.TextField();
 			this._parentSpecLookupTextField = tf;
 			container.add(tf);
+			container.add(delim);
 
-			parentSpecRelationSelect.addListener("changeSelection",function(e){ //@@@MS not ready yet
+			var parentSpec = this._facade.getConfig().output.parentSpec;
+			this._parentSpecUpdateCheckBox = new qx.ui.form.CheckBox();
+			this._parentSpecUpdateCheckBox.setValue(parentSpec.update != null);
+			container.add(parentSpecUpdateLabel);
+			container.add(this._parentSpecUpdateCheckBox);
+		  this._parentSpecUpdateTextField = new qx.ui.form.TextField();
+			if( parentSpec.update != null){
+				this._parentSpecUpdateTextField.setValue( parentSpec.update);
+			}else{
+				this._parentSpecUpdateTextField.exclude();
+				parentSpecUpdateExprLabel.exclude();
+			}
+			container.add(parentSpecUpdateExprLabel);
+			container.add(this._parentSpecUpdateTextField);
+
+			parentSpecRelationSelect.addListener("changeSelection",function(e){ 
 				var sel = parentSpecRelationSelect.getSelection()[0].getModel();
 				console.log("data:",sel);
 				if( sel.match(/^-/)){
@@ -142,7 +165,17 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 				}
 			},this)
 
-			var parentSpec = this._facade.getConfig().output.parentSpec;
+			this._parentSpecUpdateCheckBox.addListener("changeValue",function(e){ 
+				var update = this._parentSpecUpdateCheckBox.getValue();
+				if( update ){
+					this._parentSpecUpdateTextField.show();
+					parentSpecUpdateExprLabel.show();
+				}else{
+					this._parentSpecUpdateTextField.exclude();
+					parentSpecUpdateExprLabel.exclude();
+				}
+			},this)
+
 			if( parentSpec && parentSpec.lookup && parentSpec.relation ){
 				var selectables = parentSpecRelationSelect.getSelectables();
 				selectables.each( function( s ){
@@ -198,12 +231,19 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 		},
 		_handleOkButton: function (e) {
 			if( this._window) this._window.close();
+			var update = this._parentSpecUpdateCheckBox.getValue();
+			var updateValue=null;
+			if( update ){
+				updateValue = this._parentSpecUpdateTextField.getValue();
+				if( updateValue && updateValue.trim()==="") updateValue=null;
+			}
 			var relation = this._relationSelect.getSelection()[0].getModel();
 			var lookup = this._parentSpecLookupTextField.getValue();
 			var newParentSpec = null;
 			if( !relation.match(/^--/) && lookup != ""){
 				newParentSpec = {
 					relation:relation,
+					update:updateValue,
 					lookup:lookup
 				}
 			}
@@ -275,8 +315,8 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 				useResizeFrame: true
 			});
 			win.setLayout(new qx.ui.layout.Dock);
-			win.setWidth(450);
-			win.setHeight(400);
+			win.setWidth(500);
+			win.setHeight(500);
 			win.setAllowMaximize(false);
 			win.setAllowMinimize(false);
 			win.setModal(true);

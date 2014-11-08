@@ -344,7 +344,7 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 				StoreDesc sdesc = StoreDesc.get(storeId);
 				fileContent = getFileContent(sdesc.getNamespace(),importingid);
 			}
-		return m_datamapper.getMetaData(config,fileContent);
+		return m_datamapper.getMetaData2(config,fileContent);
 	}
 
 	/* END JSON-RPC-API*/

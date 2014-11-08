@@ -55,6 +55,7 @@ qx.Class.define("ms123.form.TriggerActionEdit", {
 		this.__buildFieldActionPage();
 		this.__buildServiceActionPage();
 		this.__buildProcessActionPage();
+		this.__buildCamelActionPage();
 	},
 
 	/**
@@ -171,6 +172,17 @@ qx.Class.define("ms123.form.TriggerActionEdit", {
 				var serviceActive = this._getCheckbox("serviceActive");
 				serviceActive.setValue(this.__getBoolean(this.__value.serviceactive));
 
+
+				var camelInput = this.getChildControl("camelInput");
+				camelInput.setValue(this.__value.camelcall ? this.__value.camelcall : "");
+
+				var camelActive = this._getCheckbox("camelActive");
+				camelActive.setValue(this.__getBoolean(this.__value.camelactive));
+
+				var startCamelUser = this.getChildControl("startCamelUser");
+				startCamelUser.setModelSelection([this.__value.startCamelUser]);
+
+
 				var fieldActive = this._getCheckbox("fieldActive");
 				fieldActive.setValue(this.__getBoolean(this.__value.fieldactive));
 
@@ -250,6 +262,51 @@ qx.Class.define("ms123.form.TriggerActionEdit", {
 				this.__value.servicecall = e.getData();
 				this._fireChangeValue();
 			}, this);
+
+		},
+		__buildCamelActionPage: function () {
+			var activeLabel = this.getChildControl("activeCamelLabel");
+			this.__camelActionPage.add(activeLabel, {
+				row: 0,
+				column: 0
+			});
+			var camelActive = this._getCheckbox("camelActive");
+			this.__camelActionPage.add(camelActive, {
+				row: 0,
+				column: 1
+			});
+			camelActive.addListener("execute", function (e) {
+				var c = e.getTarget();
+				this.__value.camelactive = c.getValue();
+				this._fireChangeValue();
+			}, this);
+
+
+			var camelLabel = this.getChildControl("camelLabel");
+			this.__camelActionPage.add(camelLabel, {
+				row: 1,
+				column: 0
+			});
+			var camelInput = this.getChildControl("camelInput");
+			this.__camelActionPage.add(camelInput, {
+				row: 1,
+				column: 1
+			});
+			camelInput.addListener("changeValue", function (e) {
+				this.__value.camelcall = e.getData();
+				this._fireChangeValue();
+			}, this);
+
+			var startCamelUser = this.getChildControl("startCamelUser");
+			this.__camelActionPage.add(startCamelUser, {
+				row: 2,
+				column: 1
+			});
+			startCamelUser.addListener("changeSelection", function (e) {
+				this.__value.startCamelUser = e.getData()[0].getModel();
+				this._fireChangeValue();
+			}, this);
+			startCamelUser.setSelection([this.__startCamelUserItem]);
 
 		},
 		__buildProcessActionPage: function () {
@@ -577,10 +634,27 @@ qx.Class.define("ms123.form.TriggerActionEdit", {
 			case "serviceInput":
 				control = new qx.ui.form.TextField();
 				break
+			case "camelLabel":
+				control = new qx.ui.basic.Label(this.tr("tactions.camellabel"));
+				break
+			case "camelInput":
+				control = new qx.ui.form.TextField();
+				break
+			case "startCamelUser":
+				control = new qx.ui.form.SelectBox();
+				var item = new qx.ui.form.ListItem(this.tr("tactions.process.admin"), null, "admin");
+				this.__startCamelUserItem = item;
+				control.add(item);
+				item = new qx.ui.form.ListItem(this.tr("tactions.process.callinguser"), null, "user");
+				control.add(item);
+				break;
 			case "activeFieldLabel":
 				control = new qx.ui.basic.Label(this.tr("tactions.active"));
 				break
 			case "activeServiceLabel":
+				control = new qx.ui.basic.Label(this.tr("tactions.active"));
+				break
+			case "activeCamelLabel":
 				control = new qx.ui.basic.Label(this.tr("tactions.active"));
 				break
 			case "processLabel":
@@ -633,6 +707,20 @@ qx.Class.define("ms123.form.TriggerActionEdit", {
 				layout.setColumnFlex(1, 1);
 				page.setLayout(layout);
 				this.__serviceActionPage = page;
+				control.add(page);
+
+				page = new qx.ui.tabview.Page(this.tr("tactions.camelaction")).set({
+					showCloseButton: false
+				});
+				var layout = new qx.ui.layout.Grid();
+				layout.setSpacing(3);
+				layout.setColumnAlign(0, "right", "middle");
+				layout.setColumnFlex(0, 0);
+				layout.setColumnWidth(0, 100);
+				layout.setColumnMaxWidth(0, 100);
+				layout.setColumnFlex(1, 1);
+				page.setLayout(layout);
+				this.__camelActionPage = page;
 				control.add(page);
 
 				page = new qx.ui.tabview.Page(this.tr("tactions.processaction")).set({
