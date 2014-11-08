@@ -98,15 +98,15 @@ abstract class BaseDatamapperServiceImpl implements Constants,DatamapperService 
 	}
 
 	@Handler
-	public Object transform( String body, String configName, Exchange exchange) throws Exception{
+	public Object transform( Object body, String configName, Exchange exchange) throws Exception{
 		println("transform.body:"+body+"/"+configName);
 		return transform(exchange.getContext().getRegistry().lookupByName("namespace") as String,null,configName,body);
 	}
 
-	public Object transform( String namespace, Map config, String configName, String data) throws Exception {
+	public Object transform( String namespace, Map config, String configName, Object data) throws Exception {
 		return transform(namespace,config, configName, data,null);
 	}
-	public Object transform( String namespace, Map config, String configName, String data, BeanFactory bf) throws Exception {
+	public Object transform( String namespace, Map config, String configName, Object data, BeanFactory bf) throws Exception {
 		Map mconfig = config;
 		if( namespace != null && configName != null){
 			String json = m_gitService.searchContent(namespace, configName, "sw.datamapper");

@@ -111,7 +111,7 @@ public class DatamapperServiceImpl extends BaseDatamapperServiceImpl implements 
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DatamapperService.transform:", e);
 		}
 	}
-	public Object getMetaData( 
+	public Object getMetaData2( 
 			@PName("config")           Map config,
 			@PName("fileContent")      @POptional String fileContent ) throws RpcException {
 		return getMetaData(config,null,fileContent, null);
@@ -142,7 +142,7 @@ public class DatamapperServiceImpl extends BaseDatamapperServiceImpl implements 
 			}
 			MetaData jm = null;
 			String format = (String)config.get("format");
-			if( format.equals(Constants.FORMAT_JSON )){
+			if( format.equals(Constants.FORMAT_JSON ) ||  format.equals(Constants.FORMAT_MAP)){
 				jm = new JsonMetaData();
 			}else if( format.equals(Constants.FORMAT_XML)){
 				jm = new XmlMetaData();
