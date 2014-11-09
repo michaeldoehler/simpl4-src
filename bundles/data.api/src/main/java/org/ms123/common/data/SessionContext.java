@@ -66,6 +66,8 @@ public interface SessionContext {
 
 	public void setTeamService(TeamService data);
 
+	public TeamService getTeamService();
+
 	public EntityService getEntityService();
 
 	public SettingService getSettingService();

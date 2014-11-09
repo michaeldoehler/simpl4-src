@@ -99,7 +99,7 @@ public class BaseImportingServiceImpl implements Constants {
 	}
 
 	/*NEWIMPORT*/
-	protected List<Map> persistObjects(SessionContext sc, Object obj, Map settings, boolean withoutSave, int max){
+	protected List<Map> persistObjects(SessionContext sc, Object obj, Map settings, int max){
 		List<Map> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
@@ -166,35 +166,24 @@ public class BaseImportingServiceImpl implements Constants {
 				}
 				Map m = SojoObjectFilter.getObjectGraph(object, sc,2);
 				retList.add(m);
-				List cv = sc.validateObject(m, mainEntity);
-				System.out.println("cv:"+cv+"/"+m);
-				if (cv == null && m.get("_duplicated_id_") == null) {
-					if(!withoutSave){
-						ut.begin();
-						Object origObject = null;
-						if( updateQuery != null){
-							origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
-							System.out.println("origObject:"+origObject);
-							if( origObject != null){
-								sc.populate(m, origObject);
-								object = origObject;
-							}
-						}
-						if( origObject == null && parentClazz != null){
-							Object parentObject = getObjectByFilter(groovyShell, pm,parentClazz,object,parentQuery);
-							m_dataLayer.insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
-						}
-						m_dataLayer.makePersistent(sc, object);
-						System.out.println("\tpersist:"+m_js.serialize(object));
-						ut.commit();
+				ut.begin();
+				Object origObject = null;
+				if( updateQuery != null){
+					origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
+					System.out.println("origObject:"+origObject);
+					if( origObject != null){
+						sc.populate(m, origObject);
+						object = origObject;
 					}
-				} else {
-					m.put("constraintViolations", cv);
 				}
+				if( origObject == null && parentClazz != null){
+					Object parentObject = getObjectByFilter(groovyShell, pm,parentClazz,object,parentQuery);
+					m_dataLayer.insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
+				}
+				m_dataLayer.makePersistent(sc, object);
+				System.out.println("\tpersist:"+m_js.serialize(object));
+				ut.commit();
 				num++;
-				if ((num % 1000) == 0) {
-					System.out.println("commit1++++++++:" + num);
-				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

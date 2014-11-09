@@ -112,7 +112,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	private static final Logger m_logger = LoggerFactory.getLogger(JdoLayerImpl.class);
 
 	private EntityService m_entityService;
-	private static final String TEAMINTERN_ENTITY = "teamintern";
 
 	private AuthService m_authService;
 
@@ -721,7 +720,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			if (clazz == null) {
 				debug("\t--- Warning property not found:" + key);
 			} else if (clazz.equals(java.util.Date.class)) {
-				String value = getString(from.get(key), beanMap.get(key), mode);
+				String value = Utils.getString(from.get(key), beanMap.get(key), mode);
 				debug("\tDate found:" + key + "=>" + value);
 				Date date = null;
 				if( value != null){
@@ -779,7 +778,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					if ("replace".equals(mode)) {
 						boolean isEqual = false;
 						if( isSimple ){
-							isEqual = isCollectionEqual(toList, valList);
+							isEqual = Utils.isCollectionEqual(toList, valList);
 							if( !isEqual ){
 								toList.clear();
 							}
@@ -821,7 +820,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 									Object name = valMap.get("name");
 									Object dis = valMap.get("disabled");
 									String teamid = (String)valMap.get("teamid");
-									Object ti = getTeamintern(sessionContext,teamid);
+									Object ti = Utils.getTeamintern(sessionContext,teamid);
 									if( desc == null){
 										valMap.put("description",PropertyUtils.getProperty(ti, "description"));
 									}
@@ -852,7 +851,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 						}else{
 							for (Object ol : valList) {
 								Map map = (Map) ol;
-								Object o = listContainsId(toList, map, "teamid");
+								Object o = Utils.listContainsId(toList, map, "teamid");
 								if (o != null) {
 									toList.remove(o);
 									pm.deletePersistent(o);
@@ -867,7 +866,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 						}else{
 							for (Object ol : valList) {
 								Map map = (Map) ol;
-								Object o = listContainsId(toList, map, "teamid");
+								Object o = Utils.listContainsId(toList, map, "teamid");
 								if (o != null) {
 									populate(sessionContext, map, o, null);
 								} else {
@@ -877,7 +876,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 										Object name = map.get("name");
 										Object dis = map.get("disabled");
 										String teamid = (String)map.get("teamid");
-										Object ti = getTeamintern(sessionContext,teamid);
+										Object ti = Utils.getTeamintern(sessionContext,teamid);
 										if( desc == null){
 											map.put("description",PropertyUtils.getProperty(ti, "description"));
 										}
@@ -903,12 +902,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 						if( !isSimple ){
 							for (Object ol : valList) {
 								Map map = (Map) ol;
-								Object o = listContainsId(toList, map);
+								Object o = Utils.listContainsId(toList, map);
 								if (o != null) {
 									debug("id:" + map + " already assigned");
 								} else {
 									Object id = map.get("id");
-									Boolean assign = getBoolean(map.get("assign"));
+									Boolean assign = Utils.getBoolean(map.get("assign"));
 									Object obj = pm.getObjectById(type, id);
 									if (assign) {
 										toList.add(obj);
@@ -930,7 +929,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					debug("populate.boolean.failed:" + key + "=>" + from.get(key) + ";" + e);
 				}
 			} else if (clazz.equals(java.lang.Double.class)) {
-				String value = getString(from.get(key), beanMap.get(key), mode);
+				String value = Utils.getString(from.get(key), beanMap.get(key), mode);
 				try {
 					beanMap.put(key, Double.valueOf(value));
 				} catch (Exception e) {
@@ -1036,7 +1035,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 									}else{
 										String s = String.valueOf(_id);
 										if (s.indexOf("/") >= 0) {
-											_id = extractId(s);
+											_id = Utils.extractId(s);
 										}
 										Class idClass = PropertyUtils.getPropertyType(o, "id");
 										id = (idClass.equals(Long.class)) ? Long.valueOf(_id + "") : _id;
@@ -1045,10 +1044,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 							} catch (Exception e) {
 				
 							}
+								debug("FromX:"+from.get(key)+"/"+from.get(key).getClass());
 							if (id != null && !"".equals(id) && !"null".equals(id)) {
 								debug("\tId2:"+id);
 								Object relatedObject = pm.getObjectById(type, id);
-								List<Collection> candidates = getCandidateLists(relatedObject, to, null);
+								List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, to, null);
 								if (candidates.size() == 1) {
 									Collection l = candidates.get(0);
 									debug("list.contains:" + l.contains(to));
@@ -1061,7 +1061,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 								Object relatedObject = beanMap.get(key);
 								debug("\trelatedObject:"+relatedObject);
 								if (relatedObject != null) {
-									List<Collection> candidates = getCandidateLists(relatedObject, to, null);
+									List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, to, null);
 									if (candidates.size() == 1) {
 										Collection l = candidates.get(0);
 										debug("list.contains:" + l.contains(to));
@@ -1079,7 +1079,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					e.printStackTrace();
 				}
 				if (!ok) {
-					String value = getString(from.get(key), beanMap.get(key), mode);
+					String value = Utils.getString(from.get(key), beanMap.get(key), mode);
 					// debug("populate:" + key + "=>" + value); 
 					// debug("String:" + ConvertUtils.convert(from.get(key), String.class)); 
 					try {
@@ -1303,7 +1303,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				} else {
 					pk = getPrimaryKey(sessionContext.getClass(entityName));
 				}
-				if (!containsId(projList, pk)) {
+				if (!Utils.containsId(projList, pk)) {
 					projList.add(pk);
 				}
 				qb.addSelectors(fieldsArray);
@@ -1772,52 +1772,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		}
 	}
 
-	private String getString(Object newValue, Object oldValue, String mode) {
-		if (newValue == null) {
-			return null;
-		}
-		String ret = "";
-		if (newValue instanceof List) {
-			debug("newValue:" + newValue);
-			debug("oldvalue:" + oldValue);
-			debug("mode:" + mode);
-			if ("replace".equals(mode) || oldValue == null || "".equals(oldValue)) {
-				List list = (List) newValue;
-				String komma = "";
-				for (int i = 0; i < list.size(); i++) {
-					ret += komma + list.get(i);
-					komma = ",";
-				}
-			} else if ("add".equals(mode) || "remove".equals(mode)) {
-				String[] oValues = ((String) oldValue).split(",");
-				List<String> nValues = new ArrayList();
-				for (int i = 0; i < oValues.length; i++) {
-					nValues.add(oValues[i]);
-				}
-				List list = (List) newValue;
-				for (int i = 0; i < list.size(); i++) {
-					if ("add".equals(mode)) {
-						if (!nValues.contains(list.get(i))) {
-							nValues.add((String) list.get(i));
-						}
-					} else {
-						if (nValues.contains(list.get(i))) {
-							nValues.remove(list.get(i));
-						}
-					}
-				}
-				String komma = "";
-				for (int i = 0; i < nValues.size(); i++) {
-					ret += komma + nValues.get(i);
-					komma = ",";
-				}
-			}
-			debug("newvalue:" + ret);
-		} else {
-			ret = String.valueOf(newValue);
-		}
-		return ret;
-	}
 
 	private void getBinary(SessionContext sessionContext, Object obj, boolean hasTeamSecurity, Map permittedFields, HttpServletResponse resp) throws Exception {
 		Map<String, Object> map = new HashMap();
@@ -2031,54 +1985,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		}
 	}
 
-	private Object listContainsId(Collection list, Map map, String idField) throws Exception {
-		for (Object o : list) {
-			String id1 = (String) PropertyUtils.getProperty(o, idField);
-			if (map.get(idField) != null) {
-				String id2 = String.valueOf(map.get(idField));
-				if (id1.equals(id2)) {
-					debug("\treturn:" + o);
-					return o;
-				}
-			}
-		}
-		return null;
-	}
-
-	private Object listContainsId(Collection list, Map map) throws Exception {
-		for (Object o : list) {
-			Object id = PropertyUtils.getProperty(o, "id");
-			if (id instanceof Long) {
-				Long id1 = (Long) PropertyUtils.getProperty(o, "id");
-				if (map.get("id") != null) {
-					Long id2 = getLong(map.get("id"));
-					if (id1 == id2) {
-						return o;
-					}
-				}
-			}
-			if (id instanceof String) {
-				String id1 = (String) PropertyUtils.getProperty(o, "id");
-				if (map.get("id") != null) {
-					String id2 = (String) map.get("id");
-					if (id1 == id2) {
-						return o;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	private boolean containsId(List<String> list, String pk) {
-		Iterator<String> it = list.iterator();
-		while (it.hasNext()) {
-			if (it.next().endsWith("." + pk)) {
-				return true;
-			}
-		}
-		return false;
-	}
 
 	public Class getClass(SessionContext sessionContext, String entityName) {
 		return getClass(sessionContext.getStoreDesc(), m_inflector.getClassName(entityName));
@@ -2140,26 +2046,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		}
 
 		public void remove() {
-		}
-	}
-
-	private boolean isNum(String s) {
-		try {
-			Double.parseDouble(s);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
-	}
-
-	private Long getLong(Object o) {
-		try {
-			if (o instanceof Long) {
-				return (Long) o;
-			}
-			return Long.parseLong(String.valueOf(o));
-		} catch (Exception e) {
-			return -1L;
 		}
 	}
 
@@ -2282,29 +2168,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return cvList;
 	}
 
-	protected List<Collection> getCandidateLists(Object related, Object to, String parentName) {
-		debug("getCandidateLists:clazz:" + related + ",to:" + to);
-		List<Collection> list = new ArrayList<Collection>();
-		Object o = null;
-		try {
-			BeanMap beanMap = new BeanMap(related);
-			Iterator itv = beanMap.keyIterator();
-			while (itv.hasNext()) {
-				String prop = (String) itv.next();
-				if (List.class.equals(beanMap.getType(prop)) || Set.class.equals(beanMap.getType(prop))) {
-					Class lt = TypeUtils.getTypeForField(related, prop);
-					if (lt.equals(to.getClass())) {
-						list.add((Collection) beanMap.get(prop));
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		debug("getCandidateLists ret:" + list);
-		return list;
-	}
-
 	private String getAppName(String appName) {
 		if ("xaddress".equals(appName)) {
 			return "xaddr";
@@ -2314,11 +2177,11 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 
 	private boolean hasTeamSecurity(SessionContext sessionContext, String entityName, String entityNameDetails) {
 		Map entityMap = sessionContext.getEntitytype(entityName);
-		boolean hasTeamSecurity = getBoolean(entityMap, "team_security", false);
+		boolean hasTeamSecurity = Utils.getBoolean(entityMap, "team_security", false);
 		debug("hasTeamSecurity:" + hasTeamSecurity);
 		if (entityNameDetails != null) {
 			Map em = sessionContext.getEntitytype(entityNameDetails);
-			hasTeamSecurity = getBoolean(em, "team_security", false);
+			hasTeamSecurity = Utils.getBoolean(em, "team_security", false);
 			debug("hasTeamSecurityDetails:" + hasTeamSecurity);
 		}
 		return hasTeamSecurity;
@@ -2366,21 +2229,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return path.substring(lastDot + 1);
 	}
 
-	protected boolean getBoolean(Object value) {
-		try {
-			return (Boolean) value;
-		} catch (Exception e) {
-		}
-		return false;
-	}
-
-	protected boolean getBoolean(Map m, String key, boolean _def) {
-		try {
-			return (Boolean) m.get(key);
-		} catch (Exception e) {
-		}
-		return _def;
-	}
 
 	protected int getInt(Map m, String key, int _def) {
 		try {
@@ -2467,24 +2315,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 	}
 
 
-	private <T> boolean isCollectionEqual(Collection<T> lhs, Collection<T> rhs) {
-		return lhs.size( ) == rhs.size( ) && lhs.containsAll(rhs)  && rhs.containsAll(lhs);
-	}
-
-	private String extractId(String s){
-		for( String part : s.split("/")){
-			if( isaId(part)) return part;
-		}
-		return null;
-	}
-
-	private boolean isaId(String s){
-		if( s==null || s.length() != 32) return false;
-		boolean isNumeric = s.matches("\\p{XDigit}+");
-		info("isAid:"+s+" -> "+isNumeric);
-		return isNumeric;
-	}
-
 	private boolean noAuth() {
 		String sh = System.getProperty("workspace");
 		try {
@@ -2527,17 +2357,6 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return builder.toString();
 	}
 
-	private Object getTeamintern(SessionContext sc, String teamid) {
-		PersistenceManager pm = sc.getPM();
-		try {
-			Class clazz = sc.getClass(TEAMINTERN_ENTITY);
-			Object obj = pm.getObjectById(clazz, teamid);
-			debug("Teamintern:" + new HashMap(new BeanMap(obj)));
-			return obj;
-		} catch (Exception e) {
-			throw new RuntimeException("TeamService.getTeamintern(" + teamid + ")", e);
-		} 
-	}
 	protected void debug(String message) {
 		m_logger.debug(message);
 		//System.out.println(message);

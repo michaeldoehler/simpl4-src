@@ -20,6 +20,11 @@ package org.ms123.common.utils;
 
 import org.apache.commons.beanutils.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Collection;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import javax.jdo.annotations.Element;
@@ -178,5 +183,25 @@ public class TypeUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	public static List<Collection> getCandidateLists(Object related, Object to, String parentName) {
+		List<Collection> list = new ArrayList<Collection>();
+		Object o = null;
+		try {
+			BeanMap beanMap = new BeanMap(related);
+			Iterator itv = beanMap.keyIterator();
+			while (itv.hasNext()) {
+				String prop = (String) itv.next();
+				if (List.class.equals(beanMap.getType(prop)) || Set.class.equals(beanMap.getType(prop))) {
+					Class lt = TypeUtils.getTypeForField(related, prop);
+					if (lt.equals(to.getClass())) {
+						list.add((Collection) beanMap.get(prop));
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 }

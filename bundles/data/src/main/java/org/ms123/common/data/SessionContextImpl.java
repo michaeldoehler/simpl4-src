@@ -130,6 +130,9 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	public PermissionService getPermissionService() {
 		return m_permissionService;
 	}
+	public TeamService getTeamService() {
+		return m_teamService;
+	}
 
 	public void setTeamService(TeamService data) {
 		m_teamService = data;

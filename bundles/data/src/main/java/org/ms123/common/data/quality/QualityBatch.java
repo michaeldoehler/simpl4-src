@@ -580,7 +580,7 @@ public class QualityBatch implements Constants {
 			return fieldsets;
 		} catch (Exception e) {
 			if (e instanceof groovy.lang.GroovyRuntimeException) {
-				throw new RuntimeException(Utils.formatGroovyException(e, "xxxx"));
+				throw new RuntimeException(org.ms123.common.utils.Utils.formatGroovyException(e, "xxxx"));
 			}
 			if (e instanceof RuntimeException) {
 				throw (RuntimeException)e;
