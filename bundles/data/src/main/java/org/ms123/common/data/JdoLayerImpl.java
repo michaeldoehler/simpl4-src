@@ -1941,7 +1941,7 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 				ret = id;
 				String name = getRecordTitle(value);
 				ret = id + "/" + name;
-				ret = getTitle(sc,m_inflector.getEntityName(value.getClass().getSimpleName()),beanMap, id, (String)ret);
+				ret = getTitle(sc,m_inflector.getEntityName(value.getClass().getSimpleName()),new BeanMap(value), id, (String)ret);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
