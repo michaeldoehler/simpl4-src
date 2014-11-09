@@ -1048,9 +1048,9 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 							if (id != null && !"".equals(id) && !"null".equals(id)) {
 								debug("\tId2:"+id);
 								Object relatedObject = pm.getObjectById(type, id);
-								List<List> candidates = getCandidateLists(relatedObject, to, null);
+								List<Collection> candidates = getCandidateLists(relatedObject, to, null);
 								if (candidates.size() == 1) {
-									List l = candidates.get(0);
+									Collection l = candidates.get(0);
 									debug("list.contains:" + l.contains(to));
 									if (!l.contains(to)) {
 										l.add(to);
@@ -1061,9 +1061,9 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 								Object relatedObject = beanMap.get(key);
 								debug("\trelatedObject:"+relatedObject);
 								if (relatedObject != null) {
-									List<List> candidates = getCandidateLists(relatedObject, to, null);
+									List<Collection> candidates = getCandidateLists(relatedObject, to, null);
 									if (candidates.size() == 1) {
-										List l = candidates.get(0);
+										Collection l = candidates.get(0);
 										debug("list.contains:" + l.contains(to));
 										if (l.contains(to)) {
 											l.remove(to);
@@ -2282,19 +2282,19 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return cvList;
 	}
 
-	protected List<List> getCandidateLists(Object related, Object to, String parentName) {
-		System.err.println("getCandidateLists:clazz:" + related + ",to:" + to);
-		List<List> list = new ArrayList<List>();
+	protected List<Collection> getCandidateLists(Object related, Object to, String parentName) {
+		debug("getCandidateLists:clazz:" + related + ",to:" + to);
+		List<Collection> list = new ArrayList<Collection>();
 		Object o = null;
 		try {
 			BeanMap beanMap = new BeanMap(related);
 			Iterator itv = beanMap.keyIterator();
 			while (itv.hasNext()) {
 				String prop = (String) itv.next();
-				if (List.class.equals(beanMap.getType(prop))) {
+				if (List.class.equals(beanMap.getType(prop)) || Set.class.equals(beanMap.getType(prop))) {
 					Class lt = TypeUtils.getTypeForField(related, prop);
 					if (lt.equals(to.getClass())) {
-						list.add((List) beanMap.get(prop));
+						list.add((Collection) beanMap.get(prop));
 					}
 				}
 			}
