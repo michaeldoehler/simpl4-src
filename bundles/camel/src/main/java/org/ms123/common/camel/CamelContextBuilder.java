@@ -58,6 +58,11 @@ import org.apache.camel.core.osgi.OsgiServiceRegistry;
 import org.apache.camel.processor.interceptor.Tracer;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.builder.DefaultErrorHandlerBuilder;
+import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.management.event.ExchangeCreatedEvent;
+import org.apache.camel.management.event.ExchangeCompletedEvent;
+import java.util.EventObject;
+import org.apache.camel.support.EventNotifierSupport;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import org.ms123.common.libhelper.ClassLoaderWrapper;
 import groovy.lang.GroovyShell;
@@ -67,6 +72,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
+import org.ms123.common.system.ThreadContext;
 
 /**
  *
@@ -80,7 +86,8 @@ public class CamelContextBuilder {
 	public static synchronized ModelCamelContext createCamelContext(String namespace, Registry groovyRegistry, BundleContext bc,boolean trace) throws Exception {
 		SimpleRegistry sr = new SimpleRegistry();
 		OsgiServiceRegistry or = new OsgiServiceRegistry(bc);
-		sr.put(PermissionService.PERMISSION_SERVICE, or.lookupByName(PermissionService.class.getName()));
+		PermissionService permissionService = (PermissionService)or.lookupByName(PermissionService.class.getName());
+		sr.put(PermissionService.PERMISSION_SERVICE, permissionService);
 		sr.put(DataLayer.DATA_LAYER, or.lookupByNameAndType("dataLayer", DataLayer.class));
 		sr.put("datamapper", or.lookupByName(DatamapperService.class.getName()));
 		sr.put("namespace", namespace);
@@ -131,6 +138,8 @@ public class CamelContextBuilder {
 		}
 		camelContext.getProperties().put(Exchange.LOG_DEBUG_BODY_STREAMS, "true");
 		camelContext.setMessageHistory(true);
+
+		camelContext.getManagementStrategy().addEventNotifier(new MyEventNotifer(namespace,permissionService));
 		return camelContext;
 	}
 
@@ -148,6 +157,46 @@ public class CamelContextBuilder {
 			stp.setPropagationBehaviorName(name);
 			sr.put(name, stp);	
 		}
+	}
+	public static class MyEventNotifer extends EventNotifierSupport {
+		PermissionService m_permissionService;
+		String m_namespace;
+		public MyEventNotifer(String ns, PermissionService ps){
+			m_namespace=ns;
+			m_permissionService=ps;
+		}
+		public void notify(EventObject event) throws Exception {
+			if (event instanceof ExchangeSentEvent) {
+				ExchangeSentEvent ev = (ExchangeSentEvent) event;
+			}
+			if (event instanceof ExchangeCreatedEvent) {
+				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
+				System.out.println("EventNotifierSupport:"+ev+"/"+ev.getExchange());
+					ThreadContext.getThreadContext().loadThreadContext(m_namespace,"admin");
+					m_permissionService.loginInternal(m_namespace);
+			}
+			if (event instanceof ExchangeCompletedEvent) {
+				ExchangeCompletedEvent ev = (ExchangeCompletedEvent) event;
+				System.out.println("EventNotifierSupport:"+ev+"/"+ev.getExchange());
+					ThreadContext.getThreadContext().finalize(null);
+			}
+		}
+
+		public boolean isEnabled(EventObject event) {
+			//if(event instanceof ExchangeSentEvent) return true;
+			if(event instanceof ExchangeCreatedEvent) return true;
+			if(event instanceof ExchangeCompletedEvent) return true;
+			return false;
+		}
+
+		protected void doStart() throws Exception {
+			// noop
+		}
+
+		protected void doStop() throws Exception {
+			// noop
+		}
+
 	}
 
 	private static void info(String msg) {

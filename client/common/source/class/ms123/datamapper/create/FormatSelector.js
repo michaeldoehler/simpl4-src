@@ -151,7 +151,7 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 			this._currentKind = ms123.datamapper.Config.KIND_USER_DEFINED;
 			container.add(button2);
 
-			if( this._use == ms123.datamapper.Config.USE_IMPORT && this._side == ms123.datamapper.Config.OUTPUT){
+			if( /*this._use == ms123.datamapper.Config.USE_IMPORT &&*/ this._side == ms123.datamapper.Config.OUTPUT){
 				var button3 = new qx.ui.form.RadioButton(this.tr("datamapper.like_input"));
 				button3.setUserData("kind",ms123.datamapper.Config.KIND_LIKE_INPUT);
 				button3.setValue(false);

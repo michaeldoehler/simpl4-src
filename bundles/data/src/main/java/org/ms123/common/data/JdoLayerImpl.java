@@ -1727,7 +1727,7 @@ debug("NO:"+new HashMap(new BeanMap(no)));
 		return mn;
 	}
 
-	public SessionContext getSessionContext(StoreDesc sdesc) {
+	public synchronized SessionContext getSessionContext(StoreDesc sdesc) {
 		try {
 			debug("-->getSessionContext:" + sdesc);
 			SessionManager sessionManager = (SessionManager)ThreadContext.getThreadContext().get(ThreadContext.SESSION_MANAGER);

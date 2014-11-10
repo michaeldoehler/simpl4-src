@@ -20,10 +20,10 @@ package org.ms123.common.camel.components;
 
 public enum SWDataOperation {
 
-	// read operations
-	findById, findOneByFilter, findByFilter, // create/update operations
-	insert, update, // delete operations
-	delete, // aggregate
-	aggregate, // others
+	findById, findOneByFilter, findByFilter, 
+	insert, update, 
+	delete, 
+	multiInsertUpdate, 
+	aggregate, 
 	count
 }

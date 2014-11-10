@@ -58,7 +58,7 @@ qx.Class.define("ms123.datamapper.plugins.Preview", {
 	members: {
 		_addButton:function(){
 			var upload_msg = this.tr("datamapper.load_import_file");
-			var execute_msg = this.tr("datamapper.execute");
+			var execute_msg = this.tr("datamapper.execute_preview");
 			var group = "2";
 			this._facade.offer({
 				name: upload_msg,
@@ -74,7 +74,7 @@ qx.Class.define("ms123.datamapper.plugins.Preview", {
 			this._facade.offer({
 				name: execute_msg,
 				description: execute_msg,
-				icon: "resource/ms123/run_exec.png",
+				icon: "resource/ms123/preview.png",
 				functionality: this.execute.bind(this),
 				group: group,
 				index: 2,

@@ -43,6 +43,10 @@ public class SWDataEndpoint extends DefaultEndpoint {
 
 	private String m_entityType;
 
+	private String m_relation;
+	private String m_lookupRelationObjectExpr;
+	private String m_lookupUpdateObjectExpr;
+
 	private boolean m_writeResultAsHeader;
 
 	private Map m_options;
@@ -92,6 +96,25 @@ public class SWDataEndpoint extends DefaultEndpoint {
 
 	public String getEntityType() {
 		return m_entityType;
+	}
+	public String getRelation() {
+		return m_relation;
+	}
+	public void setRelation(String relation) {
+		m_relation=relation;
+	}
+	public String getLookupRelationObjectExpr() {
+		return m_lookupRelationObjectExpr;
+	}
+	public void setRelationObjectExpr(String lookup) {
+		m_lookupRelationObjectExpr=lookup;
+	}
+	public String getLookupUpdateObjectExpr() {
+		return m_lookupUpdateObjectExpr;
+	}
+	public void setLookupUpdateObjectExpr(String update) {
+System.out.println("setLookupUpdateObjectExpr:"+update);
+		m_lookupUpdateObjectExpr=update;
 	}
 
 	public void setObjectId(String data) {

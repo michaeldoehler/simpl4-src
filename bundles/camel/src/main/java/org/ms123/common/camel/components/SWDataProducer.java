@@ -19,6 +19,7 @@
 package org.ms123.common.camel.components;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import org.apache.camel.Exchange;
@@ -47,6 +48,9 @@ public class SWDataProducer extends DefaultProducer {
 	private String m_namespace = null;
 
 	private String m_objectId = null;
+	private String m_lookupUpdateObjectExpr = null;
+	private String m_lookupRelationObjectExpr = null;
+	private String m_relation = null;
 
 	private String m_entityType = null;
 
@@ -71,6 +75,9 @@ public class SWDataProducer extends DefaultProducer {
 		m_filterName = endpoint.getFilterName();
 		m_objectId = endpoint.getObjectId();
 		m_entityType = endpoint.getEntityType();
+		m_lookupRelationObjectExpr = endpoint.getLookupRelationObjectExpr();
+		m_lookupUpdateObjectExpr = endpoint.getLookupUpdateObjectExpr();
+		m_relation = endpoint.getRelation();
 		String endpointKey = endpoint.getEndpointKey();
 		if (endpointKey.indexOf("?") != -1) {
 			endpointKey = endpointKey.split("\\?")[0];
@@ -126,6 +133,9 @@ public class SWDataProducer extends DefaultProducer {
 			case delete:
 				doDelete(exchange);
 				break;
+			case multiInsertUpdate:
+				doMultiInsertUpdate(exchange);
+				break;
 			/*case aggregate:
 				doAggregate(exchange);
 				break;*/
@@ -136,11 +146,38 @@ public class SWDataProducer extends DefaultProducer {
 
 	private String getStringCheck(Exchange e, String key, String def) {
 		String value = e.getIn().getHeader(key, String.class);
-		info("getStringCheck:"+key+"/value:"+value+"/def:"+def);
+		info("getStringCheck:"+key+"="+value+"/def:"+def);
 		if (value == null && def == null){
 			throw new RuntimeException("SWDataProducer." + key + "_is_null");
 		}
 		return value != null ? value : def;
+	}
+	private String getString(Exchange e, String key, String def) {
+		String value = e.getIn().getHeader(key, String.class);
+		info("getString:"+key+"="+value+"/def:"+def);
+		return value != null ? value : def;
+	}
+	private void doMultiInsertUpdate(Exchange exchange) {
+		String lookupUpdateObjectExpr = getString(exchange, SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR, m_lookupUpdateObjectExpr);
+		String lookupRelationObjectExpr = getString(exchange, SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR, m_lookupRelationObjectExpr);
+		String relation = getString(exchange, SWDataConstants.RELATION, m_relation);
+		if( "-".equals(relation))relation=null;
+		Map<String,String> persistenceSpecification = new HashMap();
+		persistenceSpecification.put(SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR,lookupRelationObjectExpr);
+		persistenceSpecification.put(SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR,lookupUpdateObjectExpr);
+		persistenceSpecification.put(SWDataConstants.RELATION,relation);
+		System.out.println("persistenceSpecification:"+persistenceSpecification);
+		//String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		SessionContext sc = getSessionContext();
+		Exception ex = null;
+		List<Map> result = null;
+		try {
+			result = sc.persistObjects(exchange.getIn().getBody(),persistenceSpecification);
+		} catch (Exception e) {
+			ex = e;
+		}
+		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.multiInsertUpdate);
+		processAndTransferResult(null, exchange, ex);
 	}
 
 	private void doDelete(Exchange exchange) {

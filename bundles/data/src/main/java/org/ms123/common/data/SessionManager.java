@@ -56,7 +56,7 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 		handleException(t);
 		}
 	}
-	public void handleFinish() {
+	public synchronized void handleFinish() {
 		System.err.println("-> SessionManager.handleFinish");
 		UserTransaction ut = m_nucleusService.getUserTransaction();
 		if (ut != null) {
@@ -77,6 +77,7 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 		for (StoreDesc key : m_pmMap.keySet()) {
 			PersistenceManager pm = m_pmMap.get(key);
 			System.err.println("\tclose:" + key);
+			m_pmMap.remove(key);
 			pm.close();
 		}
 	}

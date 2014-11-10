@@ -111,17 +111,17 @@ public class BaseImportingServiceImpl implements Constants {
 			resultList.add(obj);
 		}
 		Map outputTree = (Map)settings.get("output");
-		Map<String,String> parentSpec = (Map)outputTree.get("parentSpec");
-		System.out.println("persistObjects:"+resultList+",parentSpec:"+parentSpec);
+		Map<String,String> persistenceSpecification = (Map)outputTree.get("persistenceSpecification");
+		System.out.println("persistObjects:"+resultList+",persistenceSpecification:"+persistenceSpecification);
 		String parentFieldName=null;
 		Class parentClazz = null;
 		String parentQuery = null;
 		String updateQuery = null;
 		PersistenceManager pm = sc.getPM();
 		GroovyShell groovyShell=null;
-		if( parentSpec != null){
-			String parentLookup = parentSpec.get("lookup");
-			String relation = parentSpec.get("relation");
+		if( persistenceSpecification != null){
+			String parentLookup = persistenceSpecification.get("lookupRelationObjectExpr");
+			String relation = persistenceSpecification.get("relation");
 			if(!isEmpty(parentLookup) && !isEmpty(relation)){
 				String s[] = relation.split(",");
 				parentClazz = sc.getClass(getBaseName(s[0]));
@@ -138,7 +138,7 @@ public class BaseImportingServiceImpl implements Constants {
 				}
 				groovyShell = new GroovyShell(this.getClass().getClassLoader(), new Binding(), new CompilerConfiguration());
 			}
-			String updateLookup = parentSpec.get("update");
+			String updateLookup = persistenceSpecification.get("lookupUpdateObjectExpr");
 			Class mainClass=null;
 			if( resultList.size() > 0){
 				mainClass = resultList.iterator().next().getClass();

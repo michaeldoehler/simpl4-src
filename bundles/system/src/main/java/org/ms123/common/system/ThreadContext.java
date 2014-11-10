@@ -125,10 +125,11 @@ public class ThreadContext {
 	public Object get(String key){
 		return m_properties.get(key);
 	}
-	public void finalize(Throwable t){
+	public synchronized void finalize(Throwable t){
 		for( Object prop : m_properties.values()){
 			if( prop instanceof ThreadFinalizer){
 				((ThreadFinalizer)prop).finalize(t);
+				m_properties.remove(prop);
 			}
 		}
 	}

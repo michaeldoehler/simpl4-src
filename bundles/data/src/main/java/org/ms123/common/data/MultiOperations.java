@@ -92,7 +92,7 @@ public class MultiOperations {
 		PersistenceManager pm = sc.getPM();
 		GroovyShell groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
 		if( persistenceSpecification != null){
-			String parentLookup = persistenceSpecification.get("lookup");
+			String parentLookup = persistenceSpecification.get("lookupRelationObjectExpr");
 			String relation = persistenceSpecification.get("relation");
 			if(!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)){
 				String s[] = relation.split(",");
@@ -109,7 +109,7 @@ public class MultiOperations {
 					parentQuery = parentLookup;
 				}
 			}
-			String updateLookup = persistenceSpecification.get("update");
+			String updateLookup = persistenceSpecification.get("lookupUpdateObjectExpr");
 			Class mainClass=null;
 			if( resultList.size() > 0){
 				mainClass = resultList.iterator().next().getClass();

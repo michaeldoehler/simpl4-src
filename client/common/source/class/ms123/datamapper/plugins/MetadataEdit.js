@@ -140,12 +140,12 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 
 			var persistenceSpecification = this._facade.getConfig().output.persistenceSpecification;
 			this._persistenceSpecificationUpdateCheckBox = new qx.ui.form.CheckBox();
-			this._persistenceSpecificationUpdateCheckBox.setValue(persistenceSpecification.update != null);
+			this._persistenceSpecificationUpdateCheckBox.setValue(persistenceSpecification.lookupUpdateObjectExpr != null);
 			container.add(persistenceSpecificationUpdateLabel);
 			container.add(this._persistenceSpecificationUpdateCheckBox);
 		  this._persistenceSpecificationUpdateTextField = new qx.ui.form.TextField();
-			if( persistenceSpecification.update != null){
-				this._persistenceSpecificationUpdateTextField.setValue( persistenceSpecification.update);
+			if( persistenceSpecification.lookupUpdateObjectExpr != null){
+				this._persistenceSpecificationUpdateTextField.setValue( persistenceSpecification.lookupUpdateObjectExpr);
 			}else{
 				this._persistenceSpecificationUpdateTextField.exclude();
 				persistenceSpecificationUpdateExprLabel.exclude();
@@ -176,14 +176,14 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 				}
 			},this)
 
-			if( persistenceSpecification && persistenceSpecification.lookup && persistenceSpecification.relation ){
+			if( persistenceSpecification && persistenceSpecification.lookupRelationObjectExpr && persistenceSpecification.relation ){
 				var selectables = persistenceSpecificationRelationSelect.getSelectables();
 				selectables.each( function( s ){
 					if( s.getModel()== persistenceSpecification.relation){
 						persistenceSpecificationRelationSelect.setSelection([s]);
 					}
 				});
-				this._persistenceSpecificationLookupTextField.setValue(persistenceSpecification.lookup);
+				this._persistenceSpecificationLookupTextField.setValue(persistenceSpecification.lookupRelationObjectExpr);
 			}
 			return container;
 		},
@@ -243,8 +243,8 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			if( !relation.match(/^--/) && lookup != ""){
 				newPersistenceSpecification = {
 					relation:relation,
-					update:updateValue,
-					lookup:lookup
+					lookupUpdateObjectExpr:updateValue,
+					lookupRelationObjectExpr:lookup
 				}
 			}
 			console.log("persistenceSpecification:"+JSON.stringify(newPersistenceSpecification,null,2));
