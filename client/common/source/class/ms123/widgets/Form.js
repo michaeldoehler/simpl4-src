@@ -29,6 +29,7 @@
 
 qx.Class.define('ms123.widgets.Form', {
 	extend: ms123.widgets.Widget,
+	include: [ms123.util.MFillIn],
 
 	construct: function (context) {
 		this.base(arguments);
@@ -486,13 +487,18 @@ qx.Class.define('ms123.widgets.Form', {
 				context.selected_callback = function(value){
 					self.fillForm( value );	
 					var id = value[self._keyColumn];
-					self.__updateAssignment(id,true);
+					self.__updateAssignment(id,value,true);
 				};
 				new ms123.util.RecordSelector(context);
 		},
 
-		__updateAssignment:function(id,assign){
-			var data = {};
+		__updateAssignment:function(id,value,assign){
+			var destinationFields = this.__configManager.getEntityViewFields(this._rpcParams.entity, this.__storeDesc, "main-form",false);
+			var props = this.__configManager.getEntityViewProperties(this._rpcParams.entityChild, this.__storeDesc);
+			var sourceFields = this.__configManager.getEntityViewFields(this._rpcParams.entityChild, this.__storeDesc, "main-form",false);
+			var idField = this.__configManager.getIdField(this.__storeDesc, this._rpcParams.entityChild);
+			var data={};
+			this._setSelectedValues(this._rpcParams.entityChild,sourceFields,value,idField,destinationFields,data,props,idField);
 			data[this._context.fieldname] = id;	
 			var hints = {};
 			var params ={
@@ -712,8 +718,7 @@ console.log("val:"+p+"="+val);
 									m.set(p, null);
 								}catch(e){
 									console.error("-> Error setting null on:"+p);
-									console.log(e.stack);
-									console.log("Ex:"+e+"\n------------------------------");
+									console.log("Exception:"+e);
 								}
 							}
 						}
