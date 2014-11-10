@@ -151,7 +151,6 @@ qx.Class.define("ms123.form.FormTabRenderer", {
 			for (var i = 0; i < this._tabs.length; i++) {
 				var tab = this._tabs[i];
 				var page = this._pages[tab.id];
-				console.warn("page:" + page + "/tab:" + tab.id + "/enabled:" + !readonly);
 				if (page) page.setEnabled(!readonly);
 			}
 		},

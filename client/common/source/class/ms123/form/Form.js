@@ -1126,7 +1126,6 @@ qx.Class.define("ms123.form.Form", {
 			}
 		},
 		setButtonsReadonly: function (readonly) {
-			console.log("setButtonsReadonly:" + readonly);
 			var childs = this.buttonPane.getChildren();
 			for (var i = 0; i < childs.length; i++) {
 				childs[i].setEnabled(!readonly);

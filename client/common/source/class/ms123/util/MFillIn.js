@@ -31,7 +31,7 @@ qx.Mixin.define("ms123.util.MFillIn", {
 			for (var i = 0; i < destinationFields.length; i++) {
 				var f = destinationFields[i];
 				if (f.fillin) {
-					var m = this._parseFillin(f.fillin);
+					var m = this.__parseFillin(f.fillin);
 					if (m[sourceEntity]) {
 						var x = m[sourceEntity];
 						x.name = f.name;
@@ -64,9 +64,9 @@ qx.Mixin.define("ms123.util.MFillIn", {
 						}
 					}
 					try {
-						this._setValue(destinationFieldMap, destinationData, name, sourceData);
+						this.__setValue(destinationFieldMap, destinationData, name, sourceData);
 					} catch (e) {
-						console.error("_setValue(" + name + "):" + e);
+						console.error("__setValue(" + name + "):" + e);
 					}
 				}
 			} else {
@@ -75,7 +75,7 @@ qx.Mixin.define("ms123.util.MFillIn", {
 					if (fieldName != "name" && fieldName != "id" && sourceData[fieldName] != undefined) {
 						var fieldMetaData = destinationFieldMap[fieldName];
 						if (!fieldMetaData.readonly && fieldName.match(/^[a-z]/)) {
-							this._setValue(destinationFieldMap, destinationData, fieldName, sourceData);
+							this.__setValue(destinationFieldMap, destinationData, fieldName, sourceData);
 						}
 					}
 				}
@@ -83,20 +83,20 @@ qx.Mixin.define("ms123.util.MFillIn", {
 
 			var key = this.getUserData("key");
 			var mainValue = sourceData[key];
-			var title = this._getRecordTitle(sourceData);
+			var title = this.__getRecordTitle(sourceData);
 			var relatedToField = "_relatedto";
 			if (destinationProperties.title_expression) {
 				var v = this.__maskedEval(destinationProperties.title_expression, sourceData, "Id");
-				this._setValue(destinationFieldMap,destinationData,relatedToField,v+"/"+sourceData[sourceIdField] );
+				this.__setValue(destinationFieldMap,destinationData,relatedToField,v+"/"+sourceData[sourceIdField] );
 			} else if (mainValue) {
-				this._setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/" + mainValue);
+				this.__setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/" + mainValue);
 			} else if (title) {
-				this._setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/" + title);
+				this.__setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/" + title);
 			} else {
-				this._setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/Id");
+				this.__setValue(destinationFieldMap,destinationData,relatedToField,sourceData[sourceIdField] + "/Id");
 			}
 		},
-		_setValue: function (destinationFieldMap, destinationData, name, sourceData) {
+		__setValue: function (destinationFieldMap, destinationData, name, sourceData) {
 			var fieldMetaData = destinationFieldMap[name] || {};
 			console.debug("setting:" + name + "->" + (typeof sourceData == "string" ? sourceData : sourceData[name]) + "/" + fieldMetaData.readonly);
 			if (fieldMetaData.type == "date") {
@@ -107,16 +107,7 @@ qx.Mixin.define("ms123.util.MFillIn", {
 				destinationData[name] = typeof sourceData == "string" ? sourceData : sourceData[name];
 			}
 		},
-		__maskedEval: function (scr, env, def) {
-			try {
-				return (new Function("with(this) { return " + scr + "}")).call(env);
-			} catch (e) {
-				console.log("RelatedTo.__maskedEval:" + scr);
-				console.log("\t:" + e);
-			}
-			return def;
-		},
-		_getRecordTitle: function (map) {
+		__getRecordTitle: function (map) {
 			var names = ["name", "title", "shortname", "shortname_company", "shortname_person", "name1"];
 			for (var i = 0; i < names.length; i++) {
 				if (map[names[i]]) {
@@ -126,7 +117,7 @@ qx.Mixin.define("ms123.util.MFillIn", {
 			return null;
 		},
 
-		_parseFillin: function (str) {
+		__parseFillin: function (str) {
 			var line = [];
 			var quote = false;
 

@@ -555,7 +555,6 @@ qx.Class.define('ms123.widgets.Form', {
 			jQuery.each(props, function (index, p) {
 				var fd = self.formData[p];
 				var val = m.get(p);
-console.log("val:"+p+"="+val);
 				if ((fd.type == "DateField" || fd.type == "DateTimeField") && val != null && val != "" && typeof val == 'object' && val.constructor == Date) {
 					val = val.getTime()-(val.getTimezoneOffset()*60000);
 				}
@@ -807,7 +806,7 @@ console.log("val:"+p+"="+val);
 				}
 			}
 		},
-		__maskedEval: function (scr, env) {
+		__maskedEval: function (scr, env,def) {
 			try{
 				return (new Function("with(this) { return " + scr + "}")).call(env);
 			}catch(e){
@@ -815,15 +814,8 @@ console.log("val:"+p+"="+val);
 				console.error("error:"+e);
 				console.error(e.stack);
 			}
+			return def;
 		},
-		/*_setValidator:function(item, validator){
-			var formItems = this.getValidationManager().__formItems;
-      for (var i=0; i < formItems.length; i++) {
-        if(formItems[i].item==item){
-					formItems[i].validator=validator;
-				}
-      }
-		},*/
 		getLabel: function (path) {
 			if (this.formData[path] !== undefined && this.formData[path].label !== undefined) return this.formData[path].label;
 			return path;
@@ -890,7 +882,6 @@ console.log("val:"+p+"="+val);
 			if (!this.showDefaultButtons) {
 				buttons = [];
 			}
-//console.log("FORM:"+ qx.lang.Json.stringify(  this.formData, null, 4 ));
 			var form = new ms123.form.Form({
 				"tabs": this.formLayout,
 				"useitCheckboxes": (this._context.multiedit === true || this._context.useitCheckboxes) ? true : false,
