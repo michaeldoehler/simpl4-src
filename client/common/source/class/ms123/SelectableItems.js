@@ -45,6 +45,7 @@ qx.Class.define("ms123.SelectableItems", {
 	members: {
 		setVarMap: function (varMap) {
 			qx.lang.Object.mergeWith(this._varMap, varMap);
+console.log("setVarMap:"+varMap);
 			this._items = null;
 		},
 		setVariable: function (name, value) {
@@ -256,6 +257,7 @@ qx.Class.define("ms123.SelectableItems", {
 						storeId: storeId,
 						mapping: mapping
 					});
+					this._missingParamList=null;
 					if( ret.missingParamList){
 						this._missingParamList = ret.missingParamList;
 						return this._url;
