@@ -44,6 +44,7 @@ qx.Class.define("ms123.util.RecordSelector", {
 		var title = context.title;
 		var app = qx.core.Init.getApplication();
 		var win = this._createWindow(title);
+		this._win = win;
 		var table = this._createTable(win);
 		var params = {
 			modulename: this._modulename,
@@ -123,7 +124,7 @@ qx.Class.define("ms123.util.RecordSelector", {
 				this.__storeDesc = ms123.StoreDesc.getGlobalMetaStoreDesc();
 			}
 			context.model = cm.getEntityModel(this._modulename,this.__storeDesc,"main-grid", "properties");
-			context.modelForm = cm.getEntityModel(this._modulename,this.__storeDesc,"main-form", "properties");
+			context.modelForm = null;//cm.getEntityModel(this._modulename,this.__storeDesc,"main-form", "properties");
 			context.unit_id = "related/+" + this._modulename;
 			context.config = this._modulename;
 			context.user = this._user;
@@ -131,7 +132,14 @@ qx.Class.define("ms123.util.RecordSelector", {
 
 			//var value = qx.lang.Json.stringify(context.model.attr("colModel"), null, 4);
 			this._table = new ms123.widgets.Table(context);
+			this._table.addListener("dblclick", this._onCellDblClick, this);
 			return this._table;
+		},
+		_onCellDblClick:function(e){
+			if( this._selected_callback ){
+				this._selected_callback(this._table.getCurrentRecord());
+				this._win.close();
+			}
 		},
 		_doLayout: function (parent, upperTabView, bottomTabView) {
 			var splitpane = new qx.ui.splitpane.Pane("vertical");
