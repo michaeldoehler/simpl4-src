@@ -266,7 +266,18 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 				BeanFactory bf = new BeanFactory(sessionContext, settings);
 				Object ret = m_datamapper.transform(data_sdesc.getNamespace(), settings, null, new String(content), bf);
 				if( withoutSave) return ret;
-				return org.ms123.common.data.MultiOperations.persistObjects(sessionContext,ret,settings, -1);
+				UserTransaction ut = sessionContext.getUserTransaction();
+				try{
+					ut.begin();
+					Map outputTree = (Map)settings.get("output");
+					Map<String,String> persistenceSpecification = (Map)outputTree.get("persistenceSpecification");
+					Object o = org.ms123.common.data.MultiOperations.persistObjects(sessionContext,ret,persistenceSpecification, -1);
+					ut.commit();
+					return o;
+				}catch(Exception e){
+					ut.rollback();
+					throw e;
+				}
 			}else{
 				return doImport(data_sdesc, settings, content, withoutSave, max);
 			}
