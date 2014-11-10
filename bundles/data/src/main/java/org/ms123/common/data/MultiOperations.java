@@ -73,7 +73,7 @@ public class MultiOperations {
 	protected static JSONSerializer m_js = new JSONSerializer();
 	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 
-	public static List<Map> persistObjects(SessionContext sc, Object obj, Map settings, int max){
+	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String,String> persistenceSpecification, int max){
 		List<Map> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
@@ -84,18 +84,16 @@ public class MultiOperations {
 			resultList = new ArrayList();
 			resultList.add(obj);
 		}
-		Map outputTree = (Map)settings.get("output");
-		Map<String,String> parentSpec = (Map)outputTree.get("parentSpec");
-		System.out.println("persistObjects:"+resultList+",parentSpec:"+parentSpec);
+		System.out.println("persistObjects:"+resultList+",persistenceSpecification:"+persistenceSpecification);
 		String parentFieldName=null;
 		Class parentClazz = null;
 		String parentQuery = null;
 		String updateQuery = null;
 		PersistenceManager pm = sc.getPM();
-		GroovyShell groovyShell=null;
-		if( parentSpec != null){
-			String parentLookup = parentSpec.get("lookup");
-			String relation = parentSpec.get("relation");
+		GroovyShell groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
+		if( persistenceSpecification != null){
+			String parentLookup = persistenceSpecification.get("lookup");
+			String relation = persistenceSpecification.get("relation");
 			if(!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)){
 				String s[] = relation.split(",");
 				parentClazz = sc.getClass(Utils.getBaseName(s[0]));
@@ -110,9 +108,8 @@ public class MultiOperations {
 				}else{
 					parentQuery = parentLookup;
 				}
-				groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
 			}
-			String updateLookup = parentSpec.get("update");
+			String updateLookup = persistenceSpecification.get("update");
 			Class mainClass=null;
 			if( resultList.size() > 0){
 				mainClass = resultList.iterator().next().getClass();
@@ -140,7 +137,7 @@ public class MultiOperations {
 				}
 				Map m = SojoObjectFilter.getObjectGraph(object, sc,2);
 				retList.add(m);
-				ut.begin();
+				//ut.begin();
 				Object origObject = null;
 				if( updateQuery != null){
 					origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
@@ -156,7 +153,7 @@ public class MultiOperations {
 				}
 				sc.getDataLayer().makePersistent(sc, object);
 				System.out.println("\tpersist:"+m_js.serialize(object));
-				ut.commit();
+				//ut.commit();
 				num++;
 			}
 		} catch (Throwable e) {
