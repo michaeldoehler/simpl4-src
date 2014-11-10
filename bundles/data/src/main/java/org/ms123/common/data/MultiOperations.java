@@ -57,49 +57,171 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.ms123.common.entity.api.Constants.STATE_FIELD;
 import org.ms123.common.libhelper.Base64;
+import groovy.lang.*;
+import org.codehaus.groovy.control.*;
+import javax.transaction.UserTransaction;
+import javax.jdo.Extent;
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+import java.lang.reflect.Field;
 
 @SuppressWarnings("unchecked")
 public class MultiOperations {
 
 	protected static Inflector m_inflector = Inflector.getInstance();
+	protected static JSONSerializer m_js = new JSONSerializer();
+	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 
+	public static List<Map> persistObjects(SessionContext sc, Object obj, Map settings, int max){
+		List<Map> retList = new ArrayList();
+		UserTransaction ut = sc.getUserTransaction();
+		String mainEntity = null;
+		Collection<Object> resultList = null;
+		if( obj instanceof Collection ){
+			resultList = (Collection)obj;
+		}else{
+			resultList = new ArrayList();
+			resultList.add(obj);
+		}
+		Map outputTree = (Map)settings.get("output");
+		Map<String,String> parentSpec = (Map)outputTree.get("parentSpec");
+		System.out.println("persistObjects:"+resultList+",parentSpec:"+parentSpec);
+		String parentFieldName=null;
+		Class parentClazz = null;
+		String parentQuery = null;
+		String updateQuery = null;
+		PersistenceManager pm = sc.getPM();
+		GroovyShell groovyShell=null;
+		if( parentSpec != null){
+			String parentLookup = parentSpec.get("lookup");
+			String relation = parentSpec.get("relation");
+			if(!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)){
+				String s[] = relation.split(",");
+				parentClazz = sc.getClass(Utils.getBaseName(s[0]));
+				parentFieldName = s[1];
+				if( parentLookup.matches(FIELDNAME_REGEX)){
+					String q= isString(parentClazz,parentLookup) ? "'" : "";
+					parentQuery = parentLookup+ " == "+q+"${"+parentLookup+"}"+q;
+				}else if( parentLookup.matches(FIELDNAME_REGEX+","+FIELDNAME_REGEX)){
+					s = parentLookup.split(",");
+					String q= isString(parentClazz,s[1]) ? "'" : "";
+					parentQuery = s[0]+ " == "+q+"${"+s[1]+"}"+q;
+				}else{
+					parentQuery = parentLookup;
+				}
+				groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
+			}
+			String updateLookup = parentSpec.get("update");
+			Class mainClass=null;
+			if( resultList.size() > 0){
+				mainClass = resultList.iterator().next().getClass();
+			}
+			if( !Utils.isEmpty( updateLookup) && mainClass != null){
+				if( updateLookup.matches(FIELDNAME_REGEX)){
+					String q= isString(mainClass,updateLookup) ? "'" : "";
+					updateQuery = updateLookup+ " == "+q+"${"+updateLookup+"}"+q;
+				}else{
+					updateQuery = updateLookup;
+				}
+			}
+		}
+		try {
+			int num = 0;
+			if( resultList.size() > 0){
+				Class clazz = resultList.iterator().next().getClass();
+				mainEntity = m_inflector.getEntityName(clazz.getSimpleName());
+				String pk = TypeUtils.getPrimaryKey(clazz);
+				sc.setPrimaryKey(pk);
+			}
+			for (Object object : resultList) {
+				if (max != -1 && num >= max){
+					break;
+				}
+				Map m = SojoObjectFilter.getObjectGraph(object, sc,2);
+				retList.add(m);
+				ut.begin();
+				Object origObject = null;
+				if( updateQuery != null){
+					origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
+					System.out.println("origObject:"+origObject);
+					if( origObject != null){
+						populate(sc,m, origObject,null);
+						object = origObject;
+					}
+				}
+				if( origObject == null && parentClazz != null){
+					Object parentObject = getObjectByFilter(groovyShell, pm,parentClazz,object,parentQuery);
+					sc.getDataLayer().insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
+				}
+				sc.getDataLayer().makePersistent(sc, object);
+				System.out.println("\tpersist:"+m_js.serialize(object));
+				ut.commit();
+				num++;
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+			sc.handleException(ut, e);
+		} finally {
+			sc.handleFinally(ut);
+		}
+		return retList;
+	}
+
+	private static Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
+		String filter = expandString(shell,queryString, new BeanMap(child));
+		System.out.println("getObjectByFilter:"+filter);
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, filter);
+		try {
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			if (iter.hasNext()) {
+				Object obj = iter.next();
+				return obj;
+			}
+		} finally {
+			q.closeAll();
+		}
+		return null;
+	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 	//populate 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-	public static void populate(SessionContext sessionContext, Map from, Object to, Map hintsMap) {
+	public static void populate(SessionContext sessionContext, Map sourceMap, Object destinationObj, Map hintsMap) {
 		PersistenceManager pm = sessionContext.getPM();
 		if (hintsMap == null) {
 			hintsMap = new HashMap();
 		}
-		BeanMap beanMap = new BeanMap(to);
-		String entityName = m_inflector.getEntityName(to.getClass().getSimpleName());
-		debug("populate.from:" + from + ",to:" + to + ",BeanMap:" + beanMap + "/hintsMap:" + hintsMap + "/entityName:" + entityName);
-		if (from == null) {
+		BeanMap destinationMap = new BeanMap(destinationObj);
+		String entityName = m_inflector.getEntityName(destinationObj.getClass().getSimpleName());
+		debug("populate.sourceMap:" + sourceMap + ",destinationObj:" + destinationObj + ",destinationMap:" + destinationMap + "/hintsMap:" + hintsMap + "/entityName:" + entityName);
+		if (sourceMap == null) {
 			return;
 		}
 		Map permittedFields = sessionContext.getPermittedFields(entityName, "write");
-		Iterator<String> it = from.keySet().iterator();
+		Iterator<String> it = sourceMap.keySet().iterator();
 		while (it.hasNext()) {
-			String key = it.next();
-			boolean permitted = sessionContext.getPermissionService().hasAdminRole() || "team".equals(entityName) || sessionContext.isFieldPermitted(key, entityName, "write");
-			if (!key.startsWith("_") && !permitted) {
-				debug("---->populate:field(" + key + ") no write permission");
+			String propertyName = it.next();
+			boolean permitted = sessionContext.getPermissionService().hasAdminRole() || "team".equals(entityName) || sessionContext.isFieldPermitted(propertyName, entityName, "write");
+			if (!propertyName.startsWith("_") && !permitted) {
+				debug("---->populate:field(" + propertyName + ") no write permission");
 				continue;
 			} else {
-				debug("++++>populate:field(" + key + ") write permitted");
+				debug("++++>populate:field(" + propertyName + ") write permitted");
 			}
 			String datatype = null;
-			if (!key.startsWith("_")) {
-				Map config = (Map) permittedFields.get(key);
+			if (!propertyName.startsWith("_")) {
+				Map config = (Map) permittedFields.get(propertyName);
 				if (config != null) {
 					datatype = (String) config.get("datatype");
 				}
 			}
-			if (key.equals(STATE_FIELD) && !sessionContext.getPermissionService().hasAdminRole()) {
+			if (propertyName.equals(STATE_FIELD) && !sessionContext.getPermissionService().hasAdminRole()) {
 				continue;
 			}
 			String mode = null;
-			Map hm = (Map) hintsMap.get(key);
+			Map hm = (Map) hintsMap.get(propertyName);
 			if (hm != null) {
 				Object m = hm.get("mode");
 				if (m != null && m instanceof String) {
@@ -115,16 +237,16 @@ public class MultiOperations {
 			if (mode == null) {
 				mode = "replace";
 			}
-			Class clazz = beanMap.getType(key);
-			debug("\ttype:" + clazz + "(" + key + "=" + from.get(key) + ")");
-			if ("_ignore_".equals(from.get(key))) {
+			Class propertyClass = destinationMap.getType(propertyName);
+			debug("\ttype:" + propertyClass + "(" + propertyName + "=" + sourceMap.get(propertyName) + ")");
+			if ("_ignore_".equals(sourceMap.get(propertyName))) {
 				continue;
 			}
-			if (clazz == null) {
-				debug("\t--- Warning property not found:" + key);
-			} else if (clazz.equals(java.util.Date.class)) {
-				String value = Utils.getString(from.get(key), beanMap.get(key), mode);
-				debug("\tDate found:" + key + "=>" + value);
+			if (propertyClass == null) {
+				debug("\t--- Warning property not found:" + propertyName);
+			} else if (propertyClass.equals(java.util.Date.class)) {
+				String value = Utils.getString(sourceMap.get(propertyName), destinationMap.get(propertyName), mode);
+				debug("\tDate found:" + propertyName + "=>" + value);
 				Date date = null;
 				if (value != null) {
 					try {
@@ -152,45 +274,45 @@ public class MultiOperations {
 					}
 				}
 				debug("\tsetting date:" + date);
-				beanMap.put(key, date);
-			} else if (clazz.equals(java.util.Map.class)) {
+				destinationMap.put(propertyName, date);
+			} else if (propertyClass.equals(java.util.Map.class)) {
 				info("!!!!!!!!!!!!!!!!!!!Map not implemented");
-			} else if (clazz.equals(java.util.List.class) || clazz.equals(java.util.Set.class)) {
-				boolean isList = clazz.equals(java.util.List.class);
+			} else if (propertyClass.equals(java.util.List.class) || propertyClass.equals(java.util.Set.class)) {
+				boolean isList = propertyClass.equals(java.util.List.class);
 				boolean isSimple = false;
 				if (datatype != null && datatype.startsWith("list_")) {
 					isSimple = true;
 				}
 				try {
-					Class type = TypeUtils.getTypeForField(to, key);
-					debug("type:" + type + " fill with: " + from.get(key) + ",list:" + beanMap.get(key) + "/mode:" + mode);
-					Collection valList = isList ? new ArrayList() : new HashSet();
-					if (from.get(key) instanceof Collection) {
-						valList = (Collection) from.get(key);
+					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
+					debug("propertyType:" + propertyType + " fill with: " + sourceMap.get(propertyName) + ",list:" + destinationMap.get(propertyName) + "/mode:" + mode);
+					Collection sourceList = isList ? new ArrayList() : new HashSet();
+					if (sourceMap.get(propertyName) instanceof Collection) {
+						sourceList = (Collection) sourceMap.get(propertyName);
 					}
-					if (valList == null) {
-						valList = isList ? new ArrayList() : new HashSet();
+					if (sourceList == null) {
+						sourceList = isList ? new ArrayList() : new HashSet();
 					}
-					Collection toList = (Collection) PropertyUtils.getProperty(to, key);
-					debug("toList:" + toList);
-					debug("valList:" + valList);
-					if (toList == null) {
-						toList = isList ? new ArrayList() : new HashSet();
-						PropertyUtils.setProperty(to, key, toList);
+					Collection destinationList = (Collection) PropertyUtils.getProperty(destinationObj, propertyName);
+					debug("destinationList:" + destinationList);
+					debug("sourceList:" + sourceList);
+					if (destinationList == null) {
+						destinationList = isList ? new ArrayList() : new HashSet();
+						PropertyUtils.setProperty(destinationObj, propertyName, destinationList);
 					}
 					if ("replace".equals(mode)) {
 						boolean isEqual = false;
 						if (isSimple) {
-							isEqual = Utils.isCollectionEqual(toList, valList);
+							isEqual = Utils.isCollectionEqual(destinationList, sourceList);
 							if (!isEqual) {
-								toList.clear();
+								destinationList.clear();
 							}
 							debug("\tisEqual:" + isEqual);
 						} else {
 							List deleteList = new ArrayList();
 							String namespace = sessionContext.getStoreDesc().getNamespace();
-							for (Object o : toList) {
-								if (type.getName().endsWith(".Team")) {
+							for (Object o : destinationList) {
+								if (propertyType.getName().endsWith(".Team")) {
 									int status = sessionContext.getTeamService().getTeamStatus(namespace, new BeanMap(o), null, sessionContext.getUserName());
 									debug("populate.replace.teamStatus:" + status + "/" + new HashMap(new BeanMap(o)));
 									if (status != -1) {
@@ -203,118 +325,118 @@ public class MultiOperations {
 								}
 							}
 							for (Object o : deleteList) {
-								toList.remove(o);
+								destinationList.remove(o);
 							}
 						}
-						debug("populate.replace.toList:" + toList + "/" + type.getName());
+						debug("populate.replace.destinationList:" + destinationList + "/" + propertyType.getName());
 						if (isSimple) {
 							if (!isEqual) {
-								for (Object o : valList) {
-									toList.add(o);
+								for (Object o : sourceList) {
+									destinationList.add(o);
 								}
 							}
 						} else {
-							for (Object o : valList) {
-								Map valMap = (Map) o;
-								Object n = type.newInstance();
-								if (type.getName().endsWith(".Team")) {
-									valMap.remove("id");
-									Object desc = valMap.get("description");
-									Object name = valMap.get("name");
-									Object dis = valMap.get("disabled");
-									String teamid = (String) valMap.get("teamid");
+							for (Object o : sourceList) {
+								Map childSourceMap = (Map) o;
+								Object childDestinationObj = propertyType.newInstance();
+								if (propertyType.getName().endsWith(".Team")) {
+									childSourceMap.remove("id");
+									Object desc = childSourceMap.get("description");
+									Object name = childSourceMap.get("name");
+									Object dis = childSourceMap.get("disabled");
+									String teamid = (String) childSourceMap.get("teamid");
 									Object ti = Utils.getTeamintern(sessionContext, teamid);
 									if (desc == null) {
-										valMap.put("description", PropertyUtils.getProperty(ti, "description"));
+										childSourceMap.put("description", PropertyUtils.getProperty(ti, "description"));
 									}
 									if (name == null) {
-										valMap.put("name", PropertyUtils.getProperty(ti, "name"));
+										childSourceMap.put("name", PropertyUtils.getProperty(ti, "name"));
 									}
 									if (dis == null) {
-										valMap.put("disabled", false);
+										childSourceMap.put("disabled", false);
 									}
-									pm.makePersistent(n);
-									populate(sessionContext, valMap, n, null);
-									PropertyUtils.setProperty(n, "teamintern", ti);
+									pm.makePersistent(childDestinationObj);
+									populate(sessionContext, childSourceMap, childDestinationObj, null);
+									PropertyUtils.setProperty(childDestinationObj, "teamintern", ti);
 								} else {
-									pm.makePersistent(n);
-									populate(sessionContext, valMap, n, null);
+									pm.makePersistent(childDestinationObj);
+									populate(sessionContext, childSourceMap, childDestinationObj, null);
 								}
-								debug("populated.add:" + new HashMap(new BeanMap(n)));
-								toList.add(n);
+								debug("populated.add:" + new HashMap(new BeanMap(childDestinationObj)));
+								destinationList.add(childDestinationObj);
 							}
 						}
 					} else if ("remove".equals(mode)) {
 						if (isSimple) {
-							for (Object o : valList) {
-								if (toList.contains(o)) {
-									toList.remove(o);
+							for (Object o : sourceList) {
+								if (destinationList.contains(o)) {
+									destinationList.remove(o);
 								}
 							}
 						} else {
-							for (Object ol : valList) {
-								Map map = (Map) ol;
-								Object o = Utils.listContainsId(toList, map, "teamid");
+							for (Object ol : sourceList) {
+								Map childSourceMap = (Map) ol;
+								Object o = Utils.listContainsId(destinationList, childSourceMap, "teamid");
 								if (o != null) {
-									toList.remove(o);
+									destinationList.remove(o);
 									pm.deletePersistent(o);
 								}
 							}
 						}
 					} else if ("add".equals(mode)) {
 						if (isSimple) {
-							for (Object o : valList) {
-								toList.add(o);
+							for (Object o : sourceList) {
+								destinationList.add(o);
 							}
 						} else {
-							for (Object ol : valList) {
-								Map map = (Map) ol;
-								Object o = Utils.listContainsId(toList, map, "teamid");
-								if (o != null) {
-									populate(sessionContext, map, o, null);
+							for (Object ol : sourceList) {
+								Map childSourceMap = (Map) ol;
+								Object childDestinationObj = Utils.listContainsId(destinationList, childSourceMap, "teamid");
+								if (childDestinationObj != null) {
+									populate(sessionContext, childSourceMap, childDestinationObj, null);
 								} else {
-									o = type.newInstance();
-									if (type.getName().endsWith(".Team")) {
-										Object desc = map.get("description");
-										Object name = map.get("name");
-										Object dis = map.get("disabled");
-										String teamid = (String) map.get("teamid");
+									childDestinationObj = propertyType.newInstance();
+									if (propertyType.getName().endsWith(".Team")) {
+										Object desc = childSourceMap.get("description");
+										Object name = childSourceMap.get("name");
+										Object dis = childSourceMap.get("disabled");
+										String teamid = (String) childSourceMap.get("teamid");
 										Object ti = Utils.getTeamintern(sessionContext, teamid);
 										if (desc == null) {
-											map.put("description", PropertyUtils.getProperty(ti, "description"));
+											childSourceMap.put("description", PropertyUtils.getProperty(ti, "description"));
 										}
 										if (name == null) {
-											map.put("name", PropertyUtils.getProperty(ti, "name"));
+											childSourceMap.put("name", PropertyUtils.getProperty(ti, "name"));
 										}
 										if (dis == null) {
-											map.put("disabled", false);
+											childSourceMap.put("disabled", false);
 										}
-										pm.makePersistent(o);
-										populate(sessionContext, map, o, null);
-										PropertyUtils.setProperty(o, "teamintern", ti);
+										pm.makePersistent(childDestinationObj);
+										populate(sessionContext, childSourceMap, childDestinationObj, null);
+										PropertyUtils.setProperty(childDestinationObj, "teamintern", ti);
 									} else {
-										pm.makePersistent(o);
-										populate(sessionContext, map, o, null);
+										pm.makePersistent(childDestinationObj);
+										populate(sessionContext, childSourceMap, childDestinationObj, null);
 									}
-									toList.add(o);
+									destinationList.add(childDestinationObj);
 								}
 							}
 						}
 					} else if ("assign".equals(mode)) {
 						if (!isSimple) {
-							for (Object ol : valList) {
-								Map map = (Map) ol;
-								Object o = Utils.listContainsId(toList, map);
-								if (o != null) {
-									debug("id:" + map + " already assigned");
+							for (Object ol : sourceList) {
+								Map childSourceMap = (Map) ol;
+								Object childDestinationObj = Utils.listContainsId(destinationList, childSourceMap);
+								if (childDestinationObj != null) {
+									debug("id:" + childSourceMap + " already assigned");
 								} else {
-									Object id = map.get("id");
-									Boolean assign = Utils.getBoolean(map.get("assign"));
-									Object obj = pm.getObjectById(type, id);
+									Object id = childSourceMap.get("id");
+									Boolean assign = Utils.getBoolean(childSourceMap.get("assign"));
+									Object obj = pm.getObjectById(propertyType, id);
 									if (assign) {
-										toList.add(obj);
+										destinationList.add(obj);
 									} else {
-										toList.remove(obj);
+										destinationList.remove(obj);
 									}
 								}
 							}
@@ -322,50 +444,50 @@ public class MultiOperations {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					debug("populate.list.failed:" + key + "=>" + from.get(key) + ";" + e);
+					debug("populate.list.failed:" + propertyName + "=>" + sourceMap.get(propertyName) + ";" + e);
 				}
-			} else if (clazz.equals(java.lang.Boolean.class)) {
+			} else if (propertyClass.equals(java.lang.Boolean.class)) {
 				try {
-					beanMap.put(key, ConvertUtils.convert(from.get(key), Boolean.class));
+					destinationMap.put(propertyName, ConvertUtils.convert(sourceMap.get(propertyName), Boolean.class));
 				} catch (Exception e) {
-					debug("populate.boolean.failed:" + key + "=>" + from.get(key) + ";" + e);
+					debug("populate.boolean.failed:" + propertyName + "=>" + sourceMap.get(propertyName) + ";" + e);
 				}
-			} else if (clazz.equals(java.lang.Double.class)) {
-				String value = Utils.getString(from.get(key), beanMap.get(key), mode);
+			} else if (propertyClass.equals(java.lang.Double.class)) {
+				String value = Utils.getString(sourceMap.get(propertyName), destinationMap.get(propertyName), mode);
 				try {
-					beanMap.put(key, Double.valueOf(value));
+					destinationMap.put(propertyName, Double.valueOf(value));
 				} catch (Exception e) {
-					debug("populate.double.failed:" + key + "=>" + value + ";" + e);
+					debug("populate.double.failed:" + propertyName + "=>" + value + ";" + e);
 				}
-			} else if (clazz.equals(java.lang.Long.class)) {
+			} else if (propertyClass.equals(java.lang.Long.class)) {
 				try {
-					beanMap.put(key, ConvertUtils.convert(from.get(key), Long.class));
+					destinationMap.put(propertyName, ConvertUtils.convert(sourceMap.get(propertyName), Long.class));
 				} catch (Exception e) {
-					debug("populate.long.failed:" + key + "=>" + from.get(key) + ";" + e);
+					debug("populate.long.failed:" + propertyName + "=>" + sourceMap.get(propertyName) + ";" + e);
 				}
-			} else if (clazz.equals(java.lang.Integer.class)) {
-				debug("Integer:" + ConvertUtils.convert(from.get(key), Integer.class));
+			} else if (propertyClass.equals(java.lang.Integer.class)) {
+				debug("Integer:" + ConvertUtils.convert(sourceMap.get(propertyName), Integer.class));
 				try {
-					beanMap.put(key, ConvertUtils.convert(from.get(key), Integer.class));
+					destinationMap.put(propertyName, ConvertUtils.convert(sourceMap.get(propertyName), Integer.class));
 				} catch (Exception e) {
-					debug("populate.integer.failed:" + key + "=>" + from.get(key) + ";" + e);
+					debug("populate.integer.failed:" + propertyName + "=>" + sourceMap.get(propertyName) + ";" + e);
 				}
-			} else if ("binary".equals(datatype) || clazz.equals(byte[].class)) {
+			} else if ("binary".equals(datatype) || propertyClass.equals(byte[].class)) {
 				InputStream is = null;
 				InputStream is2 = null;
 				try {
-					if (from.get(key) instanceof FileItem) {
-						FileItem fi = (FileItem) from.get(key);
+					if (sourceMap.get(propertyName) instanceof FileItem) {
+						FileItem fi = (FileItem) sourceMap.get(propertyName);
 						String name = fi.getName();
 						byte[] bytes = IOUtils.toByteArray(fi.getInputStream());
 						if (bytes != null) {
 							debug("bytes:" + bytes.length);
 						}
-						beanMap.put(key, bytes);
+						destinationMap.put(propertyName, bytes);
 						is = fi.getInputStream();
 						is2 = fi.getInputStream();
-					} else if (from.get(key) instanceof Map) {
-						Map map = (Map) from.get(key);
+					} else if (sourceMap.get(propertyName) instanceof Map) {
+						Map map = (Map) sourceMap.get(propertyName);
 						String storeLocation = (String) map.get("storeLocation");
 						is = new FileInputStream(new File(storeLocation));
 						is2 = new FileInputStream(new File(storeLocation));
@@ -374,20 +496,20 @@ public class MultiOperations {
 							debug("bytes2:" + bytes.length);
 						}
 						is.close();
-						beanMap.put(key, bytes);
+						destinationMap.put(propertyName, bytes);
 						is = new FileInputStream(new File(storeLocation));
-					} else if (from.get(key) instanceof String) {
-						String value = (String) from.get(key);
+					} else if (sourceMap.get(propertyName) instanceof String) {
+						String value = (String) sourceMap.get(propertyName);
 						if (value.startsWith("data:")) {
 							int ind = value.indexOf(";base64,");
 							byte b[] = Base64.decode(value.substring(ind + 8));
-							beanMap.put(key, b);
+							destinationMap.put(propertyName, b);
 							is = new ByteArrayInputStream(b);
 							is2 = new ByteArrayInputStream(b);
 						} else {
 						}
 					} else {
-						debug("populate.byte[].no a FileItem:" + key + "=>" + from.get(key));
+						debug("populate.byte[].no a FileItem:" + propertyName + "=>" + sourceMap.get(propertyName));
 						continue;
 					}
 					Tika tika = new Tika();
@@ -396,23 +518,23 @@ public class MultiOperations {
 					String text = tika.parseToString(is);
 					debug("Text:" + text);
 					try {
-						beanMap.put("text", text);
+						destinationMap.put("text", text);
 					} catch (Exception e) {
-						beanMap.put("text", text.getBytes());
+						destinationMap.put("text", text.getBytes());
 					}
 					//@@@MS Hardcoded 
 					try {
 						Detector detector = new DefaultDetector();
 						MediaType mime = detector.detect(stream2, new Metadata());
 						debug("Mime:" + mime.getType() + "|" + mime.getSubtype() + "|" + mime.toString());
-						beanMap.put("type", mime.toString());
-						from.put("type", mime.toString());
+						destinationMap.put("type", mime.toString());
+						sourceMap.put("type", mime.toString());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					debug("populate.byte[].failed:" + key + "=>" + from.get(key) + ";" + e);
+					debug("populate.byte[].failed:" + propertyName + "=>" + sourceMap.get(propertyName) + ";" + e);
 				} finally {
 					try {
 						is.close();
@@ -423,54 +545,23 @@ public class MultiOperations {
 			} else {
 				boolean ok = false;
 				try {
-					Class type = TypeUtils.getTypeForField(to, key);
-					if (type != null) {
-						Object o = type.newInstance();
-						if (o instanceof javax.jdo.spi.PersistenceCapable) {
-							Object id = null;
-							try {
-								Object _id = from.get(key);
-								if (_id != null) {
-									if (_id instanceof Map) {
-										id = ((Map) _id).get("id");
-									} else {
-										String s = String.valueOf(_id);
-										if (s.indexOf("/") >= 0) {
-											_id = Utils.extractId(s);
-										}
-										Class idClass = PropertyUtils.getPropertyType(o, "id");
-										id = (idClass.equals(Long.class)) ? Long.valueOf(_id + "") : _id;
-									}
+					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
+					if (propertyType != null) {
+						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
+							handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
+							Object obj = sourceMap.get(propertyName);
+							if( obj != null && obj instanceof Map){
+								Map childSourceMap = (Map)obj;
+								Object childDestinationObj = destinationMap.get(propertyName);
+								if( childDestinationObj==null){
+									childDestinationObj = propertyType.newInstance();
+									destinationMap.put(propertyName, childDestinationObj);
 								}
-							} catch (Exception e) {
-							}
-							debug("FromX:" + from.get(key) + "/" + from.get(key).getClass());
-							if (id != null && !"".equals(id) && !"null".equals(id)) {
-								debug("\tId2:" + id);
-								Object relatedObject = pm.getObjectById(type, id);
-								List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, to, null);
-								if (candidates.size() == 1) {
-									Collection l = candidates.get(0);
-									debug("list.contains:" + l.contains(to));
-									if (!l.contains(to)) {
-										l.add(to);
-									}
+								populate(sessionContext, childSourceMap, childDestinationObj, null);
+							}else{
+								if( obj == null){
+									destinationMap.put(propertyName,null);
 								}
-								beanMap.put(key, relatedObject);
-							} else {
-								Object relatedObject = beanMap.get(key);
-								debug("\trelatedObject:" + relatedObject);
-								if (relatedObject != null) {
-									List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, to, null);
-									if (candidates.size() == 1) {
-										Collection l = candidates.get(0);
-										debug("list.contains:" + l.contains(to));
-										if (l.contains(to)) {
-											l.remove(to);
-										}
-									}
-								}
-								beanMap.put(key, null);
 							}
 							ok = true;
 						}
@@ -479,19 +570,106 @@ public class MultiOperations {
 					e.printStackTrace();
 				}
 				if (!ok) {
-					String value = Utils.getString(from.get(key), beanMap.get(key), mode);
-					// debug("populate:" + key + "=>" + value); 
-					// debug("String:" + ConvertUtils.convert(from.get(key), String.class)); 
+					String value = Utils.getString(sourceMap.get(propertyName), destinationMap.get(propertyName), mode);
 					try {
-						beanMap.put(key, value);
+						destinationMap.put(propertyName, value);
 					} catch (Exception e) {
-						debug("populate.failed:" + key + "=>" + value + ";" + e);
+						debug("populate.failed:" + propertyName + "=>" + value + ";" + e);
 					}
 				}
 			}
 		}
 	}
 
+	private static void handleRelatedTo(SessionContext sc, Map sourceMap, String propertyName, BeanMap destinationMap, Object destinationObj, Class propertyType){
+		Object id = null;
+		try {
+			Object _id = sourceMap.get(propertyName);
+			if (_id != null) {
+				if (_id instanceof Map) {
+					id = ((Map) _id).get("id");
+				} else {
+					String s = String.valueOf(_id);
+					if (s.indexOf("/") >= 0) {
+						_id = Utils.extractId(s);
+					}
+					Class idClass = PropertyUtils.getPropertyType(propertyType.newInstance(), "id");
+					id = (idClass.equals(Long.class)) ? Long.valueOf(_id + "") : _id;
+				}
+			}
+		} catch (Exception e) {
+		}
+		if (id != null && !"".equals(id) && !"null".equals(id)) {
+			debug("\tid.found:" + id);
+			Object relatedObject = sc.getPM().getObjectById(propertyType, id);
+			List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, destinationObj, null);
+			if (candidates.size() == 1) {
+				Collection l = candidates.get(0);
+				debug("list.contains:" + l.contains(destinationObj));
+				if (!l.contains(destinationObj)) {
+					l.add(destinationObj);
+				}
+			}
+			destinationMap.put(propertyName, relatedObject);
+		} else {
+			Object relatedObject = destinationMap.get(propertyName);
+			debug("\trelatedObject:" + relatedObject);
+			if (relatedObject != null) {
+				List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, destinationObj, null);
+				if (candidates.size() == 1) {
+					Collection l = candidates.get(0);
+					debug("list.contains:" + l.contains(destinationObj));
+					if (l.contains(destinationObj)) {
+						l.remove(destinationObj);
+					}
+				}
+			}
+			destinationMap.put(propertyName, null);
+		}
+	}
+
+	private static synchronized String expandString(GroovyShell shell, String str, Map<String,String> vars) {
+		String newString = "";
+		int openBrackets = 0;
+		int first = 0;
+		for (int i = 0; i < str.length(); i++) {
+			if (i < str.length() - 2 && str.substring(i, i + 2).compareTo("${") == 0) {
+				if (openBrackets == 0) {
+					first = i + 2;
+				}
+				openBrackets++;
+			} else if (str.charAt(i) == '}' && openBrackets > 0) {
+				openBrackets -= 1;
+				if (openBrackets == 0) {
+					newString += eval(shell, str.substring(first, i), vars);
+				}
+			} else if (openBrackets == 0) {
+				newString += str.charAt(i);
+			}
+		}
+		return newString;
+	}
+
+	private static Object eval(GroovyShell shell,String expr, Map<String,String> vars) {
+		try {
+			Script script = shell.parse(expr);
+			Binding binding = new Binding(vars);
+			script.setBinding(binding);
+			return script.run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			String msg = org.ms123.common.utils.Utils.formatGroovyException(e, expr);
+			throw new RuntimeException(msg);
+		}
+	}
+	public static  boolean isString(Class c, String fieldName){
+		try{
+			Field f = c.getDeclaredField(fieldName);
+			return f.getType().isAssignableFrom(String.class);
+		}catch(Exception e){
+			return false;
+		}
+	}
 	protected static void debug(String message) {
 		m_logger.debug(message);
 	}

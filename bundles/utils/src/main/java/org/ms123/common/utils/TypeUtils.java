@@ -204,4 +204,24 @@ public class TypeUtils {
 		}
 		return list;
 	}
+	public static  String getPrimaryKey(Class clazz) throws Exception {
+		System.out.print("----->getPrimaryKey.clazz:" + clazz +" -> ");
+		Field[] fields = clazz.getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			java.lang.annotation.Annotation[] anns = fields[i].getDeclaredAnnotations();
+			for (int j = 0; j < anns.length; j++) {
+				try {
+					Class atype = anns[j].annotationType();
+					if (!(anns[j] instanceof javax.jdo.annotations.PrimaryKey)) {
+						continue;
+					}
+					System.out.println(fields[i].getName());
+					return fields[i].getName();
+				} catch (Exception e) {
+					System.out.println("getPrimaryKey.e:" + e);
+				}
+			}
+		}
+		throw new RuntimeException("TypeUtils.getPrimaryKey("+clazz+"):no_primary_key");
+	}
 }

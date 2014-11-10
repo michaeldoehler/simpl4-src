@@ -129,6 +129,9 @@ public class Utils {
 		return lhs.size() == rhs.size() && lhs.containsAll(rhs) && rhs.containsAll(lhs);
 	}
 
+	public static  boolean isEmpty(String s) {
+		return (s == null || "".equals(s.trim()));
+	}
 	public static boolean containsId(List<String> list, String pk) {
 		Iterator<String> it = list.iterator();
 		while (it.hasNext()) {
@@ -201,6 +204,14 @@ public class Utils {
 		} catch (Exception e) {
 			throw new RuntimeException("TeamService.getTeamintern(" + teamid + ")", e);
 		}
+	}
+	public static  String getBaseName(String name) {
+		if (name == null || name.trim().equals(""))
+			return null;
+		int lindex = name.lastIndexOf(".");
+		if (lindex == -1)
+			return name;
+		return name.substring(lindex + 1).toLowerCase();
 	}
 
 	protected static void debug(String message) {
