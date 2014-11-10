@@ -70,7 +70,7 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 
 			var ts = new ms123.datamapper.create.FormatSelector(this._facade,this._side,true);
 			ts.selectFormat(this._tree.getModel().getFormat());
-			var container = this._setParentSpec( ts, this._side );
+			var container = this._setPersistenceSpecification( ts, this._side );
 			this._window.add(container, {
 				edge: "center"
 			});
@@ -91,7 +91,7 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			}, this);
 			this._window.open();
 		},
-		_setParentSpec: function (ts,side) {
+		_setPersistenceSpecification: function (ts,side) {
 			if( side == ms123.datamapper.Config.INPUT){
 				return ts;
 			}
@@ -99,91 +99,91 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			var relList = this._getRelations(output.cleanName);
 
 
-			var parentSpecRelationSelect = new qx.ui.form.SelectBox().set({
+			var persistenceSpecificationRelationSelect = new qx.ui.form.SelectBox().set({
 				width:150
 			});
-			this._relationSelect = parentSpecRelationSelect;
+			this._relationSelect = persistenceSpecificationRelationSelect;
 			var listItem = new qx.ui.form.ListItem("------",null,"-");
-			parentSpecRelationSelect.add(listItem);
+			persistenceSpecificationRelationSelect.add(listItem);
 			for(var i=0; i < relList.length; i++){
 				var relMap = relList[i];
 				var leftfield = relMap.leftfield || this._baseName(relMap.rightmodule);
 				listItem = new qx.ui.form.ListItem(this.tr(relMap.leftmodule)+","+leftfield,null,relMap.leftmodule+","+leftfield);
-				parentSpecRelationSelect.add(listItem);
+				persistenceSpecificationRelationSelect.add(listItem);
 			}
 
 			var container = new qx.ui.container.Composite(new qx.ui.layout.VBox(8));
 			container.add(ts);
 
-	    var parentSpecRelationLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_relation")).set({
+	    var persistenceSpecificationRelationLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_relation")).set({
 				rich:true
 			});
-	    var parentSpecLookupLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_lookup")).set({
+	    var persistenceSpecificationLookupLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_lookup")).set({
 				rich:true
 			});
 	    var delim = new qx.ui.basic.Label("<hr style='width:500px;'/>").set({
 				rich:true
 			});
-	    var parentSpecUpdateLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update")).set({
+	    var persistenceSpecificationUpdateLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update")).set({
 				rich:true
 			});
-	    var parentSpecUpdateExprLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update_expr")).set({
+	    var persistenceSpecificationUpdateExprLabel = new qx.ui.basic.Label(this.tr("datamapper.parent_update_expr")).set({
 				rich:true
 			});
-			container.add(parentSpecRelationLabel);
-			container.add(parentSpecRelationSelect);
-			container.add(parentSpecLookupLabel);
+			container.add(persistenceSpecificationRelationLabel);
+			container.add(persistenceSpecificationRelationSelect);
+			container.add(persistenceSpecificationLookupLabel);
 		  var tf = new qx.ui.form.TextField();
-			this._parentSpecLookupTextField = tf;
+			this._persistenceSpecificationLookupTextField = tf;
 			container.add(tf);
 			container.add(delim);
 
-			var parentSpec = this._facade.getConfig().output.parentSpec;
-			this._parentSpecUpdateCheckBox = new qx.ui.form.CheckBox();
-			this._parentSpecUpdateCheckBox.setValue(parentSpec.update != null);
-			container.add(parentSpecUpdateLabel);
-			container.add(this._parentSpecUpdateCheckBox);
-		  this._parentSpecUpdateTextField = new qx.ui.form.TextField();
-			if( parentSpec.update != null){
-				this._parentSpecUpdateTextField.setValue( parentSpec.update);
+			var persistenceSpecification = this._facade.getConfig().output.persistenceSpecification;
+			this._persistenceSpecificationUpdateCheckBox = new qx.ui.form.CheckBox();
+			this._persistenceSpecificationUpdateCheckBox.setValue(persistenceSpecification.update != null);
+			container.add(persistenceSpecificationUpdateLabel);
+			container.add(this._persistenceSpecificationUpdateCheckBox);
+		  this._persistenceSpecificationUpdateTextField = new qx.ui.form.TextField();
+			if( persistenceSpecification.update != null){
+				this._persistenceSpecificationUpdateTextField.setValue( persistenceSpecification.update);
 			}else{
-				this._parentSpecUpdateTextField.exclude();
-				parentSpecUpdateExprLabel.exclude();
+				this._persistenceSpecificationUpdateTextField.exclude();
+				persistenceSpecificationUpdateExprLabel.exclude();
 			}
-			container.add(parentSpecUpdateExprLabel);
-			container.add(this._parentSpecUpdateTextField);
+			container.add(persistenceSpecificationUpdateExprLabel);
+			container.add(this._persistenceSpecificationUpdateTextField);
 
-			parentSpecRelationSelect.addListener("changeSelection",function(e){ 
-				var sel = parentSpecRelationSelect.getSelection()[0].getModel();
+			persistenceSpecificationRelationSelect.addListener("changeSelection",function(e){ 
+				var sel = persistenceSpecificationRelationSelect.getSelection()[0].getModel();
 				console.log("data:",sel);
 				if( sel.match(/^-/)){
-					parentSpecLookupLabel.exclude();
+					persistenceSpecificationLookupLabel.exclude();
 					tf.exclude();
 				}else{
-					parentSpecLookupLabel.show();
+					persistenceSpecificationLookupLabel.show();
 					tf.show();
 				}
 			},this)
 
-			this._parentSpecUpdateCheckBox.addListener("changeValue",function(e){ 
-				var update = this._parentSpecUpdateCheckBox.getValue();
+			this._persistenceSpecificationUpdateCheckBox.addListener("changeValue",function(e){ 
+				var update = this._persistenceSpecificationUpdateCheckBox.getValue();
 				if( update ){
-					this._parentSpecUpdateTextField.show();
-					parentSpecUpdateExprLabel.show();
+					this._persistenceSpecificationUpdateTextField.show();
+					persistenceSpecificationUpdateExprLabel.show();
 				}else{
-					this._parentSpecUpdateTextField.exclude();
-					parentSpecUpdateExprLabel.exclude();
+					this._persistenceSpecificationUpdateTextField.exclude();
+					persistenceSpecificationUpdateExprLabel.exclude();
 				}
 			},this)
 
-			if( parentSpec && parentSpec.lookup && parentSpec.relation ){
-				var selectables = parentSpecRelationSelect.getSelectables();
+			if( persistenceSpecification && persistenceSpecification.lookup && persistenceSpecification.relation ){
+				var selectables = persistenceSpecificationRelationSelect.getSelectables();
 				selectables.each( function( s ){
-					if( s.getModel()== parentSpec.relation){
-						parentSpecRelationSelect.setSelection([s]);
+					if( s.getModel()== persistenceSpecification.relation){
+						persistenceSpecificationRelationSelect.setSelection([s]);
 					}
 				});
-				this._parentSpecLookupTextField.setValue(parentSpec.lookup);
+				this._persistenceSpecificationLookupTextField.setValue(persistenceSpecification.lookup);
 			}
 			return container;
 		},
@@ -209,46 +209,46 @@ qx.Class.define("ms123.datamapper.plugins.MetadataEdit", {
 			this._facade.executeCommands([command]);
 			this._facade.update();
 		},
-		executeCommandChangeParentSpec: function (newParentSpec, oldParentSpec) {
+		executeCommandChangePersistenceSpecification: function (newPersistenceSpecification, oldPersistenceSpecification) {
 			var self = this;
 			var CommandClass = Clazz.extend({
-				construct: function (newParentSpec, oldParentSpec) {
-					this.newParentSpec = newParentSpec;
-					this.oldParentSpec = oldParentSpec;
+				construct: function (newPersistenceSpecification, oldPersistenceSpecification) {
+					this.newPersistenceSpecification = newPersistenceSpecification;
+					this.oldPersistenceSpecification = oldPersistenceSpecification;
 				},
 				execute: function () {
-					self._tree.setFormat(this.newParentSpec);
-					self._tree.getModel().setParentSpec(this.newParentSpec);
+					self._tree.setFormat(this.newPersistenceSpecification);
+					self._tree.getModel().setPersistenceSpecification(this.newPersistenceSpecification);
 				},
 				rollback: function () {
-					self._tree.setFormat(this.oldParentSpec);
-					self._tree.getModel().setParentSpec(this.oldParentSpec);
+					self._tree.setFormat(this.oldPersistenceSpecification);
+					self._tree.getModel().setPersistenceSpecification(this.oldPersistenceSpecification);
 				}
 			})
-			var command = new CommandClass(newParentSpec, oldParentSpec);
+			var command = new CommandClass(newPersistenceSpecification, oldPersistenceSpecification);
 			this._facade.executeCommands([command]);
 			this._facade.update();
 		},
 		_handleOkButton: function (e) {
 			if( this._window) this._window.close();
-			var update = this._parentSpecUpdateCheckBox.getValue();
+			var update = this._persistenceSpecificationUpdateCheckBox.getValue();
 			var updateValue=null;
 			if( update ){
-				updateValue = this._parentSpecUpdateTextField.getValue();
+				updateValue = this._persistenceSpecificationUpdateTextField.getValue();
 				if( updateValue && updateValue.trim()==="") updateValue=null;
 			}
 			var relation = this._relationSelect.getSelection()[0].getModel();
-			var lookup = this._parentSpecLookupTextField.getValue();
-			var newParentSpec = null;
+			var lookup = this._persistenceSpecificationLookupTextField.getValue();
+			var newPersistenceSpecification = null;
 			if( !relation.match(/^--/) && lookup != ""){
-				newParentSpec = {
+				newPersistenceSpecification = {
 					relation:relation,
 					update:updateValue,
 					lookup:lookup
 				}
 			}
-			console.log("parentSpec:"+JSON.stringify(newParentSpec,null,2));
-			this.executeCommandChangeParentSpec(newParentSpec, this._tree.getModel().getParentSpec());	
+			console.log("persistenceSpecification:"+JSON.stringify(newPersistenceSpecification,null,2));
+			this.executeCommandChangePersistenceSpecification(newPersistenceSpecification, this._tree.getModel().getPersistenceSpecification());	
 		},
 		_createButtons: function () {
 			var toolbar = new qx.ui.toolbar.ToolBar();

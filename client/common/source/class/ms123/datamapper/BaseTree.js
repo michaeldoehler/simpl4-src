@@ -119,7 +119,7 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 			modelData.type = modelData.type || ms123.datamapper.Config.NODETYPE_ELEMENT;
 			modelData.id = modelData.id || ms123.util.IdGen.id();
 			modelData.root = true;
-			modelData.parentSpec = modelData.parentSpec || {};
+			modelData.persistenceSpecification = modelData.persistenceSpecification || {};
 			this._prepareModelData(modelData, "");
 			var temp = qx.lang.Json.stringify(modelData, null, 2);
 			//console.log("PreparedModelData:" + temp);
