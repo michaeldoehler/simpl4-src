@@ -552,13 +552,13 @@ qx.Class.define("ms123.form.Form", {
 					break;
 
 				case "selectbox":
-					if( !fieldData.selectable_items ){
+					if (!fieldData.selectable_items) {
 						formElement = new ms123.form.SelectBox();
 						formElement.createList(fieldData.options);
-					}else{
+					} else {
 						formElement = new ms123.form.SelectBox(fieldData.selectable_items);
 						formElement.createList([]);
-						fieldData.options=null;
+						fieldData.options = null;
 					}
 
 					if (this._useitCheckboxes) {
@@ -675,7 +675,6 @@ qx.Class.define("ms123.form.Form", {
 						formElement = new ms123.form.TreeMultiSelectBox();
 					}
 					fieldData.options.label = "ROOT";
-					console.log("TreeSelectBox:" + fieldData.options);
 					if (typeof fieldData.options == 'string') {
 						formElement.setModel(fieldData.options);
 					} else {
@@ -807,7 +806,6 @@ qx.Class.define("ms123.form.Form", {
 						}
 					});
 					if (fieldData.defaultValue) {
-						console.log("TextField:" + fieldData.defaultValue + "/" + fieldData.type);
 						if ((fieldData.type.toLowerCase() == "datefield" || fieldData.type.toLowerCase() == "datetimefield") && typeof fieldData.defaultValue == "string") {
 							if (fieldData.defaultValue.indexOf(".") != -1) {
 								var dateParts = fieldData.defaultValue.split(".");
@@ -846,9 +844,9 @@ qx.Class.define("ms123.form.Form", {
 							}, this);
 
 							if (!selected) {
-								if( selectables && selectables.length>0){
+								if (selectables && selectables.length > 0) {
 									return [selectables[0]];
-								}else{
+								} else {
 									return [];
 								}
 							}
@@ -857,14 +855,14 @@ qx.Class.define("ms123.form.Form", {
 					}, {
 						"converter": qx.lang.Function.bind(function (selection) {
 							var value = null;
-							try{
-								if( selection && selection.length>0){
-									if( selection[0].getModel()){
+							try {
+								if (selection && selection.length > 0) {
+									if (selection[0].getModel()) {
 										value = selection[0].getModel().getValue();
 									}
 								}
-							}catch(e){
-								console.error("form.Form.selectbox:"+e);
+							} catch (e) {
+								console.error("form.Form.selectbox:" + e);
 								console.debug(e.stack);
 							}
 							var key = this.getUserData("key");
