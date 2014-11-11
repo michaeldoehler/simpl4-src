@@ -27,6 +27,7 @@ qx.Class.define("ms123.datamapper.edit.AttributeEditor", {
 	construct: function (facade, context, data) {
 		var title = this.tr("datamapper.edit_attribute");
 		this._side = context.side;
+		this._data  = data;
 		this.base(arguments,facade,context, title,data);
 	},
 
@@ -52,6 +53,12 @@ qx.Class.define("ms123.datamapper.edit.AttributeEditor", {
 					'value': "string",
 					'options': this._getDatatypes()
 				},
+				"type": {
+					'type': "SelectBox",
+					'label': this.tr("datamapper.nodetype"),
+					'value': "string",
+					'options': this._getNodetypes()
+				},
 				"fieldFormat": {
 					'type': "TextField",
 					'label': this.tr("datamapper.format"),
@@ -72,8 +79,8 @@ qx.Class.define("ms123.datamapper.edit.AttributeEditor", {
 			if( this._format == ms123.datamapper.Config.FORMAT_MAP ){
 				formData.fieldFormat.exclude= "fieldType!='string'";
 			}
-			if( this._side == ms123.datamapper.Config.OUTPUT){
-				//formData.fieldFormat.exclude= "fieldType!='string'";
+			if( this._side != ms123.datamapper.Config.OUTPUT || !this._data.root){
+				delete formData.type;
 			}
 			if( this._format == ms123.datamapper.Config.FORMAT_POJO){
 				delete formData.fieldFormat;

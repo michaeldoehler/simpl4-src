@@ -188,6 +188,20 @@ qx.Class.define("ms123.datamapper.edit.AbstractFieldsEditor", {
 			}
 			return items;
 		},
+		_getNodetypes: function () {
+			var items = [{
+				"title": "Element",
+				"value": ms123.datamapper.Config.NODETYPE_ELEMENT 
+			},
+			{
+				"title": "List<Element>",
+				"value": ms123.datamapper.Config.NODETYPE_COLLECTION 
+			}]
+			items.each(function(item){
+				item.label = item.title;
+			});
+			return items
+		},
 		_getDatatypes: function () {
 			var items = [{
 				"title": "String",

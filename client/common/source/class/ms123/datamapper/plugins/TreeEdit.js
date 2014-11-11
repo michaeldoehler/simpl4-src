@@ -205,7 +205,6 @@ qx.Class.define("ms123.datamapper.plugins.TreeEdit", {
 			var selModel = this._tree.getModelSelection().getItem(0);
 			var selItem = this._tree.getSelection()[0];
 			var f = qx.lang.Json.parse(qx.util.Serializer.toJson(selModel));
-			console.log("model:" + JSON.stringify(f, null, 2));
 			var fe = new ms123.datamapper.edit.AttributeEditor(this._facade, this._context, f);
 			fe.addListener("changeValue", function (e) {
 				this.executeCommandEditNode(selItem, selModel, e.getData());
@@ -234,14 +233,20 @@ qx.Class.define("ms123.datamapper.plugins.TreeEdit", {
 					if( this.selectedModel.getFieldType){
 						this.fieldType = this.selectedModel.getFieldType();
 					}
+					if( this.selectedModel.getType){
+						this.type = this.selectedModel.getType();
+					}
 					if( this.selectedModel.getFieldFormat){
 						this.fieldFormat = this.selectedModel.getFieldFormat();
 					}
 					this.selectedModel.setName(this.data[ms123.datamapper.Config.NODENAME]);
 					this.cleanName = this.selectedModel.getCleanName();
 					this.selectedModel.setCleanName(null);
-					if( this.selectedModel.setFieldType){
+					if( this.selectedModel.setFieldType && this.data.fieldType!=null){
 						this.selectedModel.setFieldType(this.data.fieldType);
+					}
+					if( this.selectedModel.setType && this.data.type!=null){
+						this.selectedModel.setType(this.data.type);
 					}
 					if( this.selectedModel.setFieldFormat){
 						this.selectedModel.setFieldFormat(this.data.fieldFormat);
@@ -252,8 +257,11 @@ qx.Class.define("ms123.datamapper.plugins.TreeEdit", {
 				rollback: function () {
 					this.selectedModel.setName(this.nodeName);
 					this.selectedModel.setCleanName(this.cleanName);
-					if( this.selectedModel.setFieldType){
+					if( this.selectedModel.setFieldType && this.data.fieldType!=null){
 						this.selectedModel.setFieldType(this.fieldType);
+					}
+					if( this.selectedModel.setType && this.data.type!=null){
+						this.selectedModel.setType(this.type);
 					}
 					if( this.selectedModel.setFieldFormat){
 						this.selectedModel.setFieldFormat(this.fieldFormat);
