@@ -89,11 +89,11 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 	}
 
 	public void handleException(UserTransaction ut, Throwable e) {
-		error("\n--> SessionManager.handleException");
+		error("\n--> SessionManager.handleException:"+e.getClass()+"/"+getStatus(ut));
 		if (ut != null) {
 			if (!(e instanceof javax.transaction.RollbackException)) {
 				try {
-					error("\thandleException:" + ut.getStatus());
+					error("\thandleException.status:" + ut);
 					if (ut.getStatus() == Status.STATUS_ACTIVE) {
 						ut.rollback();
 					}
@@ -116,6 +116,13 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 		} else {
 			throw new RuntimeException(e);
 		}
+	}
+	public Object getStatus(UserTransaction ut){
+		try{
+			if( ut != null) return ut.toString()+":status:"+ut.getStatus();
+		}catch(Exception e){
+		}
+		return "No Transaction active";
 	}
 
 	public PersistenceManager getPM(StoreDesc sdesc) {
