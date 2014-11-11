@@ -1488,7 +1488,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			long end = new Date().getTime();
 			info("Dauer_query(rows:" + total + "):" + (end - start));
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 		return retMap;
@@ -1518,7 +1517,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			while (itr.hasNext()) {
 				Object[] row = null;
 				Object no = itr.next();
-debug("NO:"+new HashMap(new BeanMap(no)));
 				if (pageSize == 0 || (total >= offset && count < pageSize)) {
 					dataList.add(new HashMap(new BeanMap(no)));
 					count++;
