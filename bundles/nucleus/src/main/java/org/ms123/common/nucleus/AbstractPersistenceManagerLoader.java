@@ -128,6 +128,7 @@ public abstract class AbstractPersistenceManagerLoader {
 	protected void deleteSchema(SchemaAwareStoreManager ssm,Set<String> classes,Properties props) {
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
 		try {
+System.out.println("deleteSchema:"+classes+"/"+props);
 			ClassLoader bundleDelegatingCL = new BundleDelegatingClassLoader(m_bundleContext.getBundle());
 			File[] locations = new File[1];
 			locations[0] = new File(m_baseDirs[0], "classes");
@@ -135,7 +136,7 @@ public abstract class AbstractPersistenceManagerLoader {
 			Thread.currentThread().setContextClassLoader(filesystemCL);
 			try {
 				ssm.deleteSchema(classes,props);	
-				ssm.createSchema(classes,props);	
+				//ssm.createSchema(classes,props);	
 			} catch (Throwable e) {
 				throw new RuntimeException("Cannot delete Schema", e);
 			}
