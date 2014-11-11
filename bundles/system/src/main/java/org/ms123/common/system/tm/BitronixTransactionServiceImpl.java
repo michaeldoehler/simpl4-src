@@ -48,6 +48,7 @@ public class BitronixTransactionServiceImpl implements TransactionService{
   @SuppressWarnings("unchecked")
 	public BitronixTransactionServiceImpl() throws Exception{
 		TransactionManagerServices.getConfiguration().setDefaultTransactionTimeout(36000);;
+		TransactionManagerServices.getConfiguration().setWarnAboutZeroResourceTransaction(false);
 		Hashtable env = new Hashtable();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "org.ms123.common.system.jndi.InitialContextFactory");
 		Context ctx = new InitialContext(env);
