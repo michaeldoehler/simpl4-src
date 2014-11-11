@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
@@ -170,8 +172,7 @@ public class RemoteCallUtils {
 					break;
 				} catch (Exception e) {
 					argsConversionException = e;
-					System.out.println("EX:" + e);
-					e.printStackTrace();
+					error("EX:" , e);
 				}
 			}
 		}
@@ -199,11 +200,11 @@ public class RemoteCallUtils {
 			methodResult = methodToCall.invoke(instance, convertedArguments.toArray());
 			debugResult(methodResult);
 		} catch (IllegalAccessException e) {
-			System.err.println("ERROR IllegalAccessException while trying to call " + methodToCall.getName() + " on a " + instance.getClass().getName() + " with arguments : (");
+			error("ERROR IllegalAccessException while trying to call " + methodToCall.getName() + " on a " + instance.getClass().getName() + " with arguments : (");
 			for (final Object arg : convertedArguments) {
-				System.err.println("   " + arg.getClass().getName() + " : " + arg + ", ");
+				error("   " + arg.getClass().getName() + " : " + arg + ", ");
 			}
-			System.err.println(")");
+			error(")");
 			trace(e);
 			throw e;
 		} catch (InvocationTargetException e) {
@@ -225,11 +226,11 @@ public class RemoteCallUtils {
 		for (Class<?> cl : methodParameterTypes) {
 			if (ParameterNameUtil.isOptional(candidateMethod, index++)) {
 			}else{
-				System.out.println("allOptional:false");
+				info("allOptional:false");
 				return false;
 			}
 		}
-		System.out.println("allOptional:true");
+		info("allOptional:true");
 		return true;
 	}
 
@@ -237,15 +238,16 @@ public class RemoteCallUtils {
 		flexjson.JSONSerializer js = new flexjson.JSONSerializer();
 		js.prettyPrint(true);
 		String s = js.deepSerialize(methodResult);
-		if( s.length() >9192){
+		if( !m_logger.isDebugEnabled() && s.length() >9192){
 			s = s.substring(0,9192) +" .....";
 		}
-		System.out.println(s);
-		System.out.println("---------------------------------------\n");
+		info(s);
+		info("---------------------------------------\n");
 	}
 
 	private void debugCall(Method methodToCall, List convertedArguments) {
-		System.out.println("\n==========>>calling:" + methodToCall.getName());
+		info("--------------------------------------------");
+		info("==========>>calling:" + methodToCall.getName());
 		Class[] mPTypes = methodToCall.getParameterTypes();
 		for (int i = 0; i < convertedArguments.size(); i++) {
 			String value = null;
@@ -259,9 +261,9 @@ public class RemoteCallUtils {
 				arg = "\"" + arg + "\"";
 			}
 			if (arg != null)
-				System.out.println("\t" + value + " : " + arg);
+				info("\t" + value + " : " + arg);
 		}
-		System.out.println("---------------------------------------\n");
+		info("---------------------------------------\n");
 	}
 
 	protected List<Object> unserializeArguments(final List<Object> src, Method method, int startIndex) throws UnserializationException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -270,7 +272,7 @@ public class RemoteCallUtils {
 		final Type[] argsTypes = method.getGenericParameterTypes();
 		/* Number of arguments should have been tested before (inside callCompatibleMethod) so we should not worry about that */
 		for (int i = startIndex; i < argsClasses.length; i++) {
-			System.out.println("\targ:" + src.get(i - startIndex) + "/" + argsClasses[i] + "/" + argsTypes[i]);
+			info("\targ:" + src.get(i - startIndex) + "/" + argsClasses[i] + "/" + argsTypes[i]);
 			final Object arg = serializer.unserialize(src.get(i - startIndex), argsClasses[i], argsTypes[i]);
 			unserializedArgs.add(arg);
 		}
@@ -309,15 +311,31 @@ public class RemoteCallUtils {
 
 	protected void trace(Throwable e) {
 		while (e != null) {
-			System.err.println(e.getClass().getName());
-			System.err.println(e.getMessage());
-			e.printStackTrace(System.err);
-			System.err.println("");
-			e = e.getCause();
-			if (e != null) {
-				System.err.println("CAUSED BY: ");
+			error(e.getClass().getName());
+			error(e.getMessage(),e);
+			error("");
+			while (e.getCause() != null) {
+				e = e.getCause();
+				error("CAUSED BY: ");
 				trace(e);
 			}
 		}
 	}
+	protected void debug(String message) {
+		m_logger.debug(message);
+		System.out.println(message);
+	}
+	protected void info(String message) {
+		m_logger.info(message);
+		System.out.println(message);
+	}
+	protected void error(String message,Throwable e) {
+		m_logger.error(message,e);
+		e.printStackTrace();
+	}
+	protected void error(String message) {
+		m_logger.error(message);
+		System.out.println(message);
+	}
+	private static final Logger m_logger = LoggerFactory.getLogger(RemoteCallUtils.class);
 }

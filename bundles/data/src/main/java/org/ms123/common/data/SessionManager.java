@@ -25,6 +25,8 @@ import javax.transaction.UserTransaction;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
 import javax.transaction.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
@@ -57,17 +59,17 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 		}
 	}
 	public synchronized void handleFinish() {
-		System.err.println("-> SessionManager.handleFinish");
+		info("-> SessionManager.handleFinish");
 		UserTransaction ut = m_nucleusService.getUserTransaction();
 		if (ut != null) {
 			try {
-				System.err.println("\tstatus:" + ut.getStatus());
+				info("\tstatus:" + ut.getStatus());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			try {
 				if (ut.getStatus() == Status.STATUS_ACTIVE) {
-					System.err.println("###Transaction aktive:rollback");
+					info("###Transaction aktive:rollback");
 					ut.rollback();
 				}
 			} catch (Exception e1) {
@@ -77,9 +79,9 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 		for (StoreDesc key : m_pmMap.keySet()) {
 			PersistenceManager pm = m_pmMap.get(key);
 			System.err.println("\tclose:" + key);
-			m_pmMap.remove(key);
 			pm.close();
 		}
+		m_pmMap = new HashMap();
 	}
 
 	public void handleException(Throwable e) {
@@ -87,11 +89,11 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 	}
 
 	public void handleException(UserTransaction ut, Throwable e) {
-		System.err.println("-> SessionManager.handleException:" + e);
+		error("\n--> SessionManager.handleException");
 		if (ut != null) {
 			if (!(e instanceof javax.transaction.RollbackException)) {
 				try {
-					System.err.println("\thandleException:" + ut.getStatus());
+					error("\thandleException:" + ut.getStatus());
 					if (ut.getStatus() == Status.STATUS_ACTIVE) {
 						ut.rollback();
 					}
@@ -100,14 +102,15 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 				}
 			}
 		}
-		if (e instanceof RuntimeException) {
-			throw (RuntimeException) e;
-		}
-		System.err.println("\t:cause:" + e.getMessage());
+		String msg = e.getMessage();
 		while (e.getCause() != null) {
 			e = e.getCause();
-			System.err.println("\t:cause:" + e.getMessage());
+			msg += "\n" +e.getMessage();
 		}
+		error("---------------------------ExecptionMessage------------------");
+		error(msg);
+		error("-------------------------------------------------------------\n");
+
 		if (e instanceof RuntimeException) {
 			throw (RuntimeException) e;
 		} else {
@@ -133,4 +136,13 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 	private org.ms123.common.system.ThreadContext getThreadContext() {
 		return org.ms123.common.system.ThreadContext.getThreadContext();
 	}
+	protected void info(String message) {
+		m_logger.info(message);
+		System.out.println(message);
+	}
+	protected void error(String message) {
+		m_logger.error(message);
+		System.out.println(message);
+	}
+	private static final Logger m_logger = LoggerFactory.getLogger(SessionManager.class);
 }
