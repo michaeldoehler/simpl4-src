@@ -129,9 +129,9 @@ public class ThreadContext {
 		for( Object prop : m_properties.values()){
 			if( prop instanceof ThreadFinalizer){
 				((ThreadFinalizer)prop).finalize(t);
-				m_properties.remove(prop);
 			}
 		}
+		m_properties=new HashMap();
 	}
 	/*public void setSessionManager(SessionManager sc) {
 		m_sc = sc;
