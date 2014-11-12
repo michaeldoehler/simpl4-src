@@ -112,7 +112,7 @@ abstract class BaseDatamapperServiceImpl implements Constants,DatamapperService 
 			String json = m_gitService.searchContent(namespace, configName, "sw.datamapper");
 			mconfig = (Map) m_ds.deserialize(json);
 		}
-		Transformer t = new Transformer(namespace,configName,m_nucleusService,bf);
+		Transformer t = new Transformer(namespace,configName,m_nucleusService,m_dataLayer, bf);
 		if( true){
 			m_js.prettyPrint(true);
 			Object ret = t.transform(mconfig,data);		

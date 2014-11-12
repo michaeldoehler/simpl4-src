@@ -18,44 +18,50 @@
  */
 package org.ms123.common.datamapper;
 
-import org.milyn.Smooks;
-import org.milyn.SmooksException;
-import org.milyn.event.report.HtmlReportGenerator;
-import org.milyn.payload.JavaResult;
-import org.milyn.payload.JavaSource;
-import org.milyn.javabean.*;
-import org.milyn.io.StreamUtils;
-import org.milyn.container.ExecutionContext;
-import org.milyn.javabean.lifecycle.*;
-import org.milyn.javabean.decoder.*;
-import  org.milyn.javabean.decoders.*;
-import org.milyn.javabean.context.BeanContext;
-import org.xml.sax.SAXException;
-import org.milyn.javabean.context.*;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import org.milyn.javabean.factory.*;
-import org.milyn.csv.CSVRecordParserConfigurator;
-import org.milyn.payload.StringSource;
-import org.milyn.json.*;
-import org.apache.commons.beanutils.*;
-import java.io.*;
-import java.util.*;
 import flexjson.*;
 import groovy.lang.*;
-import org.codehaus.groovy.control.*;
-import org.codehaus.groovy.runtime.InvokerHelper;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.converters.*;
-import org.ms123.common.nucleus.api.NucleusService;
-import org.ms123.common.store.StoreDesc;
+import java.io.*;
+import java.util.*;
+import javax.jdo.Extent;
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+import javax.jdo.spi.PersistenceCapable;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.*;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.MultiValueMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.groovy.control.*;
+import org.codehaus.groovy.runtime.InvokerHelper;
+import org.milyn.container.ExecutionContext;
+import org.milyn.csv.CSVRecordParserConfigurator;
+import org.milyn.event.report.HtmlReportGenerator;
+import org.milyn.io.StreamUtils;
+import org.milyn.javabean.*;
+import org.milyn.javabean.context.*;
+import org.milyn.javabean.context.BeanContext;
+import org.milyn.javabean.decoder.*;
+import org.milyn.javabean.decoders.*;
+import org.milyn.javabean.factory.*;
+import org.milyn.javabean.lifecycle.*;
+import org.milyn.json.*;
+import org.milyn.payload.JavaResult;
+import org.milyn.payload.JavaSource;
+import org.milyn.payload.StringSource;
+import org.milyn.Smooks;
+import org.milyn.SmooksException;
+import org.ms123.common.data.api.DataLayer;
+import org.ms123.common.nucleus.api.NucleusService;
+import org.ms123.common.store.StoreDesc;
+import org.ms123.common.utils.TypeUtils;
+import org.xml.sax.SAXException;
 
 /**
  */
@@ -69,13 +75,19 @@ public class Transformer implements Constants{
 	private String m_configName;
 	private StoreDesc m_storeDesc;
 	private BeanFactory m_beanFactory;
+	private DataLayer m_dataLayer;
+	private PersistenceManager m_persistenceManager;
 
 	public Transformer(String namespace,String configName, NucleusService ns){
-		this( namespace, configName, ns, null);
+		this( namespace, configName, ns, null,null);
 	}
 	public Transformer(String namespace,String configName, NucleusService ns, BeanFactory bf){
+		this( namespace, configName, ns, null,bf);
+	}
+	public Transformer(String namespace,String configName, NucleusService ns, DataLayer dl, BeanFactory bf){
 		m_configName = configName == null ? "-" : configName;
 		m_nucleusService = ns;
+		m_dataLayer = dl;
 		m_beanFactory = bf;
 		m_storeDesc = StoreDesc.getNamespaceData(namespace);
 		m_js.prettyPrint(true);
@@ -512,7 +524,7 @@ public class Transformer implements Constants{
 		}
 		return ArrayList.class;
 	}
-	
+
 	private Class getClass(Context context, Map node){
 		if( context.outputTree.format != FORMAT_POJO ){
 			return HashMap.class;
@@ -686,12 +698,19 @@ public class Transformer implements Constants{
 								script = scriptMap.get(propertyName);
 							}
 
-							Object ores = transformer.run( script, valMap, (beanNode.path as String) +"/"+propertyName);
+							Object scriptResult = transformer.run( script, valMap, (beanNode.path as String) +"/"+propertyName);
+							debug("scriptResult:"+scriptResult);
 							if( event.getBean() instanceof Map){
 								Map bean = (Map)event.getBean();
-								bean.put(propertyName, ores);
+								bean.put(propertyName, scriptResult);
 							}else{
-								context.beanUtilsBean.setProperty(event.getBean(),propertyName,ores);
+								Class clazz = context.beanUtilsBean.getPropertyUtils().getPropertyType(event.getBean(),propertyName);
+								if (clazz != null && c.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
+									debug("PersistenceCapable:"+clazz+"/"+propertyName);
+									transformer.handleRelatedTo(propertyName,clazz, scriptResult as String, event.getBean());
+								}else{
+									context.beanUtilsBean.setProperty(event.getBean(),propertyName,scriptResult);
+								}
 							}
 						}
 						if( event.getBean() instanceof Map){
@@ -886,6 +905,29 @@ public class Transformer implements Constants{
 		}
 	}
 
+	private void handleRelatedTo(String propertyName, Class propertyType, String filterString, Object destinationObj){
+		Object relatedObject = getObjectByFilter(propertyType, filterString);
+		debug("handleRelatedTo:"+relatedObject+"/"+filterString);
+		PropertyUtils.setProperty(destinationObj, propertyName, relatedObject);
+	}
+	private Object getObjectByFilter(Class clazz, String filter) throws Exception {
+		if( m_persistenceManager == null){
+			m_persistenceManager = m_dataLayer.getSessionContext(m_storeDesc).getPM();
+		}
+		Extent e = m_persistenceManager.getExtent(clazz, true);
+		Query q = m_persistenceManager.newQuery(e, filter);
+		try {
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			if (iter.hasNext()) {
+				Object obj = iter.next();
+				return obj;
+			}
+		} finally {
+			q.closeAll();
+		}
+		return null;
+	}
 	private static  class LocalBeanFactory<T> implements Factory<T> {
 		Class clazz;
 		BeanFactory beanFactory;
@@ -903,3 +945,4 @@ public class Transformer implements Constants{
 		}
 	}
 }
+
