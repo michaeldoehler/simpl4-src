@@ -28,7 +28,7 @@ qx.Class.define("ms123.datamapper.Split2", {
 			decorator: null
 		});
 
-		splitPane.add(upper, 6);
+		splitPane.add(upper, 9);
 		splitPane.add(bottom, 2);
 
 		this.add(splitPane);

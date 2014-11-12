@@ -74,6 +74,7 @@ qx.Class.define("ms123.datamapper.BaseTree", {
 			model.cleanName = model.cleanName || ms123.datamapper.BaseTree.makeCleanName(model.name,nameList);
 			if( model.type == ms123.datamapper.Config.NODETYPE_ATTRIBUTE){
 				model.scripts = model.scripts || [];
+				model.lookups = model.lookups || [];
 				delete model.script;
 				model.fieldFormat = model.fieldFormat || null;
 			}

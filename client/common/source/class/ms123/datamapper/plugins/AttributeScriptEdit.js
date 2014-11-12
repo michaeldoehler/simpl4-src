@@ -63,6 +63,7 @@ qx.Class.define("ms123.datamapper.plugins.AttributeScriptEdit", {
 			this.setLayout(layout);
 
 			this._scriptArea = new qx.ui.form.TextArea();
+			this._scriptArea.setMinimalLineHeight(2);
 			this._scriptArea.addListener("input", function (e) {
 				if (this._model == null || this._internalSetValue === true) return;
 				this.executeCommandScriptChange(e.getData(), this._mapping, this._model);
@@ -77,6 +78,7 @@ qx.Class.define("ms123.datamapper.plugins.AttributeScriptEdit", {
 			this._defScript.setReadOnly(true);
 			this._defScript.setEnabled(false);
 			this._defScript.setSelectable(true);
+			this._defScript.setMinimalLineHeight(1);
 
 			this._defButton = new qx.ui.form.Button(this.tr("datamapper.default_script"), "icon/16/actions/insert-text.png");
 			defArea.add(this._defButton);

@@ -146,7 +146,9 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			var outputTreeContainer = this._createEditorArea(ms123.datamapper.Config.OUTPUT, config.output);
 
 			var attributeScriptEdit = this._createAttributeScriptEdit(config);
-			var outputContainer = new ms123.datamapper.Split2(outputTreeContainer,attributeScriptEdit);
+			var attributeLookupEdit = this._createAttributeLookupEdit(config);
+			var attributeContainer = new ms123.datamapper.Split2(attributeScriptEdit,attributeLookupEdit);
+			var outputContainer = new ms123.datamapper.Split2(outputTreeContainer,attributeContainer);
 
 			this.resetPluginsData();
 			var mappingEdit = new ms123.datamapper.plugins.MappingEdit(this._facade,config);
@@ -167,6 +169,15 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 			var script = new ms123.datamapper.plugins.AttributeScriptEdit(this._facade,config);
 			this._facade.attributeScriptEdit = script;
 			return script;
+		},
+		_createAttributeLookupEdit: function (config) {
+			var container = new qx.ui.container.Composite(new qx.ui.layout.Dock(1,1));
+			 var l = new qx.ui.basic.Label("Lookup").set({});
+			var lookup = new ms123.datamapper.plugins.AttributeLookupEdit(this._facade,config);
+			container.add(l,{edge:"west"});
+			container.add(lookup,{edge:"center"});
+			this._facade.attributeLookupEdit = lookup;
+			return container;
 		},
 		_createEditorArea: function (side, config) {
 			var container = new qx.ui.container.Composite();
