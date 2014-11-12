@@ -48,6 +48,7 @@ import org.apache.tika.mime.MediaType;
 import org.apache.tika.Tika;
 import org.joda.time.DateTime;
 import org.ms123.common.data.api.SessionContext;
+import org.ms123.common.data.scripting.MVELEvaluator;
 import org.ms123.common.libhelper.Inflector;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.team.api.TeamService;
@@ -70,89 +71,95 @@ import java.lang.reflect.Field;
 public class MultiOperations {
 
 	protected static Inflector m_inflector = Inflector.getInstance();
+
 	protected static JSONSerializer m_js = new JSONSerializer();
+
 	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 
-	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String,String> persistenceSpecification, int max){
+	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String, String> persistenceSpecification, int max) {
 		List<Map> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
 		Collection<Object> resultList = null;
-		if( obj instanceof Collection ){
-			resultList = (Collection)obj;
-		}else{
+		if (obj instanceof Collection) {
+			resultList = (Collection) obj;
+		} else {
 			resultList = new ArrayList();
 			resultList.add(obj);
 		}
-		System.out.println("persistObjects:"+resultList+",persistenceSpecification:"+persistenceSpecification);
-		String parentFieldName=null;
+		System.out.println("persistObjects:" + resultList + ",persistenceSpecification:" + persistenceSpecification);
+		String parentFieldName = null;
 		Class parentClazz = null;
 		String parentQuery = null;
 		String updateQuery = null;
 		PersistenceManager pm = sc.getPM();
 		GroovyShell groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
-		if( persistenceSpecification != null){
+		if (persistenceSpecification != null) {
 			String parentLookup = persistenceSpecification.get("lookupRelationObjectExpr");
 			String relation = persistenceSpecification.get("relation");
-			if(!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)){
+			if (!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)) {
 				String s[] = relation.split(",");
 				parentClazz = sc.getClass(Utils.getBaseName(s[0]));
 				parentFieldName = s[1];
-				if( parentLookup.matches(FIELDNAME_REGEX)){
-					String q= isString(parentClazz,parentLookup) ? "'" : "";
-					parentQuery = parentLookup+ " == "+q+"${"+parentLookup+"}"+q;
-				}else if( parentLookup.matches(FIELDNAME_REGEX+","+FIELDNAME_REGEX)){
+				if (parentLookup.matches(FIELDNAME_REGEX)) {
+					String q = isString(parentClazz, parentLookup) ? "'" : "";
+					parentQuery = parentLookup + " == " + q + "${" + parentLookup + "}" + q;
+				} else if (parentLookup.matches(FIELDNAME_REGEX + "," + FIELDNAME_REGEX)) {
 					s = parentLookup.split(",");
-					String q= isString(parentClazz,s[1]) ? "'" : "";
-					parentQuery = s[0]+ " == "+q+"${"+s[1]+"}"+q;
-				}else{
+					String q = isString(parentClazz, s[1]) ? "'" : "";
+					parentQuery = s[0] + " == " + q + "${" + s[1] + "}" + q;
+				} else {
 					parentQuery = parentLookup;
 				}
 			}
 			String updateLookup = persistenceSpecification.get("lookupUpdateObjectExpr");
-			Class mainClass=null;
-			if( resultList.size() > 0){
+			Class mainClass = null;
+			if (resultList.size() > 0) {
 				mainClass = resultList.iterator().next().getClass();
 			}
-			if( !Utils.isEmpty( updateLookup) && mainClass != null){
-				if( updateLookup.matches(FIELDNAME_REGEX)){
-					String q= isString(mainClass,updateLookup) ? "'" : "";
-					updateQuery = updateLookup+ " == "+q+"${"+updateLookup+"}"+q;
-				}else{
+			if (!Utils.isEmpty(updateLookup) && mainClass != null) {
+				if (updateLookup.matches(FIELDNAME_REGEX)) {
+					String q = isString(mainClass, updateLookup) ? "'" : "";
+					updateQuery = updateLookup + " == " + q + "${" + updateLookup + "}" + q;
+				} else {
 					updateQuery = updateLookup;
 				}
 			}
 		}
 		try {
 			int num = 0;
-			if( resultList.size() > 0){
+			if (resultList.size() > 0) {
 				Class clazz = resultList.iterator().next().getClass();
 				mainEntity = m_inflector.getEntityName(clazz.getSimpleName());
 				String pk = TypeUtils.getPrimaryKey(clazz);
 				sc.setPrimaryKey(pk);
 			}
 			for (Object object : resultList) {
-				if (max != -1 && num >= max){
+				if (max != -1 && num >= max) {
 					break;
 				}
-				Map m = SojoObjectFilter.getObjectGraph(object, sc,2);
+				Map m = SojoObjectFilter.getObjectGraph(object, sc, 2);
 				retList.add(m);
 				//ut.begin();
 				Object origObject = null;
-				if( updateQuery != null){
-					origObject = getObjectByFilter(groovyShell, pm,object.getClass(),object,updateQuery);
-					System.out.println("origObject:"+origObject);
-					if( origObject != null){
-						populate(sc,m, origObject,null);
+				boolean isNew = true;
+				if (updateQuery != null) {
+					origObject = getObjectByFilter(groovyShell, pm, object.getClass(), object, updateQuery);
+					System.out.println("origObject:" + origObject);
+					if (origObject != null) {
+						populate(sc, m, origObject, null);
 						object = origObject;
+						isNew = false;
 					}
 				}
-				if( origObject == null && parentClazz != null){
-					Object parentObject = getObjectByFilter(groovyShell, pm,parentClazz,object,parentQuery);
-					sc.getDataLayer().insertIntoMaster(sc, object, mainEntity,parentObject, parentFieldName);
+				if (origObject == null && parentClazz != null) {
+					Object parentObject = getObjectByFilter(groovyShell, pm, parentClazz, object, parentQuery);
+					sc.getDataLayer().insertIntoMaster(sc, object, mainEntity, parentObject, parentFieldName);
 				}
+				evaluteFormulas(sc, mainEntity, object, "in", isNew);
+				//Muss eigentlich über alle Object gehen
 				sc.getDataLayer().makePersistent(sc, object);
-				System.out.println("\tpersist:"+m_js.serialize(object));
+				System.out.println("\tpersist:" + m_js.serialize(object));
 				//ut.commit();
 				num++;
 			}
@@ -166,8 +173,8 @@ public class MultiOperations {
 	}
 
 	private static Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
-		String filter = expandString(shell,queryString, new BeanMap(child));
-		System.out.println("getObjectByFilter:"+filter);
+		String filter = expandString(shell, queryString, new BeanMap(child));
+		System.out.println("getObjectByFilter:" + filter);
 		Extent e = pm.getExtent(clazz, true);
 		Query q = pm.newQuery(e, filter);
 		try {
@@ -182,6 +189,7 @@ public class MultiOperations {
 		}
 		return null;
 	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 	//populate 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
@@ -194,6 +202,11 @@ public class MultiOperations {
 		String entityName = m_inflector.getEntityName(destinationObj.getClass().getSimpleName());
 		debug("populate.sourceMap:" + sourceMap + ",destinationObj:" + destinationObj + ",destinationMap:" + destinationMap + "/hintsMap:" + hintsMap + "/entityName:" + entityName);
 		if (sourceMap == null) {
+			return;
+		}
+		debug("populate(" + entityName + ") is a persistObject:" + javax.jdo.JDOHelper.isPersistent(destinationObj) + "/" + javax.jdo.JDOHelper.isNew(destinationObj));
+		if (sourceMap.get("id") != null) {
+			debug("populate(" + entityName + ") has id:" + sourceMap.get("id"));
 			return;
 		}
 		Map permittedFields = sessionContext.getPermittedFields(entityName, "write");
@@ -543,21 +556,22 @@ public class MultiOperations {
 				boolean ok = false;
 				try {
 					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
+					System.out.println("propertyType:" + propertyType + "/" + propertyName);
 					if (propertyType != null) {
 						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
-							handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
+							//handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
 							Object obj = sourceMap.get(propertyName);
-							if( obj != null && obj instanceof Map){
-								Map childSourceMap = (Map)obj;
+							if (obj != null && obj instanceof Map) {
+								Map childSourceMap = (Map) obj;
 								Object childDestinationObj = destinationMap.get(propertyName);
-								if( childDestinationObj==null){
+								if (childDestinationObj == null) {
 									childDestinationObj = propertyType.newInstance();
 									destinationMap.put(propertyName, childDestinationObj);
 								}
 								populate(sessionContext, childSourceMap, childDestinationObj, null);
-							}else{
-								if( obj == null){
-									destinationMap.put(propertyName,null);
+							} else {
+								if (obj == null) {
+									destinationMap.put(propertyName, null);
 								}
 							}
 							ok = true;
@@ -578,7 +592,7 @@ public class MultiOperations {
 		}
 	}
 
-	private static void handleRelatedTo(SessionContext sc, Map sourceMap, String propertyName, BeanMap destinationMap, Object destinationObj, Class propertyType){
+	private static void handleRelatedTo(SessionContext sc, Map sourceMap, String propertyName, BeanMap destinationMap, Object destinationObj, Class propertyType) {
 		Object id = null;
 		try {
 			Object _id = sourceMap.get(propertyName);
@@ -625,7 +639,7 @@ public class MultiOperations {
 		}
 	}
 
-	private static synchronized String expandString(GroovyShell shell, String str, Map<String,String> vars) {
+	private static synchronized String expandString(GroovyShell shell, String str, Map<String, String> vars) {
 		String newString = "";
 		int openBrackets = 0;
 		int first = 0;
@@ -647,7 +661,64 @@ public class MultiOperations {
 		return newString;
 	}
 
-	private static Object eval(GroovyShell shell,String expr, Map<String,String> vars) {
+	private static void evaluteFormulas(SessionContext sessionContext, String entityName, Object obj, String direction, boolean isNew) {
+		evaluteFormulas(sessionContext, entityName, obj, direction, isNew, null, null);
+	}
+
+	private static void evaluteFormulas(SessionContext sessionContext, String entityName, Object obj, String direction, boolean isNew, Map<String, Class> involvedClasses, PersistenceManager pm) {
+		Map<String, Object> map = new BeanMap(obj);
+		Map permittedFields = sessionContext.getPermittedFields(entityName);
+		Map<String, Object> result = new HashMap();
+		Iterator kit = permittedFields.keySet().iterator();
+		while (kit.hasNext()) {
+			String field = (String) kit.next();
+			if (permittedFields.get(field) instanceof Map) {
+				Map cm = (Map) permittedFields.get(field);
+				if (cm != null && cm.get("formula_" + direction) != null && !"".equals(cm.get("formula_" + direction))) {
+					if (!"out".equals(direction)) {
+						if (map.get(field) == null) {
+							result.put(field, "");
+						}
+					}
+				}
+			}
+		}
+		MVELEvaluator evalator = null;
+		if (pm != null) {
+			evalator = new MVELEvaluator((Map) permittedFields.get("_selListMap"), involvedClasses, pm);
+		} else {
+			evalator = new MVELEvaluator((Map) permittedFields.get("_selListMap"));
+		}
+		evalator.setLocalVars(result);
+		evalator.setLocalVars(map);
+		evalator.setLocalVar("se", evalator);
+		evalator.setLocalVar("inflector", m_inflector);
+		evalator.setLocalVar("_isnew", isNew);
+		evalator.setLocalVar("_user", "admin");
+		Set<String> keyset = new HashSet(map.keySet());
+		for (String field : keyset) {
+			int dot = field.lastIndexOf(".");
+			String f = field;
+			if (dot != -1) {
+				f = field.substring(dot + 1);
+			}
+			Map cm = (Map) permittedFields.get(f);
+			if (cm != null && cm.get("formula_" + direction) != null && !"".equals(cm.get("formula_" + direction))) {
+				String formula = (String) cm.get("formula_" + direction);
+				Object r = "";
+				try {
+					r = evalator.eval(formula);
+					debug("evalOk:" + formula + "/" + r);
+				} catch (Exception e) {
+					debug("evalError:" + formula + "/" + e);
+				}
+				result.put(field, r);
+			}
+		}
+		populate(sessionContext, result, obj, null);
+	}
+
+	private static Object eval(GroovyShell shell, String expr, Map<String, String> vars) {
 		try {
 			Script script = shell.parse(expr);
 			Binding binding = new Binding(vars);
@@ -659,14 +730,16 @@ public class MultiOperations {
 			throw new RuntimeException(msg);
 		}
 	}
-	public static  boolean isString(Class c, String fieldName){
-		try{
+
+	public static boolean isString(Class c, String fieldName) {
+		try {
 			Field f = c.getDeclaredField(fieldName);
 			return f.getType().isAssignableFrom(String.class);
-		}catch(Exception e){
+		} catch (Exception e) {
 			return false;
 		}
 	}
+
 	protected static void debug(String message) {
 		m_logger.debug(message);
 	}
