@@ -526,9 +526,14 @@ class SetPropertyJsonConverter extends JsonConverterImpl{
 class ProcessorJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
 		def code = shapeProperties.code;
+		def isEndpoint = shapeProperties.isEndpoint;
 		def ref = shapeProperties.ref;
 		if( isNotEmpty(ref)){
-			ctx.current = ctx.current.processRef(ref);
+			if( isEndpoint){
+				ctx.current = ctx.current.to(ref);
+			}else{
+				ctx.current = ctx.current.processRef(ref);
+			}
 		}else if( code != null && code.length()> 10){
 			def processor = createProcessor(code);
 			println("processor:"+processor);
