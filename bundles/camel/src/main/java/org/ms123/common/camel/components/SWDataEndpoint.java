@@ -113,7 +113,7 @@ public class SWDataEndpoint extends DefaultEndpoint {
 	public String getLookupRelationObjectExpr() {
 		return m_lookupRelationObjectExpr;
 	}
-	public void setRelationObjectExpr(String lookup) {
+	public void setLookupRelationObjectExpr(String lookup) {
 		m_lookupRelationObjectExpr=lookup;
 	}
 	public String getLookupUpdateObjectExpr() {

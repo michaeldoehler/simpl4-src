@@ -179,14 +179,14 @@ public class SWDataProducer extends DefaultProducer {
 		//String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext();
 		Exception ex = null;
-		List<Map> result = null;
+		List<Object> result = null;
 		try {
 			result = sc.persistObjects(exchange.getIn().getBody(),persistenceSpecification);
 		} catch (Exception e) {
 			ex = e;
 		}
 		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.multiInsertUpdate);
-		processAndTransferResult(null, exchange, ex);
+		processAndTransferResult(result, exchange, ex);
 	}
 
 	private void doDelete(Exchange exchange) {
@@ -285,7 +285,7 @@ public class SWDataProducer extends DefaultProducer {
 		return sc;
 	}
 
-	private void processAndTransferResult(Map result, Exchange exchange, Exception ex) {
+	private void processAndTransferResult(Object result, Exchange exchange, Exception ex) {
 		if (ex != null) {
 			exchange.getOut().setHeader(SWDataConstants.LAST_ERROR, ex.getMessage());
 			exchange.setException(ex);
