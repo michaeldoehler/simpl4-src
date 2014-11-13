@@ -46,13 +46,12 @@ qx.Class.define("ms123.datamapper.plugins.LookupFilterSelector", {
 		handleNodeSelected: function (e) {
 			var model = e.getData().model;
 			var type = e.getData().type;
-			console.log("model:" + JSON.stringify(e.getData(),null,2));
 			if (type == "sw.filter") {
 				this._filterForm.setData({name:model.getValue()});
-				var childs = model.getChildren();
+				var childs = model.getChildren().getItem(0).getChildren();
 				this.setTableData([]);
 				for (var i = 0; i < childs.getLength(); i++) {
-					var field = model.getChildren().getItem(i);
+					var field = childs.getItem(i);
 					var map = {};
 					map.param = field.getValue();
 					this.addRecord(map);
@@ -93,7 +92,6 @@ qx.Class.define("ms123.datamapper.plugins.LookupFilterSelector", {
 				data = {
 					totalCount: value.length,
 					name: formData.name,
-					message: formData.message,
 					items: value
 				};
 				data = qx.util.Serializer.toJson(data);

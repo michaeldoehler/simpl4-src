@@ -172,7 +172,7 @@ console.log("datamapper.importingid:"+this._facade.importingid);
 		},
 		_createAttributeLookupEdit: function (config) {
 			var container = new qx.ui.container.Composite(new qx.ui.layout.Dock(1,1));
-			 var l = new qx.ui.basic.Label("Lookup").set({});
+			 var l = new qx.ui.basic.Label("Lookupfilter").set({});
 			var lookup = new ms123.datamapper.plugins.AttributeLookupEdit(this._facade,config);
 			container.add(l,{edge:"west"});
 			container.add(lookup,{edge:"center"});

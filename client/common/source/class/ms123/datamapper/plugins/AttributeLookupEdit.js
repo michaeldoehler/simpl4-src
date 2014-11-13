@@ -88,16 +88,26 @@ qx.Class.define("ms123.datamapper.plugins.AttributeLookupEdit", {
 					return this._context.optional;
 				}
 			})
-			var items = [new Item({
-        "id": "param",
-        "name": "Filterparam",
-        "type": "String",
-        "value": "",
-        "width": 150,
-        "optional": false
-      })]
+			var items = [
+				new Item({
+					"id": "param",
+					"name": "Filterparam",
+					"type": "label",
+					"value": "",
+					"width": 50,
+					"optional": false
+				}),
+				new Item({
+					"id": "expr",
+					"name": "Expression",
+					"type": "string",
+					"value": "",
+					"width": 200,
+					"optional": false
+				})
+]
 
-			var config=  {"helperTree":["sw.filter"]};
+			var config=  {helperTree:["sw.filter"], kind:"filterboth"};
 			this._lookupSelector = new ms123.datamapper.plugins.LookupFilterSelector(config,"Lookup filter",items,"key", this._facade);
 			this._lookupSelector.addListener('changeValue', function (e) {
 				if (this._model == null || this._internalSetValue === true) return;
