@@ -151,9 +151,23 @@ qx.Class.define("ms123.datamapper.plugins.Preview", {
 			} catch (details) {
 				var msg = details.message;
 				console.log(details.stack);
-				msg = msg.replace(/Application error 500/g, "");
-				msg = msg.replace(/DatamapperService.preview:/g, "");
-				ms123.form.Dialog.alert("<b>Error</b>"+msg);
+				msg = msg.replace(/\|/g, "<br/>");
+				msg = msg.replace(/Script.*groovy: [0-9]{0,4}:/g, "<br/><br/>");
+				msg = msg.replace(/ for class: Script[0-9]{1,2}/g, "");
+				msg = msg.replace(/Script[0-9]{1,2}/g, "");
+				msg = msg.replace(/Application error 500:/g, "");
+				msg = msg.replace(/:java.lang.RuntimeException/g, "");
+				msg = msg.replace(/: {0,2}Line:/g, "<br/>Line:");
+				msg = msg.replace(/-{10,100}/g, "<br/>");
+
+				var alert = new ms123.form.Alert({
+					"message": "<b>Error</b><br/>"+msg,
+					"windowWidth": 500,
+					"windowHeight": 100,
+					"useHtml": true,
+					"inWindow": true
+				});
+				alert.show();
 			}
 		}
 	},
