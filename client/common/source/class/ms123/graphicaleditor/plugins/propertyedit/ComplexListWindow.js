@@ -194,12 +194,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				var width = this.items[i].width();
 				var type = this.items[i].type();
 
-				table.getTableModel().setColumnEditable(0, true);
 				if (type == ms123.oryx.Config.TYPE_STRING) {
 					var f = new qx.ui.table.celleditor.TextField();
 					tcm.setCellEditorFactory(i, f);
 					table.getTableModel().setColumnEditable(i, true);
-					//f.setRequired( !this.items[i].optional());
 				} else if (type == ms123.oryx.Config.TYPE_CHOICE) {
 					var r = new qx.ui.table.cellrenderer.Replace();
 					tcm.setDataCellRenderer(i, r);
@@ -232,6 +230,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				} else if (type == ms123.oryx.Config.TYPE_CONSTRAINTS) {
 					tcm.setDataCellRenderer(i, new ms123.graphicaleditor.plugins.propertyedit.ImageRenderer());
 					table.getTableModel().setColumnEditable(i, false);
+				} else if (type == "label") {
+					table.getTableModel().setColumnEditable(i, false);
+				}else{
+					table.getTableModel().setColumnEditable(i, true);
 				}
 
 				var resizeBehavior = tcm.getBehavior();
