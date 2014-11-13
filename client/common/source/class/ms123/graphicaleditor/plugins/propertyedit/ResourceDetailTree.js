@@ -416,8 +416,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 		_getFilterParams: function (filter,fieldList) {
 			var label = filter.label;
 			if (filter.connector == null && label != null) {
-				label = label.toLowerCase();
-				if (label.match(/^[a-z].*/)) {
+				//label = label.toLowerCase();
+				if (label.match(/^[a-zA-Z].*/)) {
 					var model = {};
 					model.value = label;
 					model.name = label;
