@@ -172,5 +172,5 @@ public interface SessionContext {
 
 	public void setPrimaryKey(String data);
 
-	public List<Map> persistObjects(Object objs, Map<String,String> persistenceSpecification);
+	public List<Map> persistObjects(Object objs, Map<String,Object> persistenceSpecification);
 }

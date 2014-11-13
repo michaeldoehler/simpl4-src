@@ -51,6 +51,7 @@ public class SWDataProducer extends DefaultProducer {
 	private String m_lookupUpdateObjectExpr = null;
 	private String m_lookupRelationObjectExpr = null;
 	private String m_relation = null;
+	private Boolean m_noUpdate = false;
 
 	private String m_entityType = null;
 
@@ -78,6 +79,7 @@ public class SWDataProducer extends DefaultProducer {
 		m_lookupRelationObjectExpr = endpoint.getLookupRelationObjectExpr();
 		m_lookupUpdateObjectExpr = endpoint.getLookupUpdateObjectExpr();
 		m_relation = endpoint.getRelation();
+		m_noUpdate = endpoint.isNoUpdate();
 		String endpointKey = endpoint.getEndpointKey();
 		if (endpointKey.indexOf("?") != -1) {
 			endpointKey = endpointKey.split("\\?")[0];
@@ -157,15 +159,22 @@ public class SWDataProducer extends DefaultProducer {
 		info("getString:"+key+"="+value+"/def:"+def);
 		return value != null ? value : def;
 	}
+	private boolean getBoolean(Exchange e, String key, boolean def) {
+		Boolean value = e.getIn().getHeader(key, Boolean.class);
+		info("getString:"+key+"="+value+"/def:"+def);
+		return value != null ? value : def;
+	}
 	private void doMultiInsertUpdate(Exchange exchange) {
 		String lookupUpdateObjectExpr = getString(exchange, SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR, m_lookupUpdateObjectExpr);
 		String lookupRelationObjectExpr = getString(exchange, SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR, m_lookupRelationObjectExpr);
 		String relation = getString(exchange, SWDataConstants.RELATION, m_relation);
 		if( "-".equals(relation))relation=null;
-		Map<String,String> persistenceSpecification = new HashMap();
+		Boolean no_update = getBoolean(exchange, SWDataConstants.NO_UPDATE, m_noUpdate);
+		Map<String,Object> persistenceSpecification = new HashMap();
 		persistenceSpecification.put(SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR,lookupRelationObjectExpr);
 		persistenceSpecification.put(SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR,lookupUpdateObjectExpr);
 		persistenceSpecification.put(SWDataConstants.RELATION,relation);
+		persistenceSpecification.put(SWDataConstants.NO_UPDATE,no_update);
 		System.out.println("persistenceSpecification:"+persistenceSpecification);
 		//String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext();

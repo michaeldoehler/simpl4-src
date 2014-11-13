@@ -76,7 +76,7 @@ public class MultiOperations {
 
 	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 
-	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String, String> persistenceSpecification, int max) {
+	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String, Object> persistenceSpecification, int max) {
 		List<Map> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
@@ -92,11 +92,12 @@ public class MultiOperations {
 		Class parentClazz = null;
 		String parentQuery = null;
 		String updateQuery = null;
+		Boolean noUpdate = false;
 		PersistenceManager pm = sc.getPM();
 		GroovyShell groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
 		if (persistenceSpecification != null) {
-			String parentLookup = persistenceSpecification.get("lookupRelationObjectExpr");
-			String relation = persistenceSpecification.get("relation");
+			String parentLookup = (String)persistenceSpecification.get("lookupRelationObjectExpr");
+			String relation = (String)persistenceSpecification.get("relation");
 			if (!Utils.isEmpty(parentLookup) && !Utils.isEmpty(relation)) {
 				String s[] = relation.split(",");
 				parentClazz = sc.getClass(Utils.getBaseName(s[0]));
@@ -112,7 +113,7 @@ public class MultiOperations {
 					parentQuery = parentLookup;
 				}
 			}
-			String updateLookup = persistenceSpecification.get("lookupUpdateObjectExpr");
+			String updateLookup = (String)persistenceSpecification.get("lookupUpdateObjectExpr");
 			Class mainClass = null;
 			if (resultList.size() > 0) {
 				mainClass = resultList.iterator().next().getClass();
@@ -124,8 +125,11 @@ public class MultiOperations {
 				} else {
 					updateQuery = updateLookup;
 				}
+				noUpdate = (Boolean)persistenceSpecification.get("noUpdate");
+				if( noUpdate == null) noUpdate=false;
 			}
 		}
+		debug("noUpdate:"+noUpdate);
 		try {
 			int num = 0;
 			if (resultList.size() > 0) {
@@ -147,6 +151,9 @@ public class MultiOperations {
 					origObject = getObjectByFilter(groovyShell, pm, object.getClass(), object, updateQuery);
 					System.out.println("origObject:" + origObject);
 					if (origObject != null) {
+						if(noUpdate){
+							 continue;
+						}
 						populate(sc, m, origObject, null);
 						object = origObject;
 						isNew = false;

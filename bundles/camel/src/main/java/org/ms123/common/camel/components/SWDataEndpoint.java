@@ -44,6 +44,7 @@ public class SWDataEndpoint extends DefaultEndpoint {
 	private String m_entityType;
 
 	private String m_relation;
+	private Boolean m_noUpdate=false;
 	private String m_lookupRelationObjectExpr;
 	private String m_lookupUpdateObjectExpr;
 
@@ -96,6 +97,12 @@ public class SWDataEndpoint extends DefaultEndpoint {
 
 	public String getEntityType() {
 		return m_entityType;
+	}
+	public Boolean isNoUpdate() {
+		return m_noUpdate;
+	}
+	public void setNoUpdate(boolean nou) {
+		m_noUpdate=nou;
 	}
 	public String getRelation() {
 		return m_relation;

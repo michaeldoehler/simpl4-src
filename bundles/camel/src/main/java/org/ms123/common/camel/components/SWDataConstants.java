@@ -32,6 +32,7 @@ public final class SWDataConstants {
 
 	public static final String WRITE_RESULT = "writeResult";
 	public static final String RELATION = "relation";
+	public static final String NO_UPDATE = "noUpdate";
 	public static final String LOOKUP_RELATION_OBJECT_EXPR = "lookupRelationObjectExpr";
 	public static final String LOOKUP_UPDATE_OBJECT_EXPR = "lookupUpdateObjectExpr";
 
