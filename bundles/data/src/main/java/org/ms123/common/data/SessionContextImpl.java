@@ -221,7 +221,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		}
 		return null;
 	}
-	public List<Map> persistObjects(Object obj, Map<String,Object> persistenceSpecification){
+	public List<Object> persistObjects(Object obj, Map<String,Object> persistenceSpecification){
 		return MultiOperations.persistObjects(this,obj,persistenceSpecification,-1);
 	}
 	public Object getObjectByAttr(Class clazz, String attr, Object value) {
