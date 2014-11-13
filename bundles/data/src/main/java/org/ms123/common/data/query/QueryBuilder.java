@@ -204,9 +204,12 @@ public class QueryBuilder {
 		}
 		String label = (String) filter.get("label");
 		if (filter.get("connector") == null && label != null) {
-			label = label.toLowerCase();
-			if (label.matches("^[a-z].*")) {
+			if (label.matches("^[a-zA-Z].*")) {
 				Object data = m_filterParams.get(label);
+				if( data == null){
+					label = label.toLowerCase();
+					data = m_filterParams.get(label);
+				}
 				if (data != null) {
 					filter.put("data", data);
 				}
