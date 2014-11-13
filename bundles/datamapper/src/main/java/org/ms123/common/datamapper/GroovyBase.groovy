@@ -23,6 +23,7 @@ import java.io.*;
 import java.util.*;
 import groovy.lang.*;
 import java.text.*;
+import org.apache.commons.lang3.StringUtils;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.beanutils.converters.*;
 import org.apache.commons.beanutils.*;
@@ -42,6 +43,37 @@ public abstract class GroovyBase extends Script implements Constants {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat formater = new SimpleDateFormat();
 		return formater.format(cal.getTime() );
+	}
+
+	public boolean isAlpha(String s){
+		return StringUtils.isAlpha(s);
+	}
+	public boolean isAlphaSpace(String s){
+		return StringUtils.isAlphaSpace(s);
+	}
+	public boolean isAlphaNumeric(String s){
+		return StringUtils.isAlphaNumeric(s);
+	}
+	public boolean isNumeric(String s){
+		return StringUtils.isNumeric(s);
+	}
+	public boolean isNumericSpace(String s){
+		return StringUtils.isNumericSpace(s);
+	}
+	public boolean isWhitespace(String s){
+		return StringUtils.isWhitespace(s);
+	}
+	public boolean isEmpty(String s){
+		return StringUtils.isEmpty(s);
+	}
+	public boolean isBlank(String s){
+		return StringUtils.isBlank(s);
+	}
+	public boolean isNotEmpty(String s){
+		return StringUtils.isNotEmpty(s);
+	}
+	public boolean isNotBlank(String s){
+		return StringUtils.isNotBlank(s);
 	}
 
 	private Map converters = [

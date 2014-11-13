@@ -58,6 +58,7 @@ import org.milyn.payload.StringSource;
 import org.milyn.Smooks;
 import org.milyn.SmooksException;
 import org.ms123.common.data.api.DataLayer;
+import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.utils.TypeUtils;
@@ -77,6 +78,8 @@ public class Transformer implements Constants{
 	private BeanFactory m_beanFactory;
 	private DataLayer m_dataLayer;
 	private PersistenceManager m_persistenceManager;
+	private GroovyShell m_groovyShell;
+	private SessionContext m_sessionContext;
 
 	public Transformer(String namespace,String configName, NucleusService ns){
 		this( namespace, configName, ns, null,null);
@@ -91,6 +94,7 @@ public class Transformer implements Constants{
 		m_beanFactory = bf;
 		m_storeDesc = StoreDesc.getNamespaceData(namespace);
 		m_js.prettyPrint(true);
+		m_groovyShell = new GroovyShell();
 	}
 
 	public Object transform(Map config, Object content) throws Exception {
@@ -203,6 +207,7 @@ public class Transformer implements Constants{
 		context.configName= configName;
 		context.beanValues = new HashMap();
 		context.scriptCache = new HashMap();
+		context.lookupCache = new HashMap();
 		context.beanUtilsBean = BeanUtilsBean.newInstance();
 		debug(m_js.deepSerialize(context.inputTree));
 		return context;
@@ -435,8 +440,13 @@ public class Transformer implements Constants{
 		return (context.internalId);
 	}
 	private void debug(String msg){
-		//println(msg);
 		m_logger.debug(msg);
+	}
+	private void info(String msg){
+		m_logger.info(msg);
+	}
+	private void error(String msg){
+		m_logger.error(msg);
 	}
 
 
@@ -622,6 +632,7 @@ public class Transformer implements Constants{
 		String configName;
 		Map<String,Map<String,Map<String,Object>>>  beanValues;
 		Map<String,Map<String,Script>>  scriptCache;
+		Map<String,Map<String,Map>>  lookupCache;
 		BeanUtilsBean beanUtilsBean;
 		Map<String,String> listBeanMap = new HashMap();
 	}
@@ -640,8 +651,10 @@ public class Transformer implements Constants{
 				if( ev == BeanLifecycle.ADD || ev == BeanLifecycle.REMOVE) return;
 				//if( isList && ev != BeanLifecycle.START_FRAGMENT && ev != BeanLifecycle.END_FRAGMENT) return;
 
+				String srcElement = event.getSource().getElement() as String;
+				if( "csv-set".equals(srcElement) ) return;
 				String tabs = transformer.getTabs(context,event.getLifecycle());
-				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/"+isMap);
+				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/"+isMap+"/"+srcElement);
 				String beanId = event.getBeanId().getName();
 				Map beanNode = transformer.getTreeNodeById(context.outputTree, transformer.getTreeNodeId(beanId));
 				if( beanNode == null){
@@ -656,6 +669,9 @@ public class Transformer implements Constants{
 						if(context.scriptCache.get(beanNode.path as String) == null){
 							context.scriptCache.put(beanNode.path as String,new HashMap<String,Script>());
 						}
+						if(context.lookupCache.get(beanNode.path as String) == null){
+							context.lookupCache.put(beanNode.path as String,new HashMap<String,Map>());
+						}
 					}
 					if( isList){
 						debug(tabs+"\tStartPathList:"+event.getBean()+"|"+beanNode.path);
@@ -667,9 +683,11 @@ public class Transformer implements Constants{
 						Map<String,Map<String,Object>> values = context.beanValues.get(beanNode.path);
 						if( values == null) return;
 						Map<String,Script> scriptMap = context.scriptCache.get(beanNode.path as String);
+						Map<String,Map> lookupMap = context.lookupCache.get(beanNode.path as String);
 						BeanContext beanContext = event.getExecutionContext().getBeanContext();
 						String wireId = context.listBeanMap.get(beanId);
-						debug(tabs+"EndPathMap:"+beanNode.path+"\t|values:"+values+"/"+beanId+"/"+wireId);
+						tabs="";
+						debug(tabs+">>>>END_FRAGMENT:"+beanNode.path+"\t|values:"+values+"/"+beanId+"/"+wireId);
 						Object beanList = beanContext.getBean(wireId);
 						//debug("ListBean---------------------------------------");
 						//debug(Transformer.m_js.deepSerialize(beanList));
@@ -685,7 +703,10 @@ public class Transformer implements Constants{
 							}
 							delim = "";
 							Script script = scriptMap.get(propertyName);
-							debug("END_FRAGMENT:"+script+"/"+propertyName+"/"+beanId);
+							Map lookup = lookupMap.get(propertyName);
+							debug("==Property:"+propertyName);
+							debug("---script:"+script);
+							debug("---lookup:"+lookup);
 							if( script == null){
 								String evalStr = "";
 								for( String xkey in valMap.keySet()){
@@ -698,16 +719,26 @@ public class Transformer implements Constants{
 								script = scriptMap.get(propertyName);
 							}
 
+							if( lookup != null){
+								Map<String,Object> result = transformer.executeFilter(lookup, valMap);
+								if( result != null){
+									Map<String,Object> newMap = new HashMap();
+									newMap.putAll(valMap);
+									newMap.putAll(result);
+									valMap = newMap;
+								}
+							}
+							
 							Object scriptResult = transformer.run( script, valMap, (beanNode.path as String) +"/"+propertyName);
-							debug("scriptResult:"+scriptResult);
+							debug("--scriptResult:"+scriptResult+"/valMap:"+valMap);
 							if( event.getBean() instanceof Map){
 								Map bean = (Map)event.getBean();
 								bean.put(propertyName, scriptResult);
 							}else{
 								Class clazz = context.beanUtilsBean.getPropertyUtils().getPropertyType(event.getBean(),propertyName);
-								if (clazz != null && c.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
+								if (clazz != null && clazz.getInterfaces().contains( javax.jdo.spi.PersistenceCapable)) {
 									debug("PersistenceCapable:"+clazz+"/"+propertyName);
-									transformer.handleRelatedTo(propertyName,clazz, scriptResult as String, event.getBean());
+									transformer.handleRelatedTo(propertyName,clazz, scriptResult?.toString(), event.getBean());
 								}else{
 									context.beanUtilsBean.setProperty(event.getBean(),propertyName,scriptResult);
 								}
@@ -739,11 +770,18 @@ public class Transformer implements Constants{
 					if( attrNode){
 						String fieldName = attrNode[NODENAME];
 						String script = getScriptByMappingId(attrNode.scripts as List<Map>,mappingId);
+						String lookup = getLookupByMappingId(attrNode.lookups as List<Map>,mappingId);
 						debug("script:"+script+"/"+beanId);
 
 						Map<String,Script> scriptMap = context.scriptCache.get(beanNode.path);
 						if( scriptMap.get(propertyName) == null){
 							scriptMap.put(propertyName, transformer.parse(script,((beanNode.path as String)+"/"+propertyName).replace((char)'/',(char)'_')));
+						}
+						Map<String,Map> lookupMap = context.lookupCache.get(beanNode.path);
+						if( lookupMap.get(propertyName) == null){
+							if( lookup != null){
+								lookupMap.put(propertyName,(Map)transformer.m_ds.deserialize(lookup));
+							}
 						}
 
 						String path = attrNode.path;
@@ -774,6 +812,17 @@ public class Transformer implements Constants{
 					String script = s.script as String;
 					if( script == null || script.trim() == "") return null;
 					return script;
+				}
+			}
+			return null;
+		}
+		private String getLookupByMappingId(List<Map> lookups,String mappingId){
+			if( lookups == null) return null;
+			for(Map s in lookups){
+				if( s.id == mappingId){
+					String lookup = s.lookup as String;
+					if( lookup == null || lookup.trim() == "") return null;
+					return lookup;
 				}
 			}
 			return null;
@@ -904,15 +953,56 @@ public class Transformer implements Constants{
 			m_logger.debug(msg);
 		}
 	}
+	private Object eval(String expr, Map<String, Object> vars) {
+		try {
+			Script script = m_groovyShell.parse(expr);
+			Binding binding = new Binding(vars);
+			script.setBinding(binding);
+			return script.run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			String msg = org.ms123.common.utils.Utils.formatGroovyException(e, expr);
+			info(msg);
+			throw new RuntimeException(msg);
+		}
+	}
+	private Map<String,Object> executeFilter(Map<String,Object> lookup, Map<String,Object> values){
+		if( lookup == null) return null;
+		if( m_sessionContext == null){
+			m_sessionContext = m_dataLayer.getSessionContext(m_storeDesc);
+		}
+		debug("ExecuteFilter1.lookup:"+lookup);
+		debug("ExecuteFilter2.values:"+values);
+		Map<String,Object> evaluateParams = new HashMap();
+		String filterName = lookup.get("name") as String;
+		List<Map> items = lookup.get("items") as List;
+		for( Map<String,String> item : items){
+			evaluateParams.put(item.param as String, eval(item.expr as String,values));
+		}
+		debug("ExecuteFilter3.evaluateParams:"+evaluateParams);
+		Map result = m_sessionContext.executeNamedFilter(filterName, evaluateParams);
+		debug("ExecuteFilter4.result:"+result);
+		if( result != null){
+			List rows = result.rows as List;
+			if( rows != null && rows.size() >0){
+				Map row1 = rows[0] as Map;
+				debug("ExecuteFilter5.return:"+row1);
+				return row1;
+			}
+		}
+		return null;
+	}
 
 	private void handleRelatedTo(String propertyName, Class propertyType, String filterString, Object destinationObj){
+		if( filterString == null || filterString.isEmpty()) return;
 		Object relatedObject = getObjectByFilter(propertyType, filterString);
 		debug("handleRelatedTo:"+relatedObject+"/"+filterString);
 		PropertyUtils.setProperty(destinationObj, propertyName, relatedObject);
 	}
 	private Object getObjectByFilter(Class clazz, String filter) throws Exception {
 		if( m_persistenceManager == null){
-			m_persistenceManager = m_dataLayer.getSessionContext(m_storeDesc).getPM();
+			m_sessionContext = m_dataLayer.getSessionContext(m_storeDesc);
+			m_persistenceManager = m_sessionContext.getPM();
 		}
 		Extent e = m_persistenceManager.getExtent(clazz, true);
 		Query q = m_persistenceManager.newQuery(e, filter);
