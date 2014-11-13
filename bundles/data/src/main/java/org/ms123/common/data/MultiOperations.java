@@ -76,8 +76,8 @@ public class MultiOperations {
 
 	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
 
-	public static List<Map> persistObjects(SessionContext sc, Object obj, Map<String, Object> persistenceSpecification, int max) {
-		List<Map> retList = new ArrayList();
+	public static List<Object> persistObjects(SessionContext sc, Object obj, Map<String, Object> persistenceSpecification, int max) {
+		List<Object> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
 		Collection<Object> resultList = null;
@@ -87,7 +87,7 @@ public class MultiOperations {
 			resultList = new ArrayList();
 			resultList.add(obj);
 		}
-		System.out.println("persistObjects:" + resultList + ",persistenceSpecification:" + persistenceSpecification);
+		debug("persistObjects:" + resultList + ",persistenceSpecification:" + persistenceSpecification);
 		String parentFieldName = null;
 		Class parentClazz = null;
 		String parentQuery = null;
@@ -143,13 +143,13 @@ public class MultiOperations {
 					break;
 				}
 				Map m = SojoObjectFilter.getObjectGraph(object, sc, 2);
-				retList.add(m);
+				//retList.add(m);
 				//ut.begin();
 				Object origObject = null;
 				boolean isNew = true;
 				if (updateQuery != null) {
 					origObject = getObjectByFilter(groovyShell, pm, object.getClass(), object, updateQuery);
-					System.out.println("origObject:" + origObject);
+					debug("origObject:" + origObject);
 					if (origObject != null) {
 						if(noUpdate){
 							 continue;
@@ -161,12 +161,20 @@ public class MultiOperations {
 				}
 				if (origObject == null && parentClazz != null) {
 					Object parentObject = getObjectByFilter(groovyShell, pm, parentClazz, object, parentQuery);
-					sc.getDataLayer().insertIntoMaster(sc, object, mainEntity, parentObject, parentFieldName);
+					origObject = getOrigObjectFromParent(mainEntity,parentObject,parentFieldName);
+					if(origObject == null || !origObject.getClass().equals( object.getClass())){
+						sc.getDataLayer().insertIntoMaster(sc, object, mainEntity, parentObject, parentFieldName);
+					}else{
+						populate(sc, m, origObject, null);
+						object = origObject;
+						isNew = false;
+					}
 				}
 				evaluteFormulas(sc, mainEntity, object, "in", isNew);
 				//Muss eigentlich über alle Object gehen
 				sc.getDataLayer().makePersistent(sc, object);
-				System.out.println("\tpersist:" + m_js.serialize(object));
+				retList.add(object);
+				debug("\tpersist:" + m_js.serialize(object));
 				//ut.commit();
 				num++;
 			}
@@ -181,7 +189,7 @@ public class MultiOperations {
 
 	private static Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
 		String filter = expandString(shell, queryString, new BeanMap(child));
-		System.out.println("getObjectByFilter:" + filter);
+		debug("getObjectByFilter:" + filter+"/clazz:"+clazz);
 		Extent e = pm.getExtent(clazz, true);
 		Query q = pm.newQuery(e, filter);
 		try {
@@ -189,14 +197,39 @@ public class MultiOperations {
 			Iterator iter = coll.iterator();
 			if (iter.hasNext()) {
 				Object obj = iter.next();
+				debug("getObjectByFilter:found");
 				return obj;
 			}
 		} finally {
 			q.closeAll();
 		}
+		debug("getObjectByFilter:not found");
 		return null;
 	}
 
+	public static Object getOrigObjectFromParent(String entityName, Object objectMaster, String fieldName) throws Exception {
+		debug("getOrigObjectFromParent:"+objectMaster+"/"+entityName+"/"+fieldName);
+		if( objectMaster==null) return null;
+		String propertyName = fieldName;
+		if (fieldName.equals(entityName)) {
+			propertyName = m_inflector.pluralize(entityName).toLowerCase();
+		}
+		Class clazz = PropertyUtils.getPropertyType(objectMaster, propertyName);
+		if( clazz == null){
+			clazz = PropertyUtils.getPropertyType(objectMaster, fieldName);
+		}
+		if (clazz != null) {
+			if (clazz.equals(java.util.List.class) || clazz.equals(java.util.Set.class)) {
+				return null;
+			} else {
+				if (fieldName.equals(entityName)) {
+					propertyName = m_inflector.singularize(entityName).toLowerCase();
+				}
+				return PropertyUtils.getProperty(objectMaster, propertyName);
+			}
+		}
+		return null;
+	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 	//populate 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
@@ -563,7 +596,7 @@ public class MultiOperations {
 				boolean ok = false;
 				try {
 					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
-					System.out.println("propertyType:" + propertyType + "/" + propertyName);
+					debug("propertyType:" + propertyType + "/" + propertyName);
 					if (propertyType != null) {
 						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
 							//handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
