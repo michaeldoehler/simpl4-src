@@ -10,6 +10,7 @@ import java.math.*;
 import org.apache.commons.codec.language.*;
 import com.Ostermiller.util.*;
 import com.wcohen.ss.abbvGapsHmm.Acronym;
+import org.apache.commons.validator.routines.EmailValidator;
 import com.wcohen.ss.abbvGapsHmm.AlignmentPredictionModel;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.leftPad;
@@ -49,6 +50,7 @@ public class ImportConverter {
 	int m_complettEqual = 0;
 
 	int m_invalidPlzs = 0;
+	EmailValidator m_ev = EmailValidator.getInstance();
 
 	Map m_companyMapping = initCompany();
 
@@ -108,7 +110,8 @@ System.out.println("i:"+i);
 		m_dupFieldsContact.add("name1");
 		m_dupFieldsContact.add("givenname");
 		m_dupFieldsContact.add("street");
-		List<Map<String, String>> allList = readFile("Adressen.csv");
+		Map<String, String> emailMap = readCommFile("/tmp/Kommunikation.csv");
+		List<Map<String, String>> allList = readFile("/tmp/Adressen.csv");
 		//m_aliases.put("vhs", "volkshochschule");
 		//m_aliases.put("evangelischer", "ev.");
 		//m_aliases.put("evangelische", "ev.");
@@ -125,9 +128,16 @@ System.out.println("i:"+i);
 		List<Map<String, String>> singleContactList = new ArrayList();
 		List<Map<String, String>> resultList = new ArrayList();
 		List<Map<String, String>> foundList = new ArrayList();
+		Map<String,String> valEmailMap=new HashMap();
 		for (Map<String, String> candidat : allList) {
 			if (isNotCorrect(candidat.get("shortname_company"), candidat.get("shortname_person"))) {
 				candidat.put("type", "nok_sn");
+				m_notCorrectList.add(candidat);
+				continue;
+			}
+			String stat = isNotCorrectEmail(candidat.get("number"), emailMap,valEmailMap);
+			if (!"ok".equals(stat)) {
+				candidat.put("type", stat);
 				m_notCorrectList.add(candidat);
 				continue;
 			}
@@ -257,6 +267,23 @@ System.out.println("i:"+i);
 			}
 		}
 		return false;
+	}
+	protected Map<String, String> readCommFile(String file) throws Exception {
+		Map<String, String> retMap = new HashMap();
+		try {
+			LabeledCSVParser lp = new LabeledCSVParser(new ExcelCSVParser(new FileInputStream(new File(file))));
+			while (lp.getLine() != null) {
+				String typ = lp.getValueByLabel("Typ");
+				if(!"Mail1".equals(typ)) continue;
+				String number = lp.getValueByLabel("Nummer");
+				String mail = lp.getValueByLabel("Adresse");
+				retMap.put(number, mail);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+		return retMap;
 	}
 
 	protected List<Map<String, String>> readFile(String file) throws Exception {
@@ -479,6 +506,21 @@ System.out.println("i:"+i);
 		return ".".equals(shortname_company) || (isEmpty(shortname_company) && isEmpty(shortname_person));
 	}
 
+	private String isNotCorrectEmail(String number, Map<String,String> emailMap, Map<String,String> valEmailMap) {
+		String email = emailMap.get(number);
+		if( isEmpty(email)){
+		 return "nok_emailempty";
+		}
+		boolean valid = m_ev.isValid(email);
+		if( !valid ){
+			return "nok_emailinvalid";
+		}
+		if( valEmailMap.get(email) != null){
+			return "nok_emaildup";
+		}
+		valEmailMap.put(email,"xx");
+		return "ok";
+	}
 	private boolean isSingleContact(String shortname_person, String shortname_company) {
 		boolean b = !isEmpty(shortname_person) && isEmpty(shortname_company);
 		return b;
