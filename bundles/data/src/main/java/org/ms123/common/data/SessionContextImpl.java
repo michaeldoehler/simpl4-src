@@ -50,6 +50,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.BeanMap;
 import org.ms123.common.data.api.DataLayer;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class SessionContextImpl implements org.ms123.common.data.api.SessionContext{
@@ -231,7 +233,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		}else{
 			filter = attr + "=" + value ;
 		}
-		System.out.println("SessionManager.getObjectByAttr.filter:"+filter);
+		debug("SessionManager.getObjectByAttr.filter:"+filter);
 		Extent e = getPM().getExtent(clazz, true);
 		Query q = getPM().newQuery(e, filter);
 		try {
@@ -239,13 +241,13 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 			Iterator iter = coll.iterator();
 			if (iter.hasNext()) {
 				Object c = iter.next();
-				System.out.println("\tfound:"+c);
+				debug("\tfound:"+c);
 				return c;
 			}
 		} finally {
 			q.closeAll();
 		}
-		System.out.println("\tnot found");
+		debug("\tnot found");
 		return null;
 	}
 
@@ -373,7 +375,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		}
 		String entityName = (String)filterDesc.get("modulename");
 		m_js.prettyPrint(true);
-		System.out.println("executeFilter:"+m_js.deepSerialize(filterDesc));
+		debug("executeFilter:"+m_js.deepSerialize(filterDesc));
 
 		List<String> aliasList = new ArrayList();
 		List<String> fieldList = new ArrayList();
@@ -399,8 +401,8 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 				break;
 			}
 		}
-		System.out.println("orderby:"+orderby);
-		System.out.println("fieldList:"+fieldList);
+		debug("orderby:"+orderby);
+		debug("fieldList:"+fieldList);
 		List moduleList = new ArrayList();
 		String clazzName = m_inflector.getClassName(entityName);
 		moduleList.add(clazzName);
@@ -408,7 +410,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		params.put("fields", m_js.serialize(moduleList));
 		Map filter = (Map)filterDesc.get("filter");
 		filter = addExclusionFilter(filter,(List)filterDesc.get("exclusion"));
-		System.out.println("FilterWith:"+m_js.deepSerialize(filter));
+		debug("FilterWith:"+m_js.deepSerialize(filter));
 		params.put("filter", filter);
 		params.put("orderby", orderby);
 		params.put("filterParams", fparams);
@@ -543,7 +545,6 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		for (String key : configMap.keySet()) {
 			Map cm = configMap.get(key);
 			if (cm != null && cm.get("primary_key") != null &&  ((Boolean)cm.get("primary_key"))) {
-				System.out.println("cm:"+cm);
 				setPrimaryKey(key);
 			}
 		}
@@ -600,4 +601,14 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	private org.ms123.common.system.ThreadContext getThreadContext() {
 		return org.ms123.common.system.ThreadContext.getThreadContext();
 	}
+	protected static void debug(String message) {
+		m_logger.debug(message);
+	}
+
+	protected static void info(String message) {
+		m_logger.info(message);
+		System.out.println(message);
+	}
+
+	private static final Logger m_logger = LoggerFactory.getLogger(SessionContextImpl.class);
 }
