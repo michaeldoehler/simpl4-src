@@ -62,6 +62,7 @@ public class SojoObjectFilter implements WalkerInterceptor {
 	private List m_uidList = new ArrayList();
 	private int m_level=0;
 	private int m_maxLevel=5;
+	private boolean m_useBeanMap=false;
 
 	public Map getResult() {
 		return m_result;
@@ -73,15 +74,23 @@ public class SojoObjectFilter implements WalkerInterceptor {
 	public void setMaxLevel(int ml) {
 		m_maxLevel = ml;
 	}
+	public void setUseBeanMap(boolean u) {
+		m_useBeanMap = u;
+	}
 
 	public static Map getObjectGraph(Object o, SessionContext sc) {
 		return getObjectGraph(o,sc,5);
 	}
-	public static Map getObjectGraph(Object o, SessionContext sc,int maxLevel) {
+	public static Map getObjectGraph(Object o, SessionContext sc, int maxLevel) {
+		return getObjectGraph(o,sc,false,5);
+	}
+	public static Map getObjectGraph(Object o, SessionContext sc,boolean useBeanMap, int maxLevel) {
 		ObjectGraphWalker walker = new ObjectGraphWalker();
+		walker.setUseBeanMap(useBeanMap);
 		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
 		walker.setIgnoreNullValues(true);
 		SojoObjectFilter interceptor = new SojoObjectFilter();
+		interceptor.setUseBeanMap(useBeanMap);
 		interceptor.setSessionContext(sc);
 		interceptor.setMaxLevel(maxLevel);
 		walker.addInterceptor(interceptor);
@@ -112,6 +121,7 @@ public class SojoObjectFilter implements WalkerInterceptor {
 				return false;
 			}
 			if (pvType == Constants.TYPE_MAP) {
+				//System.out.println("Max:"+m_maxLevel+"/"+m_level+"/"+pvNumberOfRecursion+"/"+pvPath+"/"+printType(pvType));
 				if(m_level >= m_maxLevel){
 					return true;
 				}
@@ -146,7 +156,9 @@ public class SojoObjectFilter implements WalkerInterceptor {
 				m_current = newList;
 			} else if (pvType == Constants.TYPE_MAP) {
 				Object uid = ((Map) pvValue).get(UniqueIdGenerator.UNIQUE_ID_PROPERTY);
-				m_uidList.add(uid);
+				if( uid!=null){
+					m_uidList.add(uid);
+				}
 				m_level++;
 				m_moduleNameStack.push(m_currentModuleName);
 				m_currentModuleName = getEntityName(((Map) pvValue).get("class"));

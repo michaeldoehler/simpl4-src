@@ -128,6 +128,14 @@ public class Utils {
 	public static <T> boolean isCollectionEqual(Collection<T> lhs, Collection<T> rhs) {
 		return lhs.size() == rhs.size() && lhs.containsAll(rhs) && rhs.containsAll(lhs);
 	}
+	public static  boolean isEmptyObj(Object o) {
+		if( o instanceof String){
+			String s=(String)o;
+			return (s == null || "".equals(s.trim()));
+		}
+		if( o==null) return true;
+		return false;
+	}
 
 	public static  boolean isEmpty(String s) {
 		return (s == null || "".equals(s.trim()));

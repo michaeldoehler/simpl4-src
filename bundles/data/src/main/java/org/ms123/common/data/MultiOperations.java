@@ -74,9 +74,10 @@ public class MultiOperations {
 
 	protected static JSONSerializer m_js = new JSONSerializer();
 
-	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_]{2,64}";
+	private static String FIELDNAME_REGEX = "[a-zA-Z0-9_.]{2,64}";
 
 	public static List<Object> persistObjects(SessionContext sc, Object obj, Map<String, Object> persistenceSpecification, int max) {
+		m_js.prettyPrint(true);
 		List<Object> retList = new ArrayList();
 		UserTransaction ut = sc.getUserTransaction();
 		String mainEntity = null;
@@ -130,6 +131,8 @@ public class MultiOperations {
 			}
 		}
 		debug("noUpdate:"+noUpdate);
+		Map hintsMap = new HashMap();
+		hintsMap.put("noUpdate", noUpdate);
 		try {
 			int num = 0;
 			if (resultList.size() > 0) {
@@ -142,19 +145,15 @@ public class MultiOperations {
 				if (max != -1 && num >= max) {
 					break;
 				}
-				Map m = SojoObjectFilter.getObjectGraph(object, sc, 2);
+				Map m = SojoObjectFilter.getObjectGraph(object, sc, true,2);
 				//retList.add(m);
-				//ut.begin();
 				Object origObject = null;
 				boolean isNew = true;
 				if (updateQuery != null) {
 					origObject = getObjectByFilter(groovyShell, pm, object.getClass(), object, updateQuery);
 					debug("origObject:" + origObject);
 					if (origObject != null) {
-						if(noUpdate){
-							 continue;
-						}
-						populate(sc, m, origObject, null);
+						populate(sc, m, origObject, hintsMap);
 						object = origObject;
 						isNew = false;
 					}
@@ -165,17 +164,18 @@ public class MultiOperations {
 					if(origObject == null || !origObject.getClass().equals( object.getClass())){
 						sc.getDataLayer().insertIntoMaster(sc, object, mainEntity, parentObject, parentFieldName);
 					}else{
-						populate(sc, m, origObject, null);
+						populate(sc, m, origObject, hintsMap);
 						object = origObject;
 						isNew = false;
 					}
 				}
-				evaluteFormulas(sc, mainEntity, object, "in", isNew);
+				if( (num % 500) == 0){
+					System.out.println("num:"+num);
+				}
 				//Muss eigentlich über alle Object gehen
+				evaluteFormulas(sc, mainEntity, object, "in", isNew);
 				sc.getDataLayer().makePersistent(sc, object);
 				retList.add(object);
-				debug("\tpersist:" + m_js.serialize(object));
-				//ut.commit();
 				num++;
 			}
 		} catch (Throwable e) {
@@ -238,6 +238,7 @@ public class MultiOperations {
 		if (hintsMap == null) {
 			hintsMap = new HashMap();
 		}
+		boolean noUpdate = Utils.getBoolean(hintsMap, "noUpdate", false);
 		BeanMap destinationMap = new BeanMap(destinationObj);
 		String entityName = m_inflector.getEntityName(destinationObj.getClass().getSimpleName());
 		debug("populate.sourceMap:" + sourceMap + ",destinationObj:" + destinationObj + ",destinationMap:" + destinationMap + "/hintsMap:" + hintsMap + "/entityName:" + entityName);
@@ -406,11 +407,11 @@ public class MultiOperations {
 										childSourceMap.put("disabled", false);
 									}
 									pm.makePersistent(childDestinationObj);
-									populate(sessionContext, childSourceMap, childDestinationObj, null);
+									populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 									PropertyUtils.setProperty(childDestinationObj, "teamintern", ti);
 								} else {
 									pm.makePersistent(childDestinationObj);
-									populate(sessionContext, childSourceMap, childDestinationObj, null);
+									populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 								}
 								debug("populated.add:" + new HashMap(new BeanMap(childDestinationObj)));
 								destinationList.add(childDestinationObj);
@@ -443,7 +444,7 @@ public class MultiOperations {
 								Map childSourceMap = (Map) ol;
 								Object childDestinationObj = Utils.listContainsId(destinationList, childSourceMap, "teamid");
 								if (childDestinationObj != null) {
-									populate(sessionContext, childSourceMap, childDestinationObj, null);
+									populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 								} else {
 									childDestinationObj = propertyType.newInstance();
 									if (propertyType.getName().endsWith(".Team")) {
@@ -462,11 +463,11 @@ public class MultiOperations {
 											childSourceMap.put("disabled", false);
 										}
 										pm.makePersistent(childDestinationObj);
-										populate(sessionContext, childSourceMap, childDestinationObj, null);
+										populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 										PropertyUtils.setProperty(childDestinationObj, "teamintern", ti);
 									} else {
 										pm.makePersistent(childDestinationObj);
-										populate(sessionContext, childSourceMap, childDestinationObj, null);
+										populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 									}
 									destinationList.add(childDestinationObj);
 								}
@@ -599,16 +600,18 @@ public class MultiOperations {
 					debug("propertyType:" + propertyType + "/" + propertyName);
 					if (propertyType != null) {
 						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
-							//handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
+							handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
 							Object obj = sourceMap.get(propertyName);
+debug("PersistenceCapable:"+obj);
 							if (obj != null && obj instanceof Map) {
 								Map childSourceMap = (Map) obj;
 								Object childDestinationObj = destinationMap.get(propertyName);
+debug("PersistenceCapable.childDestinationObj:"+obj);
 								if (childDestinationObj == null) {
 									childDestinationObj = propertyType.newInstance();
 									destinationMap.put(propertyName, childDestinationObj);
 								}
-								populate(sessionContext, childSourceMap, childDestinationObj, null);
+								populate(sessionContext, childSourceMap, childDestinationObj, hintsMap);
 							} else {
 								if (obj == null) {
 									destinationMap.put(propertyName, null);
@@ -623,7 +626,13 @@ public class MultiOperations {
 				if (!ok) {
 					String value = Utils.getString(sourceMap.get(propertyName), destinationMap.get(propertyName), mode);
 					try {
-						destinationMap.put(propertyName, value);
+						if( noUpdate){
+							if(Utils.isEmptyObj(destinationMap.get(propertyName))){
+								destinationMap.put(propertyName, value);
+							}
+						}else{
+							destinationMap.put(propertyName, value);
+						}
 					} catch (Exception e) {
 						debug("populate.failed:" + propertyName + "=>" + value + ";" + e);
 					}
@@ -653,16 +662,17 @@ public class MultiOperations {
 		if (id != null && !"".equals(id) && !"null".equals(id)) {
 			debug("\tid.found:" + id);
 			Object relatedObject = sc.getPM().getObjectById(propertyType, id);
-			List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, destinationObj, null);
+			/*List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, destinationObj, null);
 			if (candidates.size() == 1) {
 				Collection l = candidates.get(0);
 				debug("list.contains:" + l.contains(destinationObj));
 				if (!l.contains(destinationObj)) {
 					l.add(destinationObj);
 				}
-			}
+			}*/
+debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 			destinationMap.put(propertyName, relatedObject);
-		} else {
+		} /*else {
 			Object relatedObject = destinationMap.get(propertyName);
 			debug("\trelatedObject:" + relatedObject);
 			if (relatedObject != null) {
@@ -676,7 +686,7 @@ public class MultiOperations {
 				}
 			}
 			destinationMap.put(propertyName, null);
-		}
+		}*/
 	}
 
 	private static synchronized String expandString(GroovyShell shell, String str, Map<String, String> vars) {
@@ -771,7 +781,24 @@ public class MultiOperations {
 		}
 	}
 
-	public static boolean isString(Class c, String fieldName) {
+	public  static boolean isString(Class clazz, String fieldName) {
+		Field field=null;
+		try{
+			String[] parts = fieldName.split("\\.");
+			for( int i=0; i< (parts.length-1); i++){
+				String part = parts[i];
+				Field f = clazz.getDeclaredField(part);
+				clazz = f.getType();
+				fieldName=parts[i+1];
+			}
+			field = clazz.getDeclaredField(fieldName);
+			return field.getType().isAssignableFrom(String.class);
+		} catch (Throwable e) {
+			return true;
+		}
+	}
+
+	public static boolean _isString(Class c, String fieldName) {
 		try {
 			Field f = c.getDeclaredField(fieldName);
 			return f.getType().isAssignableFrom(String.class);
