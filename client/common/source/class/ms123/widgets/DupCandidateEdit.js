@@ -90,6 +90,8 @@ qx.Class.define("ms123.widgets.DupCandidateEdit", {
 				data = this._getRef(refid) || {};
 				this._refData = data;
 				this._refForm.fillForm(data);
+			}else{
+				this._refForm.fillForm({});
 			}
 		},
 		_getRef: function (id) {
