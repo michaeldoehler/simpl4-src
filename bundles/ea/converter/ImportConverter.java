@@ -136,7 +136,8 @@ System.out.println("i:"+i);
 				continue;
 			}
 			String stat = isNotCorrectEmail(candidat.get("number"), emailMap,valEmailMap);
-			if (!"ok".equals(stat)) {
+			boolean isCompany = isCompany(candidat.get("shortname_company"), candidat.get("shortname_person"));
+			if (!isCompany && !"ok".equals(stat)) {
 				candidat.put("type", stat);
 				m_notCorrectList.add(candidat);
 				continue;
