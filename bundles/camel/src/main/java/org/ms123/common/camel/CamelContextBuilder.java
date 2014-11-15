@@ -29,6 +29,7 @@ import org.apache.camel.impl.SimpleRegistry;
 import org.apache.camel.management.event.ExchangeCompletedEvent;
 import org.apache.camel.management.event.ExchangeCreatedEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.processor.interceptor.Tracer;
 import org.apache.camel.spi.Registry;
@@ -44,6 +45,8 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.system.ThreadContext;
 import org.ms123.common.system.TransactionService;
 import org.osgi.framework.BundleContext;
+import java.util.Map;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -128,28 +131,26 @@ public class CamelContextBuilder {
 		}
 
 		public void notify(EventObject event) throws Exception {
-			if (event instanceof ExchangeSentEvent) {
-				ExchangeSentEvent ev = (ExchangeSentEvent) event;
-			}
 			if (event instanceof ExchangeCreatedEvent) {
 				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
-				info("EventNotifierSupport:" + ev + "/" + ev.getExchange());
-				ThreadContext.getThreadContext().loadThreadContext(m_namespace, "admin");
-				m_permissionService.loginInternal(m_namespace);
+				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
+					info("------>EventNotifierSupportStart:" + ev );
+					ThreadContext.getThreadContext().loadThreadContext(m_namespace, "admin");
+					m_permissionService.loginInternal(m_namespace);
+				}
 			}
 			if (event instanceof ExchangeCompletedEvent) {
 				ExchangeCompletedEvent ev = (ExchangeCompletedEvent) event;
-				info("EventNotifierSupport:" + ev + "/" + ev.getExchange());
-				ThreadContext.getThreadContext().finalize(null);
+				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
+					info("<-----EventNotifierSupportComplete:" + ev );
+					ThreadContext.getThreadContext().finalize(null);
+				}
 			}
 		}
 
 		public boolean isEnabled(EventObject event) {
-			//if(event instanceof ExchangeSentEvent) return true;
-			if (event instanceof ExchangeCreatedEvent)
-				return true;
-			if (event instanceof ExchangeCompletedEvent)
-				return true;
+			if (event instanceof ExchangeCreatedEvent) return true;
+			if (event instanceof ExchangeCompletedEvent) return true;
 			return false;
 		}
 
