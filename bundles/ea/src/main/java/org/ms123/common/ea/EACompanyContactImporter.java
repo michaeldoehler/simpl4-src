@@ -197,6 +197,9 @@ public class EACompanyContactImporter implements Constants {
 				}
 			}
 		}
+		if( entity.equals("contact") ){
+			BeanUtils.setProperty(obj, "country", "DEU");
+		}
 		BeanUtils.setProperty(obj, "_state", state);
 		return obj;
 	}
