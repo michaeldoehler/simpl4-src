@@ -1044,7 +1044,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 							} catch (Exception e) {
 				
 							}
-								debug("FromX:"+from.get(key)+"/"+from.get(key).getClass());
 							if (id != null && !"".equals(id) && !"null".equals(id)) {
 								debug("\tId2:"+id);
 								Object relatedObject = pm.getObjectById(type, id);
