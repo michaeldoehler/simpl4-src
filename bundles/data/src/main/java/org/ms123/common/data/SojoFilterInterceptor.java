@@ -44,6 +44,7 @@ import net.sf.sojo.core.filter.ClassPropertyFilter;
 import flexjson.*;
 import javax.jdo.annotations.Persistent;
 import org.ms123.common.data.api.SessionContext;
+import org.apache.commons.beanutils.BeanMap;
 
 @SuppressWarnings("unchecked")
 public class SojoFilterInterceptor implements WalkerInterceptor {
@@ -68,6 +69,8 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 
 	private String m_currentModuleName = "ROOT";
 
+	private boolean m_isAdmin=false;
+
 	public Map getResult() {
 		return m_result;
 	}
@@ -76,14 +79,22 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 	public void setSessionContext(SessionContext sess) {
 		m_sessionContext = sess;
 	}
+	private void setAdmin(boolean isa) {
+		m_isAdmin = isa;
+	}
+	private boolean isAdmin() {
+		return m_isAdmin;
+	}
 
 	public static Map filterFields(Object o, SessionContext sc, List<String> fieldList, List<String> aliasList) {
 		SojoFilterInterceptor interceptor = new SojoFilterInterceptor();
-		ObjectGraphWalker walker = new ObjectGraphWalker(interceptor.getClassPropertyFilterHandlerImpl());
+		ObjectGraphWalker walker = new ObjectGraphWalker();
+		walker.setUseBeanMap(true);
 		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
 		walker.setIgnoreNullValues(true);
 		interceptor.setFields(fieldList, aliasList);
 		interceptor.setSessionContext(sc);
+	  interceptor.setAdmin(sc.getPermissionService().hasAdminRole());
 		walker.addInterceptor(interceptor);
 		walker.walk(o);
 		return interceptor.getResult();
@@ -121,12 +132,16 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 			}
 			if (pvType == Constants.TYPE_MAP) {
 				Object teams = ((Map) pvValue).get("_team_list");
-				if (teams != null && ((Collection) teams).size() > 0) {
-					for( Map team : ((Collection<Map>) teams)){ //@@@MS Copy the "team.name" from "teamintern" to "team"
+				if (!isAdmin() && teams != null && ((Collection) teams).size() > 0) {
+					for( Object _team : ((Collection<Map>) teams)){ //@@@MS Copy the "team.name" from "teamintern" to "team"
+						BeanMap team = new BeanMap(_team);
 						if(team.get("name") == null){
-							Map teamintern = (Map)team.get("teamintern");
-							team.put("name", teamintern.get("name"));
-							team.remove("teamintern");
+							Object _teamintern = (Object)team.get("teamintern");
+							if( _teamintern!=null){
+								BeanMap teamintern = new BeanMap(_teamintern);
+								team.put("name", teamintern.get("name"));
+								team.put("teamintern",null);
+							}
 						}
 					}
 					if (!m_sessionContext.hasTeamPermission(teams)) {
@@ -271,53 +286,4 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		}
 	}
 
-	private ClassPropertyFilterHandler getClassPropertyFilterHandlerImpl(){
-		return new ClassPropertyFilterHandlerImpl();
-	}
-	private Map<String,ClassPropertyFilter> m_filterClassCache = new HashMap();
-	private  class ClassPropertyFilterHandlerImpl implements ClassPropertyFilterHandler {
-		public ClassPropertyFilter getClassPropertyFilterByClass(Class pvFilterClass) {
-			ClassPropertyFilter c = m_filterClassCache.get(pvFilterClass.toString());
-			if( c== null){	
-				c = new ClassPropertyFilterImpl(pvFilterClass);
-				m_filterClassCache.put(pvFilterClass.toString(),c);
-			}
-			return c;
-		}
-	}
-
-	private class ClassPropertyFilterImpl extends ClassPropertyFilter{
-		Class clazz;
-		public ClassPropertyFilterImpl(Class pvClass) {
-			super(pvClass);
-			clazz = pvClass;
-		}
-		public boolean isKnownProperty(String pvProperty) {
-			if("class".equals(pvProperty)) return false;
-			//	if("teamintern".equals(pvProperty)) return true;
-			if("~unique-id~".equals(pvProperty)) return true;
-			if( clazz.equals(Set.class) || clazz.equals(List.class) ) return false;
-			boolean inc = isIncluded(pvProperty);
-
-			//System.out.println("isKnownProperty("+clazz.getSimpleName()+"):"+pvProperty+"="+inc);
-			return !inc;		
-		}
-		private boolean isIncluded( String pvProperty ) {
-			try{
-				Field field = clazz.getDeclaredField(pvProperty);
-				if( field.isAnnotationPresent( JSON.class ) ) {
-					boolean isInc = field.getAnnotation( JSON.class ).include();
-					return isInc;
-				}
-				if( field.isAnnotationPresent( Persistent.class ) ) {
-					Class type = field.getType();
-					boolean isInc = m_filterClassCache.get(type.toString())==null;
-					//System.out.println("isIncluded3:"+clazz+"."+pvProperty+"/"+type.toString()+"/"+isInc);
-					return isInc;
-				}
-			}catch(Exception e){
-			}
-			return true;
-		}
-	}
 }
