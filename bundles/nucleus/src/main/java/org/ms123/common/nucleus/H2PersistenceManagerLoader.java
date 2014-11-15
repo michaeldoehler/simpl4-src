@@ -70,6 +70,13 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 	}
 
 	protected void setProperties() {
+		if( "global_data".equals(m_sdesc.getStoreId())){
+			setNonTxProperties();
+		}else{
+			setTxProperties();
+		}
+	}
+	protected void setTxProperties() {
 		m_props.put("javax.jdo.PersistenceManagerFactoryClass", "org.datanucleus.api.jdo.JDOPersistenceManagerFactory");
 		m_props.put("datanucleus.rdbms.dynamicSchemaUpdates ", "true");
 		m_props.put("datanucleus.storeManagerType", m_sdesc.getStore());
@@ -79,6 +86,19 @@ public class H2PersistenceManagerLoader extends AbstractPersistenceManagerLoader
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
 		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
+		m_props.put("datanucleus.validateConstraints", "false");
+		//		m_props.put("datanucleus.identifier.case", "PreserveCase");
+		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
+	}
+
+	protected void setNonTxProperties() {
+		m_props.put("javax.jdo.PersistenceManagerFactoryClass", "org.datanucleus.api.jdo.JDOPersistenceManagerFactory");
+		m_props.put("datanucleus.rdbms.dynamicSchemaUpdates ", "true");
+		m_props.put("datanucleus.storeManagerType", m_sdesc.getStore());
+		m_props.put("datanucleus.metadata.validate", "false");
+		m_props.put("datanucleus.autoCreateSchema", "true");
+		m_props.put("datanucleus.validateTables", "false");
+		m_props.put("datanucleus.NontransactionalWrite", "true");
 		m_props.put("datanucleus.validateConstraints", "false");
 		//		m_props.put("datanucleus.identifier.case", "PreserveCase");
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
