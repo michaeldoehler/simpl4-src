@@ -174,6 +174,7 @@ public class MultiOperations {
 				}
 				//Muss eigentlich über alle Object gehen
 				evaluteFormulas(sc, mainEntity, object, "in", isNew);
+				setStateToNew(object);
 				sc.getDataLayer().makePersistent(sc, object);
 				retList.add(object);
 				num++;
@@ -187,6 +188,15 @@ public class MultiOperations {
 		return retList;
 	}
 
+	private static void setStateToNew(Object object){
+		try{
+			boolean hasState = PropertyUtils.isWriteable(object, STATE_FIELD);
+			if(hasState ){
+				PropertyUtils.setProperty(object, STATE_FIELD, null);
+			}
+		}catch(Exception e){
+		}
+	}
 	private static Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
 		String filter = expandString(shell, queryString, new BeanMap(child));
 		debug("getObjectByFilter:" + filter+"/clazz:"+clazz);
