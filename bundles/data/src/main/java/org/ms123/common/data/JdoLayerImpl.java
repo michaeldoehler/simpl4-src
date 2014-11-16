@@ -685,16 +685,19 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				debug("++++>populate:field("+key+") write permitted");
 			}
 			String datatype = null;
+			String edittype = null;
 			if( !key.startsWith("_") ){
 				Map config = (Map)permittedFields.get(key);
 				if( config != null){
 					datatype = (String)config.get("datatype");
+					edittype = (String)config.get("edittype");
 				}
 			}
 
 			if(key.equals(STATE_FIELD) && !m_permissionService.hasAdminRole()){
 				continue;	
 			}
+			if("auto".equals(edittype))continue;
 			String mode = null;
 			Map hm = (Map) hintsMap.get(key);
 			if (hm != null) {

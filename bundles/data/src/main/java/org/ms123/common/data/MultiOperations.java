@@ -272,15 +272,19 @@ public class MultiOperations {
 				debug("++++>populate:field(" + propertyName + ") write permitted");
 			}
 			String datatype = null;
+			String edittype = null;
 			if (!propertyName.startsWith("_")) {
 				Map config = (Map) permittedFields.get(propertyName);
 				if (config != null) {
 					datatype = (String) config.get("datatype");
+					edittype = (String) config.get("edittype");
 				}
 			}
 			if (propertyName.equals(STATE_FIELD) && !sessionContext.getPermissionService().hasAdminRole()) {
 				continue;
 			}
+			if("auto".equals(edittype))continue;
+
 			String mode = null;
 			Map hm = (Map) hintsMap.get(propertyName);
 			if (hm != null) {
