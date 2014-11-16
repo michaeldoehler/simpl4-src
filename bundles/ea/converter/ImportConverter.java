@@ -516,10 +516,10 @@ System.out.println("i:"+i);
 		if( !valid ){
 			return "nok_emailinvalid";
 		}
-		if( valEmailMap.get(email) != null){
+		if( valEmailMap.get(email.toLowerCase()) != null){
 			return "nok_emaildup";
 		}
-		valEmailMap.put(email,"xx");
+		valEmailMap.put(email.toLowerCase(),"xx");
 		return "ok";
 	}
 	private boolean isSingleContact(String shortname_person, String shortname_company) {
