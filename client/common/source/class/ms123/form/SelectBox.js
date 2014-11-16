@@ -126,6 +126,14 @@ qx.Class.define("ms123.form.SelectBox", {
 		beforeAdd: function (context) {
 			if (this._selectable_items == null) return;
 			this._missingParamList = this._selectable_items.getMissingParamList();
+			if (this._missingParamList) {
+				var vars = {};
+				for (var i = 0; i < this._missingParamList.length; i++) {
+					var mp = this._missingParamList[i];
+					vars[mp] = context.data[mp];
+				}
+				this._refreshItems(vars);
+			}
 		},
 		beforeEdit: function (context) {
 			if (this._selectable_items == null) return;
