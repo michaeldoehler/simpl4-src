@@ -746,7 +746,7 @@ public class Transformer implements Constants{
 						}
 						if( event.getBean() instanceof Map){
 							Map bean = (Map)event.getBean();
-							bean.put("class", beanNode.name);
+							//bean.put("class", beanNode.name);
 							if( checkBean((Map)event.getBean()) ){
 								((List)beanList).remove(event.getBean());
 								debug("-----------------------");
