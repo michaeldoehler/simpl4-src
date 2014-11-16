@@ -79,7 +79,7 @@ public class TriggerServiceImpl implements TriggerService {
 
 	private final String ENTITY = "entity";
 
-	private JSONSerializer m_js = new JSONSerializer();
+	private static JSONSerializer m_js = new JSONSerializer();
 
 	private static JSONDeserializer m_ds = new JSONDeserializer();
 
@@ -126,43 +126,43 @@ public class TriggerServiceImpl implements TriggerService {
 		system.put(StoreDesc.NAMESPACE, sdesc.getNamespace());
 		params.put(StoreDesc.PACK, sdesc.getPack());
 		params.put(StoreDesc.STORE, sdesc.getStore());
-		List<Map> wList = null;
+		List<Map> triggerList = null;
 		try {
-			wList = getTriggers(sessionContext.getDataLayer(), sdesc, entity, applies_to);
+			triggerList = getTriggers(sessionContext.getDataLayer(), sdesc, entity, applies_to);
 		} catch (Exception e) {
 			throw e;
 		}
-		debug("wList:" + wList);
-		for (Map wf : wList) {
-			debug("\twf:" + wf);
+		m_js.prettyPrint(true);
+		for (Map triggerMap : triggerList) {
+			if(isDebug()){
+				debug("TriggerMap:" + m_js.deepSerialize(triggerMap));
+			}
 			Map triggerInfo = new HashMap();
 			triggerInfo.put("operation", operation);
-			boolean conditionsOk = testTriggerConditions(sessionContext, wf, sdesc, entity, config, insert, preUpdate,triggerInfo);
+			boolean conditionsOk = testTriggerConditions(sessionContext, triggerMap, sdesc, entity, config, insert, preUpdate,triggerInfo);
 			debug("Trigger.conditionsOk:" + conditionsOk);
 			if (conditionsOk) {
-				executeTriggerActions(wf, sessionContext, entity, insert,triggerInfo);
+				executeTriggerActions(triggerMap, sessionContext, entity, insert,triggerInfo);
 			}
 		}
 		return null;
 	}
 
-	private boolean testTriggerConditions(SessionContext sessionContext, Map wf, StoreDesc sdesc, String entity, String config, Object insert, Object preUpdate, Map triggerInfo) throws Exception {
+	private boolean testTriggerConditions(SessionContext sessionContext, Map triggerMap, StoreDesc sdesc, String entity, String config, Object insert, Object preUpdate, Map triggerInfo) throws Exception {
 		int operation = (Integer)triggerInfo.get("operation");
-		List<Map> conditions = (List) wf.get("conditions");
-		debug("\tconditions:" + conditions);
+		List<Map> conditions = (List) triggerMap.get("conditions");
 		Map fieldSets = m_settingService.getFieldSets(config, sdesc.getNamespace(), m_inflector.getEntityName(entity));
 		boolean ok = false;
-		if (conditions.size() == 0)
+		if (conditions.size() == 0){
 			return true;
+		}
 		for (Map cond : conditions) {
 			if (cond.size() == 0) {
 				ok = true;
 				continue;
 			}
-			debug("condition1:" + cond);
 			QueryBuilder qb = new QueryBuilder("mvel", sdesc, entity, false, config, sessionContext, null, cond, null, fieldSets);
 			String evalString = qb.getWhere();
-			debug("condition2:" + evalString);
 			Map props = new HashMap();
 			props.putAll(qb.getQueryParams());
 			props.put(m_inflector.getEntityName(entity), insert);
@@ -176,9 +176,12 @@ public class TriggerServiceImpl implements TriggerService {
 				}
 			}
 			props.put(m_inflector.getEntityName(entity) + "_pre", preUpdate);
-			debug("props:" + props);
+			debug("TestTrigger.evalString:" + evalString);
+			if(isDebug()){
+				debug("TestTrigger.properties:" + m_js.deepSerialize(props));
+			}
 			ok = MVEL.evalToBoolean(evalString, props);
-			debug("\tok1:" + ok);
+			debug("\tTestTrigger.ok:" + ok);
 			if (!ok) {
 				return ok;
 			}
@@ -186,8 +189,8 @@ public class TriggerServiceImpl implements TriggerService {
 		return ok;
 	}
 
-	private boolean executeTriggerActions(Map wf, SessionContext sessionContext, String entity, Object insert, Map triggerInfo) throws Exception {
-		List<Map> actions = (List) wf.get("actions");
+	private boolean executeTriggerActions(Map triggerMap, SessionContext sessionContext, String entity, Object insert, Map triggerInfo) throws Exception {
+		List<Map> actions = (List) triggerMap.get("actions");
 		int operation = (Integer)triggerInfo.get("operation");
 		debug("executeTriggerActions:" + actions);
 		for (Map action : actions) {
@@ -273,8 +276,10 @@ public class TriggerServiceImpl implements TriggerService {
 		triggerInfo.put("targetEntity", entity);
 		triggerInfo.put("targetObject", SojoObjectFilter.getObjectGraph(insert, sessionContext));
 		paramMap.put("triggerInfo", triggerInfo);
-		m_js.prettyPrint(true);
-		System.out.println("paramMap:"+m_js.deepSerialize(paramMap));
+		if(isDebug()){
+			m_js.prettyPrint(true);
+			debug("paramMap:"+m_js.deepSerialize(paramMap));
+		}
 		new CamelThread(sdesc.getNamespace(), camelCall, user, paramMap).start();
 	}
 
@@ -441,10 +446,6 @@ public class TriggerServiceImpl implements TriggerService {
 		return v;
 	}
 
-	public static void testTriggers(DataLayer dl, StoreDesc sdesc) throws Exception {
-		getTriggers(dl, sdesc, "Entity", "updated");
-	}
-
 	private static List getTriggers(DataLayer dl, StoreDesc sdesc, String entity, String appliesTo) throws Exception {
 		StoreDesc csdesc = StoreDesc.getNamespaceMeta(sdesc.getNamespace());
 		String pack = sdesc.getPack();
@@ -453,9 +454,8 @@ public class TriggerServiceImpl implements TriggerService {
 		List<Map> ret = new ArrayList();
 		try {
 			String filter = "(active==true) && (targetmodule == '" + clazzName + "') && (applies_to.regexCI(\"" + appliesTo + "\"))";
-			debug("filter:" + filter);
+			debug("GetTriggers.filter:" + filter);
 			List tl = sc.getListByFilter(sc.getClass("trigger"), filter);
-			debug("tl:" + tl);
 			for (Object o : tl) {
 				Map trigger = new HashMap();
 				List<Map> cList = new ArrayList();
@@ -470,7 +470,6 @@ public class TriggerServiceImpl implements TriggerService {
 					boolean active = (Boolean) getProperty(c, "active");
 					if (active) {
 						String value = (String) getProperty(c, "value");
-						debug("\tgetTriggers.condition_value:" + value);
 						Map condition = null;
 						if (value == null || "".equals(value)) {
 							condition = new HashMap();
@@ -487,7 +486,6 @@ public class TriggerServiceImpl implements TriggerService {
 					boolean active = (Boolean) getProperty(a, "active");
 					if (active) {
 						String value = (String) getProperty(a, "value");
-						debug("\tgetTriggers.action_value:" + value);
 						Map actions = (Map) m_ds.deserialize(value);
 						aList.add(actions);
 					}
@@ -495,7 +493,6 @@ public class TriggerServiceImpl implements TriggerService {
 			}
 		} finally {
 		}
-		debug("getTriggers:" + ret);
 		return ret;
 	}
 
@@ -604,6 +601,9 @@ public class TriggerServiceImpl implements TriggerService {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	protected static boolean isDebug() {
+		return m_logger.isDebugEnabled();
 	}
 	protected static void debug(String message) {
 		m_logger.debug(message);
