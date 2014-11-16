@@ -3,6 +3,8 @@ bundles/*/tmp
 build
 .gradle
 .cache
+*.csv
+*.csv-
 client/common/build
 repository/master
 *.class
