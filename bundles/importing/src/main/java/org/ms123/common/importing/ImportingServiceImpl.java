@@ -270,7 +270,7 @@ public class ImportingServiceImpl extends BaseImportingServiceImpl implements Im
 				try{
 					ut.begin();
 					Map outputTree = (Map)settings.get("output");
-					Map<String,String> persistenceSpecification = (Map)outputTree.get("persistenceSpecification");
+					Map<String,Object> persistenceSpecification = (Map)outputTree.get("persistenceSpecification");
 					Object o = org.ms123.common.data.MultiOperations.persistObjects(sessionContext,ret,persistenceSpecification, -1);
 					ut.commit();
 					return o;
