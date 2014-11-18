@@ -34,10 +34,6 @@ import org.ms123.common.rpc.RpcException;
 import org.ms123.common.store.StoreDesc;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.git.GitService;
@@ -49,9 +45,7 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
  */
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=hook" })
-public class HookServiceImpl extends BaseHookServiceImpl implements HookService, EventHandler {
-
-	private EventAdmin m_eventAdmin;
+public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.common.rpc.HookService {
 
 	public HookServiceImpl() {
 	}
@@ -63,27 +57,23 @@ public class HookServiceImpl extends BaseHookServiceImpl implements HookService,
 		try {
 			Bundle b = bundleContext.getBundle();
 			m_bundleContext = bundleContext;
-			Dictionary d = new Hashtable();
-			d.put(EventConstants.EVENT_TOPIC, topics);
-			b.getBundleContext().registerService(EventHandler.class.getName(), this, d);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void handleEvent(Event event) {
-		String serviceName = (String)event.getProperty(SERVICENAME);
-		String methodName = (String)event.getProperty(METHODNAME);
-		Object methodParams = event.getProperty(METHODPARAMS);
-		Object at = event.getProperty(AT);
-		Object result = event.getProperty(METHODRESULT);
+	public void callHooks(Map props){
+		System.out.println("handleEvent");	
+		String serviceName = (String)props.get(SERVICENAME);
+		String methodName = (String)props.get(METHODNAME);
+		Object methodParams = props.get(METHODPARAMS);
+		Object at = props.get(AT);
+		Object result = props.get(METHODRESULT);
 		String ns = getNamespace(methodParams);
 		if( ns == null ){
-			error("Namspace not in parameterMap:service:"+serviceName+"/"+methodName+"/params:"+methodParams);
 			return;
 		}
 		List<Map> hookList = getHooks(ns);
-		info("Hooks:"+hookList+"/ns:"+ns);
 		if( hookList == null ) return;
 		for(Map<String,String> hook : hookList){
 			if( at.equals(hook.get(AT)) && ns.equals(hook.get(StoreDesc.NAMESPACE)) && serviceName.equals(hook.get(SERVICENAME)) && methodName.equals(hook.get(METHODNAME))){
@@ -117,10 +107,5 @@ public class HookServiceImpl extends BaseHookServiceImpl implements HookService,
 	public void setPermissionService(PermissionService paramPermissionService) {
 		this.m_permissionService = paramPermissionService;
 		System.out.println("HookServiceImpl.setPermissionService:" + paramPermissionService);
-	}
-	@Reference(dynamic = true)
-	public void setEventAdmin(EventAdmin paramEventAdmin) {
-		System.out.println("HookServiceImpl.setEventAdmin:" + paramEventAdmin);
-		this.m_eventAdmin = paramEventAdmin;
 	}
 }

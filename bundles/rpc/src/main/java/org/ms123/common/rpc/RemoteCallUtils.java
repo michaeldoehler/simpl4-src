@@ -212,6 +212,8 @@ public class RemoteCallUtils {
 				throw (RemoteException) e.getCause();
 			} else if (e.getCause() instanceof RpcException) {
 				throw (RpcException) e.getCause();
+			} else if (e.getCause() instanceof org.apache.shiro.authz.UnauthorizedException) {
+				throw new RpcException( 0,0,e.getMessage(), e.getCause());
 			} else {
 				// Unwanted exception, like NullPointerException
 				// TODO: raise a different type of exception
@@ -314,13 +316,14 @@ public class RemoteCallUtils {
 			error(e.getClass().getName());
 			error(e.getMessage(),e);
 			error("");
-			while (e.getCause() != null) {
-				e = e.getCause();
+			e = e.getCause();
+			if (e != null) {
 				error("CAUSED BY: ");
 				trace(e);
 			}
 		}
 	}
+
 	protected void debug(String message) {
 		m_logger.debug(message);
 		System.out.println(message);

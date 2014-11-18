@@ -16,10 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.system.hook;
-import java.util.List;
+package org.ms123.common.rpc;
 import java.util.Map;
-import org.ms123.common.rpc.RpcException;
 
 public interface HookService {
 
@@ -31,4 +29,7 @@ public interface HookService {
 	public static String AT_BEFORE = "before";
 	public static String AT_AFTER = "after";
 	public static String METHODRESULT = "result";
+
+	public void callHooks(Map params);
+	
 }

@@ -51,7 +51,7 @@ public class JsonRpcServlet extends HttpServlet {
 	private flexjson.JSONDeserializer m_ds = new flexjson.JSONDeserializer();
 
 	private BundleContext m_bundleContext;
-	private EventAdmin m_eventAdmin;
+	private HookService m_hookService;
 
 	private Map<String, String> m_serviceMapping;
 
@@ -229,17 +229,17 @@ public class JsonRpcServlet extends HttpServlet {
 	}
 
 	private void callHooks(String serviceName,String methodName, Object methodParams, Object result, boolean before){
-		EventAdmin ea = getEventAdmin();
-		if( ea != null){
+		HookService hs = getHookService();
+		if( hs != null){
 			Map props = new HashMap();
 			props.put("service", serviceName);
 			props.put("method", methodName);
 			props.put("params", methodParams);
 			props.put("result", result);
 			props.put("at", before ? "before" : "after");
-			ea.sendEvent(new Event("rpc", props));
+			hs.callHooks(props);
 		}else{
-			error("Eventadmin not available");
+			error("HookServicce not available");
 		}
 	}
 	protected void doBeforeCallService(final HttpServletRequest httpRequest, final String serviceName, final String methodName, final List<Object> methodParams) throws RpcException {
@@ -675,13 +675,13 @@ public class JsonRpcServlet extends HttpServlet {
 		return "if (!qx || !qx.core || !qx.core.ServerSettings) {" + "qx.OO.defineClass(\"qx.core.ServerSettings\");" + "}" + "qx.core.ServerSettings.serverPathPrefix = \"" + getContextURL(request) + "\";" + "qx.core.ServerSettings.serverPathSuffix = \";" + "jsessionid=null\";" + "qx.core.ServerSettings.sessionTimeoutInSeconds = null;" + "qx.core.ServerSettings.lastSessionRefresh = (new Date()).getTime();";
 	}
 
-	private EventAdmin getEventAdmin(){
-		if( m_eventAdmin != null ) return m_eventAdmin;
-	  ServiceReference ref = m_bundleContext.getServiceReference(EventAdmin.class.getName());	
+	private HookService getHookService(){
+		if( m_hookService != null ) return m_hookService;
+	  ServiceReference ref = m_bundleContext.getServiceReference(HookService.class.getName());	
 		if( ref != null){
-			m_eventAdmin = (EventAdmin) m_bundleContext.getService(ref);
+			m_hookService = (HookService) m_bundleContext.getService(ref);
 		}
-		return m_eventAdmin;
+		return m_hookService;
 	}
 	protected void debug(String msg) {
 		//System.out.println(msg);
