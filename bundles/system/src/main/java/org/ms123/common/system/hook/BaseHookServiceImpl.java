@@ -37,7 +37,7 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.rpc.RpcException;
-
+import groovy.lang.*;
 /**
  *
  */
@@ -46,6 +46,7 @@ abstract class BaseHookServiceImpl {
 
 	protected CamelService m_camelService;
 	protected static final String HOOKS = ".etc/hooks.json";
+	protected GroovyShell m_groovyShell;
 
 	protected PermissionService m_permissionService;
 	protected GitService m_gitService;
@@ -125,6 +126,17 @@ abstract class BaseHookServiceImpl {
 			}
 		}
 		return ns;
+	}
+	protected  Boolean isPreConditionOk(String expr, Object vars) {
+		try {
+			Script script = m_groovyShell.parse(expr);
+			Binding binding = new Binding((Map)vars);
+			script.setBinding(binding);
+			return (Boolean)script.run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	protected static void debug(String msg) {
 		System.out.println(msg);

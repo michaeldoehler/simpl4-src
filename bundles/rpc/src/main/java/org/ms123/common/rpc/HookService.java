@@ -29,6 +29,7 @@ public interface HookService {
 	public static String AT_BEFORE = "before";
 	public static String AT_AFTER = "after";
 	public static String METHODRESULT = "result";
+	public static String PRECONDITION = "preCondition";
 
 	public void callHooks(Map params);
 	

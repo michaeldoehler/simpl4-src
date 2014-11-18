@@ -37,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.git.GitService;
+import groovy.lang.GroovyShell;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -46,11 +47,9 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=hook" })
 public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.common.rpc.HookService {
-
 	public HookServiceImpl() {
+		m_groovyShell = new GroovyShell();
 	}
-
-	static final String[] topics = new String[] { "rpc" };
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 		System.out.println("HookEventHandlerService.activate.props:" + props);
@@ -77,6 +76,13 @@ public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.co
 		if( hookList == null ) return;
 		for(Map<String,String> hook : hookList){
 			if( at.equals(hook.get(AT)) && ns.equals(hook.get(StoreDesc.NAMESPACE)) && serviceName.equals(hook.get(SERVICENAME)) && methodName.equals(hook.get(METHODNAME))){
+				String preCondition = (String)hook.get(PRECONDITION);
+				if( preCondition != null){
+					boolean isok = isPreConditionOk(preCondition,methodParams);
+					info("preCondition:"+preCondition+":"+isok);
+					if( !isok) return;
+					
+				}
 				String action = hook.get(ACTION);
 				info("HookServiceImpl.camelAction: service:" + serviceName + ",Method:" + methodName+"/params:"+methodParams);
 				camelAction( ns, action, methodParams,result);
