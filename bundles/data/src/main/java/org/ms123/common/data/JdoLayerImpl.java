@@ -217,9 +217,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		if (filterMap != null) {
 			// query masterObjects 
 			Map fieldSets = m_settingService.getFieldSets(config, sdesc.getNamespace(), m_inflector.getEntityName(entityNameParent));
-			QueryBuilder qb = new QueryBuilder("pg", sdesc, m_inflector.getEntityName(entityNameParent), false, config, sessionContext, null, filterMap, null, fieldSets);
+			boolean hasTeamSecurity = hasTeamSecurity(sessionContext, entityName, null);
+			QueryBuilder qb = new QueryBuilder("pg", sdesc, m_inflector.getEntityName(entityNameParent), hasTeamSecurity, config, sessionContext, null, filterMap, null, fieldSets);
 			String whereClause = "where " + qb.getWhere();
 			String from = qb.getFrom(null);
+			whereClause = whereClause + getAddWhere(qb,entityName, null,null);
 			String sql = "Select distinct id from " + from + " " + whereClause;
 			debug("sql:" + sql);
 			Query q = pm.newQuery("javax.jdo.query.JPQL", sql);
@@ -471,16 +473,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			classNameUpdate = m_inflector.getClassName(entityName);
 			Class updateClazz = getClass(sdesc, classNameUpdate);
 			Map fieldSets = m_settingService.getFieldSets(config, sdesc.getNamespace(), entityName);
-			QueryBuilder qb = new QueryBuilder("pg", sdesc, entityName, false, config, sessionContext, null, filterMap, hintsMap, fieldSets);
+			boolean hasTeamSecurity = hasTeamSecurity(sessionContext, entityName, null);
+			QueryBuilder qb = new QueryBuilder("pg", sdesc, entityName, hasTeamSecurity, config, sessionContext, null, filterMap, hintsMap, fieldSets);
 			String whereClause = "where " + qb.getWhere();
 			String from = qb.getFrom(null);
 
-			boolean hasStateSelect = hasStateSelect(sdesc, entityName, null);
-			if( hasStateSelect){
-				String state = qb.getRequestedState();
-				whereClause+=  " and "+ getStateWhere(entityName,state);
-			}
-
+			whereClause = whereClause + getAddWhere(qb,entityName, null,null);
 			String sql = "Select distinct id from " + from + " " + whereClause;
 			debug("sql:" + sql);
 			Query q = pm.newQuery("javax.jdo.query.JPQL", sql);
@@ -1347,13 +1345,13 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			String stateWhere="";
 			if( hasStateSelect){
 				String state = qb.getRequestedState();
-				String field = null;
+				String qualifier = null;
 				if (entityNameDetails != null) {
-					field = entityName + "$" + detailFieldName;
+					qualifier = entityName + "$" + detailFieldName;
 				} else {
-					field = entityName;
+					qualifier = entityName;
 				}
-				stateWhere =  andStr+" "+ getStateWhere(field,state);
+				stateWhere =  andStr+" "+ getStateWhere(qualifier,state);
 				andStr = " and";
 			}
 			boolean noResultSetCount = noResultSetCount(sdesc, entityName, entityNameDetails);
@@ -1555,12 +1553,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		return ret;
 	}*/
 
-	private String getStateWhere(String field, String state){
+	private String getStateWhere(String qualifier, String state){
 		String w =null;
 		if( state.equals(STATE_OK) || state.equals(STATE_NEW)){
-			w = "("+field + "."+STATE_FIELD+"='"+state+"' or "+field+"."+STATE_FIELD+" is null)";
+			w = "("+qualifier + "."+STATE_FIELD+"='"+state+"' or "+qualifier+"."+STATE_FIELD+" is null)";
 		}else{
-			w = "("+field + "."+STATE_FIELD+"='"+state+"')";
+			w = "("+qualifier + "."+STATE_FIELD+"='"+state+"')";
 		}
 		return w;
 	}
@@ -2154,6 +2152,34 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			}
 		}
 		return null;
+	}
+
+	private String getAddWhere(QueryBuilder qb, String entityName, String entityNameDetails, String detailFieldName){
+		String whereResult = "";
+		String andStr = " and ";
+		String teamUserWhere = qb.getTeamUserWhere();
+		if( teamUserWhere != null){
+			whereResult = andStr + teamUserWhere;
+		}
+
+		String teamSecurityWhere = qb.getTeamSecurityWhere();
+		if( teamSecurityWhere != null){
+			whereResult = andStr + " "+ teamSecurityWhere;
+		}
+
+		String stateWhere="";
+		boolean hasStateSelect = hasStateSelect(qb.getSessionContext().getStoreDesc(), entityName, entityNameDetails);
+		if( hasStateSelect){
+			String state = qb.getRequestedState();
+			String qualifier = null;
+			if (entityNameDetails != null) {
+				qualifier = entityName + "$" + detailFieldName;
+			} else {
+				qualifier = entityName;
+			}
+			whereResult =  andStr + getStateWhere(qualifier,state);
+		}
+		return whereResult;
 	}
 
 	private List<Map> constructConstraitViolationList(Set<ConstraintViolation> constraintViolations) {
