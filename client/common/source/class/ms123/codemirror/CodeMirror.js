@@ -120,7 +120,7 @@ qx.Class.define("ms123.codemirror.CodeMirror", {
 				lineNumbers: true,
 				smartIndent: false,
 				mode: this.__mode,
-        extraKeys: {"Ctrl-Space": "autocomplete"},
+        //extraKeys: {"Ctrl-Space": "autocomplete"},
 				vimMode:ms123.config.ConfigManager.isVimMode(),
    			showCursorWhenSelecting: true
 			});
