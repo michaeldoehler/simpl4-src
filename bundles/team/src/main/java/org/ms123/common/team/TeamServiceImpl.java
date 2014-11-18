@@ -182,9 +182,9 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 				throw (RpcException)e;
 			}
 			if( e instanceof RuntimeException){
-				if( ((RuntimeException)e).getCause() instanceof javax.transaction.RollbackException){
+				//if( ((RuntimeException)e).getCause() instanceof javax.transaction.RollbackException){
 					throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.createTeam:team exists '"+teamid+"'");
-				}
+				//}
 			}
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.createTeam:", e);
 		} finally {
