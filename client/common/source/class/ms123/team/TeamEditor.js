@@ -319,6 +319,7 @@ qx.Class.define("ms123.team.TeamEditor", {
 				"name": {
 					'type': "TextField",
 					'label': this.tr("meta.teams.create_team1"),
+					'readonly':true,
 					'validation': {
 						required: true,
 						validator: "/^[0-9A-Za-z_\-]{1,20}$/"

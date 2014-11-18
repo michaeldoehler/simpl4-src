@@ -203,7 +203,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 			m_adminTreeCache = new HashMap();
 			StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 			Map<String,Object> data = new HashMap();
-			data.put(TEAM_NAME,name);
+			//data.put(TEAM_NAME,name); Name darf nicht mehr geändert werden.
 			data.put(TEAM_ID,teamid);
 			data.put(DESCRIPTION,description);
 			data.put(USER_READ,userRead);
