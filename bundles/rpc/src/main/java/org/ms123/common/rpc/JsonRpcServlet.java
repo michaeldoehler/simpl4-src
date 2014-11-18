@@ -32,6 +32,8 @@ import java.util.Map;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -49,6 +51,7 @@ public class JsonRpcServlet extends HttpServlet {
 	private flexjson.JSONDeserializer m_ds = new flexjson.JSONDeserializer();
 
 	private BundleContext m_bundleContext;
+	private EventAdmin m_eventAdmin;
 
 	private Map<String, String> m_serviceMapping;
 
@@ -195,6 +198,7 @@ public class JsonRpcServlet extends HttpServlet {
 			beforeCallService(httpRequest, requestMap);
 			debug("httpRequest.pathInfo:" + httpRequest.getPathInfo());
 			final Object methodResult = executeRequest(httpRequest.getPathInfo(), requestMap, httpRequest, response);
+			afterCallService(methodResult, requestMap);
 			responseIntermediateObject = buildResponse(requestMap, methodResult, null);
 		} catch (RpcException e) {
 			responseIntermediateObject = buildResponse(requestMap, e);
@@ -215,8 +219,29 @@ public class JsonRpcServlet extends HttpServlet {
 		if (methodParams instanceof List) {
 			doBeforeCallService(httpRequest, serviceName, methodName, (List) methodParams);
 		}
+		callHooks(serviceName, methodName, methodParams,null,true);
+	}
+	protected final void afterCallService(Object result, final Map<String, Object> requestMap) throws RpcException {
+		final String serviceName = (String) requestMap.get("service");
+		final String methodName = (String) requestMap.get("method");
+		final Object methodParams = requestMap.get("params");
+		callHooks(serviceName, methodName, methodParams,result, false);
 	}
 
+	private void callHooks(String serviceName,String methodName, Object methodParams, Object result, boolean before){
+		EventAdmin ea = getEventAdmin();
+		if( ea != null){
+			Map props = new HashMap();
+			props.put("service", serviceName);
+			props.put("method", methodName);
+			props.put("params", methodParams);
+			props.put("result", result);
+			props.put("at", before ? "before" : "after");
+			ea.sendEvent(new Event("rpc", props));
+		}else{
+			error("Eventadmin not available");
+		}
+	}
 	protected void doBeforeCallService(final HttpServletRequest httpRequest, final String serviceName, final String methodName, final List<Object> methodParams) throws RpcException {
 	}
 
@@ -649,6 +674,15 @@ public class JsonRpcServlet extends HttpServlet {
 		// sessions from the original code have been replaced by "null".
 		return "if (!qx || !qx.core || !qx.core.ServerSettings) {" + "qx.OO.defineClass(\"qx.core.ServerSettings\");" + "}" + "qx.core.ServerSettings.serverPathPrefix = \"" + getContextURL(request) + "\";" + "qx.core.ServerSettings.serverPathSuffix = \";" + "jsessionid=null\";" + "qx.core.ServerSettings.sessionTimeoutInSeconds = null;" + "qx.core.ServerSettings.lastSessionRefresh = (new Date()).getTime();";
 	}
+
+	private EventAdmin getEventAdmin(){
+		if( m_eventAdmin != null ) return m_eventAdmin;
+	  ServiceReference ref = m_bundleContext.getServiceReference(EventAdmin.class.getName());	
+		if( ref != null){
+			m_eventAdmin = (EventAdmin) m_bundleContext.getService(ref);
+		}
+		return m_eventAdmin;
+	}
 	protected void debug(String msg) {
 		//System.out.println(msg);
 		m_logger.debug(msg);
@@ -656,6 +690,10 @@ public class JsonRpcServlet extends HttpServlet {
 	protected void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
+	}
+	protected void error(String msg) {
+		System.out.println(msg);
+		m_logger.error(msg);
 	}
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(JsonRpcServlet.class);
 }

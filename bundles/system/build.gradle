@@ -7,7 +7,10 @@ dependencies {
  	compile files("${repository}/commons-io-2.4.jar")
   compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.git-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.libhelper-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.camel.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
 	compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")
   compile files("${repository}/flexjson-2.1.bar")
@@ -22,4 +25,5 @@ dependencies {
 	compile files("${repository}/spring-beans-3.2.5.RELEASE.jar")
   compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
   compile files("${repository}/xbean-naming-3.18.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
 }
