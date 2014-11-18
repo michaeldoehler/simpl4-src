@@ -179,7 +179,10 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		if (exchange.getUnitOfWork() != null) {
 			TracedRouteNodes traced = exchange.getUnitOfWork().getTracedRouteNodes();
 			RouteNode last = traced.getLastNode();
-			return last != null ? last.getProcessorDefinition().getId() : null;
+			try{
+				return last != null ? last.getProcessorDefinition().getId() : null;
+			}catch(Exception e){
+			}
 		}
 		return null;
 	}
@@ -193,7 +196,12 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		}
 	}
 	private String toJsonString(Object o) {
-		return m_gson.toJson(o);
+		try{
+			return m_gson.toJson(o);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return "TraceEventMessage.toJsonString.Cannot serialize:"+m_js.serialize(o);
 	}
 
 	// Properties
