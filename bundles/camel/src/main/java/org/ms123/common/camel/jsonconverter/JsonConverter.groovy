@@ -227,6 +227,8 @@ abstract class JsonConverterImpl implements JsonConverter{
 		script += "import org.apache.camel.builder.*\n";
 		script += "import org.apache.camel.model.dataformat.*\n";
 		script += "import java.util.*\n";
+		script += "import flexjson.JSONSerializer\n";
+		script += "import flexjson.JSONDeserializer\n";
 		script += "class MyProcessor implements Processor{\n";
 		script += processMethodStr;
 		script += "}\n";
