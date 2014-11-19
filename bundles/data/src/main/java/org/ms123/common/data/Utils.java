@@ -33,11 +33,13 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.ms123.common.data.api.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import groovy.lang.*;
 
 @SuppressWarnings("unchecked")
 public class Utils {
 
 	private static final String TEAMINTERN_ENTITY = "teamintern";
+	private static GroovyShell m_groovyShell = new GroovyShell();
 
 	public static String getString(Object newValue, Object oldValue, String mode) {
 		if (newValue == null) {
@@ -200,6 +202,19 @@ public class Utils {
 		boolean isNumeric = s.matches("\\p{XDigit}+");
 		info("isAid:" + s + " -> " + isNumeric);
 		return isNumeric;
+	}
+
+	public static Object eval(String expr, Map vars) {
+		try {
+			Script script = m_groovyShell.parse(expr);
+			Binding binding = new Binding(vars);
+			script.setBinding(binding);
+			return script.run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			String msg = org.ms123.common.utils.Utils.formatGroovyException(e, expr);
+			throw new RuntimeException(msg);
+		}
 	}
 
 	public static Object getTeamintern(SessionContext sc, String teamid) {

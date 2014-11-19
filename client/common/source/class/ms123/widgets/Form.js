@@ -97,6 +97,29 @@ qx.Class.define('ms123.widgets.Form', {
 			this.add(this.form, {
 				edge: "center"
 			});
+			if( this._context.multiedit){
+				this.add( this._multiEditExpressionEdit(), {
+					edge: "north"
+				});
+				this.form.addListener("fieldChanged", this.__fieldChangeListener, this);
+			}
+		},
+		_multiEditExpressionEdit: function () {
+			var container = new qx.ui.container.Composite();
+			container.setLayout(new qx.ui.layout.Dock(2,2));
+			container.setWidth(120);
+			var l = new qx.ui.basic.Label(this.tr("widgets.form.multiedit_expression"));
+			this.__multiEditExpressionLabel = l;
+			container.add(l, {
+				edge: "west"
+			});
+			var input =  new qx.ui.form.TextField("");
+			this.__multiEditExpressionInput = input;
+			this.__multiEditExpressions = {};
+			container.add( input, {
+				edge: "center"
+			});
+			return container;
 		},
 		_showDefaultButtons: function (formDesc) {
 			var stencilId = formDesc.stencil.id.toLowerCase();
@@ -521,6 +544,12 @@ qx.Class.define('ms123.widgets.Form', {
 			var m = this.form.getModel();
 			var items = this.form.getItems();
 
+			var hints = {};
+			if(this._context.multiedit){
+				this.__multiEditExpressions[this.__previousKey] = this.__multiEditExpressionInput.getValue();
+				hints["__expressions"] = {};
+			}
+
 			var props = qx.Class.getProperties(m.constructor);
 			var js = "var _mode='"+this._mode+"';\n";
 			var self = this;
@@ -551,14 +580,13 @@ qx.Class.define('ms123.widgets.Form', {
 				}
 			});
 			var map = {};
-			var hints = {};
 			jQuery.each(props, function (index, p) {
 				var fd = self.formData[p];
 				var val = m.get(p);
 				if ((fd.type == "DateField" || fd.type == "DateTimeField") && val != null && val != "" && typeof val == 'object' && val.constructor == Date) {
 					val = val.getTime()-(val.getTimezoneOffset()*60000);
 				}
-				console.log("__formula:"+fd.__formula);
+				//console.log("__formula:"+fd.__formula);
 				if (fd.__formula) {
 					var cu = "function _cu(s){try{if( s === undefined || s == null ) { return ''; }else return s;}catch(e){return ''}}";
 					var evalstr = cu + ";\nvar _b = ' ';\n" + js + ';' + fd.__formula + ";";
@@ -605,6 +633,9 @@ qx.Class.define('ms123.widgets.Form', {
 					}
 					if (useit) {
 						map[p] = val;
+						if( self.__multiEditExpressions){
+							hints["__expressions"][p] = self.__multiEditExpressions[p];
+						}
 					}
 				} else {
 					if(!items[p].isExcluded()){
@@ -805,6 +836,26 @@ qx.Class.define('ms123.widgets.Form', {
 					}
 				}
 			}
+		},
+		__fieldChangeListener:function(e){
+			var key = e.getData().field.getUserData("key");
+			if( this.__previousKey){
+				this.form.getFormElementByKey(this.__previousKey).setDecorator(new qx.ui.decoration.Decorator());
+				this.__multiEditExpressions[this.__previousKey] = this.__multiEditExpressionInput.getValue();
+			}
+
+			this.__multiEditExpressionLabel.setValue(this.tr("widgets.form.multiedit_expression")+"("+key+"):");
+			var d = new qx.ui.decoration.Decorator();
+			d.setBackgroundColor("khaki");	
+			d.setRadius(3);
+			this.form.getFormElementByKey(key).setDecorator(d);
+
+			if( this.__multiEditExpressions[key] ){
+				this.__multiEditExpressionInput.setValue( this.__multiEditExpressions[key]);
+			}else{
+				this.__multiEditExpressionInput.setValue( null );
+			}
+			this.__previousKey = key;
 		},
 		__maskedEval: function (scr, env,def) {
 			try{

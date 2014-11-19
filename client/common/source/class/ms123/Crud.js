@@ -855,7 +855,25 @@ qx.Class.define("ms123.Crud", {
 						}
 					};
 					var failed = function (e) {
-						ms123.form.Dialog.alert("Composite._createMultiEditWindow:" + e);
+						dia.hide();
+						var msg = e.message;
+						msg = msg.replace(/\|/g, "<br/>");
+						msg = msg.replace(/Script.*groovy: [0-9]{0,4}:/g, "<br/><br/>");
+						msg = msg.replace(/ for class: Script[0-9]{1,2}/g, "");
+						msg = msg.replace(/Script[0-9]{1,2}/g, "");
+						msg = msg.replace(/Application error 500:/g, "");
+						msg = msg.replace(/:java.lang.RuntimeException/g, "");
+						msg = msg.replace(/: {0,2}Line:/g, "<br/>Line:");
+						msg = msg.replace(/-{10,100}/g, "<br/>");
+
+						var alert = new ms123.form.Alert({
+								"message": "<b>Error</b><br/>"+msg,
+								"windowWidth": 500,
+								"windowHeight": 100,
+								"useHtml": true,
+								"inWindow": true
+								});
+						alert.show();
 					};
 					var rpcParams = {
 						storeId: mwidget.storeDesc.getStoreId(),

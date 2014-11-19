@@ -665,6 +665,8 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		if (hintsMap == null) {
 			hintsMap = new HashMap();
 		}
+		Map<String,String> expressions = (Map)hintsMap.get("__expressions");
+		if( expressions==null) expressions=new HashMap();
 		BeanMap beanMap = new BeanMap(to);
 		String entityName = m_inflector.getEntityName(to.getClass().getSimpleName());
 		debug("populate.from:" + from + ",to:" + to + ",BeanMap:" + beanMap + "/hintsMap:" + hintsMap+"/entityName:"+entityName);
@@ -1087,6 +1089,16 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					} catch (Exception e) {
 						debug("populate.failed:" + key + "=>" + value + ";" + e);
 					}
+				}
+			}
+			String expression = expressions.get(key);
+			if( expression != null){
+				Object result = Utils.eval( expression, beanMap);
+				info("EvalResult("+expression+"):"+result);
+				try{
+					beanMap.put(key,result);
+				}catch(Exception e){
+					info("Cannot set value for("+key+"):"+result+"/"+e.getMessage());
 				}
 			}
 		}
@@ -2167,7 +2179,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			whereResult = andStr + " "+ teamSecurityWhere;
 		}
 
-		String stateWhere="";
 		boolean hasStateSelect = hasStateSelect(qb.getSessionContext().getStoreDesc(), entityName, entityNameDetails);
 		if( hasStateSelect){
 			String state = qb.getRequestedState();
