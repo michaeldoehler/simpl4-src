@@ -34,12 +34,19 @@ import org.ms123.common.data.api.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import groovy.lang.*;
+import org.codehaus.groovy.control.*;
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 @SuppressWarnings("unchecked")
 public class Utils {
 
 	private static final String TEAMINTERN_ENTITY = "teamintern";
-	private static GroovyShell m_groovyShell = new GroovyShell();
+	private static GroovyShell m_groovyShell;
+	static {
+		CompilerConfiguration config = new CompilerConfiguration();
+		config.setScriptBaseClass(org.ms123.common.datamapper.GroovyBase.class.getName());
+		m_groovyShell = new GroovyShell(config);
+	}
 
 	public static String getString(Object newValue, Object oldValue, String mode) {
 		if (newValue == null) {
@@ -204,9 +211,13 @@ public class Utils {
 		return isNumeric;
 	}
 
-	public static Object eval(String expr, Map vars) {
+	public static Object eval(String expr, Map vars, Map<String,Script> scriptCache) {
 		try {
-			Script script = m_groovyShell.parse(expr);
+			Script script = scriptCache.get(expr);
+			if( script == null){
+				script = m_groovyShell.parse(expr);
+				scriptCache.put(expr,script);
+			}
 			Binding binding = new Binding(vars);
 			script.setBinding(binding);
 			return script.run();

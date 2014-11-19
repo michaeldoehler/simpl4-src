@@ -525,13 +525,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			rit = new DummyIterator(updateId);
 		}
 		int counter=0;
+		long start = new Date().getTime();
+		Class updateClazz = getClass(sdesc, classNameUpdate);
 		while (rit.hasNext()) {
 			Object row = rit.next();
 			counter++;
-			debug("updateId:" + row);
-			debug("classNameUpdate:" + classNameUpdate);
 			Object updateId = row;
-			Class updateClazz = getClass(sdesc, classNameUpdate);
 			Object objectUpdate = null;
 			boolean fCreated = false;
 			try {
@@ -539,7 +538,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					updateId = "dummy";
 				}
 				objectUpdate = pm.getObjectById(updateClazz, updateId);
-				debug("updateIdx:" + updateId);
 			} catch (javax.jdo.JDOObjectNotFoundException e) {
 				String pk = null;
 				if (permittedFields != null) {
@@ -560,7 +558,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			}
 			debug("objectUpdate:" + objectUpdate + "," + updateId+"/"+counter);
 			if( objectUpdate != null){
-				Object objectUpdatePre = UtilsServiceImpl.copyObject(objectUpdate);
+				Object objectUpdatePre = null;
+				if( filterMap == null){
+					UtilsServiceImpl.copyObject(objectUpdate);
+				}
 				Map<String,String> stateMap = getState(dataMap,objectUpdate);;
 				evaluteFormulas(sessionContext, entityName, dataMap, "in");
 				populate(sessionContext, dataMap, objectUpdate, hintsMap);
@@ -580,7 +581,13 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				if (sdesc.isDataPack()) {
 					//sessionContext.getLuceneSession().addToIndex(objectUpdate);
 				}
-				m_triggerService.applyUpdateRules(sessionContext, entityName, objectUpdate,objectUpdatePre);
+				if( filterMap == null){
+					m_triggerService.applyUpdateRules(sessionContext, entityName, objectUpdate,objectUpdatePre);
+				}
+				if((counter%100)==0){
+					displayInfo("",start);
+					start = new Date().getTime();
+				}
 			}else{
 				retMap.put("id", null);
 				retMap.put("created", false);
@@ -677,6 +684,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		Iterator<String> it = from.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
+			Object oldValue = beanMap.get(key);
 			boolean permitted = m_permissionService.hasAdminRole() || "team".equals(entityName) || sessionContext.isFieldPermitted( key, entityName, "write");
 			if( !key.startsWith("_") && !permitted){
 				debug("---->populate:field("+key+") no write permission");
@@ -1092,9 +1100,14 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				}
 			}
 			String expression = expressions.get(key);
-			if( expression != null){
-				Object result = Utils.eval( expression, beanMap);
-				info("EvalResult("+expression+"):"+result);
+			if( !isEmpty(expression)){
+				beanMap.put(key,oldValue);
+				Map scriptCache = (Map)sessionContext.getProperty("scriptCache");
+				if( scriptCache == null){
+					scriptCache=new HashMap();
+					sessionContext.setProperty("scriptCache",scriptCache);
+				}
+				Object result = Utils.eval( expression, beanMap, scriptCache);
 				try{
 					beanMap.put(key,result);
 				}catch(Exception e){
@@ -2393,6 +2406,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		builder.append(text.substring(i, text.length()));
 		return builder.toString();
 	}
+	private void displayInfo( String where, long startTime ) {
+    long time = new Date().getTime() - startTime;
+    long fm = Runtime.getRuntime().freeMemory() / ( 1024 * 1024 );
+    long tm = Runtime.getRuntime().totalMemory() / ( 1024 * 1024 );
+    debug( "Memory(" + where + "):free=" + fm + "M,total=" + tm + "M,time:" + time +" mSec");
+  }
 
 	protected void debug(String message) {
 		m_logger.debug(message);
