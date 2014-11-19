@@ -25,4 +25,6 @@ public interface TeamService {
 	public int getTeamStatus(String namespace, Map teamMap, String teamid, String user);
 	public int checkTeamUserPermission(String namespace, String teamid, String userName );
 	public boolean checkTeamDate(Map teamMap);
+	public boolean canCreateTeam(String namespace, String teamid,String userName);
+	public boolean canManageTeam(String namespace, String teamid,String userName);
 }

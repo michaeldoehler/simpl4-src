@@ -201,6 +201,10 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 			@PName(USER_CREATE)     		List<String> userCreate) throws RpcException {
 		try {
 			m_adminTreeCache = new HashMap();
+			boolean isAdmin = m_permissionService.hasRole(ADMINROLE);
+			if(!isAdmin && !canManageTeam(namespace,teamid,null)){
+				throw new RpcException(ERROR_FROM_METHOD, PERMISSION_DENIED, "TeamService:updateTeam not allowed");
+			}
 			StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 			Map<String,Object> data = new HashMap();
 			//data.put(TEAM_NAME,name); Name darf nicht mehr geändert werden.

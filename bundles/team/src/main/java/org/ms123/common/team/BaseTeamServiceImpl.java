@@ -138,6 +138,29 @@ public class BaseTeamServiceImpl {
 		return ret;
 	}
 
+	public boolean canCreateTeam(String namespace, String teamid, String userName){
+		return _canCreateManageTeam(namespace,teamid,userName, "userCreate");
+	}
+	public boolean canManageTeam(String namespace, String teamid, String userName){
+		return _canCreateManageTeam(namespace,teamid,userName, "userManage");
+	}
+	private boolean _canCreateManageTeam(String namespace, String teamid, String userName, String perm){
+		StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
+		SessionContext sessionContext = m_dataLayer.getSessionContext(sdesc);
+		if( userName==null){ 
+			userName=sessionContext.getUserName();
+		}
+		String _teamid = perm.equals("userCreate") ? getParentTeamid(teamid) : teamid;
+		Class clazz = sessionContext.getClass(TEAMINTERN_ENTITY);
+		PersistenceManager pm = sessionContext.getPM();
+		Object objectParent = pm.getObjectById(clazz, _teamid);
+		String[] permittedUser = getArray(objectParent, perm);
+		info("_canCreateManageTeam:"+perm+"/"+Arrays.asList(getArray(objectParent,perm))+"/"+userName);
+		if (!contains(permittedUser, userName)) {
+			return false;
+		}
+		return true;
+	}
 	protected void createSubTeams(String namespace, String teamid, String name, String description, List<String> userRead, List<String> userManage, List<String> userCreate) throws Exception {
 		String ppid = getParentTeamid(teamid);
 		List<Map<String,String>> autoCreateTeams = getAutoCreateTeams(namespace);
