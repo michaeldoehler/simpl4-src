@@ -795,7 +795,7 @@ qx.Class.define("ms123.Crud", {
 			}
 		},
 		_createMultiEditWindow: function (mwidget) {
-			var win = this._createWindow(mwidget.config, 300, 600, false);
+			var win = this._createWindow(mwidget.config, 400, 650, false);
 			this._mainContainer.getApplicationRoot().add(win);
 			var self = this;
 			var buttons = [{
@@ -892,7 +892,7 @@ qx.Class.define("ms123.Crud", {
 			mwidget.multiEditWindow = win;
 		},
 		_createMultiAddWindow: function (mwidget, widget) {
-			var win = this._createWindow(widget.config, 300, 600, false);
+			var win = this._createWindow(widget.config, 400, 650, false);
 			this._mainContainer.getApplicationRoot().add(win);
 			var self = this;
 			var buttons = [{
