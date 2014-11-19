@@ -226,6 +226,16 @@ abstract class JsonConverterImpl implements JsonConverter{
 		script += "import org.apache.camel.impl.*\n";
 		script += "import org.apache.camel.builder.*\n";
 		script += "import org.apache.camel.model.dataformat.*\n";
+		script += "import org.ms123.common.data.api.SessionContext\n";
+		script += "import org.ms123.common.git.GitService\n";
+		script += "import org.ms123.common.auth.api.AuthService\n";
+		script += "import org.ms123.common.nucleus.api.NucleusService\n";
+		script += "import org.ms123.common.store.StoreDesc\n";
+		script += "import org.ms123.common.permission.api.PermissionService\n";
+		script += "import org.ms123.common.team.api.TeamService\n";
+		script += "import org.ms123.common.system.ThreadContext\n";
+		script += "import org.ms123.common.permission.api.PermissionException\n";
+		script += "import org.ms123.common.libhelper.Inflector\n";
 		script += "import java.util.*\n";
 		script += "import flexjson.JSONSerializer\n";
 		script += "import flexjson.JSONDeserializer\n";
