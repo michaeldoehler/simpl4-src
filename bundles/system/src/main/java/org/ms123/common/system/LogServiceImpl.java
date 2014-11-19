@@ -82,7 +82,7 @@ public class LogServiceImpl extends BaseLogServiceImpl implements LogService, Ev
 	}
 
 	public void handleEvent(Event event) {
-		info("LogServiceImpl.handleEvent: " + event + ",key:" + event.getProperty(LOG_KEY) + ",type:" + event.getProperty(LOG_TYPE));
+		debug("LogServiceImpl.handleEvent: " + event + ",key:" + event.getProperty(LOG_KEY) + ",type:" + event.getProperty(LOG_TYPE));
 		StoreDesc sdesc = StoreDesc.getGlobalData();
 		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
 		try {
@@ -102,7 +102,7 @@ public class LogServiceImpl extends BaseLogServiceImpl implements LogService, Ev
 		} finally {
 			pm.close();
 		}
-		info("LogServiceImpl.end");
+		debug("LogServiceImpl.end");
 	}
 
 	public void update(Map<String, Object> props) {
