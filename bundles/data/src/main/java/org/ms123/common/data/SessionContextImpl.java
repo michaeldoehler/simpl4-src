@@ -73,6 +73,8 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 
 	private Map m_userProperties;
 
+	private Map<String,Object> m_propertyMap;
+
 	private LuceneSession m_luceneSession;
 
 	private DataLayer m_dataLayer;
@@ -598,6 +600,12 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		return ret;
 	}
 
+	public void setProperty(String key, Object value){
+		m_propertyMap.put(key,value);
+	}
+	public Object getProperty(String key){
+		return m_propertyMap.get(key);
+	}
 	private org.ms123.common.system.ThreadContext getThreadContext() {
 		return org.ms123.common.system.ThreadContext.getThreadContext();
 	}
