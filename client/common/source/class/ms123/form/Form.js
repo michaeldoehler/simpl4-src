@@ -150,7 +150,8 @@ qx.Class.define("ms123.form.Form", {
 	 *****************************************************************************
 	 */
 	events: {
-		"tabChanged": "qx.event.type.Data"
+		"tabChanged": "qx.event.type.Data",
+		"fieldChanged": "qx.event.type.Data"
 	},
 
 	/**
@@ -1024,6 +1025,12 @@ qx.Class.define("ms123.form.Form", {
 				if (fieldData.placeholder !== undefined) {
 					formElement.setPlaceholder(fieldData.placeholder);
 				}
+				formElement.addListener('focusin', function(e){
+					var data ={
+						field : e.getTarget()
+					}
+					this.fireDataEvent("fieldChanged", data, null);
+				}, this);
 
 				/**
 				 * events
