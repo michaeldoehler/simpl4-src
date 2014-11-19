@@ -73,7 +73,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 
 	private Map m_userProperties;
 
-	private Map<String,Object> m_propertyMap;
+	private Map<String,Object> m_propertyMap = new HashMap();
 
 	private LuceneSession m_luceneSession;
 
