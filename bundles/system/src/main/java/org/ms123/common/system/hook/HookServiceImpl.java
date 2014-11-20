@@ -38,6 +38,7 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.git.GitService;
 import groovy.lang.GroovyShell;
+import org.ms123.common.rpc.RpcException;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -47,6 +48,7 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 @SuppressWarnings("unchecked")
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=hook" })
 public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.common.rpc.HookService {
+
 	public HookServiceImpl() {
 		m_groovyShell = new GroovyShell();
 	}
@@ -61,31 +63,37 @@ public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.co
 		}
 	}
 
-	public void callHooks(Map props){
-		System.out.println("handleEvent");	
-		String serviceName = (String)props.get(SERVICENAME);
-		String methodName = (String)props.get(METHODNAME);
+	public void callHooks(Map props) {
+		String serviceName = (String) props.get(SERVICENAME);
+		String methodName = (String) props.get(METHODNAME);
 		Object methodParams = props.get(METHODPARAMS);
 		Object at = props.get(AT);
 		Object result = props.get(METHODRESULT);
 		String ns = getNamespace(methodParams);
-		if( ns == null ){
+		if (ns == null) {
 			return;
 		}
 		List<Map> hookList = getHooks(ns);
-		if( hookList == null ) return;
-		for(Map<String,String> hook : hookList){
-			if( at.equals(hook.get(AT)) && ns.equals(hook.get(StoreDesc.NAMESPACE)) && serviceName.equals(hook.get(SERVICENAME)) && methodName.equals(hook.get(METHODNAME))){
-				String preCondition = (String)hook.get(PRECONDITION);
-				if( preCondition != null){
-					boolean isok = isPreConditionOk(preCondition,methodParams);
-					info("preCondition:"+preCondition+":"+isok);
-					if( !isok) return;
-					
+		if (hookList == null)
+			return;
+		for (Map<String, Object> hook : hookList) {
+			if (at.equals(hook.get(AT)) && ns.equals(hook.get(StoreDesc.NAMESPACE)) && serviceName.equals(hook.get(SERVICENAME)) && methodName.equals(hook.get(METHODNAME))) {
+				String preCondition = (String) hook.get(PRECONDITION);
+				if (preCondition != null) {
+					boolean isok = isPreConditionOk(preCondition, methodParams);
+					info("preCondition:" + preCondition + ":" + isok);
+					if (!isok)
+						return;
 				}
-				String action = hook.get(ACTION);
-				info("HookServiceImpl.camelAction: service:" + serviceName + ",Method:" + methodName+"/params:"+methodParams);
-				camelAction( ns, action, methodParams,result);
+				String action = (String) hook.get(ACTION);
+				Boolean sync = (Boolean) hook.get(SYNC);
+				info("HookServiceImpl.camelAction: service:" + serviceName + ",Method:" + methodName + "/params:" + methodParams);
+				try {
+					camelAction(ns, getUserName(), serviceName, methodName, action, sync, methodParams, result);
+				} catch (Exception e) {
+					System.out.println("callHooks:" + e);
+					throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CallRemote:", e);
+				}
 			}
 		}
 	}
@@ -109,6 +117,7 @@ public class HookServiceImpl extends BaseHookServiceImpl implements org.ms123.co
 		System.out.println("HookServiceImpl.setGitService:" + gitService);
 		this.m_gitService = gitService;
 	}
+
 	@Reference(dynamic = true, optional = true)
 	public void setPermissionService(PermissionService paramPermissionService) {
 		this.m_permissionService = paramPermissionService;

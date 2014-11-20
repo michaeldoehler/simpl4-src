@@ -25,6 +25,7 @@ public interface HookService {
 	public static String METHODNAME = "method";
 	public static String METHODPARAMS = "params";
 	public static String ACTION = "action";
+	public static String SYNC = "sync";
 	public static String AT = "at";
 	public static String AT_BEFORE = "before";
 	public static String AT_AFTER = "after";

@@ -17,6 +17,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.team.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.camel.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.datamapper-1.0.0.jar")
 	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
   compile files("${repository}/activiti-5.16/activiti-engine-5.16.jar")
   compile files("${repository}/codemodel-2.4.bar")

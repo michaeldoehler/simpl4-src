@@ -133,7 +133,6 @@ abstract class BaseLogServiceImpl {
 	}
 
 	protected static void debug(String msg) {
-		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 
