@@ -560,7 +560,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			if( objectUpdate != null){
 				Object objectUpdatePre = null;
 				if( filterMap == null){
-					UtilsServiceImpl.copyObject(objectUpdate);
+					objectUpdatePre = UtilsServiceImpl.copyObject(objectUpdate);
 				}
 				Map<String,String> stateMap = getState(dataMap,objectUpdate);;
 				evaluteFormulas(sessionContext, entityName, dataMap, "in");
