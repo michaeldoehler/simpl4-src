@@ -89,7 +89,9 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		props.put("resourceId", node.getId());
 		JSONSerializer js = new JSONSerializer();
 		js.prettyPrint(true);
-		info("logEntry:" + routeId + "/" + node.toString()+"/"+node.getOtherAttributes()+"/"+loggingOff+"/"+logExceptionsOnly);
+		if("out".equals(direction)){
+			info("logEntry:" + routeId + "/" + node.toString()+"/"+node.getOtherAttributes()+"/"+loggingOff+"/"+logExceptionsOnly);
+		}
 		String breadcrumbId = (String) exchange.getIn().getHeaders().get(Exchange.BREADCRUMB_ID);
 		if( (loggingOff == false && logExceptionsOnly==false)|| hasException){
 			createLogEntry(exchange, contextName + "/" + routeId + "/" + breadcrumbId, props, hasException, js);
