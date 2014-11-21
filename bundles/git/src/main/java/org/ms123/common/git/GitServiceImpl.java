@@ -590,16 +590,17 @@ public class GitServiceImpl implements GitService {
 			File file = new File(gitDir, path);
 			if (!file.exists()) {
 				if (type != null) {
-					createObject(repoName, path, true, null, type);
+					createObject(repoName, path, true, content, type);
 				} else {
 					throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.putContent:File(" + repoName + "/" + path + ") not exists");
 				}
-			}
-			if( type != null && m_rawList.contains(type) ){
-				write(file, content, "UTF-8");
 			}else{
-				FileHolder fr = new FileHolder(file);
-				fr.putContent(content);
+				if( type != null && m_rawList.contains(type) ){
+					write(file, content, "UTF-8");
+				}else{
+					FileHolder fr = new FileHolder(file);
+					fr.putContent(content);
+				}
 			}
 		} catch (Exception e) {
 			if( e instanceof RpcException) throw (RpcException)e;
