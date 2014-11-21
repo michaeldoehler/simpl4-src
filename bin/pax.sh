@@ -81,6 +81,7 @@ vmOptions="\
  -Xmx1500m \
  -XX:MaxPermSize=256m \
  -Djava.security.egd=file:/dev/./urandomx -Dworkspace=\$SIMPL4DIR/workspace \
+ -Dfile.encoding='UTF-8' \
  -Dorg.osgi.service.http.port=\$CONTROL_PORT \
  -DdisableCheckForReferencesInContentException=true \
  -Dgit.repos=\$SIMPL4DIR/gitrepos \

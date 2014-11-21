@@ -16,6 +16,7 @@ set J=%J%#-Dworkspace=%SIMPL4DIR%/workspace
 set J=%J%#-Dorg.osgi.service.http.port=8070
 set J=%J%#-DdisableCheckForReferencesInContentException=true
 set J=%J%#-Dgit.repos=%SIMPL4DIR%/gitrepos
+set J=%J%#-Dfile.encoding=UTF-8
 set J=%J%#-Dgroovy.target.indy=false
 set J=%J%#-Dsimpl4.dir=%SIMPL4DIR%
 set J=%J%#-Djetty.port=%JETTYPORT%
