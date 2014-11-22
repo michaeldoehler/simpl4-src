@@ -412,7 +412,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 
 	private void toFlatList(Map<String,Object> fileMap,List<String> types,List<Map> result){
-		String type = (String)fileMap.get(LOG_TYPE);
+		String type = (String)fileMap.get("type");
 		if( types.indexOf(type) != -1){
 			result.add(fileMap);
 		}
