@@ -85,13 +85,13 @@ class GitMetaDataImpl implements MetaData {
 	public void saveReport(String namespace, String name, Map<String,List> desc) throws Exception{
 		StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 		String user = getUserName();
-		m_gitService.putContent(sdesc.getRepository(), format(REPORT_USER_PATH,user,name), REPORT_TYPE, m_js.deepSerialize(desc));
+		m_gitService.putContentInternal(sdesc.getRepository(), format(REPORT_USER_PATH,user,name), REPORT_TYPE, m_js.deepSerialize(desc));
 	}
 
 	public void deleteReport(String namespace, String name) throws Exception{
 		StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 		String user = getUserName();
-		m_gitService.deleteObject(sdesc.getRepository(), format(REPORT_USER_PATH,user,name));
+		m_gitService.deleteObjectInternal(sdesc.getRepository(), format(REPORT_USER_PATH,user,name));
 	}
 
 	public String getUserName() {
