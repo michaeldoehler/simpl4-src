@@ -70,6 +70,7 @@ import org.apache.commons.lang.StringUtils;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.util.*;
 import org.eclipse.jgit.lib.*;
@@ -176,6 +177,7 @@ public class GitServiceImpl implements GitService {
 	}
 
 	/* BEGIN JSON-RPC-API*/
+	@RequiresRoles("admin")
 	public void createRepository(
 			@PName("name")             String name) throws RpcException {
 		try {
@@ -222,6 +224,7 @@ public class GitServiceImpl implements GitService {
 		return false;
 	}
 
+	@RequiresRoles("admin")
 	public void cloneRepository(
 			@PName("name")             String name,
 			@PName("fromUri")             String fromUri
@@ -262,6 +265,7 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void deleteRepository(
 			@PName("name")             String name) throws RpcException {
 		try {
@@ -576,80 +580,26 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public synchronized void putContent(
 			@PName("reponame")         String repoName, 
 			@PName("path")             String path, 
 			@PName("type")             @POptional String type, 
 			@PName("content")          String content) throws RpcException {
-		try {
-			String gitSpace = System.getProperty("git.repos");
-			File gitDir = new File(gitSpace, repoName);
-			if (!gitDir.exists()) {
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.putContent:Repo(" + repoName + ") not exists");
-			}
-			File file = new File(gitDir, path);
-			if (!file.exists()) {
-				if (type != null) {
-					createObject(repoName, path, true, content, type);
-				} else {
-					throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.putContent:File(" + repoName + "/" + path + ") not exists");
-				}
-			}else{
-				if( type != null && m_rawList.contains(type) ){
-					write(file, content, "UTF-8");
-				}else{
-					FileHolder fr = new FileHolder(file);
-					fr.putContent(content);
-				}
-			}
-		} catch (Exception e) {
-			if( e instanceof RpcException) throw (RpcException)e;
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.putContent:", e);
-		} finally {
-		}
+		putContentInternal(repoName,path,type,content);
 	}
 
+	@RequiresRoles("admin")
 	public void createObject(
 			@PName("reponame")         String repoName, 
 			@PName("path")             String path, 
 			@PName("overwrite")        @PDefaultBool(false) @POptional Boolean overwrite, 
 			@PName("content")          @POptional String content, 
 			@PName("type")             String type) throws RpcException {
-		try {
-			String gitSpace = System.getProperty("git.repos");
-			File gitDir = new File(gitSpace, repoName);
-			if (!gitDir.exists()) {
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.createObject:Repo(" + repoName + ") not exists");
-			}
-			File file = new File(gitDir, path);
-			if(!overwrite && file.exists()){
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.createObject:Repo(" + repoName + ") path("+path+") exists");
-			}
-			if (type.equals("sw.directory")) {
-				FileUtils.mkdirs(file, true);
-			} else {
-				if (!file.getParentFile().exists()) {
-					file.getParentFile().mkdirs();
-				}
-				if( m_rawList.contains(type) ){
-					file = addExtentions(file,type);	
-					file.createNewFile();
-					if( content != null){
-						write(file, content, "UTF-8");
-					}
-				}else{
-					FileHolder fr = new FileHolder(file);
-					fr.putContent(type, content);
-				}
-			}
-			add(repoName, ".");
-		} catch (Exception e) {
-			if( e instanceof RpcException) throw (RpcException)e;
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.createObject:", e);
-		} finally {
-		}
+		createObjectInternal(repoName,path,overwrite,type,content);
 	}
 
+	@RequiresRoles("admin")
 	public void moveObject(
 			@PName("reponame")         String repoName, 
 			@PName("oldPath")          String oldPath, 
@@ -699,6 +649,7 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void copyObject(
 			@PName("reponame")         String repoName, 
 			@PName("origPath")         String origPath, 
@@ -735,25 +686,14 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void deleteObject(
 			@PName("reponame")         String repoName, 
 			@PName("path")             String path) throws RpcException {
-		try {
-			String gitSpace = System.getProperty("git.repos");
-			File gitDir = new File(gitSpace, repoName);
-			if (!gitDir.exists()) {
-				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.deleteObject:Repo(" + repoName + ") not exists");
-			}
-			File file = new File(gitDir, path);
-			deleteQuietly(file);
-			rm(repoName, path);
-		} catch (Exception e) {
-			if( e instanceof RpcException) throw (RpcException)e;
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.deleteObject:", e);
-		} finally {
-		}
+		deleteObjectInternal(repoName,path);
 	}
 
+	@RequiresRoles("admin")
 	public void deleteObjects(
 			@PName("reponame")         String repoName, 
 			@PName("directory")        String directory,
@@ -970,9 +910,92 @@ public class GitServiceImpl implements GitService {
 		} finally {
 		}
 	}
-
-
 	/* END JSON-RPC-API*/
+
+
+	/*Unrestricted access for internal use,public not accessible*/
+	public void putContentInternal( String repoName, String path, String type, String content) {
+		try {
+			String gitSpace = System.getProperty("git.repos");
+			File gitDir = new File(gitSpace, repoName);
+			if (!gitDir.exists()) {
+				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.putContent:Repo(" + repoName + ") not exists");
+			}
+			File file = new File(gitDir, path);
+			if (!file.exists()) {
+				if (type != null) {
+					createObjectInternal(repoName, path, true, content, type);
+				} else {
+					throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.putContent:File(" + repoName + "/" + path + ") not exists");
+				}
+			}else{
+				if( type != null && m_rawList.contains(type) ){
+					write(file, content, "UTF-8");
+				}else{
+					FileHolder fr = new FileHolder(file);
+					fr.putContent(content);
+				}
+			}
+		} catch (Exception e) {
+			if( e instanceof RpcException) throw (RpcException)e;
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.putContent:", e);
+		} finally {
+		}
+	}
+
+	public void createObjectInternal( String repoName, String path, Boolean overwrite, String content, String type) {
+		try {
+			String gitSpace = System.getProperty("git.repos");
+			File gitDir = new File(gitSpace, repoName);
+			if (!gitDir.exists()) {
+				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.createObject:Repo(" + repoName + ") not exists");
+			}
+			File file = new File(gitDir, path);
+			if(!overwrite && file.exists()){
+				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.createObject:Repo(" + repoName + ") path("+path+") exists");
+			}
+			if (type.equals("sw.directory")) {
+				FileUtils.mkdirs(file, true);
+			} else {
+				if (!file.getParentFile().exists()) {
+					file.getParentFile().mkdirs();
+				}
+				if( m_rawList.contains(type) ){
+					file = addExtentions(file,type);	
+					file.createNewFile();
+					if( content != null){
+						write(file, content, "UTF-8");
+					}
+				}else{
+					FileHolder fr = new FileHolder(file);
+					fr.putContent(type, content);
+				}
+			}
+			add(repoName, ".");
+		} catch (Exception e) {
+			if( e instanceof RpcException) throw (RpcException)e;
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.createObject:", e);
+		} finally {
+		}
+	}
+
+	public void deleteObjectInternal( String repoName, String path) {
+		try{
+			String gitSpace = System.getProperty("git.repos");
+			File gitDir = new File(gitSpace, repoName);
+			if (!gitDir.exists()) {
+				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.deleteObject:Repo(" + repoName + ") not exists");
+			}
+			File file = new File(gitDir, path);
+			deleteQuietly(file);
+			rm(repoName, path);
+		} catch (Exception e) {
+			if( e instanceof RpcException) throw (RpcException)e;
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "GitService.deleteObject:", e);
+		} finally {
+		}
+	}
+
 	/* Private Stuff*/
 	private Map getNodeMap(Node n, boolean isSubtree, File repoDir, Map<String, String> mapping) throws Exception {
 		Map<String, Object> nodeMap = new HashMap();

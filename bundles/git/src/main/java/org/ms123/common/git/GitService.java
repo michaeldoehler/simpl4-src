@@ -64,4 +64,7 @@ public interface GitService {
 	public FileHolderApi getFileHolder( String repoName, String path);
 	public void addRemoteOrigin(String repo, String url);
 
+	public void createObjectInternal( String repoName, String path, Boolean overwrite, String content, String type);
+	public void putContentInternal(String repoName, String path, String type, String content);
+	public void deleteObjectInternal( String repoName, String path);
 }
