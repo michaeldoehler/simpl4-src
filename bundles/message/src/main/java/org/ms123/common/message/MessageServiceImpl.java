@@ -142,6 +142,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void saveMessage(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("lang")             String lang, 
@@ -155,6 +156,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void addMessages(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("lang")             String lang, 
@@ -168,6 +170,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void saveMessages(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("lang")             String lang, 
@@ -180,6 +183,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void deleteMessages(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("lang")             String lang,
@@ -192,6 +196,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void deleteMessage(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("lang")             String lang, 
