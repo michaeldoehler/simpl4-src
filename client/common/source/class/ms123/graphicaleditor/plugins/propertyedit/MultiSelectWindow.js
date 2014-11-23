@@ -125,6 +125,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.MultiSelectWindow", 
 		_getSelectables: function (selectablesDesc) {
 			var p = selectablesDesc.split(":");
 			var t = ms123.util.Remote.rpcSync(p[0] + ":" + p[1]);
+			if( t.rows != null){
+				t = t.rows;
+			}
 			var list = [];
 			for (var i = 0; i < t.length; i++) {
 				var value = t[i][p[2]];
