@@ -291,6 +291,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						//exchange route
 						info("Exchange route:"+routeId+"/"+autoStart);
 						re.md5 = md5;
+						re.shape = routeShape;
 						RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
 						rd.routeId(routeId);
 						okList.add( routeId);

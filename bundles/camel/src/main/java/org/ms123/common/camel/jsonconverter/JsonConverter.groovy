@@ -43,7 +43,6 @@ class JsonConverterVisitor {
 	def m_ctx;
 	void visit(JsonConverter j) {
 		j.convertToCamel(m_ctx);
-		j.setOtherAttribute(m_ctx.current, "logExceptionsOnly", m_ctx.logExceptionsOnly);
 		j.children.each { visit(it) }
 	}
 	void visit(MessageChoiceJsonConverter j) {
@@ -252,12 +251,6 @@ abstract class JsonConverterImpl implements JsonConverter{
 		if( key == "useOriginal") return new UseOriginalAggregationStrategy();
 		if( key == "groupedExchange") return new GroupedExchangeAggregationStrategy();
 		return null;
-	}
-	def setOtherAttribute(processorDefinition, name, value){
-		def attr = processorDefinition.getOtherAttributes();
-		if( attr == null) attr = [:];
-		attr[new QName(name)] =  value;
-		processorDefinition.setOtherAttributes(attr);
 	}
 }
 
@@ -505,7 +498,9 @@ class MessageSplitterJsonConverter extends JsonConverterImpl{
 		def options = createOptionMap();
 		IntrospectionSupport.setProperties(ctx.current,options);
 		//prettyPrint("SplitDefinition:", ctx.current);
-		setOtherAttribute(ctx.current, "loggingOff", shapeProperties.loggingOff);
+		if( shapeProperties.loggingOff == true){
+			ctx.current.setProperty( "__loggingOff", shapeProperties.loggingOff);
+		}
 		ctx.current.id(resourceId);
 	}
 }

@@ -265,6 +265,13 @@ abstract class BaseCallServiceImpl {
 		if( value == null) return _default;
 		return (String)value;
 	}
+	protected Boolean getBoolean(Map shape, String name,boolean def) {
+		Map properties = (Map) shape.get(PROPERTIES);
+
+		Object value  = properties.get(name);
+		if( value == null) return def;
+		return (Boolean)value;
+	}
 
 	protected String getUserName() {
 		return getThreadContext().getUserName();

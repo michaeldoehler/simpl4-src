@@ -70,6 +70,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
 		}
 		Map shape = getCamelShape(ns, methodName);
+		boolean logExceptionsOnly = getBoolean(shape,"logExceptionsOnly", false);
 		List<String> permittedRoleList = getStringList(shape,"startableGroups");
 		List<String> permittedUserList = getStringList(shape,"startableUsers");
 		List<Map> paramList = getItemList(shape, "rpcParameter");
@@ -82,6 +83,8 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		}
 
 		Map<String,Object> properties = new HashMap();
+		info("logExceptionsOnly:"+logExceptionsOnly);
+		properties.put("__logExceptionsOnly", logExceptionsOnly);
 		Map<String,Object> headers = new HashMap();
 
 		for( Map param : paramList){
@@ -110,6 +113,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			System.out.println("Answer:"+answer);
 		}catch(Exception e){
 			e.printStackTrace();
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR,"CamelRouteService",e );
 		}
 		return answer;
 	}

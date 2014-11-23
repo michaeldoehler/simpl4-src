@@ -69,8 +69,8 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 	}
 
 	public void logEntry(ProcessorDefinition<?> node, Processor target, TraceInterceptor traceInterceptor, Exchange exchange, String direction) throws Exception {
-		boolean loggingOff = getPropertyBoolean("loggingOff", node,exchange);
-		boolean logExceptionsOnly = getPropertyBoolean("logExceptionsOnly", node,exchange);
+		boolean loggingOff = getPropertyBoolean("__loggingOff", exchange);
+		boolean logExceptionsOnly = getPropertyBoolean("__logExceptionsOnly", exchange);
 		Date timestamp = new Date();
 		boolean hasException = extractCausedByException(exchange) != null;
 		TraceEventMessage msg = new TraceEventMessage(timestamp, node, exchange);
@@ -90,7 +90,7 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		JSONSerializer js = new JSONSerializer();
 		js.prettyPrint(true);
 		if("out".equals(direction)){
-			info("logEntry:" + routeId + "/" + node.toString()+"/"+node.getOtherAttributes()+"/"+loggingOff+"/"+logExceptionsOnly);
+			info("logEntry:" + routeId + "/" + node.toString()+"/"+loggingOff+"/"+logExceptionsOnly);
 		}
 		String breadcrumbId = (String) exchange.getIn().getHeaders().get(Exchange.BREADCRUMB_ID);
 		if( (loggingOff == false && logExceptionsOnly==false)|| hasException){
@@ -108,16 +108,8 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		eventAdmin.sendEvent(new Event("log", props));
 	}
 
-	private boolean getPropertyBoolean(String name, ProcessorDefinition node, Exchange exchange){
-		Boolean ret = false;
-		Map<QName,Object> oa = node.getOtherAttributes();
-		if( oa != null){
-			ret = (Boolean)oa.get(new QName(name));
-			exchange.setProperty(name, ret);
-		}else{
-			Boolean b = (Boolean)exchange.getProperty(name);
-			ret = b != null ? b : false;
-		}
+	private boolean getPropertyBoolean(String name, Exchange exchange){
+		Boolean ret = (Boolean)exchange.getProperty(name);
 		return ret != null ? ret.booleanValue() : false;
 	}
 	private String getRouteId(Exchange exchange) {
