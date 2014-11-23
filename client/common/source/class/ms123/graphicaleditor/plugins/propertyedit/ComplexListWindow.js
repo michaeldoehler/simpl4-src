@@ -197,7 +197,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				if (type == ms123.oryx.Config.TYPE_STRING) {
 					var f = null;
 					if( this.items[i].filter() ){
-					console.log("RegexTextField:"+this.items[i].filter());
 						f = new ms123.graphicaleditor.plugins.propertyedit.RegexCellEditor(this.items[i].filter());
 					}else{
 						f = new qx.ui.table.celleditor.TextField();
