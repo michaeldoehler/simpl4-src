@@ -83,7 +83,6 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		}
 
 		Map<String,Object> properties = new HashMap();
-		info("logExceptionsOnly:"+logExceptionsOnly);
 		properties.put("__logExceptionsOnly", logExceptionsOnly);
 		Map<String,Object> headers = new HashMap();
 
@@ -91,13 +90,16 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			String destination = (String)param.get("destination");
 			String name = (String)param.get("name");
 			Object def = param.get("defaultvalue");
+			Class type = m_types.get((String)param.get("type"));
+			Boolean opt = (Boolean)param.get("optional");
 			if( "property".equals(destination)){
-				properties.put(name, getValue(methodParams.get(name), def));	
+				properties.put(name, getValue(name, methodParams.get(name), def,opt,type));	
 			}else if( "header".equals(destination)){
-				headers.put(name, getValue(methodParams.get(name), def));	
+				headers.put(name, getValue(name, methodParams.get(name), def,opt,type));	
 			}
 		}
 		info("methodParams:"+methodParams);
+		info("properties:"+properties);
 		info("userRoleList:"+userRoleList);
 		info("permittedRoleList:"+permittedRoleList);
 		info("permittedUserList:"+permittedUserList);

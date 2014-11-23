@@ -47,6 +47,7 @@ import org.ms123.common.camel.api.CamelService;
 import static org.ms123.common.camel.api.CamelService.CAMEL_TYPE;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import groovy.lang.*;
+import org.apache.commons.beanutils.ConvertUtils;
 
 /**
  *
@@ -57,6 +58,15 @@ abstract class BaseCallServiceImpl {
 	protected CamelService m_camelService;
 	protected PermissionService m_permissionService;
 	protected GitService m_gitService;
+
+	protected static final Map<String , Class> m_types = new HashMap<String , Class>() {{
+		put("string",    java.lang.String.class);
+		put("integer", java.lang.Integer.class);
+		put("double",   java.lang.Double.class);
+		put("boolean",   java.lang.Boolean.class);
+		put("map",   java.util.Map.class);
+		put("list",   java.util.List.class);
+	}};
 
 	protected static final String HOOKS = ".etc/calls.json";
 	protected static final String ADMINROLE = "admin";
@@ -244,9 +254,32 @@ abstract class BaseCallServiceImpl {
 		return false;
 	}
 
-	protected Object getValue(Object value, Object def){
-		return value != null ? value : def;
+	protected Object getValue(String name,Object value, Object def,boolean optional, Class type){
+		if( value == null && def != null){
+			def = convertTo(def,type);
+			value = def;
+		}
+		if( value == null && optional==false){
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR,"CamelRouteService:Missing parameter:"+name );
+		}
+		if( value == null){
+			return null;
+		}
+		if( !type.isAssignableFrom(value.getClass())){
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR,"CamelRouteService:parameter("+name+") wrong type:"+value.getClass() + " needed:" +type);
+		}
+		return value;
 	}
+
+	public static Object convertTo(Object sourceObject, Class<?> targetClass){
+		try{
+			return ConvertUtils.convert(sourceObject, targetClass);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	} 
+
 	protected List<Map> getItemList(Map shape, String name) {
 		Map properties = (Map) shape.get(PROPERTIES);
 		Map m  = (Map)properties.get(name);
