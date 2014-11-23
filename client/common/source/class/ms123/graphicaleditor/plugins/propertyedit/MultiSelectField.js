@@ -113,8 +113,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.MultiSelectField", {
 				control = new qx.ui.form.TextField();
 				control.setLiveUpdate(true);
 				control.setFocusable(false);
-				//control.setReadOnly(true);
-				//control.setEnabled(false);
+				control.setReadOnly(true);
+				control.setEnabled(false);
 				control.addState("inner");
 				control.addListener("changeValue", this._onTextFieldChangeValue, this);
 				this._add(control, {
