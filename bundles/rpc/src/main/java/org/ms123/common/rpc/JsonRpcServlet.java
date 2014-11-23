@@ -51,7 +51,7 @@ public class JsonRpcServlet extends HttpServlet {
 	private flexjson.JSONDeserializer m_ds = new flexjson.JSONDeserializer();
 
 	private BundleContext m_bundleContext;
-	private HookService m_hookService;
+	private CallService m_callService;
 
 	private Map<String, String> m_serviceMapping;
 
@@ -229,7 +229,7 @@ public class JsonRpcServlet extends HttpServlet {
 	}
 
 	private void callHooks(String serviceName,String methodName, Object methodParams, Object result, boolean before){
-		HookService hs = getHookService();
+		CallService hs = getCallService();
 		if( hs != null){
 			Map props = new HashMap();
 			props.put("service", serviceName);
@@ -239,7 +239,7 @@ public class JsonRpcServlet extends HttpServlet {
 			props.put("at", before ? "before" : "after");
 			hs.callHooks(props);
 		}else{
-			error("HookServicce not available");
+			error("CallServicce not available");
 		}
 	}
 	protected void doBeforeCallService(final HttpServletRequest httpRequest, final String serviceName, final String methodName, final List<Object> methodParams) throws RpcException {
@@ -356,6 +356,9 @@ public class JsonRpcServlet extends HttpServlet {
 		final String serviceName = (String) requestIntermediateObject.get("service");
 		final String methodName = (String) requestIntermediateObject.get("method");
 		final Object methodParams = requestIntermediateObject.get("params");
+		if( "camelRoute".equals(serviceName)){
+			return m_callService.callCamel(pathInfo, serviceName, methodName, methodParams, request, response);
+		}
 		return callProcedure(pathInfo, serviceName, methodName, methodParams, request, response);
 	}
 
@@ -675,13 +678,13 @@ public class JsonRpcServlet extends HttpServlet {
 		return "if (!qx || !qx.core || !qx.core.ServerSettings) {" + "qx.OO.defineClass(\"qx.core.ServerSettings\");" + "}" + "qx.core.ServerSettings.serverPathPrefix = \"" + getContextURL(request) + "\";" + "qx.core.ServerSettings.serverPathSuffix = \";" + "jsessionid=null\";" + "qx.core.ServerSettings.sessionTimeoutInSeconds = null;" + "qx.core.ServerSettings.lastSessionRefresh = (new Date()).getTime();";
 	}
 
-	private HookService getHookService(){
-		if( m_hookService != null ) return m_hookService;
-	  ServiceReference ref = m_bundleContext.getServiceReference(HookService.class.getName());	
+	private CallService getCallService(){
+		if( m_callService != null ) return m_callService;
+	  ServiceReference ref = m_bundleContext.getServiceReference(CallService.class.getName());	
 		if( ref != null){
-			m_hookService = (HookService) m_bundleContext.getService(ref);
+			m_callService = (CallService) m_bundleContext.getService(ref);
 		}
-		return m_hookService;
+		return m_callService;
 	}
 	protected void debug(String msg) {
 		//System.out.println(msg);

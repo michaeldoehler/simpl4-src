@@ -168,6 +168,16 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		return retMap;
 	}
 
+	public Map getShapeByRouteId(String namespace,String routeId){
+		ContextCacheEntry cce  = m_contextCache.get(getContextKey(namespace,"default"));
+		if( cce == null){
+			return null;
+		}
+		RouteCacheEntry re = cce.routeEntryMap[routeId];
+		if( re == null) return null;
+		return re.shape;
+	}
+
 	protected List<Map> _getRouteInfoList(String contextKey){
 		List<Map> resultList = new ArrayList();
 		ContextCacheEntry cce  = m_contextCache.get(contextKey);
@@ -213,27 +223,27 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		VisGenerator vg = new VisGenerator();
 		return vg.getGraph(routeDefinition);
 	}
-	protected synchronized void _createRoutesFromJsonDescription(){
+	protected synchronized void _createRoutesFromShape(){
 		List<Map> repos = m_gitService.getRepositories(new ArrayList(),false);
 		for(Map<String,String> repo : repos){
 			String namespace = repo.get("name");
-			_createRoutesFromJsonDescription(namespace);
+			_createRoutesFromShape(namespace);
 		}
 	}
-	private RouteDefinition createRouteDefinitionFromJson(String path, ModelCamelContext context, Map rootShape) {
+	private RouteDefinition createRouteDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
 		def c = new CamelRouteJsonConverter(path, context, rootShape);
 		return c.getRouteDefinition();
 	}
-	protected synchronized void _createRoutesFromJsonDescription(String namespace){
-		_createRoutesFromJsonDescription(namespace,null);
+	protected synchronized void _createRoutesFromShape(String namespace){
+		_createRoutesFromShape(namespace,null);
 	}
-	protected synchronized void _createRoutesFromJsonDescription(String namespace,String path){
-		Map<String, List> routeJsonDescriptionMap = getRouteJsonDescriptionMap(namespace);
-		if( routeJsonDescriptionMap.size() == 0){
+	protected synchronized void _createRoutesFromShape(String namespace,String path){
+		Map<String, List> routeShapeMap = getRouteShapeMap(namespace);
+		if( routeShapeMap.size() == 0){
 			stopNotActiveRoutes( getContextKey(namespace,"default"), []);
 		}
-		for( String  contextKey : routeJsonDescriptionMap.keySet()){
-			List<Map> list = routeJsonDescriptionMap.get(contextKey);
+		for( String  contextKey : routeShapeMap.keySet()){
+			List<Map> list = routeShapeMap.get(contextKey);
 			ContextCacheEntry cce = m_contextCache.get(contextKey);
 			if( cce == null){
 				if(list.size() == 0) {
@@ -250,23 +260,23 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			}
 			List<String> okList = [];
 			for( Map map : list){
-				Map routeJsonDescription = (Map)map.routeJsonDescription;
+				Map routeShape = (Map)map.routeShape;
 				String md5 = (String)map.md5;
 				String _path = (String)map.path;
-				String routeId = getId(routeJsonDescription);
+				String routeId = getId(routeShape);
 				info("path:"+path+"/_path:"+_path);
 				if( path != null && _path != path ){
 					okList.add( routeId);
 					continue;
 				}
 				info("routeId:"+routeId);
-				boolean autoStart = getBoolean(routeJsonDescription, AUTOSTART, false);
+				boolean autoStart = getBoolean(routeShape, AUTOSTART, false);
 				RouteCacheEntry re = cce.routeEntryMap[routeId];
 				if( re == null){
 					//new Route
-					re = new RouteCacheEntry( md5:md5,routeId:routeId);
+					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeId);
 					info("Add route:"+routeId);
-					RouteDefinition rd = createRouteDefinitionFromJson( _path, cce.context, routeJsonDescription);
+					RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
 					rd.routeId(routeId);
 					addRouteDefinition(cce.context, rd,re);
 					cce.routeEntryMap[routeId] = re;
@@ -281,7 +291,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						//exchange route
 						info("Exchange route:"+routeId+"/"+autoStart);
 						re.md5 = md5;
-						RouteDefinition rd = createRouteDefinitionFromJson( _path, cce.context, routeJsonDescription);
+						RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
 						rd.routeId(routeId);
 						okList.add( routeId);
 						cce.context.stopRoute(routeId);
@@ -340,7 +350,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			throw e;
 		}
 	}
-	private Map<String,List> getRouteJsonDescriptionMap(String namespace){
+	private Map<String,List> getRouteShapeMap(String namespace){
 		List<String> types = new ArrayList();
 		types.add(CAMEL_TYPE);
 		types.add(DIRECTORY_TYPE);
@@ -351,28 +361,28 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		List<Map> pathList = new ArrayList();
 		toFlatList(map,typesCamel,pathList);
 
-		Map<String,List> routeJsonDescriptionMap = [:];
+		Map<String,List> routeShapeMap = [:];
 		for( Map pathMap : pathList){
 			String path = (String)pathMap.get(PATH);
 			String  routeString = m_gitService.getContent(namespace, path);
 			String md5 = getMD5OfUTF8(routeString);
-			Map routeJsonDescription=null;
+			Map routeShape=null;
 			try{
-				routeJsonDescription = (Map)m_ds.deserialize(routeString);
+				routeShape = (Map)m_ds.deserialize(routeString);
 			}catch(Exception e){
 				info("Cannot deserialize:"+path);
 				continue;
 			}
-			String contextName = getString(routeJsonDescription, CAMELCONTEXT, "default");
+			String contextName = getString(routeShape, CAMELCONTEXT, "default");
 			String contextKey = getContextKey(namespace, contextName);
-			boolean enabled = getBoolean(routeJsonDescription, ENABLED, true);
+			boolean enabled = getBoolean(routeShape, ENABLED, true);
 			if( !enabled) continue;
-			if( routeJsonDescriptionMap[contextKey] == null){
-				routeJsonDescriptionMap[contextKey] = [];
+			if( routeShapeMap[contextKey] == null){
+				routeShapeMap[contextKey] = [];
 			}
-			routeJsonDescriptionMap[contextKey].add([md5:md5, path:path, routeJsonDescription: routeJsonDescription]);
+			routeShapeMap[contextKey].add([md5:md5, path:path, routeShape: routeShape]);
 		}
-		return routeJsonDescriptionMap;
+		return routeShapeMap;
 	}
 
 	protected void	_compileGroovyScripts(String namespace,String path,String code){
@@ -520,6 +530,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		String lastError;
 		String routeId;
 		String md5;
+		Map shape;
 	}
 
 	private static class ContextCacheEntry {

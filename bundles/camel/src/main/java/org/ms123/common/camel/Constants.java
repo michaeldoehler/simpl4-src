@@ -19,7 +19,6 @@
 package org.ms123.common.camel;
 
 public interface Constants {
-	public final String CAMEL_TYPE = "sw.camel";
 	public final String GROOVY_TYPE = "sw.groovy";
 	public final String DIRECTORY_TYPE = "sw.directory";
 	public final String CAMEL_CONTEXT = "context";
@@ -28,7 +27,6 @@ public interface Constants {
 	public final String AUTOSTART = "autostart";
 	public final String ENABLED = "enabled";
 	public final String CAMELCONTEXT = "camelcontext";
-	public final String PROPERTIES = "properties";
 	public final String RESOURCEID = "resourceId";
 	public final String OVERRIDEID = "overrideid";
 

@@ -18,8 +18,10 @@
  */
 package org.ms123.common.rpc;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-public interface HookService {
+public interface CallService {
 
 	public static String SERVICENAME = "service";
 	public static String METHODNAME = "method";
@@ -33,5 +35,6 @@ public interface HookService {
 	public static String PRECONDITION = "preCondition";
 
 	public void callHooks(Map params);
+	public Object callCamel(String pathInfo, String serviceName, String methodName, Object methodParams, HttpServletRequest request, HttpServletResponse response);
 	
 }

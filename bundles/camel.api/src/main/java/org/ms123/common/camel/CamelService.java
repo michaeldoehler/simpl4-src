@@ -24,6 +24,9 @@ import java.util.*;
 public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
 	public final String DEFAULT_CONTEXT = "default";
+	public final String PROPERTIES = "properties";
+	public final String CAMEL_TYPE = "sw.camel";
 	public CamelContext getCamelContext(String namespace, String name);
+	public Map getShapeByRouteId(String namespace, String routeId);
 	public void saveHistory(Exchange exchange);
 }

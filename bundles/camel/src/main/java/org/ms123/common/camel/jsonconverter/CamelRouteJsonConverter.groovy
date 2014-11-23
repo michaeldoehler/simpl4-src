@@ -39,6 +39,7 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.view.RouteDotGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
+import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 /**
  */
 class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms123.common.camel.Constants{

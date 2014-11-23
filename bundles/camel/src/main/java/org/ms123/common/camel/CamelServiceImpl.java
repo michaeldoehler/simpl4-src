@@ -80,7 +80,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		info("CamelServiceImpl.activate.props:" + props);
 		try {
 			m_bundleContext = bundleContext;
-			_createRoutesFromJsonDescription();
+			_createRoutesFromShape();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -92,14 +92,14 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 
 
 	/*BEGIN JSON-RPC-API*/
-	public void  createRoutesFromJsonDescription(
+	public void  createRoutesFromShape(
 			@PName(StoreDesc.NAMESPACE) @POptional String namespace
 		 ) throws RpcException {
 		try {
 			if( namespace == null){
-				_createRoutesFromJsonDescription();
+				_createRoutesFromShape();
 			}else{
-				_createRoutesFromJsonDescription( namespace);
+				_createRoutesFromShape( namespace);
 			}
 		} catch (Throwable e) {
 			String msg = e.getMessage();
@@ -107,25 +107,25 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				e = e.getCause();
 				msg += "\n"+e.getMessage();
 			}
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromJsonDescription:"+msg);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromShape:"+msg);
 		}
 	}
 
-	public void  saveRouteJsonDescription(
+	public void  saveRouteShape(
 			@PName(StoreDesc.NAMESPACE) String namespace,
 			@PName("path") String path,
 			@PName("content") String content
 		 ) throws RpcException {
 		try {
 			m_gitService.putContent(namespace,path, CAMEL_TYPE, content);
-			_createRoutesFromJsonDescription(namespace,path);
+			_createRoutesFromShape(namespace,path);
 		} catch (Throwable e) {
 			String msg = e.getMessage();
 			while (e.getCause() != null) {
 				e = e.getCause();
 				msg += "\n"+e.getMessage();
 			}
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteJsonDescription:"+msg);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteShape:"+msg);
 		}
 	}
 	public void  saveGroovyScript(
