@@ -242,7 +242,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					}).bind(this));
 					this.facade.setSelection(this.selectedElements);
 					this.facade.getCanvas().update();
-//@@@MS					this.facade.updateSelection();
+					this.facade.updateSelection();
 				},
 				rollback: function () {
 					this.selectedElements.each((function (shape) {
@@ -250,7 +250,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					}).bind(this));
 					this.facade.setSelection(this.selectedElements);
 					this.facade.getCanvas().update();
-//@@@MS		this.facade.updateSelection();
+					this.facade.updateSelection();
 					self._updateVisible();
 				}
 			})
@@ -511,8 +511,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							break;
 						case ms123.oryx.Config.TYPE_BOOLEAN:
 							formElement = new qx.ui.form.CheckBox();
-							formElement.addListener('changeValue', (function () {
+							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, formElement.getValue());
+								this.afterEdit(e);
 							}).bind(this));
 							break;
 						case ms123.oryx.Config.TYPE_MODULE_SELECTOR:
@@ -641,6 +642,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 								!(formElement instanceof ms123.graphicaleditor.plugins.propertyedit.FieldSelectorField) && 
 								!(formElement instanceof ms123.graphicaleditor.plugins.propertyedit.TextAreaField) && 
 								!(formElement instanceof ms123.graphicaleditor.plugins.propertyedit.HtmlAreaField) && 
+								!(formElement instanceof qx.ui.form.CheckBox) && 
 								!(formElement instanceof ms123.graphicaleditor.plugins.propertyedit.ColorPopup)) {
 							formElement.addListener('blur', (function (e) {
 								if (!formElement.isValid(false)) {
