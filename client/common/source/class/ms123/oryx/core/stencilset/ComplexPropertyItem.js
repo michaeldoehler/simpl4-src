@@ -127,6 +127,10 @@ qx.Class.define("ms123.oryx.core.stencilset.ComplexPropertyItem", {
 			return this._jsonItem.value;
 		},
 
+		filter: function () {
+			return this._jsonItem.filter;
+		},
+
 		items: function () {
 			return this._items.values();
 		},
