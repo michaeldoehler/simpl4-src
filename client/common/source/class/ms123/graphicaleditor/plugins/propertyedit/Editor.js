@@ -533,7 +533,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_MULTISELECT:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.MultiSelectField(pair.config(), key, this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.MultiSelectField(pair.config(), key, this.facade,pair.title());
 							formElement.addListener('changeValue', (function (e) {
 								console.log("changeValue.multiselect:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());

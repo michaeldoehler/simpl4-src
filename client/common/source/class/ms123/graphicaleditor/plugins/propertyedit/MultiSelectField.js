@@ -28,10 +28,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.MultiSelectField", {
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
-	construct: function (from, key, facade) {
+	construct: function (from, key, facade,title) {
 		this.base(arguments);
 		this.selectablesDesc = from;
 		this.key = key;
+		this.title = title;
 		this.facade = facade;
 		var layout = new qx.ui.layout.HBox();
 		this._setLayout(layout);
@@ -133,7 +134,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.MultiSelectField", {
 					var context = {};
 					context.selectablesDesc = this.selectablesDesc;
 					context.storeDesc = this.facade.storeDesc;
-					context.title = this.tr("graphicaleditor.bpmn.select_form");
+					context.title = this.title;
 					context.selected_callback = (function (value) {
 						console.log("selected_callback:" + qx.util.Serializer.toJson(value));
 						var data = value;
