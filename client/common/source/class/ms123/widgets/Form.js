@@ -670,6 +670,9 @@ qx.Class.define('ms123.widgets.Form', {
 			}
 			return map;
 		},
+		setMode: function (mode) {
+			this._mode = mode;
+		},
 		beforeEdit: function (context) {
 			this.form.beforeEdit(context);
 			this._mode = "edit";

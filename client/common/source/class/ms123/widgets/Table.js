@@ -513,6 +513,7 @@ qx.Class.define('ms123.widgets.Table', {
 					if (this._context.preAddFunc) {
 						this._context.preAddFunc(this._editForm);
 					}
+					this._editForm.setMode("add");
 					this._editForm.fillForm({});
 					this._editForm.beforeAdd({
 						storeDesc: this.__storeDesc,
