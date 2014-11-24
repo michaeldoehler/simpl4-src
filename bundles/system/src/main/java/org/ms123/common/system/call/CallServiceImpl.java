@@ -63,6 +63,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 	protected void deactivate() throws Exception {
 	}
 
+
 	public Object callCamel(String pathInfo, String serviceName, String methodName, Object _methodParams, HttpServletRequest request, HttpServletResponse response) {
 		Map methodParams = (Map) _methodParams;
 		String ns = getNamespace(methodParams);
@@ -70,20 +71,22 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
 		}
 		Map shape = getCamelShape(ns, methodName);
-		boolean logExceptionsOnly = getBoolean(shape, "logExceptionsOnly", false);
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
-		List<Map> paramList = getItemList(shape, "rpcParameter");
 		String userName = getUserName();
-		List<String> userRoleList = null;
-		try {
-			userRoleList = m_permissionService.getUserRoles(userName);
-		} catch (Exception e) {
-			userRoleList = new ArrayList();
+		List<String> userRoleList = getUserRoles(userName);
+		debug("userName:" + userName);
+		debug("userRoleList:" + userRoleList);
+		debug("permittedRoleList:" + permittedRoleList);
+		debug("permittedUserList:" + permittedUserList);
+		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "User(" + userName + ") has no permission");
 		}
+
 		Map<String, Object> properties = new HashMap();
-		properties.put("__logExceptionsOnly", logExceptionsOnly);
 		Map<String, Object> headers = new HashMap();
+		Map<String, Object> body = new HashMap();
+		List<Map> paramList = getItemList(shape, "rpcParameter");
 		for (Map param : paramList) {
 			String destination = (String) param.get("destination");
 			String name = (String) param.get("name");
@@ -94,23 +97,22 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 				properties.put(name, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("header".equals(destination)) {
 				headers.put(name, getValue(name, methodParams.get(name), def, opt, type));
+			} else if ("body".equals(destination)) {
+				body.put(name, getValue(name, methodParams.get(name), def, opt, type));
 			}
 		}
-		info("methodParams:" + methodParams);
-		info("properties:" + properties);
-		info("userRoleList:" + userRoleList);
-		info("permittedRoleList:" + permittedRoleList);
-		info("permittedUserList:" + permittedUserList);
-		info("paramList:" + paramList);
-		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "User(" + userName + ") has no permission");
-		}
+		properties.put("__logExceptionsOnly", getBoolean(shape, "logExceptionsOnly", false));
+		debug("methodParams:" + methodParams);
+		debug("paramList:" + paramList);
+		debug("properties:" + properties);
+		debug("headers:" + headers);
+
 		Route route = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT)).getRoute(methodName);
-		System.out.println("Enpoint:" + route.getEndpoint());
+		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
-			answer = camelSend(ns, route.getEndpoint(), null, headers, properties);
-			System.out.println("Answer:" + answer);
+			answer = camelSend(ns, route.getEndpoint(), body, headers, properties);
+			debug("Answer:" + answer);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService", e);

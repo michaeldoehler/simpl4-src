@@ -39,6 +39,7 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.view.RouteDotGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
+import org.apache.camel.model.language.ConstantExpression;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 /**
  */
@@ -51,7 +52,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
-		m_ctx.logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
+		def logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
 		fillShapeMap(rootShape);
 		fillTypesMap();
 		def startList = getStartList(rootShape);
@@ -65,6 +66,10 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
 		m_ctx.routeDefinition.routeId( getId(rootShape));
+		if( logExceptionsOnly){
+			def expr = new ConstantExpression(logExceptionsOnly as String);
+			m_ctx.routeDefinition.setProperty("__logExceptionsOnly",expr);
+		}
 		println("RouteDefinition:"+m_ctx.routeDefinition);
 	}
 	private def getStartList(Map rootShape) {

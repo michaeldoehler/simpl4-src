@@ -499,7 +499,7 @@ class MessageSplitterJsonConverter extends JsonConverterImpl{
 		IntrospectionSupport.setProperties(ctx.current,options);
 		//prettyPrint("SplitDefinition:", ctx.current);
 		if( shapeProperties.loggingOff == true){
-			ctx.current.setProperty( "__loggingOff", shapeProperties.loggingOff);
+			ctx.current.setProperty( "__loggingOff",new ConstantExpression("true"));
 		}
 		ctx.current.id(resourceId);
 	}

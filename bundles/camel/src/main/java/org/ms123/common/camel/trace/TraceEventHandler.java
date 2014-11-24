@@ -109,8 +109,13 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 	}
 
 	private boolean getPropertyBoolean(String name, Exchange exchange){
-		Boolean ret = (Boolean)exchange.getProperty(name);
-		return ret != null ? ret.booleanValue() : false;
+		Object ret = exchange.getProperty(name);
+		if( ret instanceof String){
+			return new Boolean((String)ret).booleanValue();
+		}
+			
+		Boolean b = (Boolean)exchange.getProperty(name);
+		return b != null ? b.booleanValue() : false;
 	}
 	private String getRouteId(Exchange exchange) {
 		String routeId = null;

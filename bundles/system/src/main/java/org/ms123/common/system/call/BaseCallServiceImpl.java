@@ -294,6 +294,16 @@ abstract class BaseCallServiceImpl {
 		return null;
 	}
 
+	protected List<String> getUserRoles(String userName){
+		List<String> userRoleList = null;
+		try {
+			userRoleList = m_permissionService.getUserRoles(userName);
+		} catch (Exception e) {
+			userRoleList = new ArrayList();
+		}
+		return userRoleList;
+	}
+
 	protected List<Map> getItemList(Map shape, String name) {
 		Map properties = (Map) shape.get(PROPERTIES);
 		Map m = (Map) properties.get(name);
