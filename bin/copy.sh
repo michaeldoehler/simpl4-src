@@ -89,6 +89,7 @@ cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
 
 
 cp $SRCTOPDIR/bin/sw $BINDIRECTORY
+cp $SRCTOPDIR/bin/generate.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.bat $BINDIRECTORY
 cp $SRCTOPDIR/bin/bash.exe $BINDIRECTORY
