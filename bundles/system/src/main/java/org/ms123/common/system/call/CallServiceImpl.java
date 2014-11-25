@@ -111,7 +111,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
-			answer = camelSend(ns, route.getEndpoint(), body, headers, properties);
+			answer = camelSend(ns, route.getEndpoint(), body.keySet().size()>0 ? body:null, headers, properties);
 			debug("Answer:" + answer);
 		} catch (Exception e) {
 			e.printStackTrace();
