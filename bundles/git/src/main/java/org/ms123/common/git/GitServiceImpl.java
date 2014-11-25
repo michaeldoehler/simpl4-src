@@ -586,7 +586,7 @@ public class GitServiceImpl implements GitService {
 			@PName("path")             String path, 
 			@PName("type")             @POptional String type, 
 			@PName("content")          String content) throws RpcException {
-		putContentInternal(repoName,path,type,content);
+		putContentInternal(repoName,path,content,type);
 	}
 
 	@RequiresRoles("admin")
@@ -596,7 +596,7 @@ public class GitServiceImpl implements GitService {
 			@PName("overwrite")        @PDefaultBool(false) @POptional Boolean overwrite, 
 			@PName("content")          @POptional String content, 
 			@PName("type")             String type) throws RpcException {
-		createObjectInternal(repoName,path,overwrite,type,content);
+		createObjectInternal(repoName,path,overwrite,content,type);
 	}
 
 	@RequiresRoles("admin")
@@ -914,7 +914,7 @@ public class GitServiceImpl implements GitService {
 
 
 	/*Unrestricted access for internal use,public not accessible*/
-	public void putContentInternal( String repoName, String path, String type, String content) {
+	public void putContentInternal( String repoName, String path, String content,String type) {
 		try {
 			String gitSpace = System.getProperty("git.repos");
 			File gitDir = new File(gitSpace, repoName);
