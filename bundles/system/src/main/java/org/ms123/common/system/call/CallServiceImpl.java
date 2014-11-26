@@ -64,7 +64,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 	}
 
 
-	public Object callCamel(String pathInfo, String serviceName, String methodName, Object _methodParams, HttpServletRequest request, HttpServletResponse response) {
+	public Object callCamel(String methodName, Object _methodParams, HttpServletRequest request, HttpServletResponse response) {
 		Map methodParams = (Map) _methodParams;
 		String ns = getNamespace(methodParams);
 		if (ns == null) {
