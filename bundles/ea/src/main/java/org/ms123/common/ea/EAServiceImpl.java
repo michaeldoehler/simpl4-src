@@ -197,6 +197,7 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 			teamList.add(m);
 		}
 		data.put("_team_list", teamList);
+		data.put("email", email);
 
 		if( communication == null){
 			communication = new HashMap();
@@ -216,7 +217,7 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 				}
 			} else {
 				ret = m_dataLayer.insertObject(sc, data, CONTACT_ENTITY);
-				communication.put("mail1", email);
+//				communication.put("mail1", email);
 				Map r = m_dataLayer.insertObject(sc, communication, COMMUNICATION_ENTITY, CONTACT_ENTITY, (String) ret.get("id"));
 			}
 			ut.commit();
