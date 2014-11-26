@@ -332,18 +332,18 @@ qx.Mixin.define("ms123.searchfilter.MSearchFilter",
 			}
 			var buttons = [{
 				'label': this.tr("composite.select_dialog.delete"),
-				'icon': "icon/22/actions/dialog-ok.png",
+				'icon': "icon/22/actions/list-remove.png",
 				'value': 1
-			},
-			{
-				'label': this.tr("composite.select_dialog.use"),
-				'icon': "icon/22/actions/dialog-ok.png",
-				'value': 2
 			},
 			{
 				'label': this.tr("composite.select_dialog.cancel"),
 				'icon': "icon/22/actions/dialog-cancel.png",
 				'value': 3
+			},
+			{
+				'label': this.tr("composite.select_dialog.use"),
+				'icon': "icon/22/actions/dialog-ok.png",
+				'value': 2
 			}];
 
 			var _this = this;
