@@ -264,7 +264,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			}
 			insertIntoMaster(sessionContext, objectInsert, entityName, masterClazz, fieldName, masterId);
 			makePersistent(sessionContext, objectInsert);
-			m_triggerService.applyInsertRules(sessionContext, entityName, objectInsert);
+			Boolean bypassTrigger = (Boolean)sessionContext.getProperty("bypassTrigger");
+			if( bypassTrigger ==null || bypassTrigger==false){
+				m_triggerService.applyInsertRules(sessionContext, entityName, objectInsert);
+			}
 			ids.add(PropertyUtils.getProperty(objectInsert, getPrimaryKey(objectInsert.getClass())));
 		}
 		if (retMap.get("constraintViolations") == null) {
@@ -278,7 +281,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		}
 		return retMap;
 	}
-
+	
 	public String constructEntityName(SessionContext sessionContext, String entityName, String entityNameParent) {
 		debug("constructEntityName:" + entityName + ",parent:" + entityNameParent);
 		try {
@@ -582,7 +585,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					//sessionContext.getLuceneSession().addToIndex(objectUpdate);
 				}
 				if( filterMap == null){
-					m_triggerService.applyUpdateRules(sessionContext, entityName, objectUpdate,objectUpdatePre);
+					Boolean bypassTrigger = (Boolean)sessionContext.getProperty("bypassTrigger");
+					if( bypassTrigger == null || bypassTrigger == false){
+						m_triggerService.applyUpdateRules(sessionContext, entityName, objectUpdate,objectUpdatePre);
+					}
 				}
 				if((counter%100)==0){
 					displayInfo("",start);
@@ -636,7 +642,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		}
 		Class deleteClazz = getClass(sdesc, classNameDelete);
 		Object objectDelete = pm.getObjectById(deleteClazz, objId);
-		m_triggerService.applyDeleteRules(sessionContext, entityName, objectDelete);
+		Boolean bypassTrigger = (Boolean)sessionContext.getProperty("bypassTrigger");
+		if( bypassTrigger == null || bypassTrigger == false){
+			m_triggerService.applyDeleteRules(sessionContext, entityName, objectDelete);
+		}
 		//@@@MS should be reverse 
 		pm.deletePersistent(objectDelete);
 		if (sdesc.isDataPack() && !"teamintern".equals(entityName)) {

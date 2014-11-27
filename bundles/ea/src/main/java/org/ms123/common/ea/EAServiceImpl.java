@@ -185,6 +185,7 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 		Map ret = null;
 		StoreDesc sdesc = StoreDesc.get("ea_data");
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
+		sc.setProperty("bypassTrigger", true );
 		Map c = _getContactByEmail(sc, email);
 		List<Map> teamList = new ArrayList();
 
