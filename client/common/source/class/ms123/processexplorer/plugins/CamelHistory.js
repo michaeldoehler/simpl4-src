@@ -121,7 +121,6 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 				this._tableModelRouteInstances.removeRows(0, this._tableModelRouteInstances.getRowCount());
 				for (var row = 0; row < data.length; row++) {
 					var rmap = data[row];
-					console.log("rmap:",rmap);
 					rmap._startTime = rmap.startTime;
 					rmap._endTime = rmap.endTime;
 					rmap.startTime = this._formatTime(rmap.startTime);
@@ -222,7 +221,6 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 				//if( colnum != 2 ) return;
 				var map = tableModel.getRowDataAsMap(rownum);
 				//if( !(map.status == "error" || map.status=="notstartet")) return;
-				console.log("map:",map);
 				/*var msg = map.logEntry.msg;
 				this.facade.raiseEvent({
 					type: ms123.processexplorer.Config.EVENT_SHOWDETAILS,
@@ -314,7 +312,6 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 				if (count == 0) {
 					return;
 				}
-				console.log("Map:",map);
 				this.facade.vis.selectNode( map.msg.resourceId);
 				this._setDetails(map.msg.headers, map.msg.properties, map.msg.body, map.msg.causedByException );
 			}, this);
