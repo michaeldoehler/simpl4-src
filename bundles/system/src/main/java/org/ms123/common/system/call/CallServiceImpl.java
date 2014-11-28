@@ -108,6 +108,9 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		debug("headers:" + headers);
 
 		Route route = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT)).getRoute(methodName);
+		if( route == null){
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+methodName+"' not found");
+		}
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
