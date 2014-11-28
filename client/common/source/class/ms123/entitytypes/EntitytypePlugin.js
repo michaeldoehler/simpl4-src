@@ -213,6 +213,7 @@ qx.Class.define('ms123.entitytypes.EntitytypePlugin', {
 			};
 			if (model.id == "data_description" && level == 1) {
 				var childs = model.children;
+				model.type="nothing";
 				for (var i = 0; i < childs.length; i++) {
 					childs[i].type = "sw.pack";
 				}
@@ -301,6 +302,7 @@ qx.Class.define('ms123.entitytypes.EntitytypePlugin', {
 		 */
 		getIconMapping: function () {
 			var iconMap = {};
+			iconMap["nothing"] = "sw.directory";
 			iconMap["sw.entitytypes"] = "sw.directory";
 			iconMap["sw.entitytype"] = "resource/ms123/table.png";
 			iconMap["sw.pack"] = "sw.directory";
