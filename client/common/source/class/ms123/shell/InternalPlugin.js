@@ -105,10 +105,19 @@ qx.Class.define('ms123.shell.InternalPlugin', {
 				kind: "tab"
 			},
 			{
+				nodetypes: ms123.shell.FileType.getAllTextEditables(),
+				clazz: ms123.shell.views.SimpleTextEditor,
+				menuicon: "icon/16/apps/utilities-text-editor.png",
+				title: this.tr("shell.texteditor"),
+				tabtitle: "%n",
+				kind: "tab"
+			},
+			{
 				nodetypes: ["sw.module"],
 				clazz: ms123.shell.views.Editor,
 				menuicon: "icon/16/apps/utilities-text-editor.png",
 				title: this.tr("shell.editor"),
+				tabtitle: "%n",
 				kind: "tab"
 			}];
 			return contextMenu;

@@ -82,6 +82,9 @@ qx.Class.define("ms123.shell.FileType", {
 				return  ["sw.rule","sw.process","sw.filter", "sw.form","sw.website", "sw.camel",  "sw.stencil", "sw.datamapper", "sw.document"];
 		},
 
+		getAllTextEditables:function(){
+				return  ["image/svg+xml"];
+		},
 		getAllForeigns:function(){
 				return  ["image/png","image/jpg","image/svg+xml"];
 		},

@@ -24,7 +24,7 @@
 */
 
 qx.Class.define("ms123.shell.views.JsonEditor", {
-	extend: qx.ui.core.Widget,
+	extend: ms123.shell.views.SimpleTextEditor,
 	include: qx.locale.MTranslation,
 
 
@@ -32,18 +32,7 @@ qx.Class.define("ms123.shell.views.JsonEditor", {
 	 CONSTRUCTOR
 	 ******************************************************************************/
 	construct: function (model,param,facade) {
-		this.base(arguments);
-		this.facade=facade;
-		this._setLayout(new qx.ui.layout.Dock());
-		console.log("model:" + qx.util.Serializer.toJson(model));
-
-    this.msgArea = new qx.ui.form.TextArea();
-		this._add( this.msgArea, {edge:"center"});
-		this._toolbar = this._createToolbar(model);
-		this._add(this._toolbar, {
-			edge: "south"
-		});
-		this._show(model);
+		this.base(arguments,model,param,facade);
 	},
 
 
@@ -79,48 +68,20 @@ qx.Class.define("ms123.shell.views.JsonEditor", {
 		_createToolbar: function (model) {
 			var toolbar = new qx.ui.toolbar.ToolBar();
 			toolbar.setSpacing(5);
-			var buttonSave = new qx.ui.toolbar.Button(this.tr("shell.json_save"), "icon/22/actions/dialog-ok.png");
+			var buttonSave = new qx.ui.toolbar.Button(this.tr("shell.save"), "icon/22/actions/dialog-ok.png");
 			buttonSave.addListener("execute", function () {
 				var value =  this.msgArea.getValue();
 				try{
-				value = qx.util.Serializer.toJson(qx.lang.Json.parse(value));
+				value = qx.lang.Json.stringify(qx.lang.Json.parse(value),null,2);
 				}catch(e){
 					ms123.form.Dialog.alert("Error:"+e);
 					return;
 				}
-				this._saveContent(model, "json", {json: value});
+				this._saveContent(model, null, {json: value});
 			}, this);
 			toolbar.addSpacer();
 			toolbar._add(buttonSave)
 			return toolbar;
-		},
-		_saveContent: function (model, what, content) {
-			var path = model.getPath();
-			console.log("path:" + path);
-			var completed = (function (e) {
-				ms123.form.Dialog.alert(this.tr("shell."+what+"_saved"));
-			}).bind(this);
-
-			var failed = (function (e) {
-				ms123.form.Dialog.alert(this.tr("shell."+what+"_save_failed")+":"+e.message);
-			}).bind(this);
-
-			var rpcParams = {
-				reponame:this.facade.storeDesc.getNamespace(),
-				path:path,
-				content: content.json
-			};
-
-			var params = {
-				method:"putContent",
-				service:"git",
-				parameter:rpcParams,
-				async: false,
-				context: this,
-				completed: completed,
-				failed: failed
-			}
-			ms123.util.Remote.rpcAsync(params);
 		}
 	}
 });

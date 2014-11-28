@@ -23,7 +23,7 @@
 	@asset(ms123/*)
 */
 
-qx.Class.define("ms123.shell.views.TextEditor", {
+qx.Class.define("ms123.shell.views.SimpleTextEditor", {
 	extend: qx.ui.core.Widget,
 	include: qx.locale.MTranslation,
 
@@ -37,7 +37,14 @@ qx.Class.define("ms123.shell.views.TextEditor", {
 		this._setLayout(new qx.ui.layout.Dock());
 		console.log("model:" + qx.util.Serializer.toJson(model));
 
-    this.msgArea = new qx.ui.form.TextArea();
+    //this.msgArea = new qx.ui.form.TextArea();
+
+		this.msgArea = new ms123.codemirror.CodeMirror({});
+		this.msgArea.set({
+			height: null,
+			width: null
+		});
+
 		this._add( this.msgArea, {edge:"center"});
 		this._toolbar = this._createToolbar(model);
 		this._add(this._toolbar, {
