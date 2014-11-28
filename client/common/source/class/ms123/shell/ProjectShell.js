@@ -53,6 +53,10 @@ qx.Class.define('ms123.shell.ProjectShell', {
 				plugins.push ( new ms123.messages.Plugin(this._facade));
 				this._facade.includePathList.push("messages");
 			}
+			if( includePluginList.indexOf("camel")!=-1){
+				plugins.push ( new ms123.shell.InternalPlugin(this._facade));
+				this._facade.includePathList.push("camel");
+			}
 			if( includePluginList.indexOf("enumerations")!=-1){
 				plugins.push ( new ms123.enumerations.EnumPlugin(this._facade));
 				this._facade.includePathList.push("enumerations");
