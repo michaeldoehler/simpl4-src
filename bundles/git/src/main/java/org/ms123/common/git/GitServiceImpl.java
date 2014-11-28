@@ -121,6 +121,7 @@ public class GitServiceImpl implements GitService {
 	List<String> m_rawList = new ArrayList<String>() {
 		{
 			add("sw.groovy");
+			add("image/svg+xml");
 		}
 	};
 
