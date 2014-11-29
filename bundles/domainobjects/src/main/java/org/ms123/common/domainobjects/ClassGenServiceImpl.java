@@ -828,7 +828,7 @@ public class ClassGenServiceImpl implements ClassGenService {
 				if (values != null && i < values.length && values[i] != null) {
 					val = values[i];
 				}
-				String param = "message:o";
+				String param = "";
 				if (i < (params.length - 1)) {
 					param = (String) params[i + 1];
 				}
@@ -841,7 +841,9 @@ public class ClassGenServiceImpl implements ClassGenService {
 						paramMap.put(param, value);
 					}
 				} else {
-					paramMap.put(param, val);
+					if( param!=null&& param.length()>0){
+						paramMap.put(param, val);
+					}
 				}
 			}
 			if (msg != null && msg.trim().length() > 0) {
