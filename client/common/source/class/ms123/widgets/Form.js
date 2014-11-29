@@ -449,7 +449,7 @@ qx.Class.define('ms123.widgets.Form', {
 
 			for (var i = 0; i < cv.length; i++) {
 				var c = cv[i];
-				if (c.annotation == "NotEmpty") {
+				if (c.annotation == "NotEmpty" && c.parameter1 != 'notOnClient') {
 					validation.required = true;
 				}
 				if (c.annotation == "Pattern") {
