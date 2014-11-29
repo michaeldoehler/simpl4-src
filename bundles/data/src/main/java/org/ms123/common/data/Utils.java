@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import groovy.lang.*;
 import org.codehaus.groovy.control.*;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.ms123.common.team.api.TeamService;
 
 @SuppressWarnings("unchecked")
 public class Utils {
@@ -246,6 +247,110 @@ public class Utils {
 		if (lindex == -1)
 			return name;
 		return name.substring(lindex + 1).toLowerCase();
+	}
+
+	//TEAM-Helper
+	public static List<Map> getTeamChangedList(TeamService ts, Object object, Object objectPre) {
+		List<Map> answer=null;
+		if( PropertyUtils.isReadable(object,"_team_list")){
+			try{
+				Set nowList = (Set) PropertyUtils.getProperty(object, "_team_list");
+				Set preList = (Set) PropertyUtils.getProperty(objectPre, "_team_list");
+				if (nowList != null || preList != null) {
+					answer = getTeamChangedList(ts,null, preList, nowList);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		return answer;
+	}
+	public static List<Map> getTeamChangedList(TeamService ts, Map<String,String> tc, Set<Map> preList, Set<Object> nowList) {
+		Map<String, Map> nowMap = _toTeamNowMap(nowList);
+		List<Map> teams = new ArrayList();
+		if( tc == null) tc = getTeamChangedFlags(preList,nowList);
+		for (String key : tc.keySet()) {
+			if(tc.get(key) == null){
+				 continue;
+			}
+			String op = tc.get(key);
+			Map team = null;
+			if( nowMap.get(key)!=null){
+				team = nowMap.get(key);	
+			}else{
+				for (Map pre : preList) {
+					if( pre.get("teamid").equals(key) ){
+						team = pre;	
+						break;
+					}
+				}
+			}
+			boolean valid = ts.checkTeamDate(team) && !getBoolean(team, "disabled", false);
+			team.put("operation", op);
+			team.put("valid", valid);
+			teams.add(team);	
+		}
+		
+		return teams;
+	}
+
+	public static Map getTeamChangedFlags(Set<Map> preList, Set<Object> nowList) {
+		Map flags = new HashMap();
+		Map<String, Map> nowMap = _toTeamNowMap(nowList);
+		if (preList != null) {
+			for (Map<String, Object> pre : preList) {
+				String teamid = (String) pre.get("teamid");
+				Map now = nowMap.get(teamid);
+				if (now != null) {
+					flags.put(teamid, _teamsEqual(pre, now) ? null : "update");
+					nowMap.put(teamid, null);
+				} else {
+					flags.put(teamid, "delete");
+				}
+			}
+		}
+		Set<String> idSet = nowMap.keySet();
+		for (String teamId : idSet) {
+			if (nowMap.get(teamId) != null) {
+				flags.put(teamId, "add");
+			}
+		}
+		return flags;
+	}
+
+	private static boolean _teamsEqual(Map<String, Object> pre, Map<String, Object> now) {
+		long validFromPre = getLong(pre.get("validFrom"));
+		long validFromNow = getLong(now.get("validFrom"));
+		long validToPre = getLong(pre.get("validTo"));
+		long validToNow = getLong(now.get("validTo"));
+		Boolean disabledPre = _getBoolean(pre.get("disabled"));
+		Boolean disabledNow = _getBoolean(now.get("disabled"));
+		boolean b = validFromPre == validFromNow && validToPre == validToNow && disabledPre == disabledNow;
+		return b;
+	}
+
+	private static Map<String, Map> _toTeamNowMap(Set<Object> nowList) {
+		Map<String, Map> retMap = new HashMap();
+		if (nowList == null){
+			return retMap;
+		}
+		for (Object t : nowList) {
+			Map team = new HashMap(new BeanMap(t));
+			team.remove("teamintern");
+			retMap.put((String) team.get("teamid"), team);
+		}
+		return retMap;
+	}
+	private static Boolean _getBoolean(Object b) {
+		try {
+			if (b == null){
+				return null;
+			}
+			return (Boolean) b;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	protected static void debug(String message) {
