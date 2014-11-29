@@ -96,6 +96,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 				}
 			}
 			this.isBPMNRoot = (this.shapeSelection.shapes.first().getStencil().id() == "http://b3mn.org/stencilset/bpmn2.0#BPMNDiagram"); //@@@MS  TODO
+			this.isCamelRoot = (this.shapeSelection.shapes.first().getStencil().id() == "http://b3mn.org/stencilset/camel#Camelrouting"); //@@@MS  TODO
 			this.setPropertyWindowTitle();
 			this.identifyCommonProperties();
 			this.setCommonPropertiesValues();
@@ -443,10 +444,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					var refToViewFlag = false;
 
 					var formElement;
+					var isCamelDiagramName = (this.isCamelRoot && pair.id() == 'name');
+					var isCamelDiagramId = (this.isCamelRoot && pair.id() == 'overrideid');
 					var isBPMNDiagramName = (this.isBPMNRoot && pair.id() == 'name');
 					if( this.isBPMNRoot ){
 					}
-					if (isBPMNDiagramName) {
+					if (isBPMNDiagramName || isCamelDiagramName || isCamelDiagramId) {
 						console.log("setProperty:"+key+"="+this.diagramName);
 						this.shapeSelection.shapes.first().setProperty(key, this.diagramName);
 					}
@@ -496,6 +499,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this));
 
 							if (isBPMNDiagramName) formElement.setEnabled(false);
+							if (isCamelDiagramId) formElement.setEnabled(false);
+							if (isCamelDiagramName) formElement.setEnabled(false);
 							if (isTargetNamespace) formElement.setEnabled(false);
 							break;
 						case ms123.oryx.Config.TYPE_INTEGER:
