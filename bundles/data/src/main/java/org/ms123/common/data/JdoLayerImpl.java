@@ -60,6 +60,7 @@ import org.joda.time.DateTime;
 import org.ms123.common.entity.api.EntityService;
 import org.ms123.common.setting.api.SettingService;
 import static org.ms123.common.setting.api.Constants.TITLEEXPRESSION;
+import static org.ms123.common.setting.api.Constants.RECORDVALIDATION;
 import static org.ms123.common.setting.api.Constants.NORESULTSETCOUNT;
 import static org.ms123.common.setting.api.Constants.STATESELECT;
 import static org.ms123.common.setting.api.Constants.GLOBAL_SETTINGS;
@@ -68,6 +69,7 @@ import static org.ms123.common.entity.api.Constants.STATE_NEW;
 import static org.ms123.common.entity.api.Constants.STATE_FIELD;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.git.GitService;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.auth.api.AuthService;
 import org.ms123.common.utils.annotations.RelatedTo;
 import org.ms123.common.data.api.LuceneService;
@@ -117,6 +119,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 
 	private SettingService m_settingService;
 	private GitService m_gitService;
+	private CamelService m_camelService;
 
 //	private LuceneService m_luceneService;
 
@@ -320,8 +323,18 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 
 	public List validateObject(SessionContext sessionContext, Object objectInsert, String entityName, boolean bInsert) {
 		Set cv = m_validator.validate(objectInsert);
-		if (cv.size() > 0) {
-			return constructConstraitViolationList(cv);
+		String recordValidation = getRecordValidation(sessionContext,entityName);
+System.out.println("recordValidation:"+recordValidation);
+		if( recordValidation != null){
+			Map<String,Object> properties = new HashMap();
+			properties.put("constraintViolationList", constructConstraitViolationList(cv));
+			properties.put("object", objectInsert);
+			Object answer = m_camelService.camelSend(sessionContext.getStoreDesc().getNamespace(),recordValidation, null, null,properties);
+			return (List)answer;
+		}else{
+			if (cv.size() > 0) {
+				return constructConstraitViolationList(cv);
+			}
 		}
 		if( true) return null; //@@@ NO DublettenCheck online
 		StoreDesc sdesc= sessionContext.getStoreDesc();
@@ -2130,6 +2143,12 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		throw new RuntimeException("JdoLayerImpl.getPrimaryKey(" + clazz + "):no_primary_key");
 	}
 
+	private String getRecordValidation(SessionContext sc, String entityName) {
+	  Map m = m_settingService.getPropertiesForEntityView( sc.getStoreDesc().getNamespace(), GLOBAL_SETTINGS, entityName, null);
+		String val = (String)m.get(RECORDVALIDATION);
+		if( val!=null && val.endsWith(".camel")) return val.substring(0, val.length()-6);
+		return null;
+	}
 
 	private String getTitle(SessionContext sc, String entityName, Map<String,Object> map, Object id,String def) {
 	  Map m = m_settingService.getPropertiesForEntityView( sc.getStoreDesc().getNamespace(), GLOBAL_SETTINGS, entityName, null);
@@ -2481,6 +2500,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	public void setGitService(GitService paramGitService) {
 		this.m_gitService = paramGitService;
 		info("JdoLayerImpl.setGitService:" + paramGitService);
+	}
+	@Reference(dynamic = true, optional = true)
+	public void setCamelService(CamelService paramCamelService) {
+		this.m_camelService = paramCamelService;
+		info("JdoLayerImpl.setCamelService:" + paramCamelService);
 	}
 
 	@Reference(target = "(impl=default)", dynamic = true)

@@ -100,6 +100,14 @@ qx.Class.define("ms123.settings.CommonPropertyEdit", {
 					'label': this.tr("data.entity.titel_expression"),
 					'value': ""
 				},
+				"record_validation":{
+					'type': "resourceselector",
+					'config':{
+						'type':'sw.camel'
+					},
+					'label': this.tr("data.entity.record_validation"),
+					'value': null
+				},
 				"workflow_list":{
 					'type': "GridInput",
 					'label': this.tr("data.entity.workflow_list"),

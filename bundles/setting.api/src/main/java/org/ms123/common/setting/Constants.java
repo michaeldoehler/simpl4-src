@@ -24,4 +24,5 @@ public interface Constants {
 	public static final String STATESELECT = "state_select";
 	public static final String NORESULTSETCOUNT = "no_resultset_count";
 	public static final String TITLEEXPRESSION = "title_expression";
+	public static final String RECORDVALIDATION = "record_validation";
 }
