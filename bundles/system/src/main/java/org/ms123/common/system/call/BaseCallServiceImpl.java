@@ -74,7 +74,7 @@ abstract class BaseCallServiceImpl {
 		}
 	};
 
-	protected static final String HOOKS = ".etc/calls.json";
+	protected static final String HOOKS = ".etc/hooks.json";
 
 	protected static final String ADMINROLE = "admin";
 
