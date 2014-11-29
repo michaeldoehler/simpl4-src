@@ -255,7 +255,10 @@ public class Utils {
 		if( PropertyUtils.isReadable(object,"_team_list")){
 			try{
 				Set nowList = (Set) PropertyUtils.getProperty(object, "_team_list");
-				Set preList = (Set) PropertyUtils.getProperty(objectPre, "_team_list");
+				Set preList = null;
+				if( objectPre != null){
+					preList = (Set) PropertyUtils.getProperty(objectPre, "_team_list");
+				}
 				if (nowList != null || preList != null) {
 					answer = getTeamChangedList(ts,null, preList, nowList);
 				}
