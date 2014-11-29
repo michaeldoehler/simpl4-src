@@ -46,6 +46,7 @@ import org.ms123.common.rpc.JsonRpcServlet;
 import org.ms123.common.camel.api.CamelService;
 import static org.ms123.common.camel.api.CamelService.CAMEL_TYPE;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
+import static org.ms123.common.camel.api.CamelService.OVERRIDEID;
 import groovy.lang.*;
 import org.apache.commons.beanutils.ConvertUtils;
 
@@ -89,7 +90,7 @@ abstract class BaseCallServiceImpl {
 
 	private Map<String, Script> m_hookPreConditionScriptCache = new HashMap();
 
-	protected void camelHook(String ns, String loginUser, String serviceName, String methodName, String endpoint, boolean sync, Object params, Object result) {
+	protected void camelHook(String ns, String loginUser, String serviceName, String methodName, String routeId, boolean sync, Object params, Object result) {
 		String execUser = "admin";
 		boolean hasAdminRole = m_permissionService.hasRole(ADMINROLE);
 		Map propMap = new HashMap();
@@ -102,10 +103,10 @@ abstract class BaseCallServiceImpl {
 		propMap.put("methodParams", params);
 		propMap.put("methodResult", result);
 		if (sync) {
-			Object answer = camelSend(endpoint, propMap);
+			Object answer =m_camelService.camelSend(ns, routeId, propMap);
 			info("CallServiceImpl.CamelSend.sync.answer:" + answer);
 		} else {
-			new CamelThread(endpoint, execUser, propMap).start();
+			new CamelThread(routeId, execUser, propMap).start();
 		}
 	}
 
@@ -143,14 +144,14 @@ abstract class BaseCallServiceImpl {
 
 	private class CamelThread extends Thread {
 
-		String endpoint;
+		String routeId;
 
 		String execUser;
 
 		Map propMap;
 
-		public CamelThread(String endpoint, String execUser, Map propMap) {
-			this.endpoint = endpoint;
+		public CamelThread(String routeId, String execUser, Map propMap) {
+			this.routeId = routeId;
 			this.execUser = execUser;
 			this.propMap = propMap;
 		}
@@ -160,7 +161,7 @@ abstract class BaseCallServiceImpl {
 				String ns = (String) propMap.get("namespace");
 				ThreadContext.loadThreadContext(ns, execUser);
 				m_permissionService.loginInternal(ns);
-				Object answer = camelSend(endpoint, propMap);
+				Object answer = m_camelService.camelSend(ns, routeId, propMap);
 				info("CallServiceImpl.CamelSend.async.answer:" + answer);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -175,68 +176,23 @@ abstract class BaseCallServiceImpl {
 	protected Map getCamelShape(String ns, String name) {
 		Map shape = m_camelService.getShapeByRouteId(ns, name);
 		if (shape == null) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method " + name + " not found");
+			if( !name.endsWith(".camel")){
+				shape = m_camelService.getShapeByRouteId(ns, name+".camel");
+			}
+		}
+		if (shape == null) {
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method " + name + "(.camel) not found");
 		}
 		return shape;
 	}
 
+	protected String getId(Map shape) {
+		Map properties = (Map) shape.get(PROPERTIES);
+		String id = ((String) properties.get(OVERRIDEID));
+		return id;
+	}
 	private org.ms123.common.system.ThreadContext getThreadContext() {
 		return org.ms123.common.system.ThreadContext.getThreadContext();
-	}
-
-	public Object camelSend(String epUri, final Map<String, Object> properties) {
-		return camelSend(epUri, null, null, properties);
-	}
-
-	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties) {
-		return camelSend(epUri, body, null, properties);
-	}
-
-	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties) {
-		Processor p = new Processor() {
-
-			public void process(Exchange exchange) {
-				if (properties != null) {
-					for (String key : properties.keySet()) {
-						exchange.setProperty(key, properties.get(key));
-					}
-				}
-				Message in = exchange.getIn();
-				if (headers != null) {
-					for (String key : headers.keySet()) {
-						in.setHeader(key, headers.get(key));
-					}
-				}
-				in.setBody(body);
-			}
-		};
-		ProducerTemplate template = m_camelService.getCamelContext((String) properties.get("namespace"), CamelService.DEFAULT_CONTEXT).createProducerTemplate();
-		Exchange result = template.send(epUri, p);
-		return ExchangeHelper.extractResultBody(result, null);
-	}
-
-	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties) {
-		Processor p = new Processor() {
-
-			public void process(Exchange exchange) {
-				if (properties != null) {
-					for (String key : properties.keySet()) {
-						exchange.setProperty(key, properties.get(key));
-					}
-				}
-				Message in = exchange.getIn();
-				if (headers != null) {
-					for (String key : headers.keySet()) {
-						in.setHeader(key, headers.get(key));
-					}
-				}
-				in.setBody(body);
-			}
-		};
-		//String ns = (String) properties.get("namespace");
-		ProducerTemplate template = m_camelService.getCamelContext(ns, CamelService.DEFAULT_CONTEXT).createProducerTemplate();
-		Exchange result = template.send(endpoint, p);
-		return ExchangeHelper.extractResultBody(result, null);
 	}
 
 	protected String getNamespace(Object params) {

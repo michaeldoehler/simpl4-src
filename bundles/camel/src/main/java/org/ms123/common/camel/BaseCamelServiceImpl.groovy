@@ -121,7 +121,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	private Map<String, ContextCacheEntry> m_contextCache = new LinkedHashMap();
 
 	public CamelContext getCamelContext(String namespace, String camelName) {
-		return m_contextCache.get(getContextKey(namespace,  camelName)).context;
+		try{
+			return m_contextCache.get(getContextKey(namespace,  camelName)).context;
+		}catch(Exception e){
+			throw new RuntimeException("BaseCamelServiceImpl.getCamelContext("+namespace+","+camelName+"): not found");
+		}
 	}
 
 	protected List<Map> _getRouteInstances(String contextKey, String routeId, java.lang.Long _startTime, java.lang.Long endTime){
@@ -416,7 +420,10 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			co.start();
 		}
 	}
-	private static void info(String msg) {
+	protected static void debug(String msg) {
+		m_logger.debug(msg);
+	}
+	protected static void info(String msg) {
 		System.err.println(msg);
 		m_logger.info(msg);
 	}

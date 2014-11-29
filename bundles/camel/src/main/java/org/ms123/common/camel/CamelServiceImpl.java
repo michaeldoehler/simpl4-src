@@ -46,6 +46,13 @@ import org.ms123.common.system.LogService;
 import org.ms123.common.utils.Inflector;
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Route;
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.apache.camel.util.ExchangeHelper;
+import org.apache.camel.ProducerTemplate;
 
 import aQute.bnd.annotation.metatype.*;
 import aQute.bnd.annotation.component.*;
@@ -199,13 +206,75 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteVisGraph:", e);
 		}
 	}
-
-	private void info(String msg) {
-		System.out.println(msg);
-		m_logger.info(msg);
-	}
-	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(CamelServiceImpl.class);
 	/*END JSON-RPC-API*/
+
+	public Object camelSend(String epUri, final Map<String, Object> properties) {
+		return camelSend(epUri, null, null, properties);
+	}
+
+	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties) {
+		return camelSend(epUri, body, null, properties);
+	}
+
+	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties) {
+		Processor p = new Processor() {
+
+			public void process(Exchange exchange) {
+				if (properties != null) {
+					for (String key : properties.keySet()) {
+						exchange.setProperty(key, properties.get(key));
+					}
+				}
+				Message in = exchange.getIn();
+				if (headers != null) {
+					for (String key : headers.keySet()) {
+						in.setHeader(key, headers.get(key));
+					}
+				}
+				in.setBody(body);
+			}
+		};
+		ProducerTemplate template = getCamelContext((String) properties.get("namespace"), CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		Exchange result = template.send(epUri, p);
+		return ExchangeHelper.extractResultBody(result, null);
+	}
+
+	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties) {
+		Processor p = new Processor() {
+
+			public void process(Exchange exchange) {
+				if (properties != null) {
+					for (String key : properties.keySet()) {
+						exchange.setProperty(key, properties.get(key));
+					}
+				}
+				Message in = exchange.getIn();
+				if (headers != null) {
+					for (String key : headers.keySet()) {
+						in.setHeader(key, headers.get(key));
+					}
+				}
+				in.setBody(body);
+			}
+		};
+		//String ns = (String) properties.get("namespace");
+		ProducerTemplate template = getCamelContext(ns, CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		Exchange result = template.send(endpoint, p);
+		return ExchangeHelper.extractResultBody(result, null);
+	}
+
+	public Object camelSend(String ns, String routeName,Map<String, Object> properties){
+		return camelSend(ns,routeName,null,null,properties);
+	}
+	public Object camelSend(String ns, String routeName,Object body, Map<String, Object> headers, Map<String, Object> properties){
+		Route route = getCamelContext(ns, DEFAULT_CONTEXT).getRoute(routeName);
+		if( route == null){
+			throw new RuntimeException("CamelServiceImpl:route '"+routeName+"' not found");
+		}
+		info("Endpoint(Id:"+routeName+"):" + route.getEndpoint());
+		Object answer = camelSend(ns, route.getEndpoint(), body, headers, properties);
+		return answer;
+	}
 
 	@Reference(target = "(kind=jdo)", dynamic = true, optional = true)
 	public void setDataLayer(DataLayer dataLayer) {

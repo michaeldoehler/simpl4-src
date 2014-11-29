@@ -19,14 +19,22 @@
 package org.ms123.common.camel.api;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.Endpoint;
 import java.util.*;
 
 public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
 	public final String DEFAULT_CONTEXT = "default";
 	public final String PROPERTIES = "properties";
+	public final String OVERRIDEID = "overrideid";
 	public final String CAMEL_TYPE = "sw.camel";
 	public CamelContext getCamelContext(String namespace, String name);
 	public Map getShapeByRouteId(String namespace, String routeId);
 	public void saveHistory(Exchange exchange);
+	public Object camelSend(String epUri, final Map<String, Object> properties);
+	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties);
+	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);
+	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);
+	public Object camelSend(String ns, String routeName,Map<String, Object> properties);
+	public Object camelSend(String ns, String routeName,Object body, Map<String, Object> headers, Map<String, Object> properties);
 }

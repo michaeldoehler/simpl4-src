@@ -284,13 +284,13 @@ public class TriggerServiceImpl implements TriggerService {
 	}
 
 	private class CamelThread extends Thread {
-		String endpoint;
+		String routeId;
 		String ns;
 		String user;
 		Map paramMap;
 
-		public CamelThread(String ns, String endpoint, String user, Map paramMap) {
-			this.endpoint = endpoint;
+		public CamelThread(String ns, String routeId, String user, Map paramMap) {
+			this.routeId = routeId;
 			this.ns = ns;
 			this.user = user;
 			this.paramMap = paramMap;
@@ -300,9 +300,8 @@ public class TriggerServiceImpl implements TriggerService {
 			try {
 				ThreadContext.loadThreadContext(ns, user);
 				m_permissionService.loginInternal(ns);
-				ProducerTemplate template = m_camelService.getCamelContext(ns,CamelService.DEFAULT_CONTEXT).createProducerTemplate();
-				template.sendBody(endpoint, paramMap);
-				debug("calling cameltemplate:" + endpoint + "/ns:" + ns + "/user:" + user);
+				m_camelService.camelSend(ns, routeId, paramMap,null,null);
+				debug("camelSend:" + routeId + "/ns:" + ns + "/user:" + user);
 			} catch (Exception e) {
 				e.printStackTrace();
 				ThreadContext.getThreadContext().finalize(e);
