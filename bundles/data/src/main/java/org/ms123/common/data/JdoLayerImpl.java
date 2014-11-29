@@ -176,7 +176,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 		try {
 			ut.begin();
 			retMap = insertObject(sessionContext, dataMap, filterMap, hintsMap, entityName, entityNameParent, idParent);
-			ut.commit();
+			if (retMap.get("constraintViolations") == null) {
+				ut.commit();
+			}else{
+				ut.rollback();
+			}
 		} catch (Throwable e) {
 			sessionContext.handleException(ut, e);
 		} finally {
@@ -322,14 +326,18 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 	}
 
 	public List validateObject(SessionContext sessionContext, Object objectInsert, String entityName, boolean bInsert) {
+		return validateObject(sessionContext,objectInsert, null, entityName, bInsert);
+	}
+	public List validateObject(SessionContext sessionContext, Object objectInsert, Object objectUpdatePre, String entityName, boolean bInsert) {
 		Set cv = m_validator.validate(objectInsert);
 		String recordValidation = getRecordValidation(sessionContext,entityName);
-System.out.println("recordValidation:"+recordValidation);
 		if( recordValidation != null){
 			Map<String,Object> properties = new HashMap();
 			properties.put("constraintViolationList", constructConstraitViolationList(cv));
 			properties.put("object", objectInsert);
+			properties.put("teamChangedList", Utils.getTeamChangedList(m_teamService,objectInsert,objectUpdatePre));
 			Object answer = m_camelService.camelSend(sessionContext.getStoreDesc().getNamespace(),recordValidation, null, null,properties);
+			System.out.println("answer:"+answer);
 			return (List)answer;
 		}else{
 			if (cv.size() > 0) {
@@ -450,6 +458,8 @@ System.out.println("recordValidation:"+recordValidation);
 			retMap = updateObject(sessionContext, dataMap, filterMap, hintsMap, entityName, id, entityNameParent, idParent);
 			if (retMap.get("constraintViolations") == null) {
 				ut.commit();
+			}else{
+				ut.rollback();
 			}
 		} catch (Exception e) {
 			sessionContext.handleException(ut, e);
@@ -582,7 +592,7 @@ System.out.println("recordValidation:"+recordValidation);
 				evaluteFormulas(sessionContext, entityName, dataMap, "in");
 				populate(sessionContext, dataMap, objectUpdate, hintsMap);
 				setState(stateMap,objectUpdate);
-				List constraintViolations = validateObject(sessionContext, objectUpdate, entityName, fCreated);
+				List constraintViolations = validateObject(sessionContext, objectUpdate, objectUpdatePre, entityName, fCreated);
 				if (constraintViolations != null) {
 					retMap.put("constraintViolations", constraintViolations);
 					retMap.put("created", null);
@@ -2146,8 +2156,7 @@ System.out.println("recordValidation:"+recordValidation);
 	private String getRecordValidation(SessionContext sc, String entityName) {
 	  Map m = m_settingService.getPropertiesForEntityView( sc.getStoreDesc().getNamespace(), GLOBAL_SETTINGS, entityName, null);
 		String val = (String)m.get(RECORDVALIDATION);
-		if( val!=null && val.endsWith(".camel")) return val.substring(0, val.length()-6);
-		return null;
+		return val;
 	}
 
 	private String getTitle(SessionContext sc, String entityName, Map<String,Object> map, Object id,String def) {
@@ -2236,6 +2245,7 @@ System.out.println("recordValidation:"+recordValidation);
 
 	private List<Map> constructConstraitViolationList(Set<ConstraintViolation> constraintViolations) {
 		List<Map> cvList = new ArrayList();
+		if( constraintViolations == null) return cvList;
 		for (ConstraintViolation cv : constraintViolations) {
 			Map<String, String> mapCV = new HashMap();
 			mapCV.put("message", cv.getMessage());
