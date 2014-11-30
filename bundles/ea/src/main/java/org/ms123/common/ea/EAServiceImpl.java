@@ -63,7 +63,6 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 
 	protected Inflector m_inflector = Inflector.getInstance();
 	private JSONDeserializer m_ds = new JSONDeserializer();
-	private GitService m_gitService;
 
 	public EAServiceImpl() {
 	}
@@ -131,7 +130,7 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 			List fieldList = new ArrayList();
 
 			Map field = new HashMap();
-			field.put("field", "contact$communication.mail1");
+			field.put("field", "email");
 			field.put("op", "eq");
 			field.put("data", email);
 			field.put("connector", null);
@@ -169,6 +168,28 @@ public class EAServiceImpl extends BaseEAServiceImpl implements EAService, Const
 			return _createOrUpdateContact(email, data,communication, teams);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "EAServiceImpl.createUser:", e);
+		} finally {
+		}
+	}
+
+	public List<Map> getUserListValidTo(
+			@PName("date")             String date) //12.10.2014
+			throws RpcException {
+		try {
+			return _getUserListStatusChange(date,"to");
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "EAServiceImpl.getUserListValidTo:", e);
+		} finally {
+		}
+	}
+
+	public List<Map> getUserListValidFrom(
+			@PName("date")             String date) //12.10.2014
+			throws RpcException {
+		try {
+			return _getUserListStatusChange(date,"from");
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "EAServiceImpl.getUserListValidFrom:", e);
 		} finally {
 		}
 	}

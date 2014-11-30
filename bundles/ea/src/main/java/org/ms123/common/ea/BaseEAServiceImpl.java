@@ -55,6 +55,7 @@ import org.ms123.common.data.api.LuceneSession;
 import org.ms123.common.data.dupcheck.DublettenCheckService;
 import org.ms123.common.data.dupcheck.DupCheckContext;
 import org.ms123.common.reporting.ReportingService;
+import org.ms123.common.git.GitService;
 import org.apache.commons.beanutils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +78,7 @@ public class BaseEAServiceImpl implements Constants {
 
 	protected NucleusService m_nucleusService;
 	protected ReportingService m_reportingService;
+	protected GitService m_gitService;
 
 	protected LuceneService m_luceneService;
 	protected DublettenCheckService m_dublettenCheckService;
@@ -432,6 +434,53 @@ public class BaseEAServiceImpl implements Constants {
 		return null;
 	}
 
+	public List<Map> _getUserListStatusChange( String dateStr, String state) throws Exception{ //12.10.2014
+		StoreDesc sdesc = StoreDesc.get("ea_data");
+		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
+		List fieldList = new ArrayList();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+		Date date = dateFormat.parse(dateStr);
+		long startTime = getStartOfDay(date).getTime();
+		long endTime = getEndOfDay(date).getTime();
+
+		String validField = "to".equals(state) ? "contact$_team_list.validTo" : "contact$_team_list.validFrom";
+System.out.println("startTime:"+startTime);
+System.out.println("endTime:"+endTime);
+
+		Map field = new HashMap();
+		field.put("field", "contact$_team_list.teamid");
+		field.put("op", "bw");
+		field.put("data", "root.ENPEDIA");
+		field.put("children", new ArrayList());
+		fieldList.add(field);
+
+		field = new HashMap();
+		field.put("field", validField);
+		field.put("op", "gt");
+		field.put("data", startTime-1);
+		field.put("children", new ArrayList());
+		fieldList.add(field);
+
+		field = new HashMap();
+		field.put("field", validField);
+		field.put("op", "lt");
+		field.put("data", endTime+1);
+		field.put("children", new ArrayList());
+		fieldList.add(field);
+
+		Map filter = new HashMap();
+		filter.put("connector", "and");
+		filter.put("children", fieldList);
+
+		String filterJson = m_gitService.searchContent( sdesc.getNamespace(), "contact.filter", "sw.filter" );
+		Map contentMap = (Map) m_ds.deserialize(filterJson);
+		contentMap.put("filter",filter);
+		contentMap.put("pageSize", 0);
+		Map ret = sc.executeFilter(contentMap,null);
+		List<Map> rows = (List) ret.get("rows");
+		return rows;
+	}
+
 	private static String EMAIL = "email";
 	protected void _syncWithEnpedia() throws Exception{
 		StoreDesc sdesc = StoreDesc.get("ea_data");
@@ -457,6 +506,26 @@ public class BaseEAServiceImpl implements Constants {
 		} finally {
 			pm.close();
 		}
+	}
+
+	private Date getEndOfDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		return calendar.getTime();
+	}
+
+	private Date getStartOfDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
 	}
 
 	private List<Map<String,String>> csvToListOfMap(String filename) throws Exception{
