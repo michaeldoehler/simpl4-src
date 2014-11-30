@@ -282,7 +282,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 	public boolean checkTeams(String namespace, String userName, Map userProperties, Collection<Object> teams) {
 		try {
 			boolean isAdmin = m_permissionService.hasRole(ADMINROLE);
-			info("checkTeams:" + ADMINROLE + "/" + userName + "/" + isAdmin);
+			debug("checkTeams:" + ADMINROLE + "/" + userName + "/" + isAdmin);
 			if (isAdmin) {
 				return true;
 			}
@@ -309,13 +309,13 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 					inTeam = true;
 					boolean ur = contains(getArray(teamInternalMap, "userRead"), userName);
 					boolean um = contains(getArray(teamInternalMap, "userManage"), userName);
-					info("TeamService.checkTeams.permissions(" + userName + "):ur->" + ur + "  um->" + um );
+					debug("TeamService.checkTeams.permissions(" + userName + "):ur->" + ur + "  um->" + um );
 					if (ur || um) {
 						return true;
 					}
 				}
 			}
-			info("inTeam:"+inTeam);
+			debug("inTeam:"+inTeam);
 			return !inTeam;
 		} finally {
 		}
@@ -324,7 +324,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 	private boolean checkTeamUser(String userName, Map teamInternalMap) {
 		boolean ur = contains(getArray(teamInternalMap, "userRead"), userName);
 		boolean um = contains(getArray(teamInternalMap, "userManage"), userName);
-		info("TeamService.checkTeamUser.permissions(" + userName + "):ur->" + ur + "  um->" + um);
+		debug("TeamService.checkTeamUser.permissions(" + userName + "):ur->" + ur + "  um->" + um);
 		if (ur || um) {
 			return true;
 		}
@@ -338,7 +338,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 		Map teamInternalMap = 	getTeamintern( namespace, teamid);
 		boolean ur = contains(getArray(teamInternalMap, "userRead"), userName);
 		boolean um = contains(getArray(teamInternalMap, "userManage"), userName);
-		info("TeamService.checkTeamUserPermissions(" + userName + "):ur->" + ur + "  um->" + um);
+		debug("TeamService.checkTeamUserPermissions(" + userName + "):ur->" + ur + "  um->" + um);
 		if( um ) return WRITE;
 		if (ur) return READ;
 		return NOACCESS;
@@ -372,20 +372,20 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 		boolean startOk = true;
 		boolean endOk = true;
 		if (validFrom != null) {
-			info("checkTeamDate.validFrom:" + validFrom.getTime());
-			info("checkTeamDate.validFrom.before:" + today.before(validFrom));
+			debug("checkTeamDate.validFrom:" + validFrom.getTime());
+			debug("checkTeamDate.validFrom.before:" + today.before(validFrom));
 			if (today.before(validFrom)) {
 				startOk = false;
 			}
 		}
 		if (validTo != null) {
-			info("checkTeamDate.validTo:" + validTo.getTime());
-			info("checkTeamDate.validTo.after:" + today.after(validTo));
+			debug("checkTeamDate.validTo:" + validTo.getTime());
+			debug("checkTeamDate.validTo.after:" + today.after(validTo));
 			if (today.after(validTo)) {
 				endOk = false;
 			}
 		}
-		info("checkTeamDate:" + startOk + "/" + endOk);
+		debug("checkTeamDate:" + startOk + "/" + endOk);
 		if (!startOk || !endOk) {
 			return false;
 		}
