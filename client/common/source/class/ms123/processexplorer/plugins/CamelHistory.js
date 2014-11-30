@@ -145,6 +145,13 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			}
 		},
 
+		_checkParse:function(s){
+			try{
+				return JSON.parse(s);
+			}catch(e){
+				return "";
+			}
+		},
 		_getRouteInstance: function (contextKey, routeId, exchangeId) {
 			var completed = (function (data) {
 				this._tableModelRouteInstance.removeRows(0, this._tableModelRouteInstance.getRowCount());
@@ -152,9 +159,9 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 					var rmap = data[i];
 					rmap.time = this._formatTime(rmap.time);
 					rmap.status = rmap.hint;
-					rmap.msg = JSON.parse(rmap.msg);
-					rmap.msg.properties = JSON.parse(rmap.msg.properties);
-					rmap.msg.headers = JSON.parse(rmap.msg.headers);
+					rmap.msg = this._checkParse(rmap.msg);
+					rmap.msg.properties = this._checkParse(rmap.msg.properties);
+					rmap.msg.headers = this._checkParse(rmap.msg.headers);
 					rmap.from = rmap.msg.previousNode != null ? rmap.msg.previousNode : rmap.msg.fromEndpointUri;
 					rmap.to = rmap.msg.node;
 					rmap.direction = rmap.msg.direction;

@@ -842,8 +842,14 @@ qx.Class.define('ms123.widgets.Form', {
 		},
 		__fieldChangeListener:function(e){
 			var key = e.getData().field.getUserData("key");
+			if( key == null){
+				return;
+			}
 			if( this.__previousKey){
-				this.form.getFormElementByKey(this.__previousKey).setDecorator(new qx.ui.decoration.Decorator());
+				var fe =  this.form.getFormElementByKey(this.__previousKey);
+				if(fe){
+					fe.setDecorator(new qx.ui.decoration.Decorator());
+				}
 				this.__multiEditExpressions[this.__previousKey] = this.__multiEditExpressionInput.getValue();
 			}
 
@@ -851,7 +857,10 @@ qx.Class.define('ms123.widgets.Form', {
 			var d = new qx.ui.decoration.Decorator();
 			d.setBackgroundColor("khaki");	
 			d.setRadius(3);
-			this.form.getFormElementByKey(key).setDecorator(d);
+			var fe = this.form.getFormElementByKey(key);
+			if(fe){
+				this.form.getFormElementByKey(key).setDecorator(d);
+			}
 
 			if( this.__multiEditExpressions[key] ){
 				this.__multiEditExpressionInput.setValue( this.__multiEditExpressions[key]);

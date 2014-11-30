@@ -557,7 +557,7 @@ qx.Class.define("ms123.form.Form", {
 						formElement = new ms123.form.SelectBox();
 						formElement.createList(fieldData.options);
 					} else {
-						formElement = new ms123.form.SelectBox(fieldData.selectable_items);
+						formElement = new ms123.form.SelectBox(fieldData.selectable_items,this._useitCheckboxes);
 						formElement.createList([]);
 						fieldData.options = null;
 					}

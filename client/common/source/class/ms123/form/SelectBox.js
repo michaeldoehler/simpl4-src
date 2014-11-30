@@ -33,9 +33,12 @@ qx.Class.define("ms123.form.SelectBox", {
 	 *****************************************************************************
 	 */
 
-	construct: function (selectable_items) {
+	construct: function (selectable_items,useitCheckboxes) {
 		this.base(arguments);
 		this._selectable_items = selectable_items;
+		if( this._selectable_items && useitCheckboxes){
+			this._missingParamList = this._selectable_items.getMissingParamList();
+		}
     this.getChildControl("list").setQuickSelection(false);
 	},
 
@@ -60,6 +63,12 @@ qx.Class.define("ms123.form.SelectBox", {
 	 *****************************************************************************
 	 */
 	members: {
+    _onTap : function(e) {
+			if( e.getTarget() instanceof qx.ui.form.CheckBox){
+				return;
+			}
+      this.toggle();
+    },
 		createList: function (options) {
 			if (typeof options == 'string') {
 				return;
