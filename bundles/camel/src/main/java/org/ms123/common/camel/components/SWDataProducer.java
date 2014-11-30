@@ -52,6 +52,7 @@ public class SWDataProducer extends DefaultProducer {
 	private String m_lookupRelationObjectExpr = null;
 	private String m_relation = null;
 	private Boolean m_noUpdate = false;
+	private Boolean m_disableStateSelect = false;
 
 	private String m_entityType = null;
 
@@ -80,6 +81,7 @@ public class SWDataProducer extends DefaultProducer {
 		m_lookupUpdateObjectExpr = endpoint.getLookupUpdateObjectExpr();
 		m_relation = endpoint.getRelation();
 		m_noUpdate = endpoint.isNoUpdate();
+		m_disableStateSelect = endpoint.isDisableStateSelect();
 		String endpointKey = endpoint.getEndpointKey();
 		if (endpointKey.indexOf("?") != -1) {
 			endpointKey = endpointKey.split("\\?")[0];
@@ -149,6 +151,9 @@ public class SWDataProducer extends DefaultProducer {
 	private String getStringCheck(Exchange e, String key, String def) {
 		String value = e.getIn().getHeader(key, String.class);
 		info("getStringCheck:"+key+"="+value+"/def:"+def);
+		if (value == null){
+			value = e.getProperty(key, String.class);
+		}
 		if (value == null && def == null){
 			throw new RuntimeException("SWDataProducer." + key + "_is_null");
 		}
@@ -156,11 +161,17 @@ public class SWDataProducer extends DefaultProducer {
 	}
 	private String getString(Exchange e, String key, String def) {
 		String value = e.getIn().getHeader(key, String.class);
+		if (value == null){
+			value = e.getProperty(key, String.class);
+		}
 		info("getString:"+key+"="+value+"/def:"+def);
 		return value != null ? value : def;
 	}
 	private boolean getBoolean(Exchange e, String key, boolean def) {
 		Boolean value = e.getIn().getHeader(key, Boolean.class);
+		if (value == null){
+			value = e.getProperty(key, Boolean.class);
+		}
 		info("getString:"+key+"="+value+"/def:"+def);
 		return value != null ? value : def;
 	}
@@ -247,10 +258,15 @@ public class SWDataProducer extends DefaultProducer {
 
 	private void doFindByFilter(Exchange exchange) {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
+		Boolean disableStateSelect = getBoolean(exchange, SWDataConstants.DISABLE_STATESELECT, m_disableStateSelect);
+		Map options = m_options != null ? new HashMap(m_options) : new HashMap();
+		if( disableStateSelect){
+			options.put(SWDataConstants.DISABLE_STATESELECT, true);
+		}
 		SessionContext sc = getSessionContext();
 		List result = null;
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
-		Map retMap = sc.executeNamedFilter(filterName, exVars,m_options);
+		Map retMap = sc.executeNamedFilter(filterName, exVars,options);
 		if (retMap == null) {
 			result = new ArrayList();
 		} else {
