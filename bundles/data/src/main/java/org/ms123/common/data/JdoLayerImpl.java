@@ -338,7 +338,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			properties.put("teamChangedList", Utils.getTeamChangedList(m_teamService,objectInsert,objectUpdatePre));
 			Object answer = m_camelService.camelSend(sessionContext.getStoreDesc().getNamespace(),recordValidation, null, null,properties);
 			System.out.println("answer:"+answer);
-			return (List)answer;
+			if ( answer != null && ((Collection)answer).size() > 0) {
+				return new ArrayList((Collection)answer);
+			}else{
+				return null;
+			}
 		}else{
 			if (cv.size() > 0) {
 				return constructConstraitViolationList(cv);
@@ -1141,7 +1145,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				}
 				Object result = Utils.eval( expression, beanMap, scriptCache);
 				try{
-					beanMap.put(key,result);
+					if("string".equals(datatype) && !(result instanceof String)){
+						beanMap.put(key,ConvertUtils.convert(result,String.class));
+					}else{
+						beanMap.put(key,result);
+					}
 				}catch(Exception e){
 					info("Cannot set value for("+key+"):"+result+"/"+e.getMessage());
 				}
