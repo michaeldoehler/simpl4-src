@@ -67,6 +67,7 @@ import static org.ms123.common.setting.api.Constants.GLOBAL_SETTINGS;
 import static org.ms123.common.entity.api.Constants.STATE_OK;
 import static org.ms123.common.entity.api.Constants.STATE_NEW;
 import static org.ms123.common.entity.api.Constants.STATE_FIELD;
+import static org.ms123.common.entity.api.Constants.DISABLE_STATESELECT;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.git.GitService;
 import org.ms123.common.camel.api.CamelService;
@@ -1408,7 +1409,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			}
 
 			String stateWhere="";
-			if( hasStateSelect){
+			if( hasStateSelect && !Utils.getBoolean(params, DISABLE_STATESELECT, false)){
 				String state = qb.getRequestedState();
 				String qualifier = null;
 				if (entityNameDetails != null) {

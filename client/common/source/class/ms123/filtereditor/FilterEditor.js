@@ -370,6 +370,17 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 			this.fireDataEvent("save", this._createNewFilterProps(), null);
 			return true;
 		},
+		_disableStateSelect: function () {
+			var fields = this._fieldSelector.getSelectedFields();
+			for (var i = 0; i < fields.length; i++) {
+				var map = fields[i];
+				console.log("map:"+JSON.stringify(map,null,2));
+				if( map.column == '_state'){
+					return true;
+				}
+			}
+			return false;
+		},
 		_getFields: function () {
 			var fields = this._fieldSelector.getSelectedFields();
 			for (var i = 0; i < fields.length; i++) {
@@ -471,8 +482,13 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 			toolbar.addSpacer();
 			var buttonRefresh = new qx.ui.toolbar.Button("Refresh", "icon/16/actions/edit-redo.png");
 			buttonRefresh.addListener("execute", function () {
+				var options=null;
+				if( this._disableStateSelect()){
+					options={ disableStateSelect:true};
+				}
 				var data = ms123.util.Remote.rpcSync("data:executeFilter", {
 					storeId: this.__storeDesc.getStoreId(),
+					options:options,
 					desc: this._createNewFilterProps()
 				});
 
@@ -574,8 +590,13 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 				edge: "center"
 			});
 
+			var options=null;
+			if( this._disableStateSelect()){
+				options={ disableStateSelect:true};
+			}
 			var data = ms123.util.Remote.rpcSync("data:executeFilter", {
 				storeId: this.__storeDesc.getStoreId(),
+				options:options,
 				desc: this._createNewFilterProps()
 			});
 

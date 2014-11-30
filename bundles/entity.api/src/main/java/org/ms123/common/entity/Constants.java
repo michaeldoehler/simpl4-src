@@ -37,6 +37,7 @@ public interface Constants {
 	public final String STATE_NEW = "new";
 	public final String STATE_DEL = "del";
 	public final String STATE_REFID = "_dup_refid";
+	public final String DISABLE_STATESELECT = "disableStateSelect";
 	public final List<Map> m_defaultFields = new ArrayList<Map>() {
 
 		{

@@ -442,7 +442,7 @@ debug("\t:"+getTeamUserWhere(sel));
 				String join = main + "." + e;
 				from += " " + jointype + " " + join + " " + e;
 			}
-			if(hasStateSelect(alias)){
+			if(hasStateSelect(alias) && !stateSelectDisabled()){
 				String state = getRequestedState();
 				if( state.equals(STATE_OK) || state.equals(STATE_NEW)){
 					from += " on ("+alias+"."+STATE_FIELD+" is null or "+alias+"."+STATE_FIELD+"='"+state+"')";
@@ -505,6 +505,9 @@ debug("\t:"+getTeamUserWhere(sel));
 			}
 		}));
 		return uniqueList;
+	}
+	public boolean stateSelectDisabled(){
+		return m_queryBuilder.stateSelectDisabled();
 	}
 
 	public String getRequestedState(){

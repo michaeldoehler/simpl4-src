@@ -394,15 +394,18 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("desc")             Map filterDesc, 
 			@PName("params")             @POptional Map params, 
+			@PName("options")             @POptional Map options, 
 			@PName("checkParams")       @POptional  @PDefaultBool(false) Boolean checkParams, 
 			@PName("mapping")          @POptional Map mapping) throws RpcException {
 		StoreDesc sdesc = StoreDesc.get(storeId);
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		try {
 			if( params ==null) params = new HashMap();
-			Map options = new HashMap();
+			if( options == null){
+				options = new HashMap();
+			}
 			options.put(SessionContext.CHECK_PARAMS, checkParams);
-			Map ret = sc.executeFilter(filterDesc,params);
+			Map ret = sc.executeFilter(filterDesc,params,options);
 			if (ret != null && ret.get("rows") != null) {
 				List retList = (List) ret.get("rows");
 				if (mapping != null) {

@@ -25,10 +25,12 @@ import org.ms123.common.utils.TypeUtils;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.data.api.SessionContext;
+import org.ms123.common.data.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.ms123.common.entity.api.Constants.STATE_OK;
 import static org.ms123.common.entity.api.Constants.STATE_NEW;
+import static org.ms123.common.entity.api.Constants.DISABLE_STATESELECT;
 import static org.ms123.common.setting.api.Constants.STATESELECT;
 import static org.ms123.common.setting.api.Constants.GLOBAL_SETTINGS;
 
@@ -128,6 +130,15 @@ public class QueryBuilder {
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	public boolean stateSelectDisabled(){
+		if( m_params != null){
+			if( m_params.get(DISABLE_STATESELECT) != null){
+				return Utils.getBoolean(m_params,DISABLE_STATESELECT,false);
+			}
+		}
+		return false;
 	}
 
 	public String getRequestedState(){
