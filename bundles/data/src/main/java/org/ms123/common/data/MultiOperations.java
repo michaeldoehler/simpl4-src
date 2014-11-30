@@ -95,7 +95,8 @@ public class MultiOperations {
 		String updateQuery = null;
 		Boolean noUpdate = false;
 		PersistenceManager pm = sc.getPM();
-		GroovyShell groovyShell = new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
+		Context context = new Context();
+		context.shell =  new GroovyShell(MultiOperations.class.getClassLoader(), new Binding(), new CompilerConfiguration());
 		if (persistenceSpecification != null) {
 			String parentLookup = (String)persistenceSpecification.get("lookupRelationObjectExpr");
 			String relation = (String)persistenceSpecification.get("relation");
@@ -150,7 +151,7 @@ public class MultiOperations {
 				Object origObject = null;
 				boolean isNew = true;
 				if (updateQuery != null) {
-					origObject = getObjectByFilter(groovyShell, pm, object.getClass(), object, updateQuery);
+					origObject = getObjectByFilter(context, pm, object.getClass(), object, updateQuery);
 					debug("origObject:" + origObject);
 					if (origObject != null) {
 						populate(sc, m, origObject, hintsMap);
@@ -159,7 +160,7 @@ public class MultiOperations {
 					}
 				}
 				if (origObject == null && parentClazz != null) {
-					Object parentObject = getObjectByFilter(groovyShell, pm, parentClazz, object, parentQuery);
+					Object parentObject = getObjectByFilter(context, pm, parentClazz, object, parentQuery);
 					origObject = getOrigObjectFromParent(mainEntity,parentObject,parentFieldName);
 					if(origObject == null || !origObject.getClass().equals( object.getClass())){
 						sc.getDataLayer().insertIntoMaster(sc, object, mainEntity, parentObject, parentFieldName);
@@ -197,8 +198,8 @@ public class MultiOperations {
 		}catch(Exception e){
 		}
 	}
-	private static Object getObjectByFilter(GroovyShell shell, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
-		String filter = expandString(shell, queryString, new BeanMap(child));
+	private static Object getObjectByFilter(Context context, PersistenceManager pm, Class clazz, Object child, String queryString) throws Exception {
+		String filter = expandString(context, queryString, new BeanMap(child));
 		debug("getObjectByFilter:" + filter+"/clazz:"+clazz);
 		Extent e = pm.getExtent(clazz, true);
 		Query q = pm.newQuery(e, filter);
@@ -616,11 +617,9 @@ public class MultiOperations {
 						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
 							handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
 							Object obj = sourceMap.get(propertyName);
-debug("PersistenceCapable:"+obj);
 							if (obj != null && obj instanceof Map) {
 								Map childSourceMap = (Map) obj;
 								Object childDestinationObj = destinationMap.get(propertyName);
-debug("PersistenceCapable.childDestinationObj:"+obj);
 								if (childDestinationObj == null) {
 									childDestinationObj = propertyType.newInstance();
 									destinationMap.put(propertyName, childDestinationObj);
@@ -674,7 +673,6 @@ debug("PersistenceCapable.childDestinationObj:"+obj);
 		} catch (Exception e) {
 		}
 		if (id != null && !"".equals(id) && !"null".equals(id)) {
-			debug("\tid.found:" + id);
 			Object relatedObject = sc.getPM().getObjectById(propertyType, id);
 			/*List<Collection> candidates = TypeUtils.getCandidateLists(relatedObject, destinationObj, null);
 			if (candidates.size() == 1) {
@@ -684,7 +682,6 @@ debug("PersistenceCapable.childDestinationObj:"+obj);
 					l.add(destinationObj);
 				}
 			}*/
-debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 			destinationMap.put(propertyName, relatedObject);
 		} /*else {
 			Object relatedObject = destinationMap.get(propertyName);
@@ -703,7 +700,7 @@ debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 		}*/
 	}
 
-	private static synchronized String expandString(GroovyShell shell, String str, Map<String, String> vars) {
+	private static synchronized String expandString(Context context, String str, Map<String, String> vars) {
 		String newString = "";
 		int openBrackets = 0;
 		int first = 0;
@@ -716,7 +713,7 @@ debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 			} else if (str.charAt(i) == '}' && openBrackets > 0) {
 				openBrackets -= 1;
 				if (openBrackets == 0) {
-					newString += eval(shell, str.substring(first, i), vars);
+					newString += eval(context, str.substring(first, i), vars);
 				}
 			} else if (openBrackets == 0) {
 				newString += str.charAt(i);
@@ -782,9 +779,13 @@ debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 		populate(sessionContext, result, obj, null);
 	}
 
-	private static Object eval(GroovyShell shell, String expr, Map<String, String> vars) {
+	private static Object eval(Context context, String expr, Map<String, String> vars) {
 		try {
-			Script script = shell.parse(expr);
+			Script script = context.scripCache.get(expr);
+			if( script == null){
+				script = context.shell.parse(expr);
+				context.scripCache.put(expr,script);
+			}
 			Binding binding = new Binding(vars);
 			script.setBinding(binding);
 			return script.run();
@@ -812,6 +813,11 @@ debug("handleRelatedTo:"+propertyName+"/"+relatedObject);
 		}
 	}
 
+
+	private static class Context{
+		public GroovyShell shell;
+		public Map<String,Script> scripCache=new HashMap();	
+	}
 	public static boolean _isString(Class c, String fieldName) {
 		try {
 			Field f = c.getDeclaredField(fieldName);
