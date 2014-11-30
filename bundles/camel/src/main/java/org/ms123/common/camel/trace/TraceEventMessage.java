@@ -200,7 +200,7 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 			return m_gson.toJson(o);
 		}catch(Exception e){
 		}
-		return "TraceEventMessage.toJsonString.Cannot serialize:"+m_js.serialize(o);
+		return m_js.serialize(o);
 	}
 
 	// Properties
