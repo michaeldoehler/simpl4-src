@@ -135,13 +135,13 @@ System.out.println("i:"+i);
 				m_notCorrectList.add(candidat);
 				continue;
 			}
-			String stat = isNotCorrectEmail(candidat.get("number"), emailMap,valEmailMap);
+		/*	String stat = isNotCorrectEmail(candidat.get("number"), emailMap,valEmailMap);
 			boolean isCompany = isCompany(candidat.get("shortname_company"), candidat.get("shortname_person"));
 			if (!isCompany && !"ok".equals(stat)) {
 				candidat.put("type", stat);
 				m_notCorrectList.add(candidat);
 				continue;
-			}
+			}*/
 			if (isSingleContact(candidat.get("shortname_person"), candidat.get("shortname_company"))) {
 				candidat.put("type", "contact_single");
 				singleContactList.add(candidat);
