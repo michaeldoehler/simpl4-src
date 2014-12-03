@@ -64,6 +64,7 @@ interface JsonConverter {
 }
 
 abstract class JsonConverterImpl implements JsonConverter{
+	public def  rootProperties;
 	public def  shapeProperties;
 	public def  resourceId;
 	def children = []
@@ -253,6 +254,26 @@ abstract class JsonConverterImpl implements JsonConverter{
 		if( key == "groupedExchange") return new GroupedExchangeAggregationStrategy();
 		return null;
 	}
+
+	def setConstants(routeDefinition, properties){
+		def constList = properties?.constants?.items;
+		if( constList != null){
+			for( def item : constList){
+				def dest = item.destination;
+				def constant = item["const"];
+				def name = item.name;
+				if( isEmpty(constant) || isEmpty(name)) continue;
+				def constExpr = new ConstantExpression(constant as String);
+				if( "property".equals(dest)){
+					println("setting property:"+name+"="+constExpr);
+					routeDefinition.setProperty(name, constExpr);
+				}else{
+					println("setting header:"+name+"="+constExpr);
+					routeDefinition.setHeader(name, constExpr);
+				}
+			}
+		}
+	}
 }
 
 class OnExceptionJsonConverter extends JsonConverterImpl{
@@ -295,6 +316,7 @@ class EndpointJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
 		if( ctx.routeDefinition == null){
 			ctx.routeDefinition = new RouteDefinition();
+			setConstants(ctx.routeDefinition, rootProperties);
 			ctx.current = ctx.routeDefinition.from(constructUri());
 			ctx.current.getInputs().get(0).id(resourceId);
 		}else{
