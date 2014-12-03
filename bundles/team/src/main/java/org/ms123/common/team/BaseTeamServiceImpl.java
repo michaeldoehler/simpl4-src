@@ -122,6 +122,7 @@ public class BaseTeamServiceImpl {
 			PersistenceManager pm = sessionContext.getPM();
 			Object objectParent = pm.getObjectById(clazz, parentTeamId);
 			String[] permittedUser = getArray(objectParent, "userCreate");
+			info("permittedUser:"+Arrays.asList(permittedUser)+"/user:"+userName);
 			if (!contains(permittedUser, userName)) {
 				throw new RpcException(ERROR_FROM_METHOD, PERMISSION_DENIED, "TeamService:createTeam2 not allowed");
 			}
