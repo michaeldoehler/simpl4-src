@@ -134,7 +134,11 @@ public class JPASelectBuilderPostgresql extends JPASelectBuilder implements Sele
 			if( field.indexOf("_team_list.valid") != -1){
 				return m_entityName+"$_team_list is not null and "+ field + " is null";
 			}else{
-				return field + " is null or "+field+" = ''";
+				if (("string".equals(dt) || "text".equals(dt))) {
+					return field + " is null or "+field+" = ''";
+				}else{
+					return field + " is null";
+				}
 			}
 		}
 		if ("inn".equals(op)) {
