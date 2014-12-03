@@ -168,6 +168,7 @@ public class BaseTeamServiceImpl {
 		if( autoCreateTeams == null) return;
 		for( Map<String,String> tm : autoCreateTeams ){
 			if( ppid.equalsIgnoreCase(tm.get("trigger"))){
+				info("createSubTeams.ppid:"+ppid+" -> "+tm.get("trigger"));
 				_createTeam(namespace,teamid+"."+tm.get("id") , tm.get("name"), tm.get("description") ,userRead,userManage,userCreate);
 			}
 		}
