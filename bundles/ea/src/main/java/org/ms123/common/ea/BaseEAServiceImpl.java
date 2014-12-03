@@ -444,8 +444,8 @@ public class BaseEAServiceImpl implements Constants {
 		long endTime = getEndOfDay(date).getTime();
 
 		String validField = "to".equals(state) ? "contact$_team_list.validTo" : "contact$_team_list.validFrom";
-System.out.println("startTime:"+startTime);
-System.out.println("endTime:"+endTime);
+		System.out.println("startTime:"+startTime);
+		System.out.println("endTime:"+endTime);
 
 		Map field = new HashMap();
 		field.put("field", "contact$_team_list.teamid");
@@ -478,9 +478,26 @@ System.out.println("endTime:"+endTime);
 		contentMap.put("pageSize", 0);
 		Map ret = sc.executeFilter(contentMap,null);
 		List<Map> rows = (List) ret.get("rows");
+		if( rows!=null){
+			List teams = new ArrayList();
+			for( Map row : rows){
+				Collection teamList = (Collection)row.get("_team_list");
+				row.remove("_team_list");
+				row.put("teams",toTeams(teamList));
+			}
+		}
 		return rows;
 	}
-
+	private Collection toTeams(Collection<Map> teamList){
+		Collection teams = new ArrayList();
+		for( Map t : teamList){
+			String teamid = (String)t.get("teamid");
+			Map team = new HashMap();
+			team.put(teamid,t);
+			teams.add(team);
+		}
+		return teams;
+	}
 	private static String EMAIL = "email";
 	protected void _syncWithEnpedia() throws Exception{
 		StoreDesc sdesc = StoreDesc.get("ea_data");
