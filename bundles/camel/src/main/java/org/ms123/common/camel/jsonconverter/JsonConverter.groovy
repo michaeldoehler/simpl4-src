@@ -91,7 +91,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 			def delim = "?";
 			uriParamMap.each(){key,value->
 				if( isNotEmpty(value)){
-					uri+=delim+key+"="+URLEncoder.encode(value, "UTF-8");
+					uri+=delim+key+"=RAW("+value+")";
 					delim = "&";
 				}
 			}
