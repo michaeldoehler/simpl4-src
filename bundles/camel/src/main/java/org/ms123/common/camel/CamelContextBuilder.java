@@ -134,16 +134,21 @@ public class CamelContextBuilder {
 			if (event instanceof ExchangeCreatedEvent) {
 				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
-					info("------>EventNotifierSupportStart:" + ev );
-					ThreadContext.getThreadContext().loadThreadContext(m_namespace, "admin");
-					m_permissionService.loginInternal(m_namespace);
+					ThreadContext tc = ThreadContext.getThreadContext();
+					info("------>EventNotifierSupportStart:" + ev +"/"+tc);
+					if( tc == null){
+						m_permissionService.loginInternal(m_namespace);
+						ThreadContext.getThreadContext().put(ev.getExchange().getExchangeId(),true);
+					}
 				}
 			}
 			if (event instanceof ExchangeCompletedEvent) {
 				ExchangeCompletedEvent ev = (ExchangeCompletedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
 					info("<-----EventNotifierSupportComplete:" + ev );
-					ThreadContext.getThreadContext().finalize(null);
+					if(ThreadContext.getThreadContext().get(ev.getExchange().getExchangeId()) != null){
+						ThreadContext.getThreadContext().finalize(null);
+					}
 				}
 			}
 		}
