@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.*;
 import java.net.*;
-import com.google.gson.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.RouteNode;
@@ -41,8 +40,6 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 	private static final long serialVersionUID = -4549012920528941203L;
 
 	protected JSONSerializer m_js = new JSONSerializer();
-
-	private Gson m_gson = new GsonBuilder().setExclusionStrategies(new MyExclusionStrategy(String.class)).setPrettyPrinting().create();
 
 	private Date timestamp;
 
@@ -196,10 +193,6 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		}
 	}
 	private String toJsonString(Object o) {
-		try{
-			return m_gson.toJson(o);
-		}catch(Exception e){
-		}
 		return m_js.serialize(o);
 	}
 
