@@ -193,7 +193,13 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		}
 	}
 	private String toJsonString(Object o) {
-		return m_js.serialize(o);
+		return m_js.
+		exclude("org.apache.camel.com*",
+						"org.apache.camel.impl.DefaultMessageHistory.class",
+						"java.io.File.class",
+						"java.util.concurrent.*",
+						"*interface*").
+		serialize(o);
 	}
 
 	// Properties
@@ -350,7 +356,7 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		return "TraceEventMessage[" + exchangeId + "] on node: " + toNode;
 	}
 
-	private static class MyExclusionStrategy implements ExclusionStrategy {
+/*	private static class MyExclusionStrategy implements ExclusionStrategy {
 
 		private final Class<?> typeToSkip;
 
@@ -386,5 +392,5 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 			//System.out.println("shouldSkipField:" + f);
 			return false;
 		}
-	}
+	}*/
 }
