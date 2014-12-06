@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.*;
 import java.net.*;
+import com.google.gson.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.RouteNode;
@@ -29,6 +30,8 @@ import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.spi.TracedRouteNodes;
 import org.apache.camel.util.MessageHelper;
+import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.util.ExchangeHelper;
 import flexjson.*;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
@@ -40,6 +43,8 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 	private static final long serialVersionUID = -4549012920528941203L;
 
 	protected JSONSerializer m_js = new JSONSerializer();
+
+	private Gson m_gson = new GsonBuilder().setExclusionStrategies(new MyExclusionStrategy(String.class)).setPrettyPrinting().create();
 
 	private Date timestamp;
 
@@ -86,6 +91,7 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
      */
 	public TraceEventMessage(final Date timestamp, final ProcessorDefinition<?> toNode, final Exchange exchange) {
 		m_js.prettyPrint(true);
+//			Map variableMap = ExchangeHelper.createVariableMap(exchange); System.out.println("TraceEventMessage:"+variableMap);
 		this.tracedExchange = exchange;
 		Message in = exchange.getIn();
 		// need to use defensive copies to avoid Exchange altering after the point of interception
@@ -193,13 +199,11 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		}
 	}
 	private String toJsonString(Object o) {
-		return m_js.
-		exclude("org.apache.camel.com*",
-						"org.apache.camel.impl.DefaultMessageHistory.class",
-						"java.io.File.class",
-						"java.util.concurrent.*",
-						"*interface*").
-		serialize(o);
+		try{
+			return m_gson.toJson(o);
+		}catch(Throwable e){
+		}
+		return m_js.serialize(o);
 	}
 
 	// Properties
@@ -356,7 +360,7 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		return "TraceEventMessage[" + exchangeId + "] on node: " + toNode;
 	}
 
-/*	private static class MyExclusionStrategy implements ExclusionStrategy {
+	private static class MyExclusionStrategy implements ExclusionStrategy {
 
 		private final Class<?> typeToSkip;
 
@@ -371,20 +375,23 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 			if (clazz.getName().startsWith("org.apache.camel.impl.DefaultMessageHistory")){
 				return true;
 			}
-			if (clazz.getName().startsWith("java.io.Fil")){
-				return true;
-			}
 			if (clazz.getName().startsWith("java.util.concurrent.Callable")){
 				return true;
 			}
 			if (clazz.toString().startsWith("interface")){
 				return true;
 			}
+			if (clazz.getName().startsWith("java.io")){
+				return true;
+			}
+			if (clazz.getName().startsWith("java.lang.ref")){
+				return true;
+			}
 			
 			if( Throwable.class.isAssignableFrom(clazz)){
 				return true;
 			}
-//			System.out.println("shouldSkipClass:"+clazz);
+			//System.out.println("shouldSkipClass:"+clazz.getName());
 			return false;
 		}
 
@@ -392,5 +399,5 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 			//System.out.println("shouldSkipField:" + f);
 			return false;
 		}
-	}*/
+	}
 }
