@@ -464,10 +464,18 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 		},
 		_setDetails:function(dataHeaders,dataProperties, body, exception){
 			var headersArray = Object.keys(dataHeaders).map(function(key) {
-					return {"name" : key, "value" : dataHeaders[key] }
+					var value = dataHeaders[key];
+					if( (typeof value == "object") && (value !== null) ){
+						value = JSON.stringify(value);
+					}
+					return {"name" : key, "value" : value }
 			})
 			var propertiesArray = Object.keys(dataProperties).map(function(key) {
-					return {"name" : key, "value" : dataProperties[key] }
+					var value = dataProperties[key];
+					if( (typeof value == "object") && (value !== null) ){
+						value = JSON.stringify(value);
+					}
+					return {"name" : key, "value" : value }
 			})
 			this._tableModelDetailsHeaders.setDataAsMapArray(headersArray, true);
 			this._tableModelDetailsProperties.setDataAsMapArray(propertiesArray, true);
