@@ -19,6 +19,7 @@
 package org.ms123.common.jetty;
 
 import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.io.File;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -63,12 +65,14 @@ import javax.servlet.*;
 import org.eclipse.jetty.servlet.ServletHolder;
 import java.net.*;
 import org.ms123.common.docbook.DocbookService;
+import org.ms123.common.git.GitService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.rpc.JsonRpcServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.ms123.common.libhelper.Inflector;
 import java.lang.reflect.*;
+import org.ms123.common.utils.IOUtils;
 import flexjson.*;
 
 /** JettyService implementation
@@ -83,6 +87,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private PermissionService m_permissionService;
 	private DocbookService m_docbookService;
+	private GitService m_gitService;
 
 //	private MiltonService m_miltonService;
 
@@ -94,11 +99,25 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private String m_basedir;
 
+	private Map<String,String> FILETYPES = createFiletypeMap();
+
 	private static final String HEADER_IFMODSINCE = "If-Modified-Since";
 
 	private static final String HEADER_LASTMOD = "Last-Modified";
 
 	public JettyServiceImpl() {
+	}
+
+	private static Map<String, String> createFiletypeMap() {
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("js", "text/javascript");
+		result.put("js.gz", "text/javascript");
+		result.put("css", "text/css");
+		result.put("gif", "image/gif");
+		result.put("png", "image/png");
+		result.put("jpg", "image/jpg");
+		result.put("svg", "image/svg+xml");
+		return Collections.unmodifiableMap(result);
 	}
 
 	//protected void activate(ComponentContext context) {
@@ -174,7 +193,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				if (method.equals("GET") || method.equals("HEAD")) {
 					doGet(req, resp);
 				} else {
-					execute(req, resp);
+					unknownRequest(req, resp);
 				}
 			}
 
@@ -184,9 +203,16 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 						super.doGet(req,response);
 						return;
 					}
-					boolean handled = handleStatic(req, response);
-					if (!handled) {
-						execute(req, response);
+					info("S4 Request:"+req.getPathInfo());
+					if( req.getPathInfo().startsWith("/s4/")){
+						if(!handleS4(req,response)){
+							unknownRequest(req, response);
+						}	
+					}else{
+						boolean handled = handleStatic(req, response);
+						if (!handled) {
+							unknownRequest(req, response);
+						}
 					}
 				} catch (Exception e) {
 					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -216,32 +242,43 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		info("initJetty.ok");
 	}
 
-	private void execute(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			info("execute:" + request.getPathInfo() + "/" + request.getMethod());
-			String pathInfo = request.getPathInfo();
-			String ret = null;
-			String namespace = request.getPathInfo().split("/")[1];
-			if (pathInfo.startsWith("/" + namespace + "/xconfig/")) {
-			} else {
-				ret = "Unknown request";
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
-			if (ret != null && !response.isCommitted()) {
-				try {
-					response.setContentType("application/json;charset=UTF-8");
-					response.getWriter().print(ret);
-				} catch (Exception e) {
-					info("execute:" + e);
-				}
-			}
-		} catch (Exception e) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			e.printStackTrace();
-		}
+	private void unknownRequest(HttpServletRequest request, HttpServletResponse response) {
+		info("unknown request:" + request.getPathInfo() + "/" + request.getMethod());
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
+	private boolean handleS4(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String segs[] = request.getPathInfo().split("/");
+		if( segs.length != 4 ){
+			throw new RuntimeException("Bad request");
+		}
+		String namespace = segs[2];
+		String fileName = segs[3];
+		String ext = getExtension(fileName);
+		String mime =  FILETYPES.get(ext);
+		System.out.println("Mime:"+mime);
+		if( mime == null){
+			throw new RuntimeException("Unknown Filetype");
+		}
+		getAsset(namespace,fileName,mime, request, response);
+		return true;
+	}
 
+	private String getExtension(String name){
+		String segs[] = name.split("\\.");
+		int len = segs.length;
+		String ext = segs[len-1];
+		if(len < 2 ){
+			throw new RuntimeException("Bad filename");
+		}
+		if( "gz".equals(ext)){
+			if(len < 3 ){
+				throw new RuntimeException("Bad filename");
+			}
+			return segs[len-2] + "."+ segs[len-1];
+		}
+		return segs[len-1];	
+	}
 
 	private boolean handleStatic(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String target = request.getPathInfo();
@@ -284,16 +321,14 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			debug("ns:"+ns+"|assetName:"+assetName+"|"+ext);
 			m_docbookService.getAsset(ns, assetName, "image/"+ext, request, response);
 		} else if (target.endsWith(".css")) {
-		target = removeFirstSegmentInCaseWebsite(target);
-			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/css;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".js.gz")) {
-		target = removeFirstSegmentInCaseWebsite(target);
-			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/javascript;charset=UTF-8");
 			response.setHeader("Content-Encoding","gzip");
@@ -301,31 +336,28 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".js")) {
-		target = removeFirstSegmentInCaseWebsite(target);
-
-			//FileResource fr = new FileResource(new URL("file:" + m_basedir + "/client/" + target));
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/javascript;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".gif")) {
-		target = removeFirstSegmentInCaseWebsite(target);
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("image/gif;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".jpg")) {
-		target = removeFirstSegmentInCaseWebsite(target);
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("image/jpeg;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".png")) {
-		target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
+			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("image/png;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
@@ -333,7 +365,6 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".woff")) {
 			target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("application/x-font-woff");
 			response.addDateHeader("Date", new java.util.Date().getTime());
@@ -341,7 +372,6 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".ttf")) {
 			target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("application/x-font-ttf");
 			response.addDateHeader("Date", new java.util.Date().getTime());
@@ -349,7 +379,6 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".pdf")) {
 			target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
 			FileResource fr = getFileResource(m_basedir, target);
 			if(!isModified(fr, request, response)){
 				return true;
@@ -357,11 +386,9 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.setContentLength((int)fr.length());
 			response.setContentType("application/pdf;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
-//			response.setHeader("Cache-Control", "max-age=100000");
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".xml")) {
 			target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
 			FileResource fr = getFileResource(m_basedir, target);
 			if(!isModified(fr, request, response)){
 				return true;
@@ -372,7 +399,6 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".svg")) {
 			target = removeFirstSegmentInCaseWebsite(target);
-			debug("handleStatic:"+m_basedir+"|"+target);
 			FileResource fr = getFileResource(m_basedir, target);
 			response.setContentType("image/svg+xml;charset=UTF-8");
 			response.addDateHeader("Date", new java.util.Date().getTime());
@@ -590,6 +616,11 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		info("dbService:" + dbService);
 		this.m_docbookService = dbService;
 	}
+	@Reference(dynamic = true,optional=true)
+	public void setGitService(GitService dbService) {
+		info("gitService:" + dbService);
+		this.m_gitService = dbService;
+	}
 
 /*	@Reference(dynamic = true)
 	public void setMiltonService(MiltonService miltonService) {
@@ -674,6 +705,47 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}
 	}
 
+	private void getAsset(String namespace, String name, String type, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		File asset=null;
+		String contentType = type;
+		try{
+			if( "image/svg".equals(type)){
+				type = "image/svg+xml";
+				contentType = "image/svg+xml";
+			}
+			if( "image/swf".equals(type)){
+				contentType = "application/x-shockwave-flash";
+			}
+			if( "image/pdf".equals(type)){
+				contentType = "application/pdf";
+			}
+			info("getAsset.FileName:"+name+"/contentType:"+type);
+			asset = m_gitService.searchFile(namespace, name, type);
+		}catch(Exception e){
+			e.printStackTrace();
+			response.setStatus(404);
+			return;
+		}
+		Date sinceDate = new Date(request.getDateHeader("If-Modified-Since"));
+		long modTime = asset.lastModified( ); 
+		if( modTime < sinceDate.getTime() ){
+			response.setStatus(304);
+			return;
+		}else{
+			response.setContentType( contentType );
+			response.setContentLength( (int)asset.length() );
+
+			if( name.endsWith(".gz")){
+				response.setHeader("Content-Encoding","gzip");
+			}
+
+			response.setDateHeader("Last-Modified", modTime + 10000 );
+			response.setStatus(HttpServletResponse.SC_OK);
+			OutputStream os = response.getOutputStream();
+			IOUtils.copy( new FileInputStream(asset), os );
+			os.close();
+		}
+	}
 
 	private int getInt(String s, int def) {
 		try {

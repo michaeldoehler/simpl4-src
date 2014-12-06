@@ -8,6 +8,7 @@ dependencies {
   compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
   compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
   compile files("${bundlesBuild}/org.ms123.common.system-1.0.0.jar")
+  compile files("${bundlesBuild}/org.ms123.common.git-1.0.0.jar")
   compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
   compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
   compile files("${bundlesBuild}/org.ms123.common.libhelper-1.0.0.jar")
