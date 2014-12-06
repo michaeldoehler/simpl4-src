@@ -99,7 +99,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private String m_basedir;
 
-	private Map<String,String> FILETYPES = createFiletypeMap();
+	public Map<String,String> FILETYPES = createFiletypeMap();
 
 	private static final String HEADER_IFMODSINCE = "If-Modified-Since";
 
@@ -113,9 +113,12 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("js", "text/javascript");
 		result.put("js.gz", "text/javascript");
 		result.put("css", "text/css");
+		result.put("css.gz", "text/css");
+		result.put("html", "text/html");
 		result.put("gif", "image/gif");
 		result.put("png", "image/png");
 		result.put("jpg", "image/jpg");
+		result.put("jepg", "image/jpg");
 		result.put("svg", "image/svg+xml");
 		return Collections.unmodifiableMap(result);
 	}
@@ -203,9 +206,9 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 						super.doGet(req,response);
 						return;
 					}
-					info("S4 Request:"+req.getPathInfo());
-					if( req.getPathInfo().startsWith("/s4/")){
-						if(!handleS4(req,response)){
+					info("Repo Request:"+req.getPathInfo());
+					if( req.getPathInfo().startsWith("/repo/")){
+						if(!handleRepo(req,response)){
 							unknownRequest(req, response);
 						}	
 					}else{
@@ -247,7 +250,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	private boolean handleS4(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	private boolean handleRepo(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String segs[] = request.getPathInfo().split("/");
 		if( segs.length != 4 ){
 			throw new RuntimeException("Bad request");
@@ -264,7 +267,10 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		return true;
 	}
 
-	private String getExtension(String name){
+	public static String getExtension(String name){
+		if( name.lastIndexOf("/")!=-1){
+			name = name.substring(name.lastIndexOf("/"));
+		}
 		String segs[] = name.split("\\.");
 		int len = segs.length;
 		String ext = segs[len-1];

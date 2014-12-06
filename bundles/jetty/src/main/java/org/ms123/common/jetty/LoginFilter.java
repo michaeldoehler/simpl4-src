@@ -112,8 +112,11 @@ public class LoginFilter implements Filter {
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".html")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".js")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".js.gz")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".css")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".css.gz")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".png")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".jpg")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".gif")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".svg")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".jpeg")) ||
 				pathInfo.startsWith("/" + namespace + "/dav") || 
@@ -128,7 +131,7 @@ public class LoginFilter implements Filter {
 			}
 		}
 		info(pathInfo + ";" + credentials+"/ok:"+ok);
-		if (checkCredentials(namespace, credentials, false) || ok) {
+		if (ok || checkCredentials(namespace, credentials, false)) {
 			info(">>>> OK");
 			RequestMapper rm = new RequestMapper(request);
 			ThreadContext.loadThreadContext(rm, response);
