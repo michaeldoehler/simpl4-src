@@ -39,6 +39,7 @@ import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.system.LogService;
 import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.utils.Inflector;
 import org.ms123.common.utils.Utils;
@@ -107,6 +108,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected GitService m_gitService;
 
 	protected PermissionService m_permissionService;
+	protected NamespaceService m_namespaceService;
 
 	protected DatamapperService m_datamapperService;
 
@@ -235,7 +237,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 	private RouteDefinition createRouteDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
-		def c = new CamelRouteJsonConverter(path, context, rootShape);
+		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding());
 		return c.getRouteDefinition();
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){

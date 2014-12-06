@@ -67,6 +67,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	public def  rootProperties;
 	public def  shapeProperties;
 	public def  resourceId;
+	public def  branding;
 	def children = []
 	def engine = new SimpleTemplateEngine();
 	void finishToCamel(ctx){}
@@ -256,13 +257,17 @@ abstract class JsonConverterImpl implements JsonConverter{
 	}
 
 	def setConstants(routeDefinition, properties){
-		def constList = properties?.constants?.items;
+		def constList = properties?.settings?.items;
 		if( constList != null){
 			for( def item : constList){
 				def dest = item.destination;
 				def constant = item["const"];
 				def name = item.name;
+				def source = item.source;
 				if( isEmpty(constant) || isEmpty(name)) continue;
+				if( "branding".equals(source)){
+					constant = branding.get(name);
+				}
 				def constExpr = new ConstantExpression(constant as String);
 				if( "property".equals(dest)){
 					println("setting property:"+name+"="+constExpr);

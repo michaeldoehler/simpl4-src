@@ -41,6 +41,7 @@ import org.ms123.common.git.GitService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.system.LogService;
 import org.ms123.common.utils.Inflector;
@@ -304,6 +305,11 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 	public void setUtilsService(UtilsService paramUtilsService) {
 		this.m_utilsService = paramUtilsService;
 		info("CamelServiceImpl.setUtilsService:" + paramUtilsService);
+	}
+	@Reference(dynamic = true, optional=true)
+	public void setNamespaceService(NamespaceService paramNamespaceService) {
+		this.m_namespaceService = paramNamespaceService;
+		info("CamelServiceImpl.setNamespaceService:" + paramNamespaceService);
 	}
 
 	@Reference(dynamic = true, optional=true)
