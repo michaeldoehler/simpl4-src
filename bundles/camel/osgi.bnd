@@ -1,5 +1,5 @@
 version=1.0.0
-Export-Package org.ms123.common.camel,org.ms123.common.camel.components,org.ms123.common.camel.trace,org.ms123.common.camel.view,org.ms123.common.camel.jsonconverter
+Export-Package org.ms123.common.camel,org.ms123.common.camel.components,org.ms123.common.camel.components.groovytemplate,org.ms123.common.camel.trace,org.ms123.common.camel.view,org.ms123.common.camel.jsonconverter
 Import-Package *
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.
