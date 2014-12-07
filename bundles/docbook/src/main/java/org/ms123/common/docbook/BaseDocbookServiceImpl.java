@@ -264,7 +264,7 @@ class BaseDocbookServiceImpl {
 			response.setStatus(404);
 			return;
 		}
-		Date sinceDate = new Date(request.getDateHeader("If-Modified-Since"));
+		Date sinceDate = new Date(request.getDateHeader("If-Modified-Since")+1000);
 		long modTime = asset.lastModified( ); 
 		if( modTime < sinceDate.getTime() ){
 			response.setStatus(304);
