@@ -1157,7 +1157,12 @@ public class GitServiceImpl implements GitService {
 		try {
 			bis = new FileInputStream(file);
 			Tika tika = new Tika();
-			String ftype = tika.detect(bis);
+			String ftype = null;
+			try{
+				ftype = tika.detect(bis);
+			}catch(Throwable t){
+				return "sw.unknown";
+			}
 			if( ftype.equals("application/x-shockwave-flash")){
 				return "image/swf";
 			}
