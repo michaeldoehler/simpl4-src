@@ -167,11 +167,19 @@ public class BaseTeamServiceImpl {
 		List<Map<String,String>> autoCreateTeams = getAutoCreateTeams(namespace);
 		if( autoCreateTeams == null) return;
 		for( Map<String,String> tm : autoCreateTeams ){
-			if( ppid.equalsIgnoreCase(tm.get("trigger"))){
+			if( !isExclude(name, tm.get("exclude")) && teamid.matches(tm.get("trigger"))){
 				info("createSubTeams.ppid:"+ppid+" -> "+tm.get("trigger"));
 				_createTeam(namespace,teamid+"."+tm.get("id") , tm.get("name"), tm.get("description") ,userRead,userManage,userCreate);
 			}
 		}
+	}
+
+	private boolean isExclude(String pid, String exclude){
+		if( isEmpty(exclude) ) return false;
+		if( pid.matches(exclude)){
+			return true;
+		}
+		return false;
 	}
 
 	private List getAutoCreateTeams(String ns){
@@ -309,6 +317,10 @@ public class BaseTeamServiceImpl {
 		return (Boolean) ((m.get(key) != null) ? m.get(key) : def);
 	}
 
+	private boolean isEmpty(String s){
+		if(s==null || s.trim().equals("")) return true;
+		return false;
+	}
 	protected boolean getBoolean(Object val, boolean def) {
 		try {
 			if (val instanceof Boolean) {
