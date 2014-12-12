@@ -198,7 +198,7 @@ public class JsonRpcServlet extends HttpServlet {
 			beforeCallService(httpRequest, requestMap);
 			debug("httpRequest.pathInfo:" + httpRequest.getPathInfo());
 			final Object methodResult = executeRequest(httpRequest.getPathInfo(), requestMap, httpRequest, response);
-			afterCallService(methodResult, requestMap);
+			afterCallService(httpRequest,methodResult, requestMap);
 			responseIntermediateObject = buildResponse(requestMap, methodResult, null);
 		} catch (RpcException e) {
 			responseIntermediateObject = buildResponse(requestMap, e);
@@ -219,18 +219,25 @@ public class JsonRpcServlet extends HttpServlet {
 		if (methodParams instanceof List) {
 			doBeforeCallService(httpRequest, serviceName, methodName, (List) methodParams);
 		}
-		callHooks(serviceName, methodName, methodParams,null,true);
+		callHooks(httpRequest,serviceName, methodName, methodParams,null,true);
 	}
-	protected final void afterCallService(Object result, final Map<String, Object> requestMap) throws RpcException {
+	protected final void afterCallService(HttpServletRequest httpRequest, Object result, final Map<String, Object> requestMap) throws RpcException {
 		final String serviceName = (String) requestMap.get("service");
 		final String methodName = (String) requestMap.get("method");
 		final Object methodParams = requestMap.get("params");
-		callHooks(serviceName, methodName, methodParams,result, false);
+		callHooks(httpRequest,serviceName, methodName, methodParams,result, false);
 	}
 
-	private void callHooks(String serviceName,String methodName, Object methodParams, Object result, boolean before){
+	private void callHooks(HttpServletRequest httpRequest, String serviceName,String methodName, Object methodParams, Object result, boolean before){
 		CallService hs = getCallService();
 		if( hs != null){
+			String[] x = httpRequest.getPathInfo().split("/");
+			if (serviceName == null && x.length > 1) {
+				serviceName = x[1];
+			}
+			if (methodName == null && x.length > 2) {
+				methodName = x[2];
+			}
 			Map props = new HashMap();
 			props.put("service", serviceName);
 			props.put("method", methodName);
