@@ -1,0 +1,22 @@
+defaultTasks "buildx"
+
+buildscript {
+	dependencies {
+		classpath files("${repository}/gradle-js-plugin-1.12.1.jar")
+		classpath files("${repository}/closure-compiler-r2388.jar")
+		classpath files("${repository}/google-collect-snapshot-20080530.jar")
+	}
+}
+repositories { mavenCentral() }
+
+apply plugin: "js"
+
+
+task deploy (type:Task) {
+	ant.concat(destfile:'build-concat.tmp.js') {
+		fileset(dir:'js',includes:'**.js')
+		fileset(dir:'../grooscript/js',includes:'**.js')
+	}
+}
+
+task buildx (type:Task) {  dependsOn deploy }

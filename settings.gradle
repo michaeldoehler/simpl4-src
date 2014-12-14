@@ -42,4 +42,8 @@ include 'bundles/rpc',
 	'bundles/bhs',
 	'bundles/admin',
 	'bundles/launcher',
-	'client'
+	'client',
+	'surface',
+	'surface/grooscript',
+	'surface/js',
+	'surface/elements'

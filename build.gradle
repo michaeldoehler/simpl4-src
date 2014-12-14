@@ -1,21 +1,16 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 import java.util.zip.GZIPOutputStream;
 
-task wrapper(type: Wrapper) {
-  gradleVersion = '2.0'
-}
+task wrapper(type: Wrapper) { gradleVersion = '2.0' }
 
 defaultTasks "buildAll"
 
 buildscript {
-    dependencies {
-      classpath files("repository/gradle-aspectj-1.5.jar")
-      classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-    }
-		repositories {
-        mavenCentral()
-				jcenter()
-    }
+	dependencies { classpath files("repository/gradle-aspectj-1.5.jar") }
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
 }
 
 ext.os = [Os.FAMILY_WINDOWS, Os.FAMILY_MAC, Os.FAMILY_UNIX].find {String family ->
@@ -32,50 +27,41 @@ ext.docbookOut=gradle.getRootProject().getRootDir().toString()+"/bundles/docbook
 ext.qoodooSDK="${rootDir}/build/${currentBranch}/.qooxdooSDK";
 ext.bundlesBuild="${rootDir}/build/${currentBranch}/bundlesBuild";
 ext.repository="${rootDir}/repository";
-ext.licenseBlock=	{
-	header rootProject.file('etc/license.txt')
-		ext.year = Calendar.getInstance().get(Calendar.YEAR)
-		ext.name = 'Manfred Sattler'
-		ext.email = 'manfred@ms123.org'
-		ignoreFailures true
-		skipExistingHeaders true
-		strictCheck false
-		includes(["**/*.java", "**/*.groovy", "**/*.js"])
-		mapping {
-			javascript='JAVADOC_STYLE'
-		}
-}
 
-configure(subprojects - project(":client")){ s->
+configure(subprojects - 
+	project(":client") - 
+	project(':surface') -
+	project(':surface/elements') - 
+	project(':surface/js') - 
+	project(':surface/grooscript')){ s->
 	def rootDir = getRootProject().getRootDir().toString()
 	ext.shortName = getShortName(s.name);
 
 	configurations {
 		vfs
 		bnd
-    ajtools
+		ajtools
 	}
 
 	apply plugin: 'groovy'
 	apply plugin: 'aspectj'
-	apply plugin: 'license'
 
 	defaultTasks "copyToRepo"
 
-	sourceCompatibility = '1.6' 
+	sourceCompatibility = '1.6'
 	targetCompatibility = '1.6'
 
 	jar.enabled=false
 	test.enabled=false
 
 	dependencies {
-    ajtools files("${rootDir}/repository/aspectjtools-1.7.1.jar")
+		ajtools files("${rootDir}/repository/aspectjtools-1.7.1.jar")
 		vfs files("${rootDir}/repository/commons-vfs-1.0.jar")
 		vfs files("${rootDir}/repository/commons-logging-1.1.1.jar")
 		bnd files("${rootDir}/repository/biz.aQute.bnd.jar")
-  	compile files("${rootDir}/repository/biz.aQute.bnd.jar")
-		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar"); 
- 		compile files("${rootDir}/repository/aspectjrt-1.7.1.jar")
+		compile files("${rootDir}/repository/biz.aQute.bnd.jar")
+		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar");
+		compile files("${rootDir}/repository/aspectjrt-1.7.1.jar")
 		compile files("${rootDir}/repository/shiro-aspectj-1.2.0.jar")
 		compile files("${rootDir}/repository/shiro-core-1.2.0.jar")
 		aspectpath files("../../repository/shiro-aspectj-1.2.0.jar")
@@ -86,29 +72,18 @@ configure(subprojects - project(":client")){ s->
 		}
 	}
 
-	license licenseBlock
 	compileGroovy.options.define(
-			compilerArgs: [
-			"-nowarn",
-			"-Xlint:-unchecked",
-			"-encoding", "UTF-8"
-		]
-	);
+		compilerArgs: ["-nowarn", "-Xlint:-unchecked", "-encoding", "UTF-8"
+		]);
 
 	ant.taskdef( resource: 'aQute/bnd/ant/taskdef.properties', classpath: configurations.bnd.asPath)
-	ant.taskdef( resource: 'org/apache/commons/vfs/tasks/tasks.properties',classpath:configurations.vfs.asPath) 
+	ant.taskdef( resource: 'org/apache/commons/vfs/tasks/tasks.properties',classpath:configurations.vfs.asPath)
 
 	sourceSets {
 		main {
-			java {
-				srcDir 'src/main/java'
-			}
-			groovy {
-				srcDir 'src/main/java'
-			}
-			resources {
-				srcDir 'src/main/resources'
-			}
+			java { srcDir 'src/main/java' }
+			groovy { srcDir 'src/main/java' }
+			resources { srcDir 'src/main/resources' }
 		}
 	}
 	sourceSets.main.ext.classesDir = new File ( 'build/classes/main' )
@@ -134,18 +109,18 @@ configure(subprojects - project(":client")){ s->
 			dependsOn classes
 		}
 		doLast{
-			 ant.zip( destfile:"tmp/bundle.zip",
-				 basedir:"build/classes/main",
-				 includes:"**/*.class,OSGI-INF/**",
-				 excludes:"test/**"
-			 )
-			 ant.bnd(
-				 failok:true,
-				 exceptions:true,
-				 classpath : "tmp/bundle.zip:${configurations.compile.asPath}",
-				 output:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar",
-				 files:"osgi.bnd" 
-			 )
+			ant.zip( destfile:"tmp/bundle.zip",
+			basedir:"build/classes/main",
+			includes:"**/*.class,OSGI-INF/**",
+			excludes:"test/**"
+			)
+			ant.bnd(
+				failok:true,
+				exceptions:true,
+				classpath : "tmp/bundle.zip:${configurations.compile.asPath}",
+				output:"build/libs/bundles/org.ms123.common.${shortName}-1.0.0.jar",
+				files:"osgi.bnd"
+				)
 		}
 	}
 	task copyToRepo (type:Task) {
@@ -170,7 +145,6 @@ configure(subprojects - project(":client")){ s->
 
 
 configure(project(":client")){
-	apply plugin: 'license'
 	task copyToRepo (type:Task) { }
 	task projectClean (type:Task) { }
 	task unzipQooxdoo(type: Copy) {
@@ -179,7 +153,7 @@ configure(project(":client")){
 		from zipTree(zipFile)
 		outputs.upToDateWhen { file(qoodooSDK).isDirectory() }
 	}
-	task compileQooxdoo (type:Task) { 
+	task compileQooxdoo (type:Task) {
 		if(!file(qoodooSDK).isDirectory()){
 			dependsOn unzipQooxdoo
 		}
@@ -188,16 +162,7 @@ configure(project(":client")){
 			gzipFile("${qooxdooBuildDir}/common/script/ms123.js", "${qooxdooBuildDir}/common/script/ms123.js.gz");
 		}
 	}
-	task compileMobile (type:Task) { 
-		if(!file(qoodooSDK).isDirectory()){
-			dependsOn unzipQooxdoo
-		}
-		doLast(){
-			compileQooxdoo("mobile");
-			gzipFile("${qooxdooBuildDir}/mobile/script/mobile.js", "${qooxdooBuildDir}/mobile/script/mobile.js.gz");
-		}
-	}
-	task compileWebsite (type:Task) { 
+	task compileWebsite (type:Task) {
 		if(!file(qoodooSDK).isDirectory()){
 			dependsOn unzipQooxdoo
 		}
@@ -206,20 +171,35 @@ configure(project(":client")){
 			gzipFile("${qooxdooBuildDir}/website/script/website.js", "${qooxdooBuildDir}/website/script/website.js.gz");
 		}
 	}
-	sourceSets {
-		main {
-			java {
-				srcDir "../client/common/source/class/ms123"
-				include "**/*.js"
-			}
-		}
-	}
-	license licenseBlock
 }
 
+configure(project(":surface")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
+
+configure(project(":surface/elements")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
+
+configure(project(":surface/grooscript")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
+
+configure(project(":surface/js")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
 
 task buildAll(type: Task) {
 	dependsOn subprojects.copyToRepo
+
+	evaluationDependsOnChildren()
+	project(':surface/elements').copyToRepo.dependsOn(project(":surface/elements").buildx)
+	project(':surface/js').copyToRepo.dependsOn(project(":surface/js").buildx)
+	project(':surface/grooscript').copyToRepo.dependsOn(project(":surface/grooscript").buildx)
 
 	def currentDir = gradle.getStartParameter().getCurrentDir().toString();
 	def projectDir = gradle.getRootProject().getRootDir().toString();
@@ -244,10 +224,10 @@ task deploy(type: Task) {
 	doLast(){
 		def dest = new File(rootProject.property("deploy.directory")).getCanonicalPath().toString();
 		println("deploying to -> "+dest);
-		
+
 		deployServerPart(dest);
 		copyFiles(dest);
-		deployClientPart(dest);	
+		deployClientPart(dest);
 	}
 }
 
@@ -289,7 +269,7 @@ def getShortName(name){
 def compileQooxdoo(what) {
 	def cache = "${rootDir}/build/${currentBranch}/.qooxdooCache";
 	if( os == "unix"){
-			println( "commandLine \"python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build\".tokenize()")
+		println( "commandLine \"python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build\".tokenize()")
 		exec {
 			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()
 		}
@@ -314,10 +294,6 @@ def deployClientPart(destdir){
 		fileset(dir:"${qooxdooBuildDir}/website") {
 		}
 	}
-	/*@@@MS new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/mobile/build"){
-		fileset(dir:"${qooxdooBuildDir}/mobile") {
-		}
-	}*/
 	new groovy.util.AntBuilder().copy( overwrite:true, verbose:false, todir:"${destdir}/client/common/build/resource/openseadragon"){
 		fileset(dir:"${rootDir}/client/common/source/resource/openseadragon") {
 		}
@@ -373,3 +349,4 @@ def gzipFile(sourcePath, destPath) {
 	gzipOuputStream.close();
 	println("The file was compressed successfully!");
 }
+

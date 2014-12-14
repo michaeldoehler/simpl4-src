@@ -1,0 +1,9 @@
+version='1.0.0'
+
+
+defaultTasks "buildx"
+
+task buildx (type:Exec) {
+	executable "/bin/sh"
+	args "-c", "make-all.sh"
+}
