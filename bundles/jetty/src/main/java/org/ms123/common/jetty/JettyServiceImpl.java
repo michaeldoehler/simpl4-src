@@ -310,7 +310,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
-		}else if (target.endsWith(".html")) {
+		}else if (!target.startsWith("surface") && target.endsWith(".html")) {
 			int slash = target.indexOf("/");
 			if( slash != -1){
 				String ns = target.substring(0,slash);	
@@ -326,6 +326,13 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			String ext = getFiletype(assetName);	
 			debug("ns:"+ns+"|assetName:"+assetName+"|"+ext);
 			m_docbookService.getAsset(ns, assetName, "image/"+ext, request, response);
+		} else if (target.endsWith(".html")) {
+			target = removeFirstSegmentInCaseWebsite(target);
+			FileResource fr = getFileResource2(m_basedir, target);
+			response.setContentType("text/html;charset=UTF-8");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".css")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
