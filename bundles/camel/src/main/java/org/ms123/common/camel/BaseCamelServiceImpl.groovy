@@ -42,7 +42,7 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.utils.Inflector;
-import org.ms123.common.utils.Utils;
+import org.ms123.common.libhelper.Utils;
 
 import org.osgi.framework.BundleContext;
 

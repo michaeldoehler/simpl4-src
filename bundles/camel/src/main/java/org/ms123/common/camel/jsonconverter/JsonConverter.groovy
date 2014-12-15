@@ -35,7 +35,7 @@ import org.apache.camel.model.language.*;
 import org.apache.camel.util.IntrospectionSupport;
 import static org.apache.camel.util.ObjectHelper.isEmpty;
 import static org.apache.camel.util.ObjectHelper.isNotEmpty;
-import org.ms123.common.utils.Utils;
+import org.ms123.common.libhelper.Utils;
 import flexjson.*;
 import javax.xml.namespace.QName;
 

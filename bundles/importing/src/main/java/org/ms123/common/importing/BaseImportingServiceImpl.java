@@ -54,7 +54,7 @@ import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.libhelper.Bean2Map;
 import org.ms123.common.libhelper.Inflector;
-import org.ms123.common.utils.Utils;
+import org.ms123.common.libhelper.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.ms123.common.utils.UtilsService;
 import org.osgi.framework.BundleContext;
