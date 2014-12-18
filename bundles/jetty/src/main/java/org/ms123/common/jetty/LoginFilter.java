@@ -110,6 +110,7 @@ public class LoginFilter implements Filter {
 				pathInfo.startsWith("/robots.txt") || 
 				pathInfo.startsWith("/" + namespace + "/website") || 
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".html")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".html.gz")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".js")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".js.gz")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".css")) ||

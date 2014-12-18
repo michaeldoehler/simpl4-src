@@ -115,6 +115,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("css", "text/css");
 		result.put("css.gz", "text/css");
 		result.put("html", "text/html");
+		result.put("html.gz", "text/html");
 		result.put("gif", "image/gif");
 		result.put("png", "image/png");
 		result.put("jpg", "image/jpg");
@@ -330,6 +331,14 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
 			response.setContentType("text/html;charset=UTF-8");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
+		} else if (target.endsWith(".html.gz")) {
+			target = removeFirstSegmentInCaseWebsite(target);
+			FileResource fr = getFileResource2(m_basedir, target);
+			response.setContentType("text/html;charset=UTF-8");
+			response.setHeader("Content-Encoding","gzip");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
