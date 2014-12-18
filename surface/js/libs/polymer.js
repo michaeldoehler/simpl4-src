@@ -11785,19 +11785,6 @@ scope.importElements = importElements;
  *
  * Example:
  *
- *     <template is="auto-binding">
- *       <div>Say something: <input value="{{value}}"></div>
- *       <div>You said: {{value}}</div>
- *       <button on-tap="{{buttonTap}}">Tap me!</button>
- *     </template>
- *     <script>
- *       var template = document.querySelector('template');
- *       template.value = 'something';
- *       template.buttonTap = function() {
- *         console.log('tap!');
- *       };
- *     </script>
- *
  * @module Polymer
  * @status stable
 */
