@@ -108,8 +108,8 @@ can.Construct.extend("s4.util.Rpc", {
 		req.url = url;
 		req.type = "POST";
 		if (config.completed == null) {
-			req.success = function (e) {
-				ret = e.getContent();
+			req.success = function (data,status) {
+				ret = data;
 				if (config.msg != null) {
 					console.error(config.msg);
 				}
@@ -129,6 +129,7 @@ can.Construct.extend("s4.util.Rpc", {
 			"Authorization": "Basic " + btoa(username + ":" + password)
 		}
 		console.log("Ajax:", req);
-		return $.ajax(req);
+		$.ajax(req);
+		return ret;
 	}
 }, {});
