@@ -28,6 +28,7 @@ ext.qoodooSDK="${rootDir}/build/${currentBranch}/.qooxdooSDK";
 ext.bundlesBuild="${rootDir}/build/${currentBranch}/bundlesBuild";
 ext.surfaceBuild="${rootDir}/build/${currentBranch}/surfaceBuild";
 ext.repository="${rootDir}/repository";
+ext.jsLibs="libs.js";
 
 configure(subprojects - 
 	project(":client") - 
