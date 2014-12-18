@@ -44,6 +44,5 @@ include 'bundles/rpc',
 	'bundles/launcher',
 	'client',
 	'surface',
-	'surface/grooscript',
 	'surface/js',
 	'surface/elements'
