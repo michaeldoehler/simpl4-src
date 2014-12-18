@@ -1,4 +1,4 @@
-defaultTasks "buildx"
+defaultTasks "buildAll"
 
 buildscript {
 	dependencies {
@@ -7,21 +7,29 @@ buildscript {
 	}
 }
 
-apply plugin: 'org.grooscript.conversion'
+apply plugin: 'groovy'
+apply plugin: 'org.grooscript.conversion' //<2>
 
 grooscript {
 	source = ['groovy'] //Sources to be converted(List), default is ['src/main/groovy']
 	destination = 'js' //Target directory for js files, default is 'src/main/webapp/js/app'
-	classPath = ['src/main/groovy'] //Needed classpath's to compile source files(List), default is ['src/main/groovy']
+	classPath = ['groovy'] //Needed classpath's to compile source files(List), default is ['src/main/groovy']
 	customization = null //Customization in files, it's a closure, as for example { -> ast(groovy.transform.TypeChecked) }
 	initialText = '//Grooscript converted file'
 	initialText = '//End converted file'
 	recursive = true //Default is false
-	//addGsLib = 'grooscript' //Include a grooscript js lib in the result, default is null
 	addGsLib = null
 }
 
-
-task buildx (type:Task) { 
+task stage (type:Task) {
 	dependsOn convert
+	doLast(){
+		ant.concat(destfile:"${surfaceBuild}/grooscript-all.js") {
+			fileset(dir:'js',includes:'**/*.js')
+		}
+	}
+}
+
+task buildAll (type:Task) { 
+	dependsOn stage
 }
