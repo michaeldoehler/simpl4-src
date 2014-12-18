@@ -16,18 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend("s4.util.Remote", {
-	_username: "",
-	_password: "",
+can.Construct.extend("s4.util.Rpc", {
+	_username: "admin",
+	_password: "admin",
 	setCredentials: function (username, password) {
-		s4.util.Remote._username = username;
-		s4.util.Remote._password = password;
+		s4.util.Rpc._username = username;
+		s4.util.Rpc._password = password;
 	},
 	_getPassword: function () {
-		return s4.util.Remote._password;
+		return s4.util.Rpc._password;
 	},
 	_getUserName: function () {
-		return s4.util.Remote._username;
+		return s4.util.Rpc._username;
 	},
 	rpcSync: function (dummy, parameter) {
 		if (arguments.length < 1) {
@@ -53,7 +53,6 @@ can.Construct.extend("s4.util.Remote", {
 		var requestObject = {
 			"service": service,
 			"method": method,
-			"id": id,
 			"params": parameter
 		};
 
@@ -63,14 +62,14 @@ can.Construct.extend("s4.util.Remote", {
 			context: parameter.context,
 			msg: parameter.msg,
 		}
-		var result = s4.util.Remote._send(url, false, config, requestObject);
+		var result = s4.util.Rpc._send(url, false, config, requestObject);
 		return result;
 	},
 
 	rpcAsync: function (params) {
 		if (params.async != null && params.async == false) {
 			try {
-				var result = s4.util.Remote.rpcSync(params.service + ":" + params.method, params.parameter);
+				var result = s4.util.Rpc.rpcSync(params.service + ":" + params.method, params.parameter);
 				if (params.completed) params.completed.call(params.context, result);
 				return result;
 			} catch (ex) {
@@ -87,25 +86,26 @@ can.Construct.extend("s4.util.Remote", {
 		var requestObject = {
 			"service": params.service,
 			"method": params.method,
-			"id": id,
 			"params": params.parameter
 		};
 		var config = {
-			completed: parameter.completed,
-			failed: parameter.failed,
-			context: parameter.context,
-			msg: parameter.msg
+			completed: params.completed,
+			failed: params.failed,
+			context: params.context,
+			msg: params.msg
 		}
-		s4.util.Remote._send(url, true, config, requestObject);
+		s4.util.Rpc._send(url, true, config, requestObject);
 	},
 
 	_send: function (url, async, config, requestObject) {
 		var ret = null;
 		var req = {};
-		req.data = requestObject;
+		req.data = JSON.stringify(requestObject);
 		req.timeout = 50000000;
-		req.contentType = "application(json";
+		req.contentType = "application/json; charset=utf-8";
+		req.dataType = "json";
 		req.async = async;
+		req.url = url;
 		req.type = "POST";
 		if (config.completed == null) {
 			req.success = function (e) {
@@ -123,9 +123,12 @@ can.Construct.extend("s4.util.Remote", {
 			req.error = config.failed
 			req.context = config.context;
 		}
-		req.username = s4.util.Remote._getUserName();
-		req.password = s4.util.Remote._getPassword();
-		console.log("Ajax:"+JSON.stringify(req,null,2));
+		var username = s4.util.Rpc._getUserName();
+		var password = s4.util.Rpc._getPassword();
+		req.headers= {
+			"Authorization": "Basic " + btoa(username + ":" + password)
+		}
+		console.log("Ajax:", req);
 		return $.ajax(req);
 	}
-});
+}, {});
