@@ -1,14 +1,9 @@
 #!/bin/sh
 
-bower install
+#bower install
+#rm -rf bower_components/polymer/  
+#find . -name "*.html" -exec sed -i "/polymer.html/d" {} \;
 
-#rm -f index.html
-#ALL=`fgrep -l polymer-element */*/*.html|grep -v demo.html`
-
-#for i in $ALL
-#do
-#  echo '<link rel="import" href="'$i'">' >>index.html
-#done
 
 vulcanize --inline index.html
 mv vulcanized.html elements.html

@@ -2,7 +2,6 @@
   "name": "core-elements",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#master",
     "core-ajax": "Polymer/core-ajax#master",
     "core-animated-pages": "Polymer/core-animated-pages#master",
     "core-animation": "Polymer/core-animation#master",

@@ -1,13 +1,15 @@
 defaultTasks "buildAll"
 
 task stage (type:Task) {
-	ant.concat(destfile:"${surfaceBuild}/js-all.js") {
+	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
 		fileset(file:'libs/jquery-2.1.1.js')
 		fileset(file:'libs/webcomponents.js')
 		fileset(file:'libs/polymer.js')
 		fileset(file:'libs/can.construct.map.list-2.1.4.js')
 		fileset(dir:'js',includes:'**/*.js')
 	}
+	ant.gzip( src:"${surfaceBuild}/${jsLibs}",destfile:"${surfaceBuild}/${jsLibs}.gz")
+	ant.delete( file:"${surfaceBuild}/${jsLibs}")
 }
 
 task buildAll (type:Task) {  dependsOn stage }

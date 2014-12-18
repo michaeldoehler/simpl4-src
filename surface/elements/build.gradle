@@ -8,7 +8,11 @@ task buildHtml (type:Exec) {
 
 task stage (type:Task) {
 	dependsOn buildHtml
-	ant.copy( file:"elements.html", todir:"${surfaceBuild}",overwrite:"true")
+	doLast(){
+		ant.gzip( src:"elements.html",destfile:"elements.html.gz")
+		ant.copy( file:"elements.html.gz", todir:"${surfaceBuild}",overwrite:"true")
+
+	}
 }
 
 task buildAll (type:Task) {
