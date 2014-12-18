@@ -1,9 +1,16 @@
-version='1.0.0'
+defaultTasks "buildAll"
 
 
-defaultTasks "buildx"
-
-task buildx (type:Exec) {
+task buildHtml (type:Exec) {
 	executable "/bin/sh"
 	args "-c", "make-all.sh"
+}
+
+task stage (type:Task) {
+	dependsOn buildHtml
+	ant.copy( file:"elements.html", todir:"${surfaceBuild}",overwrite:"true")
+}
+
+task buildAll (type:Task) {
+	dependsOn stage
 }
