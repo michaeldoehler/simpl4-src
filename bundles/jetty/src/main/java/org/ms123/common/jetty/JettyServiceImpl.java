@@ -349,6 +349,14 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
+		} else if (target.endsWith(".css.gz")) {
+			target = removeFirstSegmentInCaseWebsite(target);
+			FileResource fr = getFileResource2(m_basedir, target);
+			response.setContentType("text/css;charset=UTF-8");
+			response.setHeader("Content-Encoding","gzip");
+			response.addDateHeader("Date", new java.util.Date().getTime());
+			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
+			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".js.gz")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource2(m_basedir, target);
