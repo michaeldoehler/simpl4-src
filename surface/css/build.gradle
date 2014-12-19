@@ -1,0 +1,12 @@
+defaultTasks "buildAll"
+
+task stage (type:Task) {
+	ant.concat(destfile:"${surfaceBuild}/${cssLibs}") {
+		fileset(file:'libs/tablesaw.css')
+		fileset(dir:'css',includes:'**/*.css')
+	}
+	ant.gzip( src:"${surfaceBuild}/${cssLibs}",destfile:"${surfaceBuild}/${cssLibs}.gz")
+	ant.delete( file:"${surfaceBuild}/${cssLibs}")
+}
+
+task buildAll (type:Task) {  dependsOn stage }
