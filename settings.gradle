@@ -45,4 +45,5 @@ include 'bundles/rpc',
 	'client',
 	'surface',
 	'surface/js',
+	'surface/css',
 	'surface/elements'

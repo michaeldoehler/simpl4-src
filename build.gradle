@@ -29,11 +29,13 @@ ext.bundlesBuild="${rootDir}/build/${currentBranch}/bundlesBuild";
 ext.surfaceBuild="${rootDir}/build/${currentBranch}/surfaceBuild";
 ext.repository="${rootDir}/repository";
 ext.jsLibs="libs.js";
+ext.cssLibs="libs.css";
 
 configure(subprojects - 
 	project(":client") - 
 	project(':surface') -
 	project(':surface/elements') - 
+	project(':surface/css') - 
 	project(':surface/js')){ s->
 	def rootDir = getRootProject().getRootDir().toString()
 	ext.shortName = getShortName(s.name);
@@ -184,6 +186,11 @@ configure(project(":surface/elements")){
 	task projectClean (type:Task) { }
 }
 
+configure(project(":surface/css")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
+
 configure(project(":surface/js")){
 	task copyToRepo (type:Task) { }
 	task projectClean (type:Task) { }
@@ -195,6 +202,7 @@ task buildAll(type: Task) {
 	evaluationDependsOnChildren()
 	project(':surface/elements').copyToRepo.dependsOn(project(":surface/elements").buildAll)
 	project(':surface/js').copyToRepo.dependsOn(project(":surface/js").buildAll)
+	project(':surface/css').copyToRepo.dependsOn(project(":surface/css").buildAll)
 
 	def currentDir = gradle.getStartParameter().getCurrentDir().toString();
 	def projectDir = gradle.getRootProject().getRootDir().toString();
