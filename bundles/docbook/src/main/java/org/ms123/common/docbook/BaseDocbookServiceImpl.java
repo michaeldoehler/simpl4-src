@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Enumeration;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.Writer;
@@ -56,6 +57,11 @@ import javax.servlet.http.*;
 import nu.xom.*;
 import org.dbdoclet.trafo.html.docbook.*;
 
+import org.osgi.framework.Bundle;
+import static org.asciidoctor.Asciidoctor.Factory.create;
+import org.asciidoctor.Asciidoctor;
+import org.jruby.embed.osgi.OSGiScriptingContainer;
+
 /**
  *
  */
@@ -71,6 +77,8 @@ class BaseDocbookServiceImpl {
 		m_assetList.add( "image/swf");
 		m_assetList.add( "image/pdf");
 	}
+
+	protected Asciidoctor m_asciidoctor = null;
 
 	protected Inflector m_inflector = Inflector.getInstance();
 
@@ -240,6 +248,32 @@ class BaseDocbookServiceImpl {
 		System.out.println("retList:"+retList);
 		return retList;
 	}
+
+	protected synchronized Asciidoctor getAsciidoctor(){
+		if( m_asciidoctor!=null){
+			 return m_asciidoctor;
+		}
+		Bundle adBundle = null;
+		for( Bundle b : m_bc.getBundles()){
+			if( b.toString().startsWith("asciidoctorj")){
+				adBundle=b;
+				break;
+			}
+		}
+		if( adBundle == null) throw new RuntimeException("Asciidoctor not found");
+		OSGiScriptingContainer sc = new OSGiScriptingContainer( m_bc.getBundle());
+		List loadPaths = new ArrayList(sc.getLoadPaths());
+		Enumeration gemPaths = adBundle.findEntries("gems", "lib", true);
+		while (gemPaths != null && gemPaths.hasMoreElements()) {
+			String gemPath = ((java.net.URL)gemPaths.nextElement()).getFile();
+			loadPaths.add(gemPath.substring(1, gemPath.length()-1));
+		}
+		System.out.println("loadPaths:"+loadPaths);
+		sc.setLoadPaths(loadPaths);
+		m_asciidoctor = create(sc.getProvider().getRuntime());
+		return m_asciidoctor;
+	}
+
 	protected void _getAsset(String namespace, String name, String type, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if( !m_assetList.contains( type )){
 			response.setStatus(403);

@@ -45,6 +45,7 @@ import org.ms123.common.utils.UtilsService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.asciidoctor.Asciidoctor;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
@@ -100,6 +101,37 @@ public class DocbookServiceImpl extends BaseDocbookServiceImpl implements Docboo
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DocbookServiceImpl.markdownToHtml:", e);
 		}
 	}
+
+	public String adocToHtml(
+			@PName("adoc")         @POptional String adoc, 
+			@PName("asString")     @POptional @PDefaultBool(true) Boolean asString, 
+			@PName("fileMap")      @POptional Map fileMap, 
+			HttpServletResponse response) throws RpcException {
+		try {
+			if (fileMap != null) {
+				Map map = (Map) fileMap.get("importfile");
+				adoc = readFileToString(new File((String) map.get("storeLocation")));
+			}
+			String html = getAsciidoctor().convert( adoc, new HashMap<String, Object>());
+			System.out.println(html);
+			//adocToHtml(adoc, response.getWriter());
+			if( asString){
+				return html;
+			}else{
+				response.setContentType("text/html;charset=utf-8");
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.getWriter().close();
+			}
+			return null;
+		} catch (Throwable e) {
+			if( e.getCause() != null){
+				e = e.getCause();
+			}
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DocbookServiceImpl.adocToHtml:", e);
+		}
+	}
+
 	public void website(
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("name")         String name, 

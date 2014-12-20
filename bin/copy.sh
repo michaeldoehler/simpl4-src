@@ -80,7 +80,7 @@ mkdir -p ${CLIENTLECACYDIRECTORY}/js
 cp $REPOSITORY/jdt-compiler-3.1.1.jar ${LIBDIRECTORY}
 cp $REPOSITORY/xml-w3c.jar ${LIBDIRECTORY}
 cp $REPOSITORY/org.apache.felix.main-4.4.1.jar ${LIBDIRECTORY}
-cp $REPOSITORY/jcommander-1.31-SNAPSHOT.jar ${LIBDIRECTORY}
+cp $REPOSITORY/jcommander-1.35.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.common.utils-1.0.0.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.launcher-1.0.0.jar ${LIBDIRECTORY}

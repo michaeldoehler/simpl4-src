@@ -308,6 +308,9 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.core-3.0.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.command-2.4.0.jar \
+	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
+	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
+	scan-bundle:file:$REPOSITORY/jruby-complete-1.7.16.1.jar \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \
 	--platform=f \
