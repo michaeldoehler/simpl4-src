@@ -24,6 +24,7 @@ import groovy.text.Template;
 import java.util.*;
 import groovy.lang.*;
 import org.codehaus.groovy.control.*;
+import java.security.MessageDigest;
 
 @groovy.transform.CompileStatic
 public class TemplateEvaluator{
@@ -34,21 +35,35 @@ public class TemplateEvaluator{
 	}
 	public String render(String text,Map params){
 		long starttime= new java.util.Date().getTime();
-		Template temp = m_cache.get(text);
+		String key = getMD5OfUTF8(text);
+		Template temp = m_cache.get(key);
 		if( !temp ){
-			//GStringTemplateEngine engine = new GStringTemplateEngine();
 			SimpleTemplateEngine engine = new SimpleTemplateEngine(m_shell);
 			temp = engine.createTemplate(text);
-			m_cache.put(text,temp);
+			m_cache.put(key,temp);
 		}
 		long time = new java.util.Date().getTime(); System.out.println("groovy.time:" + (time - starttime));
-//		Map m= [:].withDefault{key->
-//			return "("+key+")"
-//		}
 		Map m= [:];
 		m.putAll( params );
 		String ret = temp.make( m ).toString();
 
 		return ret;
+	}
+	private static String getMD5OfUTF8(String text) {
+		try {
+			MessageDigest msgDigest = MessageDigest.getInstance("MD5");
+			byte[] mdbytes = msgDigest.digest(text.getBytes("UTF-8"));
+			StringBuffer hexString = new StringBuffer();
+			for (int i = 0; i < mdbytes.length; i++) {
+				String hex = Integer.toHexString(0xff & mdbytes[i]);
+				if (hex.length() == 1){
+					hexString.append('0');
+				}
+				hexString.append(hex);
+			}
+			return hexString.toString();
+		} catch (Exception ex) {
+			throw new RuntimeException("TemplateEvaluator.getMD5OfUTF8");
+		}
 	}
 }
