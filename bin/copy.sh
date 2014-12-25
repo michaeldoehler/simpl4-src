@@ -70,7 +70,9 @@ export ETCDIRECTORY="$DESTTOPDIR/etc"
 export SERVERDIRECTORY="$DESTTOPDIR/server"
 export CLIENTDIRECTORY="$DESTTOPDIR/client"
 export CLIENTLECACYDIRECTORY="$DESTTOPDIR/client/legacy"
+export SURFACEDIRECTORY="$DESTTOPDIR/client/surface"
 export FROMCLIENT=$SRCTOPDIR/client
+export FROMSURFACE=$SRCTOPDIR/surface
 
 mkdir -p ${LIBDIRECTORY}
 mkdir -p ${BINDIRECTORY}
@@ -140,3 +142,6 @@ cp $FROMCLIENT/legacy/js/openseadragon-all.js.gz $CLIENTLECACYDIRECTORY/js
 cp $FROMCLIENT/legacy/js/pdf-all.js.gz $CLIENTLECACYDIRECTORY/js
 cp $FROMCLIENT/legacy/js/pdf.worker.js.gz $CLIENTLECACYDIRECTORY/js
 cp $FROMCLIENT/legacy/js/vis.min.js.gz $CLIENTLECACYDIRECTORY/js
+
+mkdir -p $SURFACEDIRECTORY/bower_components/fontawesome/fonts/
+cp $FROMSURFACE/elements/bower_components/fontawesome/fonts/fontawesome-webfont.woff $SURFACEDIRECTORY/bower_components/fontawesome/fonts/

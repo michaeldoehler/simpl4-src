@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "core-elements": "Polymer/core-elements#~0.5.2",
-    "paper-elements": "Polymer/paper-elements#~0.5.2"
+    "paper-elements": "Polymer/paper-elements#~0.5.2",
+    "polymer-fontawesome": "code-maverick/polymer-fontawesome#master"
   }
 }
