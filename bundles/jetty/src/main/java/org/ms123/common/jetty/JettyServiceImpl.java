@@ -114,6 +114,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("js.gz", "text/javascript");
 		result.put("css", "text/css");
 		result.put("css.gz", "text/css");
+		result.put("adoc", "text/x-asciidoc");
 		result.put("html", "text/html");
 		result.put("html.gz", "text/html");
 		result.put("gif", "image/gif");
@@ -264,7 +265,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		if( mime == null){
 			throw new RuntimeException("Unknown Filetype");
 		}
-		getAsset(namespace,fileName,mime, request, response);
+		getAsset(namespace,fileName,mime, ext, request, response);
 		return true;
 	}
 
@@ -735,7 +736,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}
 	}
 
-	private void getAsset(String namespace, String name, String type, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	private void getAsset(String namespace, String name, String type, String ext, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		File asset=null;
 		String contentType = type;
 		try{
@@ -762,18 +763,23 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.setStatus(304);
 			return;
 		}else{
-			response.setContentType( contentType );
-			response.setContentLength( (int)asset.length() );
-
 			if( name.endsWith(".gz")){
 				response.setHeader("Content-Encoding","gzip");
 			}
-
 			response.setDateHeader("Last-Modified", modTime + 10000 );
 			response.setStatus(HttpServletResponse.SC_OK);
-			OutputStream os = response.getOutputStream();
-			IOUtils.copy( new FileInputStream(asset), os );
-			os.close();
+			if( "adoc".equals(ext)){
+				response.setContentType( "text/html" );
+				Writer w  = response.getWriter();
+				m_docbookService.adocToHtml(asset, w );
+				w.close();
+			}else{
+				response.setContentType( contentType );
+				response.setContentLength( (int)asset.length() );
+				OutputStream os = response.getOutputStream();
+				IOUtils.copy( new FileInputStream(asset), os );
+				os.close();
+			}
 		}
 	}
 

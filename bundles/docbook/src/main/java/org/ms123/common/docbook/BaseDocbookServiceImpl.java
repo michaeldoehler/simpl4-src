@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.Writer;
 import java.io.Reader;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.File;
 import java.io.OutputStreamWriter;
@@ -247,6 +248,9 @@ class BaseDocbookServiceImpl {
 		}
 		System.out.println("retList:"+retList);
 		return retList;
+	}
+	public void adocToHtml( File adocFile, Writer w) throws Exception {
+		getAsciidoctor().convert( new FileReader(adocFile), w, new HashMap<String, Object>());
 	}
 
 	protected synchronized Asciidoctor getAsciidoctor(){

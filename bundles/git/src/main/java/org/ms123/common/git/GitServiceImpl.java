@@ -1108,7 +1108,9 @@ public class GitServiceImpl implements GitService {
 			return "sw.directory";
 		}else if( file.toString().endsWith(".js") || file.toString().endsWith(".js.gz")){
 			return "text/javascript";
-		}else if( file.toString().endsWith(".html")){
+		}else if( file.toString().endsWith(".adoc") || file.toString().endsWith(".adoc.gz")){
+			return "text/x-asciidoc";
+		}else if( file.toString().endsWith(".html") || file.toString().endsWith(".html.gz")){
 			return "text/html";
 		}else if( file.toString().endsWith(".css") || file.toString().endsWith(".css.gz")){
 			return "text/css";
