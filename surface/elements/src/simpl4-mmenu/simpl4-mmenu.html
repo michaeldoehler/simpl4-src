@@ -3,19 +3,19 @@
 <polymer-element name="simpl4-mmenu" attributes="searchfield slidingSubmenus pages selected selectedModel" flex relative>
 <template>
   <link rel="stylesheet" type="text/css" href="simpl4-mmenu.css" />
-  <nav id="mainmenu">
+  <nav class="nav" id="mainmenu">
     <ul>
-      <template repeat="{{node in nodes }}" id="t">
+      <template repeat="{{node in nodes  }}" id="t">
         <template if="{{ node.children==null || node.children.length==0 }}">
-          <li>
-            <a onclick="return false" href="#"><font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
+          <li class="{{ level==-1 ? 'firstLevel' : ''}}">
+            <a  onclick="return false" href="#"><font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
           </li>
         </template>
         <template if="{{ node.children && node.children.length>0 }}">
-          <li>
+          <li class="{{ level==-1 ? 'firstLevel' : ''}}">
             <a onclick="return false" href="#"><font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
             <ul>
-              <template ref="t" repeat="{{node in node.children}}"></template>
+              <template ref="t" repeat="{{node,level in node.children}}"></template>
             </ul>
           </li>
         </template>
@@ -26,36 +26,48 @@
 </template>
   <script>
 			Polymer('simpl4-mmenu', {
+				level:-1,
 				ready: function () {
 					console.log("Ready:"+this.slidingSubmenusd);
 					$(this.$.mainmenu).mmenu({
-						classes: "mm-light mm-zoom-panels",
+						classes: "mm-white mm-zoom-panels",
 						slidingSubmenus: this.slidingSubmenus == "true",
 						searchfield: this.searchfield != "false",
 						body: $(this.$.mainmenu),
 						offCanvas: false
 
 					});
-					console.log("Ready2");
+					console.log("Ready2:"+this.selected);
 					Polymer.addEventListener(this.$.mainmenu, "tap", this.activateListener.bind(this));
+					
+					if( this.selected){
+						var node = this.getNodeByHash( this.selected);
+						if( node){
+							this.selectedModel = {node:node};
+							this.fire("mmenu-selected", {isSelected:true,model:this.selectedModel } );
+						}
+					}
+				},
+				getNodeByHash:function(hash){
+					for( var i=0; i < this.pages.length;i++){
+						if( this.pages[i].hash == hash){
+							return this.pages[i];
+						}
+					}
 				},
 				activateListener:function(e){
-					console.debug("activateListener:",e.srcElement);
-					if( e.srcElement["className"]=="mm-subopen"){
+					if( e.target["className"]=="mm-subopen"){
 						return;
 					}
-					var m = e.target.templateInstance.model;
-					var n = e.target.templateInstance.model.node;
-					//console.log("E:"+JSON.stringify(n,null,2));
-					console.dir(e.target.templateInstance.model);
+					var model = e.target.templateInstance.model;
+					if( !model.node) return;
+					var node = model.node;
 					if( this.selectedModel){
 						this.fire("mmenu-selected", {isSelected:false,model:this.selectedModel } );
 					}
-					this.selectedModel = e.target.templateInstance.model;
+					this.selectedModel = model;
 					this.fire("mmenu-selected", {isSelected:true,model:this.selectedModel } );
-console.debug("Selected:"+this.selected);
-					this.selected = n.hash;
-console.debug("Hash:"+n.hash);
+					this.selected = node.hash;
 				},
 
 				created: function () {
@@ -63,6 +75,7 @@ console.debug("Hash:"+n.hash);
 					this.nodes = [{
 						"name": "Croatia",
 						"icon": "fax",
+							"url": "test3.adoc",
 						"hash": "0"
 					},
 					{
@@ -77,7 +90,7 @@ console.debug("Hash:"+n.hash);
 						},
 						{
 							"name": "Manchester United",
-							"url": "test.adoc",
+							"url": "test2.adoc",
 							"icon": "key",
 							"hash": "0-2"
 						}]

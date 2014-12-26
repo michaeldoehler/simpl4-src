@@ -4,6 +4,9 @@
 /*
 	jQuery.mmenu panels CSS
 */
+li.firstLevel{
+	border-top:1px solid grey;
+}
 .mm-menu.mm-horizontal > .mm-panel {
   -webkit-transition: -webkit-transform 0.4s ease;
   transition: transform 0.4s ease; }
@@ -98,7 +101,7 @@
       margin: 0; }
   .mm-list > li:not(.mm-subtitle):not(.mm-label):not(.mm-search):not(.mm-noresults):after {
     content: '';
-    border-bottom-width: 1px;
+    border-bottom-width: 0px;
     border-bottom-style: solid;
     display: block;
     width: 100%;
@@ -121,7 +124,7 @@
     z-index: 2; }
     .mm-list a.mm-subopen:before {
       content: '';
-      border-left-width: 1px;
+      border-left-width: 0px;
       border-left-style: solid;
       display: block;
       height: 100%;
@@ -1139,7 +1142,7 @@ html.mm-opened.mm-white .mm-page {
     background: rgba(0, 0, 0, 0.03); }
   .mm-menu.mm-white.mm-vertical .mm-list li.mm-opened > a.mm-subopen,
   .mm-menu.mm-white.mm-vertical .mm-list li.mm-opened > ul {
-    background: rgba(0, 0, 0, 0.03); }
+    xackground: rgba(0, 0, 0, 0.03); }
 
 .mm-menu.mm-white .mm-buttonbar {
   border-color: rgba(0, 0, 0, 0.6);
