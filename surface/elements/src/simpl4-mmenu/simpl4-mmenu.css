@@ -5,7 +5,7 @@
 	jQuery.mmenu panels CSS
 */
 li.firstLevel{
-	border-top:1px solid grey;
+	border-top:1px solid #e6e6e6;
 }
 .mm-menu.mm-horizontal > .mm-panel {
   -webkit-transition: -webkit-transform 0.4s ease;
