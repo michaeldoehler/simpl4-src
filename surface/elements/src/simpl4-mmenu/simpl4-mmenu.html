@@ -78,6 +78,10 @@
 					this.selectedModel = {
 						node: node
 					};
+					this.fire("mmenu-selected", {
+						isSelected: true,
+						model: this.selectedModel
+					});
 				}
 			}
 			this.openMenuByHash(this.$.mainmenu, this.selected);
