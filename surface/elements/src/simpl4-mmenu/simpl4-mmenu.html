@@ -1,187 +1,181 @@
 <link rel="import" href="mmenu-import.html">
 
-<polymer-element name="simpl4-mmenu" attributes="searchfield slidingSubmenus pages selected selectedModel" flex relative>
-<template>
-  <link rel="stylesheet" type="text/css" href="simpl4-mmenu.css" />
-  <nav class="nav" id="mainmenu">
-    <ul>
-      <template repeat="{{node in nodes  }}" id="t">
-        <template if="{{ node.children==null || node.children.length==0 }}">
-          <li class="{{ level==-1 ? 'firstLevel' : ''}}"  id="X{{node.hash}}">
-            <a  onclick="return false" href="#"><font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
-          </li>
-        </template>
-        <template if="{{ node.children && node.children.length>0 }}">
-          <li class="{{ level==-1 ? 'firstLevel' : ''}}"  id="X{{node.hash}}">
-            <a onclick="return false" href="#"><font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
-            <ul>
-              <template ref="t" repeat="{{node,level in node.children}}"></template>
-            </ul>
-          </li>
-        </template>
-      </template>
-    </ul>
-  </nav>
-  <content></content>
-</template>
-  <script>
-	Polymer('simpl4-mmenu', {
-		level: -1,
-		ready: function () {
-			console.log("Ready:" + this.slidingSubmenusd);
-			$(this.$.mainmenu).mmenu({
-				classes: "mm-white mm-zoom-panels",
-				slidingSubmenus: this.slidingSubmenus == "true",
-				searchfield: this.searchfield != "false",
-				body: $(this.$.mainmenu),
-				offCanvas: false
+<polymer-element name="simpl4-mmenu" attributes="searchfield slidingSubmenus pages" flex relative>
+	<template>
+		<link rel="stylesheet" type="text/css" href="simpl4-mmenu.css" />
+		<nav class="nav" id="mainmenu">
+			<ul>
+				<template repeat="{{node in nodes  }}" id="t">
+					<template if="{{ node.children==null || node.children.length==0 }}">
+						<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+							<a onclick="return false" href="#">
+								<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
+						</li>
+					</template>
+					<template if="{{ node.children && node.children.length>0 }}">
+						<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+							<a onclick="return false" href="#">
+								<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
+							<ul>
+								<template ref="t" repeat="{{node,level in node.children}}"></template>
+							</ul>
+						</li>
+					</template>
+				</template>
+			</ul>
+		</nav>
+		<content></content>
+	</template>
+	<script>
+		Polymer('simpl4-mmenu', {
+			level: -1,
+			ready: function() {
+				console.log("Ready:" + this.slidingSubmenusd);
+				$(this.$.mainmenu).mmenu({
+					classes: "mm-white mm-zoom-panels",
+					slidingSubmenus: this.slidingSubmenus == "true",
+					searchfield: this.searchfield != "false",
+					body: $(this.$.mainmenu),
+					offCanvas: false
 
-			});
-			console.log("Ready2:" + this.selected);
-			Polymer.addEventListener(this.$.mainmenu, "tap", this.activateListener.bind(this));
+				});
+				console.log("Ready2:" + this.selected);
+				//				Polymer.addEventListener(this.$.mainmenu, "tap", this.activateListener.bind(this));
 
-			if (this.selected) {
-				var node = this.getNodeByHash(this.selected);
-				if (node) {
-					this.selectedModel = {
-						node: node
-					};
+				//jQuery("a", this.$.mainmenu).on("tap", this.activateListener.bind(this));
+
+				/*if (this.selected) {
+					var node = this.getNodeByHash(this.selected);
+					if (node) {
+						this.selectedModel = {
+							node: node
+						};
+						this.fire("mmenu-selected", {
+							isSelected: true,
+							model: this.selectedModel
+						});
+					}
+				}*/
+			},
+			getNodeByHash: function(hash) {
+				for (var i = 0; i < this.pages.length; i++) {
+					if (this.pages[i].hash == hash) {
+						return this.pages[i];
+					}
+				}
+			},
+			openMenuByHash: function(mainelem, hash) {
+				var li = $(mainelem.querySelector('#X' + hash));
+				var pli = li.parents("li");
+				pli.each(function() {
+					if (!$(this).hasClass("mm-opened")) {
+						$(this).find("a").first().trigger("click");
+					}
+				})
+				li.trigger("setSelected", true);
+			},
+			xselectedChanged: function(e) {
+				console.log("selectedChanged:" + this.selected + "/" + this.selectedModel.node.hash);
+				if (this.selected != this.selectedModel.node.hash) {
+					var node = this.getNodeByHash(this.selected);
+					if (node) {
+						this.selectedModel = {
+							node: node
+						};
+						this.fire("mmenu-selected", {
+							isSelected: true,
+							model: this.selectedModel
+						});
+					}
+				}
+				this.openMenuByHash(this.$.mainmenu, this.selected);
+			},
+			activateListener: function(e) {
+				if (e.target["className"] == "mm-subopen") {
+					return;
+				}
+				var model = e.target.templateInstance.model;
+				if (!model.node) return;
+				var node = model.node;
+				if (this.selectedModel) {
 					this.fire("mmenu-selected", {
-						isSelected: true,
+						isSelected: false,
 						model: this.selectedModel
 					});
 				}
-			}
-		},
-		getNodeByHash: function (hash) {
-			for (var i = 0; i < this.pages.length; i++) {
-				if (this.pages[i].hash == hash) {
-					return this.pages[i];
-				}
-			}
-		},
-		openMenuByHash: function (mainelem, hash) {
-			var li = $(mainelem.querySelector('#X' + hash));
-			var pli = li.parents("li");
-			pli.each(function () {
-				if (!$(this).hasClass("mm-opened")) {
-					$(this).find("a").first().trigger("click");
-				}
-			})
-			li.trigger("setSelected", true);
-		},
-		selectedChanged: function (e) {
-			console.log("selectedChanged:" + this.selected+"/"+this.selectedModel.node.hash);
-			if( this.selected != this.selectedModel.node.hash){
-				var node = this.getNodeByHash(this.selected);
-				if (node) {
-					this.selectedModel = {
-						node: node
-					};
-					this.fire("mmenu-selected", {
-						isSelected: true,
-						model: this.selectedModel
-					});
-				}
-			}
-			this.openMenuByHash(this.$.mainmenu, this.selected);
-		},
-		activateListener: function (e) {
-			if (e.target["className"] == "mm-subopen") {
-				return;
-			}
-			var model = e.target.templateInstance.model;
-			if (!model.node) return;
-			var node = model.node;
-			if (this.selectedModel) {
+				this.selectedModel = model;
 				this.fire("mmenu-selected", {
-					isSelected: false,
+					isSelected: true,
 					model: this.selectedModel
 				});
-			}
-			this.selectedModel = model;
-			this.fire("mmenu-selected", {
-				isSelected: true,
-				model: this.selectedModel
-			});
-			this.selected = node.hash;
-			console.log("activateListener:" + node.hash);
-		},
+				this.selected = node.hash;
+				console.log("activateListener:" + node.hash);
+			},
 
-		created: function () {
-			console.log("created");
-			this.nodes = [{
-				"name": "Croatia",
-				"icon": "fax",
-				"url": "test3.adoc",
-				"hash": "0"
+			created: function() {
+				console.log("created");
+				this.nodes = [{
+					"name": "Croatia",
+					"icon": "fax",
+					"url": "test3.adoc",
+					"hash": "0"
+				}, {
+					"name": "England",
+					"hash": "1",
+					"icon": "home",
+					"children": [{
+						"name": "Arsenal",
+						"url": "test.adoc",
+						"icon": "gift",
+						"hash": "0-0"
+					}, {
+						"name": "Manchester United",
+						"url": "test2.adoc",
+						"icon": "key",
+						"hash": "0-2"
+					}]
+				}, {
+					"name": "Spain",
+					"hash": "2",
+					"icon": "inbox",
+					"children": [{
+						"name": "Barcelona",
+						"icon": "plug",
+						"hash": "2-0"
+					}, {
+						"name": "Real Madrid",
+						"icon": "mobile",
+						"hash": "2-1"
+					}]
+				}, {
+					"name": "Germany",
+					"hash": "3",
+					"icon": "globe",
+					"children": [{
+						"name": "Bayern Munich",
+						"icon": "plus",
+						"hash": "3-1"
+					}, {
+						"name": "Borrusia Dortmund",
+						"icon": "minus",
+						"hash": "3-2"
+					}]
+				}];
+				this.pages = [];
+				this._traverse(this.nodes);
 			},
-			{
-				"name": "England",
-				"hash": "1",
-				"icon": "home",
-				"children": [{
-					"name": "Arsenal",
-					"url": "test.adoc",
-					"icon": "gift",
-					"hash": "0-0"
-				},
-				{
-					"name": "Manchester United",
-					"url": "test2.adoc",
-					"icon": "key",
-					"hash": "0-2"
-				}]
-			},
-			{
-				"name": "Spain",
-				"hash": "2",
-				"icon": "inbox",
-				"children": [{
-					"name": "Barcelona",
-					"icon": "plug",
-					"hash": "2-0"
-				},
-				{
-					"name": "Real Madrid",
-					"icon": "mobile",
-					"hash": "2-1"
-				}]
-			},
-			{
-				"name": "Germany",
-				"hash": "3",
-				"icon": "globe",
-				"children": [{
-					"name": "Bayern Munich",
-					"icon": "plus",
-					"hash": "3-1"
-				},
-				{
-					"name": "Borrusia Dortmund",
-					"icon": "minus",
-					"hash": "3-2"
-				}]
-			}];
-			this.pages = [];
-			this._traverse(this.nodes);
-		},
-		_traverse: function (nodes) {
-			for (var i = 0; i < nodes.length; i++) {
-				var node = nodes[i];
-				if (node.children && node.children.length > 0) {
-					this.pages.push(node);
-					this._traverse(node.children);
-				} else {
-					var page = {
-						name: node.name,
-						url: node.url,
-						hash: node.hash
+			_traverse: function(nodes) {
+				for (var i = 0; i < nodes.length; i++) {
+					var node = nodes[i];
+					//					node.hash = node.url;
+					if (node.children && node.children.length > 0) {
+						this.pages.push(node);
+						this._traverse(node.children);
+					} else {
+						this.pages.push(node);
 					}
-					this.pages.push(node);
 				}
 			}
-		}
-	});
-  </script>
+		});
+	</script>
 </polymer-element>

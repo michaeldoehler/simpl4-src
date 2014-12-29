@@ -1,0 +1,97 @@
+<polymer-element name="simpl4-dispatcher" attributes="selected selectedModel pages" flex relative>
+	<template>
+		<style shim-shadowdom>
+			div {
+				width: 100%;
+				height: 100%;
+				display: block;
+			}
+		</style>
+		<div id="main" />
+		<content></content>
+	</template>
+	<script>
+		Polymer('simpl4-dispatcher', {
+			ready: function() {
+				console.log("dispatcher.Ready:" + this.selected);
+				if (this.selected) {
+					var node = this.getNodeByHash(this.selected);
+					if (node) {
+						this.selectedModel = {
+							node: node
+						};
+						this.fire("mmenu-selected", {
+							isSelected: true,
+							model: this.selectedModel
+						});
+					}
+				}
+			},
+			domReady: function() {
+				console.log("dispatcher.DomReady:" + this.selected);
+				var allA = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot.querySelector("a");
+				this.mainElement = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot;
+				Polymer.addEventListener(this.mainElement, "tap", this.activateListener.bind(this));
+				if (this.selected) {
+					this.openMenuByHash(this.mainElement, this.selected);
+				}
+			},
+			getNodeByHash: function(hash) {
+				for (var i = 0; i < this.pages.length; i++) {
+					if (this.pages[i].hash == hash) {
+						return this.pages[i];
+					}
+				}
+			},
+			openMenuByHash: function(mainelem, hash) {
+				if (mainelem == null) return;
+				var li = $(mainelem.querySelector('#X' + hash));
+				var pli = li.parents("li");
+				pli.each(function() {
+					if (!$(this).hasClass("mm-opened")) {
+						$(this).find("a").first().trigger("click");
+					}
+				})
+				li.trigger("setSelected", true);
+			},
+			selectedChanged: function(e) {
+				console.log("selectedChanged:" + this.selectedModel);
+				if (this.selected != this.selectedModel.node.hash) {
+					var node = this.getNodeByHash(this.selected);
+					if (node) {
+						this.selectedModel = {
+							node: node
+						};
+						this.fire("mmenu-selected", {
+							isSelected: true,
+							model: this.selectedModel
+						});
+					}
+				}
+				this.openMenuByHash(this.mainElement, this.selected);
+			},
+			activateListener: function(e) {
+				console.log("Dispatcher.activateListener");
+				if (e.target["className"] == "mm-subopen") {
+					return;
+				}
+				var model = e.target.templateInstance.model;
+				if (!model.node) return;
+				var node = model.node;
+				if (this.selectedModel) {
+					this.fire("mmenu-selected", {
+						isSelected: false,
+						model: this.selectedModel
+					});
+				}
+				this.selectedModel = model;
+				this.fire("mmenu-selected", {
+					isSelected: true,
+					model: this.selectedModel
+				});
+				this.selected = node.hash;
+				console.log("activateListener:" + node.hash);
+			}
+		});
+	</script>
+</polymer-element>
