@@ -150,7 +150,6 @@
 			template.onResponse = function(e, detail, sender) {
 				var article = detail.response.body;
 
-				console.log("Route:" + this.route + "/" + pages.selectedItem);
 				// Fix up image paths to not be local.
 				[].forEach.call(article.querySelectorAll('img'), function(img) {
 					img.setAttribute('src', img.src);

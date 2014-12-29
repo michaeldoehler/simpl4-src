@@ -29,12 +29,39 @@
 			},
 			domReady: function() {
 				console.log("dispatcher.DomReady:" + this.selected);
-				var allA = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot.querySelector("a");
-				this.mainElement = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot;
-				Polymer.addEventListener(this.mainElement, "tap", this.activateListener.bind(this));
-				if (this.selected) {
-					this.openMenuByHash(this.mainElement, this.selected);
+				var aList = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot.querySelectorAll("a");
+				for( var i=0; i< aList.length;i++){
+					var a = aList[i];
+					if (a["className"] != "mm-subopen") {
+						Polymer.addEventListener(a, "tap", this.activateListener.bind(this));
+					}
 				}
+				this.mainMenuElement = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot;
+				if (this.selected) {
+					this.openMenuByHash(this.mainMenuElement, this.selected);
+				}
+			},
+			activateListener: function(e) {
+				console.log("Dispatcher.activateListener");
+				if (e.target["className"] == "mm-subopen") {
+					return;
+				}
+				var model = e.target.templateInstance.model;
+				if (!model.node) return;
+				var node = model.node;
+				if (this.selectedModel) {
+					this.fire("mmenu-selected", {
+						isSelected: false,
+						model: this.selectedModel
+					});
+				}
+				this.selectedModel = model;
+				this.fire("mmenu-selected", {
+					isSelected: true,
+					model: this.selectedModel
+				});
+				this.selected = node.hash;
+				console.log("activateListener:" + node.hash);
 			},
 			getNodeByHash: function(hash) {
 				for (var i = 0; i < this.pages.length; i++) {
@@ -68,29 +95,7 @@
 						});
 					}
 				}
-				this.openMenuByHash(this.mainElement, this.selected);
-			},
-			activateListener: function(e) {
-				console.log("Dispatcher.activateListener");
-				if (e.target["className"] == "mm-subopen") {
-					return;
-				}
-				var model = e.target.templateInstance.model;
-				if (!model.node) return;
-				var node = model.node;
-				if (this.selectedModel) {
-					this.fire("mmenu-selected", {
-						isSelected: false,
-						model: this.selectedModel
-					});
-				}
-				this.selectedModel = model;
-				this.fire("mmenu-selected", {
-					isSelected: true,
-					model: this.selectedModel
-				});
-				this.selected = node.hash;
-				console.log("activateListener:" + node.hash);
+				this.openMenuByHash(this.mainMenuElement, this.selected);
 			}
 		});
 	</script>

@@ -1,0 +1,95 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<!--
+The `simpl4-globals` element provides support for storing global settings and lookups.
+    <simpl4-globals id="globals"></simpl4-globals>
+-->
+
+<link rel="import" href="utils-import.html">
+<polymer-element name="simpl4-globals" hidden>
+	<template>
+		<simpl4-rpc id="axRoles" service="auth" method="getUsers" params="{'a':2}"  handleas="json" ></simpl4-rpc>
+		<simpl4-rpc id="axActions" service="auth" method="getUsers"  handleas="json" ></simpl4-rpc>
+
+	</template>
+	<script>
+		(function() {
+			/**
+			 * Global object storing application-wide configration settings.
+			 *
+			 */
+			var config = {
+				//Add additional admin roles here
+				adminRoles: ['Administrators'],
+				//base Simpl4 service URL
+				baseUrl: "http://api.simpl4.com",
+				//Simpl4 version
+				version: "beta",
+				//Simpl4 application
+				application: "WebComponents",
+				//cache expiration time for lookup storage in seconds
+				cacheExpiration: 7200
+			};
+			Polymer('simpl4-globals', {
+				ready: function() {
+					this.config = config;
+				},
+				get baasicUser() {
+					var toReturn = Simpl4.Cache.getItem('baasicUser') || {};
+					return toReturn;
+				},
+				get roles() {
+					return this.getFromCache(this.$.axRoles, 'baasicRoles', 'item');
+				},
+				get actions() {
+					return this.getFromCache(this.$.axActions, 'baasicActions', 'accessAction');
+				},
+				getFromCache: function(ajax, cacheKey, collectionKey) {
+					var _this = this;
+					return new Promise(function(resolve, reject) {
+						if (!Simpl4.Cache.getItem(cacheKey)) {
+							ajax.request().then(function(response) {
+								Simpl4.Cache.setItem(cacheKey, response.response[collectionKey], {
+									expirationAbsolute: new Date(new Date().getTime() + (_this.config.cacheExpiration * 1000)),
+									expirationSliding: null,
+									priority: Cache.Priority.HIGH,
+									callback: null
+								});
+								resolve({
+									data: response.response[collectionKey]
+								});
+							}, function(error) {
+								reject({
+									data: null
+								});
+							}.bind(_this));
+						} else {
+							resolve({
+								data: Simpl4.Cache.getItem(cacheKey)
+							});
+						}
+					});
+				}
+			});
+		})();
+	</script>
+</polymer-element>

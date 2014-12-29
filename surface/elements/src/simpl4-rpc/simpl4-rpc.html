@@ -1,0 +1,262 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<polymer-element name="simpl4-rpc" hidden attributes="handleAs params response error service method loading">
+	<script>
+		Polymer('simpl4-rpc', {
+			/**
+			 * Fired when a response is received.
+			 *
+			 * @event rpc-response
+			 */
+
+			/**
+			 * Fired when an error is received.
+			 *
+			 * @event rpc-error
+			 */
+
+			/**
+			 * Fired whenever a response or an error is received.
+			 *
+			 * @event rpc-complete
+			 */
+
+			/**
+			 * Specifies what data to store in the response property, and
+			 * to deliver as event.response in response events.
+			 * One of:
+			 *    'text': uses 'XHR.responseText'.
+			 *    'xml': uses 'XHR.responseXML'.
+			 *    'json': uses 'XHR.responseText' parsed as JSON.
+			 *    'arraybuffer': uses 'XHR.response'.
+			 *    'blob': uses 'XHR.response'.
+			 *    'document': uses 'XHR.response'.
+			 *
+			 * @attribute handleAs
+			 * @type string
+			 * @default 'json'
+			 */
+			handleAs: 'json',
+
+			/**
+			 * Parameters to send to the specified URL, as JSON.
+			 *
+			 * @attribute params
+			 * @type string (JSON)
+			 * @default ''
+			 */
+			params: null,
+
+			/**
+			 * The response for the current request, or null if it hasn't
+			 * completed yet or the request resulted in error.
+			 *
+			 * @attribute response
+			 * @type Object
+			 * @default null
+			 */
+			response: null,
+
+			/**
+			 * The error for the current request, or null if it hasn't
+			 * completed yet or the request resulted in success.
+			 *
+			 * @attribute error
+			 * @type Object
+			 * @default null
+			 */
+			error: null,
+
+			/**
+			 * Whether the current request is currently loading.
+			 *
+			 * @attribute loading
+			 * @type boolean
+			 * @default false
+			 */
+			loading: false,
+
+			service: '',
+
+			method: '',
+
+			ready: function() {
+				this.xhr = document.createElement('core-xhr');
+			},
+
+			receive: function(response, xhr) {
+				if (this.isSuccess(xhr)) {
+					this.processResponse(xhr);
+				} else {
+					this.processError(xhr);
+				}
+				this.complete(xhr);
+			},
+
+			isSuccess: function(xhr) {
+				var status = xhr.status || 0;
+				return !status || (status >= 200 && status < 300);
+			},
+
+			processResponse: function(xhr) {
+				var response = this.evalResponse(xhr);
+				if (xhr === this.activeRequest) {
+					this.response = response;
+				}
+				this.fire('rpc-response', {
+					response: response,
+					xhr: xhr
+				});
+			},
+
+			processError: function(xhr) {
+				var response = xhr.status + ': ' + xhr.responseText;
+				if (xhr === this.activeRequest) {
+					this.error = response;
+				}
+				this.fire('rpc-error', {
+					response: response,
+					xhr: xhr
+				});
+			},
+
+
+			complete: function(xhr) {
+				if (xhr === this.activeRequest) {
+					this.loading = false;
+				}
+				this.fire('rpc-complete', {
+					response: xhr.status,
+					xhr: xhr
+				});
+			},
+
+			evalResponse: function(xhr) {
+				return this[(this.handleAs || 'text') + 'Handler'](xhr);
+			},
+
+			xmlHandler: function(xhr) {
+				return xhr.responseXML;
+			},
+
+			textHandler: function(xhr) {
+				return xhr.responseText;
+			},
+
+			jsonHandler: function(xhr) {
+				var r = xhr.responseText;
+				try {
+					return JSON.parse(r);
+				} catch (x) {
+					console.warn('core-ajax caught an exception trying to parse response as JSON:');
+					console.warn('url:', this.url);
+					console.warn(x);
+					return r;
+				}
+			},
+
+			documentHandler: function(xhr) {
+				return xhr.response;
+			},
+
+			blobHandler: function(xhr) {
+				return xhr.response;
+			},
+
+			arraybufferHandler: function(xhr) {
+				return xhr.response;
+			},
+
+			/**
+			 * Performs an Ajax request to the specified URL.
+			 *
+			 * @method go
+			 */
+			go: function() {
+				console.log("GO");
+				try {
+					var args = {};
+					var params = this.params||"{}";
+					if (params && typeof(params) == 'string') {
+						params = JSON.parse(params);
+					}
+					args.body = JSON.stringify({
+						"service": this.service,
+						"method": this.method,
+						"params": params
+					});
+					var namespace = params.namespace || 'xyz';
+					args.params = null;
+					console.log("RPC.Body:" + args.body);
+					var username = "admin";
+					var password = "admin";
+					args.headers = {};
+					args.headers['Authorization'] = 'Basic ' + btoa(username + ":" + password)
+					args.headers['Content-Type'] = 'application/json; charset=utf-8';
+					if (this.handleAs === 'arraybuffer' || this.handleAs === 'blob' || this.handleAs === 'document') {
+						args.responseType = this.handleAs;
+					}
+					args.callback = this.receive.bind(this);
+					args.url = "/rpc/" + namespace + "/" + this.service;
+					args.method = 'POST';
+					this.response = this.error = null;
+					this.activeRequest = args.url && this.xhr.request(args);
+					if (this.activeRequest) {
+						this.loading = true;
+						var activeRequest = this.activeRequest;
+					}
+					return this.activeRequest;
+				} catch (e) {
+					console.error(e);
+					console.log(e.stack);
+				}
+			},
+			request: function() {
+				var self = this;
+				return new Promise(function(resolve, reject) {
+					var xhr = self.go();
+					xhr.onload = function() {
+						if (self.isSuccess(xhr)) {
+							var response = self.evalResponse(xhr);
+							console.debug("RPC("+service+","+method+").response:",response);
+							resolve({
+								response: response,
+								xhr: xhr
+							});
+						} else {
+							var response = xhr.status + ': ' + xhr.responseText;
+							reject({
+								response: Error(response),
+								xhr: xhr
+							});
+						}
+					};
+					// Handle network errors
+					xhr.onerror = function() {
+						reject(Error("Network Error"));
+					};
+				});
+			}
+
+		});
+	</script>
+</polymer-element>

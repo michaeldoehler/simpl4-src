@@ -8,7 +8,7 @@
 				<template repeat="{{node in nodes  }}" id="t">
 					<template if="{{ node.children==null || node.children.length==0 }}">
 						<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-							<a onclick="return false" href="#">
+							<a onclick="return false" href="{{node.url}}">
 								<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name}}</a>
 						</li>
 					</template>
@@ -30,7 +30,7 @@
 		Polymer('simpl4-mmenu', {
 			level: -1,
 			ready: function() {
-				console.log("Ready:" + this.slidingSubmenusd);
+				console.log("MMenu.Ready");
 				$(this.$.mainmenu).mmenu({
 					classes: "mm-white mm-zoom-panels",
 					slidingSubmenus: this.slidingSubmenus == "true",
@@ -39,79 +39,7 @@
 					offCanvas: false
 
 				});
-				console.log("Ready2:" + this.selected);
-				//				Polymer.addEventListener(this.$.mainmenu, "tap", this.activateListener.bind(this));
-
-				//jQuery("a", this.$.mainmenu).on("tap", this.activateListener.bind(this));
-
-				/*if (this.selected) {
-					var node = this.getNodeByHash(this.selected);
-					if (node) {
-						this.selectedModel = {
-							node: node
-						};
-						this.fire("mmenu-selected", {
-							isSelected: true,
-							model: this.selectedModel
-						});
-					}
-				}*/
 			},
-			getNodeByHash: function(hash) {
-				for (var i = 0; i < this.pages.length; i++) {
-					if (this.pages[i].hash == hash) {
-						return this.pages[i];
-					}
-				}
-			},
-			openMenuByHash: function(mainelem, hash) {
-				var li = $(mainelem.querySelector('#X' + hash));
-				var pli = li.parents("li");
-				pli.each(function() {
-					if (!$(this).hasClass("mm-opened")) {
-						$(this).find("a").first().trigger("click");
-					}
-				})
-				li.trigger("setSelected", true);
-			},
-			xselectedChanged: function(e) {
-				console.log("selectedChanged:" + this.selected + "/" + this.selectedModel.node.hash);
-				if (this.selected != this.selectedModel.node.hash) {
-					var node = this.getNodeByHash(this.selected);
-					if (node) {
-						this.selectedModel = {
-							node: node
-						};
-						this.fire("mmenu-selected", {
-							isSelected: true,
-							model: this.selectedModel
-						});
-					}
-				}
-				this.openMenuByHash(this.$.mainmenu, this.selected);
-			},
-			activateListener: function(e) {
-				if (e.target["className"] == "mm-subopen") {
-					return;
-				}
-				var model = e.target.templateInstance.model;
-				if (!model.node) return;
-				var node = model.node;
-				if (this.selectedModel) {
-					this.fire("mmenu-selected", {
-						isSelected: false,
-						model: this.selectedModel
-					});
-				}
-				this.selectedModel = model;
-				this.fire("mmenu-selected", {
-					isSelected: true,
-					model: this.selectedModel
-				});
-				this.selected = node.hash;
-				console.log("activateListener:" + node.hash);
-			},
-
 			created: function() {
 				console.log("created");
 				this.nodes = [{
