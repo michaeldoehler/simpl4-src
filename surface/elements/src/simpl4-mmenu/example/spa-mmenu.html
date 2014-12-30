@@ -48,8 +48,10 @@
 
 <body unresolved fullbleed>
 
+	<simpl4-globals id="globals"></simpl4-globals>
 	<template is="auto-binding" id="t">
 		<simpl4-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}">
+
 			<!-- Route controller. -->
 			<flatiron-director route="{{route}}" autoHash></flatiron-director>
 
@@ -91,6 +93,15 @@
 	</template>
 
 	<script>
+		window.addEventListener('polymer-ready', function(e) {
+			this.globals = document.querySelector("#globals");
+			this.globals.actions.then(function(d) {
+				console.log("Globals:", d);
+			}, function(err){
+				console.error("Error:", err);
+			});
+		});
+
 		(function() {
 			"use strict";
 
@@ -150,6 +161,7 @@
 			template.onResponse = function(e, detail, sender) {
 				var article = detail.response.body;
 
+				console.log("Route:" + this.route + "/" + pages.selectedItem);
 				// Fix up image paths to not be local.
 				[].forEach.call(article.querySelectorAll('img'), function(img) {
 					img.setAttribute('src', img.src);

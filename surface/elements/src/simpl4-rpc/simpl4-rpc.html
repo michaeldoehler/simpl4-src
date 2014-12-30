@@ -19,7 +19,7 @@
  */
 -->
 
-<polymer-element name="simpl4-rpc" hidden attributes="handleAs params response error service method loading">
+<polymer-element name="simpl4-rpc" hidden attributes="handleAs params sync response error service method loading">
 	<script>
 		Polymer('simpl4-rpc', {
 			/**
@@ -94,6 +94,7 @@
 			 * @default false
 			 */
 			loading: false,
+			sync: false,
 
 			service: '',
 
@@ -193,41 +194,41 @@
 			 */
 			go: function() {
 				console.log("GO");
-				try {
-					var args = {};
-					var params = this.params||"{}";
-					if (params && typeof(params) == 'string') {
-						params = JSON.parse(params);
-					}
-					args.body = JSON.stringify({
-						"service": this.service,
-						"method": this.method,
-						"params": params
-					});
-					var namespace = params.namespace || 'xyz';
-					args.params = null;
-					console.log("RPC.Body:" + args.body);
-					var username = "admin";
-					var password = "admin";
-					args.headers = {};
-					args.headers['Authorization'] = 'Basic ' + btoa(username + ":" + password)
-					args.headers['Content-Type'] = 'application/json; charset=utf-8';
-					if (this.handleAs === 'arraybuffer' || this.handleAs === 'blob' || this.handleAs === 'document') {
-						args.responseType = this.handleAs;
-					}
-					args.callback = this.receive.bind(this);
-					args.url = "/rpc/" + namespace + "/" + this.service;
-					args.method = 'POST';
-					this.response = this.error = null;
-					this.activeRequest = args.url && this.xhr.request(args);
-					if (this.activeRequest) {
-						this.loading = true;
-						var activeRequest = this.activeRequest;
-					}
+				var args = {};
+				var params = this.params || "{}";
+				if (params && typeof(params) == 'string') {
+					params = JSON.parse(params);
+				}
+				args.body = JSON.stringify({
+					"service": this.service,
+					"method": this.method,
+					"params": params
+				});
+				var namespace = params.namespace || 'xyz';
+				args.params = null;
+				console.log("RPC.Body:" + args.body);
+				var username = "admin";
+				var password = "admin";
+				args.headers = {};
+				args.headers['Authorization'] = 'Basic ' + btoa(username + ":" + password)
+				args.headers['Content-Type'] = 'application/json; charset=utf-8';
+				if (this.handleAs === 'arraybuffer' || this.handleAs === 'blob' || this.handleAs === 'document') {
+					args.responseType = this.handleAs;
+				}
+				args.callback = this.receive.bind(this);
+				args.url = "/rpc/" + namespace + "/" + this.service;
+				args.method = 'POST';
+				this.response = this.error = null;
+				args.sync = this.sync;
+				this.activeRequest = args.url && this.xhr.request(args);
+				if (this.activeRequest) {
+					this.loading = true;
+					var activeRequest = this.activeRequest;
+				}
+				if( this.sync){
+						return this.evalResponse(this.activeRequest);
+				}else{
 					return this.activeRequest;
-				} catch (e) {
-					console.error(e);
-					console.log(e.stack);
 				}
 			},
 			request: function() {
@@ -237,7 +238,7 @@
 					xhr.onload = function() {
 						if (self.isSuccess(xhr)) {
 							var response = self.evalResponse(xhr);
-							console.debug("RPC("+service+","+method+").response:",response);
+							console.debug("RPC(" + self.service + "," + self.method + ").response:", response);
 							resolve({
 								response: response,
 								xhr: xhr
@@ -256,7 +257,6 @@
 					};
 				});
 			}
-
 		});
 	</script>
 </polymer-element>
