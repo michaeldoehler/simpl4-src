@@ -83,7 +83,7 @@
 			},
 			selectedChanged: function(e) {
 				console.log("selectedChanged:" + this.selectedModel);
-				if (this.selected != this.selectedModel.node.hash) {
+				if (this.selectedModel == null || this.selected != this.selectedModel.node.hash) {
 					var node = this.getNodeByHash(this.selected);
 					if (node) {
 						this.selectedModel = {

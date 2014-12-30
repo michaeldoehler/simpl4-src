@@ -60,45 +60,44 @@
 
 	<simpl4-globals id="globals"></simpl4-globals>
 	<template is="auto-binding" id="t">
-		<simpl4-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}">
+		<simpl4-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl4-dispatcher>
 
-			<!-- Route controller. -->
-			<flatiron-director route="{{route}}" autoHash></flatiron-director>
+		<!-- Route controller. -->
+		<flatiron-director route="{{route}}" autoHash></flatiron-director>
 
-			<!-- Keyboard nav controller. -->
-			<core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys>
+		<!-- Keyboard nav controller. -->
+		<core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys>
 
-			<!-- Dynamic content controller -->
-			<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
+		<!-- Dynamic content controller -->
+		<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
 
-			<core-scaffold responsiveWidth="700px" id="scaffold">
-				<nav>
-					<core-toolbar>
-						<span>Polymer Tutorial SPA</span>
-					</core-toolbar>
-					<simpl4-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" fit/>
-				</nav>
-
-				<core-toolbar tool flex>
-					<div flex>{{selectedModel.node.name}}</div>
-					<core-icon-button icon="refresh"></core-icon-button>
-					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
+		<core-scaffold responsiveWidth="700px" id="scaffold">
+			<nav>
+				<core-toolbar>
+					<span>Polymer Tutorial SPA</span>
 				</core-toolbar>
+				<simpl4-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" fit/>
+			</nav>
 
-				<div layout horizontal center-center fit>
-					<core-animated-pages id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up" fit>
-						<template repeat="{{page, i in pages}}">
-							<section hash="{{page.hash}}" layout vertical center-center>
-								<div scale-up="">
-									<div style="max-width:100%;">Loading...{{page.name}}</div>
-								</div>
-							</section>
-						</template>
-					</core-animated-pages>
-				</div>
+			<core-toolbar tool flex>
+				<div flex>{{selectedModel.node.name}}</div>
+				<core-icon-button icon="refresh"></core-icon-button>
+				<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
+			</core-toolbar>
 
-			</core-scaffold>
-		</simpl4-dispatcher>
+			<div layout horizontal center-center fit>
+				<core-animated-pages id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up" fit>
+					<template repeat="{{page, i in pages}}">
+						<section hash="{{page.hash}}" layout vertical center-center>
+							<div scale-up="">
+								<div style="max-width:100%;">Loading...{{page.name}}</div>
+							</div>
+						</section>
+					</template>
+				</core-animated-pages>
+			</div>
+
+		</core-scaffold>
 
 		<paper-dialog id="dialog">
 			<simpl4-login id="login"></simpl4-login>
