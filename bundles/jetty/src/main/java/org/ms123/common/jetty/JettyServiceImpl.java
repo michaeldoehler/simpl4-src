@@ -757,28 +757,48 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 			response.setStatus(404);
 			return;
 		}
-		Date sinceDate = new Date(request.getDateHeader("If-Modified-Since")+1000);
-		long modTime = asset.lastModified( ); 
-		if( modTime < sinceDate.getTime() ){
-			response.setStatus(304);
-			return;
-		}else{
-			if( name.endsWith(".gz")){
-				response.setHeader("Content-Encoding","gzip");
-			}
-			response.setDateHeader("Last-Modified", modTime + 10000 );
-			response.setStatus(HttpServletResponse.SC_OK);
-			if( "adoc".equals(ext)){
-				response.setContentType( "text/html" );
-				Writer w  = response.getWriter();
-				m_docbookService.adocToHtml(asset, w );
-				w.close();
+		
+		String rpc = request.getParameter("rpc");
+		if( rpc == null){
+			Date sinceDate = new Date(request.getDateHeader("If-Modified-Since")+1000);
+			long modTime = asset.lastModified( ); 
+			if( modTime < sinceDate.getTime() ){
+				response.setStatus(304);
+				return;
 			}else{
-				response.setContentType( contentType );
-				response.setContentLength( (int)asset.length() );
-				OutputStream os = response.getOutputStream();
-				IOUtils.copy( new FileInputStream(asset), os );
-				os.close();
+				if( name.endsWith(".gz")){
+					response.setHeader("Content-Encoding","gzip");
+				}
+				response.setDateHeader("Last-Modified", modTime + 10000 );
+				response.setStatus(HttpServletResponse.SC_OK);
+				if( "adoc".equals(ext)){
+					response.setContentType( "text/html" );
+					Writer w  = response.getWriter();
+					m_docbookService.adocToHtml(asset, w );
+					w.close();
+				}else{
+					response.setContentType( contentType );
+					response.setContentLength( (int)asset.length() );
+					OutputStream os = response.getOutputStream();
+					IOUtils.copy( new FileInputStream(asset), os );
+					os.close();
+				}
+			}
+		}else{
+			final Map<String, Object> rpcMap = m_rpcServlet.extractRequestMap(rpc);
+			rpcMap.put("_ASSET", asset);
+			String result = m_rpcServlet.handleRPC(request,rpcMap,response);
+			if (!response.isCommitted()) {
+				String origin = request.getHeader("Origin");
+				if (origin != null) {
+					response.setHeader("Access-Control-Allow-Origin", origin);
+				}
+				response.setContentType(JsonRpcServlet.DOPOST_RESPONSE_CONTENTTYPE);
+				try {
+					response.getWriter().write(result);
+				} catch (IOException e) {
+					throw new ServletException("Cannot write response", e);
+				}
 			}
 		}
 	}

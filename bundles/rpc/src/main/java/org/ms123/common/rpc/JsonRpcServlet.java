@@ -55,7 +55,7 @@ public class JsonRpcServlet extends HttpServlet {
 
 	private Map<String, String> m_serviceMapping;
 
-	private static final String DOPOST_RESPONSE_CONTENTTYPE = "text/plain; charset=UTF-8";
+	public static final String DOPOST_RESPONSE_CONTENTTYPE = "text/plain; charset=UTF-8";
 
 	private static final String CONTENT_TYPE = "Content-Type";
 
@@ -187,12 +187,11 @@ public class JsonRpcServlet extends HttpServlet {
 	protected void doModifyMethodResult(Object result) {
 	}
 
-	protected String handleRPC(final HttpServletRequest httpRequest, final String requestString, HttpServletResponse response) throws ServletException {
-		return doHandleRPC(httpRequest, requestString, response);
-	}
-
-	protected String doHandleRPC(final HttpServletRequest httpRequest, final String requestString, HttpServletResponse response) throws ServletException {
+	public String handleRPC(final HttpServletRequest httpRequest, String requestString, HttpServletResponse response) throws ServletException {
 		final Map<String, Object> requestMap = extractRequestMap(requestString);
+		return handleRPC(httpRequest,requestMap,response);
+	}
+	public String handleRPC(final HttpServletRequest httpRequest,  Map<String, Object> requestMap, HttpServletResponse response) throws ServletException {
 		Map<String, Object> responseIntermediateObject;
 		try {
 			beforeCallService(httpRequest, requestMap);
@@ -345,7 +344,7 @@ public class JsonRpcServlet extends HttpServlet {
 		return ret;
 	}
 
-	protected Map<String, Object> extractRequestMap(final String requestString) throws ServletException {
+	public Map<String, Object> extractRequestMap(final String requestString) throws ServletException {
 		Object requestIntermediateObject;
 		try {
 			debug("extractRequestMap:" + requestString);
@@ -605,27 +604,17 @@ public class JsonRpcServlet extends HttpServlet {
 	 */
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		debug("doPost:" + request);
 		String result = null;
-		final String contentType = request.getHeader(CONTENT_TYPE);
-		// @@@MS if (!checkReferrer(request) || contentType == null || !contentType.startsWith(DOPOST_REQUEST_CONTENTTYPE)) {
-		if (false) {
-			result = ACCESS_DENIED_RESULT;
-		} else {
-			String requestString = null;
-			try {
-				requestString = getRequestString(request);
-			} catch (Exception e) {
-				throw new ServletException("Cannot read request", e);
-			}
-			result = handleRPC(request, requestString, response);
+		String requestString = null;
+		try {
+			requestString = getRequestString(request);
+		} catch (Exception e) {
+			throw new ServletException("Cannot read request", e);
 		}
-		debug("COMMETTES:" + response.isCommitted());
+		result = handleRPC(request, requestString, response);
 		if (!response.isCommitted()) {
 			String origin = request.getHeader("Origin");
-			debug("doPost:" + origin);
 			if (origin != null) {
-				//@@@MS Risky?
 				response.setHeader("Access-Control-Allow-Origin", origin);
 			}
 			response.setContentType(DOPOST_RESPONSE_CONTENTTYPE);
@@ -656,18 +645,13 @@ public class JsonRpcServlet extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String result;
-		response.setContentType(DOGET_RESPONSE_CONTENTTYPE);
-		if (!checkReferrer(request)) {
-			result = ACCESS_DENIED_RESULT;
+		final String jsTransportId = request.getParameter(SCRIPT_TRANSPORT_ID);
+		if (jsTransportId != null) {
+			final String requestString = request.getParameter(SCRIPT_TRANSPORT_DATA);
+			final String res = handleRPC(request, requestString, response);
+			result = "qx.io.remote.ScriptTransport._requestFinished(\"" + jsTransportId + "\", " + res + ");";
 		} else {
-			final String jsTransportId = request.getParameter(SCRIPT_TRANSPORT_ID);
-			if (jsTransportId != null) {
-				final String requestString = request.getParameter(SCRIPT_TRANSPORT_DATA);
-				final String res = handleRPC(request, requestString, response);
-				result = "qx.io.remote.ScriptTransport._requestFinished(\"" + jsTransportId + "\", " + res + ");";
-			} else {
-				result = makeJavaScriptServerInfo(request);
-			}
+			result = makeJavaScriptServerInfo(request);
 		}
 		try {
 			final Writer responseWriter = response.getWriter();

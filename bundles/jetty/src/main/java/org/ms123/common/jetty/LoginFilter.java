@@ -134,6 +134,12 @@ public class LoginFilter implements Filter {
 				ok = true;
 			}
 		}
+
+		if( request.getParameter("rpc")!= null){
+			ok=false;
+		}
+
+
 		info(pathInfo + ";" + credentials+"/ok:"+ok);
 		if (ok || checkCredentials(namespace, credentials, false)) {
 			info(">>>> OK");
