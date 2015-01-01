@@ -226,7 +226,13 @@
 					var activeRequest = this.activeRequest;
 				}
 				if( this.sync){
-						return this.evalResponse(this.activeRequest);
+						var ret = this.evalResponse(this.activeRequest);
+						if( ret && ret.result){
+							return JSON.parse(ret.result);
+						}else if( ret && ret.error ){
+							throw ret.error;
+						}
+						return ret;
 				}else{
 					return this.activeRequest;
 				}
@@ -239,10 +245,25 @@
 						if (self.isSuccess(xhr)) {
 							var response = self.evalResponse(xhr);
 							console.debug("RPC(" + self.service + "," + self.method + ").response:", response);
-							resolve({
-								response: response,
-								xhr: xhr
-							});
+							if( response && response.error && response.error.code !== 0){
+								console.log("Error:",response.error);
+								reject({
+									response: response.error,
+									xhr: xhr
+								});
+							}else{
+								if( response && response.result){
+									resolve({
+										response: JSON.parse(response.result),
+										xhr: xhr
+									});
+								}else{
+									resolve({
+										response: response,
+										xhr: xhr
+									});
+								}
+							}
 						} else {
 							var response = xhr.status + ': ' + xhr.responseText;
 							reject({

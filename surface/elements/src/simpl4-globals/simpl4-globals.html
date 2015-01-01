@@ -29,6 +29,7 @@ The `simpl4-globals` element provides support for storing global settings and lo
 	<template>
 		<simpl4-rpc id="axRoles" service="auth" method="getUsers" params="{'a':2}"  handleas="json" ></simpl4-rpc>
 		<simpl4-rpc id="axActions" service="auth" method="getUsers"  handleas="json" ></simpl4-rpc>
+		<simpl4-rpc id="sForm" service="git" method="searchContent"  handleas="json" ></simpl4-rpc>
 
 	</template>
 	<script>
@@ -57,8 +58,14 @@ The `simpl4-globals` element provides support for storing global settings and lo
 					var toReturn = Simpl4.Cache.getItem('baasicUser') || {};
 					return toReturn;
 				},
-				get roles() {
-					return this.getFromCache(this.$.axRoles, 'baasicRoles', 'item');
+				getForm:function(namespace,name) {
+					var rpc = this.$.sForm;
+					rpc.params = {
+						reponame :namespace,
+						name:name,
+            type:"sw.form"
+					}
+					return this.getFromCache(rpc, namespace+"_"+name+"_"+"form", 'item');
 				},
 				get actions() {
 					return this.getFromCache(this.$.axActions, 'baasicActions', 'accessAction');
@@ -68,21 +75,23 @@ The `simpl4-globals` element provides support for storing global settings and lo
 					return new Promise(function(resolve, reject) {
 						if (!Simpl4.Cache.getItem(cacheKey)) {
 							ajax.request().then(function(response) {
-								Simpl4.Cache.setItem(cacheKey, response.response[collectionKey], {
+								Simpl4.Cache.setItem(cacheKey, response.response, {
 									expirationAbsolute: new Date(new Date().getTime() + (_this.config.cacheExpiration * 1000)),
 									expirationSliding: null,
 									priority: Cache.Priority.HIGH,
 									callback: null
 								});
 								resolve({
-									data: response.response[collectionKey]
+									data: response.response
 								});
 							}, function(error) {
+								console.error("Error1:",error.response);
 								reject({
-									data: null
+									error: error.response
 								});
 							}.bind(_this));
 						} else {
+							console.debug("FromCache");
 							resolve({
 								data: Simpl4.Cache.getItem(cacheKey)
 							});
