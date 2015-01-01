@@ -9,7 +9,7 @@ task stage (type:Task) {
 		fileset(file:'libs/tablesaw.js')
 		fileset(file:'libs/cache.js')
 		fileset(file:'libs/es6-promise-2.0.1.js')
-		fileset(dir:'js',includes:'**/*.js')
+		fileset(dir:'src',includes:'**/*.js')
 	}
 	ant.gzip( src:"${surfaceBuild}/${jsLibs}",destfile:"${surfaceBuild}/${jsLibs}.gz")
 	ant.delete( file:"${surfaceBuild}/${jsLibs}")

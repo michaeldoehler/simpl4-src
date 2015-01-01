@@ -6660,7 +6660,11 @@ scope.isIE = isIE;
         template.setModelFnScheduled_ = false;
         var map = getBindings(template,
             template.delegate_ && template.delegate_.prepareBinding);
+try{
         processBindings(template, map, template.model_);
+}catch(e){
+	console.error(e.stack);
+}
       };
     }
 
