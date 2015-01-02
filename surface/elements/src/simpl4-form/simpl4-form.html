@@ -1,0 +1,64 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<polymer-element name="simpl4-form" attributes="namespace name">
+	<template>
+		<shadow></shadow>
+	</template>
+
+	<script>
+		Polymer({
+			namespace: null,
+			name: null,
+			ready: function() {
+				console.debug("Form.Ready:" + tr('data.customer.cid'));
+				var form = simpl4FormManager.getForm(this.name);
+				console.debug("Form:", form);
+
+				/*var completed = (function(e) {
+					console.debug("completed:", e);
+				}).bind(this);
+
+				var failed = (function(e) {
+					console.debug("failed:", e);
+				}).bind(this);
+
+				var rpcParams = {
+					reponame: this.namespace,
+					name: this.name,
+					type: "sw.form"
+				};
+
+				var params = {
+					method: "searchContent",
+					service: "xit",
+					parameter: rpcParams,
+					async: true,
+					context: this,
+					completed: completed,
+					failed: failed
+				}
+				simpl4.util.Rpc.rpcAsync(params);*/
+			}
+		});
+	</script>
+
+</polymer-element>

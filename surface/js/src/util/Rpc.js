@@ -17,17 +17,11 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 can.Construct.extend("simpl4.util.Rpc", {
-	_username: "admin",
-	_password: "admin",
-	setCredentials: function(username, password) {
-		simpl4.util.Rpc._username = username;
-		simpl4.util.Rpc._password = password;
-	},
 	_getPassword: function() {
-		return simpl4.util.Rpc._password;
+		return simpl4.util.BaseManager.getPassword();
 	},
 	_getUserName: function() {
-		return simpl4.util.Rpc._username;
+		return simpl4.util.BaseManager.getUser();
 	},
 	rpcSync: function(dummy, parameter) {
 		if (arguments.length < 1) {

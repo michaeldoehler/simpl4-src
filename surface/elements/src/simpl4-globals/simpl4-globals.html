@@ -19,55 +19,41 @@
  */
 -->
 
-<!--
-The `simpl4-globals` element provides support for storing global settings and lookups.
-    <simpl4-globals id="globals"></simpl4-globals>
--->
-
 <link rel="import" href="utils-import.html">
 <polymer-element name="simpl4-globals" hidden>
 	<template>
-		<simpl4-rpc id="axRoles" service="auth" method="getUsers" params="{'a':2}"  handleas="json" ></simpl4-rpc>
-		<simpl4-rpc id="axActions" service="auth" method="getUsers"  handleas="json" ></simpl4-rpc>
-		<simpl4-rpc id="sForm" service="git" method="searchContent"  handleas="json" ></simpl4-rpc>
-
+		<simpl4-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl4-rpc>
 	</template>
 	<script>
 		(function() {
 			/**
-			 * Global object storing application-wide configration settings.
-			 *
 			 */
 			var config = {
-				//Add additional admin roles here
-				adminRoles: ['Administrators'],
-				//base Simpl4 service URL
-				baseUrl: "http://api.simpl4.com",
-				//Simpl4 version
-				version: "beta",
-				//Simpl4 application
-				application: "WebComponents",
 				//cache expiration time for lookup storage in seconds
 				cacheExpiration: 7200
 			};
+			var x = location.toString().split("/");
+			var namespace = x[x.length - 2];
+
+			simpl4.util.BaseManager.setNamespace(namespace);
+			simpl4.util.BaseManager.setLanguage("de");
+			simpl4.util.BaseManager.setUser("guest");
+			simpl4.util.BaseManager.setPassword("guest");
+
+			window.simpl4FormManager = simpl4.util.FormManager;
+			window.simpl4MessageManager = simpl4.util.MessageManager;
+			simpl4MessageManager.installMessages();
+			window.tr = simpl4MessageManager.tr;
+			PolymerExpressions.prototype.tr = function(input) {
+				return simpl4MessageManager.tr(input);
+			};
+
 			Polymer('simpl4-globals', {
 				ready: function() {
 					this.config = config;
+					console.debug("Globals.Ready:"+  tr('data.customer.cid'));
 				},
-				get baasicUser() {
-					var toReturn = Simpl4.Cache.getItem('baasicUser') || {};
-					return toReturn;
-				},
-				getForm:function(namespace,name) {
-					var rpc = this.$.sForm;
-					rpc.params = {
-						reponame :namespace,
-						name:name,
-            type:"sw.form"
-					}
-					return this.getFromCache(rpc, namespace+"_"+name+"_"+"form", 'item');
-				},
-				get actions() {
+				get actions() {//Only for info
 					return this.getFromCache(this.$.axActions, 'baasicActions', 'accessAction');
 				},
 				getFromCache: function(ajax, cacheKey, collectionKey) {
@@ -85,7 +71,7 @@ The `simpl4-globals` element provides support for storing global settings and lo
 									data: response.response
 								});
 							}, function(error) {
-								console.error("Error1:",error.response);
+								console.error("Error1:", error.response);
 								reject({
 									error: error.response
 								});

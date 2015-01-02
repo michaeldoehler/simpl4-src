@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend("simpl4.util.MessageManager", {
+simpl4.util.BaseManager.extend("simpl4.util.MessageManager", {
 	transMap: null,
-	getMessages: function(namespace, lang) {
+	getMessages: function(namespace) {
 		var failed = function(details) {
 			alert("GetMessages failed" + ":" + details.message);
 		};
@@ -26,7 +26,7 @@ can.Construct.extend("simpl4.util.MessageManager", {
 		try {
 			var ret = simpl4.util.Rpc.rpcSync("message:getMessages", {
 				namespace: namespace,
-				lang: lang
+				lang: simpl4.util.BaseManager.getLanguage()
 			});
 			return ret;
 		} catch (e) {
@@ -42,11 +42,11 @@ can.Construct.extend("simpl4.util.MessageManager", {
 			transMap[row.msgid] = row.msgstr;
 		}
 	},
-	installMessages: function(namespace, lang) {
+	installMessages: function() {
 		simpl4.util.MessageManager.transMap = {};
-		var rows = simpl4.util.MessageManager.getMessages("global", lang);
+		var rows = simpl4.util.MessageManager.getMessages("global");
 		simpl4.util.MessageManager.toMap(rows);
-		var rows = simpl4.util.MessageManager.getMessages(namespace, lang);
+		var rows = simpl4.util.MessageManager.getMessages(simpl4.util.BaseManager.getNamespace());
 		simpl4.util.MessageManager.toMap(rows);
 	},
 	tr:function(id){
