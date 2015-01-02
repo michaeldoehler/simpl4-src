@@ -20,43 +20,52 @@
 -->
 
 <polymer-element name="simpl4-form" attributes="namespace name">
+
 	<template>
-		<shadow></shadow>
+		<style>
+			:host {
+				display: block;
+				background: #eeeeee;
+				padding:10px;
+			}
+			.input {
+				width: 250px;
+			}
+		</style>
+		<div vertical layout>
+			<template repeat="{{shapes}}" id="t">
+				<template if="{{ stencil.id=='Input' }}">
+					<simpl4-input class="input" label="{{properties.label}}" autoValidate required floatinglabel></simpl4-input>
+				</template>
+				<template ref="t" repeat="{{childShapes}}"></template>
+			</template>
+		</div>
 	</template>
 
 	<script>
 		Polymer({
 			namespace: null,
 			name: null,
-			ready: function() {
+			domReady: function() {
 				console.debug("Form.Ready:" + tr('data.customer.cid'));
 				var form = simpl4FormManager.getForm(this.name);
-				console.debug("Form:", form);
-
-				/*var completed = (function(e) {
-					console.debug("completed:", e);
-				}).bind(this);
-
-				var failed = (function(e) {
-					console.debug("failed:", e);
-				}).bind(this);
-
-				var rpcParams = {
-					reponame: this.namespace,
-					name: this.name,
-					type: "sw.form"
-				};
-
-				var params = {
-					method: "searchContent",
-					service: "xit",
-					parameter: rpcParams,
-					async: true,
-					context: this,
-					completed: completed,
-					failed: failed
+				this.shapes = this.sort(form).childShapes;
+			},
+			sort: function(shape) {
+				if (shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea') {
+					shape.properties.label = shape.childShapes[0].properties.xf_text;
+					shape.childShapes = [];
+				} else {
+					shape.properties.label = "";
 				}
-				simpl4.util.Rpc.rpcAsync(params);*/
+				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
+					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+				});
+				var childs = shape.childShapes;
+				for (var i = 0; i < childs.length; i++) {
+					this.sort(childs[i]);
+				}
+				return shape;
 			}
 		});
 	</script>
