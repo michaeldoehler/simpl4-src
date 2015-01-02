@@ -66,7 +66,10 @@ can.Construct.extend("simpl4.util.Rpc", {
 		if (result.error) {
 			throw result.error;
 		}
-		return JSON.parse(result.result);
+		if( typeof result.result == 'string'){
+			return JSON.parse(result.result);
+		}
+		return result.result;
 	},
 
 	rpcAsync: function(params) {
@@ -123,7 +126,11 @@ can.Construct.extend("simpl4.util.Rpc", {
 		} else {
 			req.success = function(data, status) {
 				if (data.result) {
-					config.completed.call(config.context, JSON.parse(data.result));
+					var result = data.result;
+					if( typeof result == 'string'){
+						result = JSON.parse(result);
+					}
+					config.completed.call(config.context, result);
 				} else {
 					if (config.failed) {
 						config.failed.call(config.context, data.error);
