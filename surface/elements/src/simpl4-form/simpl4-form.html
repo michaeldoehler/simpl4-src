@@ -26,16 +26,36 @@
 			:host {
 				display: block;
 				background: #eeeeee;
-				padding:10px;
+				padding: 10px;
+			}
+			.xutton {
+				width: 120px;
+			}
+			.xextarea {
+				width: 40%;
 			}
 			.input {
-				width: 250px;
+				min-width: 250px;
+				width: 49%;
 			}
 		</style>
-		<div vertical layout>
+		<div id="formdiv" verticax xayout>
 			<template repeat="{{shapes}}" id="t">
-				<template if="{{ stencil.id=='Input' }}">
-					<simpl4-input class="input" label="{{properties.label}}" autoValidate required floatinglabel></simpl4-input>
+				<template if="{{ id=='Input' }}">
+					<simpl4-input class="input" type={{xf_type}} label="{{label}}" autoValidate required floatinglabel></simpl4-input>
+				</template>
+				<template if="{{ id=='ActionButton' }}">
+					<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+				</template>
+				<template if="{{ id=='Textarea' }}">
+					<paper-input-decorator class="textarea" label="{{label}}" floatinglabel>
+						<paper-autogrow-textarea>
+							<textarea></textarea>
+						</paper-autogrow-textarea>
+					</paper-input-decorator>
+				</template>
+				<template if="{{ id=='break' }}">
+					<br />
 				</template>
 				<template ref="t" repeat="{{childShapes}}"></template>
 			</template>
@@ -46,26 +66,55 @@
 		Polymer({
 			namespace: null,
 			name: null,
-			domReady: function() {
-				console.debug("Form.Ready:" + tr('data.customer.cid'));
+			ready: function() {
 				var form = simpl4FormManager.getForm(this.name);
-				this.shapes = this.sort(form).childShapes;
+				this.shapes = this.prepareShape(form).childShapes;
 			},
-			sort: function(shape) {
+			prepareShape: function(shape) {
+				shape = this.cleanShape(shape);
+				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
+					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+				});
+				var childShapes = shape.childShapes;
+				shape.childShapes = [];
+				for (var i = 0; i < childShapes.length; i++) {
+					if (i > 0 && this.needBreak(childShapes[i - 1], childShapes[i])) {
+						shape.childShapes.push({
+							id: "break"
+						});
+					}
+					shape.childShapes.push(this.prepareShape(childShapes[i]));
+				}
+				return shape;
+			},
+			cleanShape: function(shape) {
 				if (shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea') {
 					shape.properties.label = shape.childShapes[0].properties.xf_text;
 					shape.childShapes = [];
 				} else {
 					shape.properties.label = "";
 				}
-				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
-					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+				return _.extend(shape.properties, shape.stencil, {
+					childShapes: shape.childShapes
 				});
-				var childs = shape.childShapes;
-				for (var i = 0; i < childs.length; i++) {
-					this.sort(childs[i]);
+			},
+			needBreak: function(child, next) {
+				var UL = child.bounds.upperLeft;
+				var lineBreak = false;
+				var nextUL = next.bounds.upperLeft;
+				if (UL.y != nextUL.y) {
+					lineBreak = true;
 				}
-				return shape;
+				return lineBreak;
+			},
+			validateAll: function() {
+				console.debug("validateAll");
+				var $d = this.$.formdiv.querySelectorAll('.input');
+				console.log("D:", $d);
+				Array.prototype.forEach.call($d, function(d) {
+					console.debug("Input:" + d.valid);
+					d.isInvalid = !d.valid;
+				});
 			}
 		});
 	</script>

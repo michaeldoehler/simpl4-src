@@ -66,7 +66,7 @@
 		<flatiron-director route="{{route}}" autoHash></flatiron-director>
 
 		<!-- Keyboard nav controller. -->
-		<core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys>
+		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
 
 		<!-- Dynamic content controller -->
 		<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
@@ -106,12 +106,14 @@
 
 	<script>
 		window.addEventListener('polymer-ready', function(e) {
-			this.globals = document.querySelector("#globals");
-			this.globals.actions.then(function(d) {
-				console.log("Globals:", d);
-			}, function(err) {
-				console.error("Error:", err);
-			});
+			/*this.globals = document.querySelector("#globals");
+			var start = new Date().getTime();
+			this.globals.getForm("tutorials", "test.form").then(function(d) {
+				console.log("Time:"+(new Date().getTime() - start));
+				console.debug("Globals:", d);
+			}, function(d) {
+				console.error("Error2:", d.error.message);
+			});*/
 		});
 
 
@@ -120,6 +122,7 @@
 
 			var DEFAULT_ROUTE = '0';
 
+			var cache = {};
 			var template = document.querySelector('#t');
 			var ajax, pages, scaffold;
 			template.addEventListener('template-bound', function(e) {
@@ -134,7 +137,9 @@
 				}).reduce(function(x, y) {
 					return x + ' ' + y;
 				});
-				keys.keys += ' ' + keysToAdd;
+				if( keys){
+					keys.keys += ' ' + keysToAdd;
+				}
 
 				console.log("location:" + window.location);
 				this.route = this.route || DEFAULT_ROUTE; // Select initial route.
@@ -165,8 +170,10 @@
 			template.menuItemSelected = function(e, detail, sender) {
 				if (detail.isSelected && detail.model.node && detail.model.node.url) {
 					this.async(function() {
+						if (!cache[ajax.url]) {
+							ajax.go();
+						}
 						scaffold.closeDrawer();
-						ajax.go();
 					});
 				}
 			};
@@ -181,6 +188,7 @@
 				});
 
 				var html = article.innerHTML;
+				cache[ajax.url] = html;
 				this.injectBoundHTML(html, pages.selectedItem.firstElementChild);
 			};
 
