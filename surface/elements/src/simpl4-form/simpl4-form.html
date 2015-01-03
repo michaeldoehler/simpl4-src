@@ -25,41 +25,80 @@
 		<style>
 			:host {
 				display: block;
-				background: #eeeeee;
-				padding: 10px;
+				//background: #eeeeee;
+				padding: 2px;
 			}
-			.xutton {
-				width: 120px;
+			.button {
+				max-width: 120px;
 			}
 			.xextarea {
 				width: 40%;
 			}
 			.input {
-				min-width: 250px;
+				min-width: 280px;
 				width: 49%;
 			}
+			paper-tabs {
+				background: #f0f0f0;
+			}
+			html /deep/ #selectionBar {
+				background: blue;
+			}
+			fieldset {
+				border-radius: 8px;
+				border:1px solid #f0f0f0;
+			}
 		</style>
-		<div id="formdiv" verticax xayout>
+		<fieldset id="formdiv" verticax xayout>
 			<template repeat="{{shapes}}" id="t">
-				<template if="{{ id=='Input' }}">
-					<simpl4-input class="input" type={{xf_type}} label="{{label}}" autoValidate required floatinglabel></simpl4-input>
+
+				<template ref="elements" bind></template>
+				<template if="{{ id=='Tabview' }}">
+					<paper-tabs selected="{{selected}}">
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
+							</template>
+						</template>
+					</paper-tabs>
+
+
+					<core-animated-pages selected="{{selected}}" vertical layout>
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<section style="position:relative;">
+									<template ref="elements" repeat="{{childShapes}}"></template>
+								</section>
+							</template>
+						</template>
+					</core-animated-pages>
+
 				</template>
-				<template if="{{ id=='ActionButton' }}">
-					<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+				<template if="{{ id!='Tabview' }}">
+					<template ref="t" repeat="{{childShapes}}"></template>
 				</template>
-				<template if="{{ id=='Textarea' }}">
-					<paper-input-decorator class="textarea" label="{{label}}" floatinglabel>
-						<paper-autogrow-textarea>
-							<textarea></textarea>
-						</paper-autogrow-textarea>
-					</paper-input-decorator>
-				</template>
-				<template if="{{ id=='break' }}">
-					<br />
-				</template>
-				<template ref="t" repeat="{{childShapes}}"></template>
 			</template>
-		</div>
+
+		</fieldset>
+
+		<template id="elements">
+			<template if="{{ id=='Input' }}">
+				<simpl4-input class="input" type={{xf_type}} label="{{label}}" autoValidate required floatinglabel></simpl4-input>
+			</template>
+			<template if="{{ id=='ActionButton' }}">
+				<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+			</template>
+			<template if="{{ id=='Textarea' }}">
+				<paper-input-decorator class="textarea" label="{{label}}" floatinglabel>
+					<paper-autogrow-textarea>
+						<textarea></textarea>
+					</paper-autogrow-textarea>
+				</paper-input-decorator>
+			</template>
+			<template if="{{ id=='break' }}">
+				<br />
+			</template>
+		</template>
 	</template>
 
 	<script>
@@ -69,6 +108,7 @@
 			ready: function() {
 				var form = simpl4FormManager.getForm(this.name);
 				this.shapes = this.prepareShape(form).childShapes;
+				console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
 			},
 			prepareShape: function(shape) {
 				shape = this.cleanShape(shape);
