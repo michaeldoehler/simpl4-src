@@ -31,6 +31,10 @@
 			.button {
 				max-width: 120px;
 			}
+ section { 
+      padding: 0px;
+    }
+
 			.xextarea {
 				width: 40%;
 			}
@@ -105,10 +109,16 @@
 		Polymer({
 			namespace: null,
 			name: null,
+			domReady: function() {
+				var $d = this.$.formdiv;;
+console.log("domReady:",document.createElement("div"));
+console.log("domReady:",document.querySelectorAll("fieldset /deep/ input"));
+			},
 			ready: function() {
+				console.log("Ready:",this.$.xxxx);
 				var form = simpl4FormManager.getForm(this.name);
 				this.shapes = this.prepareShape(form).childShapes;
-				console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
+				//console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
 			},
 			prepareShape: function(shape) {
 				shape = this.cleanShape(shape);
@@ -152,7 +162,7 @@
 				var $d = this.$.formdiv.querySelectorAll('.input');
 				console.log("D:", $d);
 				Array.prototype.forEach.call($d, function(d) {
-					console.debug("Input:" + d.valid);
+					console.debug("Input:" + d.value);
 					d.isInvalid = !d.valid;
 				});
 			}
