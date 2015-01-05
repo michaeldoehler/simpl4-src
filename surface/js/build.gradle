@@ -2,9 +2,9 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
+		fileset(file:'libs/webcomponents.js')
 		fileset(file:'libs/underscore.js')
 		fileset(file:'libs/jquery-2.1.1.js')
-		fileset(file:'libs/webcomponents.js')
 		fileset(file:'libs/polymer.js')
 		fileset(file:'libs/can.construct.map.list-2.1.4.js')
 		fileset(file:'libs/tablesaw.js')
