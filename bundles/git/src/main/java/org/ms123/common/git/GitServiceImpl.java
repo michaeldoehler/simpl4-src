@@ -438,7 +438,16 @@ public class GitServiceImpl implements GitService {
 			if (!gitDir.exists()) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:Repo(" + repoName + ") not exists");
 			}
-			List<String> pathList = assetList(repoName, name, type, true);
+			List<String> pathList = null;
+			if( name.indexOf("/")>=0){
+				File f = new File(gitDir,name);
+				if( f.exists() && getFileType(f).equals(type)){
+					return f;
+				}
+				pathList = new ArrayList();
+			}else{
+				pathList = assetList(repoName, name, type, true);
+			}
 			long endTime = new Date().getTime();
 			debug("searchFile.time:" + (endTime - startTime));
 			if (pathList.size() == 0) {

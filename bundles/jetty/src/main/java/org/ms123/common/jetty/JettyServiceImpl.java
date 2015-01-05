@@ -255,11 +255,16 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 	private boolean handleRepo(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String segs[] = request.getPathInfo().split("/");
 		if( segs.length != 4 ){
-			throw new RuntimeException("Bad request");
+			//throw new RuntimeException("Bad request");
 		}
 		String namespace = segs[2];
-		String fileName = segs[3];
+		String fileName = segs[segs.length-1];
 		String ext = getExtension(fileName);
+		if( segs.length>4){
+			int i = request.getPathInfo().indexOf( segs[3]);
+			fileName = request.getPathInfo().substring(i);
+			System.out.println("Filename:"+fileName);
+		}
 		String mime =  FILETYPES.get(ext);
 		System.out.println("Mime:"+mime);
 		if( mime == null){
