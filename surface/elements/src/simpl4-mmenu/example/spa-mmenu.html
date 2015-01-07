@@ -6,15 +6,18 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no">
 	<title>Single page app using Polymer</title>
 	<script src="/sw/surface/libs.js.gz"></script>
+	<link rel="stylesheet" href="font-awesome.css" />
+
 	<link rel="import" href="/sw/surface/elements.html.gz">
 	<link rel="stylesheet" type="text/css" href="/sw/surface/libs.css.gz" shim-shadowdom>
 	<link rel="stylesheet" type="text/css" href="ac.css" shim-shadowdom>
+
 	<style shim-shadowdom>
-		core-animated-pages {
+		core-animated-pages > * {
 			font-size: inherit;
 			overflow-y: auto;
 			border-radius: 5px;
-			background-color: white;
+			background-color: whitesmoke;
 		}
 		core-animated-pages {
 			width: 99%;
@@ -55,6 +58,7 @@
 		}
 	</style>
 </head>
+
 
 <body unresolved fullbleed>
 
@@ -123,6 +127,7 @@
 			var DEFAULT_ROUTE = '0';
 
 			var cache = {};
+			console.debug("Cache is emoy");
 			var template = document.querySelector('#t');
 			var ajax, pages, scaffold;
 			template.addEventListener('template-bound', function(e) {
@@ -137,7 +142,7 @@
 				}).reduce(function(x, y) {
 					return x + ' ' + y;
 				});
-				if( keys){
+				if (keys) {
 					keys.keys += ' ' + keysToAdd;
 				}
 
@@ -190,6 +195,10 @@
 				var html = article.innerHTML;
 				cache[ajax.url] = html;
 				this.injectBoundHTML(html, pages.selectedItem.firstElementChild);
+				var codes = pages.selectedItem.firstElementChild.getElementsByTagName("script");
+				for (var i = 0; i < codes.length; i++) {
+					eval(codes[i].text);
+				}
 			};
 
 			var scope = document.querySelector('template[is=auto-binding]');

@@ -1467,7 +1467,10 @@
 		//We clone the element because input elements in a form can sometimes have the same name as a native
 		//form property, which overrides that property.
 		var element = document.querySelector("html /deep/ #" + context.elementId).cloneNode(false);
-		var name = element.name.replace(/\s/g, "");
+		var name = "";
+		if( element.name){
+			name = element.name.replace(/\s/g, "");
+		}
 
 		if (typeof element.type !== "undefined" && element.type.toLowerCase() === "radio" && name !== "") {
 			if (!processedRadioGroups[name]) {
@@ -5216,7 +5219,7 @@
 	 */
 	var config = {
 		validateEmptyFields: true,
-		enableHTML5Validation: true,
+		enableHTML5Validation: false,
 		debug: false
 	};
 

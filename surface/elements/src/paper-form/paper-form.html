@@ -1,0 +1,285 @@
+<script>
+	modularize('form-field', function() {
+		return {
+			kinds: [],
+			register: function(polymerElement) {
+				var kind = polymerElement.getAttribute('kind');
+				if (kind) {
+					this.kinds.push(kind);
+					polymerElement.removeAttribute('kind');
+				}
+			}
+		};
+	});
+</script>
+
+<polymer-element name="form-field" attributes="name value meta editValue errorText validator invalidated" field>
+	<template>
+		<style>
+			:host {
+				min-width: 136px;
+				margin: 4px 14px 4px 0;
+			}
+		</style>
+	</template>
+	<script>
+		Polymer({
+			validator: '',
+			errorText: '',
+			registerCallback: function(polymerElement) {
+				// TODO: `using` seems to force async (even when not necessary)
+				// which breaks the timeline if the using() is outside of the 
+				// Polymer invocation
+				// This happens because `using` calls `whenImportsReady` which
+				// requires the document to be in ready-state, and this import
+				// document is in loading-state when parsing the enclosing script tag
+				using('form-field', function(df) {
+					df.register(polymerElement);
+				});
+			},
+			attached: function() {
+				this.fire('add-form-field');
+			},
+			detached: function() {
+				this.fire('remove-form-field');
+			}
+		});
+	</script>
+</polymer-element>
+
+<!--PAPERFIELDS-->
+<polymer-element name="input-field" extends="form-field" attributes="type" kind="input" layout horizontal center>
+	<template>
+		<paper-input flex floatinglabel type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></paper-input>
+	</template>
+	<script>
+		Polymer({
+			type:"text",
+			observe: {
+				type: 'validateAttributes',
+			},
+			isAuthorizedType: function() {
+				var okTypes = [
+					'checkbox',
+					'color',
+					'date',
+					'datetime',
+					'datetime-local',
+					'email',
+					'file',
+					'month',
+					'number ',
+					'password',
+					'radio',
+					'range',
+					'tel',
+					'text',
+					'time',
+					'url',
+					'week'];
+			return (okTypes.indexOf(this.type) != -1);
+		},
+			validateAttributes: function() {
+				console.log("validateAttributes");
+				if(!this.input) return;
+				if (this.type != 'text' && !this.isAuthorizedType()) {
+					this.type = 'text'
+				}
+				//Set the input attributes according to our element attribute
+				this.input.setAttribute('type', this.type);
+			},
+			domReady: function() {
+				console.log("domReady:",document.querySelectorAll("html /deep/ input[aria-label=\""+this.name+"\"]"));
+				this.input = document.querySelectorAll("html /deep/ input[aria-label=\""+this.name+"\"]")[0];
+				console.log("This.input:",this.input);
+				this.validateAttributes();
+			},
+			editValueChanged: function() {
+				this.fire('validate-form-field');
+			}
+		});
+	</script>
+</polymer-element>
+
+<polymer-element name="checkbox-field" extends="form-field" kind="checkbox" noscript>
+	<template>
+		<paper-checkbox style="margin: 10px 0;" label="{{name}}" checked="{{value}}"></paper-checkbox>
+	</template>
+</polymer-element>
+
+<polymer-element name="toggle-field" extends="form-field" kind="toggle" layout horizontal center noscript>
+	<template>
+		<paper-toggle-button checked="{{value}}"></paper-toggle-button>
+		<div style="margin-left: 22px;">{{name}}</div>
+	</template>
+</polymer-element>
+
+<polymer-element name="slider-field" extends="form-field" kind="slider" layout horizontal noscript>
+	<template>
+		<span style="display: inline-block; padding: 8px 0px; vertical-align: middle;">{{name}}</span>
+		<paper-slider flex style="vertical-align: middle;" value="{{value}}"></paper-slider>
+	</template>
+</polymer-element>
+
+<polymer-element name="radio-field" extends="form-field" kind="radio-group" noscript>
+	<template>
+		<style>
+			:host > * {
+				vertical-align: middle;
+			}
+		</style>
+		<span style="color: silver; padding: 12px 0px;">{{name}}</span>
+		<paper-radio-group selected="{{value}}">
+			<content></content>
+		</paper-radio-group>
+	</template>
+</polymer-element>
+
+<polymer-element name="dropdown-field" extends="form-field" kind="dropdown" noscript>
+	<template>
+		<style>
+			:host {
+				margin-top: 8px;
+			}
+
+		</style>
+		<span style="vertical-align: middle;">{{name}}</span>&nbsp;
+
+		<paper-dropdown-menu>
+			<paper-dropdown class="dropdown">
+				<core-menu selected="{{value}}" icon="arrow-drop-down">
+					<content></content>
+				</core-menu>
+			</paper-dropdown>
+		</paper-dropdown-menu>
+	</template>
+</polymer-element>
+
+<polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
+	<template>
+		<style>
+			paper-input {
+				margin-right: 4px;
+			}
+			[two-digits] {
+				width: 1.5em;
+			}
+			[three-digits] {
+				width: 2em;
+			}
+			[four-digits] {
+				width: 2.5em;
+			}
+			span {
+				margin-right: 12px;
+			}
+		</style>
+		<span>{{name}}</span>
+		<paper-input three-digits value="{{partA}}"></paper-input> -
+		<paper-input two-digits value="{{partB}}"></paper-input> -
+		<paper-input four-digits value="{{partC}}"></paper-input>
+	</template>
+	<script>
+		Polymer({
+			computed: {
+				value: 'concat(partA, partB, partC)'
+			},
+			concat: function(a, b, c) {
+				return a + '-' + b + '-' + c;
+			},
+			keyPress: function(e) {
+				var c = String.fromCharCode(e.charCode);
+				if (!c.match(/\d/)) {
+					e.preventDefault();
+				}
+			}
+		});
+	</script>
+</polymer-element>
+
+
+
+<!--PAPERFORM-->
+<style>
+	html /deep/ [novanish] {
+		min-height: 8px;
+	}
+	design-frame /deep/ paper-row {
+		border: 1px dotted rgba(240, 240, 240, 0.5);
+		border-radius: 8px;
+		margin: -1px -1px;
+	}
+</style>
+
+<polymer-element name="paper-group" segment horizontal layout wrap novanish noscript></polymer-element>
+
+<polymer-element name="paper-row" horizontal layout center wrap novanish noscript></polymer-element>
+
+
+<polymer-element name="field-validator" attributes="value editValue errorText invalidated" extends="core-meta" type="validator" id="numchars">
+	<script>
+		Polymer({
+			errorText: "Failed to validate",
+			validate: function(field) {
+				field.error = this.errorText;
+				field.invalidated = field.value && field.value.length < 5;
+			}
+		});
+	</script>
+</polymer-element>
+
+<polymer-element name="paper-form" vertical layout>
+	<script>
+		Polymer({
+			eventDelegates: {
+				'add-form-field': 'addField',
+				'remove-form-field': 'removeField',
+				'validate-form-field': 'validateFieldEvent'
+			},
+			created: function() {
+				this.fields = [];
+				this.validators = document.createElement('field-validator');
+			},
+			addField: function(e) {
+				this.fields.push(e.target);
+			},
+			removeField: function(e) {
+				var i = this.fields.indexOf(e.target);
+				if (i >= 0) {
+					this.fields.splice(i, 1);
+				}
+			},
+			dump: function() {
+				var data = {};
+				this.fields.forEach(function(f) {
+					data[f.name] = f.value;
+				}, this);
+				return data;
+			},
+			validate: function() {
+				var valid = this.fields.every(function(f) {
+					this.validateField(f);
+					console.log("f:"+f.name+":"+f.invalidated+"/"+f.value);
+					return !f.invalidated;
+				}, this);
+				return valid;
+			},
+			validateField: function(field) {
+console.log("field.validator:"+field.validator);
+				if (field.validator) {
+console.log("XXXXXX");
+					var validator = this.validators.byId(field.validator);
+					console.log('validator go', validator);
+					if (validator) {
+						validator.validate(field);
+					}
+				}
+				return true;
+			},
+			validateFieldEvent: function(event) {
+				event.stopPropagation();
+				this.validateField(event.target);
+			}
+		});
+	</script>
+</polymer-element>
