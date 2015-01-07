@@ -1,4 +1,3 @@
-
 <polymer-element name="simpl4-form">
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css" />
@@ -41,32 +40,32 @@
 
 			<segment>
 				<paper-row if="row" class="pure-g">
-                <div class="pure-control-group">
-					<input-field type="text" id="OrderName" value="{{item.orderId}}" data-constraints = '@Min(value=21)' editValue="{{orderId}}" invalidated="{{item.orderId | validateOrderId}}" error="Must be at least five characters long"></input-field>
+					<div class="pure-control-group">
+						<input-field type="text" id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}" xnvalidated="{{item.orderId | validateOrderId}}" error="Must be at least five characters long"></input-field>
 					</div>
 				</paper-row>
 				<paper-row>
-                <div class="pure-control-group pure-u-1 pure-u-md-11-24">
-					<ssn-field name="SSN1" value="{{item.ssn}}"></ssn-field>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN1" value="{{item.ssn}}"></ssn-field>
 					</div>
-                <div class="pure-control-group pure-u-1 pure-u-md-11-24">
-					<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
 					</div>
 				</paper-row>
 				<paper-row>
-                <div class="pure-control-group pure-u-1 pure-u-md-11-24">
-					<ssn-field name="SSNAAAAAAA" value="{{item.ssn}}"></ssn-field>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSNAAAAAAA" value="{{item.ssn}}"></ssn-field>
 					</div>
-                <div class="pure-control-group pure-u-1 pure-u-md-11-24">
-					<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
 					</div>
 				</paper-row>
 			</segment>
 
 			<segment>
 				<paper-row>
-                <div class="pure-control-group">
-					<input-field type="date" name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}" invalidated="{{item.flavor | validateFlavor}}" error="Any flavor is fine, as long as it contains chocolate"></input-field>
+					<div class="pure-control-group">
+						<input-field type="date" id="FlanFlavor" name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}" xnvalidated="{{item.flavor | validateFlavor}}" error="Any flavor is fine, as long as it contains chocolate"></input-field>
 					</div>
 					<slider-field name="Viscosity" value="{{item.viscosity}}"></slider-field>
 				</paper-row>
@@ -115,12 +114,14 @@
 			},
 
 			submit: function(e) {
-				var v = regula.validate({element: this.$.OrderName});
-				console.log("V:",v);
+				var v = regula.validate({
+					element: this.$.OrderName
+				});
+				console.log("V:", v);
 				return;
 				//var is = this.v.validate();
 				var is = this.v.isValid();
-				console.log("isValid:",is);
+				console.log("isValid:", is);
 				var info = '';
 				//if (!this.$.form.validate()) {
 				//	info += '* form is not valid\n\n';
@@ -134,7 +135,12 @@
 			},
 
 			validateOrderId: function(value) {
+				return;
 				console.log("validateOrderId:" + value);
+				if (this.$) {
+					var v = regula.validate({});
+					console.log("V:", v);
+				}
 				return !value || value.length < 5;
 			},
 
@@ -147,19 +153,53 @@
 			detached: function() {
 				this.fire('remove-form-field');
 			},
-			domReady:function(){
-regula.bind();
-/*regula.bind({
-        elements: [this.$.OrderName],
-        constraints: [{
-            constraintType: regula.Constraint.Min,
-            params: {value: "18", message: "You must be at least 18 years old to vote",groups:['MyGroup']}
-        }]
-    });
- console.log("element element1", regula.isBound({element: this.$.OrderName}));*/
-
-}
+			valueChanged: function(e) {
+				return;
+				for(var i=0; i < this.allFields.length;i++){
+					this.allFields[i].invalidated=false;
+				}
+				console.log(e.type, e.detail);
+				var cvList = regula.validate();
+				console.log("cvList:", cvList);
+				for(var i=0; i < cvList.length;i++){
+					var cv = cvList[i];
+					cv.failingElements[0].invalidated=true;
+				}
+			},
+			domReady: function() {
+				console.log("RegulaBind");
+				regula.bind({
+					element: this.$.OrderName,
+					constraints: [{
+						constraintType: regula.Constraint.Min,
+						params: {
+							value: "18",
+							message: "You must be at least 18 years old to vote",
+							groups: ['MyGroup']
+						}
+					}]
+				});
+				regula.bind({
+					element: this.$.FlanFlavor,
+					constraints: [{
+						constraintType: regula.Constraint.Future,
+						params: {
+							format: regula.DateFormat.YMD,
+							date: "2015/2/1",
+							groups: ['MyGroup']
+						}
+					}]
+				});
+ console.log("isBound:"+this.$.FlanFlavor.id, regula.isBound({element: this.$.FlanFlavor}));
+				return;
+				this.allFields = 	this.$.form.querySelectorAll('input-field');
+				this.allFieldsMap={};
+				for(var i=0; i < this.allFields.length;i++){
+						console.log("addEventListener:",this.allFields[i]);
+						this.allFields[i].addEventListener("value-changed", this.valueChanged.bind(this));
+						this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
+				}
+			}
 		});
-
 	</script>
 </polymer-element>

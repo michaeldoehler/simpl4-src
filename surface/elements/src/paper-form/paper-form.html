@@ -50,11 +50,11 @@
 <!--PAPERFIELDS-->
 <polymer-element name="input-field" extends="form-field" attributes="type" kind="input" layout horizontal center>
 	<template>
-		<paper-input flex floatinglabel type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></paper-input>
+		<paper-input id="paperInput" flex floatinglabel type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></paper-input>
 	</template>
 	<script>
 		Polymer({
-			type:"text",
+			type: "text",
 			observe: {
 				type: 'validateAttributes',
 			},
@@ -76,12 +76,13 @@
 					'text',
 					'time',
 					'url',
-					'week'];
-			return (okTypes.indexOf(this.type) != -1);
-		},
+					'week'
+				];
+				return (okTypes.indexOf(this.type) != -1);
+			},
 			validateAttributes: function() {
-				console.log("validateAttributes");
-				if(!this.input) return;
+				console.log("validateAttributes:", this.input);
+				if (!this.input) return;
 				if (this.type != 'text' && !this.isAuthorizedType()) {
 					this.type = 'text'
 				}
@@ -89,12 +90,34 @@
 				this.input.setAttribute('type', this.type);
 			},
 			domReady: function() {
-				console.log("domReady:",document.querySelectorAll("html /deep/ input[aria-label=\""+this.name+"\"]"));
-				this.input = document.querySelectorAll("html /deep/ input[aria-label=\""+this.name+"\"]")[0];
-				console.log("This.input:",this.input);
+				this.validateAttributes();
+				this.decorator = this.$.paperInput.$.decorator;
+				this.input = this.$.paperInput.querySelector("paper-input /deep/ input");
 				this.validateAttributes();
 			},
+			invalidatedChanged: function() {
+				if (this.decorator) {
+					this.decorator.isInvalid = this.invalidated;
+					console.debug("input-field:invalidatedChanged:" + this.name + "/" + this.decorator.isInvalid);
+				}
+			},
+			setCustomValidity: function(message) {
+				console.debug("setCustomValidity:" + message);
+			},
+			valueChanged: function() {
+				if (!this.decorator) return;
+				var cvList = regula.validate({
+					elements: [this],
+					groups: [regula.Group.MyGroup]
+				});
+				console.debug("valueChanged(" + this.name + "):", cvList);
+				this.decorator.isInvalid = cvList.length > 0;
+				if( cvList.length>0){
+					this.decorator.error = cvList[0].message;
+				}
+			},
 			editValueChanged: function() {
+				console.debug("editValueChanged");
 				this.fire('validate-form-field');
 			}
 		});
@@ -141,7 +164,6 @@
 			:host {
 				margin-top: 8px;
 			}
-
 		</style>
 		<span style="vertical-align: middle;">{{name}}</span>&nbsp;
 
@@ -259,15 +281,15 @@
 			validate: function() {
 				var valid = this.fields.every(function(f) {
 					this.validateField(f);
-					console.log("f:"+f.name+":"+f.invalidated+"/"+f.value);
+					console.log("f:" + f.name + ":" + f.invalidated + "/" + f.value);
 					return !f.invalidated;
 				}, this);
 				return valid;
 			},
 			validateField: function(field) {
-console.log("field.validator:"+field.validator);
+				console.log("field.validator:" + field.validator);
 				if (field.validator) {
-console.log("XXXXXX");
+					console.log("XXXXXX");
 					var validator = this.validators.byId(field.validator);
 					console.log('validator go', validator);
 					if (validator) {
