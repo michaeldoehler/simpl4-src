@@ -1466,7 +1466,7 @@
 
 		//We clone the element because input elements in a form can sometimes have the same name as a native
 		//form property, which overrides that property.
-		var element = document.querySelector("html /deep/ #" + context.elementId).cloneNode(false);
+		var element = document.querySelector("html /deep/ #" + context.elementId);
 		var name = "";
 		if( element.name){
 			name = element.name.replace(/\s/g, "");
@@ -1807,7 +1807,7 @@
 
 		if (config.enableHTML5Validation) {
 			for (var i = 0; i < validationResult.failingElements.length; i++) {
-				//				validationResult.failingElements[i].setCustomValidity("");
+				validationResult.failingElements[i].setCustomValidity("");
 			}
 		}
 
@@ -1838,7 +1838,7 @@
 
 			if (config.enableHTML5Validation) {
 				for (var i = 0; i < validationResult.failingElements.length; i++) {
-					//Not with CustomTags validationResult.failingElements[i].setCustomValidity("");
+					validationResult.failingElements[i].setCustomValidity("");
 				}
 			}
 
@@ -1873,8 +1873,8 @@
 			}
 		}
 
-		var name = element.cloneNode(false).name.replace(/\s/g, "");
-		var type = element.cloneNode(false).type;
+		var name = element.name.replace(/\s/g, "");
+		var type = element.type;
 		if (typeof type !== "undefined" && type.toLowerCase() === "radio" && name !== "") {
 			failingElements = DOMUtils.getElementsByAttribute(document.body, "input", "name", name.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")); //let's set failing elements to all elements of the radio group
 		}
@@ -1925,8 +1925,8 @@
 		}
 
 		function processValidationResult(constraintPassed, composingConstraintViolations, failingElements, callback) {
-			var name = element.cloneNode(false).name.replace(/\s/g, "");
-			var type = element.cloneNode(false).type;
+			var name = element.name.replace(/\s/g, "");
+			var type = element.type;
 			if (typeof type !== "undefined" && type.toLowerCase() === "radio" && name !== "") {
 				failingElements = DOMUtils.getElementsByAttribute(document.body, "input", "name", name); //let's set failing elements to all elements of the radio group
 			}
@@ -1978,10 +1978,10 @@
 		}
 
 		if (/{label}/.test(errorMessage)) {
-			var friendlyInputName = DOMUtils.friendlyInputNames[element.cloneNode(false).tagName.toLowerCase()];
+			var friendlyInputName = DOMUtils.friendlyInputNames[element.tagName.toLowerCase()];
 
 			if (!friendlyInputName) {
-				friendlyInputName = DOMUtils.friendlyInputNames[element.cloneNode(false).type.toLowerCase()];
+				friendlyInputName = DOMUtils.friendlyInputNames[element.type.toLowerCase()];
 			}
 
 			errorMessage = errorMessage.replace(/{label}/, friendlyInputName);
@@ -2987,7 +2987,7 @@
 
 		//We clone here because a form element can have an input element named "tagName", which overrides the native
 		//tagName property
-		var clonedElement = element.cloneNode(false);
+		var clonedElement = element;
 
 		if (clonedElement.tagName.toLowerCase() == "form" && !constraintDefinitions[constraintName].formSpecific) {
 			result = {
@@ -4228,7 +4228,7 @@
 
 		//We clone here because a form element can have an input element named "tagName", which overrides the native
 		//tagName property
-		var clonedElement = typeof element.cloneNode !== "undefined" ? element.cloneNode(false) : element;
+		var clonedElement = element;//typeof element.cloneNode !== "undefined" ? element.cloneNode(false) : element;
 		var tagName = null;
 
 		if (typeof clonedElement.tagName !== "undefined") {
