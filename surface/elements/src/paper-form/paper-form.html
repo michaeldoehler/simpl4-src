@@ -58,6 +58,12 @@
 			observe: {
 				type: 'validateAttributes',
 			},
+			domReady: function() {
+				this.validateAttributes();
+				this.decorator = this.$.paperInput.$.decorator;
+				this.input = this.$.paperInput.querySelector("paper-input /deep/ input");
+				this.validateAttributes();
+			},
 			isAuthorizedType: function() {
 				var okTypes = [
 					'checkbox',
@@ -68,7 +74,7 @@
 					'email',
 					'file',
 					'month',
-					'number ',
+					'number',
 					'password',
 					'radio',
 					'range',
@@ -81,28 +87,13 @@
 				return (okTypes.indexOf(this.type) != -1);
 			},
 			validateAttributes: function() {
-				console.log("validateAttributes:", this.input);
-				if (!this.input) return;
+				if (!this.input){
+					 return;
+				}
 				if (this.type != 'text' && !this.isAuthorizedType()) {
 					this.type = 'text'
 				}
-				//Set the input attributes according to our element attribute
 				this.input.setAttribute('type', this.type);
-			},
-			domReady: function() {
-				this.validateAttributes();
-				this.decorator = this.$.paperInput.$.decorator;
-				this.input = this.$.paperInput.querySelector("paper-input /deep/ input");
-				this.validateAttributes();
-			},
-			invalidatedChanged: function() {
-				if (this.decorator) {
-					this.decorator.isInvalid = this.invalidated;
-					console.debug("input-field:invalidatedChanged:" + this.name + "/" + this.decorator.isInvalid);
-				}
-			},
-			setCustomValidity: function(message) {
-				console.debug("setCustomValidity:" + message);
 			},
 			valueChanged: function() {
 				if (!this.decorator) return;
@@ -115,6 +106,9 @@
 				if( cvList.length>0){
 					this.decorator.error = cvList[0].message;
 				}
+			},
+			setCustomValidity: function(message) {
+				console.debug("setCustomValidity:" + message);
 			},
 			editValueChanged: function() {
 				console.debug("editValueChanged");

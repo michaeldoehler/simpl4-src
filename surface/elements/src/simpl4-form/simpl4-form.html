@@ -41,7 +41,7 @@
 			<segment>
 				<paper-row if="row" class="pure-g">
 					<div class="pure-control-group">
-						<input-field type="text" id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}" xnvalidated="{{item.orderId | validateOrderId}}" error="Must be at least five characters long"></input-field>
+						<input-field type="text" id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}"></input-field>
 					</div>
 				</paper-row>
 				<paper-row>
@@ -65,7 +65,7 @@
 			<segment>
 				<paper-row>
 					<div class="pure-control-group">
-						<input-field type="date" id="FlanFlavor" name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}" xnvalidated="{{item.flavor | validateFlavor}}" error="Any flavor is fine, as long as it contains chocolate"></input-field>
+						<input-field type="date" id="FlanFlavor" name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
 					</div>
 					<slider-field name="Viscosity" value="{{item.viscosity}}"></slider-field>
 				</paper-row>
@@ -112,59 +112,19 @@
 			item: {
 				shape: 0
 			},
-
 			submit: function(e) {
-				var v = regula.validate({
-					element: this.$.OrderName
-				});
-				console.log("V:", v);
-				return;
-				//var is = this.v.validate();
-				var is = this.v.isValid();
-				console.log("isValid:", is);
-				var info = '';
-				//if (!this.$.form.validate()) {
-				//	info += '* form is not valid\n\n';
-				//}
+				var cvList = regula.validate({ });
+				console.log("cvList:", cvList);
 				var data = this.$.form.dump();
-				info += JSON.stringify(data, null, 2);
-				console.log("Info:" + info);
-
-
-				this.$.data.textContent = info;
-			},
-
-			validateOrderId: function(value) {
-				return;
-				console.log("validateOrderId:" + value);
-				if (this.$) {
-					var v = regula.validate({});
-					console.log("V:", v);
-				}
-				return !value || value.length < 5;
-			},
-
-			validateFlavor: function(value) {
-				return !value || value.toLowerCase().indexOf('chocolate') < 0;
+				var jsonData = JSON.stringify(data, null, 2);
+				console.log("Values:" + jsonData);
+				this.$.data.textContent = jsonData;
 			},
 			attached: function() {
 				this.fire('add-form-field');
 			},
 			detached: function() {
 				this.fire('remove-form-field');
-			},
-			valueChanged: function(e) {
-				return;
-				for(var i=0; i < this.allFields.length;i++){
-					this.allFields[i].invalidated=false;
-				}
-				console.log(e.type, e.detail);
-				var cvList = regula.validate();
-				console.log("cvList:", cvList);
-				for(var i=0; i < cvList.length;i++){
-					var cv = cvList[i];
-					cv.failingElements[0].invalidated=true;
-				}
 			},
 			domReady: function() {
 				console.log("RegulaBind");
@@ -190,13 +150,10 @@
 						}
 					}]
 				});
- console.log("isBound:"+this.$.FlanFlavor.id, regula.isBound({element: this.$.FlanFlavor}));
 				return;
 				this.allFields = 	this.$.form.querySelectorAll('input-field');
 				this.allFieldsMap={};
 				for(var i=0; i < this.allFields.length;i++){
-						console.log("addEventListener:",this.allFields[i]);
-						this.allFields[i].addEventListener("value-changed", this.valueChanged.bind(this));
 						this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
 				}
 			}
