@@ -1086,7 +1086,7 @@
 				for (var elementId in groupElements)
 					if (groupElements.hasOwnProperty(elementId)) {
 
-						if (!document.getElementById(elementId)) {
+						if (!document.querySelector("html /deep/ #" + elementId)) {
 							//if the element no longer exists, remove it from the bindings and continue
 							delete groupElements[elementId];
 						} else {
@@ -1466,7 +1466,7 @@
 
 		//We clone the element because input elements in a form can sometimes have the same name as a native
 		//form property, which overrides that property.
-		var element = document.getElementById(context.elementId).cloneNode(false);
+		var element = document.querySelector("html /deep/ #" + context.elementId).cloneNode(false);
 		var name = element.name.replace(/\s/g, "");
 
 		if (typeof element.type !== "undefined" && element.type.toLowerCase() === "radio" && name !== "") {
@@ -1804,7 +1804,7 @@
 
 		if (config.enableHTML5Validation) {
 			for (var i = 0; i < validationResult.failingElements.length; i++) {
-				validationResult.failingElements[i].setCustomValidity("");
+				//				validationResult.failingElements[i].setCustomValidity("");
 			}
 		}
 
@@ -1835,7 +1835,7 @@
 
 			if (config.enableHTML5Validation) {
 				for (var i = 0; i < validationResult.failingElements.length; i++) {
-					validationResult.failingElements[i].setCustomValidity("");
+					//Not with CustomTags validationResult.failingElements[i].setCustomValidity("");
 				}
 			}
 
@@ -1849,7 +1849,7 @@
 
 		//Element is cloned here because forms can have input elements that have the same name as a native
 		//form property, which overrides that property
-		var element = document.getElementById(elementId);
+		var element = document.querySelector("html /deep/ #" + elementId);
 		var composingConstraintViolations = [];
 
 		if (constraintDefinitions[elementConstraint].formSpecific) {
@@ -1892,7 +1892,7 @@
 	function asynchronouslyRunValidatorFor(currentGroup, elementId, elementConstraint, params, callback) {
 		//Element is cloned here because forms can have input elements that have the same name as a native
 		//form property, which overrides that property
-		var element = document.getElementById(elementId);
+		var element = document.querySelector("html /deep/ #" + elementId);
 
 		if (constraintDefinitions[elementConstraint].formSpecific) {
 			constraintDefinitions[elementConstraint].validator.call(element, params, publicValidator, function(failingElements) {
@@ -1943,7 +1943,7 @@
 	}
 
 	function interpolateConstraintDefaultMessage(elementId, elementConstraint, params) {
-		var element = document.getElementById(elementId);
+		var element = document.querySelector("html /deep/ #" + elementId);
 		var errorMessage = "";
 
 		if (params["message"]) {
@@ -4232,7 +4232,8 @@
 			tagName = clonedElement.tagName.toLowerCase();
 		}
 
-		if (tagName !== "form" && tagName !== "select" && tagName !== "textarea" && tagName !== "input") {
+		//CustomTag's have any name
+		if (false && tagName !== "form" && tagName !== "select" && tagName !== "textarea" && tagName !== "input") {
 			result = {
 				successful: false,
 				message: tagName + "#" + element.id + " is not an input, select, textarea, or form element! Validation constraints can only be attached to input, select, textarea, or form elements.",
@@ -4262,7 +4263,9 @@
 		var elementsWithRegulaValidation;
 
 		if (element === null) {
-			elementsWithRegulaValidation = DOMUtils.getElementsByAttribute(document.body, "*", "data-constraints");
+			//			elementsWithRegulaValidation = DOMUtils.getElementsByAttribute(document.body, "*", "data-constraints");
+			elementsWithRegulaValidation = document.querySelectorAll("html /deep/ [data-constraints]");
+			console.log("elementsWithRegulaValidation:", elementsWithRegulaValidation);
 		} else {
 			elementsWithRegulaValidation = [element];
 		}
@@ -4498,9 +4501,11 @@
 
 				var elements = null;
 				if (html5Constraint.value == null) {
-					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute);
+					//					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute);
+					elements = document.querySelectorAll("html /deep/ [" + html5Constraint.attribute + "]");
 				} else {
-					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute, html5Constraint.value);
+					//					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute, html5Constraint.value);
+					elements = document.querySelectorAll("html /deep/ [" + html5Constraint.attribute + "=\"" + html5Constraint.value + "\"]");
 				}
 
 				addConstraintToElementMap(elementsWithHTML5Validation, elements, html5Constraint);
@@ -4550,7 +4555,7 @@
 		}
 
 		MapUtils.iterateOverMap(elementsWithHTML5Validation, function(elementId, constraintDefinitions, index) {
-			var element = document.getElementById(elementId);
+			var element = document.querySelector("html /deep/ #" + elementId);
 
 			for (var i = 0; i < constraintDefinitions.length; i++) {
 				var constraintDefinition = constraintDefinitions[i];
@@ -4596,7 +4601,7 @@
 				message: "regula.bind: element attribute is expected to be an HTMLElement, but was of unexpected type: " + typeof element + ". " + ExceptionService.explodeParameters(options),
 				data: null
 			};
-		} else if (tagName != "form" && tagName != "select" && tagName != "textarea" && tagName != "input") {
+		} else if (false && tagName != "form" && tagName != "select" && tagName != "textarea" && tagName != "input") {
 			result = {
 				successful: false,
 				message: tagName + "#" + element.id + " is not an input, select, textarea, or form element! Validation constraints can only be attached to input, select, textarea, or form elements. " + ExceptionService.explodeParameters(options),
@@ -5341,7 +5346,7 @@
 			}
 
 			if (typeof options.elements === "undefined") {
-				options.elements = [document.getElementById(options.elementId)];
+				options.elements = document.querySelector("html /deep/ #" + options.elementId);
 
 				//This can happen when they pass in an id that doesn't belong to any element
 				if (options.elements[0] === null) {
