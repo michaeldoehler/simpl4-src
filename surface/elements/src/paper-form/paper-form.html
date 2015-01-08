@@ -48,21 +48,41 @@
 </polymer-element>
 
 <!--PAPERFIELDS-->
-<polymer-element name="input-field" extends="form-field" attributes="type" kind="input" layout horizontal center>
+<polymer-element name="input-field" extends="form-field" attributes="type label name" kind="input" layout horizontal center>
 	<template>
-		<paper-input id="paperInput" flex floatinglabel type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></paper-input>
+		<!--simpl4-paper-input id="paperInput" flex floatinglabel="{{floatinglabel}}" type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></simpl4-paper-input-->
+		<paper-input-decorator id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}">
+			<input is="core-input" id="input" value="{{value}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" disabled?="{{disabled}}">
+		</paper-input-decorator>
 	</template>
 	<script>
 		Polymer({
 			type: "text",
+			floatingLabel: true,
+			hasDate: Modernizr.inputtypes.date,
 			observe: {
 				type: 'validateAttributes',
 			},
 			domReady: function() {
+				if( this.label == null || this.label=='') this.label = this.name;
 				this.validateAttributes();
-				this.decorator = this.$.paperInput.$.decorator;
-				this.input = this.$.paperInput.querySelector("paper-input /deep/ input");
+				this.decorator = this.$.decorator;
+				this.input = this.$.input;
 				this.validateAttributes();
+				if(this.type == "date"){
+					 this.invisible=false;
+				}
+				console.log("paper-input:" + this.label + "/" + this.type);
+				if (this.type === 'date' && !this.hasDate) {
+					var picker = new Pikaday({
+						field: this.$.input,
+						trigger: this.$.input,
+						firstDay: 1,
+						minDate: new Date('2000-01-01'),
+						maxDate: new Date('2020-12-31'),
+						yearRange: [2000, 2020]
+					});
+				}
 			},
 			isAuthorizedType: function() {
 				var okTypes = [

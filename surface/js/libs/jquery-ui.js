@@ -103,7 +103,7 @@ function focusable( element, isTabIndexNotNaN ) {
 		img = $( "img[usemap='#" + mapName + "']" )[ 0 ];
 		return !!img && visible( img );
 	}
-	return ( /input|select|textarea|button|object/.test( nodeName ) ?
+	return ( /input-field|input|select|textarea|button|object/.test( nodeName ) ?
 		!element.disabled :
 		"a" === nodeName ?
 			element.href || isTabIndexNotNaN :
@@ -875,7 +875,7 @@ $( document ).mouseup( function() {
 var mouse = $.widget("ui.mouse", {
 	version: "1.11.2",
 	options: {
-		cancel: "input,textarea,button,select,option",
+		cancel: "input-field,input,textarea,button,select,option",
 		distance: 1,
 		delay: 0
 	},
@@ -1209,7 +1209,7 @@ $.extend(Datepicker.prototype, {
 		}
 		inst = this._newInst($(target), inline);
 		inst.settings = $.extend({}, settings || {});
-		if (nodeName === "input") {
+		if (nodeName === "input" || nodeName === "input-field") {
 			this._connectDatepicker(target, inst);
 		} else if (inline) {
 			this._inlineDatepicker(target, inst);
@@ -1408,7 +1408,7 @@ $.extend(Datepicker.prototype, {
 
 		nodeName = target.nodeName.toLowerCase();
 		$.removeData(target, "datepicker");
-		if (nodeName === "input") {
+		if (nodeName === "input" || nodeName==="input-field") {
 			inst.append.remove();
 			inst.trigger.remove();
 			$target.removeClass(this.markerClassName).
@@ -1434,7 +1434,7 @@ $.extend(Datepicker.prototype, {
 		}
 
 		nodeName = target.nodeName.toLowerCase();
-		if (nodeName === "input") {
+		if (nodeName === "input" || nodeName==="input-field") {
 			target.disabled = false;
 			inst.trigger.filter("button").
 				each(function() { this.disabled = false; }).end().
@@ -1462,7 +1462,7 @@ $.extend(Datepicker.prototype, {
 		}
 
 		nodeName = target.nodeName.toLowerCase();
-		if (nodeName === "input") {
+		if (nodeName === "input" || nodeName==="input-field") {
 			target.disabled = true;
 			inst.trigger.filter("button").
 				each(function() { this.disabled = true; }).end().
@@ -1745,10 +1745,10 @@ $.extend(Datepicker.prototype, {
 	 */
 	_showDatepicker: function(input) {
 		input = input.target || input;
-		if (input.nodeName.toLowerCase() !== "input") { // find from button/image trigger
-			input = $("input", input.parentNode)[0];
+		if (input.nodeName.toLowerCase() !== "input-field") { // find from button/image trigger
+			input = $("input-field", input.parentNode)[0];
 		}
-
+console.log("_showDatepicker:",input);
 		if ($.datepicker._isDisabledDatepicker(input) || $.datepicker._lastInput === input) { // already here
 			return;
 		}
@@ -1786,8 +1786,11 @@ $.extend(Datepicker.prototype, {
 		isFixed = false;
 		$(input).parents().each(function() {
 			isFixed |= $(this).css("position") === "fixed";
+console.log("position:",$(this));
+console.log("position2:",$(this).css("position"));
 			return !isFixed;
 		});
+console.log("isFixed:"+isFixed);
 
 		offset = {left: $.datepicker._pos[0], top: $.datepicker._pos[1]};
 		$.datepicker._pos = null;
@@ -1799,8 +1802,8 @@ $.extend(Datepicker.prototype, {
 		// fix width for dynamic number of date pickers
 		// and adjust position before showing
 		offset = $.datepicker._checkOffset(inst, offset, isFixed);
-		inst.dpDiv.css({position: ($.datepicker._inDialog && $.blockUI ?
-			"static" : (isFixed ? "fixed" : "absolute")), display: "none",
+console.log("offset:",offset);
+		inst.dpDiv.css({position: ($.datepicker._inDialog && $.blockUI ? "static" : (isFixed ? "fixed" : "absolute")), display: "none",
 			left: offset.left + "px", top: offset.top + "px"});
 
 		if (!inst.inline) {
@@ -1892,6 +1895,8 @@ $.extend(Datepicker.prototype, {
 		offset.top -= Math.min(offset.top, (offset.top + dpHeight > viewHeight && viewHeight > dpHeight) ?
 			Math.abs(dpHeight + inputHeight) : 0);
 
+offset.left=301;
+offset.top=424;
 		return offset;
 	},
 
