@@ -62,9 +62,9 @@
 
 <body unresolved fullbleed>
 
-	<simpl4-globals id="globals"></simpl4-globals>
+	<simpl-globals id="globals"></simpl-globals>
 	<template is="auto-binding" id="t">
-		<simpl4-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl4-dispatcher>
+		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
 
 		<!-- Route controller. -->
 		<flatiron-director route="{{route}}" autoHash></flatiron-director>
@@ -80,7 +80,7 @@
 				<core-toolbar>
 					<span>Polymer Tutorial SPA</span>
 				</core-toolbar>
-				<simpl4-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" fit/>
+				<simpl-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" fit/>
 			</nav>
 
 			<core-toolbar tool flex>
@@ -104,7 +104,7 @@
 		</core-scaffold>
 
 		<paper-dialog id="dialog">
-			<simpl4-login id="login"></simpl4-login>
+			<simpl-login id="login"></simpl-login>
 		</paper-dialog>
 	</template>
 

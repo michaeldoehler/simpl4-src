@@ -1,0 +1,172 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<polymer-element name="simpl4-form" attributes="namespace name">
+
+	<template>
+		<style>
+			:host {
+				display: block;
+				//background: #eeeeee;
+				padding: 2px;
+			}
+			.button {
+				max-width: 120px;
+			}
+ section { 
+      padding: 0px;
+    }
+
+			.xextarea {
+				width: 40%;
+			}
+			.input {
+				min-width: 280px;
+				width: 49%;
+			}
+			paper-tabs {
+				background: #f0f0f0;
+			}
+			html /deep/ #selectionBar {
+				background: blue;
+			}
+			fieldset {
+				border-radius: 8px;
+				border:1px solid #f0f0f0;
+			}
+		</style>
+		<fieldset id="formdiv" verticax xayout>
+			<template repeat="{{shapes}}" id="t">
+
+				<template ref="elements" bind></template>
+				<template if="{{ id=='Tabview' }}">
+					<paper-tabs selected="{{selected}}">
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
+							</template>
+						</template>
+					</paper-tabs>
+
+
+					<core-animated-pages selected="{{selected}}" vertical layout>
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<section style="position:relative;">
+									<template ref="elements" repeat="{{childShapes}}"></template>
+								</section>
+							</template>
+						</template>
+					</core-animated-pages>
+
+				</template>
+				<template if="{{ id!='Tabview' }}">
+					<template ref="t" repeat="{{childShapes}}"></template>
+				</template>
+			</template>
+
+		</fieldset>
+
+		<template id="elements">
+			<template if="{{ id=='Input' }}">
+				<simpl4-input class="input" type={{xf_type}} label="{{label}}" autoValidate required floatinglabel></simpl4-input>
+			</template>
+			<template if="{{ id=='ActionButton' }}">
+				<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+			</template>
+			<template if="{{ id=='Textarea' }}">
+				<paper-input-decorator class="textarea" label="{{label}}" floatinglabel>
+					<paper-autogrow-textarea>
+						<textarea></textarea>
+					</paper-autogrow-textarea>
+				</paper-input-decorator>
+			</template>
+			<template if="{{ id=='break' }}">
+				<br />
+			</template>
+		</template>
+	</template>
+
+	<script>
+		Polymer({
+			namespace: null,
+			name: null,
+			domReady: function() {
+				var $d = this.$.formdiv;;
+console.log("domReady:",document.createElement("div"));
+console.log("domReady:",document.querySelectorAll("fieldset /deep/ input"));
+			},
+			ready: function() {
+				console.log("Ready:",this.$.xxxx);
+				var form = simpl4FormManager.getForm(this.name);
+				this.shapes = this.prepareShape(form).childShapes;
+				//console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
+			},
+			prepareShape: function(shape) {
+				shape = this.cleanShape(shape);
+				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
+					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+				});
+				var childShapes = shape.childShapes;
+				shape.childShapes = [];
+				for (var i = 0; i < childShapes.length; i++) {
+					if (i > 0 && this.needBreak(childShapes[i - 1], childShapes[i])) {
+						shape.childShapes.push({
+							id: "break"
+						});
+					}
+					shape.childShapes.push(this.prepareShape(childShapes[i]));
+				}
+				return shape;
+			},
+			cleanShape: function(shape) {
+				if (shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea') {
+					shape.properties.label = shape.childShapes[0].properties.xf_text;
+					shape.childShapes = [];
+				} else {
+					shape.properties.label = "";
+				}
+				return _.extend(shape.properties, shape.stencil, {
+					childShapes: shape.childShapes
+				});
+			},
+			needBreak: function(child, next) {
+				var UL = child.bounds.upperLeft;
+				var lineBreak = false;
+				var nextUL = next.bounds.upperLeft;
+				if (UL.y != nextUL.y) {
+					lineBreak = true;
+				}
+				return lineBreak;
+			},
+			validateAll: function() {
+				console.debug("validateAll");
+				var $d = this.$.formdiv.querySelectorAll('.input');
+				console.log("D:", $d);
+				Array.prototype.forEach.call($d, function(d) {
+					console.debug("Input:" + d.value);
+					d.isInvalid = !d.valid;
+				});
+			}
+		});
+	</script>
+
+</polymer-element>

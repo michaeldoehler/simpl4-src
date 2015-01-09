@@ -4,17 +4,17 @@ and password).
 
 ##### Example
 
-    <simpl4-login></simpl4-login>
+    <simpl-login></simpl-login>
 
-@element simpl4-login
+@element simpl-login
 @blurb Login box
 @status alpha
-@homepage http://polymerlabs.github.io/simpl4-login
+@homepage http://polymerlabs.github.io/simpl-login
 -->
-<polymer-element name="simpl4-login" attributes="heading identification">
+<polymer-element name="simpl-login" attributes="heading identification">
 
   <template>
-    <link rel="stylesheet" href="simpl4-login.css" />
+    <link rel="stylesheet" href="simpl-login.css" />
     <h2>{{heading}}</h2>
     <content select="[top]"></content>
     <content select="[identifierHeading]"></content>
@@ -27,7 +27,7 @@ and password).
 
   <script>
 
-    Polymer('simpl4-login', {
+    Polymer('simpl-login', {
       /**
        * The `heading` attribute sets an initial heading
        * 
@@ -96,10 +96,10 @@ and password).
       },
 
       /**
-       * The `simpl4-login-login-try` event is fired whenever we
+       * The `simpl-login-login-try` event is fired whenever we
        * call fireLoginTry
        * 
-       * @event simpl4-login-login-try
+       * @event simpl-login-login-try
        * @param {Object} detail
        *   @param {string} detail.identifier The identifying value (e.g. username)
        *   @param {string} detail.password The password value
@@ -111,7 +111,7 @@ and password).
        * @method fireLoginTry
        */
       fireLoginTry: function() {
-        this.fire('simpl4-login-login-try', {
+        this.fire('simpl-login-login-try', {
           identifier: this.identifier,
           password: this.password
         });

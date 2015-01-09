@@ -1,3 +1,23 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
 <script>
 	modularize('form-field', function() {
 		return {
@@ -36,10 +56,10 @@
 				});
 			},
 			attached: function() {
-				this.fire('add-form-field');
+				this.fire('add-form-field', this);
 			},
 			detached: function() {
-				this.fire('remove-form-field');
+				this.fire('remove-form-field', this);
 			}
 		});
 	</script>
@@ -70,7 +90,7 @@
 				if (this.type == "date") {
 					this.invisible = false;
 				}
-				console.log("paper-input:" + this.label + "/" + this.type);
+				console.log("input-field:" + this.label + "/" + this.type);
 				self = this;
 				if (this.type.match(/^date/) != null && !this.hasDate) {
 					var picker = new Pikaday({
@@ -81,7 +101,7 @@
 						}.bind(this),
 						bound: true,
 						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n : null,
-						format:simpl4.util.BaseManager.getDateFormat(),
+						format: simpl4.util.BaseManager.getDateFormat(),
 						showTime: this.type.match(/^datetime/) != null,
 						showSeconds: false,
 						use24hour: simpl4.util.BaseManager.getLanguage() == 'de' ? true : false,
@@ -131,17 +151,17 @@
 				this.input.setAttribute('type', this.type);
 			},
 			committedValueChanged: function() {
-				console.log("committedValueChanged("+this.name+"):"+this.value+"/"+this.committedValue);
+				console.log("committedValueChanged(" + this.name + "):" + this.value + "/" + this.committedValue);
 			},
 			editValueChanged: function() {
-				console.log("editValueChanged("+this.name+"):"+this.value+"/"+this.editValue);
-				if( this.type == "date" &&!this.hasDate){
-					var mdate  = moment(this.editValue,simpl4.util.BaseManager.getDateFormat());
-					this.value = mdate.year()+"-"+(mdate.month()+1)+"-"+mdate.date();
-				}else{
+				console.log("editValueChanged(" + this.name + "):" + this.value + "/" + this.editValue);
+				if (this.type == "date" && !this.hasDate) {
+					var mdate = moment(this.editValue, simpl4.util.BaseManager.getDateFormat());
+					this.value = mdate.year() + "-" + (mdate.month() + 1) + "-" + mdate.date();
+				} else {
 					this.value = this.editValue;
 				}
-				console.log("value:"+this.value);
+				console.log("value:" + this.value);
 			},
 			valueChanged: function() {
 				if (!this.$.decorator) return;
@@ -252,58 +272,6 @@
 				if (!c.match(/\d/)) {
 					e.preventDefault();
 				}
-			}
-		});
-	</script>
-</polymer-element>
-
-
-
-<!--PAPERFORM-->
-<style>
-	html /deep/ [novanish] {
-		min-height: 8px;
-	}
-	design-frame /deep/ paper-row {
-		border: 1px dotted rgba(240, 240, 240, 0.5);
-		border-radius: 8px;
-		margin: -1px -1px;
-	}
-</style>
-
-<polymer-element name="paper-group" segment horizontal layout wrap novanish noscript></polymer-element>
-
-<polymer-element name="paper-row" horizontal layout center wrap novanish noscript></polymer-element>
-
-<polymer-element name="paper-form" attributes="dump" constructor="PaperForm" vertical layout>
-	<template>
-	</template>
-	<script>
-		Polymer('paper-form', {
-			eventDelegates: {
-				'add-form-field': 'addField',
-				'remove-form-field': 'removeField'
-			},
-			created: function() {
-				this.fields = [];
-			},
-			addField: function(e) {
-				this.fields.push(e.target);
-			},
-			removeField: function(e) {
-				var i = this.fields.indexOf(e.target);
-				if (i >= 0) {
-					this.fields.splice(i, 1);
-				}
-			},
-			dump: function() {
-				console.log("Dump2");
-				var data = {};
-				this.fields.forEach(function(f) {
-					data[f.name] = f.value;
-				}, this);
-				console.log("Data:", data);
-				return data;
 			}
 		});
 	</script>

@@ -20,9 +20,9 @@
 -->
 
 <link rel="import" href="utils-import.html">
-<polymer-element name="simpl4-globals" hidden>
+<polymer-element name="simpl-globals" hidden>
 	<template>
-		<simpl4-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl4-rpc>
+		<simpl-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl-rpc>
 	</template>
 	<script>
 		(function() {
@@ -48,7 +48,7 @@
 				return simpl4MessageManager.tr(input);
 			};
 
-			Polymer('simpl4-globals', {
+			Polymer('simpl-globals', {
 				ready: function() {
 					this.config = config;
 					console.debug("Globals.Ready:"+  tr('data.customer.cid'));

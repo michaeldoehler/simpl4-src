@@ -1,4 +1,24 @@
-<polymer-element name="simpl4-dispatcher" attributes="selected selectedModel pages" flex relative>
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-dispatcher" attributes="selected selectedModel pages" flex relative>
 	<template>
 		<style shim-shadowdom>
 			div {
@@ -11,7 +31,7 @@
 		<content></content>
 	</template>
 	<script>
-		Polymer('simpl4-dispatcher', {
+		Polymer('simpl-dispatcher', {
 			ready: function() {
 				console.log("dispatcher.Ready:" + this.selected);
 				if (this.selected) {
@@ -29,14 +49,14 @@
 			},
 			domReady: function() {
 				console.log("dispatcher.DomReady:" + this.selected);
-				var aList = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot.querySelectorAll("a");
+				var aList = document.getElementsByTagName("simpl-mmenu")[0].shadowRoot.querySelectorAll("a");
 				for( var i=0; i< aList.length;i++){
 					var a = aList[i];
 					if (a["className"] != "mm-subopen") {
 						Polymer.addEventListener(a, "tap", this.activateListener.bind(this));
 					}
 				}
-				this.mainMenuElement = document.getElementsByTagName("simpl4-mmenu")[0].shadowRoot;
+				this.mainMenuElement = document.getElementsByTagName("simpl-mmenu")[0].shadowRoot;
 				if (this.selected) {
 					this.openMenuByHash(this.mainMenuElement, this.selected);
 				}
