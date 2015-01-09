@@ -132,24 +132,6 @@
 				this.fire('remove-form-field');
 			},
 			domReady: function() {
-				self = this;
-				var offsets = this.$.FlanFlavor.getBoundingClientRect();
-				console.log("RegulaBind:", offsets);
-				//$(this.$.FlanFlavor ).datepicker();
-				//   $(this.$.FlanFlavor).datepicker({ format: "dd/mm/yyyy" });  
-				/* var picker = new Pikaday(
-				    {
-				        field: this.$.FlanFlavor,
-				        trigger: this.$.FlanFlavor,
-								bound:true,
-				        firstDay: 1,
-				        minDate: new Date('2000-01-01'),
-				        maxDate: new Date('2020-12-31'),
-				        yearRange: [2000,2020]
-				    });*/
-
-
-
 				regula.bind({
 					element: this.$.OrderName,
 					constraints: [{

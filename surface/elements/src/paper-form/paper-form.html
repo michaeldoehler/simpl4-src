@@ -49,7 +49,7 @@
 <polymer-element name="input-field" extends="form-field" attributes="type label name" kind="input" layout horizontal center>
 	<template>
 		<paper-input-decorator id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}">
-			<input is="core-input" id="input" value="{{value}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" disabled?="{{disabled}}">
+			<input is="core-input" id="input" value="{{editValue}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" disabled?="{{disabled}}">
 		</paper-input-decorator>
 	</template>
 	<script>
@@ -77,18 +77,27 @@
 						field: this.$.input,
 						trigger: this.$.input,
 						onSelect: function(a) {
-							self.value = this.$.input.value;
+							//self.value = this.$.input.value;
 						}.bind(this),
 						bound: true,
+						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n : null,
+						format:simpl4.util.BaseManager.getDateFormat(),
 						showTime: this.type.match(/^datetime/) != null,
 						showSeconds: false,
-						use24hour: true,
+						use24hour: simpl4.util.BaseManager.getLanguage() == 'de' ? true : false,
 						firstDay: 1,
 						minDate: new Date('2000-01-01'),
 						maxDate: new Date('2020-12-31'),
 						yearRange: [2000, 2020]
 					});
 				}
+			},
+			i18n: {
+				previousMonth: 'Vorheriger Monat',
+				nextMonth: 'Nächster Monat',
+				months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+				weekdays: ['Sontag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+				weekdaysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
 			},
 			isAuthorizedType: function() {
 				var okTypes = [
@@ -121,13 +130,26 @@
 				}
 				this.input.setAttribute('type', this.type);
 			},
+			committedValueChanged: function() {
+				console.log("committedValueChanged("+this.name+"):"+this.value+"/"+this.committedValue);
+			},
+			editValueChanged: function() {
+				console.log("editValueChanged("+this.name+"):"+this.value+"/"+this.editValue);
+				if( this.type == "date" &&!this.hasDate){
+					var mdate  = moment(this.editValue,simpl4.util.BaseManager.getDateFormat());
+					this.value = mdate.year()+"-"+(mdate.month()+1)+"-"+mdate.date();
+				}else{
+					this.value = this.editValue;
+				}
+				console.log("value:"+this.value);
+			},
 			valueChanged: function() {
 				if (!this.$.decorator) return;
 				var cvList = regula.validate({
 					elements: [this],
 					groups: [regula.Group.MyGroup]
 				});
-				console.debug("valueChanged(" + this.name +","+this.$.input.value+","+this.value+ "):"+ cvList.length);
+				console.debug("valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + cvList.length);
 				this.decorator.isInvalid = cvList.length > 0;
 				if (cvList.length > 0) {
 					this.decorator.error = cvList[0].message;
@@ -135,10 +157,6 @@
 			},
 			setCustomValidity: function(message) {
 				console.debug("setCustomValidity:" + message);
-			},
-			editValueChanged: function() {
-				console.debug("editValueChanged");
-				this.fire('validate-form-field');
 			}
 		});
 	</script>

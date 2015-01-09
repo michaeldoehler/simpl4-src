@@ -44,5 +44,8 @@ can.Construct.extend("simpl4.util.BaseManager", {
 	},
 	getPassword:function(password){
 		return simpl4.util.BaseManager.password;
+	},
+	getDateFormat:function(){
+		return simpl4.util.BaseManager.getLanguage() === 'de' ? 'DD.MM.YYYY' : 'MM/DD/YYYY';
 	}
 }, {});
