@@ -1,7 +1,7 @@
-<polymer-element name="simpl4-form">
+<polymer-element name="simpl4-form" extends="paper-form" constructor="Simpl4Form">
 	<template>
-		<link rel="stylesheet" type="text/css" href="grids.css" >
-		<link rel="stylesheet" type="text/css" href="grids-responsive.css" >
+		<link rel="stylesheet" type="text/css" href="grids.css">
+		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
 		<style>
 			body,
 			button,
@@ -34,7 +34,7 @@
 				font-size: 12px;
 			}
 		</style>
-		<paper-form segment id="form">
+		<div segment id="form">
 
 			<h2>Form-factor</h2>
 
@@ -100,7 +100,7 @@
 				<button on-tap="{{submit}}">Submit</button>
 			</div>
 
-		</paper-form>
+		</div>
 
 		<segment>
 			Your form data:
@@ -113,12 +113,17 @@
 				shape: 0
 			},
 			submit: function(e) {
-				var cvList = regula.validate({ });
+				var cvList = regula.validate({});
 				console.log("cvList:", cvList);
-				var data = this.$.form.dump();
+				console.log("value:", this.$.FlanFlavor.value);
+				return;
+				var data = this.dump();
 				var jsonData = JSON.stringify(data, null, 2);
 				console.log("Values:" + jsonData);
 				this.$.data.textContent = jsonData;
+			},
+			dump: function() {
+				return self.super();
 			},
 			attached: function() {
 				this.fire('add-form-field');
@@ -127,21 +132,21 @@
 				this.fire('remove-form-field');
 			},
 			domReady: function() {
-window.xform = this.$.form;
-					var offsets = this.$.FlanFlavor.getBoundingClientRect();
-				console.log("RegulaBind:",offsets);
-				 //$(this.$.FlanFlavor ).datepicker();
-//   $(this.$.FlanFlavor).datepicker({ format: "dd/mm/yyyy" });  
-/* var picker = new Pikaday(
-    {
-        field: this.$.FlanFlavor,
-        trigger: this.$.FlanFlavor,
-				bound:true,
-        firstDay: 1,
-        minDate: new Date('2000-01-01'),
-        maxDate: new Date('2020-12-31'),
-        yearRange: [2000,2020]
-    });*/
+				self = this;
+				var offsets = this.$.FlanFlavor.getBoundingClientRect();
+				console.log("RegulaBind:", offsets);
+				//$(this.$.FlanFlavor ).datepicker();
+				//   $(this.$.FlanFlavor).datepicker({ format: "dd/mm/yyyy" });  
+				/* var picker = new Pikaday(
+				    {
+				        field: this.$.FlanFlavor,
+				        trigger: this.$.FlanFlavor,
+								bound:true,
+				        firstDay: 1,
+				        minDate: new Date('2000-01-01'),
+				        maxDate: new Date('2020-12-31'),
+				        yearRange: [2000,2020]
+				    });*/
 
 
 
@@ -168,10 +173,10 @@ window.xform = this.$.form;
 					}]
 				});
 				return;
-				this.allFields = 	this.$.form.querySelectorAll('input-field');
-				this.allFieldsMap={};
-				for(var i=0; i < this.allFields.length;i++){
-						this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
+				this.allFields = this.$.form.querySelectorAll('input-field');
+				this.allFieldsMap = {};
+				for (var i = 0; i < this.allFields.length; i++) {
+					this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
 				}
 			}
 		});

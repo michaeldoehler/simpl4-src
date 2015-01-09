@@ -13,7 +13,7 @@
 	});
 </script>
 
-<polymer-element name="form-field" attributes="name value meta editValue errorText validator invalidated" field>
+<polymer-element name="form-field" attributes="name value meta editValue" field>
 	<template>
 		<style>
 			:host {
@@ -24,8 +24,6 @@
 	</template>
 	<script>
 		Polymer({
-			validator: '',
-			errorText: '',
 			registerCallback: function(polymerElement) {
 				// TODO: `using` seems to force async (even when not necessary)
 				// which breaks the timeline if the using() is outside of the 
@@ -50,7 +48,6 @@
 <!--PAPERFIELDS-->
 <polymer-element name="input-field" extends="form-field" attributes="type label name" kind="input" layout horizontal center>
 	<template>
-		<!--simpl4-paper-input id="paperInput" flex floatinglabel="{{floatinglabel}}" type="{{type}}" label="{{name}}" invalid="{{invalidated}}" inputValue="{{editValue}}" value="{{value}}" error="{{errorText}}"></simpl4-paper-input-->
 		<paper-input-decorator id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}">
 			<input is="core-input" id="input" value="{{value}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" disabled?="{{disabled}}">
 		</paper-input-decorator>
@@ -58,25 +55,34 @@
 	<script>
 		Polymer({
 			type: "text",
+			value: "",
 			floatingLabel: true,
 			hasDate: Modernizr.inputtypes.date,
 			observe: {
 				type: 'validateAttributes',
 			},
 			domReady: function() {
-				if( this.label == null || this.label=='') this.label = this.name;
+				if (this.label == null || this.label == '') this.label = this.name;
 				this.validateAttributes();
 				this.decorator = this.$.decorator;
 				this.input = this.$.input;
 				this.validateAttributes();
-				if(this.type == "date"){
-					 this.invisible=false;
+				if (this.type == "date") {
+					this.invisible = false;
 				}
 				console.log("paper-input:" + this.label + "/" + this.type);
-				if (this.type === 'date' && !this.hasDate) {
+				self = this;
+				if (this.type.match(/^date/) != null && !this.hasDate) {
 					var picker = new Pikaday({
 						field: this.$.input,
 						trigger: this.$.input,
+						onSelect: function(a) {
+							self.value = this.$.input.value;
+						}.bind(this),
+						bound: true,
+						showTime: this.type.match(/^datetime/) != null,
+						showSeconds: false,
+						use24hour: true,
 						firstDay: 1,
 						minDate: new Date('2000-01-01'),
 						maxDate: new Date('2020-12-31'),
@@ -107,8 +113,8 @@
 				return (okTypes.indexOf(this.type) != -1);
 			},
 			validateAttributes: function() {
-				if (!this.input){
-					 return;
+				if (!this.input) {
+					return;
 				}
 				if (this.type != 'text' && !this.isAuthorizedType()) {
 					this.type = 'text'
@@ -116,14 +122,14 @@
 				this.input.setAttribute('type', this.type);
 			},
 			valueChanged: function() {
-				if (!this.decorator) return;
+				if (!this.$.decorator) return;
 				var cvList = regula.validate({
 					elements: [this],
 					groups: [regula.Group.MyGroup]
 				});
-				console.debug("valueChanged(" + this.name + "):", cvList);
+				console.debug("valueChanged(" + this.name +","+this.$.input.value+","+this.value+ "):"+ cvList.length);
 				this.decorator.isInvalid = cvList.length > 0;
-				if( cvList.length>0){
+				if (cvList.length > 0) {
 					this.decorator.error = cvList[0].message;
 				}
 			},
@@ -251,30 +257,17 @@
 
 <polymer-element name="paper-row" horizontal layout center wrap novanish noscript></polymer-element>
 
-
-<polymer-element name="field-validator" attributes="value editValue errorText invalidated" extends="core-meta" type="validator" id="numchars">
+<polymer-element name="paper-form" attributes="dump" constructor="PaperForm" vertical layout>
+	<template>
+	</template>
 	<script>
-		Polymer({
-			errorText: "Failed to validate",
-			validate: function(field) {
-				field.error = this.errorText;
-				field.invalidated = field.value && field.value.length < 5;
-			}
-		});
-	</script>
-</polymer-element>
-
-<polymer-element name="paper-form" vertical layout>
-	<script>
-		Polymer({
+		Polymer('paper-form', {
 			eventDelegates: {
 				'add-form-field': 'addField',
-				'remove-form-field': 'removeField',
-				'validate-form-field': 'validateFieldEvent'
+				'remove-form-field': 'removeField'
 			},
 			created: function() {
 				this.fields = [];
-				this.validators = document.createElement('field-validator');
 			},
 			addField: function(e) {
 				this.fields.push(e.target);
@@ -286,35 +279,13 @@
 				}
 			},
 			dump: function() {
+				console.log("Dump2");
 				var data = {};
 				this.fields.forEach(function(f) {
 					data[f.name] = f.value;
 				}, this);
+				console.log("Data:", data);
 				return data;
-			},
-			validate: function() {
-				var valid = this.fields.every(function(f) {
-					this.validateField(f);
-					console.log("f:" + f.name + ":" + f.invalidated + "/" + f.value);
-					return !f.invalidated;
-				}, this);
-				return valid;
-			},
-			validateField: function(field) {
-				console.log("field.validator:" + field.validator);
-				if (field.validator) {
-					console.log("XXXXXX");
-					var validator = this.validators.byId(field.validator);
-					console.log('validator go', validator);
-					if (validator) {
-						validator.validate(field);
-					}
-				}
-				return true;
-			},
-			validateFieldEvent: function(event) {
-				event.stopPropagation();
-				this.validateField(event.target);
 			}
 		});
 	</script>
