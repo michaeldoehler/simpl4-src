@@ -33,7 +33,7 @@
 	});
 </script>
 
-<polymer-element name="form-field" attributes="name value meta editValue" field>
+<polymer-element name="form-field" attributes="label name value meta editValue" field>
 	<template>
 		<style>
 			:host {
@@ -66,10 +66,10 @@
 </polymer-element>
 
 <!--PAPERFIELDS-->
-<polymer-element name="input-field" extends="form-field" attributes="type label name" kind="input" layout horizontal center>
+<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput min max maxlength pattern step readonly type label name" kind="input" layout horizontal center>
 	<template>
-		<paper-input-decorator id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}">
-			<input is="core-input" id="input" value="{{editValue}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" disabled?="{{disabled}}">
+		<paper-input-decorator flex id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
+			<input is="core-input" id="input" value="{{editValue}}"  min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" readonly?="{{readonly}}" preventInvalidInput?="{{preventInvalidInput}}" disabled?="{{disabled}}">
 		</paper-input-decorator>
 	</template>
 	<script>
@@ -77,6 +77,7 @@
 			type: "text",
 			value: "",
 			floatingLabel: true,
+			step:1,
 			hasDate: Modernizr.inputtypes.date,
 			observe: {
 				type: 'validateAttributes',
@@ -87,22 +88,19 @@
 				this.decorator = this.$.decorator;
 				this.input = this.$.input;
 				this.validateAttributes();
-				if (this.type == "date") {
-					this.invisible = false;
+				if (this.type == "number") {
+					this.preventInvalidInput = true;
 				}
+				var showTime = this.type.match(/^datetime/) != null;
 				console.log("input-field:" + this.label + "/" + this.type);
-				self = this;
 				if (this.type.match(/^date/) != null && !this.hasDate) {
 					var picker = new Pikaday({
 						field: this.$.input,
 						trigger: this.$.input,
-						onSelect: function(a) {
-							//self.value = this.$.input.value;
-						}.bind(this),
-						bound: true,
+						onSelect: function(a) {}.bind(this),
 						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n : null,
-						format: simpl4.util.BaseManager.getDateFormat(),
-						showTime: this.type.match(/^datetime/) != null,
+						format: simpl4.util.BaseManager.getDateFormat() + (showTime ? " HH:mm" : ""),
+						showTime: showTime,
 						showSeconds: false,
 						use24hour: simpl4.util.BaseManager.getLanguage() == 'de' ? true : false,
 						firstDay: 1,
@@ -110,6 +108,7 @@
 						maxDate: new Date('2020-12-31'),
 						yearRange: [2000, 2020]
 					});
+					this.readonly=true;
 				}
 			},
 			i18n: {
@@ -120,26 +119,12 @@
 				weekdaysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
 			},
 			isAuthorizedType: function() {
-				var okTypes = [
-					'checkbox',
-					'color',
-					'date',
-					'datetime',
-					'datetime-local',
-					'email',
-					'file',
-					'month',
-					'number',
-					'password',
-					'radio',
-					'range',
-					'tel',
-					'text',
-					'time',
-					'url',
-					'week'
-				];
+				var okTypes = ['checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'month', 'number', 'password', 'radio', 'range', 'tel', 'text', 'time', 'url', 'week'];
 				return (okTypes.indexOf(this.type) != -1);
+			},
+			lpad: function pad(value, length) {
+				length = length || 2;
+				return (value.toString().length < length) ? this.lpad("0" + value, length) : value;
 			},
 			validateAttributes: function() {
 				if (!this.input) {
@@ -148,7 +133,11 @@
 				if (this.type != 'text' && !this.isAuthorizedType()) {
 					this.type = 'text'
 				}
-				this.input.setAttribute('type', this.type);
+				if (this.type == 'datetime') {
+					this.input.setAttribute('type', "datetime-local");
+				} else {
+					this.input.setAttribute('type', this.type);
+				}
 			},
 			committedValueChanged: function() {
 				console.log("committedValueChanged(" + this.name + "):" + this.value + "/" + this.committedValue);
@@ -157,7 +146,10 @@
 				console.log("editValueChanged(" + this.name + "):" + this.value + "/" + this.editValue);
 				if (this.type == "date" && !this.hasDate) {
 					var mdate = moment(this.editValue, simpl4.util.BaseManager.getDateFormat());
-					this.value = mdate.year() + "-" + (mdate.month() + 1) + "-" + mdate.date();
+					this.value = mdate.year() + "-" + this.lpad((mdate.month() + 1)) + "-" + this.lpad(mdate.date());
+				} else if (this.type.match(/^datetime/) != null && !this.hasDate) {
+					var mdate = moment(this.editValue, simpl4.util.BaseManager.getDateFormat() + " HH:mm");
+					this.value = mdate.year() + "-" + this.lpad((mdate.month() + 1)) + "-" + this.lpad(mdate.date()) + "T" + this.lpad(mdate.hour()) + ":" + this.lpad(mdate.minute());
 				} else {
 					this.value = this.editValue;
 				}
@@ -182,57 +174,168 @@
 	</script>
 </polymer-element>
 
+
+<polymer-element name="xheckbox-field" extends="form-field" kind="checkbox" noscript>
+<template>
+  <paper-checkbox style="margin: 10px 0.5em;" label="{{label}}" checked="{{value}}"></paper-checkbox>
+</template>
+</polymer-element>
+
 <polymer-element name="checkbox-field" extends="form-field" kind="checkbox" noscript>
-	<template>
-		<paper-checkbox style="margin: 10px 0;" label="{{name}}" checked="{{value}}"></paper-checkbox>
-	</template>
+<template>
+  <style>
+    .floated-label {
+      font-size: 0.75em;
+      padding: 1em 0;
+      white-space: nowrap;
+      color: #757575;
+    }
+    .label-text {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .container {
+      font-size: 0.75em;
+      color: #757575;
+    }
+  </style>
+  <div class="floated-label" invisible?="{{value === undefined}}">
+    <span class="label-text">{{label}}</span>
+  </div>
+  <paper-checkbox checked="{{value}}"></paper-checked>
+</template>
+</polymer-element>
+<polymer-element name="toggle-field" extends="form-field" kind="toggle" noscript>
+<template>
+  <style>
+    .floated-label {
+      font-size: 0.75em;
+      padding: 1em 0;
+      white-space: nowrap;
+      color: #757575;
+    }
+    .label-text {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .container {
+      font-size: 0.75em;
+      color: #757575;
+    }
+  </style>
+  <div class="floated-label" invisibxe?="{{value === undefined}}">
+    <span class="label-text">{{label}}</span>
+  </div>
+  <paper-toggle-button checked="{{value}}"></paper-toggle-button>
+</template>
 </polymer-element>
 
-<polymer-element name="toggle-field" extends="form-field" kind="toggle" layout horizontal center noscript>
-	<template>
-		<paper-toggle-button checked="{{value}}"></paper-toggle-button>
-		<div style="margin-left: 22px;">{{name}}</div>
-	</template>
+
+<polymer-element name="slider-field" extends="form-field" kind="slider" attributes="minLabel maxLabel" noscript>
+<template>
+  <style>
+    .floated-label {
+      font-size: 0.75em;
+      padding: 1em 0;
+      white-space: nowrap;
+      color: #757575;
+    }
+    .label-text {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .container {
+      font-size: 0.75em;
+      color: #757575;
+    }
+  </style>
+  <div class="floated-label" invisible?="{{value === undefined}}">
+    <span class="label-text">{{label}}</span>
+  </div>
+  <div class="container" layout horizontal center>
+    {{minLabel}}
+    <paper-slider flex value="{{value}}"></paper-slider>
+    {{maxLabel}}
+  </div>
+</template>
 </polymer-element>
 
-<polymer-element name="slider-field" extends="form-field" kind="slider" layout horizontal noscript>
-	<template>
-		<span style="display: inline-block; padding: 8px 0px; vertical-align: middle;">{{name}}</span>
-		<paper-slider flex style="vertical-align: middle;" value="{{value}}"></paper-slider>
-	</template>
-</polymer-element>
 
 <polymer-element name="radio-field" extends="form-field" kind="radio-group" noscript>
-	<template>
-		<style>
-			:host > * {
-				vertical-align: middle;
-			}
-		</style>
-		<span style="color: silver; padding: 12px 0px;">{{name}}</span>
-		<paper-radio-group selected="{{value}}">
-			<content></content>
-		</paper-radio-group>
-	</template>
+<template>
+  <style>
+    .floated-label {
+      font-size: 0.75em;
+      padding: 1em 0;
+      white-space: nowrap;
+      color: #757575;
+    }
+    .label-text {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    ::content > paper-radio-button {
+      font-size: 0.75em;
+      padding: 1em;
+    }
+  </style>
+  <div class="floated-label" invisible?="{{value === undefined}}">
+    <span class="label-text">{{label}}</span>
+  </div>
+  <paper-radio-group selected="{{value}}" layout vertical>
+    <content></content>
+  </paper-radio-group>
+</template>
 </polymer-element>
 
 <polymer-element name="dropdown-field" extends="form-field" kind="dropdown" noscript>
-	<template>
-		<style>
-			:host {
-				margin-top: 8px;
-			}
-		</style>
-		<span style="vertical-align: middle;">{{name}}</span>&nbsp;
-
-		<paper-dropdown-menu>
+<template>
+  <style>
+    :host {
+      padding: 0.75em 0;
+    }
+    [invisible] {
+      visibility: hidden;
+    }
+    .floated-label {
+      font-size: 0.75em;
+      white-space: nowrap;
+      color: #757575;
+    }
+    .label-text {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    paper-dropdown-menu {
+      width: 100%;
+      background-color: transparent;
+      padding: 0;
+    }
+    paper-dropdown-menu::shadow #dropdown {
+      min-width: 100%;
+    }
+  </style>
+  <div class="floated-label" invisible?="{{value === undefined}}">
+    <span class="label-text">{{label}}</span>
+  </div>
+  <paper-dropdown-menu label="{{label}}" selected="{{value}}" valueattr="textContent">
 			<paper-dropdown class="dropdown">
 				<core-menu selected="{{value}}" icon="arrow-drop-down">
 					<content></content>
 				</core-menu>
 			</paper-dropdown>
-		</paper-dropdown-menu>
-	</template>
+  </paper-dropdown-menu>
+</template>
 </polymer-element>
 
 <polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">

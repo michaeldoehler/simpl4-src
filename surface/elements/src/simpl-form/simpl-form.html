@@ -18,23 +18,44 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<!--PAPERFORM-->
 <style>
-	html /deep/ [novanish] {
-		min-height: 8px;
-	}
-	design-frame /deep/ simpl4-row {
-		border: 1px dotted rgba(240, 240, 240, 0.5);
-		border-radius: 8px;
-		margin: -1px -1px;
-	}
+  html /deep/ [novanish] {
+    min-height: 8px;
+  }
+
+  html /deep/ simpl-group {
+    margin-bottom: 40px;
+  }
+
+  html /deep/ simpl-row {
+    padding: 0 24px;
+  }
+
+  html /deep/ simpl-row > :not(:last-child) {
+    margin-right: 12px;
+  }
+
+  html /deep/ simpl-header {
+    font-size: 1.3em;
+    padding: 16px 24px;
+  }
+
+  html /deep/ simpl-header-2 {
+    font-size: 0.75em;
+    padding: 1.1em 24px;
+  }
+
+  html /deep/ simpl-form {
+    padding-top: 8px;
+  }
 </style>
 
-<polymer-element name="simpl-group" segment horizontal layout wrap novanish noscript></polymer-element>
-
+<polymer-element name="simpl-header" noscript></polymer-element>
+<polymer-element name="simpl-header-2" noscript></polymer-element>
+<polymer-element name="simpl-group" vertical layout noscript></polymer-element>
 <polymer-element name="simpl-row" horizontal layout center wrap novanish noscript></polymer-element>
 
-<polymer-element name="simpl-form" attributes="dump" constructor="PaperForm" vertical layout>
+<polymer-element name="simpl-form" attributes="dump" constructor="SimplForm" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -63,6 +84,9 @@
 			ssn-field {
 				min-width: 220px;
 			}
+			simpl-group {
+				background:whitesmoke;
+			}
 			paper-item {
 				overflow: hidden;
 				white-space: nowrap;
@@ -74,10 +98,10 @@
 
 			<h2>Form-factor</h2>
 
-			<segment>
+			<simpl-group>
 				<simpl-row if="row" class="pure-g">
 					<div class="pure-control-group">
-						<input-field type="text" id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}"></input-field>
+						<input-field type="number" min=0 step=0.01 id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}"></input-field>
 					</div>
 				</simpl-row>
 				<simpl-row>
@@ -96,27 +120,27 @@
 						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
 					</div>
 				</simpl-row>
-			</segment>
+			</simpl-group>
 
-			<segment>
+			<simpl-group>
 				<simpl-row>
 					<div class="pure-control-group">
-						<input-field type="date" id="FlanFlavor" name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
+						<input-field type="datetime" id="FlanFlavor" step=60 name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
 					</div>
-					<slider-field name="Viscosity" value="{{item.viscosity}}"></slider-field>
+          <slider-field flex three name="viscosity" label="Viscosity" minLabel="Poor" maxLabel="Good" value="{{item.quality}}"></slider-field>
 				</simpl-row>
 
 				<simpl-row>
-					<toggle-field name="Whip Cream" value="{{item.whipCream}}"></toggle-field>
-					<checkbox-field name="Egg Cream" value="{{item.eggCream}}"></checkbox-field>
-					<toggle-field name="Heavy Cream" value="{{item.heavyCream}}"></toggle-field>
-					<checkbox-field name="Sweet Cream" value="{{item.sweetCream}}"></checkbox-field>
+					<toggle-field name="t1" label="Whip Cream" value="{{item.whipCream}}"></toggle-field>
+					<checkbox-field name="c1" label="Egg Cream" value="{{item.eggCream}}"></checkbox-field>
+					<toggle-field name="t2" label="Heavy Cream" value="{{item.heavyCream}}"></toggle-field>
+					<checkbox-field name="c2" label="Sweet Cream" value="{{item.sweetCream}}"></checkbox-field>
 				</simpl-row>
-			</segment>
+			</simpl-group>
 
-			<segment>
+			<simpl-group>
 				<simpl-row>
-					<radio-field name="Shape" value="{{item.shape}}">
+					<radio-field flex name="shape" label="Shape" value="{{item.shape}}">
 						<paper-radio-button label="Square" active></paper-radio-button>
 						<paper-radio-button label="Circle"></paper-radio-button>
 						<paper-radio-button label="Tubular"></paper-radio-button>
@@ -124,13 +148,15 @@
 					</radio-field>
 				</simpl-row>
 
-				<dropdown-field one-column name="Extra Layers ({{item.layers || 0}})" value="{{item.layers}}">
-					<paper-item>Single Layer</paper-item>
-					<paper-item>One Extra Layer</paper-item>
-					<paper-item>Two Extra Layers</paper-item>
-					<paper-item>Three Extra Layers</paper-item>
-				</dropdown-field>
-			</segment>
+				<simpl-row>
+					<dropdown-field one-column name="extraLayer" label="Extra Layers ({{item.layers || 0}})" value="{{item.layers}}">
+						<paper-item>Single Layer</paper-item>
+						<paper-item>One Extra Layer</paper-item>
+						<paper-item>Two Extra Layers</paper-item>
+						<paper-item>Three Extra Layers</paper-item>
+					</dropdown-field>
+				</simpl-row>
+			</simpl-group>
 
 			<div>
 				<button on-tap="{{submit}}">Submit</button>
