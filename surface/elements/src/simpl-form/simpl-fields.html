@@ -45,12 +45,6 @@
 	<script>
 		Polymer({
 			registerCallback: function(polymerElement) {
-				// TODO: `using` seems to force async (even when not necessary)
-				// which breaks the timeline if the using() is outside of the 
-				// Polymer invocation
-				// This happens because `using` calls `whenImportsReady` which
-				// requires the document to be in ready-state, and this import
-				// document is in loading-state when parsing the enclosing script tag
 				using('form-field', function(df) {
 					df.register(polymerElement);
 				});
@@ -66,18 +60,36 @@
 </polymer-element>
 
 <!--PAPERFIELDS-->
-<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput min max maxlength pattern step readonly type label name" kind="input" layout horizontal center>
+<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
 	<template>
 		<paper-input-decorator flex id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
-			<input is="core-input" id="input" value="{{editValue}}"  min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" readonly?="{{readonly}}" preventInvalidInput?="{{preventInvalidInput}}" disabled?="{{disabled}}">
+			<input is="core-input" id="input" value="{{editValue}}" min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly?={{readonly}} preventInvalidInput?={{preventInvalidInput}} disabled?={{disabled}}>
 		</paper-input-decorator>
 	</template>
 	<script>
 		Polymer({
+			publish: {
+				autofocus: {
+					value: false,
+					reflect: true
+				},
+				preventInvalidInput: {
+					value: false,
+					reflect: true
+				},
+				readonly: {
+					value: false,
+					reflect: true
+				},
+				disabled: {
+					value: false,
+					reflect: true
+				}
+			},
 			type: "text",
 			value: "",
 			floatingLabel: true,
-			step:1,
+			step: 1,
 			hasDate: Modernizr.inputtypes.date,
 			observe: {
 				type: 'validateAttributes',
@@ -108,7 +120,7 @@
 						maxDate: new Date('2020-12-31'),
 						yearRange: [2000, 2020]
 					});
-					this.readonly=true;
+					this.readonly = true;
 				}
 			},
 			i18n: {
@@ -174,168 +186,195 @@
 	</script>
 </polymer-element>
 
-
-<polymer-element name="xheckbox-field" extends="form-field" kind="checkbox" noscript>
-<template>
-  <paper-checkbox style="margin: 10px 0.5em;" label="{{label}}" checked="{{value}}"></paper-checkbox>
-</template>
+<polymer-element name="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
+	<template>
+		<paper-input-decorator flex label="{{label}}" floatingLabel>
+			<paper-autogrow-textarea>
+				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{value}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
+			</paper-autogrow-textarea>
+		</paper-input-decorator>
+	</template>
+	<script>
+		Polymer({
+			publish: {
+				autofocus: {
+					value: false,
+					reflect: true
+				},
+				warp: {
+					value: false,
+					reflect: true
+				},
+				readonly: {
+					value: false,
+					reflect: true
+				},
+				disabled: {
+					value: false,
+					reflect: true
+				}
+			},
+			rows: 3,
+			editValueChanged: function() {}
+		});
+	</script>
 </polymer-element>
 
 <polymer-element name="checkbox-field" extends="form-field" kind="checkbox" noscript>
-<template>
-  <style>
-    .floated-label {
-      font-size: 0.75em;
-      padding: 1em 0;
-      white-space: nowrap;
-      color: #757575;
-    }
-    .label-text {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    .container {
-      font-size: 0.75em;
-      color: #757575;
-    }
-  </style>
-  <div class="floated-label" invisible?="{{value === undefined}}">
-    <span class="label-text">{{label}}</span>
-  </div>
-  <paper-checkbox checked="{{value}}"></paper-checked>
-</template>
+	<template>
+		<style>
+			.floated-label {
+				font-size: 0.75em;
+				padding: 1em 0;
+				white-space: nowrap;
+				color: #757575;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.container {
+				font-size: 0.75em;
+				color: #757575;
+			}
+		</style>
+		<div class="floated-label" invisible?="{{value === undefined}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<paper-checkbox checked="{{value}}"></paper-checked>
+	</template>
 </polymer-element>
 <polymer-element name="toggle-field" extends="form-field" kind="toggle" noscript>
-<template>
-  <style>
-    .floated-label {
-      font-size: 0.75em;
-      padding: 1em 0;
-      white-space: nowrap;
-      color: #757575;
-    }
-    .label-text {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    .container {
-      font-size: 0.75em;
-      color: #757575;
-    }
-  </style>
-  <div class="floated-label" invisibxe?="{{value === undefined}}">
-    <span class="label-text">{{label}}</span>
-  </div>
-  <paper-toggle-button checked="{{value}}"></paper-toggle-button>
-</template>
+	<template>
+		<style>
+			.floated-label {
+				font-size: 0.75em;
+				padding: 1em 0;
+				white-space: nowrap;
+				color: #757575;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.container {
+				font-size: 0.75em;
+				color: #757575;
+			}
+		</style>
+		<div class="floated-label" invisibxe?="{{value === undefined}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<paper-toggle-button checked="{{value}}"></paper-toggle-button>
+	</template>
 </polymer-element>
 
 
 <polymer-element name="slider-field" extends="form-field" kind="slider" attributes="minLabel maxLabel" noscript>
-<template>
-  <style>
-    .floated-label {
-      font-size: 0.75em;
-      padding: 1em 0;
-      white-space: nowrap;
-      color: #757575;
-    }
-    .label-text {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    .container {
-      font-size: 0.75em;
-      color: #757575;
-    }
-  </style>
-  <div class="floated-label" invisible?="{{value === undefined}}">
-    <span class="label-text">{{label}}</span>
-  </div>
-  <div class="container" layout horizontal center>
-    {{minLabel}}
-    <paper-slider flex value="{{value}}"></paper-slider>
-    {{maxLabel}}
-  </div>
-</template>
+	<template>
+		<style>
+			.floated-label {
+				font-size: 0.75em;
+				padding: 1em 0;
+				white-space: nowrap;
+				color: #757575;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.container {
+				font-size: 0.75em;
+				color: #757575;
+			}
+		</style>
+		<div class="floated-label" invisible?="{{value === undefined}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<div class="container" layout horizontal center>
+			{{minLabel}}
+			<paper-slider flex value="{{value}}"></paper-slider>
+			{{maxLabel}}
+		</div>
+	</template>
 </polymer-element>
 
 
 <polymer-element name="radio-field" extends="form-field" kind="radio-group" noscript>
-<template>
-  <style>
-    .floated-label {
-      font-size: 0.75em;
-      padding: 1em 0;
-      white-space: nowrap;
-      color: #757575;
-    }
-    .label-text {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    ::content > paper-radio-button {
-      font-size: 0.75em;
-      padding: 1em;
-    }
-  </style>
-  <div class="floated-label" invisible?="{{value === undefined}}">
-    <span class="label-text">{{label}}</span>
-  </div>
-  <paper-radio-group selected="{{value}}" layout vertical>
-    <content></content>
-  </paper-radio-group>
-</template>
+	<template>
+		<style>
+			.floated-label {
+				font-size: 0.75em;
+				padding: 1em 0;
+				white-space: nowrap;
+				color: #757575;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			::content > paper-radio-button {
+				font-size: 0.75em;
+				padding: 1em;
+			}
+		</style>
+		<div class="floated-label" invisible?="{{value === undefined}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<paper-radio-group selected="{{value}}" layout vertical>
+			<content></content>
+		</paper-radio-group>
+	</template>
 </polymer-element>
 
 <polymer-element name="dropdown-field" extends="form-field" kind="dropdown" noscript>
-<template>
-  <style>
-    :host {
-      padding: 0.75em 0;
-    }
-    [invisible] {
-      visibility: hidden;
-    }
-    .floated-label {
-      font-size: 0.75em;
-      white-space: nowrap;
-      color: #757575;
-    }
-    .label-text {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    paper-dropdown-menu {
-      width: 100%;
-      background-color: transparent;
-      padding: 0;
-    }
-    paper-dropdown-menu::shadow #dropdown {
-      min-width: 100%;
-    }
-  </style>
-  <div class="floated-label" invisible?="{{value === undefined}}">
-    <span class="label-text">{{label}}</span>
-  </div>
-  <paper-dropdown-menu label="{{label}}" selected="{{value}}" valueattr="textContent">
+	<template>
+		<style>
+			:host {
+				padding: 0.75em 0;
+			}
+			[invisible] {
+				visibility: hidden;
+			}
+			.floated-label {
+				font-size: 0.75em;
+				white-space: nowrap;
+				color: #757575;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			paper-dropdown-menu {
+				width: 100%;
+				background-color: transparent;
+				padding: 0;
+			}
+			paper-dropdown-menu::shadow #dropdown {
+				min-width: 100%;
+			}
+		</style>
+		<div class="floated-label" invisible?="{{value === undefined}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<paper-dropdown-menu label="{{label}}" selected="{{value}}" valueattr="textContent">
 			<paper-dropdown class="dropdown">
 				<core-menu selected="{{value}}" icon="arrow-drop-down">
 					<content></content>
 				</core-menu>
 			</paper-dropdown>
-  </paper-dropdown-menu>
-</template>
+		</paper-dropdown-menu>
+	</template>
 </polymer-element>
 
 <polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">

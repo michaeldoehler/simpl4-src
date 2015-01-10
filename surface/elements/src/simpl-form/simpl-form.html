@@ -81,6 +81,9 @@
 				margin-top: 8px !important;
 				margin-bottom: 8px !important;
 			}
+			multiline-input-field {
+				width: 100%;
+			}
 			ssn-field {
 				min-width: 220px;
 			}
@@ -101,7 +104,7 @@
 			<simpl-group>
 				<simpl-row if="row" class="pure-g">
 					<div class="pure-control-group">
-						<input-field type="number" min=0 step=0.01 id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}"></input-field>
+						<input-field type="number" min=0 step=0.01 id="OrderName" name="OrderName" value="{{item.orderId}}"></input-field>
 					</div>
 				</simpl-row>
 				<simpl-row>
@@ -123,6 +126,9 @@
 			</simpl-group>
 
 			<simpl-group>
+				<simpl-row>
+						<multiline-field id="multiLine"  name="Multiline" wrap label="MultilineLabel" value="{{item.multiline}}" ></multiline-field>
+				</simpl-row>
 				<simpl-row>
 					<div class="pure-control-group">
 						<input-field type="datetime" id="FlanFlavor" step=60 name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
