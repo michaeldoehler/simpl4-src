@@ -41,7 +41,7 @@
 				margin: 0 auto;
 			}
 			#form {
-				background-color: whitesmoke;
+				background-color: white;
 			}
 			[segment] > segment {
 				margin-left: 0;
@@ -110,19 +110,19 @@
 			<simpl-group>
 				<simpl-row>
 					<radio-field flex name="shape" label="Shape" value="{{item.shape}}">
-						<paper-radio-button label="Square" active></paper-radio-button>
-						<paper-radio-button label="Circle"></paper-radio-button>
-						<paper-radio-button label="Tubular"></paper-radio-button>
-						<paper-radio-button label="Mobius"></paper-radio-button>
+						<paper-radio-button name="s1" label="Square" active></paper-radio-button>
+						<paper-radio-button name="s1" label="Circle"></paper-radio-button>
+						<paper-radio-button name="s1" label="Tubular"></paper-radio-button>
+						<paper-radio-button name="s1" label="Mobius"></paper-radio-button>
 					</radio-field>
 				</simpl-row>
 
 				<simpl-row>
 					<dropdown-field one-column name="extraLayer" label="Extra Layers ({{item.layers || 0}})" value="{{item.layers}}">
-						<paper-item>Single Layer</paper-item>
-						<paper-item>One Extra Layer</paper-item>
-						<paper-item>Two Extra Layers</paper-item>
-						<paper-item>Three Extra Layers</paper-item>
+						<paper-item name="n1">Single Layer</paper-item>
+						<paper-item name="n2">One Extra Layer</paper-item>
+						<paper-item name="n3">Two Extra Layers</paper-item>
+						<paper-item name="n4">Three Extra Layers</paper-item>
 					</dropdown-field>
 				</simpl-row>
 			</simpl-group>

@@ -188,6 +188,11 @@
 
 <polymer-element name="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
 	<template>
+		<style>
+		textarea{
+			width:100%;
+		}
+   </style>
 		<paper-input-decorator flex label="{{label}}" floatingLabel>
 			<paper-autogrow-textarea>
 				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{value}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
@@ -288,6 +293,9 @@
 				white-space: nowrap;
 				text-overflow: ellipsis;
 				overflow: hidden;
+			}
+			paper-slider /deep/ #sliderBar{
+				box-sizing:initial;
 			}
 			.container {
 				font-size: 0.75em;

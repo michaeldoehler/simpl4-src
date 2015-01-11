@@ -19,35 +19,30 @@
  */
 -->
 <style>
-  html /deep/ [novanish] {
-    min-height: 8px;
-  }
-
-  html /deep/ simpl-group {
-    margin-bottom: 40px;
-  }
-
-  html /deep/ simpl-row {
-    padding: 0 24px;
-  }
-
-  html /deep/ simpl-row > :not(:last-child) {
-    margin-right: 12px;
-  }
-
-  html /deep/ simpl-header {
-    font-size: 1.3em;
-    padding: 16px 24px;
-  }
-
-  html /deep/ simpl-header-2 {
-    font-size: 0.75em;
-    padding: 1.1em 24px;
-  }
-
-  html /deep/ simpl-form {
-    padding-top: 8px;
-  }
+	html /deep/ [novanish] {
+		min-height: 8px;
+	}
+	html /deep/ simpl-group {
+		margin-bottom: 40px;
+		background: white !important;
+	}
+	html /deep/ simpl-row {
+		padding: 0 24px;
+	}
+	html /deep/ simpl-row >:not(:last-child) {
+		margin-right: 12px;
+	}
+	html /deep/ simpl-header {
+		font-size: 1.3em;
+		padding: 16px 24px;
+	}
+	html /deep/ simpl-header-2 {
+		font-size: 0.75em;
+		padding: 1.1em 24px;
+	}
+	html /deep/ simpl-form {
+		padding-top: 8px;
+	}
 </style>
 
 <polymer-element name="simpl-header" noscript></polymer-element>
@@ -55,40 +50,27 @@
 <polymer-element name="simpl-group" vertical layout noscript></polymer-element>
 <polymer-element name="simpl-row" horizontal layout center wrap novanish noscript></polymer-element>
 
-<polymer-element name="simpl-form" attributes="dump" constructor="SimplForm" vertical layout>
+<polymer-element name="simpl-form" attributes="namespace formname" constructor="SimplForm" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
 		<style>
-			body,
-			button,
-			pre,
-			input {
-				font-family: sans-serif;
+			:host {
+				display: block;
+				padding: 2px;
 			}
-			[column] {
-				min-width: 320px;
-				max-width: 700px;
-				margin: 0 auto;
+			paper-tabs {
+				background: #f0f0f0;
 			}
-			#form {
-				background-color: whitesmoke;
+			.tabcontainer {
+				width:100%;
 			}
-			[segment] > segment {
-				margin-left: 0;
-			}
-			segment {
-				margin-top: 8px !important;
-				margin-bottom: 8px !important;
-			}
-			multiline-input-field {
-				width: 100%;
-			}
-			ssn-field {
-				min-width: 220px;
+			fieldset {
+				border-radius: 8px;
+				border: 1px solid #f0f0f0;
 			}
 			simpl-group {
-				background:whitesmoke;
+				background: white;
 			}
 			paper-item {
 				overflow: hidden;
@@ -97,78 +79,76 @@
 				font-size: 12px;
 			}
 		</style>
-		<div segment id="form">
 
-			<h2>Form-factor</h2>
+		<fieldset id="formdiv" verticax xayout>
+			<template repeat="{{shapes}}" id="root">
 
-			<simpl-group>
-				<simpl-row if="row" class="pure-g">
-					<div class="pure-control-group">
-						<input-field type="number" min=0 step=0.01 id="OrderName" name="OrderName" value="{{item.orderId}}"></input-field>
-					</div>
-				</simpl-row>
-				<simpl-row>
-					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
-						<ssn-field name="SSN1" value="{{item.ssn}}"></ssn-field>
-					</div>
-					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
-						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
-					</div>
-				</simpl-row>
-				<simpl-row>
-					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
-						<ssn-field name="SSNAAAAAAA" value="{{item.ssn}}"></ssn-field>
-					</div>
-					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
-						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
-					</div>
-				</simpl-row>
-			</simpl-group>
+				<template if="{{id=='Input' || id=='ActionButton' || id=='Textarea' || id=='break'}}" ref="element" bind></template>
 
-			<simpl-group>
-				<simpl-row>
-						<multiline-field id="multiLine"  name="Multiline" wrap label="MultilineLabel" value="{{item.multiline}}" ></multiline-field>
-				</simpl-row>
-				<simpl-row>
-					<div class="pure-control-group">
-						<input-field type="datetime" id="FlanFlavor" step=60 name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
-					</div>
-          <slider-field flex three name="viscosity" label="Viscosity" minLabel="Poor" maxLabel="Good" value="{{item.quality}}"></slider-field>
-				</simpl-row>
+				<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
-				<simpl-row>
-					<toggle-field name="t1" label="Whip Cream" value="{{item.whipCream}}"></toggle-field>
-					<checkbox-field name="c1" label="Egg Cream" value="{{item.eggCream}}"></checkbox-field>
-					<toggle-field name="t2" label="Heavy Cream" value="{{item.heavyCream}}"></toggle-field>
-					<checkbox-field name="c2" label="Sweet Cream" value="{{item.sweetCream}}"></checkbox-field>
-				</simpl-row>
-			</simpl-group>
+				<template if="{{ id=='Group' }}" ref="group" bind></template>
 
-			<simpl-group>
-				<simpl-row>
-					<radio-field flex name="shape" label="Shape" value="{{item.shape}}">
-						<paper-radio-button label="Square" active></paper-radio-button>
-						<paper-radio-button label="Circle"></paper-radio-button>
-						<paper-radio-button label="Tubular"></paper-radio-button>
-						<paper-radio-button label="Mobius"></paper-radio-button>
-					</radio-field>
-				</simpl-row>
+				<template if="{{ id=='Row' }}" ref="row" bind></template>
 
-				<simpl-row>
-					<dropdown-field one-column name="extraLayer" label="Extra Layers ({{item.layers || 0}})" value="{{item.layers}}">
-						<paper-item>Single Layer</paper-item>
-						<paper-item>One Extra Layer</paper-item>
-						<paper-item>Two Extra Layers</paper-item>
-						<paper-item>Three Extra Layers</paper-item>
-					</dropdown-field>
-				</simpl-row>
-			</simpl-group>
+			</template>
 
-			<div>
-				<button on-tap="{{submit}}">Submit</button>
+		</fieldset>
+
+		<template id="group">
+     <simpl-group>
+				<template ref="root" repeat="{{childShapes}}"></template>
+     </simpl-group>
+		</template>
+
+		<template id="row">
+     <simpl-row>
+				<template ref="root" repeat="{{childShapes}}"></template>
+     </simpl-row>
+		</template>
+
+		<template id="tabs">
+			<div class="tabcontainer" layout vertical felx>
+			<paper-tabs selected="{{selected}}">
+				<template repeat="{{childShapes}}">
+					<template if="{{ id=='Page' }}">
+						<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
+					</template>
+				</template>
+			</paper-tabs>
+
+			<core-animated-pages selected="{{selected}}" vertical layout>
+				<template repeat="{{childShapes}}">
+					<template if="{{ id=='Page' }}">
+						<section style="position:relative;">
+							<template ref="element" repeat="{{childShapes}}"></template>
+						</section>
+					</template>
+				</template>
+			</core-animated-pages>
 			</div>
+		</template>
 
-		</div>
+		<template id="element">
+			<template if="{{ id=='Input' }}">
+				<input-field type={{xf_type}} label="{{label}}"></input-field>
+			</template>
+			<template if="{{ id=='ActionButton' }}">
+				<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+			</template>
+			<template if="{{ id=='Textarea' }}">
+				<multiline-field flex name="street" label="{{label}}" value="{{data.street}}"></multiline-field>
+			</template>
+
+			<template if="{{ id=='Group' }}" ref="group" bind></template>
+			<template if="{{ id=='Row' }}" ref="row" bind></template>
+		</template>
+
+
+		<simpl-row>
+			<button on-tap="{{submit}}">Submit</button>
+		</simpl-row>
+
 
 		<segment>
 			Your form data:
@@ -177,17 +157,21 @@
 	</template>
 	<script>
 		Polymer('simpl-form', {
-			item: {
-				shape: 0
+			data: {},
+			namespace: null,
+			formname: null,
+			eventDelegates: {
+				'add-form-field': 'addField',
+				'remove-form-field': 'removeField'
 			},
-			submit: function(e) {
-				var cvList = regula.validate({});
-				console.log("cvList:", cvList);
-				console.log("value:", this.$.FlanFlavor.value);
-				var data = this.dump();
-				var jsonData = JSON.stringify(data, null, 2);
-				console.log("Values:" + jsonData);
-				this.$.data.textContent = jsonData;
+			created: function() {
+				this.fields = [];
+			},
+			ready: function() {
+				console.log("Ready:", this.$.xxxx);
+				var form = simpl4FormManager.getForm(this.formname);
+				this.shapes = this.prepareShape(form).childShapes;
+				console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
 			},
 			domReady: function() {
 				regula.bind({
@@ -219,13 +203,58 @@
 					this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
 				}
 			},
-			eventDelegates: {
-				'add-form-field': 'addField',
-				'remove-form-field': 'removeField'
+			/*----------------------------------*/
+			prepareShape: function(shape) {
+				shape = this.cleanShape(shape);
+				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
+					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+				});
+				var childShapes = shape.childShapes;
+				shape.childShapes = [];
+				var row=null;
+				for (var i = 0; i < childShapes.length; i++) {
+					if( shape.id == 'Tabview'){
+						shape.childShapes.push(this.prepareShape(childShapes[i]));
+					}else{
+						if (i==0 || (i > 0 && this.needBreak(childShapes[i - 1], childShapes[i]))) {
+							row = {id:'Row', childShapes:[]};
+							shape.childShapes.push(row);
+						}
+						row.childShapes.push(this.prepareShape(childShapes[i]));
+					}
+				}
+				return shape;
 			},
-			created: function() {
-				this.fields = [];
+			cleanShape: function(shape) {
+				if (shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea') {
+					shape.properties.label = shape.childShapes[0].properties.xf_text;
+					shape.childShapes = [];
+				} else {
+					shape.properties.label = "";
+				}
+				return _.extend(shape.properties, shape.stencil, {
+					childShapes: shape.childShapes
+				});
 			},
+			needBreak: function(child, next) {
+				var UL = child.bounds.upperLeft;
+				var lineBreak = false;
+				var nextUL = next.bounds.upperLeft;
+				if (UL.y != nextUL.y) {
+					lineBreak = true;
+				}
+				return lineBreak;
+			},
+			validateAll: function() {
+				console.debug("validateAll");
+				var $d = this.$.formdiv.querySelectorAll('.input');
+				console.log("D:", $d);
+				Array.prototype.forEach.call($d, function(d) {
+					console.debug("Input:" + d.value);
+					d.isInvalid = !d.valid;
+				});
+			},
+			/*----------------------------------*/
 			addField: function(e) {
 				this.fields.push(e.detail);
 			},
@@ -234,6 +263,15 @@
 				if (i >= 0) {
 					this.fields.splice(i, 1);
 				}
+			},
+			submit: function(e) {
+				var cvList = regula.validate({});
+				console.log("cvList:", cvList);
+				console.log("value:", this.$.FlanFlavor.value);
+				var data = this.dump();
+				var jsonData = JSON.stringify(data, null, 2);
+				console.log("Values:" + jsonData);
+				this.$.data.textContent = jsonData;
 			},
 			dump: function() {
 				var data = {};

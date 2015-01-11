@@ -2,6 +2,8 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${cssLibs}") {
+		fileset(file:'libs/asciidoctor.css')
+		fileset(file:'libs/font-awesome.css')
 		fileset(file:'libs/tablesaw.css')
 		fileset(file:'libs/pikaday.css')
 		fileset(dir:'css',includes:'**/*.css')

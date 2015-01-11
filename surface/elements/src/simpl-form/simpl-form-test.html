@@ -41,7 +41,7 @@
 				margin: 0 auto;
 			}
 			#form {
-				background-color: whitesmoke;
+				background-color: white;
 			}
 			[segment] > segment {
 				margin-left: 0;
@@ -54,7 +54,9 @@
 				min-width: 220px;
 			}
 			simpl-group {
-				background: whitesmoke;
+				background: white;
+				border: 1px solid #e0e0e0;
+				border-radius:5px;
 			}
 			paper-item {
 				overflow: hidden;
@@ -82,38 +84,36 @@
 				color: #fff;
 			}
 		</style>
-		<div segment id="form">
-			<simpl-group>
+		<simpl-group>
 
-				<simpl-header>
-					Personal Info
-				</simpl-header>
+			<simpl-header>
+				Personal Info
+			</simpl-header>
 
-				<simpl-row>
-					<input-field flex name="firstName" label="Legal first name" value="{{data.firstName}}"></input-field>
-				</simpl-row>
+			<simpl-row>
+				<input-field flex name="firstName" label="Legal first name" value="{{data.firstName}}"></input-field>
+			</simpl-row>
 
-				<simpl-row>
-					<input-field flex name="middleName" label="Legal middle name" value="{{data.middleName}}"></input-field>
-				</simpl-row>
+			<simpl-row>
+				<input-field flex name="middleName" label="Legal middle name" value="{{data.middleName}}"></input-field>
+			</simpl-row>
 
-				<simpl-row>
-					<input-field flex name="lastName" label="Legal last name" value="{{data.lastName}}"></input-field>
-					<dropdown-field name="suffix" label="Suffix">
-						<paper-item>Mr.</paper-item>
-						<paper-item>Ms.</paper-item>
-						<paper-item>Mrs.</paper-item>
-					</dropdown-field>
-				</simpl-row>
+			<simpl-row>
+				<input-field flex name="lastName" label="Legal last name" value="{{data.lastName}}"></input-field>
+				<dropdown-field name="suffix" label="Suffix">
+					<paper-item>Mr.</paper-item>
+					<paper-item>Ms.</paper-item>
+					<paper-item>Mrs.</paper-item>
+				</dropdown-field>
+			</simpl-row>
 
-				<simpl-row start>
-					<input-field type="date" name="dob" label="Date of birth" value="{{data.dob}}"></input-field>
-					<div flex></div>
-					<div>
-						<ssn-field name="ssn" label="Social security number" value="{{data.ssn}}"></ssn-field>
-						<checkbox-field name="nossn" label="I don't have a social security number" value="{{item.nossn}}"></checkbox-field>
-					</div>
-		</div>
+			<simpl-row start>
+				<input-field type="date" name="dob" label="Date of birth" value="{{data.dob}}"></input-field>
+				<div flex></div>
+				<div>
+					<ssn-field name="ssn" label="Social security number" value="{{data.ssn}}"></ssn-field>
+					<checkbox-field name="nossn" label="I don't have a social security number" value="{{data.nossn}}"></checkbox-field>
+				</div>
 
 		</simpl-group>
 
@@ -124,7 +124,7 @@
 			</simpl-header>
 
 			<simpl-row>
-				<multi-input-field flex name="street" label="Street address" value="{{data.street}}"></multi-input-field>
+				<multiline-field flex name="street" label="Street address" value="{{data.street}}"></multiline-field>
 			</simpl-row>
 
 			<simpl-row>
