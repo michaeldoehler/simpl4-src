@@ -27,10 +27,10 @@
 		background: white !important;
 	}
 	html /deep/ simpl-row {
-		padding: 0 24px;
+		padding: 0 0px;
 	}
 	html /deep/ simpl-row >:not(:last-child) {
-		margin-right: 12px;
+		margin-right: 0px;
 	}
 	html /deep/ simpl-header {
 		font-size: 1.3em;
@@ -59,11 +59,14 @@
 				display: block;
 				padding: 2px;
 			}
-			paper-tabs {
-				background: #f0f0f0;
+			paper-tab.core-selected {
+				background:#FFFF8D;
+				border-radius: 4px;
+			}
+			paper-tab {
 			}
 			.tabcontainer {
-				width:100%;
+				width: 100%;
 			}
 			fieldset {
 				border-radius: 8px;
@@ -96,48 +99,48 @@
 		</fieldset>
 
 		<template id="group">
-     <simpl-group>
+			<simpl-group>
 				<template ref="root" repeat="{{childShapes}}"></template>
-     </simpl-group>
+			</simpl-group>
 		</template>
 
 		<template id="row">
-     <simpl-row>
+			<simpl-row>
 				<template ref="root" repeat="{{childShapes}}"></template>
-     </simpl-row>
+			</simpl-row>
 		</template>
 
 		<template id="tabs">
 			<div class="tabcontainer" layout vertical felx>
-			<paper-tabs selected="{{selected}}">
-				<template repeat="{{childShapes}}">
-					<template if="{{ id=='Page' }}">
-						<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
+				<paper-tabs selected="{{selected}}">
+					<template repeat="{{childShapes}}">
+						<template if="{{ id=='Page' }}">
+							<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
+						</template>
 					</template>
-				</template>
-			</paper-tabs>
+				</paper-tabs>
 
-			<core-animated-pages selected="{{selected}}" vertical layout>
-				<template repeat="{{childShapes}}">
-					<template if="{{ id=='Page' }}">
-						<section style="position:relative;">
-							<template ref="element" repeat="{{childShapes}}"></template>
-						</section>
+				<core-animated-pages selected="{{selected}}" vertical layout>
+					<template repeat="{{childShapes}}">
+						<template if="{{ id=='Page' }}">
+							<section style="position:relative;padding:0px;">
+								<template ref="element" repeat="{{childShapes}}"></template>
+							</section>
+						</template>
 					</template>
-				</template>
-			</core-animated-pages>
+				</core-animated-pages>
 			</div>
 		</template>
 
 		<template id="element">
 			<template if="{{ id=='Input' }}">
-				<input-field type={{xf_type}} label="{{label}}"></input-field>
+				<input-field flex type={{xf_type}} name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
 				<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
 			</template>
 			<template if="{{ id=='Textarea' }}">
-				<multiline-field flex name="street" label="{{label}}" value="{{data.street}}"></multiline-field>
+				<multiline-field flex name="{{xf_id}}" label="{{label}}" xvalue="{{data.street}}"></multiline-field>
 			</template>
 
 			<template if="{{ id=='Group' }}" ref="group" bind></template>
@@ -156,7 +159,7 @@
 		</segment>
 	</template>
 	<script>
-		Polymer('simpl-form', {
+		Polymer( 'simpl-form', {
 			data: {},
 			namespace: null,
 			formname: null,
@@ -168,118 +171,138 @@
 				this.fields = [];
 			},
 			ready: function() {
-				console.log("Ready:", this.$.xxxx);
-				var form = simpl4FormManager.getForm(this.formname);
-				this.shapes = this.prepareShape(form).childShapes;
-				console.log("Shape:" + JSON.stringify(this.shapes, null, 2));
+				console.log( "Ready:", this.$.xxxx );
+				var form = simpl4FormManager.getForm( this.formname );
+				this.shapes = this.prepareShape( form ).childShapes;
+				console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			domReady: function() {
-				regula.bind({
+				return;
+				regula.bind( {
 					element: this.$.OrderName,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Min,
 						params: {
 							value: "18",
 							message: "You must be at least 18 years old to vote",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
-				regula.bind({
+					} ]
+				} );
+				regula.bind( {
 					element: this.$.FlanFlavor,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Future,
 						params: {
 							format: regula.DateFormat.YMD,
 							date: "2015/2/1",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
+					} ]
+				} );
 				return;
-				this.allFields = this.$.form.querySelectorAll('input-field');
+				this.allFields = this.$.form.querySelectorAll( 'input-field' );
 				this.allFieldsMap = {};
-				for (var i = 0; i < this.allFields.length; i++) {
-					this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
+				for ( var i = 0; i < this.allFields.length; i++ ) {
+					this.allFieldsMap[ this.allFields[ i ].id ] = this.allFields[ i ];
 				}
 			},
 			/*----------------------------------*/
-			prepareShape: function(shape) {
-				shape = this.cleanShape(shape);
-				shape.childShapes = _.sortBy(shape.childShapes, function(element) {
+			prepareShape: function( shape ) {
+				shape = this.cleanShape( shape );
+				shape.childShapes = _.sortBy( shape.childShapes, function( element ) {
 					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
-				});
+				} );
 				var childShapes = shape.childShapes;
 				shape.childShapes = [];
-				var row=null;
-				for (var i = 0; i < childShapes.length; i++) {
-					if( shape.id == 'Tabview'){
-						shape.childShapes.push(this.prepareShape(childShapes[i]));
-					}else{
-						if (i==0 || (i > 0 && this.needBreak(childShapes[i - 1], childShapes[i]))) {
-							row = {id:'Row', childShapes:[]};
-							shape.childShapes.push(row);
+				var row = null;
+				for ( var i = 0; i < childShapes.length; i++ ) {
+					if ( shape.id == 'Tabview' ) {
+						shape.childShapes.push( this.prepareShape( childShapes[ i ] ) );
+					} else {
+						if ( i == 0 || ( i > 0 && this.isLineBreak( childShapes[ i - 1 ], childShapes[ i ] ) ) ) {
+							row = {
+								id: 'Row',
+								childShapes: []
+							};
+							shape.childShapes.push( row );
 						}
-						row.childShapes.push(this.prepareShape(childShapes[i]));
+						row.childShapes.push( this.prepareShape( childShapes[ i ] ) );
 					}
 				}
 				return shape;
 			},
-			cleanShape: function(shape) {
-				if (shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea') {
-					shape.properties.label = shape.childShapes[0].properties.xf_text;
+			cleanShape: function( shape ) {
+				if ( shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea' ) {
+					shape.properties.label = shape.childShapes[ 0 ].properties.xf_text;
+					if ( ( shape.properties.xf_id == null || shape.properties.xf_id == "" ) && shape.properties.label ) {
+						shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
+					}
 					shape.childShapes = [];
 				} else {
 					shape.properties.label = "";
 				}
-				return _.extend(shape.properties, shape.stencil, {
+				return _.extend( shape.properties, shape.stencil, {
 					childShapes: shape.childShapes
-				});
+				} );
 			},
-			needBreak: function(child, next) {
+			isLineBreak: function( child, next ) {
 				var UL = child.bounds.upperLeft;
 				var lineBreak = false;
 				var nextUL = next.bounds.upperLeft;
-				if (UL.y != nextUL.y) {
+				if ( UL.y != nextUL.y ) {
 					lineBreak = true;
 				}
 				return lineBreak;
 			},
 			validateAll: function() {
-				console.debug("validateAll");
-				var $d = this.$.formdiv.querySelectorAll('.input');
-				console.log("D:", $d);
-				Array.prototype.forEach.call($d, function(d) {
-					console.debug("Input:" + d.value);
+				console.debug( "validateAll" );
+				var $d = this.$.formdiv.querySelectorAll( '.input' );
+				console.log( "D:", $d );
+				Array.prototype.forEach.call( $d, function( d ) {
+					console.debug( "Input:" + d.value );
 					d.isInvalid = !d.valid;
-				});
+				} );
 			},
 			/*----------------------------------*/
-			addField: function(e) {
-				this.fields.push(e.detail);
+			addField: function( e ) {
+				this.fields.push( e.detail );
 			},
-			removeField: function(e) {
-				var i = this.fields.indexOf(e.detail);
-				if (i >= 0) {
-					this.fields.splice(i, 1);
+			removeField: function( e ) {
+				var i = this.fields.indexOf( e.detail );
+				if ( i >= 0 ) {
+					this.fields.splice( i, 1 );
 				}
 			},
-			submit: function(e) {
-				var cvList = regula.validate({});
-				console.log("cvList:", cvList);
-				console.log("value:", this.$.FlanFlavor.value);
-				var data = this.dump();
-				var jsonData = JSON.stringify(data, null, 2);
-				console.log("Values:" + jsonData);
+			submit: function( e ) {
+				//var cvList = regula.validate( {} );
+				//console.log( "cvList:", cvList );
+
+				var data = this.getData();
+				var jsonData = JSON.stringify( data, null, 2 );
+				console.log( "JSON:" + jsonData );
 				this.$.data.textContent = jsonData;
+				this.setData( data );
+			},
+			setData: function( data ) {
+				this.fields.forEach( function( field ) {
+					field.editValue = data[ field.name ];
+				}, this );
+			},
+			getData: function() {
+				var data = {};
+				this.fields.forEach( function( field ) {
+					data[ field.name ] = field.value;
+				}, this );
+				return data;
 			},
 			dump: function() {
 				var data = {};
-				this.fields.forEach(function(f) {
-					data[f.name] = f.value;
-				}, this);
+				this.fields.forEach( function( field ) {
+					data[ field.name ] = field.value;
+				}, this );
 				return data;
 			}
-		});
+		} );
 	</script>
 </polymer-element>

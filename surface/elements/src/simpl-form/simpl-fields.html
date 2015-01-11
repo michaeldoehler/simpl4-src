@@ -19,18 +19,18 @@
  */
 -->
 <script>
-	modularize('form-field', function() {
+	modularize( 'form-field', function() {
 		return {
 			kinds: [],
-			register: function(polymerElement) {
-				var kind = polymerElement.getAttribute('kind');
-				if (kind) {
-					this.kinds.push(kind);
-					polymerElement.removeAttribute('kind');
+			register: function( polymerElement ) {
+				var kind = polymerElement.getAttribute( 'kind' );
+				if ( kind ) {
+					this.kinds.push( kind );
+					polymerElement.removeAttribute( 'kind' );
 				}
 			}
 		};
-	});
+	} );
 </script>
 
 <polymer-element name="form-field" attributes="label name value meta editValue" field>
@@ -38,24 +38,24 @@
 		<style>
 			:host {
 				min-width: 136px;
-				margin: 4px 14px 4px 0;
+				margin: 2px 10px 2px 0;
 			}
 		</style>
 	</template>
 	<script>
-		Polymer({
-			registerCallback: function(polymerElement) {
-				using('form-field', function(df) {
-					df.register(polymerElement);
-				});
+		Polymer( {
+			registerCallback: function( polymerElement ) {
+				using( 'form-field', function( df ) {
+					df.register( polymerElement );
+				} );
 			},
 			attached: function() {
-				this.fire('add-form-field', this);
+				this.fire( 'add-form-field', this );
 			},
 			detached: function() {
-				this.fire('remove-form-field', this);
+				this.fire( 'remove-form-field', this );
 			}
-		});
+		} );
 	</script>
 </polymer-element>
 
@@ -67,7 +67,7 @@
 		</paper-input-decorator>
 	</template>
 	<script>
-		Polymer({
+		Polymer( {
 			publish: {
 				autofocus: {
 					value: false,
@@ -95,112 +95,117 @@
 				type: 'validateAttributes',
 			},
 			domReady: function() {
-				if (this.label == null || this.label == '') this.label = this.name;
+				if ( this.label == null || this.label == '' ) this.label = this.name;
 				this.validateAttributes();
 				this.decorator = this.$.decorator;
 				this.input = this.$.input;
 				this.validateAttributes();
-				if (this.type == "number") {
+				if ( this.type == "number" ) {
 					this.preventInvalidInput = true;
 				}
-				var showTime = this.type.match(/^datetime/) != null;
-				console.log("input-field:" + this.label + "/" + this.type);
-				if (this.type.match(/^date/) != null && !this.hasDate) {
-					var picker = new Pikaday({
+				var showTime = this.type.match( /^datetime/ ) != null;
+				console.log( "input-field:" + this.label + "/" + this.type );
+				if ( this.type.match( /^date/ ) != null && !this.hasDate ) {
+					var picker = new Pikaday( {
 						field: this.$.input,
 						trigger: this.$.input,
-						onSelect: function(a) {}.bind(this),
+						onSelect: function( a ) {}.bind( this ),
 						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n : null,
-						format: simpl4.util.BaseManager.getDateFormat() + (showTime ? " HH:mm" : ""),
+						format: simpl4.util.BaseManager.getDateFormat() + ( showTime ? " HH:mm" : "" ),
 						showTime: showTime,
 						showSeconds: false,
 						use24hour: simpl4.util.BaseManager.getLanguage() == 'de' ? true : false,
 						firstDay: 1,
-						minDate: new Date('2000-01-01'),
-						maxDate: new Date('2020-12-31'),
-						yearRange: [2000, 2020]
-					});
+						minDate: new Date( '2000-01-01' ),
+						maxDate: new Date( '2020-12-31' ),
+						yearRange: [ 2000, 2020 ]
+					} );
 					this.readonly = true;
 				}
 			},
 			i18n: {
 				previousMonth: 'Vorheriger Monat',
 				nextMonth: 'Nächster Monat',
-				months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-				weekdays: ['Sontag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-				weekdaysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
+				months: [ 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+				weekdays: [ 'Sontag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag' ],
+				weekdaysShort: [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ]
 			},
 			isAuthorizedType: function() {
-				var okTypes = ['checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'month', 'number', 'password', 'radio', 'range', 'tel', 'text', 'time', 'url', 'week'];
-				return (okTypes.indexOf(this.type) != -1);
+				var okTypes = [ 'checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'month', 'number', 'password', 'radio', 'range', 'tel', 'text', 'time', 'url', 'week' ];
+				return ( okTypes.indexOf( this.type ) != -1 );
 			},
-			lpad: function pad(value, length) {
+			lpad: function pad( value, length ) {
 				length = length || 2;
-				return (value.toString().length < length) ? this.lpad("0" + value, length) : value;
+				return ( value.toString().length < length ) ? this.lpad( "0" + value, length ) : value;
 			},
 			validateAttributes: function() {
-				if (!this.input) {
+				if ( !this.input ) {
 					return;
 				}
-				if (this.type != 'text' && !this.isAuthorizedType()) {
+				if ( this.type != 'text' && !this.isAuthorizedType() ) {
 					this.type = 'text'
 				}
-				if (this.type == 'datetime') {
-					this.input.setAttribute('type', "datetime-local");
+				if ( this.type == 'datetime' ) {
+					this.input.setAttribute( 'type', "datetime-local" );
 				} else {
-					this.input.setAttribute('type', this.type);
+					this.input.setAttribute( 'type', this.type );
 				}
 			},
 			committedValueChanged: function() {
-				console.log("committedValueChanged(" + this.name + "):" + this.value + "/" + this.committedValue);
+				console.log( "committedValueChanged(" + this.name + "):" + this.value + "/" + this.committedValue );
 			},
 			editValueChanged: function() {
-				console.log("editValueChanged(" + this.name + "):" + this.value + "/" + this.editValue);
-				if (this.type == "date" && !this.hasDate) {
-					var mdate = moment(this.editValue, simpl4.util.BaseManager.getDateFormat());
-					this.value = mdate.year() + "-" + this.lpad((mdate.month() + 1)) + "-" + this.lpad(mdate.date());
-				} else if (this.type.match(/^datetime/) != null && !this.hasDate) {
-					var mdate = moment(this.editValue, simpl4.util.BaseManager.getDateFormat() + " HH:mm");
-					this.value = mdate.year() + "-" + this.lpad((mdate.month() + 1)) + "-" + this.lpad(mdate.date()) + "T" + this.lpad(mdate.hour()) + ":" + this.lpad(mdate.minute());
+				console.log( "editValueChanged(" + this.name + "):" + this.value + "/" + this.editValue );
+				if ( this.type == "date" && !this.hasDate ) {
+					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() );
+					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
+				} else if ( this.type.match( /^datetime/ ) != null && !this.hasDate ) {
+					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() + " HH:mm" );
+					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() ) + "T" + this.lpad( mdate.hour() ) + ":" + this.lpad( mdate.minute() );
 				} else {
 					this.value = this.editValue;
 				}
-				console.log("value:" + this.value);
+				console.log( "value:" + this.value );
 			},
 			valueChanged: function() {
-				if (!this.$.decorator) return;
-				var cvList = regula.validate({
-					elements: [this],
-					groups: [regula.Group.MyGroup]
-				});
-				console.debug("valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + cvList.length);
+				if ( !this.$.decorator ) return;
+//				if( regula.isBound(
+				var cvList = regula.validate( {
+					elements: [ this ],
+					groups: [ regula.Group.MyGroup ]
+				} );
+				console.debug( "valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + cvList.length );
 				this.decorator.isInvalid = cvList.length > 0;
-				if (cvList.length > 0) {
-					this.decorator.error = cvList[0].message;
+				if ( cvList.length > 0 ) {
+					this.decorator.error = cvList[ 0 ].message;
 				}
 			},
-			setCustomValidity: function(message) {
-				console.debug("setCustomValidity:" + message);
+			setCustomValidity: function( message ) {
+				console.debug( "setCustomValidity:" + message );
 			}
-		});
+		} );
 	</script>
 </polymer-element>
 
 <polymer-element name="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
 	<template>
 		<style>
-		textarea{
-			width:100%;
-		}
-   </style>
+			:host {
+				min-width: 136px;
+				margin: 2px 10px 2px 0;
+			}
+			textarea {
+				width: 100%;
+			}
+		</style>
 		<paper-input-decorator flex label="{{label}}" floatingLabel>
 			<paper-autogrow-textarea>
-				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{value}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
+				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{editValue}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
 			</paper-autogrow-textarea>
 		</paper-input-decorator>
 	</template>
 	<script>
-		Polymer({
+		Polymer( {
 			publish: {
 				autofocus: {
 					value: false,
@@ -220,8 +225,11 @@
 				}
 			},
 			rows: 3,
-			editValueChanged: function() {}
-		});
+			value: "",
+			editValueChanged: function() {
+				this.value = this.editValue;
+			}
+		} );
 	</script>
 </polymer-element>
 
@@ -251,6 +259,8 @@
 		<paper-checkbox checked="{{value}}"></paper-checked>
 	</template>
 </polymer-element>
+
+
 <polymer-element name="toggle-field" extends="form-field" kind="toggle" noscript>
 	<template>
 		<style>
@@ -294,8 +304,8 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
-			paper-slider /deep/ #sliderBar{
-				box-sizing:initial;
+			paper-slider /deep/ #sliderBar {
+				box-sizing: initial;
 			}
 			.container {
 				font-size: 0.75em;
@@ -343,6 +353,7 @@
 	</template>
 </polymer-element>
 
+
 <polymer-element name="dropdown-field" extends="form-field" kind="dropdown" noscript>
 	<template>
 		<style>
@@ -385,6 +396,7 @@
 	</template>
 </polymer-element>
 
+
 <polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
 	<template>
 		<style>
@@ -410,19 +422,19 @@
 		<paper-input four-digits value="{{partC}}"></paper-input>
 	</template>
 	<script>
-		Polymer({
+		Polymer( {
 			computed: {
 				value: 'concat(partA, partB, partC)'
 			},
-			concat: function(a, b, c) {
+			concat: function( a, b, c ) {
 				return a + '-' + b + '-' + c;
 			},
-			keyPress: function(e) {
-				var c = String.fromCharCode(e.charCode);
-				if (!c.match(/\d/)) {
+			keyPress: function( e ) {
+				var c = String.fromCharCode( e.charCode );
+				if ( !c.match( /\d/ ) ) {
 					e.preventDefault();
 				}
 			}
-		});
+		} );
 	</script>
 </polymer-element>
