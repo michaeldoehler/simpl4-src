@@ -37,7 +37,7 @@
 	<template>
 		<style>
 			:host {
-				min-width: 136px;
+				min-width: 166px;
 				margin: 2px 10px 2px 0;
 			}
 		</style>
@@ -122,6 +122,12 @@
 					} );
 					this.readonly = true;
 				}
+				if ( this.type.match( /^date/) && this.hasDate  ) {
+					this.$.decorator.labelVisible=true;
+					var ldiv = this.$.decorator.querySelector("paper-input-decorator /deep/ .floated-label");
+					ldiv.removeAttribute("invisible");
+					ldiv.style.fontSize="0.90em";
+				}
 			},
 			i18n: {
 				previousMonth: 'Vorheriger Monat',
@@ -191,7 +197,7 @@
 	<template>
 		<style>
 			:host {
-				min-width: 136px;
+				min-width: 166px;
 				margin: 2px 10px 2px 0;
 			}
 			textarea {

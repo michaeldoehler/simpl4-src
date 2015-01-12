@@ -53,11 +53,6 @@
 			ssn-field {
 				min-width: 220px;
 			}
-			simpl-group {
-				background: white;
-				border: 1px solid #e0e0e0;
-				border-radius:5px;
-			}
 			paper-item {
 				overflow: hidden;
 				white-space: nowrap;
@@ -84,210 +79,212 @@
 				color: #fff;
 			}
 		</style>
-		<simpl-group>
+		<div xegment id="form">
+			<simpl-group>
 
-			<simpl-header>
-				Personal Info
-			</simpl-header>
+				<simpl-header>
+					Personal Info
+				</simpl-header>
 
-			<simpl-row>
-				<input-field flex type="text" name="firstName" label="Legal first name"></input-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex type="text" name="firstName" label="Legal first name"></input-field>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="middleName" label="Legal middle name" value="{{data.middleName}}"></input-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="middleName" label="Legal middle name" value="{{data.middleName}}"></input-field>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="lastName" label="Legal last name" value="{{data.lastName}}"></input-field>
-				<dropdown-field name="suffix" label="Suffix">
-					<paper-item>Mr.</paper-item>
-					<paper-item>Ms.</paper-item>
-					<paper-item>Mrs.</paper-item>
-				</dropdown-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="lastName" label="Legal last name" value="{{data.lastName}}"></input-field>
+					<dropdown-field name="suffix" label="Suffix">
+						<paper-item>Mr.</paper-item>
+						<paper-item>Ms.</paper-item>
+						<paper-item>Mrs.</paper-item>
+					</dropdown-field>
+				</simpl-row>
 
-			<simpl-row start>
-				<input-field type="date" name="dob" label="Date of birth" editValue="{{'2015-01-23'}}" value="{{data.dob}}"></input-field>
-				<div flex></div>
-				<div>
-					<ssn-field name="ssn" label="Social security number" value="{{data.ssn}}"></ssn-field>
-					<checkbox-field name="nossn" label="I don't have a social security number" value="{{data.nossn}}"></checkbox-field>
-				</div>
+				<simpl-row start>
+					<input-field type="date" name="dob" label="Date of birth" editValue="{{'2015-01-23'}}" value="{{data.dob}}"></input-field>
+					<div flex></div>
+					<div>
+						<ssn-field name="ssn" label="Social security number" value="{{data.ssn}}"></ssn-field>
+						<checkbox-field name="nossn" label="I don't have a social security number" value="{{data.nossn}}"></checkbox-field>
+					</div>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-header>
-				Residence Address
-			</simpl-header>
+				<simpl-header>
+					Residence Address
+				</simpl-header>
 
-			<simpl-row>
-				<multiline-field flex name="street" label="Street address" value="{{data.street}}"></multiline-field>
-			</simpl-row>
+				<simpl-row>
+					<multiline-field flex name="street" label="Street address" value="{{data.street}}"></multiline-field>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="city" label="City" value="{{data.city}}"></input-field>
-				<dropdown-field name="state" label="State" value="{{data.state}}">
-					<template repeat="{{states}}">
-						<paper-item>{{abbreviation}}</paper-item>
-					</template>
-				</dropdown-field>
-				<number-field flex name="zip" label="Zip" value="{{data.zip}}"></number-field>
-				<dropdown-field name="country" label="Country" value="{{data.country}}">
-					<template repeat="{{countries}}">
-						<paper-item>{{name}}</paper-item>
-					</template>
-				</dropdown-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="city" label="City" value="{{data.city}}"></input-field>
+					<dropdown-field name="state" label="State" value="{{data.state}}">
+						<template repeat="{{states}}">
+							<paper-item>{{abbreviation}}</paper-item>
+						</template>
+					</dropdown-field>
+					<number-field flex name="zip" label="Zip" value="{{data.zip}}"></number-field>
+					<dropdown-field name="country" label="Country" value="{{data.country}}">
+						<template repeat="{{countries}}">
+							<paper-item>{{name}}</paper-item>
+						</template>
+					</dropdown-field>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-header>
-				Mailing Address
-			</simpl-header>
+				<simpl-header>
+					Mailing Address
+				</simpl-header>
 
-			<simpl-row>
-				<checkbox-field name="mailingIsResidence" label="Use Residence Address" value="{{data.mailingIsResidence}}"></checkbox-field>
-			</simpl-row>
+				<simpl-row>
+					<checkbox-field name="mailingIsResidence" label="Use Residence Address" value="{{data.mailingIsResidence}}"></checkbox-field>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-header>
-				Sign Up
-			</simpl-header>
+				<simpl-header>
+					Sign Up
+				</simpl-header>
 
-			<simpl-row>
-				<input-field flex name="username" label="Username" value="{{data.username}}" xeditValue="{{flavor}}" xinvalidated="{{flavor | validateFlavor}}" error="Any flavor is fine,  as long as it contains chocolate"></input-field>
-				<div flex></div>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="username" label="Username" value="{{data.username}}" xeditValue="{{flavor}}" xinvalidated="{{flavor | validateFlavor}}" error="Any flavor is fine,  as long as it contains chocolate"></input-field>
+					<div flex></div>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="email" label="Email" value="{{data.email}}"></input-field>
-				<input-field flex name="emailConfirm" label="Confirm email" value="{{data.emailConfirm}}"></input-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="email" label="Email" value="{{data.email}}"></input-field>
+					<input-field flex name="emailConfirm" label="Confirm email" value="{{data.emailConfirm}}"></input-field>
+				</simpl-row>
 
-			<simpl-row>
-				<dropdown-field flex name="securityQuestion" label="Security Question" value="{{data.securityQuestion}}">
-					<paper-item>What is your favorite beverage?</paper-item>
-					<paper-item>What is the name of the street you grew up on?</paper-item>
-					<paper-item>What is the name of your third grade teacher?</paper-item>
-					<paper-item>What is your mother's maiden name?</paper-item>
-				</dropdown-field>
-			</simpl-row>
+				<simpl-row>
+					<dropdown-field flex name="securityQuestion" label="Security Question" value="{{data.securityQuestion}}">
+						<paper-item>What is your favorite beverage?</paper-item>
+						<paper-item>What is the name of the street you grew up on?</paper-item>
+						<paper-item>What is the name of your third grade teacher?</paper-item>
+						<paper-item>What is your mother's maiden name?</paper-item>
+					</dropdown-field>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="securityAnswer" label="Answer" value="{{data.securityAnswer}}"></input-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="securityAnswer" label="Answer" value="{{data.securityAnswer}}"></input-field>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-header>
-				Additional Info
-			</simpl-header>
+				<simpl-header>
+					Additional Info
+				</simpl-header>
 
-			<simpl-row>
-				<radio-field flex name="twinOrTriplet" label="Are you a twin or a triplet?" value="{{data.twinOrTriplet}}">
-					<paper-radio-button label="Yes"></paper-radio-button>
-					<paper-radio-button label="No"></paper-radio-button>
-				</radio-field>
-				<radio-field flex name="gender" label="Gender" value="{{data.gender}}">
-					<paper-radio-button label="Male"></paper-radio-button>
-					<paper-radio-button label="Female"></paper-radio-button>
-				</radio-field>
-			</simpl-row>
+				<simpl-row>
+					<radio-field flex name="twinOrTriplet" label="Are you a twin or a triplet?" value="{{data.twinOrTriplet}}">
+						<paper-radio-button label="Yes"></paper-radio-button>
+						<paper-radio-button label="No"></paper-radio-button>
+					</radio-field>
+					<radio-field flex name="gender" label="Gender" value="{{data.gender}}">
+						<paper-radio-button label="Male"></paper-radio-button>
+						<paper-radio-button label="Female"></paper-radio-button>
+					</radio-field>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="height" label="Height" value="{{data.height}}"></input-field>
-				<input-field flex name="weight" label="Weight" value="{{data.weight}}"></input-field>
-				<dropdown-field flex name="eyeColor" label="Eye Color" value="{{data.eyeColor}}">
-					<paper-item>Brown</paper-item>
-					<paper-item>Blue</paper-item>
-					<paper-item>Pink</paper-item>
-				</dropdown-field>
-			</simpl-row>
+				<simpl-row>
+					<input-field flex name="height" label="Height" value="{{data.height}}"></input-field>
+					<input-field flex name="weight" label="Weight" value="{{data.weight}}"></input-field>
+					<dropdown-field flex name="eyeColor" label="Eye Color" value="{{data.eyeColor}}">
+						<paper-item>Brown</paper-item>
+						<paper-item>Blue</paper-item>
+						<paper-item>Pink</paper-item>
+					</dropdown-field>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-header-2>
-				Rate your driving skills:
-			</simpl-header-2>
+				<simpl-header-2>
+					Rate your driving skills:
+				</simpl-header-2>
 
-			<simpl-row>
-				<slider-field flex three name="quality" label="Quality" minLabel="Poor" maxLabel="Good" value="{{data.quality}}"></slider-field>
-				<div flex></div>
-				<dropdown-field flex name="successRate" label="Success Rate" value="{{data.successRate}}">
-					<paper-item>25%</paper-item>
-					<paper-item>50%</paper-item>
-					<paper-item>75%</paper-item>
-					<paper-item>100%</paper-item>
-				</dropdown-field>
-				<div flex></div>
-			</simpl-row>
+				<simpl-row>
+					<slider-field flex three name="quality" label="Quality" minLabel="Poor" maxLabel="Good" value="{{data.quality}}"></slider-field>
+					<div flex></div>
+					<dropdown-field flex name="successRate" label="Success Rate" value="{{data.successRate}}">
+						<paper-item>25%</paper-item>
+						<paper-item>50%</paper-item>
+						<paper-item>75%</paper-item>
+						<paper-item>100%</paper-item>
+					</dropdown-field>
+					<div flex></div>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
+			<simpl-group>
 
-			<simpl-row>
-				<multiline-input-field flex name="about" label="Tell us about yourself" value="{{data.about}}"></multiline-input-field>
-			</simpl-row>
+				<simpl-row>
+					<multiline-input-field flex name="about" label="Tell us about yourself" value="{{data.about}}"></multiline-input-field>
+				</simpl-row>
 
-			<simpl-row>
-				<toggle-field name="autoSave" label="Auto Save" value="{{data.autoSave}}"></toggle-field>
-				<toggle-field name="spellCheck" label="Spell Check" value="{{data.spellCheck}}"></toggle-field>
-			</simpl-row>
+				<simpl-row>
+					<toggle-field name="autoSave" label="Auto Save" value="{{data.autoSave}}"></toggle-field>
+					<toggle-field name="spellCheck" label="Spell Check" value="{{data.spellCheck}}"></toggle-field>
+				</simpl-row>
 
-		</simpl-group>
+			</simpl-group>
 
-		<simpl-group>
-			<simpl-header-2>
-				Are you human?
-			</simpl-header-2>
+			<simpl-group>
+				<simpl-header-2>
+					Are you human?
+				</simpl-header-2>
 
-			<simpl-row center>
-				<div flex style="text-align:center;font-size:2em;">12345</div>
-				<div flex class="captcha" layout vertical start>
-					<paper-button icon="refresh">Refresh</paper-button>
-					<paper-button icon="av:volume-up">Hear a set of words</paper-button>
-				</div>
-			</simpl-row>
+				<simpl-row center>
+					<div flex style="text-align:center;font-size:2em;">12345</div>
+					<div flex class="captcha" layout vertical start>
+						<paper-button icon="refresh">Refresh</paper-button>
+						<paper-button icon="av:volume-up">Hear a set of words</paper-button>
+					</div>
+				</simpl-row>
 
-			<simpl-row>
-				<input-field flex name="captcha" label="Type the numbers" value="{{data.captcha}}"></input-field>
-				<div flex></div>
-			</simpl-row>
-		</simpl-group>
+				<simpl-row>
+					<input-field flex name="captcha" label="Type the numbers" value="{{data.captcha}}"></input-field>
+					<div flex></div>
+				</simpl-row>
+			</simpl-group>
 
-		<simpl-group>
-			<simpl-row>
-				<paper-button clear>Clear All</paper-button>
-				<div flex></div>
-				<paper-button cancel>Cancel</paper-button>
-				<paper-button submit raisedButton on-tap="{{submit}}">Submit</paper-button>
-			</simpl-row>
-		</simpl-group>
+			<simpl-group>
+				<simpl-row>
+					<paper-button clear>Clear All</paper-button>
+					<div flex></div>
+					<paper-button cancel>Cancel</paper-button>
+					<paper-button submit raisedButton on-tap="{{submit}}">Submit</paper-button>
+				</simpl-row>
+			</simpl-group>
 
-		<segment>
-			Your form data:
-			<pre><code id="data"></code></pre>
-		</segment>
+			<segment>
+				Your form data:
+				<pre><code id="data"></code></pre>
+			</segment>
+		</div>
 	</template>
 	<script>
-		Polymer('simpl-form-test', {
+		Polymer( 'simpl-form-test', {
 			data: {
 				shape: 0
 			},
-			states: [{
+			states: [ {
 				name: 'Alabama',
 				abbreviation: 'AL'
 			}, {
@@ -320,9 +317,9 @@
 			}, {
 				name: 'Wyoming',
 				abbreviation: 'WY'
-			}],
+			} ],
 
-			countries: [{
+			countries: [ {
 				name: 'Afghanistan',
 				code: 'AF'
 			}, {
@@ -358,43 +355,43 @@
 			}, {
 				name: 'Zimbabwe',
 				code: 'ZW'
-			}],
-			submit: function(e) {
-				var cvList = regula.validate({});
-				console.log("cvList:", cvList);
+			} ],
+			submit: function( e ) {
+				var cvList = regula.validate( {} );
+				console.log( "cvList:", cvList );
 				var data = this.dump();
-				var jsonData = JSON.stringify(data, null, 2);
-				console.log("Values:" + jsonData);
+				var jsonData = JSON.stringify( data, null, 2 );
+				console.log( "Values:" + jsonData );
 				this.$.data.textContent = jsonData;
 			},
 			domReady: function() {
 				return;
-				regula.bind({
+				regula.bind( {
 					element: this.$.OrderName,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Min,
 						params: {
 							value: "18",
 							message: "You must be at least 18 years old to vote",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
-				regula.bind({
+					} ]
+				} );
+				regula.bind( {
 					element: this.$.FlanFlavor,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Future,
 						params: {
 							format: regula.DateFormat.YMD,
 							date: "2015/2/1",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
-				this.allFields = this.$.form.querySelectorAll('input-field');
+					} ]
+				} );
+				this.allFields = this.$.form.querySelectorAll( 'input-field' );
 				this.allFieldsMap = {};
-				for (var i = 0; i < this.allFields.length; i++) {
-					this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
+				for ( var i = 0; i < this.allFields.length; i++ ) {
+					this.allFieldsMap[ this.allFields[ i ].id ] = this.allFields[ i ];
 				}
 			},
 			validateFlavor: function() {
@@ -410,22 +407,22 @@
 			created: function() {
 				this.fields = [];
 			},
-			addField: function(e) {
-				this.fields.push(e.detail);
+			addField: function( e ) {
+				this.fields.push( e.detail );
 			},
-			removeField: function(e) {
-				var i = this.fields.indexOf(e.detail);
-				if (i >= 0) {
-					this.fields.splice(i, 1);
+			removeField: function( e ) {
+				var i = this.fields.indexOf( e.detail );
+				if ( i >= 0 ) {
+					this.fields.splice( i, 1 );
 				}
 			},
 			dump: function() {
 				var data = {};
-				this.fields.forEach(function(f) {
-					data[f.name] = f.value;
-				}, this);
+				this.fields.forEach( function( f ) {
+					data[ f.name ] = f.value;
+				}, this );
 				return data;
 			}
-		});
+		} );
 	</script>
 </polymer-element>

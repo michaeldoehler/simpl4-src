@@ -19,9 +19,9 @@
  */
 -->
 <style>
-  html /deep/ simpl-form-test2 {
-    padding-top: 8px;
-  }
+	html /deep/ simpl-form-test2 {
+		padding-top: 8px;
+	}
 </style>
 
 <polymer-element name="simpl-form-test2" attributes="dump" constructor="SimplForm" vertical layout>
@@ -54,7 +54,7 @@
 				min-width: 220px;
 			}
 			simpl-group {
-				background:whitesmoke;
+				background: white;
 			}
 			paper-item {
 				overflow: hidden;
@@ -96,7 +96,7 @@
 					<div class="pure-control-group">
 						<input-field type="datetime" id="FlanFlavor" step=60 name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
 					</div>
-          <slider-field flex three name="viscosity" label="Viscosity" minLabel="Poor" maxLabel="Good" value="{{item.quality}}"></slider-field>
+					<slider-field flex three name="viscosity" label="Viscosity" minLabel="Poor" maxLabel="Good" value="{{item.quality}}"></slider-field>
 				</simpl-row>
 
 				<simpl-row>
@@ -139,47 +139,47 @@
 		</segment>
 	</template>
 	<script>
-		Polymer('simpl-form-test2', {
+		Polymer( 'simpl-form-test2', {
 			item: {
 				shape: 0
 			},
-			submit: function(e) {
-				var cvList = regula.validate({});
-				console.log("cvList:", cvList);
-				console.log("value:", this.$.FlanFlavor.value);
+			submit: function( e ) {
+				var cvList = regula.validate( {} );
+				console.log( "cvList:", cvList );
+				console.log( "value:", this.$.FlanFlavor.value );
 				var data = this.dump();
-				var jsonData = JSON.stringify(data, null, 2);
-				console.log("Values:" + jsonData);
+				var jsonData = JSON.stringify( data, null, 2 );
+				console.log( "Values:" + jsonData );
 				this.$.data.textContent = jsonData;
 			},
 			domReady: function() {
-				regula.bind({
+				regula.bind( {
 					element: this.$.OrderName,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Min,
 						params: {
 							value: "18",
 							message: "You must be at least 18 years old to vote",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
-				regula.bind({
+					} ]
+				} );
+				regula.bind( {
 					element: this.$.FlanFlavor,
-					constraints: [{
+					constraints: [ {
 						constraintType: regula.Constraint.Future,
 						params: {
 							format: regula.DateFormat.YMD,
 							date: "2015/2/1",
-							groups: ['MyGroup']
+							groups: [ 'MyGroup' ]
 						}
-					}]
-				});
+					} ]
+				} );
 				return;
-				this.allFields = this.$.form.querySelectorAll('input-field');
+				this.allFields = this.$.form.querySelectorAll( 'input-field' );
 				this.allFieldsMap = {};
-				for (var i = 0; i < this.allFields.length; i++) {
-					this.allFieldsMap[this.allFields[i].id] = this.allFields[i];
+				for ( var i = 0; i < this.allFields.length; i++ ) {
+					this.allFieldsMap[ this.allFields[ i ].id ] = this.allFields[ i ];
 				}
 			},
 			eventDelegates: {
@@ -189,22 +189,22 @@
 			created: function() {
 				this.fields = [];
 			},
-			addField: function(e) {
-				this.fields.push(e.detail);
+			addField: function( e ) {
+				this.fields.push( e.detail );
 			},
-			removeField: function(e) {
-				var i = this.fields.indexOf(e.detail);
-				if (i >= 0) {
-					this.fields.splice(i, 1);
+			removeField: function( e ) {
+				var i = this.fields.indexOf( e.detail );
+				if ( i >= 0 ) {
+					this.fields.splice( i, 1 );
 				}
 			},
 			dump: function() {
 				var data = {};
-				this.fields.forEach(function(f) {
-					data[f.name] = f.value;
-				}, this);
+				this.fields.forEach( function( f ) {
+					data[ f.name ] = f.value;
+				}, this );
 				return data;
 			}
-		});
+		} );
 	</script>
 </polymer-element>

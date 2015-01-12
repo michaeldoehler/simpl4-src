@@ -18,37 +18,62 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<style>
-	html /deep/ [novanish] {
-		min-height: 8px;
-	}
-	html /deep/ simpl-group {
-		margin-bottom: 40px;
-		background: white !important;
-	}
-	html /deep/ simpl-row {
-		padding: 0 0px;
-	}
-	html /deep/ simpl-row >:not(:last-child) {
-		margin-right: 0px;
-	}
-	html /deep/ simpl-header {
-		font-size: 1.3em;
-		padding: 16px 24px;
-	}
-	html /deep/ simpl-header-2 {
-		font-size: 0.75em;
-		padding: 1.1em 24px;
-	}
-	html /deep/ simpl-form {
-		padding-top: 8px;
-	}
-</style>
+<polymer-element name="simpl-header" noscript>
+	<template>
+		<style>
+			:host {
+				font-size: 1.3em;
+				padding: 16px 24px;
+			}
+		</style>
+		<content></content>
+	</template>
+</polymer-element>
 
-<polymer-element name="simpl-header" noscript></polymer-element>
-<polymer-element name="simpl-header-2" noscript></polymer-element>
-<polymer-element name="simpl-group" vertical layout noscript></polymer-element>
-<polymer-element name="simpl-row" horizontal layout center wrap novanish noscript></polymer-element>
+<polymer-element name="simpl-header2" noscript>
+	<template>
+		<style>
+			:host {
+				font-size: 0.75em;
+				padding: 1.1em 24px;
+			}
+		</style>
+		<content></content>
+	</template>
+</polymer-element>
+
+
+<polymer-element name="simpl-group" vertical flex layout noscript>
+	<template>
+		<style>
+			:host {
+				margin-bottom: 40px;
+				border: 1px solid #03a9f4;
+				border-radius: 4px;
+				padding: 7px;
+				background: white !important;
+			}
+		</style>
+		<content></content>
+	</template>
+</polymer-element>
+
+<polymer-element name="simpl-row" horizontal layout center wrap novanish noscript>
+	<template>
+		<style>
+			html /deep/ [novanish] {
+				min-height: 8px;
+			}
+			html /deep/ simpl-row {
+				padding: 0 0px;
+			}
+			html /deep/ simpl-row >:not(:last-child) {
+				margin-right: 0px;
+			}
+		</style>
+		<content></content>
+	</template>
+</polymer-element>
 
 <polymer-element name="simpl-form" attributes="namespace formname" constructor="SimplForm" vertical layout>
 	<template>
@@ -60,26 +85,40 @@
 				padding: 2px;
 			}
 			paper-tab.core-selected {
-				background:#FFFF8D;
-				border-radius: 4px;
+				border-radius: 6px;
 			}
-			paper-tab {
-			}
-			.tabcontainer {
+			paper-tab {} .tabcontainer {
 				width: 100%;
 			}
 			fieldset {
 				border-radius: 8px;
 				border: 1px solid #f0f0f0;
 			}
-			simpl-group {
-				background: white;
-			}
 			paper-item {
 				overflow: hidden;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 				font-size: 12px;
+			}
+			:host /deep/ paper-input-decorator[focused] /deep/ .floated-label .label-text {
+				color: #03a9f4 !important;
+			}
+			:host /deep/ .focused-underline {
+				background-color: #03a9f4;
+			}
+			paper-tab {
+				box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);
+			}
+			paper-tabs.transparent-teal {
+				background-color: transparent;
+				color: #03a9f4;
+				//box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);
+			}
+			paper-tabs.transparent-teal::shadow #selectionBar {
+				background-color: #03a9f4;
+			}
+			paper-tabs.transparent-teal paper-tab::shadow #ink {
+				color: #03a9f4;
 			}
 		</style>
 
@@ -112,7 +151,7 @@
 
 		<template id="tabs">
 			<div class="tabcontainer" layout vertical felx>
-				<paper-tabs selected="{{selected}}">
+				<paper-tabs class="transparent-teal" selected="{{selected}}">
 					<template repeat="{{childShapes}}">
 						<template if="{{ id=='Page' }}">
 							<paper-tab id="{{xf_id}}">{{xf_id}}</paper-tab>
@@ -169,6 +208,7 @@
 			},
 			created: function() {
 				this.fields = [];
+				this.fieldsMap = {};
 			},
 			ready: function() {
 				console.log( "Ready:", this.$.xxxx );
@@ -267,6 +307,7 @@
 			/*----------------------------------*/
 			addField: function( e ) {
 				this.fields.push( e.detail );
+				this.fieldsMap[ e.detail.name ] = e.detail;
 			},
 			removeField: function( e ) {
 				var i = this.fields.indexOf( e.detail );
