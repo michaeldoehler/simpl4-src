@@ -21,6 +21,8 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 	fieldCache: {},
 	getEntities: function( storeDesc ) {
 		var storeId = this.getStoreId();
+console.error("storeId:"+storeId);
+console.error("storeId:"+simpl4.util.BaseManager.getStoreId());
 		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + storeId ];
 		if ( !entities ) {
 			try {
@@ -145,13 +147,16 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			return false;
 		}
 		if ( ( typeof si == 'string' ) && si.match( /^{/ ) ) {
-			si = qx.lang.Json.parse( si );
+			si = JSON.parse( si );
 		}
 		if ( si.totalCount != null && si.totalCount == 0 ) {
 			return false;
 		}
 		return true;
 	},
+		createSelectableItems: function (url, varMap, entity, name, view) {
+			return new simpl4.util.SelectableItems({ url: url, varMap: varMap });
+		},
 	buildColModel: function( gridfields, entity, view ) {
 		var storeId = this.getStoreId();
 		var category = "data";
@@ -229,12 +234,12 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 				};
 				var varMap = {};
 				if ( this._hasSelectableItems( col.selectable_items ) ) {
-					col.selectable_items = this.createSelectableItems( storeDesc, col.selectable_items, varMap, entity, col.name, view );
+					col.selectable_items = this.createSelectableItems( col.selectable_items, varMap, entity, col.name, view );
 				} else {
 					col.selectable_items = null;
 				}
 				if ( this._hasSelectableItems( col.searchable_items ) ) {
-					col.searchable_items = this.createSelectableItems( storeDesc, col.searchable_items, varMap, entity, col.name, view );
+					col.searchable_items = this.createSelectableItems( col.searchable_items, varMap, entity, col.name, view );
 				} else {
 					col.searchable_items = null;
 				}
