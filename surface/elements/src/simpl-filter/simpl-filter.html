@@ -1,0 +1,140 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<link rel="import" href="import-js.html">
+<polymer-element name="simpl-filter" attributes="">
+
+	<template>
+		<style>
+			dd {
+				margin-left:0px;
+			}
+		</style>
+		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
+		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
+		<div id="builder"></div>
+	</template>
+
+	<script>
+		Polymer( 'simpl-filter', {
+			domReady: function() {
+				// define filters
+				$( this.$.builder ).queryBuilder( {
+					sortable: true,
+
+					filters: [ {
+						id: 'name',
+						label: 'Name',
+						type: 'string'
+					}, {
+						id: 'category',
+						label: 'Category',
+						type: 'integer',
+						input: 'select',
+						multiple: true,
+						values: {
+							1: 'Books',
+							2: 'Movies',
+							3: 'Music',
+							4: 'Tools',
+							5: 'Goodies',
+							6: 'Clothes'
+						},
+						operators: [ 'in', 'not_in', 'is_null', 'is_not_null' ]
+					}, {
+						id: 'in_stock',
+						label: 'In stock',
+						type: 'integer',
+						input: 'radio',
+						values: {
+							1: 'Yes',
+							0: 'No'
+						},
+						operators: [ 'equal' ]
+					}, {
+						id: 'price',
+						label: 'Price',
+						type: 'double',
+						validation: {
+							min: 0,
+							step: 0.01
+						}
+					}, {
+						id: 'id',
+						label: 'Identifier',
+						type: 'string',
+						placeholder: '____-____-____',
+						operators: [ 'equal', 'not_equal' ],
+						validation: {
+							format: /^.{4}-.{4}-.{4}$/
+						}
+					} ]
+				} );
+
+				// set rules
+				$( '.set' ).on( 'click', function() {
+					$( '#builder' ).queryBuilder( 'setRules', {
+						condition: 'AND',
+						rules: [ {
+							id: 'price',
+							operator: 'less',
+							value: 10.25
+						}, {
+							condition: 'OR',
+							rules: [ {
+								id: 'category',
+								operator: 'in',
+								value: [ 1, 2 ]
+							}, {
+								id: 'name',
+								operator: 'equal',
+								value: "John Doe"
+							} ]
+						} ]
+					} );
+				} );
+
+				// reset builder
+				$( '.reset' ).on( 'click', function() {
+					$( '#builder' ).queryBuilder( 'reset' );
+					$( '#result' ).empty().addClass( 'hide' );
+				} );
+
+				// get rules
+				$( '.parse-json' ).on( 'click', function() {
+					var res = $( '#builder' ).queryBuilder( 'getRules' );
+					$( '#result' ).removeClass( 'hide' )
+						.find( 'pre' ).html(
+							JSON.stringify( res, null, 2 )
+						);
+				} );
+
+				$( '.parse-sql' ).on( 'click', function() {
+					var res = $( '#builder' ).queryBuilder( 'getSQL', $( this ).data( 'stmt' ) );
+					$( '#result' ).removeClass( 'hide' )
+						.find( 'pre' ).html(
+							res.sql + ( res.params ? '\n\n' + JSON.stringify( res.params, null, 2 ) : '' )
+						);
+				} );
+			},
+		} );
+	</script>
+
+</polymer-element>

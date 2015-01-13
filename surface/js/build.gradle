@@ -14,6 +14,8 @@ task stage (type:Task) {
 		fileset(file:'libs/modernizr.js')
 		fileset(file:'libs/moment.js')
 		fileset(file:'libs/pikaday-time.js')
+		fileset(file:'libs/jQuery.extendext.js')
+		fileset(file:'libs/microevent.js')
 		fileset(dir:'src',includes:'**/*.js')
 	}
 	ant.gzip( src:"${surfaceBuild}/${jsLibs}",destfile:"${surfaceBuild}/${jsLibs}.gz")
