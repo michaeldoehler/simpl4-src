@@ -24,20 +24,36 @@
 	<template>
 		<style>
 			dd {
-				margin-left:0px;
+				margin-left: 0px;
 			}
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
 		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
 		<div id="builder"></div>
+		<div>
+			<button on-tap="{{submit}}">Submit</button>
+		</div>
+		<segment>
+			Filter rules:
+			<pre><code id="data"></code></pre>
+		</segment>
 	</template>
 
 	<script>
 		Polymer( 'simpl-filter', {
 			domReady: function() {
-				// define filters
 				$( this.$.builder ).queryBuilder( {
-					sortable: true,
+					icons: {
+						add_group: 'fa fa-plus-circle',
+						add_rule: 'fa fa-plus',
+						remove_group: 'fa fa-minus',
+						remove_rule: 'fa fa-minus',
+						error: 'fa fa-bug',
+						sort: 'fa fa-sort'
+					},
+					sortable: false,
+					//plugins: ["sortable"],
+					display_errors: false,
 
 					filters: [ {
 						id: 'name',
@@ -90,7 +106,7 @@
 
 				// set rules
 				$( '.set' ).on( 'click', function() {
-					$( '#builder' ).queryBuilder( 'setRules', {
+					$( this.$.builder ).queryBuilder( 'setRules', {
 						condition: 'AND',
 						rules: [ {
 							id: 'price',
@@ -110,30 +126,68 @@
 						} ]
 					} );
 				} );
-
-				// reset builder
-				$( '.reset' ).on( 'click', function() {
-					$( '#builder' ).queryBuilder( 'reset' );
-					$( '#result' ).empty().addClass( 'hide' );
-				} );
-
-				// get rules
-				$( '.parse-json' ).on( 'click', function() {
-					var res = $( '#builder' ).queryBuilder( 'getRules' );
-					$( '#result' ).removeClass( 'hide' )
-						.find( 'pre' ).html(
-							JSON.stringify( res, null, 2 )
-						);
-				} );
-
-				$( '.parse-sql' ).on( 'click', function() {
-					var res = $( '#builder' ).queryBuilder( 'getSQL', $( this ).data( 'stmt' ) );
-					$( '#result' ).removeClass( 'hide' )
-						.find( 'pre' ).html(
-							res.sql + ( res.params ? '\n\n' + JSON.stringify( res.params, null, 2 ) : '' )
-						);
-				} );
 			},
+			renameOne:function(from,to,model){
+				model[to] = model[from];
+				delete model[from];
+			},
+			deleteOne:function(from,model){
+				delete model[from];
+			},
+			connectorToLowerCase:function(model){
+				if( model.connector === undefined){
+					return;
+				}
+				model.connector = model.connector.toLowerCase();
+			},
+			renameFrom: function (model) {
+				this.renameOne("condition", "connector", model);
+				this.connectorToLowerCase(model);
+				this.renameOne("value", "data", model);
+				this.renameOne("operator", "op", model);
+				this.deleteOne("input",model);
+				this.deleteOne("type",model);
+				this.deleteOne("id",model);
+				var children = model.rules||[];
+				model.children=children;
+				delete model.rules;
+				if (children.length > 0) {
+					for (var i = 0; i < children.length; i++) {
+						this.renameFrom(children[i]);
+					}
+				}
+				return model;
+			},
+			renameTo: function (model,meta) {
+				this.renameOne("connector", "condition", model);
+				this.renameOne("data", "value", model);
+				this.renameOne("op", "operator", model);
+				model.input = meta.edittype;
+				model.type = meta.datetype;
+				model.id =model.field;
+				var rules = model.children||[];
+				model.rules=rules;
+				delete model.children;
+				if (rules.length > 0) {
+					for (var i = 0; i < rules.length; i++) {
+						this.renameTo(rules[i],meta);
+					}
+				}
+				return model;
+			},
+			getRules:function(){
+					return this.renameFrom($( this.$.builder ).queryBuilder( 'getRules'));
+			},
+			setRules:function(rules){
+					$( this.$.builder ).queryBuilder( 'setRules',rules);
+			},
+			reset: function( e ) {
+				$( this.$.builder).queryBuilder( 'reset' );
+			},
+			submit: function( e ) {
+				var jsonData = JSON.stringify( this.getRules(), null, 2 )
+				this.$.data.textContent = jsonData;
+			}
 		} );
 	</script>
 

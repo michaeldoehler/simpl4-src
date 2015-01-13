@@ -4,10 +4,10 @@
  */
 
 jQuery.fn.queryBuilder.defaults.set({ lang: {
-  "add_rule": "neue Regel",
-  "add_group": "neue Gruppe",
-  "delete_rule": "löschen",
-  "delete_group": "löschen",
+  "add_rule": "Regel",
+  "add_group": "Gruppe",
+  "delete_rule": "",
+  "delete_group": "",
 
   "condition_and": "UND",
   "condition_or": "ODER",

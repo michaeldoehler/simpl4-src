@@ -24,8 +24,11 @@ can.Construct.extend("simpl4.util.BaseManager", {
 	setNamespace:function(namespace){
 		simpl4.util.BaseManager.namespace = namespace;
 	},
-	getNamespace:function(namespace){
+	getNamespace:function(){
 		return simpl4.util.BaseManager.namespace;
+	},
+	getStoreId:function(){
+		return simpl4.util.BaseManager.namespace+"_data";
 	},
 	setLanguage:function(language){
 		simpl4.util.BaseManager.language = language;

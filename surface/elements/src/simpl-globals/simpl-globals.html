@@ -42,11 +42,19 @@
 
 			window.simpl4FormManager = simpl4.util.FormManager;
 			window.simpl4MessageManager = simpl4.util.MessageManager;
+			window.simpl4EntityManager = simpl4.util.EntityManager;
+
 			simpl4MessageManager.installMessages();
 			window.tr = simpl4MessageManager.tr;
 			PolymerExpressions.prototype.tr = function(input) {
 				return simpl4MessageManager.tr(input);
 			};
+
+			var e = simpl4EntityManager.getEntities();
+			var e = simpl4EntityManager.getEntityViewFields("contact","search", true);
+			console.log("Entities:"+JSON.stringify(e,null,2));
+
+
 
 			Polymer('simpl-globals', {
 				ready: function() {
