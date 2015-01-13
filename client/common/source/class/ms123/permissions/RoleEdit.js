@@ -98,7 +98,7 @@ qx.Class.define("ms123.permissions.RoleEdit", {
 				ms123.form.Dialog.alert("RoleEdit.saveRecords:" + e);
 				return;
 			}
-			ms123.form.Dialog.alert("permissions.role_permission_saved");
+			ms123.form.Dialog.alert(this.tr("permissions.role_permission_saved"));
 		}
 	}
 });
