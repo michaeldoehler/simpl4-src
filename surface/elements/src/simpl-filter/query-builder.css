@@ -3,6 +3,12 @@
  * Copyright 2014-2015 Damien "Mistic" Sorel (http://www.strangeplanet.fr)
  * Licensed under MIT (http://opensource.org/licenses/MIT)
  */
+
+
+dd.rules-group-body{
+	margin-left:0px !important;
+}
+
 .query-builder .rule-container,
 .query-builder .rules-group-container,
 .query-builder .rule-placeholder {
