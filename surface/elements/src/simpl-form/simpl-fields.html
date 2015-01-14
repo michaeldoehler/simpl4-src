@@ -33,12 +33,20 @@
 	} );
 </script>
 
-<polymer-element name="form-field" attributes="label name value meta editValue" field>
+<polymer-element name="form-field" attributes="label compact name value meta editValue" field>
 	<template>
-		<style>
+		<style shim-shadowdom>
 			:host {
 				min-width: 166px;
-				margin: 2px 10px 2px 0;
+				margin: 3px 10px 2px 0;
+				padding:0 !important;
+			}
+			:host /deep/ #input.compact{
+				padding: 0;
+				margin:0px;
+			}
+			:host /deep/ paper-input-decorator {
+				padding: 0 !important;
 			}
 		</style>
 	</template>
@@ -60,7 +68,7 @@
 </polymer-element>
 
 <!--PAPERFIELDS-->
-<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
+<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput floatingLabel min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
 	<template>
 		<paper-input-decorator flex id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
 			<input is="core-input" id="input" value="{{editValue}}" min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly?={{readonly}} preventInvalidInput?={{preventInvalidInput}} disabled?={{disabled}}>
@@ -69,6 +77,10 @@
 	<script>
 		Polymer( {
 			publish: {
+				compact: {
+					value: false,
+					reflect: true
+				},
 				autofocus: {
 					value: false,
 					reflect: true
@@ -122,11 +134,15 @@
 					} );
 					this.readonly = true;
 				}
-				if ( this.type.match( /^date/) && this.hasDate  ) {
-					this.$.decorator.labelVisible=true;
-					var ldiv = this.$.decorator.querySelector("paper-input-decorator /deep/ .floated-label");
-					ldiv.removeAttribute("invisible");
-					ldiv.style.fontSize="0.90em";
+				if ( this.type.match( /^date/ ) && this.hasDate ) {
+					this.$.decorator.labelVisible = true;
+					var ldiv = this.$.decorator.querySelector( "paper-input-decorator /deep/ .floated-label" );
+					ldiv.removeAttribute( "invisible" );
+					ldiv.style.fontSize = "0.90em";
+				}
+				if( this.compact ){
+					jQuery(this.decorator).addClass("compact");
+					jQuery(this.$.input).addClass("compact");
 				}
 			},
 			i18n: {
@@ -175,8 +191,8 @@
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
-//				if( regula.isBound(
-				var cvList = regula.validate( {
+				//				if( regula.isBound(
+				/*var cvList = regula.validate( {
 					elements: [ this ],
 					groups: [ regula.Group.MyGroup ]
 				} );
@@ -184,7 +200,7 @@
 				this.decorator.isInvalid = cvList.length > 0;
 				if ( cvList.length > 0 ) {
 					this.decorator.error = cvList[ 0 ].message;
-				}
+				}*/
 			},
 			setCustomValidity: function( message ) {
 				console.debug( "setCustomValidity:" + message );

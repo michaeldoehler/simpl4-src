@@ -22,27 +22,23 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		var f2 = this._getSearchFilterFields( entityname );
 		var fields = f1.concat( f2 );
 
-		var root = {};
-		root.id = "root";
-		root.title = "root";
-		root.children = [];
+		var ret = [];
 		for ( var i = 0; i < fields.length; i++ ) {
 			var f = fields[ i ];
-			f.module = "";
 			var node = {};
 			node.id = f.itemval;
-			node.title = f.text;
-			node.module = "";
-			node.moduleTitle = "";
-			node.children = [];
-			root.children.push( node );
+			node.label = f.text;
+			node.type = f.type;
+			node.input = f.input;
+			node.operators = this._adaptOps( f.ops );
+			ret.push( node );
 		}
-		return {filter:root, fields:fields};
+		return  ret;
 	},
 	createSearchFilterWithChilds: function( entityname ) {
 		var f1 = this._getSearchFilterFieldSets( entityname );
 		var fsids = [];
-		jQuery.each(f1, function( e ) {
+		jQuery.each( f1, function( e ) {
 			fsids.push( e.itemval );
 		} );
 		var f2 = this._getSearchFilterFields( entityname );
@@ -52,7 +48,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		if ( moduleList && moduleList.childs != null ) {
 			for ( var j = 0; j < moduleList.childs.length; j++ ) {
 				var child = moduleList.childs[ j ];
-				child.title = tr( "data." + moduleList.name + "." + child.name );
+				child.label = tr( "data." + moduleList.name + "." + child.name );
 				var fs = this._getSearchFilterFieldSets( child.modulename );
 				var ff = this._getSearchFilterFields( child.modulename );
 				child.fields = fs.concat( ff );
@@ -61,7 +57,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 
 		var root = {};
 		root.id = "root";
-		root.title = "root";
+		root.label = "root";
 		root.children = [];
 		for ( var i = 0; i < fields.length; i++ ) {
 			var f = fields[ i ];
@@ -74,7 +70,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			} else {
 				node.id = f.itemval;
 			}
-			node.title = f.text;
+			node.label = f.text;
 			node.module = "";
 			node.moduleTitle = "";
 			node.children = [];
@@ -86,7 +82,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			if ( child.name == entityname ) continue;
 			var node = {};
 			node.id = child.name;
-			node.title = child.title;
+			node.label = child.title;
 			node.children = [];
 			node.selectable = false;
 			root.children.push( node );
@@ -98,14 +94,17 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 				var fnode = {};
 				fnode.id = entityname + "$" + child.name + "." + field.itemval;
 				field.itemval = fnode.id;
-				fnode.title = field.text;
+				fnode.label = field.text;
 				fnode.module = child.name;
 				fnode.moduleTitle = child.title;
 				fnode.children = [];
 				fchildren.push( fnode );
 			}
 		}
-		return {filter:root, fields:fields};
+		return {
+			filter: root,
+			fields: fields
+		};
 	},
 	_getSearchFilterFieldSets: function( entityname ) {
 		var allops = [ 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'inn', 'ew', 'en', 'cn', 'nc' ];
@@ -149,7 +148,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			return []
 		}
 	},
-	_getSearchFilterFields: function( entityname) {
+	_getSearchFilterFields: function( entityname ) {
 		var allops = [ 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'inn', 'ew', 'en', 'cn', 'nc' ];
 		var odata = tr( "meta.lists.odata" );
 		odata = odata.replace( /'/g, '"' );
@@ -192,20 +191,67 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 						field.dataValues = col.selectable_items.getItems();
 					}
 				}
+//console.log("Col:"+JSON.stringify(col,null,2));
 				field.ops = ops;
+				field.input = col.edittype;
+				field.type = "string";
 				if ( col.datatype && col.datatype == 'date' ) {
 					field.type = col.edittype == "text" ? "date" : col.edittype;
 				} else if ( col.datatype && ( col.datatype == 'decimal' || col.datatype == 'double' ) ) {
-					field.type = "decimal";
+					field.type = "double";
 				} else if ( col.datatype && ( col.datatype == 'number' || col.datatype == 'integer' || col.datatype == 'long' ) ) {
-					field.type = "number";
+					field.type = "integer";
 				} else {
-					field.type = hasSearchables ? "select" : col.edittype;
+					field.input = hasSearchables ? "select" : col.edittype;
 				}
+				if( field.type === "text"){
+					field.type = "string";
+					field.input = "text";
+				}
+				//if( field.input === "date"){
+					field.input = this._text_functiom;
+				//}
 				fields.push( field );
 			}
 		}
 		return fields;
+	},
+	_text_functiom: function( rule, filter ) {
+		console.log("_text_functiom.rule:",rule.selector);
+		rule.find(".rule-value-container").append('<input-field name="'+rule.selector.substring(1)+'_value_0" style="min-width:60px;" compact floatingLabel="false" xame="builder_rule_0_value_0" label="name"></input-field>');
+
+		console.log("_text_functiom.filter:",filter);
+	},
+	_adaptOps: function( list ) {
+		var ret = [];
+		var self = this;
+		list.forEach( function( e ) {
+			ret.push( self._mapOp( e.op ));
+		} );
+		return ret;
+	},
+	_mapOp: function( op_in ) {
+		var map = {
+			eq: "equal",
+			ne:  "not_equal",
+			in : "in",
+			inn: "not_in",
+			lt: "less",
+			le: "less_or_equal",
+			gt: "greater",
+			ge: "greater_or_equal",
+			bw: "begins_with",
+			bn: "not_begins_with",
+			cn: "contains",
+			ew: "ends_with",
+			en: "not_ends_with",
+			empty: "is_empty",
+			not_empty: "is_not_empty"
+		}
+		if( map[op_in] === undefined){
+			console.error("SearchFilter.Op not foind:"+op_in);
+		}
+		return map[ op_in ];
 	},
 	_setDefaultSearchOptions: function( col ) {
 		if ( col.search_options ) return col.search_options;
@@ -231,4 +277,4 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		return val;
 	}
 
-},{} );
+}, {} );
