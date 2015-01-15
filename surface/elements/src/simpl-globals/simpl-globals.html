@@ -35,6 +35,8 @@
 			var x = location.toString().split("/");
 			var namespace = x[x.length - 2];
 
+			window.is_chromium = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+
 			simpl4.util.BaseManager.setNamespace(namespace);
 			simpl4.util.BaseManager.setLanguage("de");
 			simpl4.util.BaseManager.setUser("guest");

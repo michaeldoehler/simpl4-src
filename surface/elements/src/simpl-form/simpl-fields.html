@@ -39,11 +39,11 @@
 			:host {
 				min-width: 166px;
 				margin: 3px 10px 2px 0;
-				padding:0 !important;
+				padding: 0 !important;
 			}
-			:host /deep/ #input.compact{
+			:host /deep/ #input.compact {
 				padding: 0;
-				margin:0px;
+				margin: 0px;
 			}
 			:host /deep/ paper-input-decorator {
 				padding: 0 !important;
@@ -59,9 +59,11 @@
 			},
 			attached: function() {
 				this.fire( 'add-form-field', this );
+				console.debug( "attached:", this );
 			},
 			detached: function() {
 				this.fire( 'remove-form-field', this );
+				console.debug( "detach:", this );
 			}
 		} );
 	</script>
@@ -70,7 +72,7 @@
 <!--PAPERFIELDS-->
 <polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput floatingLabel min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
 	<template>
-		<paper-input-decorator flex id="decorator" label="{{label}}" invisible="{{invisible}}" floatingLabel="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
+		<paper-input-decorator flex id="decorator" label="{{label}}" invisible?="{{invisible}}" floatingLabel?="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
 			<input is="core-input" id="input" value="{{editValue}}" min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly?={{readonly}} preventInvalidInput?={{preventInvalidInput}} disabled?={{disabled}}>
 		</paper-input-decorator>
 	</template>
@@ -101,10 +103,21 @@
 			type: "text",
 			value: "",
 			floatingLabel: true,
-			step: 1,
 			hasDate: Modernizr.inputtypes.date,
 			observe: {
 				type: 'validateAttributes',
+			},
+			ready: function() {
+				var self = this;
+				Object.keys( this.publish ).forEach( function( key ) {
+					var value = self.publish[ key ];
+					if ( value === undefined && self[ key ] === undefined ) {
+						if ( self.$.input.hasAttribute( key ) ) {
+							console.log( "\tremoveAttribute:" + key );
+							self.$.input.removeAttribute( key );
+						}
+					}
+				} );
 			},
 			domReady: function() {
 				if ( this.label == null || this.label == '' ) this.label = this.name;
@@ -140,9 +153,12 @@
 					ldiv.removeAttribute( "invisible" );
 					ldiv.style.fontSize = "0.90em";
 				}
-				if( this.compact ){
-					jQuery(this.decorator).addClass("compact");
-					jQuery(this.$.input).addClass("compact");
+				if ( this.compact ) {
+					jQuery( this.decorator ).addClass( "compact" );
+					jQuery( this.$.input ).addClass( "compact" );
+					if ( is_chromium && this.type != "date" ) {
+						jQuery( this.$.input ).css( "margin-top", "4px" );
+					}
 				}
 			},
 			i18n: {

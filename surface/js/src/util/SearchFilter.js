@@ -29,11 +29,14 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			node.id = f.itemval;
 			node.label = f.text;
 			node.type = f.type;
+			node.datatype = f.datatype;
+			node.edittype = f.edittype;
+			node.constraints = f.constraints;
 			node.input = f.input;
 			node.operators = this._adaptOps( f.ops );
 			ret.push( node );
 		}
-		return  ret;
+		return ret;
 	},
 	createSearchFilterWithChilds: function( entityname ) {
 		var f1 = this._getSearchFilterFieldSets( entityname );
@@ -191,9 +194,11 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 						field.dataValues = col.selectable_items.getItems();
 					}
 				}
-//console.log("Col:"+JSON.stringify(col,null,2));
+
 				field.ops = ops;
-				field.input = col.edittype;
+				field.edittype = col.edittype;
+				field.datatype = col.datatype;
+				field.constraints = col.constraints;
 				field.type = "string";
 				if ( col.datatype && col.datatype == 'date' ) {
 					field.type = col.edittype == "text" ? "date" : col.edittype;
@@ -201,39 +206,122 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 					field.type = "double";
 				} else if ( col.datatype && ( col.datatype == 'number' || col.datatype == 'integer' || col.datatype == 'long' ) ) {
 					field.type = "integer";
-				} else {
-					field.input = hasSearchables ? "select" : col.edittype;
 				}
-				if( field.type === "text"){
+				if ( field.type === "text" ) {
 					field.type = "string";
-					field.input = "text";
 				}
-				//if( field.input === "date"){
-					field.input = this._text_functiom;
-				//}
+				if ( field.type === "boolean" ) {
+					field.type = "integer";
+				}
+				field.input = this._handleInput.bind( this );
 				fields.push( field );
 			}
 		}
 		return fields;
 	},
-	_text_functiom: function( rule, filter ) {
-		console.log("_text_functiom.rule:",rule.selector);
-		rule.find(".rule-value-container").append('<input-field name="'+rule.selector.substring(1)+'_value_0" style="min-width:60px;" compact floatingLabel="false" xame="builder_rule_0_value_0" label="name"></input-field>');
+	_handleInput: function( rule, filter ) {
+		var regulaConstraints = null;
+		if ( filter.constraints ) {
+			var c = JSON.parse( filter.constraints );
+			regulaConstraints = this._constructRegulaConstraints( c );
+		}
+		var attributes = this._constructAttributes( filter, c );
+		rule.find( ".rule-value-container" ).
+			append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
+	},
+	_constructRegulaConstraints: function( c ) {
+		var ret = 'data-constraints="';
+		var self = this;
+		var b="";
+		c.forEach( function( x ) {
+			var params = self.constraintParams[ x.annotation ];
+			ret += b+ '@' + x.annotation;
+			if ( params ) {
+				ret += '(';
+				if ( params.length > 0 ) {
+					var key = params[ 0 ];
+					var val = key=='format' ? 'YMD' : x.parameter1;
+					ret += key + '=' + val;
+				}
+				if ( params.length > 1 ) {
+					var key = params[ 1 ];
+					var val = x.parameter2;
+					ret += ',' + key + '=' + val;
+				}
+				ret += ')';
+			}
+			b=' ';
+		} );
+		ret += '"';
+		return ret;
+	},
+	_constructAttributes: function( filter, c ) {
+		var ret = '';
+		var self = this;
+		var b="";
+		var map={};
 
-		console.log("_text_functiom.filter:",filter);
+		map.type = "text";
+		if ( filter.type === "date" ) {
+			map.type = "date";
+		}
+		if ( filter.type === "integer" ) {
+			map.type = "number";
+		}
+		if ( filter.type === "double" ) {
+			map.type = "number";
+		}
+		map.style="min-width:60px;"
+		map.label=filter.label;
+		map.floatingLabel=false;
+		map.compact=true;
+		if( map.type == 'number'){
+			map.step='1';
+			map.preventInvalidInput=true;
+		}
+		if( map.type == 'double'){
+			map.preventInvalidInput=true;
+			map.step='any';
+		}
+		c.forEach( function( x ) {
+			var a = x.annotation;
+			if( a == 'Min' || a == 'Max' || a == 'Pattern'){
+				map[a] = x.parameter1;
+			}
+			if( a == 'Digits'){
+				var f = parseInt(x.parameter2);
+				map.step= Math.pow(10,-f)+'';
+			}
+			if( a == 'Email'){
+				map.type= 'email';
+			}
+			if( a == 'Url'){
+				map.type= 'url';
+			}
+		} );
+		var b = '';
+		Object.keys( map ).forEach( function( key ) {
+			if( map[key] === true){
+				ret+= b+ key;
+			}else{
+				ret+= b+ key+'='+map[key];
+			}
+			b=' ';
+		});
+		return ret;
 	},
 	_adaptOps: function( list ) {
 		var ret = [];
 		var self = this;
 		list.forEach( function( e ) {
-			ret.push( self._mapOp( e.op ));
+			ret.push( self._mapOp( e.op ) );
 		} );
 		return ret;
 	},
 	_mapOp: function( op_in ) {
 		var map = {
 			eq: "equal",
-			ne:  "not_equal",
+			ne: "not_equal",
 			in : "in",
 			inn: "not_in",
 			lt: "less",
@@ -248,8 +336,8 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			empty: "is_empty",
 			not_empty: "is_not_empty"
 		}
-		if( map[op_in] === undefined){
-			console.error("SearchFilter.Op not foind:"+op_in);
+		if ( map[ op_in ] === undefined ) {
+			console.error( "SearchFilter.Op not foind:" + op_in );
 		}
 		return map[ op_in ];
 	},
@@ -275,6 +363,17 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			return ret;
 		}
 		return val;
+	},
+	constraintParams: {
+		Max: [ "value" ],
+		Min: [ "value" ],
+		Range: [ "min", "max" ],
+		Pattern: [ "regex" ],
+		Length: [ "min", "max" ],
+		Digits: [ "integer", "fraction" ],
+		Past: [ "format" ],
+		Future: [ "format" ],
+		Step: [ "min", "max", "value" ]
 	}
 
 }, {} );
