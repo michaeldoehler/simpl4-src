@@ -3,10 +3,9 @@
  * Copyright 2014-2015 Damien "Mistic" Sorel (http://www.strangeplanet.fr)
  * Licensed under MIT (http://opensource.org/licenses/MIT)
  */
-
-
+/*asciidoc overwrite*/
 dd.rules-group-body{
-	margin-left:0px !important;
+    margin-left:0px !important;
 }
 
 .query-builder .rule-container,
@@ -40,7 +39,7 @@ dd.rules-group-body{
 
 .query-builder .rule-container  {}
   .query-builder .rule-container>div:not(.rule-header) {
-    display:inline-block !important;
+    display:inline-block;
     margin:0 5px 0 0;
     vertical-align:top;
   }
