@@ -765,7 +765,7 @@
             $inputs = $inputs.add($ruleInput);
         }
 
-        //$valueContainer.show();
+        showHide($valueContainer,true);
 
         if (filter.onAfterCreateRuleInput) {
             filter.onAfterCreateRuleInput.call(this, $rule, filter);
@@ -804,10 +804,10 @@
             operator = this.getOperatorByType(operatorType);
 
         if (operator.accept_values === 0) {
-            $valueContainer.hide();
+            showHide($valueContainer,false);
         }
         else {
-            $valueContainer.show();
+            showHide($valueContainer,true);
 
             var previousOperator = $rule.data('queryBuilder').operator;
 
@@ -1787,7 +1787,7 @@ $.fn.queryBuilder.defaults.set({
 
                 // Chrome glitch (helper invisible if hidden immediately)
                 setTimeout(function() {
-                    src.hide();
+                    showHide(src,false);
                 }, 0);
             });
 
@@ -1818,7 +1818,7 @@ $.fn.queryBuilder.defaults.set({
                 e.preventDefault();
                 e.stopPropagation();
 
-                src.show();
+                showHide(src,true);
                 placeholder.remove();
 
                 src = placeholder = null;
@@ -2083,5 +2083,12 @@ $.fn.queryBuilder.defaults.set({
           // uglify compliant
           .replace(/\t/g, '\\t')
           .replace(/\x1a/g, '\\Z');
+    }
+		function showHide(elements, show) {
+      if (show) {
+				jQuery(elements).css('display', 'inline-block');
+			}else{
+				jQuery(elements).css('display', 'none');
+			}
     }
 }));
