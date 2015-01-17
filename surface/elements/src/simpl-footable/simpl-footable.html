@@ -21,16 +21,118 @@
 <link rel="import" href="import-js.html">
 <polymer-element name="simpl-footable" attributes="" flex relative>
 	<template>
-		<link rel="stylesheet" type="text/css" href="footable-core.css" />
-		<link rel="stylesheet" type="text/css" href="footable-metro.css" />
+		<link rel="stylesheet" type="text/css" href="footable.core.css" />
+		<link rel="stylesheet" type="text/css" href="footable.metro.css" />
+		<style shim_shadowdom>
+			:host /deep/ #footable_main{
+				width:100%;
+			}
+		</style>
+		<div> <!--without this div, footable has no parent width-->
+			<table id="footable_main"  unresolved="">
+				<thead>
+					<tr>
+						<th template repeat="{{ column in meta }}" data-toggle="{{column.toggle}}" data-hide="{{column.hide}}">
+							<span on-click="{{ sort }}">{{ column.label ? column.label : column.name}}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr template repeat="{{ row in rows }}">
+						<td template repeat="{{ column in meta }}" on-dblclick="{{ dbclick }}" on-click="{{ click }}">
+							<div>{{row[column.name]}}</div>
+						</td>
+					</tr>
+				</tbody>
+		</div>
 		<content></content>
 	</template>
 	<script>
-		Polymer('simpl-footable', {
-			ready: function() {
+		Polymer( 'simpl-footable', {
+			data: [],
+			meta: [],
+			ready: function() {},
+			domReady: function() {
+				console.log( "footable_main:", $( this.$.footable_main ) );
+				$( this.$.footable_main ).footable();
 			},
 			created: function() {
+				this.meta = [ {
+					label: "Col1",
+					name: "col1",
+					toggle: true
+				}, {
+					label: "Col2",
+					name: "col2",
+					hide: "phone,tablet"
+				}, {
+					label: "Col3",
+					name: "col3",
+					hide: "phone"
+				}, {
+					label: "Col4",
+					name: "col4",
+					hide: "phone,tablet"
+				}, {
+					label: "Col5",
+					name: "col5"
+				} ];
+				this.rows = [ {
+					col1: "Value1",
+					col2: "Value2",
+					col3: "Value3",
+					col4: "Value4",
+					col5: "Value5"
+				}, {
+					col1: "Xalue1",
+					col2: "Xalue2",
+					col3: "Xalue3",
+					col4: "Xalue4",
+					col5: "Xalue5"
+				}, {
+					col1: "Zalue1",
+					col2: "Zalue2",
+					col3: "Zalue3",
+					col4: "Zalue4",
+					col5: "Zalue5"
+				}, {
+					col1: "Aalue1",
+					col2: "Aalue2",
+					col3: "Aalue3",
+					col4: "Aalue4",
+					col5: "Aalue5"
+				}, {
+					col1: "Balue1",
+					col2: "Balue2",
+					col3: "Balue3",
+					col4: "Balue4",
+					col5: "Balue5"
+				}, {
+					col1: "Calue1",
+					col2: "Calue2",
+					col3: "Calue3",
+					col4: "Calue4",
+					col5: "Calue5"
+				}, {
+					col1: "Dalue1",
+					col2: "Dalue2",
+					col3: "Dalue3",
+					col4: "Dalue4",
+					col5: "Dalue5"
+				}, {
+					col1: "Ealue1",
+					col2: "Ealue2",
+					col3: "Ealue3",
+					col4: "Ealue4",
+					col5: "Ealue5"
+				}, {
+					col1: "Falue1",
+					col2: "Falue2",
+					col3: "Falue3",
+					col4: "Falue4",
+					col5: "Falue5"
+				} ]
 			}
-		});
+		} );
 	</script>
 </polymer-element>
