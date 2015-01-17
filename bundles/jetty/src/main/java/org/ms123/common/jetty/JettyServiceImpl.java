@@ -121,6 +121,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("png", "image/png");
 		result.put("jpg", "image/jpg");
 		result.put("jepg", "image/jpg");
+		result.put("woff", "application/x-font-woff");
+		result.put("woff.gz", "application/x-font-woff");
 		result.put("svg", "image/svg+xml");
 		return Collections.unmodifiableMap(result);
 	}

@@ -1115,6 +1115,8 @@ public class GitServiceImpl implements GitService {
 	protected static String getFileType(File file) {
 		if (file.isDirectory()){
 			return "sw.directory";
+		}else if( file.toString().endsWith(".woff") || file.toString().endsWith(".woff.gz")){
+			return "application/x-font-woff";
 		}else if( file.toString().endsWith(".js") || file.toString().endsWith(".js.gz")){
 			return "text/javascript";
 		}else if( file.toString().endsWith(".adoc") || file.toString().endsWith(".adoc.gz")){
