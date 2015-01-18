@@ -93,6 +93,30 @@ qx.Class.define("ms123.settings.views.SelectedItems", {
 				}];
 				this._columnModel = columnmodel;
 				return this._translate(columnmodel);
+			}else if (view == "main-grid") {
+				var columnmodel = [{
+					name: "name",
+					header: "%settings.name"
+				},
+				{
+					name: "displayname",
+					header: "%settings.displayname"
+				},
+				{
+					name: "hide",
+					type: "SelectBox",
+					width: 30,
+					options: [{value:null, label:"---"},{value:"phone",label:"Phone"},{value:"phone,tablet",label:"Phone,Tablet"}],
+					header: "%settings.hide"
+				},
+				{
+					name: "enabled",
+					type: "CheckBox",
+					width: 15,
+					header: "%settings.enabled"
+				}];
+				this._columnModel = columnmodel;
+				return this._translate(columnmodel);
 			}else if (view == "search") {
 				var columnmodel = [{
 					name: "name",
