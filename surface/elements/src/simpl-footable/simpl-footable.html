@@ -19,44 +19,87 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-footable" attributes="" flex relative>
+<polymer-element name="simpl-footable" attributes="" ox-filter-changed="{{filterChanged}}" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="footable.core.css" />
 		<link rel="stylesheet" type="text/css" href="footable.metro.css" />
 		<style shim_shadowdom>
-			:host /deep/ #footable_main{
-				width:100%;
+			:host /deep/ #footable_main {
+				width: 100%;
 			}
 		</style>
-		<div> <!--without this div, footable has no parent width-->
-			<table id="footable_main"  unresolved="">
-				<thead>
-					<tr>
-						<th template repeat="{{ column in meta }}" data-toggle="{{column.toggle}}" data-hide="{{column.hide}}">
-							<span on-click="{{ sort }}">{{ column.label ? column.label : column.name}}</span>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr template repeat="{{ row in rows }}">
-						<td template repeat="{{ column in meta }}" on-dblclick="{{ dbclick }}" on-click="{{ click }}">
-							<div>{{row[column.name]}}</div>
-						</td>
-					</tr>
-				</tbody>
+		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
+		<div>
+			<!--without this div, footable has no parent width-->
+			<table id="footable_main">
+				<template if="{{meta != null}}">
+					<thead>
+						<tr>
+							<th template repeat="{{ column in meta }}" data-toggle="{{column.toggle}}" data-hide="{{column.hide}}">
+								{{ column.label ? column.label : column.name}}
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr template repeat="{{ row in rows }}">
+							<td template repeat="{{ column in meta }}" data-value="{{row[column.name]}}">{{row[column.name]}}</td>
+						</tr>
+					</tbody>
+				</template>
+			</table>
 		</div>
 		<content></content>
 	</template>
 	<script>
-		Polymer( 'simpl-footable', {
-			data: [],
-			meta: [],
+		Polymer( {
+			data: null,
+			meta: null,
+			eventDelegates: {
+				'filter-changed': 'filterChanged'
+			},
 			ready: function() {},
 			domReady: function() {
-				console.log( "footable_main:", $( this.$.footable_main ) );
-				$( this.$.footable_main ).footable();
+				//console.log( "footable_main:", $( this.$.footable_main ) );
 			},
-			created: function() {
+			filterChanged: function( e ) {
+				console.error( "filterChanged" );
+				var data = e.detail;
+				this.entity = data.entity;
+				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
+				console.log( "Fields:" + JSON.stringify( this.meta, null, 2 ) );
+				this.rows = [ {
+					salutation: "Manfred",
+					first_name: "Manfred",
+					last_name: "Sattler",
+					gender: "sex",
+					phone: "cw111111sex",
+					title: "Mr",
+					email1: "ms@tpso.com"
+				} ]
+				var self = this;
+				//$( this.$.footable_main ).footable();
+				//$( this.$.footable_main ).resize();
+				setTimeout( function() {
+					console.log( "footable_main:", self.$.footable_main );
+					$( self.$.footable_main ).footable();
+				}, 20 );
+			},
+			preProcessMeta: function( fields ) {
+				//				console.log("Fields:"+JSON.stringify(fields,null,2));
+				var ret = [];
+				fields.forEach( function( f ) {
+					if ( f.hidden ) return;
+					var col = {
+						label: tr( 'data.' + this.entity + '.' + f.name ),
+						name: f.name,
+						toggle: ret.length == 0 ? true : null,
+						hide: f.hide
+					}
+					ret.push( col );
+				}, this );
+				return ret;
+			},
+			createdx: function() {
 				this.meta = [ {
 					label: "Col1",
 					name: "col1",

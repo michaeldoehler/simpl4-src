@@ -19,7 +19,7 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-filter" attributes="">
+<polymer-element name="simpl-filter" attributes="entity">
 
 	<template>
 		<style>
@@ -33,17 +33,19 @@
 		<div>
 			<button on-tap="{{submit}}">Submit</button>
 		</div>
-		<segment>
+		<!--segment>
 			Filter rules:
 			<pre><code id="data"></code></pre>
-		</segment>
+		</segment-->
+		<content></content>
 	</template>
 
 	<script>
 		Polymer( 'simpl-filter', {
+			entity:null,
 			domReady: function() {
-			var 		filters= simpl4.util.SearchFilter.createSearchFilter("contact");
-			console.debug("Filter:"+JSON.stringify(filters,null,2));
+			var 		filters= simpl4.util.SearchFilter.createSearchFilter(this.entity);
+			//console.debug("Filter:"+JSON.stringify(filters,null,2));
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -142,7 +144,15 @@
 			},
 			submit: function( e ) {
 				var jsonData = JSON.stringify( this.getRules(), null, 2 )
-				this.$.data.textContent = jsonData;
+				var event = {
+					name:"filter-changed",
+					data:{
+						entity : this.entity,
+						filter: jsonData
+					}
+				}
+				this.fire( 'core-signal', event );
+				//this.$.data.textContent = jsonData;
 			}
 		} );
 	</script>
