@@ -35,6 +35,8 @@ import static org.ms123.common.entity.api.Constants.STATE_OK;
 import static org.ms123.common.entity.api.Constants.STATE_NEW;
 import static org.ms123.common.entity.api.Constants.STATE_FIELD;
 import org.slf4j.Logger;
+import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
 import org.slf4j.LoggerFactory;
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
@@ -241,6 +243,13 @@ debug("\t:"+getTeamUserWhere(sel));
 					d = new Date(Long.valueOf((String) rule.get("data")));
 				}
 			} catch (Exception e) {
+				try{
+					if( data instanceof String){
+						d = new SimpleDateFormat("yyyy-MM-dd").parse((String)data,new ParsePosition(0));
+					}
+				}catch(Exception e1){
+					System.out.println("E:"+e);
+				}
 			}
 			data = ":param" + m_queryBuilder.getParamCount();
 			m_queryBuilder.getQueryParams().put("param" + m_queryBuilder.getParamCount(), d);

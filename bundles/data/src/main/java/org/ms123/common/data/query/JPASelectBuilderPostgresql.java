@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.beanutils.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
+import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
 import org.ms123.common.libhelper.Inflector;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
@@ -53,6 +55,13 @@ public class JPASelectBuilderPostgresql extends JPASelectBuilder implements Sele
 					d = new Date(Long.valueOf((String) rule.get("data")));
 				}
 			} catch (Exception e) {
+				try{
+					if( data instanceof String){
+						d = new SimpleDateFormat("yyyy-MM-dd").parse((String)data,new ParsePosition(0));
+					}
+				}catch(Exception e1){
+					System.out.println("E:"+e);
+				}
 			}
 			String op = (String) rule.get("op");
 			if (op.equals("eq") || op.equals("ceq") || op.equals("neq")) {
