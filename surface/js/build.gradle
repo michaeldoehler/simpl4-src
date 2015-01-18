@@ -7,7 +7,6 @@ task stage (type:Task) {
 		fileset(file:'libs/jquery-2.1.1.js')
 		fileset(file:'libs/polymer.js')
 		fileset(file:'libs/can.construct.map.list-2.1.4.js')
-		fileset(file:'libs/tablesaw.js')
 		fileset(file:'libs/cache.js')
 		fileset(file:'libs/es6-promise-2.0.1.js')
 		fileset(file:'libs/regula-1.3.4.js')
