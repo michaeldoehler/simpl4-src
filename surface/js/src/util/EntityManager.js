@@ -40,7 +40,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 				} );
 				simpl4.util.EntityManager.fieldCache[ "fields-" + storeId + "-" + entity + "-" + withAutoGen + "-" + withRelations + "-" + filter + "-" + mapping ] = fields;
 			} catch ( e ) {
-				alert( "EntityManager.getFields:" + e );
+				this._error( "EntityManager.getFields" , e );
 				return [];
 			}
 		}
@@ -56,7 +56,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 				} );
 				simpl4.util.EntityManager.entityCache[ "entities-" + storeId ] = entities;
 			} catch ( e ) {
-				alert( "EntityManager.getEntities:" + e );
+				this._error( "EntityManager.getEntities" , e );
 				return [];
 			}
 		}
@@ -69,8 +69,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			entities = this.getEntities(  );
 		}
 		if ( !entities ) {
-			//ms123.form.Dialog.alert("ConfigManager.getEntity:" + name + "(" + namespace + ") not found");
-			alert( "EntityManager.getEntity:" + name + "(" + namespace + ") not found" );
+			this._error( "EntityManager.getEntity:" + name + "(" + namespace + ") not found" );
 			return null;
 		}
 		for ( var i = 0; i < entities.length; i++ ) {
@@ -111,7 +110,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 				if ( props == null ) props = {};
 				simpl4.util.EntityManager.fieldCache[ "mvcf-" + entity + "-" + storeId + "-" + view ] = props;
 			} catch ( e ) {
-				alert( "EntityManager.getEntityViewProperties:" + e );
+				this._error( "EntityManager.getEntityViewProperties" , e );
 			}
 		}
 		return props;
@@ -170,8 +169,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 					} );
 				}
 			} catch ( e ) {
-				console.log( e.stack );
-				alert( "EntityManager.getEntityViewFields:" + e );
+				this._error("EntityManager.getEntityViewFields",e);
 			}
 			if ( build !== false ) {
 				fields = this.buildColModel( fields, entity, view );
@@ -251,6 +249,15 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			return false;
 		}
 		return true;
+	},
+	_error:function(msg, e){
+		if( e){
+			console.error( msg+":" + e.message );
+			alert( msg+":" + e.message );
+		}else{
+			console.error( msg );
+			alert( msg);
+		}
 	},
 	createSelectableItems: function( url, varMap, entity, name, view ) {
 		return new simpl4.util.SelectableItems( {
