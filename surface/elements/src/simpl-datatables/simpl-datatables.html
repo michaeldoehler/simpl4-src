@@ -24,17 +24,22 @@
 		<link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
 		<link rel="stylesheet" type="text/css" href="dataTables.responsive.css" />
 		<style shim_shadowdom>
-			:host /deep/ #footable_main {
+			:host /deep/ #datatables_main {
 				width: 100%;
+				max-width: 100%;
 			}
 		</style>
 		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
-		<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive nowrap" id="datatables_main"></table>
-		<content></content>
+		<div>
+			<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive nowrap" id="datatables_main"></table>
+		</div>
+		<content>
+		</content>
 	</template>
 	<script>
 		Polymer( {
-			meta: null,
+			dtMeta: null,
+			dtTable: null,
 			eventDelegates: {
 				'filter-changed': 'filterChanged'
 			},
@@ -43,28 +48,61 @@
 			filterChanged: function( e ) {
 				var self = this;
 				var data = e.detail;
-				$( self.$.footable_main ).hide();
 				this.entity = data.entity;
-				if ( this.meta == null ) {
-					this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
+				if ( this.dtMeta == null ) {
+					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
 				}
 				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
-				console.debug( "Inittable" );
-				$( this.$.datatables_main ).
-				on( 'init.dt.dtr', function( e, settings, json ) {
-					console.log( "e:", e );
-					console.log( "json:", json );
-					console.log( "settings:", settings );
-					new $.fn.dataTable.Responsive( settings );
-				} ).dataTable( {
+
+				if ( this.dtTable ) {
+					this.dtTable.destroy();
+				}
+				var self = this;
+				var dtMainElem = $( this.$.datatables_main );
+				dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
+					new jQuery.fn.dataTable.Responsive( settings );
+//					new jQuery.fn.dataTable.FixedHeader( self.dtTable,undefined,settings );
+				} );
+				this.dtTable = dtMainElem.DataTable( {
+					language: {
+						"sEmptyTable": "Keine Daten in der Tabelle vorhanden",
+						"sInfo": "_START_ bis _END_ von _TOTAL_ Einträgen",
+						"sInfoEmpty": "0 bis 0 von 0 Einträgen",
+						"sInfoFiltered": "(gefiltert von _MAX_ Einträgen)",
+						"sInfoPostFix": "",
+						"sInfoThousands": ".",
+						"sLengthMenu": "_MENU_ Einträge anzeigen",
+						"sLoadingRecords": "Wird geladen...",
+						"sProcessing": "Bitte warten...",
+						"sSearch": "Suchen",
+						"sZeroRecords": "Keine Einträge vorhanden.",
+						"oPaginate": {
+							"sFirst": "Erste",
+							"sPrevious": "Zurück",
+							"sNext": "Nächste",
+							"sLast": "Letzte"
+						},
+						"oAria": {
+							"sSortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+							"sSortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+						}
+					},
 					responsive: true,
 					data: dataSet,
-					columns: this.meta
+					columns: this.dtMeta
 				} );
+/*				$( this.$.datatables_main ).on( 'draw.dt', function() {
+					var ee = document.querySelector( "html /deep/ .ellipsis" );
+					console.log( "ee:", ee );
+					var aList = document.getElementsByTagName( "simpl-datatables" )[ 0 ].shadowRoot.querySelectorAll( ".ellipsis" );
+					console.log( "ee:", aList );
+					$( aList ).ellipsis();
+				} );*/
+
 			},
 			preProcessData: function( rows ) {
 				rows.forEach( function( r ) {
-					//r.phone = '<a href="tel:'+r.phone+'>'+';
+					r.email1 = "<div class='ellipsis' style='white-space:normal;overflow:hidden;'>" + r.email1 + "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>"; //r.email1.substring(0,16)+"X";
 				}, this );
 				return rows;
 			},
@@ -73,7 +111,7 @@
 				fields.forEach( function( f ) {
 					if ( f.hidden ) return;
 					var col = {
-						label: tr( 'data.' + this.entity + '.' + f.name ),
+						title: tr( 'data.' + this.entity + '.' + f.name ),
 						data: f.name
 					}
 					ret.push( col );
