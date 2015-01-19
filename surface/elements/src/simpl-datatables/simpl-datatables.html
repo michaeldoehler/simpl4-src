@@ -49,8 +49,15 @@
 					this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
 				}
 				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
-				$( this.$.datatables_main ).dataTable( {
-					responsive:true,
+				console.debug( "Inittable" );
+				$( this.$.datatables_main ).
+				on( 'init.dt.dtr', function( e, settings, json ) {
+					console.log( "e:", e );
+					console.log( "json:", json );
+					console.log( "settings:", settings );
+					new $.fn.dataTable.Responsive( settings );
+				} ).dataTable( {
+					responsive: true,
 					data: dataSet,
 					columns: this.meta
 				} );
