@@ -71,6 +71,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 	},
 	constructAttributes: function( xtype, label, c ) {
 		var map={};
+		if( c == null) c = [];
 		map.type = "text";
 		if ( xtype === "date" ) {
 			map.type = "date";

@@ -26,13 +26,16 @@
 			dd {
 				margin-left: 0px;
 			}
+			paper-button.blue-ripple {
+				color: #4285f4;
+			}
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
 		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
-		<div id="builder"></div>
-		<div>
-			<button on-tap="{{submit}}">Submit</button>
+		<div style="text-align:right;">
+			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>Suchen</paper-button>
 		</div>
+		<div id="builder"></div>
 		<!--segment>
 			Filter rules:
 			<pre><code id="data"></code></pre>
@@ -42,10 +45,10 @@
 
 	<script>
 		Polymer( 'simpl-filter', {
-			entity:null,
+			entity: null,
 			domReady: function() {
-			var 		filters= simpl4.util.SearchFilter.createSearchFilter(this.entity);
-			//console.debug("Filter:"+JSON.stringify(filters,null,2));
+				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity );
+//				console.debug( "Filter:" + JSON.stringify( filters, null, 2 ) );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -58,7 +61,7 @@
 					sortable: false,
 					//plugins: ["sortable"],
 					display_errors: true,
-	
+
 					filters: filters,
 				} );
 
@@ -85,70 +88,77 @@
 					} );
 				} );
 			},
-			renameOne:function(from,to,model){
-				model[to] = model[from];
-				delete model[from];
+			renameOne: function( from, to, model ) {
+				model[ to ] = model[ from ];
+				delete model[ from ];
 			},
-			deleteOne:function(from,model){
-				delete model[from];
+			deleteOne: function( from, model ) {
+				delete model[ from ];
 			},
-			connectorToLowerCase:function(model){
-				if( model.connector === undefined){
+			connectorToLowerCase: function( model ) {
+				if ( model.connector === undefined ) {
 					return;
 				}
 				model.connector = model.connector.toLowerCase();
 			},
-			renameFrom: function (model) {
-				this.renameOne("condition", "connector", model);
-				this.connectorToLowerCase(model);
-				this.renameOne("value", "data", model);
-				this.renameOne("operator", "op", model);
-				this.deleteOne("input",model);
-				this.deleteOne("type",model);
-				this.deleteOne("id",model);
-				var children = model.rules||[];
-				model.children=children;
+			opToSimpl4: function( model ) {
+				if ( model.op === undefined ) {
+					return;
+				}
+				model.op = simpl4.util.SearchFilter.mapOpToSimpl4( model.op );
+			},
+			renameToSimpl4: function( model ) {
+				this.renameOne( "condition", "connector", model );
+				this.connectorToLowerCase( model );
+				this.renameOne( "value", "data", model );
+				this.renameOne( "operator", "op", model );
+				this.deleteOne( "input", model );
+				this.deleteOne( "type", model );
+				this.deleteOne( "id", model );
+				this.opToSimpl4( model );
+				var children = model.rules || [];
+				model.children = children;
 				delete model.rules;
-				if (children.length > 0) {
-					for (var i = 0; i < children.length; i++) {
-						this.renameFrom(children[i]);
+				if ( children.length > 0 ) {
+					for ( var i = 0; i < children.length; i++ ) {
+						this.renameToSimpl4( children[ i ] );
 					}
 				}
 				return model;
 			},
-			renameTo: function (model,meta) {
-				this.renameOne("connector", "condition", model);
-				this.renameOne("data", "value", model);
-				this.renameOne("op", "operator", model);
+			renameFromSimpl4: function( model, meta ) {
+				this.renameOne( "connector", "condition", model );
+				this.renameOne( "data", "value", model );
+				this.renameOne( "op", "operator", model );
 				model.input = meta.edittype;
 				model.type = meta.datetype;
-				model.id =model.field;
-				var rules = model.children||[];
-				model.rules=rules;
+				model.id = model.field;
+				var rules = model.children || [];
+				model.rules = rules;
 				delete model.children;
-				if (rules.length > 0) {
-					for (var i = 0; i < rules.length; i++) {
-						this.renameTo(rules[i],meta);
+				if ( rules.length > 0 ) {
+					for ( var i = 0; i < rules.length; i++ ) {
+						this.renameFromSimpl4( rules[ i ], meta );
 					}
 				}
 				return model;
 			},
-			getRules:function(){
-					return this.renameFrom($( this.$.builder ).queryBuilder( 'getRules'));
+			getRules: function() {
+				return this.renameToSimpl4( $( this.$.builder ).queryBuilder( 'getRules' ) );
 			},
-			setRules:function(rules){
-					$( this.$.builder ).queryBuilder( 'setRules',rules);
+			setRules: function( rules ) {
+				$( this.$.builder ).queryBuilder( 'setRules', rules );
 			},
 			reset: function( e ) {
-				$( this.$.builder).queryBuilder( 'reset' );
+				$( this.$.builder ).queryBuilder( 'reset' );
 			},
 			submit: function( e ) {
 				var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				var event = {
-					name:"filter-changed",
-					data:{
-						entity : this.entity,
-						filter: jsonData
+					name: "filter-changed",
+					data: {
+						entity: this.entity,
+						filter: this.getRules()
 					}
 				}
 				this.fire( 'core-signal', event );

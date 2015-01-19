@@ -19,48 +19,22 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-footable" attributes="" ox-filter-changed="{{filterChanged}}" flex relative>
+<polymer-element name="simpl-datatables" attributes="" flex relative>
 	<template>
-		<link rel="stylesheet" type="text/css" href="footable.core.css" />
-		<link rel="stylesheet" type="text/css" href="footable.standalone.css" />
+		<link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
+		<link rel="stylesheet" type="text/css" href="dataTables.responsive.css" />
 		<style shim_shadowdom>
 			:host /deep/ #footable_main {
 				width: 100%;
 			}
 		</style>
 		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
-		<div>
-			<!--without this div, footable has no parent width-->
-			<table id="footable_main">
-				<template if="{{meta != null}}">
-					<thead>
-						<tr>
-							<th template repeat="{{ column in meta }}" data-toggle="{{column.toggle}}" data-hide="{{column.hide}}">
-								{{ column.label ? column.label : column.name}}
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr template repeat="{{ row in rows }}">
-							<template repeat="{{ column in meta }}">
-
-							<template if="{{ column.name !='xhone' }}">
-							   <td xata-value="{{row[column.name]}}">{{row[column.name]}}</td>
-	            </template>
-
-	            </template>
-						</tr>
-					</tbody>
-				</template>
-			</table>
-		</div>
+		<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive nowrap" id="datatables_main"></table>
 		<content></content>
 	</template>
 	<script>
 		Polymer( {
-			data: null,
 			meta: null,
-			first:true,
 			eventDelegates: {
 				'filter-changed': 'filterChanged'
 			},
@@ -71,27 +45,15 @@
 				var data = e.detail;
 				$( self.$.footable_main ).hide();
 				this.entity = data.entity;
-				var first = false;
 				if ( this.meta == null ) {
-					this.first = true;
 					this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
 				}
-				$( this.$.footable_main ).hide();
-				this.rows = this.preProcessData(this.getData( e.detail.entity, e.detail.filter ));
-			},
-			rowsChanged: function() {
-				console.debug( "rowsChanged" );
-				this.async( function() {
-					$( this.$.footable_main ).show();
-					if(this.first){
-						this.first=false;
-						$( this.$.footable_main ).footable();
-						var cs = document.querySelector("html /deep/ section.core-selected");
-						console.log("cs:",cs);
-					//	$(this.$.footable_main).stickyTableHeaders({scrollableArea: cs,xeftOffset:210});
-					}
-					$( this.$.footable_main ).trigger( 'footable_redraw' );
-				}, this, 200 );
+				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
+				$( this.$.datatables_main ).dataTable( {
+					responsive:true,
+					data: dataSet,
+					columns: this.meta
+				} );
 			},
 			preProcessData: function( rows ) {
 				rows.forEach( function( r ) {
@@ -105,9 +67,7 @@
 					if ( f.hidden ) return;
 					var col = {
 						label: tr( 'data.' + this.entity + '.' + f.name ),
-						name: f.name,
-						toggle: ret.length == 0 ? true : null,
-						hide: f.hide
+						data: f.name
 					}
 					ret.push( col );
 				}, this );

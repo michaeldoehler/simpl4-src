@@ -213,7 +213,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 				if ( field.type === "boolean" ) {
 					field.type = "integer";
 				}
-				field.input = simpl4.util.FormManager.handleQueryBuilderSearchInput.bind( simpl4.util.FormManager);
+				field.input = simpl4.util.FormManager.handleQueryBuilderSearchInput.bind( simpl4.util.FormManager );
 				fields.push( field );
 			}
 		}
@@ -224,30 +224,53 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		var ret = [];
 		var self = this;
 		list.forEach( function( e ) {
-			ret.push( self._mapOp( e.op ) );
+			ret.push( self.mapOpFromSimpl4( e.op ) );
 		} );
 		return ret;
 	},
-	_mapOp: function( op_in ) {
+	mapOpFromSimpl4: function( op_in ) {
 		var map = {
-			eq: "equal",
-			ne: "not_equal",
-			in : "in",
-			inn: "not_in",
-			lt: "less",
-			le: "less_or_equal",
-			gt: "greater",
-			ge: "greater_or_equal",
-			bw: "begins_with",
-			bn: "not_begins_with",
-			cn: "contains",
-			ew: "ends_with",
-			en: "not_ends_with",
-			empty: "is_empty",
-			not_empty: "is_not_empty"
+			'eq': 'equal',
+			'ne': 'not_equal',
+			'in': 'in',
+			'inn': 'not_in',
+			'lt': 'less',
+			'le': 'less_or_equal',
+			'gt': 'greater',
+			'ge': 'greater_or_equal',
+			'bw': 'begins_with',
+			'bn': 'not_begins_with',
+			'cn': 'contains',
+			'ew': 'ends_with',
+			'en': 'not_ends_with',
+			'empty': 'is_empty',
+			'not_empty': 'is_not_empty'
 		}
 		if ( map[ op_in ] === undefined ) {
-			console.error( "SearchFilter.Op not foind:" + op_in );
+			console.error( "SearchFilter.mapOpFromSimpl4 not found:" + op_in );
+		}
+		return map[ op_in ];
+	},
+	mapOpToSimpl4: function( op_in ) {
+		var map = {
+			'equal': 'eq',
+			'not_equal': 'ne',
+			'in': 'in ',
+			'not_in': 'inn',
+			'less': 'lt',
+			'less_or_equal': 'le',
+			'greater': 'gt',
+			'greater_or_equal': 'ge',
+			'begins_with': 'bw',
+			'not_begins_with': 'bn',
+			'contains': 'cn',
+			'ends_with': 'ew',
+			'not_ends_with': 'en',
+			'is_empty': 'empty',
+			'is_not_empty': 'not_empty'
+		}
+		if ( map[ op_in ] === undefined ) {
+			console.error( "SearchFilter.mapOpToSimpl4 not found:" + op_in );
 		}
 		return map[ op_in ];
 	},
