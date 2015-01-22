@@ -51,7 +51,8 @@
 				width: 90px;
 			}
 			:host /deep/ td.sorting_1:first-child:before {
-				top: 6px !important;
+				top: 3px !important;
+				height: 14px !important;
 				border: 0px solid white !important;
 				border-radius: 3px !important;
 				box-shadow: 0 0 0px !important;
@@ -62,6 +63,27 @@
 			:host /deep/ .dtr-data {
 				white-space: normal;
 				font-size: 12px;
+			}
+			:host /deep/ table#datatables_main {
+				background: #fff;
+			}
+			:host /deep/ table#datatables_main thead tr th,
+			table tfoot tr th {
+				background: #fff;
+				padding: 0em 0.625em 0em;
+				text-align: left;
+			}
+			:host /deep/ table#datatables_main tbody tr td{
+				padding: 4px 8px 4px;
+				line-height: 1.0;
+			}
+			:host /deep/ table#datatables_main tbody tr td.sorting_1{
+				padding: 4px 28px 4px;
+			}
+			:host /deep/ table#datatables_main thead tr th,
+			table tfoot tr th {
+				display: table-cell;
+				line-height: 1.6;
 			}
 		</style>
 		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
@@ -112,10 +134,10 @@
 						"sInfoFiltered": "(gefiltert von _MAX_ Einträgen)",
 						"sInfoPostFix": "",
 						"sInfoThousands": ".",
-						"sLengthMenu": "_MENU_ Einträge anzeigen",
+						"sLengthMenu": "_MENU_ Einträge",
 						"sLoadingRecords": "Wird geladen...",
 						"sProcessing": "Bitte warten...",
-						"sSearch": "Suchen",
+						"sSearch": "Ergebnis filtern",
 						"sZeroRecords": "Keine Einträge vorhanden.",
 						"oPaginate": {
 							"sFirst": "Erste",
