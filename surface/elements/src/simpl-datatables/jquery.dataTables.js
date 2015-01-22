@@ -8249,7 +8249,7 @@
 			}
 		}
 	
-		_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis] );
+//@@@MS Timing!?!		_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis] );
 	
 		_fnSaveState( settings );
 	};
