@@ -1125,6 +1125,8 @@ public class GitServiceImpl implements GitService {
 			return "text/html";
 		}else if( file.toString().endsWith(".css") || file.toString().endsWith(".css.gz")){
 			return "text/css";
+		}else if( file.toString().endsWith(".json") || file.toString().endsWith(".json.gz")){
+			return "application/json";
 		}else if( file.toString().endsWith(".groovy")){
 			return "sw.groovy";
 		}
