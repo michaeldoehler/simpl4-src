@@ -6,11 +6,19 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no">
 	<title>Single page app using Polymer</title>
 	<script src="/sw/surface/libs.js.gz"></script>
+	<!--script src="WebComponentsSupport.js"></script-->
 
 	<link rel="import" href="/sw/surface/elements.html.gz">
 	<link rel="stylesheet" type="text/css" href="/sw/surface/libs.css.gz">
 
 	<style shim-shadowdom>
+		@font-face {
+			font-family: 'footable';
+			src: url('fonts/footable.eot');
+			src: url('fonts/footable.eot?#iefix') format('embedded-opentype'), url('/repo/firstapp/web/fonts/footable.woff') format('woff'), url('fonts/footable.ttf') format('truetype'), url('fonts/footable.svg#footable') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
 		core-animated-pages > * {
 			font-size: inherit;
 			overflow-y: auto;
@@ -23,7 +31,7 @@
 			overflow: hidden;
 		}
 		body /deep/ core-toolbar {
-			background-color: #03a9f4;
+			background-color: #4B575C;
 			color: #fff;
 		}
 		@media all and (max-width: 480px) {
@@ -82,25 +90,27 @@
 		<!-- Dynamic content controller -->
 		<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
 
-		<core-drawer-panel id="drawerPanel" drawerWidth="200px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
+		<core-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
 			<div vertical layout drawer>
-				<nav>
-					<simpl-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" fit/>
+				<nav layout vertical fit>
+					<img src="logo.svg" style="padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;background:white;" />
+					<simpl-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
 
 			<core-scroll-header-panel main xondenses>
-				<core-toolbar class=""> <!-- tall or meium.tall for bigger header-->
+				<core-toolbar class="{{toolboxClass}}">
+					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
-					<core-icon-button icon="refresh"></core-icon-button>
+					<core-icon-button on-click="{{reload}}" icon="refresh"></core-icon-button>
 					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
 				</core-toolbar>
 
-				<div class="content" layout vertical center-center flex>
-					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up" fit>
+				<div class="content">
+					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up">
 						<template repeat="{{page, i in pages}}">
-							<section style="position:relative;" hash="{{page.hash}}" layout vertical center-center>
+							<section style="position:relative;" hash="{{page.hash}}">
 								<div scale-up="">
 									<div style="max-width:100%;">Loading...{{page.name}}</div>
 								</div>
@@ -127,6 +137,11 @@
 			}, function(d) {
 				console.error("Error2:", d.error.message);
 			});*/
+			WebComponentsSupport( window, function( results ) {
+				// results will hold an object with four keys
+				// output it to the console:
+				//    console.log(JSON.stringify(results, null, 2));
+			} );
 		} );
 
 
@@ -157,6 +172,7 @@
 
 				console.log( "location:" + window.location );
 				this.route = this.route || DEFAULT_ROUTE; // Select initial route.
+				this.toolboxClass = "";
 			} );
 
 			template.togglePanel = function() {
@@ -217,6 +233,9 @@
 			var scope = document.querySelector( 'template[is=auto-binding]' );
 			scope.login = function( e ) {
 				scope.$.dialog.toggle();
+			};
+			scope.reload = function( e ) {
+				history.go( 0 )
 			};
 
 		} )();
