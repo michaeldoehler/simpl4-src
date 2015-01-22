@@ -27,7 +27,31 @@
 				margin-left: 0px;
 			}
 			paper-button.blue-ripple {
-				color: #4285f4;
+				color: #4B575C;
+			}
+			.btn-primary {
+				color: #FFF;
+				background-color: #8A8B8C !important;
+				border-color: #8A8B8C !important;
+			}
+			.btn-primary:hover,
+			.btn-primary:focus,
+			.btn-primary.focus,
+			.btn-primary:active,
+			.btn-primary.active,
+			.open > .dropdown-toggle.btn-primary {
+				color: #FFF;
+				background-color: #4B575C !important;
+				border-color: #4B575C !important;
+			}
+			.btn-success {
+				color: #FFF;
+				background-color: #4B575C !important;
+				border-color: #4B575C !important;
+			}
+			:host /deep/ .query-builder .has-error {
+				background: #FFFFFF;
+				border-color: #EEE;
 			}
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
@@ -48,7 +72,7 @@
 			entity: null,
 			domReady: function() {
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity );
-//				console.debug( "Filter:" + JSON.stringify( filters, null, 2 ) );
+				//				console.debug( "Filter:" + JSON.stringify( filters, null, 2 ) );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -161,7 +185,7 @@
 						filter: this.getRules()
 					}
 				}
-console.error("submit");
+				console.error( "submit" );
 				this.asyncFire( 'core-signal', event );
 				//this.$.data.textContent = jsonData;
 			}

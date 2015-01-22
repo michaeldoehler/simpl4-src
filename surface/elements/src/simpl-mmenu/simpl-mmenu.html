@@ -22,6 +22,16 @@
 <polymer-element name="simpl-mmenu" attributes="searchfield slidingSubmenus pages" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
+		<style>
+:host /deep/ .mm-search input {
+	border-radius:6px;
+}
+:host /deep/ .mm-search {
+padding-top: 15px;
+padding-left: 1px;
+padding-right: 1px;
+}
+		</style>
 		<nav class="nav" id="mainmenu">
 			<ul>
 				<template repeat="{{node in nodes  }}" id="t">
