@@ -161,7 +161,8 @@
 						filter: this.getRules()
 					}
 				}
-				this.fire( 'core-signal', event );
+console.error("submit");
+				this.asyncFire( 'core-signal', event );
 				//this.$.data.textContent = jsonData;
 			}
 		} );
