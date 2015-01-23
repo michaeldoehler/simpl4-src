@@ -92,8 +92,8 @@
 
 		<core-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
 			<div vertical layout drawer>
-				<nav layout vertical fit>
-					<img src="logo.svg" style="padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;background:white;" />
+				<nav layout vertical fit style="background:white;">
+					<img src="logo.svg" style="width:120px;max-width:150px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;background:white;" />
 					<simpl-mmenu slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
@@ -137,11 +137,11 @@
 			}, function(d) {
 				console.error("Error2:", d.error.message);
 			});*/
-			WebComponentsSupport( window, function( results ) {
+			//WebComponentsSupport( window, function( results ) {
 				// results will hold an object with four keys
 				// output it to the console:
 				//    console.log(JSON.stringify(results, null, 2));
-			} );
+			//} );
 		} );
 
 

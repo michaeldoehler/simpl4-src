@@ -1,0 +1,75 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-tasks" attributes="heading identification">
+
+	<template>
+	</template>
+
+	<script>
+		Polymer( 'simpl-tasks', {
+			ready: function() {
+				this.rows = [];
+				this._getTasks();
+				console.log("Tasks:"+JSON.stringify(this.rows,null,2));
+			},
+			_getTasks: function( what ) {
+				this.userid="admin";
+				var completed = function( map ) {
+					console.log("Data:",map);
+					var data = map[ "data" ];
+					for ( var row = 0; row < data.length; row++ ) {
+						var rmap = data[ row ];
+						if ( rmap.assignee == null ) {
+							rmap[ "assigned" ] = tr( "tasks.table.not_assigned" );
+							rmap[ "action" ] = tr( "tasks.table.claim" );
+						} else {
+							rmap[ "assigned" ] = rmap.assignee;
+							rmap[ "action" ] = tr( "tasks.table.complete" );
+						}
+						this.rows.push( rmap );
+					}
+				};
+				try {
+					var queryParams = {
+						assignee: this.userid
+					};
+					if ( what == "notassigned" ) {
+						queryParams = {
+							candidate: this.userid
+						};
+					}
+
+					var result = simpl4.util.Rpc.rpcSync( "activiti:getTasks", {
+						queryParams: queryParams,
+						listParams: {
+							size: 1000
+						}
+					} );
+					completed.call( this, result );
+				} catch ( e ) {
+					alert( "Tasks._getTasks:" + e );
+					return;
+				}
+			}
+		} );
+	</script>
+
+</polymer-element>

@@ -1,0 +1,71 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="" flex relative>
+	<template>
+		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
+		<shadow></shadow>
+	</template>
+	<script>
+		Polymer( 'simpl-crudtable', {
+			dtMeta: null,
+			eventDelegates: {
+				'filter-changed': 'filterChanged'
+			},
+			filterChanged: function( e ) {
+				console.log( "filterChanged" );
+				var self = this;
+				var data = e.detail;
+				this.entity = data.entity;
+				if ( this.dtMeta == null ) {
+					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
+				}
+				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
+				this.createTable( this.dtMeta, dataSet );
+			},
+			preProcessData: function( rows ) {
+				rows.forEach( function( r ) {}, this );
+				return rows;
+			},
+			preProcessMeta: function( fields ) {
+				var ret = [];
+				fields.forEach( function( f ) {
+					if ( f.hidden ) return;
+					var col = {
+						title: tr( 'data.' + this.entity + '.' + f.name ),
+						data: f.name
+					}
+					ret.push( col );
+				}, this );
+				return ret;
+			},
+			getData: function( entity, filter ) {
+				console.debug( "GetData" );
+				var data = simpl4.util.Rpc.rpcSync( "data:query", {
+					storeId: "firstapp_data",
+					pageSize: 100,
+					entity: entity,
+					filter: filter
+				} );
+				return data.rows;
+			}
+		} );
+	</script>
+</polymer-element>

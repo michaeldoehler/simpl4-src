@@ -19,18 +19,18 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-mmenu" attributes="searchfield slidingSubmenus pages" flex relative>
+<polymer-element name="simpl-mmenu" attributes="name searchfield slidingSubmenus pages" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
 		<style>
-:host /deep/ .mm-search input {
-	border-radius:6px;
-}
-:host /deep/ .mm-search {
-padding-top: 15px;
-padding-left: 1px;
-padding-right: 1px;
-}
+			:host /deep/ .mm-search input {
+				border-radius: 6px;
+			}
+			:host /deep/ .mm-search {
+				padding-top: 15px;
+				padding-left: 1px;
+				padding-right: 1px;
+			}
 		</style>
 		<nav class="nav" id="mainmenu">
 			<ul>
@@ -56,87 +56,44 @@ padding-right: 1px;
 		<content></content>
 	</template>
 	<script>
-		Polymer('simpl-mmenu', {
+		Polymer( 'simpl-mmenu', {
 			level: -1,
-			ready: function() {
-				console.log("MMenu.Ready");
-				$(this.$.mainmenu).mmenu({
+			attached: function() {
+				console.log("attached");
+			},
+			domReady: function() {
+				console.log("domReady");
+				$( this.$.mainmenu ).mmenu( {
 					classes: "mm-white mm-zoom-panels",
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
-					body: $(this.$.mainmenu),
+					body: $( this.$.mainmenu ),
 					offCanvas: false
 
-				});
+				} );
 			},
-			created: function() {
-				console.log("created");
-				this.nodes = [{
-					"name": "Croatia",
-					"icon": "fax",
-					"url": "filter.html",
-					"hash": "0"
-				}, {
-					"name": "England",
-					"hash": "1",
-					"icon": "home",
-					"url": "firstform.html",
-					"children": [{
-						"name": "Arsenal",
-						"url": "test.adoc",
-						"icon": "gift",
-						"hash": "0-0"
-					}, {
-						"name": "Manchester United",
-						"url": "test2.adoc",
-						"icon": "key",
-						"hash": "0-2"
-					}]
-				}, {
-					"name": "Spain",
-					"hash": "2",
-					"url": "stackedForm.html",
-					"url": "demo1.html",
-					"icon": "inbox",
-					"children": [{
-						"name": "Barcelona",
-						"icon": "plug",
-						"hash": "2-0"
-					}, {
-						"name": "Real Madrid",
-						"icon": "mobile",
-						"hash": "2-1"
-					}]
-				}, {
-					"name": "Germany",
-					"hash": "3",
-					"icon": "globe",
-					"url": "demo2.html",
-					"children": [{
-						"name": "Bayern Munich",
-						"icon": "plus",
-						"hash": "3-1"
-					}, {
-						"name": "Borrusia Dortmund",
-						"icon": "minus",
-						"hash": "3-2"
-					}]
-				}];
+			ready: function() {
+				console.log("Name:"+this.name+"/"+this.slidingSubmenus);
+				this.nodes = jQuery.ajax( {
+					url: this.name+".json",
+					async: false,
+					dataType: "json"
+				} ).responseJSON;
 				this.pages = [];
-				this._traverse(this.nodes);
+				this._traverse( this.nodes );
 			},
-			_traverse: function(nodes) {
-				for (var i = 0; i < nodes.length; i++) {
-					var node = nodes[i];
+			_traverse: function( nodes ) {
+				for ( var i = 0; i < nodes.length; i++ ) {
+					var node = nodes[ i ];
 					//					node.hash = node.url;
-					if (node.children && node.children.length > 0) {
-						this.pages.push(node);
-						this._traverse(node.children);
+					if ( node.children && node.children.length > 0 ) {
+						this.pages.push( node );
+						this._traverse( node.children );
 					} else {
-						this.pages.push(node);
+						this.pages.push( node );
 					}
 				}
 			}
-		});
+		} );
 	</script>
 </polymer-element>

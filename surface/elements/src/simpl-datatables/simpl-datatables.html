@@ -113,7 +113,6 @@
 				line-height: 1.6;
 			}
 		</style>
-		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
 		<div style="overflow:hidden;">
 			<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive" id="datatables_main"></table>
 		</div>
@@ -122,35 +121,19 @@
 	</template>
 	<script>
 		Polymer( {
-			dtMeta: null,
 			dtTable: null,
-			eventDelegates: {
-				'filter-changed': 'filterChanged'
-			},
 			ready: function() {},
 			domReady: function() {},
-			filterChanged: function( e ) {
-				console.debug( "filterChanged" );
-				var self = this;
-				var data = e.detail;
-				this.entity = data.entity;
-				if ( this.dtMeta == null ) {
-					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
-				}
-				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
-
-				console.debug( "filterChanged2" );
+			createTable: function( dtMeta, dataSet ) {
+				console.log( "createTable:", this.dtTable );
 				if ( this.dtTable ) {
 					this.dtTable.destroy( false );
-					//					$( this.$.datatables_main ).empty();
 				}
-				console.debug( "filterChanged3" );
 				var self = this;
 				var dtMainElem = $( this.$.datatables_main );
 				if ( this.dtTable == null ) {
 					dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
 						new jQuery.fn.dataTable.Responsive( settings );
-						console.debug( "filterChanged4" );
 					} );
 				}
 				this.dtTable = dtMainElem.DataTable( {
@@ -180,36 +163,8 @@
 					stateSave: false,
 					responsive: true,
 					data: dataSet,
-					columns: this.dtMeta
+					columns: dtMeta
 				} );
-			},
-			preProcessData: function( rows ) {
-				rows.forEach( function( r ) {
-					r.email1 = r.email1 + " xxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxx xxxxxxxxxxx";
-				}, this );
-				return rows;
-			},
-			preProcessMeta: function( fields ) {
-				var ret = [];
-				fields.forEach( function( f ) {
-					if ( f.hidden ) return;
-					var col = {
-						title: tr( 'data.' + this.entity + '.' + f.name ),
-						data: f.name
-					}
-					ret.push( col );
-				}, this );
-				return ret;
-			},
-			getData: function( entity, filter ) {
-				console.debug( "GetData" );
-				var data = simpl4.util.Rpc.rpcSync( "data:query", {
-					storeId: "firstapp_data",
-					pageSize: 100,
-					entity: entity,
-					filter: filter
-				} );
-				return data.rows;
 			}
 		} );
 	</script>
