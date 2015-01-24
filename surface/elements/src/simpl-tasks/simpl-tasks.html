@@ -27,18 +27,17 @@
 			}
 			li.core-selected:after {
 				content: "\2713";
-				position: absolute;
 				padding-left: 10px;
 			}
 			paper-button.blue-ripple {
 				color: #4B575C;
-				margin:10px;
+				float:left;
+				position:relative;
 			}
 			core-label {
 				font-family: 'Helvetica Neue', Helvetica, Arial;
 				font-size: 24px;
-				top:7px;
-				position:relative;
+				margin:5px;
 			}
 		</style>
 		<core-selector target="{{$.list}}" selected="{{selected}}"></core-selector>
@@ -47,15 +46,11 @@
 			<li>{{"tasks.table.assigned"|tr}}</li>
 		</ul>
 		<template if="{{currentTask!=null}}">
-			<div style="text-align:left;">
-				<core-label>
-					{{currentTask}}
-				</core-label>&#160;&#160;
+			<div style="margin-bottom:30px;text-align:left;">
 				<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{action}}</paper-button>
+				<core-label> {{currentTask}} </core-label>
 			</div>
 		</template>
-		<br>
-		<br>
 		<shadow></shadow>
 	</template>
 
@@ -93,7 +88,7 @@
 				} ) );
 			},
 			q: function( sel ) {
-				return $( this.$.datatables_main.querySelectorAll( ":host /deep/ " + sel ) );
+				return $( this.$.datatables_main.querySelectorAll( sel ) );
 			},
 			getMeta: function() {
 				var colHds = [];
