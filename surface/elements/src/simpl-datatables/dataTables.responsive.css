@@ -2,7 +2,7 @@ table.dataTable.dtr-inline.collapsed tbody td:first-child,
 table.dataTable.dtr-inline.collapsed tbody th:first-child {
   position: relative;
   padding-left: 30px;
-  cursor: pointer;
+  cursor: default;
 }
 table.dataTable.dtr-inline.collapsed tbody td:first-child:before,
 table.dataTable.dtr-inline.collapsed tbody th:first-child:before {
@@ -37,7 +37,7 @@ table.dataTable.dtr-inline.collapsed tbody tr.child td:before {
 table.dataTable.dtr-column tbody td.control,
 table.dataTable.dtr-column tbody th.control {
   position: relative;
-  cursor: pointer;
+  cursor: default;
 }
 table.dataTable.dtr-column tbody td.control:before,
 table.dataTable.dtr-column tbody th.control:before {
