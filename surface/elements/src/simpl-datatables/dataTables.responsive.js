@@ -489,7 +489,7 @@ Responsive.prototype = {
 		var haveHidden = true;
 
 		if ( hiddenColumns.length === 0 || ( hiddenColumns.length === 1 && this.s.columns[ hiddenColumns[0] ].control ) ) {
-			haveHidden = false;
+			//@@@MS haveHidden = false;
 		}
 
 		if ( haveHidden ) {

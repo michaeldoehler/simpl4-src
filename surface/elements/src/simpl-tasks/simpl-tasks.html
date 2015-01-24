@@ -18,14 +18,14 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-tasks" extends="simpl-datatables" attributes="heading identification">
+<polymer-element name="simpl-tasks" extends="simpl-datatables" attributes="">
 	<template>
 		<style>
-			li {
+			#list li {
 				height: 30px;
 				cursor: pointer;
 			}
-			li.core-selected:after {
+			#list li.core-selected:after {
 				content: "\2713";
 				padding-left: 10px;
 			}
@@ -36,7 +36,7 @@
 			}
 			core-label {
 				font-family: 'Helvetica Neue', Helvetica, Arial;
-				font-size: 24px;
+				font-size: 20px;
 				margin:5px;
 			}
 		</style>
@@ -46,8 +46,8 @@
 			<li>{{"tasks.table.assigned"|tr}}</li>
 		</ul>
 		<template if="{{currentTask!=null}}">
-			<div style="margin-bottom:30px;text-align:left;">
-				<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{action}}</paper-button>
+			<div style="margin-bottom:30px;text-align:left;" layout vertical>
+				<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action}}</paper-button>
 				<core-label> {{currentTask}} </core-label>
 			</div>
 		</template>
