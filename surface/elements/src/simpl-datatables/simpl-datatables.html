@@ -28,6 +28,7 @@
 				width: 100%;
 				max-width: 100%;
 				font-size: 12px;
+				cursor: default;
 			}
 			:host /deep/ #datatables_main_length {
 				max-width: 170px;
@@ -50,7 +51,7 @@
 			:host /deep/ #datatables_main_filter input {
 				width: 90px;
 			}
-			:host /deep/ td.sorting_1:first-child:before {
+			:host /deep/ td:first-child:before {
 				top: 3px !important;
 				height: 14px !important;
 				border: 0px solid white !important;
@@ -60,33 +61,26 @@
 			}
 			:host /deep/ table.dataTable.stripe tbody tr.odd,
 			table.dataTable.display tbody tr.odd {
-				background-color: white;
+				cursor: default;
 			}
 			,
-			:host /deep/ table.dataTable.display tbody tr.even {
-				background-color: white !important;
+			:host /deep/ table.dataTable.stripe tbody tr.even,
+			table.dataTable.display tbody tr.even {
+				cursor: default;
 			}
 			:host /deep/ table.dataTable.display tbody tr.odd > .sorting_1 {
-				background-color: white !important;
 			}
 			:host /deep/ table.dataTable.display tbody tr.even > .sorting_1 {
-				background-color: white !important;
 			}
-			table.dataTable.hover tbody tr:hover,
-			table.dataTable.hover tbody tr.odd:hover,
-			table.dataTable.hover tbody tr.even:hover,
-			table.dataTable.display tbody tr:hover,
-			table.dataTable.display tbody tr.odd:hover,
-			table.dataTable.display tbody tr.even:hover {
-				background-color: #EAEAEA !important;
-			}
-			:host /deep/ table.dataTable.display tbody tr:hover > .sorting_1,
-			table.dataTable.display tbody tr.odd:hover > .sorting_1,
-			table.dataTable.display tbody tr.even:hover > .sorting_1,
-			table.dataTable.order-column.hover tbody tr:hover > .sorting_1,
-			table.dataTable.order-column.hover tbody tr.odd:hover > .sorting_1,
-			table.dataTable.order-column.hover tbody tr.even:hover > .sorting_1 {
-				background-color: #EAEAEA !important;
+			:host /deep/ table.dataTable.stripe tbody tr.odd.selected,
+			table.dataTable.display tbody tr.odd.selected > .sorting_1,
+			:host /deep/ table.dataTable.stripe tbody tr.odd.selected,
+			table.dataTable.display tbody tr.odd.selected,
+			:host /deep/ table.dataTable.stripe tbody tr.even.selected,
+			table.dataTable.display tbody tr.even.selected > .sorting_1,
+			:host /deep/ table.dataTable.stripe tbody tr.even.selected,
+			table.dataTable.display tbody tr.even.selected {
+				background: #969FA3
 			}
 			:host /deep/ .dtr-title {
 				font-size: 13px;
@@ -98,11 +92,11 @@
 			:host /deep/ table.dataTable {
 				background: #fff;
 			}
-			:host /deep/ table.dataTable tbody tr td {
+			:host /deep/ table.dataTable tbody tr td:not(:first-child) {
 				padding: 4px 8px 4px;
 				line-height: 1.0;
 			}
-			:host /deep/ table.dataTable tbody tr td.sorting_1 {
+			:host /deep/ table.dataTable tbody tr td:first-child {
 				padding: 4px 28px 4px;
 			}
 			:host /deep/ table.dataTable thead tr th,

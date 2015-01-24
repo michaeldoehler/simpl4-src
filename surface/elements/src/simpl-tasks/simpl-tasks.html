@@ -18,22 +18,104 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-tasks" attributes="heading identification">
-
+<polymer-element name="simpl-tasks" extends="simpl-datatables" attributes="heading identification">
 	<template>
+		<style>
+			li {
+				height: 30px;
+				cursor: pointer;
+			}
+			li.core-selected:after {
+				content: "\2713";
+				position: absolute;
+				padding-left: 10px;
+			}
+		</style>
+		<core-selector target="{{$.list}}" selected="{{selected}}"></core-selector>
+		<ul id="list">
+			<li>{{"tasks.table.not_assigned"|tr}}</li>
+			<li>{{"tasks.table.assigned"|tr}}</li>
+		</ul>
+		<br>
+		<shadow></shadow>
 	</template>
 
 	<script>
 		Polymer( 'simpl-tasks', {
-			ready: function() {
-				this.rows = [];
-				this._getTasks();
-				console.log("Tasks:"+JSON.stringify(this.rows,null,2));
+			dtMeta: null,
+			selected: 1,
+			domReady: function() {
+				console.log( "ready" );
+				if ( this.dtMeta == null ) {
+					this.dtMeta = this.getMeta();
+				}
+				var dataSet = this.getTasks();
+				console.log( "dataSet:" + JSON.stringify( dataSet, null, 2 ) );
+				console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
+				this.createTable( this.dtMeta, dataSet );
+				var self=this;
+				this.q( 'tbody tr' ).on( 'tap', (function(e) {
+					console.log( "Click:", e );
+					if ( $( this ).hasClass( 'selected' ) ) {
+					//	$( this ).removeClass( 'selected' );
+					} else {
+						self.q( 'tr.selected' ).removeClass( 'selected' );
+						$( this ).addClass( 'selected' );
+					}
+					return false;
+				}) );
 			},
-			_getTasks: function( what ) {
-				this.userid="admin";
+			q: function( sel ) {
+				return $( this.$.datatables_main.querySelectorAll( ":host /deep/ " + sel ) );
+			},
+			getMeta: function() {
+				var colHds = [];
+				var col = {};
+				col.data = "processInstanceId";
+				col.title = tr( "tasks.table.processInstanceId" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "processName";
+				col.title = tr( "tasks.table.processName" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "processCategory";
+				col.title = tr( "tasks.table.processCategory" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "id";
+				col.title = tr( "tasks.table.taskid" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "name";
+				col.title = tr( "tasks.table.name" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "description";
+				col.title = tr( "tasks.table.description" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "createTime";
+				col.title = tr( "tasks.table.time" );
+				colHds.push( col );
+				return colHds;
+			},
+			selectedChanged: function( e ) {
+				console.log( "listChanged:", e );
+				console.log( "equela:" + ( e == 0 ) );
+				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
+				this.createTable( this.dtMeta, dataSet );
+			},
+			getTasks: function( what ) {
+				this.userid = "admin";
 				var completed = function( map ) {
-					console.log("Data:",map);
+					var rows = [];
 					var data = map[ "data" ];
 					for ( var row = 0; row < data.length; row++ ) {
 						var rmap = data[ row ];
@@ -44,8 +126,9 @@
 							rmap[ "assigned" ] = rmap.assignee;
 							rmap[ "action" ] = tr( "tasks.table.complete" );
 						}
-						this.rows.push( rmap );
+						rows.push( rmap );
 					}
+					return rows;
 				};
 				try {
 					var queryParams = {
@@ -63,9 +146,9 @@
 							size: 1000
 						}
 					} );
-					completed.call( this, result );
+					return completed.call( this, result );
 				} catch ( e ) {
-					alert( "Tasks._getTasks:" + e );
+					alert( "Tasks.getTasks:" + e );
 					return;
 				}
 			}
