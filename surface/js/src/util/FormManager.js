@@ -17,14 +17,14 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
-	getForm: function(name) {
+	getForm: function(name,namespace) {
 		var failed = function(details) {
 			alert("GetForm failed" + ":" + details.message);
 		};
 
 		try {
 			var ret = simpl4.util.Rpc.rpcSync("git:searchContent", {
-				reponame: simpl4.util.BaseManager.getNamespace(),
+				reponame: namespace || simpl4.util.BaseManager.getNamespace(),
 				name: name,
 				type:"sw.form"
 			});

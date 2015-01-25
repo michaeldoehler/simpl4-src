@@ -31,36 +31,47 @@
 			}
 			paper-button.blue-ripple {
 				color: #4B575C;
-				float:left;
-				position:relative;
+				float: left;
+				position: relative;
 			}
 			core-label {
 				font-family: 'Helvetica Neue', Helvetica, Arial;
 				font-size: 20px;
-				margin:5px;
+				margin: 5px;
 			}
 		</style>
-		<core-selector target="{{$.list}}" selected="{{selected}}"></core-selector>
-		<ul id="list">
-			<li>{{"tasks.table.not_assigned"|tr}}</li>
-			<li>{{"tasks.table.assigned"|tr}}</li>
-		</ul>
-		<template if="{{currentTask!=null}}">
-			<div style="margin-bottom:30px;text-align:left;" layout vertical>
-				<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action}}</paper-button>
-				<core-label> {{currentTask}} </core-label>
-			</div>
-		</template>
-		<shadow></shadow>
+
+		<core-animated-pages selected="{{pageSelected}}" transitions="cross-fade-all">
+			<section style="position:relative;">
+				<core-selector target="{{$.list}}" selected="{{taskListSelected}}">
+					<ul id="list">
+						<li>{{"tasks.table.not_assigned"|tr}}</li>
+						<li>{{"tasks.table.assigned"|tr}}</li>
+					</ul>
+				</core-selector>
+				<template if="{{currentTask!=null}}">
+					<div style="margin-bottom:30px;text-align:left;" layout vertical>
+						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action}}</paper-button>
+						<core-label> {{currentTask}} </core-label>
+					</div>
+				</template>
+				<shadow></shadow>
+			</section>
+			<section style="position:relative;">
+				<simpl-processcontroller id="processController"></simpl-processcontroller>
+				<paper-button raised class="blue-ripple" on-tap="{{back}}">Back</paper-button>
+			</section>
+		</core-animated-pages>
 	</template>
 
 	<script>
 		Polymer( 'simpl-tasks', {
 			dtMeta: null,
-			selected: 1,
+			pageSelected: 0,
+			taskListSelected: 1,
 			action: tr( "tasks.table.complete" ),
 			currentTask: null,
-			currentIndex:null,
+			currentIndex: null,
 			domReady: function() {
 				console.log( "ready" );
 				if ( this.dtMeta == null ) {
@@ -93,8 +104,8 @@
 			getMeta: function() {
 				var colHds = [];
 				var col = {};
-				col.data = "processInstanceId";
-				col.title = tr( "tasks.table.processInstanceId" );
+				col.data = "name";
+				col.title = tr( "tasks.table.name" );
 				colHds.push( col );
 
 				var col = {};
@@ -113,9 +124,10 @@
 				colHds.push( col );
 
 				var col = {};
-				col.data = "name";
-				col.title = tr( "tasks.table.name" );
+				col.data = "processInstanceId";
+				col.title = tr( "tasks.table.processInstanceId" );
 				colHds.push( col );
+
 
 				var col = {};
 				col.data = "description";
@@ -128,7 +140,7 @@
 				colHds.push( col );
 				return colHds;
 			},
-			selectedChanged: function( e ) {
+			taskListSelectedChanged: function( e ) {
 				console.log( "listChanged:", e );
 				console.log( "equela:" + ( e == 0 ) );
 				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
@@ -138,9 +150,16 @@
 				this.currentTask = null;
 				this.currentIndex = null;
 			},
+			back: function( e ) {
+				this.pageSelected = 0;
+			},
 			submit: function( e ) {
-				console.log("submit:",e);
-				console.log("currentIndex:"+JSON.stringify(this.dataSet[this.currentIndex],null,2));
+				this.pageSelected = 1;
+				console.log( "submit:", e );
+				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
+				var tasks =  this.dataSet[ this.currentIndex ];
+				tasks.fromTaskList=true;
+				this.$.processController.showForm( tasks );
 			},
 			getTasks: function( what ) {
 				this.userid = "admin";

@@ -75,7 +75,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-form" attributes="namespace formname" constructor="SimplForm" vertical layout>
+<polymer-element name="simpl-form" attributes="namespace formName" constructor="SimplForm" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -93,6 +93,12 @@
 			fieldset {
 				border-radius: 8px;
 				border: 1px solid #f0f0f0;
+			}
+			input-field {
+				margin:5px;
+			}
+			paper-button {
+				margin-top:20px;
 			}
 			paper-item {
 				overflow: hidden;
@@ -201,7 +207,7 @@
 		Polymer( 'simpl-form', {
 			data: {},
 			namespace: null,
-			formname: null,
+			formName: null,
 			eventDelegates: {
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
@@ -212,7 +218,15 @@
 			},
 			ready: function() {
 				console.log( "Ready:", this.$.xxxx );
-				var form = simpl4FormManager.getForm( this.formname );
+				var form = simpl4FormManager.getForm( this.formName,this.namespace );
+				this.shapes = this.prepareShape( form ).childShapes;
+				console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
+			},
+			formNameChanged: function() {
+				this.fields = [];
+				this.fieldsMap = {};
+				console.log( "formNameChanged:", this.formName );
+				var form = simpl4FormManager.getForm( this.formName,this.namespace );
 				this.shapes = this.prepareShape( form ).childShapes;
 				console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
 			},

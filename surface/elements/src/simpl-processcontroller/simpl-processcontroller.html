@@ -1,0 +1,405 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-processcontroller" attributes="">
+	<template>
+		<style>
+		</style>
+		<template if="{{namespace!=null && formName!=null}}">
+			<simpl-form namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
+		</template>
+	</template>
+
+	<script>
+		Polymer( 'simpl-processcontroller', {
+			formName:null,
+			namespace: null,
+			domReady: function() {},
+			startByName: function( namespace, name, parameter ) {
+				this.namespace = namespace || simpl4.util.BaseManager.getNamespace();
+				//ms123.config.ConfigManager.installMessages( namespace );
+				var pc = this.getProcessDefinition( namespace, name );
+				if ( pc == null ) {
+					alert( "ProcessController.workflow(" + namespace + "," + name + ") not found" );
+					return;
+				}
+				console.log( "ProcessController:startByName" + namespace + "/" + name );
+				this.start( pc, parameter );
+			},
+			start: function( processDefinition, parameter ) {
+				this.processDefinition = processDefinition;
+				this.processName = processDefinition.name;
+				console.log( "Start:" + JSON.stringify( processDefinition, null, 2 ) );
+				var pid = this.processDefinition.id;
+				console.log( "startFormResourceKey:" + this.processDefinition.startFormResourceKey );
+				if ( this.processDefinition.startFormResourceKey ) {
+					this.showForm( null );
+				} else {
+					var processVariables = parameter || {};
+					processVariables[ "processDefinitionId" ] = this.processDefinition.id;
+					this.completeActivity( processVariables, null );
+				}
+			},
+			showForm: function( task ) {
+				var formResourceKey = null;
+				var taskName = null;
+				var processName = null;
+				var processCategory = null;
+				if ( task == null ) {
+					formResourceKey = this.processDefinition.startFormResourceKey;
+					processName = this.processName;
+				} else {
+					formResourceKey = task.formResourceKey;
+					if ( task.processName ) this.processName = task.processName;
+					processCategory = task.processCategory;
+					processName = this.processName;
+					taskName = task.name;
+				}
+				if ( !processCategory ) {
+					processCategory = simpl4.util.BaseManager.getNamespace();
+				}
+				if ( formResourceKey == null ) {
+					this._handleExecuteButton( null, null, task, null, null );
+					return;
+				}
+				var data = this._getFormNameAndPath( formResourceKey );
+				var formPath = data.formPath;
+				var formName = data.formName;
+				console.warn( "{task,process}Name:" + taskName + "/" + processName );
+				console.warn( "formResourceKey:" + formResourceKey );
+				console.warn( "formPath:" + formPath );
+				console.warn( "formName:" + formName );
+				var self = this;
+				var buttons = [ {
+					'label': ( task == null ) ? tr( "processes.form.start" ) : tr( "tasks.form.start" ),
+					'icon': "icon/22/actions/dialog-ok.png",
+					'callback': function( data ) {
+						self._handleExecuteButton( this.form, data, task, formName, null );
+					},
+					'value': 0
+				}, {
+					'label': tr( "tasks.form.cancel" ),
+					'icon': "icon/22/actions/dialog-cancel.png",
+					'callback': ( function( data ) {
+						self._formContainer.destroy( {} );
+					} ).bind( this ),
+					'value': 1
+				} ];
+
+				var actionCallback = function( e ) {
+					console.log( "actionCallback:" + this + "/" + JSON.stringify( e ) );
+					if ( e.action == "execute" ) {
+						var buttonKey = e.key;
+						var data = this.getData();
+						self._handleExecuteButton( this.form, data, task, formName, buttonKey );
+					}
+					if ( e.action == "cancel" ) {
+						self._formContainer.destroy( {} );
+					}
+				};
+
+				var processVariables = {};
+				var mappedFormValues = null;
+				if ( task != null ) {
+					processVariables = this.getProcessVariables( task.processInstanceId );
+					mappedFormValues = this.getMappedFormValues( task.id, task.processInstanceId );
+				} else {
+					processVariables[ "__namespace" ] = simpl4.util.BaseManager.getNamespace();
+				}
+				this.formName = formPath;
+				this.namespace = processCategory;
+				console.warn( "Namespace:" + this.namespace );
+/*				this._formContainer.open( {
+					formPath: formPath,
+					formName: formName,
+					mappedFormValues: mappedFormValues,
+					actionCallback: actionCallback,
+					processName: processName,
+					processCategory: processCategory,
+					processVariables: processVariables,
+					buttons: buttons,
+					taskName: taskName
+				} );*/
+			},
+			_getFormNameAndPath: function( formResourceKey ) {
+				var formName = null;
+				var formPath = null;
+				if ( formResourceKey.indexOf( "," ) == -1 ) {
+					formName = formResourceKey;
+					formPath = formResourceKey;
+				} else {
+					formName = formResourceKey.split( "," )[ 1 ];
+					formPath = formResourceKey.split( "," )[ 0 ];
+				}
+				if ( formName.match( /.*\.form$/ ) ) {
+					formName = formName.substring( 0, formName.length - 5 );
+				}
+				return {
+					formName: formName,
+					formPath: formPath
+				}
+			},
+			_handleExecuteButton: function( form, data, task, formName, executeButtonKey ) {
+				var validate = form == null ? true : form.validate();
+				if ( !validate ) {
+					var vm = form._form.getValidationManager();
+					var items = vm.getInvalidFormItems();
+					var message = "<br />";
+					for ( var i = 0; i < items.length; i++ ) {
+						var name = items[ i ].getUserData( "key" );
+						var msg = items[ i ].getInvalidMessage();
+						message += name + " : " + msg + "<br />";
+					}
+					ms123.form.Dialog.alert( this.tr( "process.form_incomplete" ) + ":" + message );
+					return;
+				}
+
+				var processVariables = {};
+				var formVals = {};
+				if ( data ) {
+					Object.keys( data ).each( function( p, index ) {
+						if ( form.formData[ p ] && form.formData[ p ].type.toLowerCase() == "actionbutton" ) {
+							return;
+						}
+						if ( form.formData[ p ] && form.formData[ p ].type.toLowerCase() == "alert" ) {
+							return;
+						}
+						if ( p.match( "^__" ) ) return;
+						var val = data[ p ];
+						formVals[ p ] = val;
+					} );
+				}
+				if ( executeButtonKey != null ) {
+					formVals[ "actionButton" ] = executeButtonKey;
+				}
+				if ( task == null ) {
+					processVariables[ "processDefinitionId" ] = this.processDefinition.id;
+				}
+				if ( formName ) {
+					processVariables[ formName ] = formVals;
+				}
+				this.completeActivity( processVariables, task );
+			},
+			getMappedFormValues: function( tid, processInstanceId ) {
+				var failed = ( function( e ) {
+					var message = "<div style='width:100%;overflow:auto'>" + e + "</div>";
+					alert( message );
+				} ).bind( this );
+
+				var completed = ( function( e ) {
+					alert( e.getContent() );
+				} ).bind( this );
+
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:getTaskFormProperties", {
+						executionId: processInstanceId,
+						taskId: tid
+					} );
+				} catch ( e ) {
+					alert( "ProcessController.getMappedFormValues:" + e );
+					failed.call( this, e );
+					return;
+				}
+				if ( result && result.values ) {
+					var m = JSON.stringify( result.values );
+					console.warn( "values:" + m );
+					return result.values;
+				}
+				return null;
+			},
+			getProcessVariables: function( pid ) {
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:getVariables", {
+						executionId: pid
+					} );
+				} catch ( e ) {
+					alert( "ProcessController.getProcessVariables:" + e );
+					return;
+				}
+				return result;
+			},
+			completeActivity: function( processVariables, task ) {
+				var pdata = JSON.stringify( processVariables );
+				var _this = this;
+				var completed = ( function( ret ) {
+					var x = JSON.stringify( ret );
+					console.log( "ret:" + x );
+					var pid = ret.id;
+					if ( task ) {
+						x = JSON.stringify( task );
+						console.log( "task:" + x );
+						pid = task.executionId;
+					}
+					//this.fireDataEvent( "taskCompleted", task, null );
+					var tasks = this.getTasks( pid );
+					if ( tasks.total > 0 ) {
+						this.showForm( tasks.data[ 0 ] );
+					} else {
+						if ( task && task.fromTaskList ) {
+							alert( this.tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
+						} else {
+							alert( this.tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ) );
+						}
+						//this._formContainer.destroy();
+					}
+				} ).bind( this );
+				var failed = ( function( ret ) {
+					console.log( "ret:" + JSON.stringify( ret ) );
+					ret = ret.toString();
+					var msg = ret.replace( /\|/g, "<br/>" );
+					var msg = msg.replace( /Script.*groovy: [0-9]{0,4}:/g, "<br/><br/>" );
+					var msg = msg.replace( / for class: Script[0-9]{1,2}/g, "" );
+					var msg = msg.replace( /Script[0-9]{1,2}/g, "" );
+					var msg = msg.replace( /Application error 500:/g, "" );
+					var msg = msg.replace( /:java.lang.RuntimeException/g, "" );
+					var msg = msg.replace( /:Line:/g, "<br/>Line:" );
+					var msg = msg.replace( /: {0,2}Line:/g, "<br/>Line:" );
+
+					msg = ms123.util.Text.explode( msg, 100 );
+					var message = "<b>" + tr( "processes." + ( ( task != null ) ? "taskform" : "startform" ) + ".notstarted" ) + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
+					var alert = new ms123.form.Alert( {
+						"message": message,
+						"windowWidth": 600,
+						"windowHeight": 400,
+						"useHtml": true,
+						"inWindow": true
+					} );
+					alert.show();
+					if ( task != null ) {
+						this.showForm( task );
+					}
+				} ).bind( this );
+
+				var params = null;
+				if ( task == null ) {
+					params = {
+						service: "activiti",
+						method: "startProcessInstance",
+						parameter: {
+							namespace: this.namespace ? this.namespace : simpl4.util.BaseManager.getNamespace(),
+							processDefinitionId: processVariables[ "processDefinitionId" ],
+							processDefinitionKey: processVariables[ "processDefinitionKey" ],
+							processDefinitionName: processVariables[ "processDefinitionName" ],
+							businessKey: processVariables[ "businessKey" ],
+							startParams: processVariables
+						},
+						async: false,
+						context: this,
+						failed: failed,
+						completed: completed
+					}
+					return simpl4.util.Rpc.rpcAsync( params );
+				} else {
+					this.completeTask( task.id, processVariables, completed, failed );
+				}
+			},
+			completeTask: function( taskId, processVariables, completed, failed ) {
+				var showErrors = ( function( cv ) {
+					if ( cv ) {
+						var message = "";
+						for ( var i = 0; i < cv.length; i++ ) {
+							var c = cv[ i ];
+							if ( c.time ) {
+								var d = new Date();
+								d.setTime( c.time );
+								var lang = simpl4.util.BaseManager.getLanguage();
+								c.message = c.message.replace( '{0}', d.toString( lang == "de" ? 'd.M.yyyy' : 'M/d/yyyy' ) );
+							}
+							if ( c.message && c.message.match( /^@/ ) ) {
+								c.message = this.tr( c.message.substring( 1 ) );
+							}
+							if ( c.message && c.message.match( /^%/ ) ) {
+								c.message = this.tr( c.message.substring( 1 ) );
+							}
+							if ( c.path ) {
+								message += this._formContainer.getLabel( c.path ) + " : " + c.message + "<br />";
+							} else {
+								message += c.message + "<br />";
+							}
+						}
+						alert( message );
+						//this._formContainer.showErrors( cv );
+						return;
+					}
+				} ).bind( this );
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:executeTaskOperation", {
+						taskId: taskId,
+						operation: "complete",
+						startParams: processVariables
+					} );
+
+					console.error( "RET:" + result.success );
+					if ( result.success === true ) {
+						this._formContainer.close( {} );
+						completed.call( this, result );
+						return result;
+					} else {
+						showErrors( result.errors );
+					}
+				} catch ( e ) {
+					this._formContainer.close( {} );
+					failed.call( this, e );
+					return;
+				}
+				return result;
+			},
+			getTasks: function( processInstanceId ) {
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:getTasks", {
+						queryParams: {
+							assignee: this.userid,
+							processInstanceId: processInstanceId
+						},
+
+						listParams: {
+							size: 1000
+						}
+					} );
+				} catch ( e ) {
+					alert( "ProcessController.getTasks:" + e );
+					return;
+				}
+				return result;
+			},
+			getProcessDefinition: function( namespace, name ) {
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:getProcessDefinitions", {
+						namespace: namespace ? namespace : simpl4.util.BaseManager.getNamespace(),
+						version: -1,
+						key: name
+					} );
+				} catch ( e ) {
+					alert( "ProcessController.getProcessDefinitions:" + e );
+					return;
+				}
+				var defs = result[ "data" ];
+				if ( defs.length > 0 ) return defs[ 0 ];
+				return null;
+			}
+		} );
+	</script>
+
+</polymer-element>
