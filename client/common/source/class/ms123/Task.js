@@ -87,18 +87,13 @@ qx.Class.define("ms123.Task", {
 					qx.event.Timer.once(function () {
 						var pid = rmap["processInstanceId"];
 						console.log("pid:" + pid + "/" + Object.toJSON(rmap));
-						if (formKey == "dublettenCheck.form") {
-							var form = this._getTaskForm(rmap["id"]);
-							this._showTaskFormOld(pid, form);
-						} else {
-							var pc = new ms123.processexplorer.ProcessController({appRoot:mainContainer.getApplicationRoot()});
-							rmap.fromTaskList=true;
-							pc.showForm(rmap);
-							pc.addListener("taskCompleted", function(e){
-								console.log("taskCompleted:"+qx.util.Serializer.toJson(e.getData()));
-								this._getTasks("assigned");
-							},this);
-						}
+						var pc = new ms123.processexplorer.ProcessController({appRoot:mainContainer.getApplicationRoot()});
+						rmap.fromTaskList=true;
+						pc.showForm(rmap);
+						pc.addListener("taskCompleted", function(e){
+							console.log("taskCompleted:"+qx.util.Serializer.toJson(e.getData()));
+							this._getTasks("assigned");
+						},this);
 						mainContainer.getApplicationRoot().setGlobalCursor("default");
 					}, this, 200);
 				}
@@ -234,8 +229,6 @@ qx.Class.define("ms123.Task", {
 
 
 		},
-		_getTaskList: function (processInstanceId) {
-		},
 		__eval: function (clazz) {
 			var parts = clazz.split("\.");
 			var obj = window;
@@ -243,18 +236,6 @@ qx.Class.define("ms123.Task", {
 				obj = obj[parts[i]];
 			}
 			return new obj();
-		},
-		_showTaskFormOld: function (processInstanceId, formDesc) {
-			//var clazz = eval ( "(new "+formDesc.formClass+"())");
-			//console.log("_showTaskForm:"+clazz);
-			var clazz = this.__eval(formDesc.formClass);
-			console.log("_showTaskFormOld:" + clazz);
-			var params = {};
-			params.processInstanceId = processInstanceId;
-			params.callback = this;
-			params.formDesc = formDesc;
-			params.user = this._user;
-			var ret = clazz.init(params);
 		},
 		_addRecord: function (map) {
 			this._tableModel.addRowsAsMapArray([map], null, true);
@@ -280,34 +261,6 @@ qx.Class.define("ms123.Task", {
 				return;
 			}
 			return result;
-		},
-		_completeTask: function (processVariables) {
-			var completed = function (e) {
-				ms123.form.Dialog.alert(this.tr("tasks.task.completed"));
-			};
-			var failed = function (e) {
-				ms123.form.Dialog.alert(this.tr("tasks.task.not_completed") + ":" + e);
-			};
-
-			this._getTasks("assigned");
-			var result = null;
-			try {
-				result = ms123.util.Remote.rpcSync("activiti:executeTaskOperation", {
-					taskId:this._taskid,
-					operation: "complete",
-					startParams: processVariables
-				});
-				completed.call(this,result);
-			} catch (e) {
-				failed.call(this,e);
-				return;
-			}
-			return result;
-		},
-		_getTaskForm: function (id) {
-			var url = "workflowrest/task/" + id + "/form?format=json"
-			var ret = ms123.util.Remote.sendSync(url);
-			return ret;
 		},
 		toString: function () {
 			return "_task_";

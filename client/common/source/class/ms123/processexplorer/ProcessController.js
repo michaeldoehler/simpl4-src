@@ -82,9 +82,6 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 					processVariables["processDefinitionId"] = this.processDefinition.id;
 					this._completeActivity(processVariables,null);
 				}
-			} else { //Fuer Import
-				var form = this._getProcessForm(pid);
-				this._showProcessStartFormOld(pid, form);
 			}
 		},
 		showForm: function (task) {
@@ -263,20 +260,6 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				return;
 			}
 			return result;
-		},
-		_showProcessStartFormOld: function (processDefinitionId, formDesc) {
-			var clazz = eval("(new " + formDesc.formClass + "())");
-			var params = {};
-			params.processInstanceId = processDefinitionId;
-			params.callback = this;
-			params.formDesc = formDesc;
-			params.user = this._user;
-			clazz.init(params);
-		},
-		_getProcessForm: function (id) {
-			var url = "workflowrest/process-definition/" + id + "/form?format=json"
-			var ret = ms123.util.Remote.sendSync(url);
-			return ret;
 		},
 		_completeActivity: function (processVariables, task) {
 			var pdata = qx.util.Serializer.toJson(processVariables);
