@@ -18,6 +18,9 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<polymer-element name="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
+</polymer-element>
+
 <polymer-element name="simpl-header" noscript>
 	<template>
 		<style>
@@ -42,6 +45,16 @@
 	</template>
 </polymer-element>
 
+
+<polymer-element name="html-echo" attributes="html">
+	<script>
+		Polymer( 'html-echo', {
+			htmlChanged: function() {
+				this.innerHTML = this.html;
+			}
+		} );
+	</script>
+</polymer-element>
 
 <polymer-element name="simpl-group" vertical flex layout noscript>
 	<template>
@@ -75,7 +88,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-form" attributes="namespace formName" constructor="SimplForm" vertical layout>
+<polymer-element name="simpl-form" attributes="namespace formName actionCallback" constructor="SimplForm" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -95,10 +108,13 @@
 				border: 1px solid #f0f0f0;
 			}
 			input-field {
-				margin:5px;
+				margin: 5px;
 			}
-			paper-button {
-				margin-top:20px;
+			xaction-button {
+				margin-top: 20px;
+			}
+			xaction-button[xaction=execute] {
+				color: #4285f4;
 			}
 			paper-item {
 				overflow: hidden;
@@ -131,7 +147,7 @@
 		<fieldset id="formdiv" verticax xayout>
 			<template repeat="{{shapes}}" id="root">
 
-				<template if="{{id=='Input' || id=='ActionButton' || id=='Textarea' || id=='break'}}" ref="element" bind></template>
+				<template if="{{id=='Input' || id=='ActionButton' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
 				<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
@@ -182,26 +198,25 @@
 				<input-field flex type={{xf_type}} name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
-				<paper-button on-tap="{{validateAll}}" class="button" raised>{{xf_label}}</paper-button>
+				<xaction-button on-tap="{{actionCallback}}" class="button"  xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised><core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}</xaction-button>
 			</template>
 			<template if="{{ id=='Textarea' }}">
 				<multiline-field flex name="{{xf_id}}" label="{{label}}" xvalue="{{data.street}}"></multiline-field>
+			</template>
+			<template if="{{ id=='Alert' }}">
+				<html-echo html="{{xf_message}}"></html-echo>
 			</template>
 
 			<template if="{{ id=='Group' }}" ref="group" bind></template>
 			<template if="{{ id=='Row' }}" ref="row" bind></template>
 		</template>
+		<template if="{{ defaultButtons }}">
+			<simpl-row>
+				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="execute" raised><core-icon icon="check"></core-icon>{{'form.execute'|tr}}</xaction-button>
+				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="cancel" raised> <core-icon icon="clear"></core-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
+			</simpl-row>
+		</template>
 
-
-		<simpl-row>
-			<button on-tap="{{submit}}">Submit</button>
-		</simpl-row>
-
-
-		<segment>
-			Your form data:
-			<pre><code id="data"></code></pre>
-		</segment>
 	</template>
 	<script>
 		Polymer( 'simpl-form', {
@@ -218,17 +233,19 @@
 			},
 			ready: function() {
 				console.log( "Ready:", this.$.xxxx );
-				var form = simpl4FormManager.getForm( this.formName,this.namespace );
+				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.shapes = this.prepareShape( form ).childShapes;
-				console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
+				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
 				console.log( "formNameChanged:", this.formName );
-				var form = simpl4FormManager.getForm( this.formName,this.namespace );
+				var form = simpl4FormManager.getForm( this.formName, this.namespace );
+				this.defaultButtons = form.properties.xf_default_buttons;
+				console.log( "defaultButton:" + this.defaultButtons );
 				this.shapes = this.prepareShape( form ).childShapes;
-				console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
+				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			domReady: function() {
 				return;
@@ -309,14 +326,9 @@
 				}
 				return lineBreak;
 			},
-			validateAll: function() {
-				console.debug( "validateAll" );
-				var $d = this.$.formdiv.querySelectorAll( '.input' );
-				console.log( "D:", $d );
-				Array.prototype.forEach.call( $d, function( d ) {
-					console.debug( "Input:" + d.value );
-					d.isInvalid = !d.valid;
-				} );
+			validate: function( e ) {
+				console.debug( "validateAll:", e );
+				return true;
 			},
 			/*----------------------------------*/
 			addField: function( e ) {

@@ -113,7 +113,6 @@
 					var value = self.publish[ key ];
 					if ( value === undefined && self[ key ] === undefined ) {
 						if ( self.$.input.hasAttribute( key ) ) {
-							console.log( "\tremoveAttribute:" + key );
 							self.$.input.removeAttribute( key );
 						}
 					}

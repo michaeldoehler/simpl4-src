@@ -30,7 +30,7 @@
 				padding-left: 10px;
 			}
 			paper-button.blue-ripple {
-				color: #4B575C;
+				color: #4285f4;
 				float: left;
 				position: relative;
 			}
@@ -41,7 +41,7 @@
 			}
 		</style>
 
-		<core-animated-pages selected="{{pageSelected}}" transitions="cross-fade-all">
+		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
 			<section style="position:relative;">
 				<core-selector target="{{$.list}}" selected="{{taskListSelected}}">
 					<ul id="list">
@@ -51,15 +51,13 @@
 				</core-selector>
 				<template if="{{currentTask!=null}}">
 					<div style="margin-bottom:30px;text-align:left;" layout vertical>
-						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action}}</paper-button>
-						<core-label> {{currentTask}} </core-label>
+						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action+' ('+currentTask+')'}}</paper-button>
 					</div>
 				</template>
 				<shadow></shadow>
 			</section>
 			<section style="position:relative;">
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
-				<paper-button raised class="blue-ripple" on-tap="{{back}}">Back</paper-button>
 			</section>
 		</core-animated-pages>
 	</template>
@@ -150,16 +148,16 @@
 				this.currentTask = null;
 				this.currentIndex = null;
 			},
-			back: function( e ) {
-				this.pageSelected = 0;
-			},
 			submit: function( e ) {
 				this.pageSelected = 1;
 				console.log( "submit:", e );
 				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
-				var tasks =  this.dataSet[ this.currentIndex ];
-				tasks.fromTaskList=true;
-				this.$.processController.showForm( tasks );
+				var task =  this.dataSet[ this.currentIndex ];
+				task.fromTaskList=true;
+				var self = this;
+				this.$.processController.showForm( task, function(){
+					self.pageSelected = 0;
+				} );
 			},
 			getTasks: function( what ) {
 				this.userid = "admin";

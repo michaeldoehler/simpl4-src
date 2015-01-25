@@ -23,13 +23,13 @@
 		<style>
 		</style>
 		<template if="{{namespace!=null && formName!=null}}">
-			<simpl-form namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
+			<simpl-form actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
 		</template>
 	</template>
 
 	<script>
 		Polymer( 'simpl-processcontroller', {
-			formName:null,
+			formName: null,
 			namespace: null,
 			domReady: function() {},
 			startByName: function( namespace, name, parameter ) {
@@ -57,7 +57,10 @@
 					this.completeActivity( processVariables, null );
 				}
 			},
-			showForm: function( task ) {
+			showForm: function( task, finishCallback ) {
+				if ( finishCallback ) {
+					this.finishCallback = finishCallback;
+				}
 				var formResourceKey = null;
 				var taskName = null;
 				var processName = null;
@@ -76,42 +79,27 @@
 					processCategory = simpl4.util.BaseManager.getNamespace();
 				}
 				if ( formResourceKey == null ) {
-					this._handleExecuteButton( null, null, task, null, null );
+					this.handleExecuteButton( null, null, task, null, null );
 					return;
 				}
-				var data = this._getFormNameAndPath( formResourceKey );
-				var formPath = data.formPath;
-				var formName = data.formName;
+				var formName = this.getFormName( formResourceKey );
 				console.warn( "{task,process}Name:" + taskName + "/" + processName );
 				console.warn( "formResourceKey:" + formResourceKey );
-				console.warn( "formPath:" + formPath );
 				console.warn( "formName:" + formName );
 				var self = this;
-				var buttons = [ {
-					'label': ( task == null ) ? tr( "processes.form.start" ) : tr( "tasks.form.start" ),
-					'icon': "icon/22/actions/dialog-ok.png",
-					'callback': function( data ) {
-						self._handleExecuteButton( this.form, data, task, formName, null );
-					},
-					'value': 0
-				}, {
-					'label': tr( "tasks.form.cancel" ),
-					'icon': "icon/22/actions/dialog-cancel.png",
-					'callback': ( function( data ) {
-						self._formContainer.destroy( {} );
-					} ).bind( this ),
-					'value': 1
-				} ];
-
-				var actionCallback = function( e ) {
-					console.log( "actionCallback:" + this + "/" + JSON.stringify( e ) );
-					if ( e.action == "execute" ) {
-						var buttonKey = e.key;
+				this.actionCallback = function( e ) {
+					var target = e.target;
+					console.log( "actionCallback:", this );
+					console.log( "actionCallback:", target.xaction + "/" + target.xid );
+					if ( target.xaction == "execute" ) {
+						var buttonKey = target.xid;
 						var data = this.getData();
-						self._handleExecuteButton( this.form, data, task, formName, buttonKey );
+						console.log( "Data:" + JSON.stringify( data, null, 2 ) );
+						self.handleExecuteButton( this, data, task, formName, buttonKey );
 					}
-					if ( e.action == "cancel" ) {
-						self._formContainer.destroy( {} );
+					if ( target.xaction == "cancel" ) {}
+					if ( self.finishCallback ) {
+						self.finishCallback();
 					}
 				};
 
@@ -123,40 +111,19 @@
 				} else {
 					processVariables[ "__namespace" ] = simpl4.util.BaseManager.getNamespace();
 				}
-				this.formName = formPath;
+				this.formName = formName;
 				this.namespace = processCategory;
-				console.warn( "Namespace:" + this.namespace );
-/*				this._formContainer.open( {
-					formPath: formPath,
-					formName: formName,
-					mappedFormValues: mappedFormValues,
-					actionCallback: actionCallback,
-					processName: processName,
-					processCategory: processCategory,
-					processVariables: processVariables,
-					buttons: buttons,
-					taskName: taskName
-				} );*/
 			},
-			_getFormNameAndPath: function( formResourceKey ) {
+			getFormName: function( formResourceKey ) {
 				var formName = null;
-				var formPath = null;
 				if ( formResourceKey.indexOf( "," ) == -1 ) {
 					formName = formResourceKey;
-					formPath = formResourceKey;
 				} else {
-					formName = formResourceKey.split( "," )[ 1 ];
-					formPath = formResourceKey.split( "," )[ 0 ];
+					formName = formResourceKey.split( "," )[ 0 ];
 				}
-				if ( formName.match( /.*\.form$/ ) ) {
-					formName = formName.substring( 0, formName.length - 5 );
-				}
-				return {
-					formName: formName,
-					formPath: formPath
-				}
+				return formName;
 			},
-			_handleExecuteButton: function( form, data, task, formName, executeButtonKey ) {
+			handleExecuteButton: function( form, data, task, formName, executeButtonKey ) {
 				var validate = form == null ? true : form.validate();
 				if ( !validate ) {
 					var vm = form._form.getValidationManager();
@@ -167,20 +134,14 @@
 						var msg = items[ i ].getInvalidMessage();
 						message += name + " : " + msg + "<br />";
 					}
-					ms123.form.Dialog.alert( this.tr( "process.form_incomplete" ) + ":" + message );
+					alert( this.tr( "process.form_incomplete" ) + ":" + message );
 					return;
 				}
 
 				var processVariables = {};
 				var formVals = {};
 				if ( data ) {
-					Object.keys( data ).each( function( p, index ) {
-						if ( form.formData[ p ] && form.formData[ p ].type.toLowerCase() == "actionbutton" ) {
-							return;
-						}
-						if ( form.formData[ p ] && form.formData[ p ].type.toLowerCase() == "alert" ) {
-							return;
-						}
+					Object.keys( data ).forEach( function( p, index ) {
 						if ( p.match( "^__" ) ) return;
 						var val = data[ p ];
 						formVals[ p ] = val;
@@ -195,16 +156,13 @@
 				if ( formName ) {
 					processVariables[ formName ] = formVals;
 				}
-				this.completeActivity( processVariables, task );
+				console.log( "processVariables:" + JSON.stringify( processVariables, null, 2 ) );
+				//this.completeActivity( processVariables, task );
 			},
 			getMappedFormValues: function( tid, processInstanceId ) {
 				var failed = ( function( e ) {
 					var message = "<div style='width:100%;overflow:auto'>" + e + "</div>";
 					alert( message );
-				} ).bind( this );
-
-				var completed = ( function( e ) {
-					alert( e.getContent() );
 				} ).bind( this );
 
 				var result = null;
@@ -239,7 +197,6 @@
 			},
 			completeActivity: function( processVariables, task ) {
 				var pdata = JSON.stringify( processVariables );
-				var _this = this;
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
 					console.log( "ret:" + x );
