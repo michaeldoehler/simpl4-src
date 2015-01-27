@@ -442,6 +442,7 @@ public class GitServiceImpl implements GitService {
 			if( name.indexOf("/")>=0){
 				File f = new File(gitDir,name);
 				if( f.exists() && getFileType(f).equals(type)){
+					info("searchFile.found:"+f);
 					return f;
 				}
 				pathList = new ArrayList();
