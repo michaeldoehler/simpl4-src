@@ -783,7 +783,14 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				if( "adoc".equals(ext)){
 					response.setContentType( "text/html" );
 					Writer w  = response.getWriter();
+					String t = request.getParameter("t");
+					if( t!= null){
+						w.write("<template bind>");
+					}
 					m_docbookService.adocToHtml(asset, w );
+					if( t!= null){
+						w.write("</template>");
+					}
 					w.close();
 				}else{
 					response.setContentType( contentType );
