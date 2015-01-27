@@ -230,10 +230,9 @@
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
 			},
-			created: function() {
-			},
+			created: function() {},
 			ready: function() {
-				console.log( "Ready:" + this.formName  );
+				console.log( "Ready:" + this.formName );
 				//var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				//this.shapes = this.prepareShape( form ).childShapes;
 				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
@@ -285,7 +284,7 @@
 				shape = this.cleanShape( shape );
 
 				if ( shape.id == 'Input' ) {
-					console.debug("->"+shape.xf_id);
+					console.debug( "->" + shape.xf_id );
 					shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + shape.xf_type ] );
 				}
 
@@ -337,7 +336,7 @@
 			constructRegulaConstraints: function( constraints ) {
 				if ( constraints == null ) return "";
 				constraints = JSON.parse( constraints );
-console.log("constraints:"+JSON.stringify(constraints,null,2));
+				console.log( "constraints:" + JSON.stringify( constraints, null, 2 ) );
 				//var ret = 'data-constraints="';
 				var ret = "";
 				var b = "";
@@ -346,30 +345,30 @@ console.log("constraints:"+JSON.stringify(constraints,null,2));
 				keys.forEach( function( key ) {
 					var values = constraints[ key ];
 					if ( values[ 0 ] === true ) {
-						ret += b + '@' + self.mapKeys(key);
+						ret += b + '@' + self.mapKeys( key );
 						var params = self.constraintParams[ key ];
 
+						ret += '(message="'+ tr("validation."+self.mapKeys(key))+'"';
 						if ( params && params.length > 0 ) {
-							ret += '(';
 							var pkey = params[ 0 ];
 							var val = pkey == 'format' ? '"YMD"' : values[ 1 ];
-							ret += pkey + '=' + val;
+							ret += ',' + pkey + '=' + val;
 							if ( params.length > 1 ) {
 								var pkey = params[ 1 ];
 								var val = values[ 2 ];
 								ret += ',' + pkey + '=' + val;
 							}
-							ret += ')';
 						}
+						ret += ')';
 						b = ' ';
 					}
 				}, this );
 				//ret += '"';
-				console.debug("regulaConstraints:"+ret);
+				console.debug( "regulaConstraints:" + ret );
 				return ret;
 			},
-			mapKeys:function(key){
-				if( key == "NotNull") return "NotEmpty";
+			mapKeys: function( key ) {
+				if ( key == "NotNull" ) return "NotEmpty";
 				return key;
 			},
 			constraintParams: {
@@ -383,18 +382,30 @@ console.log("constraints:"+JSON.stringify(constraints,null,2));
 				Future: [ "format" ],
 				Step: [ "min", "max", "value" ]
 			},
-			toArray:function(nl){
-				for(var a=[], l=nl.length; l--; a[l]=nl[l]);
+			toArray: function( nl ) {
+				for ( var a = [], l = nl.length; l--; a[ l ] = nl[ l ] );
 				return a;
 			},
 			validate: function( e ) {
-				var elements = this.toArray(this.$.formdiv.querySelectorAll("input-field"));
-				console.debug( "elements:",elements );
-				regula.bind({elements:elements});
-				var val = regula.validate({elements:elements});
-				console.debug( "validateAll:",val );
-				this.fields.forEach( function( f ) {} );
-				return true;
+				var elements = this.toArray( this.$.formdiv.querySelectorAll( "input-field" ) );
+				Array.prototype.forEach.call( elements, function( elem ) {
+					elem.setInvalid( false );
+				} );
+
+				regula.bind( {
+					elements: elements
+				} );
+				var errorList = regula.validate( {
+					elements: elements
+				} );
+				console.debug( "validateAll:", errorList );
+				errorList.forEach( function( err ) {
+					err.failingElements.forEach( function( elem ) {
+						elem.setInvalid( true );
+						elem.setErrorMessage( err.message );
+					} );
+				} );
+				return errorList.length != 0;
 			},
 			/*----------------------------------*/
 			addField: function( e ) {

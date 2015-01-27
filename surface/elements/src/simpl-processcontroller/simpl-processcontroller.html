@@ -23,7 +23,8 @@
 		<style>
 		</style>
 		<template if="{{namespace!=null && formName!=null}}">
-			<simpl-form actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
+			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
+			<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
 		</template>
 	</template>
 
@@ -79,7 +80,7 @@
 					processCategory = simpl4.util.BaseManager.getNamespace();
 				}
 				if ( formResourceKey == null ) {
-					this.handleExecuteButton( null, null, task, null, null );
+					this.handleExecuteButton( null, task, null, null );
 					return;
 				}
 				var formName = this.getFormName( formResourceKey );
@@ -95,7 +96,13 @@
 						var buttonKey = target.xid;
 						var data = this.getData();
 						console.log( "Data:" + JSON.stringify( data, null, 2 ) );
-						self.handleExecuteButton( this, data, task, formName, buttonKey );
+						var err = this.validate();
+						if ( err ) {
+							self.error_message=tr("process.form_incomplete");
+							self.shadowRoot.querySelector("#toast").show();
+							return;
+						}
+						self.handleExecuteButton( data, task, formName, buttonKey );
 					}
 					if ( target.xaction == "cancel" ) {}
 					if ( self.finishCallback ) {
@@ -123,20 +130,7 @@
 				}
 				return formName;
 			},
-			handleExecuteButton: function( form, data, task, formName, executeButtonKey ) {
-				var validate = form == null ? true : form.validate();
-				if ( !validate ) {
-					var vm = form._form.getValidationManager();
-					var items = vm.getInvalidFormItems();
-					var message = "<br />";
-					for ( var i = 0; i < items.length; i++ ) {
-						var name = items[ i ].getUserData( "key" );
-						var msg = items[ i ].getInvalidMessage();
-						message += name + " : " + msg + "<br />";
-					}
-					alert( this.tr( "process.form_incomplete" ) + ":" + message );
-					return;
-				}
+			handleExecuteButton: function( data, task, formName, executeButtonKey ) {
 
 				var processVariables = {};
 				var formVals = {};

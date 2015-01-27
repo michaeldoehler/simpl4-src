@@ -217,6 +217,10 @@
 					this.decorator.error = cvList[ 0 ].message;
 				}*/
 			},
+			setErrorMessage:function(message){
+				console.log("setErrorMessage:"+message);
+				this.decorator.error = message;
+			},
 			setInvalid:function(b){
 				this.decorator.isInvalid = b;
 			},
