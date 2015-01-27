@@ -105,7 +105,7 @@
 			}
 			fieldset {
 				border-radius: 8px;
-				border: 1px solid #f0f0f0;
+				border: 1px solid #4B575C;
 			}
 			input-field {
 				margin: 5px;
@@ -195,10 +195,11 @@
 
 		<template id="element">
 			<template if="{{ id=='Input' }}">
-				<input-field flex type={{xf_type}} name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
+				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
-				<xaction-button on-tap="{{actionCallback}}" class="button"  xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised><core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}</xaction-button>
+				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
+					<core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}</xaction-button>
 			</template>
 			<template if="{{ id=='Textarea' }}">
 				<multiline-field flex name="{{xf_id}}" label="{{label}}" xvalue="{{data.street}}"></multiline-field>
@@ -212,8 +213,10 @@
 		</template>
 		<template if="{{ defaultButtons }}">
 			<simpl-row>
-				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="execute" raised><core-icon icon="check"></core-icon>{{'form.execute'|tr}}</xaction-button>
-				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="cancel" raised> <core-icon icon="clear"></core-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
+				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="execute" raised>
+					<core-icon icon="check"></core-icon>{{'form.execute'|tr}}</xaction-button>
+				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="cancel" raised>
+					<core-icon icon="clear"></core-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
 			</simpl-row>
 		</template>
 
@@ -228,24 +231,23 @@
 				'remove-form-field': 'removeField'
 			},
 			created: function() {
-				this.fields = [];
-				this.fieldsMap = {};
 			},
 			ready: function() {
-				console.log( "Ready:", this.$.xxxx );
-				var form = simpl4FormManager.getForm( this.formName, this.namespace );
-				this.shapes = this.prepareShape( form ).childShapes;
+				console.log( "Ready:" + this.formName  );
+				//var form = simpl4FormManager.getForm( this.formName, this.namespace );
+				//this.shapes = this.prepareShape( form ).childShapes;
 				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
+				this.fieldConstraints = {};
 				console.log( "formNameChanged:", this.formName );
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
-				console.log( "defaultButton:" + this.defaultButtons );
 				this.shapes = this.prepareShape( form ).childShapes;
 				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
+				console.log( "constraints:" + JSON.stringify( this.fieldConstraints, null, 2 ) );
 			},
 			domReady: function() {
 				return;
@@ -281,6 +283,12 @@
 			/*----------------------------------*/
 			prepareShape: function( shape ) {
 				shape = this.cleanShape( shape );
+
+				if ( shape.id == 'Input' ) {
+					console.debug("->"+shape.xf_id);
+					shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + shape.xf_type ] );
+				}
+
 				shape.childShapes = _.sortBy( shape.childShapes, function( element ) {
 					return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
 				} );
@@ -326,8 +334,66 @@
 				}
 				return lineBreak;
 			},
+			constructRegulaConstraints: function( constraints ) {
+				if ( constraints == null ) return "";
+				constraints = JSON.parse( constraints );
+console.log("constraints:"+JSON.stringify(constraints,null,2));
+				//var ret = 'data-constraints="';
+				var ret = "";
+				var b = "";
+				var keys = Object.keys( constraints );
+				var self = this;
+				keys.forEach( function( key ) {
+					var values = constraints[ key ];
+					if ( values[ 0 ] === true ) {
+						ret += b + '@' + self.mapKeys(key);
+						var params = self.constraintParams[ key ];
+
+						if ( params && params.length > 0 ) {
+							ret += '(';
+							var pkey = params[ 0 ];
+							var val = pkey == 'format' ? '"YMD"' : values[ 1 ];
+							ret += pkey + '=' + val;
+							if ( params.length > 1 ) {
+								var pkey = params[ 1 ];
+								var val = values[ 2 ];
+								ret += ',' + pkey + '=' + val;
+							}
+							ret += ')';
+						}
+						b = ' ';
+					}
+				}, this );
+				//ret += '"';
+				console.debug("regulaConstraints:"+ret);
+				return ret;
+			},
+			mapKeys:function(key){
+				if( key == "NotNull") return "NotEmpty";
+				return key;
+			},
+			constraintParams: {
+				Max: [ "value" ],
+				Min: [ "value" ],
+				Range: [ "min", "max" ],
+				Pattern: [ "regex" ],
+				Length: [ "min", "max" ],
+				Digits: [ "integer", "fraction" ],
+				Past: [ "format" ],
+				Future: [ "format" ],
+				Step: [ "min", "max", "value" ]
+			},
+			toArray:function(nl){
+				for(var a=[], l=nl.length; l--; a[l]=nl[l]);
+				return a;
+			},
 			validate: function( e ) {
-				console.debug( "validateAll:", e );
+				var elements = this.toArray(this.$.formdiv.querySelectorAll("input-field"));
+				console.debug( "elements:",elements );
+				regula.bind({elements:elements});
+				var val = regula.validate({elements:elements});
+				console.debug( "validateAll:",val );
+				this.fields.forEach( function( f ) {} );
 				return true;
 			},
 			/*----------------------------------*/

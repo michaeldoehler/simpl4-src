@@ -1,0 +1,180 @@
+@media(max-width:767px) {
+	html /deep/ [s100] {
+		width: 100%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important
+	}
+	html /deep/ [s50] {
+		width: 50%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [s33] {
+		width: 33.3333%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [s66] {
+		width: 66.6667%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [s25] {
+		width: 25%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [s75] {
+		width: 75%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [s0] {
+		width: 0%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+		display: none !important;
+	}
+}
+@media(min-width:768px) {
+	html /deep/ [m100] {
+		width: 100%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m50] {
+		width: 50%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m33] {
+		width: 33.3333%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m66] {
+		width: 66.6667%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m25] {
+		width: 25%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m75] {
+		width: 75%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [m0] {
+		width: 0%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+		display: none !important;
+	}
+}
+@media(min-width:992px) {
+	html /deep/ [l100] {
+		width: 100%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l50] {
+		width: 50%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l33] {
+		width: 33.3333%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l66] {
+		width: 66.6667%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l25] {
+		width: 25%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l75] {
+		width: 75%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [l0] {
+		width: 0%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+		display: none !important;
+	}
+}
+@media(min-width:1200px) {
+	html /deep/ [xl100] {
+		width: 100%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl50] {
+		width: 50%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl33] {
+		width: 33.3333%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl66] {
+		width: 66.6667%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl25] {
+		width: 25%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl75] {
+		width: 75%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+	}
+	html /deep/ [xl0] {
+		width: 0%!important;
+		-webkit-flex: none!important;
+		-ms-flex: none!important;
+		flex: none!important;
+		display: none !important;
+	}
+}
