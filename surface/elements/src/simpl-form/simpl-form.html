@@ -223,7 +223,7 @@
 	</template>
 	<script>
 		Polymer( 'simpl-form', {
-			data: {},
+			data: null,
 			namespace: null,
 			formName: null,
 			eventDelegates: {
@@ -231,60 +231,21 @@
 				'remove-form-field': 'removeField'
 			},
 			created: function() {},
-			ready: function() {
-				console.log( "Ready:" + this.formName );
-				//var form = simpl4FormManager.getForm( this.formName, this.namespace );
-				//this.shapes = this.prepareShape( form ).childShapes;
-				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
-			},
+			ready: function() { },
+			domReady: function() { },
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
-				this.fieldConstraints = {};
 				console.log( "formNameChanged:", this.formName );
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.shapes = this.prepareShape( form ).childShapes;
-				//console.log( "Shape:" + JSON.stringify( this.shapes, null, 2 ) );
-				console.log( "constraints:" + JSON.stringify( this.fieldConstraints, null, 2 ) );
-			},
-			domReady: function() {
-				return;
-				regula.bind( {
-					element: this.$.OrderName,
-					constraints: [ {
-						constraintType: regula.Constraint.Min,
-						params: {
-							value: "18",
-							message: "You must be at least 18 years old to vote",
-							groups: [ 'MyGroup' ]
-						}
-					} ]
-				} );
-				regula.bind( {
-					element: this.$.FlanFlavor,
-					constraints: [ {
-						constraintType: regula.Constraint.Future,
-						params: {
-							format: regula.DateFormat.YMD,
-							date: "2015/2/1",
-							groups: [ 'MyGroup' ]
-						}
-					} ]
-				} );
-				return;
-				this.allFields = this.$.form.querySelectorAll( 'input-field' );
-				this.allFieldsMap = {};
-				for ( var i = 0; i < this.allFields.length; i++ ) {
-					this.allFieldsMap[ this.allFields[ i ].id ] = this.allFields[ i ];
-				}
 			},
 			/*----------------------------------*/
 			prepareShape: function( shape ) {
 				shape = this.cleanShape( shape );
 
 				if ( shape.id == 'Input' ) {
-					console.debug( "->" + shape.xf_id );
 					shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + shape.xf_type ] );
 				}
 
@@ -336,8 +297,6 @@
 			constructRegulaConstraints: function( constraints ) {
 				if ( constraints == null ) return "";
 				constraints = JSON.parse( constraints );
-				console.log( "constraints:" + JSON.stringify( constraints, null, 2 ) );
-				//var ret = 'data-constraints="';
 				var ret = "";
 				var b = "";
 				var keys = Object.keys( constraints );
@@ -363,8 +322,6 @@
 						b = ' ';
 					}
 				}, this );
-				//ret += '"';
-				console.debug( "regulaConstraints:" + ret );
 				return ret;
 			},
 			mapKeys: function( key ) {
@@ -382,6 +339,7 @@
 				Future: [ "format" ],
 				Step: [ "min", "max", "value" ]
 			},
+			/*----------------------------------*/
 			toArray: function( nl ) {
 				for ( var a = [], l = nl.length; l--; a[ l ] = nl[ l ] );
 				return a;
@@ -398,7 +356,6 @@
 				var errorList = regula.validate( {
 					elements: elements
 				} );
-				console.debug( "validateAll:", errorList );
 				errorList.forEach( function( err ) {
 					err.failingElements.forEach( function( elem ) {
 						elem.setInvalid( true );
@@ -407,7 +364,6 @@
 				} );
 				return errorList.length != 0;
 			},
-			/*----------------------------------*/
 			addField: function( e ) {
 				this.fields.push( e.detail );
 				this.fieldsMap[ e.detail.name ] = e.detail;
@@ -418,29 +374,12 @@
 					this.fields.splice( i, 1 );
 				}
 			},
-			submit: function( e ) {
-				//var cvList = regula.validate( {} );
-				//console.log( "cvList:", cvList );
-
-				var data = this.getData();
-				var jsonData = JSON.stringify( data, null, 2 );
-				console.log( "JSON:" + jsonData );
-				this.$.data.textContent = jsonData;
-				this.setData( data );
-			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
 					field.editValue = data[ field.name ];
 				}, this );
 			},
 			getData: function() {
-				var data = {};
-				this.fields.forEach( function( field ) {
-					data[ field.name ] = field.value;
-				}, this );
-				return data;
-			},
-			dump: function() {
 				var data = {};
 				this.fields.forEach( function( field ) {
 					data[ field.name ] = field.value;

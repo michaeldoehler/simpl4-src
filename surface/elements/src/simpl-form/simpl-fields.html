@@ -206,16 +206,19 @@
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
-				//				if( regula.isBound(
-				/*var cvList = regula.validate( {
-					elements: [ this ],
-					groups: [ regula.Group.MyGroup ]
+
+				var elements = [ this ];
+				regula.bind( {
+					elements: elements
 				} );
-				console.debug( "valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + cvList.length );
-				this.decorator.isInvalid = cvList.length > 0;
-				if ( cvList.length > 0 ) {
-					this.decorator.error = cvList[ 0 ].message;
-				}*/
+				var errorList = regula.validate( {
+					elements: elements
+				} );
+				console.debug( "valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + errorList.length );
+				this.decorator.isInvalid = errorList.length > 0;
+				if ( errorList.length > 0 ) {
+					this.decorator.error = errorList[ 0 ].message;
+				}
 			},
 			setErrorMessage:function(message){
 				console.log("setErrorMessage:"+message);
