@@ -484,6 +484,7 @@
 		},
 
 		blank: function(params) {
+			if (typeof this.value !== "string") return false;
 			return this.value.replace(/\s/g, "") === "";
 		},
 
