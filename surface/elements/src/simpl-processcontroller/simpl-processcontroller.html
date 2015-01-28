@@ -19,12 +19,26 @@
  */
 -->
 <polymer-element name="simpl-processcontroller" attributes="">
+	<style>
+		html /deep/ core-icon.error-big {
+			color: red;
+			height: 64px;
+			width: 64px;
+		}
+		html /deep/ paper-button[affirmative] {
+			color: #4285f4;
+		}
+	</style>
 	<template>
-		<style>
-		</style>
 		<template if="{{namespace!=null && formName!=null}}">
 			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
 			<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
+			<paper-action-dialog id="error" class="scrolling">
+				<core-icon class="error-big" icon="error"></core-icon>
+				<p></p>
+				<paper-button raised affirmative autofocus>
+					<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
+			</paper-action-dialog>
 		</template>
 	</template>
 
@@ -95,18 +109,17 @@
 					if ( target.xaction == "execute" ) {
 						var buttonKey = target.xid;
 						var data = this.getData();
-						console.log( "Data:" + JSON.stringify( data, null, 2 ) );
-						var err = this.validate();
-						if ( err ) {
-							self.error_message=tr("process.form_incomplete");
-							self.shadowRoot.querySelector("#toast").show();
+						if ( !this.validate() ) {
+							self.error_message = tr( "process.form_incomplete" );
+							self.shadowRoot.querySelector( "#toast" ).show();
 							return;
 						}
 						self.handleExecuteButton( data, task, formName, buttonKey );
 					}
-					if ( target.xaction == "cancel" ) {}
-					if ( self.finishCallback ) {
-						self.finishCallback();
+					if ( target.xaction == "cancel" ) {
+						if ( self.finishCallback ) {
+							self.finishCallback();
+						}
 					}
 				};
 
@@ -131,7 +144,6 @@
 				return formName;
 			},
 			handleExecuteButton: function( data, task, formName, executeButtonKey ) {
-
 				var processVariables = {};
 				var formVals = {};
 				if ( data ) {
@@ -148,10 +160,16 @@
 					processVariables[ "processDefinitionId" ] = this.processDefinition.id;
 				}
 				if ( formName ) {
-					processVariables[ formName ] = formVals;
+					processVariables[ this.removeSuffix( formName ) ] = formVals;
 				}
 				console.log( "processVariables:" + JSON.stringify( processVariables, null, 2 ) );
-				//this.completeActivity( processVariables, task );
+				this.completeActivity( processVariables, task );
+			},
+			removeSuffix: function( formName ) {
+				if ( formName.match( /.*\.form$/ ) ) {
+					return formName.substring( 0, formName.length - 5 );
+				}
+				return formName;
 			},
 			getMappedFormValues: function( tid, processInstanceId ) {
 				var failed = ( function( e ) {
@@ -225,16 +243,10 @@
 					var msg = msg.replace( /:Line:/g, "<br/>Line:" );
 					var msg = msg.replace( /: {0,2}Line:/g, "<br/>Line:" );
 
-					msg = ms123.util.Text.explode( msg, 100 );
+					msg = simpl4.util.Text.explode( msg, 100 );
 					var message = "<b>" + tr( "processes." + ( ( task != null ) ? "taskform" : "startform" ) + ".notstarted" ) + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
-					var alert = new ms123.form.Alert( {
-						"message": message,
-						"windowWidth": 600,
-						"windowHeight": 400,
-						"useHtml": true,
-						"inWindow": true
-					} );
-					alert.show();
+					this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
+					this.shadowRoot.querySelector( "#error" ).open();
 					if ( task != null ) {
 						this.showForm( task );
 					}
@@ -276,19 +288,20 @@
 								c.message = c.message.replace( '{0}', d.toString( lang == "de" ? 'd.M.yyyy' : 'M/d/yyyy' ) );
 							}
 							if ( c.message && c.message.match( /^@/ ) ) {
-								c.message = this.tr( c.message.substring( 1 ) );
+								c.message = tr( c.message.substring( 1 ) );
 							}
 							if ( c.message && c.message.match( /^%/ ) ) {
-								c.message = this.tr( c.message.substring( 1 ) );
+								c.message = tr( c.message.substring( 1 ) );
 							}
 							if ( c.path ) {
-								message += this._formContainer.getLabel( c.path ) + " : " + c.message + "<br />";
+								//message += this._formContainer.getLabel( c.path ) + " : " + c.message + "<br />";
+								message += c.path + " : " + c.message + "<br />";
 							} else {
 								message += c.message + "<br />";
 							}
 						}
-						alert( message );
-						//this._formContainer.showErrors( cv );
+						this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
+						this.shadowRoot.querySelector( "#error" ).open();
 						return;
 					}
 				} ).bind( this );
@@ -302,14 +315,14 @@
 
 					console.error( "RET:" + result.success );
 					if ( result.success === true ) {
-						this._formContainer.close( {} );
+						//this._formContainer.close( {} );
 						completed.call( this, result );
 						return result;
 					} else {
 						showErrors( result.errors );
 					}
 				} catch ( e ) {
-					this._formContainer.close( {} );
+					//this._formContainer.close( {} );
 					failed.call( this, e );
 					return;
 				}

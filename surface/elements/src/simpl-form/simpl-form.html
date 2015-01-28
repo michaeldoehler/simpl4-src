@@ -362,7 +362,7 @@
 						elem.setErrorMessage( err.message );
 					} );
 				} );
-				return errorList.length != 0;
+				return errorList.length == 0;
 			},
 			addField: function( e ) {
 				this.fields.push( e.detail );
