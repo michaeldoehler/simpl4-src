@@ -282,9 +282,20 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="checkbox-field" extends="form-field" kind="checkbox" noscript>
+<polymer-element name="checkbox-field" extends="form-field" kind="checkbox">
 	<template>
 		<style>
+			:host {
+				padding-left: 5px !important;
+			}
+			[invalid],
+			.error {
+				color: #d34336;
+			}
+			.error-text {
+				font-size: 0.75em;
+				padding: 0.5em 0;
+			}
 			.floated-label {
 				font-size: 0.75em;
 				padding: 1em 0;
@@ -302,11 +313,38 @@
 				color: #757575;
 			}
 		</style>
-		<div class="floated-label" invisible?="{{value === undefined}}">
-			<span class="label-text">{{label}}</span>
+		<div class="floated-label" invalid?="{{isInvalid}}" invisible?="{{value === undefined}}">
+			<span invalid?="{{isInvalid}}" class="label-text">{{label}}</span>
 		</div>
-		<paper-checkbox checked="{{value}}"></paper-checked>
+
+		<div horizontal layout>
+			<paper-checkbox  checked="{{value}}"></paper-checkbox>
+
+			<div class="error" style="margin-left:15px;" layout horizontal hidden?="{{!isInvalid}}">
+				<div class="error-text" auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
+				<core-icon class="error-icon" icon="warning"></core-icon>
+			</div>
+		</div>
+
 	</template>
+	<script>
+		Polymer( {
+			publish: {
+				setErrorMessage: function( message ) {
+					console.log( "setErrorMessage:" + message );
+					this.error = message;
+					console.debug( "checkbox.setError:" + message );
+				},
+				setInvalid: function( b ) {
+					console.debug( "checkbox.setInvalid:" + b );
+					this.isInvalid = b;
+				},
+				valueChanged: function( e ) {
+					console.log( "ValueChanged:" + this.value );
+				}
+			}
+		} );
+	</script>
 </polymer-element>
 
 

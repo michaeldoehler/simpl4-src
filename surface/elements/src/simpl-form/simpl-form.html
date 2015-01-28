@@ -194,7 +194,11 @@
 		</template>
 
 		<template id="element">
-			<template if="{{ id=='Input' }}">
+			<template if="{{ id=='Input' && xf_type == 'boolean' }}">
+				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}">
+					</input-field>
+			</template>
+			<template if="{{ id=='Input' && xf_type != 'boolean' }}">
 				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
@@ -395,11 +399,10 @@
 				return ret;
 			},
 			validate: function( e ) {
-				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field" ) );
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
 				Array.prototype.forEach.call( elements, function( elem ) {
 					elem.setInvalid( false );
 				} );
-				console.log( "elements:", elements );
 				if ( elements.length == 0 ) {
 					return true;
 				}
