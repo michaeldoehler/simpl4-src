@@ -59,11 +59,24 @@
 			},
 			attached: function() {
 				this.fire( 'add-form-field', this );
-				console.debug( "attached:", this );
 			},
 			detached: function() {
 				this.fire( 'remove-form-field', this );
-				console.debug( "detach:", this );
+			},
+			checkConstraints:function(){
+				var c = this.getAttribute( "data-constraints" );
+				if ( c == null || c.length == 0 ) return;
+				var elements = [ this ];
+				regula.bind( {
+					elements: elements
+				} );
+				var errorList = regula.validate( {
+					elements: elements
+				} );
+				this.setInvalid(errorList.length > 0);
+				if ( errorList.length > 0 ) {
+					this.setErrorMessage(errorList[ 0 ].message);
+				}
 			}
 		} );
 	</script>
@@ -188,11 +201,9 @@
 					this.input.setAttribute( 'type', this.type );
 				}
 			},
-			committedValueChanged: function() {
-				console.log( "committedValueChanged(" + this.name + "):" + this.value + "/" + this.committedValue );
+			committedValueChanged: function() {//@@@MS ???
 			},
 			editValueChanged: function() {
-				console.log( "editValueChanged(" + this.name + "):" + this.value + "/" + this.editValue );
 				if ( this.type == "date" && !this.hasDate ) {
 					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() );
 					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
@@ -202,35 +213,19 @@
 				} else {
 					this.value = this.editValue;
 				}
-				console.log( "value:" + this.value );
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
-
-				var c = this.getAttribute( "data-constraints" );
-				if ( c == null || c.length == 0 ) return;
-				var elements = [ this ];
-				regula.bind( {
-					elements: elements
-				} );
-				var errorList = regula.validate( {
-					elements: elements
-				} );
-				console.debug( "valueChanged(" + this.name + "," + this.$.input.value + "," + this.value + "):" + errorList.length );
-				this.decorator.isInvalid = errorList.length > 0;
-				if ( errorList.length > 0 ) {
-					this.decorator.error = errorList[ 0 ].message;
-				}
+				this.checkConstraints();
 			},
 			setErrorMessage: function( message ) {
-				console.log( "setErrorMessage:" + message );
 				this.decorator.error = message;
 			},
 			setInvalid: function( b ) {
 				this.decorator.isInvalid = b;
 			},
 			setCustomValidity: function( message ) {
-				console.debug( "setCustomValidity:" + message );
+				//Dummy,regula want access this
 			}
 		} );
 	</script>
@@ -308,10 +303,6 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
-			.container {
-				font-size: 0.75em;
-				color: #757575;
-			}
 		</style>
 		<div class="floated-label" invalid?="{{isInvalid}}" invisible?="{{value === undefined}}">
 			<span invalid?="{{isInvalid}}" class="label-text">{{label}}</span>
@@ -330,17 +321,18 @@
 	<script>
 		Polymer( {
 			publish: {
+				domReady: function() {
+					this.domReady=true;
+				},
 				setErrorMessage: function( message ) {
-					console.log( "setErrorMessage:" + message );
 					this.error = message;
-					console.debug( "checkbox.setError:" + message );
 				},
 				setInvalid: function( b ) {
-					console.debug( "checkbox.setInvalid:" + b );
 					this.isInvalid = b;
 				},
 				valueChanged: function( e ) {
-					console.log( "ValueChanged:" + this.value );
+					if(this.domReady!=true) return;
+					this.checkConstraints();
 				}
 			}
 		} );
@@ -484,6 +476,7 @@
 </polymer-element>
 
 
+//@@@ More as Example for polyfields
 <polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
 	<template>
 		<style>
