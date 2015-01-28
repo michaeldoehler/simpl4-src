@@ -88,7 +88,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-form" attributes="namespace formName actionCallback" constructor="SimplForm" vertical layout>
+<polymer-element name="simpl-form" attributes="namespace formName actionCallback variables" constructor="SimplForm" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -231,8 +231,8 @@
 				'remove-form-field': 'removeField'
 			},
 			created: function() {},
-			ready: function() { },
-			domReady: function() { },
+			ready: function() {},
+			domReady: function() {},
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
@@ -278,6 +278,8 @@
 						shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
 					}
 					shape.childShapes = [];
+				} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
+					shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
 				} else {
 					shape.properties.label = "";
 				}
@@ -295,7 +297,7 @@
 				return lineBreak;
 			},
 			constructRegulaConstraints: function( constraints ) {
-				if ( constraints == null ) return "";
+				if ( constraints == null || constraints.length == 0 ) return "";
 				constraints = JSON.parse( constraints );
 				var ret = "";
 				var b = "";
@@ -307,7 +309,7 @@
 						ret += b + '@' + self.mapKeys( key );
 						var params = self.constraintParams[ key ];
 
-						ret += '(message="'+ tr("validation."+self.mapKeys(key))+'"';
+						ret += '(message="' + tr( "validation." + self.mapKeys( key ) ) + '"';
 						if ( params && params.length > 0 ) {
 							var pkey = params[ 0 ];
 							var val = pkey == 'format' ? '"YMD"' : values[ 1 ];
@@ -339,17 +341,68 @@
 				Future: [ "format" ],
 				Step: [ "min", "max", "value" ]
 			},
+			expandString: function( str, binding ) {
+				if ( str == null || str.length == 0 ) return "";
+				var countRepl = 0;
+				var countPlainStr = 0;
+				var replacement = null;
+				var newString = "";
+				var openBrackets = 0;
+				var first = 0;
+				for ( var i = 0; i < str.length; i++ ) {
+					if ( i < str.length - 2 && str.substring( i, i + 2 ) == "${" ) {
+						if ( openBrackets == 0 ) {
+							first = i + 2;
+						}
+						openBrackets++;
+					} else if ( str.charAt( i ) == '}' && openBrackets > 0 ) {
+						openBrackets -= 1;
+						if ( openBrackets == 0 ) {
+							countRepl++;
+							replacement = this._maskedEval( str.substring( first, i ), binding );
+							newString += replacement;
+						}
+					} else if ( openBrackets == 0 ) {
+						newString += str.charAt( i );
+						countPlainStr++;
+					}
+				}
+				if ( countRepl == 1 && countPlainStr == 0 ) {
+					return replacement;
+				} else {
+					return newString;
+				}
+			},
+			_maskedEval: function( scr, env, def ) {
+				try {
+					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+				} catch ( e ) {
+					console.log( "Form._maskedEval:" + scr );
+					console.error( "error:" + e );
+					console.error( e.stack );
+				}
+				return def;
+			},
 			/*----------------------------------*/
-			toArray: function( nl ) {
-				for ( var a = [], l = nl.length; l--; a[ l ] = nl[ l ] );
-				return a;
+			filterToArray: function( nodeList ) {
+				var ret = [];
+				for ( var i = 0; i < nodeList.length; i++ ) {
+					var c = nodeList[ i ].getAttribute( "data-constraints" );
+					if ( c != null && c.length > 0 ) {
+						ret.push( nodeList[ i ] );
+					}
+				}
+				return ret;
 			},
 			validate: function( e ) {
-				var elements = this.toArray( this.$.formdiv.querySelectorAll( "input-field" ) );
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field" ) );
 				Array.prototype.forEach.call( elements, function( elem ) {
 					elem.setInvalid( false );
 				} );
-
+				console.log( "elements:", elements );
+				if ( elements.length == 0 ) {
+					return true;
+				}
 				regula.bind( {
 					elements: elements
 				} );

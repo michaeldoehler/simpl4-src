@@ -160,7 +160,7 @@
 				} );
 			},
 			getTasks: function( what ) {
-				this.userid = "admin";
+				this.userid = simpl4.util.BaseManager.getUser();
 				var self = this;
 				var completed = function( map ) {
 					var rows = [];

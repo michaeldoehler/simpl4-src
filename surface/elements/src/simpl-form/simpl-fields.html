@@ -207,6 +207,8 @@
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
 
+				var c = this.getAttribute( "data-constraints" );
+				if ( c == null || c.length == 0 ) return;
 				var elements = [ this ];
 				regula.bind( {
 					elements: elements
@@ -220,11 +222,11 @@
 					this.decorator.error = errorList[ 0 ].message;
 				}
 			},
-			setErrorMessage:function(message){
-				console.log("setErrorMessage:"+message);
+			setErrorMessage: function( message ) {
+				console.log( "setErrorMessage:" + message );
 				this.decorator.error = message;
 			},
-			setInvalid:function(b){
+			setInvalid: function( b ) {
 				this.decorator.isInvalid = b;
 			},
 			setCustomValidity: function( message ) {

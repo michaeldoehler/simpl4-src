@@ -31,7 +31,7 @@
 	</style>
 	<template>
 		<template if="{{namespace!=null && formName!=null}}">
-			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}"></simpl-form>
+			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}" variables="{{variables}}"></simpl-form>
 			<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
 			<paper-action-dialog id="error" class="scrolling">
 				<core-icon class="error-big" icon="error"></core-icon>
@@ -52,7 +52,7 @@
 				//ms123.config.ConfigManager.installMessages( namespace );
 				var pc = this.getProcessDefinition( namespace, name );
 				if ( pc == null ) {
-					alert( "ProcessController.workflow(" + namespace + "," + name + ") not found" );
+					this.alert( "ProcessController.workflow(" + namespace + "," + name + ") not found" );
 					return;
 				}
 				console.log( "ProcessController:startByName" + namespace + "/" + name );
@@ -131,8 +131,9 @@
 				} else {
 					processVariables[ "__namespace" ] = simpl4.util.BaseManager.getNamespace();
 				}
-				this.formName = formName;
+				this.variables = processVariables;
 				this.namespace = processCategory;
+				this.formName = formName;
 			},
 			getFormName: function( formResourceKey ) {
 				var formName = null;
@@ -174,7 +175,7 @@
 			getMappedFormValues: function( tid, processInstanceId ) {
 				var failed = ( function( e ) {
 					var message = "<div style='width:100%;overflow:auto'>" + e + "</div>";
-					alert( message );
+					this.alert( message );
 				} ).bind( this );
 
 				var result = null;
@@ -184,7 +185,7 @@
 						taskId: tid
 					} );
 				} catch ( e ) {
-					alert( "ProcessController.getMappedFormValues:" + e );
+					this.alert( "ProcessController.getMappedFormValues:" + e );
 					failed.call( this, e );
 					return;
 				}
@@ -202,7 +203,7 @@
 						executionId: pid
 					} );
 				} catch ( e ) {
-					alert( "ProcessController.getProcessVariables:" + e );
+					this.alert( "ProcessController.getProcessVariables:" + e );
 					return;
 				}
 				return result;
@@ -224,11 +225,10 @@
 						this.showForm( tasks.data[ 0 ] );
 					} else {
 						if ( task && task.fromTaskList ) {
-							alert( this.tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
+							this.alert( tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
 						} else {
-							alert( this.tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ) );
+							this.alert( tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ) );
 						}
-						//this._formContainer.destroy();
 					}
 				} ).bind( this );
 				var failed = ( function( ret ) {
@@ -245,8 +245,7 @@
 
 					msg = simpl4.util.Text.explode( msg, 100 );
 					var message = "<b>" + tr( "processes." + ( ( task != null ) ? "taskform" : "startform" ) + ".notstarted" ) + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
-					this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
-					this.shadowRoot.querySelector( "#error" ).open();
+					this.alert( message );
 					if ( task != null ) {
 						this.showForm( task );
 					}
@@ -300,8 +299,7 @@
 								message += c.message + "<br />";
 							}
 						}
-						this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
-						this.shadowRoot.querySelector( "#error" ).open();
+						this.alert( message );
 						return;
 					}
 				} ).bind( this );
@@ -330,10 +328,11 @@
 			},
 			getTasks: function( processInstanceId ) {
 				var result = null;
+				var userid = simpl4.uti.BaseManager.getUser();
 				try {
 					result = simpl4.util.Rpc.rpcSync( "activiti:getTasks", {
 						queryParams: {
-							assignee: this.userid,
+							assignee: userid,
 							processInstanceId: processInstanceId
 						},
 
@@ -342,7 +341,7 @@
 						}
 					} );
 				} catch ( e ) {
-					alert( "ProcessController.getTasks:" + e );
+					this.alert( "ProcessController.getTasks:" + e );
 					return;
 				}
 				return result;
@@ -356,12 +355,16 @@
 						key: name
 					} );
 				} catch ( e ) {
-					alert( "ProcessController.getProcessDefinitions:" + e );
+					this.alert( "ProcessController.getProcessDefinitions:" + e );
 					return;
 				}
 				var defs = result[ "data" ];
 				if ( defs.length > 0 ) return defs[ 0 ];
 				return null;
+			},
+			alert: function( message ) {
+				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
+				this.shadowRoot.querySelector( "#error" ).open();
 			}
 		} );
 	</script>

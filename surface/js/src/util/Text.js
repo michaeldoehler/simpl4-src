@@ -40,6 +40,6 @@ can.Construct.extend("simpl4.util.Text", {
 		} else {
 			text = text.substring(1);
 		}
-		return exploded + "<br/>" + ms123.util.Text.explode(text,max);
+		return exploded + "<br/>" + simpl4.util.Text.explode(text,max);
 	} 
 }, {});
