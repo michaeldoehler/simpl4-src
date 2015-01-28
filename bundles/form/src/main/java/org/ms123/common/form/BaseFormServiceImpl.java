@@ -228,6 +228,19 @@ class BaseFormServiceImpl {
 					}
 				}
 			}
+			if (value != null && !convert) {//@@@MS Hack Iso-Date -> long
+				if (type == Date.class) {
+					try {
+						if( value instanceof String){
+							Date d =  new SimpleDateFormat("yyyy-MM-dd").parse((String)value,new ParsePosition(0));
+							value = d.getTime();
+						}
+					} catch (Exception e) {
+						System.out.println("DateException,iso:" + name + "=" + value + ":" + e.getMessage());
+						value = null;
+					}
+				}
+			}
 			newMap.put(name, value);
 		}
 		System.out.println("FormService.cleanData.end:" + newMap);
