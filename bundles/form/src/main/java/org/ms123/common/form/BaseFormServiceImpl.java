@@ -60,6 +60,7 @@ import org.apache.commons.beanutils.BeanMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
 import org.apache.commons.beanutils.ConvertUtils;
 
 /**
@@ -97,7 +98,6 @@ class BaseFormServiceImpl {
 		BundleDelegatingClassLoader bdc = new BundleDelegatingClassLoader(m_bc.getBundle());
 		ClassBuilder cb = new ClassBuilder(bdc, inputShapes, constraintsMeta);
 		Class clazz = cb.getClazz();
-		System.out.println("Time1:" + (new java.util.Date().getTime() - time));
 		findAnnotatedFields(clazz);
 		Object obj = clazz.newInstance();
 		BeanMap bm = new BeanMap(obj);
@@ -132,7 +132,6 @@ class BaseFormServiceImpl {
 				}
 			}
 		}
-		System.out.println("Time2:" + (new java.util.Date().getTime() - time));
 		Map ret = new HashMap();
 		ret.put("errors", errors);
 		if (cleanData) {
@@ -162,10 +161,10 @@ class BaseFormServiceImpl {
 			params.put(param, value);
 			break;
 		}
-		System.out.println("params:" + params);
+		System.out.println("FormService.executeFilter.params:" + params);
 		Map result = sc.executeNamedFilter(filterName, params);
 		List rows = (List) result.get("rows");
-		System.out.println("rows:" + rows);
+		System.out.println("FormService.executeFilter.rows:" + rows);
 		return rows.size() > 0;
 	}
 
@@ -187,10 +186,10 @@ class BaseFormServiceImpl {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		List<Field> annotatedFields = new ArrayList<Field>(declaredFields.length);
 		for (Field field : declaredFields) {
-			System.out.println("Field:" + field);
+			//System.out.println("Field:" + field);
 			Annotation[] ann = findFieldAnnotations(field);
 			for (Annotation a : ann) {
-				System.out.println("\tAnno:" + a);
+				//System.out.println("\tAnno:" + a);
 			}
 		}
 	}
@@ -201,12 +200,12 @@ class BaseFormServiceImpl {
 
 	protected Map cleanData(Map data, List<Map> shapes, boolean convert) {
 		Map newMap = new HashMap();
-System.out.println("cleanData:"+data);
+		System.out.println("FormService.cleanData.start("+convert+"):"+data);
 		for (Map shape : shapes) {
 			String name = getName(shape);
 			Class type = ConstraintsUtils.getType(shape);
 			Object value = data.get(name);
-System.out.println("FormService.cleanData:"+name+"/"+type+"="+value);
+			System.out.println("\tname:"+name+"/"+type+"="+value);
 			if( name == null || "".equals(name.trim())) continue;
 			if (value != null && convert) {
 				if (type == Double.class || type == Integer.class) {
@@ -216,10 +215,13 @@ System.out.println("FormService.cleanData:"+name+"/"+type+"="+value);
 				}
 				if (type == Date.class) {
 					try {
-						//Date value2 = (Date) ConvertUtils.convert((Long)value, Date.class);
-						Calendar cal = Calendar.getInstance();
-						cal.setTimeInMillis(((Long) value));
-						value = cal.getTime();
+						if( value instanceof String){
+							value= new SimpleDateFormat("yyyy-MM-dd").parse((String)value,new ParsePosition(0));
+						}else{
+							Calendar cal = Calendar.getInstance();
+							cal.setTimeInMillis(((Long) value));
+							value = cal.getTime();
+						}
 					} catch (Exception e) {
 						System.out.println("DateException:" + name + "=" + value + ":" + e.getMessage());
 						value = null;
@@ -228,7 +230,7 @@ System.out.println("FormService.cleanData:"+name+"/"+type+"="+value);
 			}
 			newMap.put(name, value);
 		}
-		System.out.println("NewMap:" + newMap);
+		System.out.println("FormService.cleanData.end:" + newMap);
 		return newMap;
 	}
 
@@ -310,10 +312,10 @@ System.out.println("FormService.cleanData:"+name+"/"+type+"="+value);
 	private void traverseElement(List<Map> fields, Map shape, List<String> idList) throws Exception {
 		String id = getStencilId(shape);
 		if (idList.contains(id)) {
-			System.out.println("Form.traverseElement:id_used:"+id);
+			//System.out.println("Form.traverseElement:id_used:"+id);
 			fields.add(shape);
 		}else{
-			System.out.println("Form.traverseElement:id_not_used:"+id);
+			//System.out.println("Form.traverseElement:id_not_used:"+id);
 		}
 		List<Map> childShapes = (List) shape.get("childShapes");
 		for (Map child : childShapes) {

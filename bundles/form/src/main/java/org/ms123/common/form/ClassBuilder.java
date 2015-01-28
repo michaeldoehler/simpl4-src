@@ -66,7 +66,7 @@ public class ClassBuilder {
 		}
 		String name = getName(shape);
 		if (name == null || "".equals(name.trim())) {
-			System.out.println("Shape:" + shape);
+			//System.out.println("Shape:" + shape);
 			return;
 		}
 		String simpleTypeName = type.getName();
@@ -109,9 +109,9 @@ public class ClassBuilder {
 			if (consDataList.size() == 0 || ((Boolean) consDataList.get(0)) == false){
 				continue;
 			}
-			System.out.println("annoName:" + annoName);
-			System.out.println("consMetaMap:" + consMetaMap);
-			System.out.println("consDataList:" + consDataList);
+			//System.out.println("annoName:" + annoName);
+			//System.out.println("consMetaMap:" + consMetaMap);
+			//System.out.println("consDataList:" + consDataList);
 			if( consMetaMap == null){
 				continue;
 			}
@@ -139,7 +139,7 @@ public class ClassBuilder {
 			}
 			attribute.addAnnotation(annotation);
 		}
-		System.out.println("Annotations:" + attribute);
+		//System.out.println("Annotations:" + attribute);
 		return attribute;
 	}
 
@@ -148,7 +148,7 @@ public class ClassBuilder {
 		if( type.indexOf(",")!=-1){
 			type = type.split(",")[1];
 		}
-		System.out.println("getMemberValue:"+type+",value:"+value+"/class:"+value.getClass());
+		//System.out.println("getMemberValue:"+type+",value:"+value+"/class:"+value.getClass());
 		if ("double".equals(type) || "decimal".equals(type))
 			return new DoubleMemberValue(getDouble(value), mClassFile.getConstPool());
 		if ("string".equals(type))

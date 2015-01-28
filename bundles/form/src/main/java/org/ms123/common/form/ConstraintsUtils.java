@@ -33,7 +33,6 @@ public class ConstraintsUtils {
 	}
 
 	protected static String makeUppercase(String name) {
-		System.out.println("makeUppercase:" + name);
 		if (name == null)
 			return null;
 		if (name.length() > 0 && !Character.isUpperCase(name.charAt(0))) {
