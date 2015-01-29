@@ -1,0 +1,64 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-executeFilter" attributes="name param data" flex relative>
+	<template>
+		<content></content>
+	</template>
+	<script>
+		Polymer( 'simpl-executeFilter', {
+			created: function() {
+				this.param = {
+					input: ''
+				};
+				var observer = new ObjectObserver( this.param );
+				observer.open( function( added, removed, changed, getOldValueFn ) {
+					Object.keys( added ).forEach( function( property ) {
+						console.log( "added:" + property + "=" + added[ property ] );
+					} );
+					Object.keys( removed ).forEach( function( property ) {
+						console.log( "removed:" + property );
+					} );
+					Object.keys( changed ).forEach( function( property ) {
+						console.log( "changed:" + property + "=" + changed[ property ] );
+					} );
+					this.execute();
+				}, this );
+			},
+			domReady: function() {},
+			nameChanged: function() {
+				this.execute();
+			},
+			execute: function() {
+				console.debug( "execute:",this.param );
+				var data = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
+					storeId: "firstapp_data",
+					params: {
+						city: this.param.input,
+						state: this.param.input,
+						street: this.param.input
+					},
+					name: this.name
+				} );
+				this.data = data.rows;
+			}
+		} );
+	</script>
+</polymer-element>

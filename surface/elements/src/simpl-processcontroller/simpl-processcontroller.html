@@ -28,6 +28,15 @@
 		html /deep/ paper-button[affirmative] {
 			color: #4285f4;
 		}
+		/*Extra Würste for polyfills*/
+		paper-button[affirmative] {
+			color: #4285f4;
+		}
+		core-icon.error-big {
+			color: red;
+			height: 64px;
+			width: 64px;
+		}
 	</style>
 	<template>
 		<template if="{{namespace!=null && formName!=null}}">
