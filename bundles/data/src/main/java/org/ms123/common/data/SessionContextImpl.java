@@ -335,6 +335,27 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	private boolean isEmpty(String s) {
 		return (s == null || "".equals(s.trim()));
 	}
+	public List<String> getNamedFilterParameter(String name) {
+		String filterJson = m_gitService.searchContent( m_sdesc.getNamespace(), name, "sw.filter" );
+		Map<String,Map> map = (Map) m_ds.deserialize(filterJson);
+		return getFilterParameter(map.get("filter"));
+	}
+	private List<String> getFilterParameter(Map filter) {
+		String label = (String) filter.get("label");
+		List<String> params = new ArrayList();
+		if (filter.get("connector") == null && label != null) {
+			if (label.matches("^[a-zA-Z].*")) {
+				params.add(label);
+			}
+		}
+		List<Map> children = (List) filter.get("children");
+		if( children != null){
+			for (Map<String,Object> c : children) {
+				params.addAll(getFilterParameter(c));
+			}
+		}
+		return params;
+	}
 	private void getMissingFilterParameter(Map<String, Object> filter, List<String> missingParamList,Map params) {
 		String label = (String) filter.get("label");
 		if (filter.get("connector") == null && label != null) {
@@ -416,7 +437,9 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		params.put("filter", filter);
 		params.put("orderby", orderby);
 		params.put("filterParams", fparams);
-		params.put("pageSize", "0");
+		if( params.get("pageSize") == null){
+			params.put("pageSize", "0");
+		}
 		Map<String, Object> ret = m_dataLayer.query(this, params, m_sdesc, entityName);
 		List<Map> rows = (List) ret.get("rows");
 		List<Map> retList = new ArrayList();
