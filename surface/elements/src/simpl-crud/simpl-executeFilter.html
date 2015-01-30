@@ -18,17 +18,17 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-executeFilter" attributes="name param data" flex relative>
+<polymer-element name="simpl-executeFilter" attributes="pageSize offset name params meta data" flex relative>
 	<template>
 		<content></content>
 	</template>
 	<script>
 		Polymer( 'simpl-executeFilter', {
+			pageSize:100,
+			offset:0,
 			created: function() {
-				this.param = {
-					input: ''
-				};
-				var observer = new ObjectObserver( this.param );
+				this.params = {};
+				var observer = new ObjectObserver( this.params );
 				observer.open( function( added, removed, changed, getOldValueFn ) {
 					Object.keys( added ).forEach( function( property ) {
 						console.log( "added:" + property + "=" + added[ property ] );
@@ -39,25 +39,27 @@
 					Object.keys( changed ).forEach( function( property ) {
 						console.log( "changed:" + property + "=" + changed[ property ] );
 					} );
-					this.execute();
+					this.execute(false);
 				}, this );
 			},
-			domReady: function() {},
 			nameChanged: function() {
-				this.execute();
+				this.execute(true);
 			},
-			execute: function() {
-				console.debug( "execute:",this.param );
-				var data = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
+			execute: function(withMeta) {
+				console.debug( "execute:",this.params );
+				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
 					storeId: "firstapp_data",
-					params: {
-						city: this.param.input,
-						state: this.param.input,
-						street: this.param.input
-					},
+					withMeta: withMeta,
+					pageSize: this.pageSize,
+					offset: this.offset,
+					params: this.params,
 					name: this.name
 				} );
-				this.data = data.rows;
+				if( withMeta){
+					this.meta = map.meta;
+					console.log("Meta:",this.meta);
+				}
+				this.data = map.rows;
 			}
 		} );
 	</script>
