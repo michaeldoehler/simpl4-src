@@ -19,22 +19,22 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-datatables" attributes="" flex relative>
+<polymer-element name="simpl-datatables" attributes="meta data" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
 		<link rel="stylesheet" type="text/css" href="dataTables.responsive.css" />
 		<style shim_shadowdom>
-			:host /deep/ #datatables_main {
+			:host /deep/ table.dataTable {
 				width: 100%;
 				max-width: 100%;
 				font-size: 12px;
 				cursor: default;
 			}
-			:host /deep/ #datatables_main tr {
+			:host /deep/ table.dataTable tr {
 				height: 24px;
 			}
 			@media screen and (max-width: 767px) {
-				:host /deep/ #datatables_main tr {
+				:host /deep/ table.dataTable tr {
 					height: 28px;
 				}
 			}
@@ -134,7 +134,7 @@
 			}
 		</style>
 		<div style="overflow:hidden;">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive" id="datatables_main"></table>
+			<table class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
 		</div>
 		<content>
 		</content>
@@ -150,7 +150,9 @@
 					this.dtTable.destroy( false );
 				}
 				var self = this;
-				var dtMainElem = $( this.$.datatables_main );
+				var el = this.querySelector("div /deep/ table.dataTables");
+				console.log("el:",el);
+				var dtMainElem = $( el );
 				if ( this.dtTable == null ) {
 					dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
 						new jQuery.fn.dataTable.Responsive( settings );
@@ -194,6 +196,32 @@
 					data: dataSet,
 					columns: dtMeta
 				} );
+			},
+			metaChanged:function(){
+				this.preparedMeta = this.prepareMeta(this.meta);
+				console.log("metaChanged2",this.preparedMeta);
+			},
+			dataChanged:function(){
+				console.log("dataChanged:",this.data);
+				this.createTable(this.preparedMeta, this.data);
+			},
+			prepareMeta: function( meta ) {
+				var fields = meta.fields;
+				var aliases = meta.aliases;
+				var ret = [];
+				fields.forEach( function( field,i ) {
+					var alias = aliases[i];
+					var title = field;
+					if( alias && alias.match(/^[@%]/)){
+						title = tr( alias.substring(1));
+					}
+					var col = {
+						title: title,
+						data: field
+					}
+					ret.push( col );
+				}, this );
+				return ret;
 			}
 		} );
 	</script>
