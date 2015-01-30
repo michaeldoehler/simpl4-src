@@ -113,7 +113,7 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 					if (!isId) {
 						int index = m_fieldMap.get(pvPath);
 						String alias = m_aliasList.get(index);
-						if (alias != null && alias.length() > 0) {
+						if (alias != null && alias.length() > 0 && !(alias.startsWith("@")||alias.startsWith("%"))) {
 							fieldName = alias;
 						}
 					}

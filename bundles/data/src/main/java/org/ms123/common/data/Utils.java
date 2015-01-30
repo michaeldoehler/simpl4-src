@@ -344,6 +344,32 @@ public class Utils {
 		}
 		return retMap;
 	}
+
+	public static List<String> prepareFields(List<String> fieldList, List<String> aliasList) {
+		int i = 0;
+		List<String> newList = new ArrayList();
+		for (String fn : fieldList) {
+			String alias = aliasList.get(i);
+			if( alias != null && !(alias.startsWith("@") || alias.startsWith("%"))){
+				newList.add(alias);
+			}else{
+				String f = removeFirstSegment(replaceDollar(fn));
+				newList.add(f);
+			}	
+			i++;
+		}
+		return newList;
+	}
+	private static String replaceDollar(String s) {
+		return s.replaceAll("\\$", ".");
+	}
+	private static  String removeFirstSegment(String s) {
+		int i = s.indexOf(".");
+		if (i == -1) {
+			return "";
+		}
+		return s.substring(i + 1);
+	}
 	private static Boolean _getBoolean(Object b) {
 		try {
 			if (b == null){

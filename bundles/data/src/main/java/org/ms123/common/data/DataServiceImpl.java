@@ -429,25 +429,13 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			sc.handleFinally();
 		}
 	}
-	public List getNamedFilterParameter(
-			@PName(StoreDesc.STORE_ID) String storeId, 
-			@PName("name")             String name ) throws RpcException {
-		StoreDesc sdesc = StoreDesc.get(storeId);
-		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
-		try {
-			return sc.getNamedFilterParameter(name);
-		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DataService.getNamedFilterParameter:", e);
-		}finally{
-			sc.handleFinally();
-		}
-	}
 
 	public Map executeFilterByName(
 			@PName(StoreDesc.STORE_ID) String storeId, 
 			@PName("name")             String name, 
 			@PName("params")             @POptional Map params, 
 			@PName("checkParams")       @POptional  @PDefaultBool(false) Boolean checkParams, 
+			@PName("withMeta")       @POptional  @PDefaultBool(false) Boolean withMeta, 
 			@PName("pageSize")       @POptional  @PDefaultInt(0) Integer pageSize, 
 			@PName("offset")       @POptional  @PDefaultInt(0) Integer offset, 
 			@PName("mapping")          @POptional Map mapping) throws RpcException {
@@ -458,6 +446,7 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			options.put(SessionContext.CHECK_PARAMS, checkParams);
 			options.put("pageSize", pageSize);
 			options.put("offset", offset);
+			options.put("withMeta", withMeta);
 			Map ret = sc.executeNamedFilter(name,params,options);
 			System.out.println("ret:" + ret);
 			if (ret != null && ret.get("rows") != null) {

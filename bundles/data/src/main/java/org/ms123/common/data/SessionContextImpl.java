@@ -335,11 +335,6 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	private boolean isEmpty(String s) {
 		return (s == null || "".equals(s.trim()));
 	}
-	public List<String> getNamedFilterParameter(String name) {
-		String filterJson = m_gitService.searchContent( m_sdesc.getNamespace(), name, "sw.filter" );
-		Map<String,Map> map = (Map) m_ds.deserialize(filterJson);
-		return getFilterParameter(map.get("filter"));
-	}
 	private List<String> getFilterParameter(Map filter) {
 		String label = (String) filter.get("label");
 		List<String> params = new ArrayList();
@@ -449,6 +444,14 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 				Object obj = row.get(clazzName);
 				retList.add(SojoFilterInterceptor.filterFields(obj, this, fieldList, aliasList));
 			}
+		}
+		boolean withMeta = getBoolean(options, "withMeta", false );
+		if( withMeta){
+			Map meta = new HashMap();
+			meta.put("params", getFilterParameter(filterDesc));
+			meta.put("fields", Utils.prepareFields(fieldList,aliasList));
+			meta.put("aliases", aliasList);
+			ret.put("meta",meta);
 		}
 		ret.put("rows", retList);
 		return ret;
