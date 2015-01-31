@@ -1,0 +1,231 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-main" attributes="">
+	<template>
+ <link rel="stylesheet" type="text/css" href="/sw/surface/libs.css.gz">
+
+		<style>
+			core-animated-pages > * {
+				font-size: inherit;
+				overflow-y: auto;
+				border-radius: 5px;
+				background-color: white;
+			}
+			core-animated-pages {
+				width: 99%;
+				height: 99%;
+				overflow: hidden;
+			}
+			@media all and (max-width: 480px) {
+				core-animated-pages {
+					width: 100%;
+					height: 100%;
+				}
+			}
+			section {
+				padding: 15px;
+				width: 100%;
+				height: 100%;
+			}
+			section> div {
+				width: 100%;
+				height: 100%;
+			}
+			@media all and (max-width: 480px) {
+				html /deep/ #loginDialog {
+					top: 10vh;
+					left: 0vw;
+				}
+			}
+			[drawer] {
+				box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+			}
+			[main] {
+				height: 100%;
+			}
+			#drawerPanel:not([narrow]) #menuButton {
+				display: none;
+			}
+		</style>
+		<simpl-globals id="globals"></simpl-globals>
+		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
+
+		<!-- Route controller. -->
+		<flatiron-director route="{{route}}" autoHash></flatiron-director>
+
+		<!-- Keyboard nav controller. -->
+		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
+
+		<!-- Dynamic content controller -->
+		<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
+
+		<core-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
+			<div vertical layout drawer>
+				<nav layout vertical fit style="background:white;">
+					<img src='{{logo}}' style="width:120px;max-width:150px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;background:white;" />
+					<simpl-mmenu name="menu" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
+				</nav>
+			</div>
+
+			<core-scroll-header-panel main xondenses>
+				<core-toolbar class="{{toolboxClass}}">
+					<!-- tall or medium-tall for bigger header-->
+					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
+					<div flex>{{selectedModel.node.name}}</div>
+					<core-icon-button on-click="{{reload}}" icon="refresh"></core-icon-button>
+					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
+				</core-toolbar>
+
+				<div class="content">
+					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up">
+						<template repeat="{{page, i in pages}}">
+							<section style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
+								<div scale-up="">
+									<div style="max-width:100%;">Loading...{{page.name}}</div>
+								</div>
+							</section>
+						</template>
+					</core-animated-pages>
+				</div>
+			</core-scroll-header-panel>
+
+		</core-drawer-panel>
+
+		<paper-dialog id="loginDialog">
+			<simpl-login id="login"></simpl-login>
+		</paper-dialog>
+	</template>
+	<script>
+		Polymer( 'simpl-main', {
+			DEFAULT_ROUTE: '0',
+			logo: 'logo.svg',
+			domReady: function() {
+				this.drawerPanel = this.$.drawerPanel;
+				this.ajax = this.$.ajax;
+				this.corePages = this.$.pages;
+				this.keys = this.$.keys;
+				this.cache = {};
+
+				// Allow selecting pages by num keypad. 
+				var keysToAdd = Array.apply( null, this.pages ).map( function( x, i ) {
+					return i + 1;
+				} ).reduce( function( x, y ) {
+					return x + ' ' + y;
+				} );
+				if ( this.keys ) {
+					this.keys += ' ' + keysToAdd;
+				}
+
+				console.log( "location:" + window.location );
+				this.route = this.route || this.DEFAULT_ROUTE; // Select initial route.
+				this.toolboxClass = "";
+			},
+			togglePanel: function() {
+				this.drawerPanel.togglePanel();
+			},
+			keyHandler: function( e, detail, sender ) {
+				var num = parseInt( detail.key );
+				if ( !isNaN( num ) && num <= this.pages.length ) {
+					this.corePages.selectIndex( num - 1 );
+					return;
+				}
+
+				switch ( detail.key ) {
+					case 'left':
+					case 'up':
+						this.corePages.selectPrevious();
+						break;
+					case 'right':
+					case 'down':
+						this.corePages.selectNext();
+						break;
+					case 'space':
+						detail.shift ? this.corePages.selectPrevious() : this.corePages.selectNext();
+						break;
+				}
+			},
+			menuItemSelected: function( e, detail, sender ) {
+				if ( detail.isSelected && detail.model.node && detail.model.node.url ) {
+					this.async( function() {
+						if ( !this.cache[ this.ajax.url ] ) {
+							this.ajax.go();
+						}
+						this.drawerPanel.closeDrawer();
+					} );
+				}
+			},
+			onResponse: function( e, detail, sender ) {
+				var body = detail.response.body;
+				var head = detail.response.head;
+				var sheets = head.querySelectorAll( 'link[rel=stylesheet]' );
+				var sheetsHTML = "\n";
+				for ( var i = 0, l = sheets.length, sheet;
+					( i < l ) && ( sheet = sheets[ i ] ); i++ ) {
+					sheetsHTML += sheet.outerHTML + "\n";
+				}
+
+				console.error( "Route:" + this.route + "/", this.corePages.selectedItem );
+				// Fix up image paths to not be local.
+				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
+					img.setAttribute( 'src', img.src );
+				} );
+
+				var html = sheetsHTML + body.innerHTML;
+				this.cache[ this.ajax.url ] = html;
+
+				var insertPoint = this.corePages.selectedItem.firstElementChild;
+				if ( this.corePages.selectedItem.getAttribute( "wrap" ) == null ) {
+					this.injectBoundHTML( html, insertPoint );
+				} else {
+					var encapsulateElementName = 'encapsulate-element' + this.route;
+					Polymer( encapsulateElementName, {
+						created: function() {
+							console.log( "created" );
+						}
+					} );
+					var encapsulateElementWrapper = document.createElement( 'div' );
+					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="" noscript><template>' + html + '</template></polymer-element>';
+					console.log( "HTML;" + elementDecl );
+					encapsulateElementWrapper.innerHTML = elementDecl;
+					document.body.appendChild( encapsulateElementWrapper );
+
+					var self = this;
+					Polymer.whenReady( function() {
+						console.log( "Ready" );
+						var encapsulateElement = document.createElement( encapsulateElementName );
+						insertPoint.replaceChild( encapsulateElement, insertPoint.firstElementChild );
+					} );
+				}
+
+				//var codes = corePages.selectedItem.firstElementChild.getElementsByTagName( "script" );
+				//for ( var i = 0; i < codes.length; i++ ) {
+				//	eval( codes[ i ].text );
+				//}
+			},
+			login: function( e ) {
+				this.$.loginDialog.toggle();
+			},
+			reload: function( e ) {
+				history.go( 0 )
+			}
+		} );
+	</script>
+</polymer-element>

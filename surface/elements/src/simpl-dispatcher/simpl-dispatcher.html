@@ -49,14 +49,14 @@
 			},
 			domReady: function() {
 				console.log( "dispatcher.DomReady:" + this.selected );
-				var aList = document.getElementsByTagName( "simpl-mmenu" )[ 0 ].shadowRoot.querySelectorAll( "a" );
+				var aList = document.querySelectorAll( "html /deep/ simpl-mmenu" )[ 0 ].shadowRoot.querySelectorAll( "a" );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
 						Polymer.addEventListener( a, "tap", this.activateListener.bind( this ) );
 					}
 				}
-				this.mainMenuElement = document.getElementsByTagName( "simpl-mmenu" )[ 0 ].shadowRoot;
+				this.mainMenuElement = document.querySelectorAll( "html /deep/ simpl-mmenu" )[ 0 ].shadowRoot;
 				if ( this.selected ) {
 					var self = this;
 					setTimeout( function() {
