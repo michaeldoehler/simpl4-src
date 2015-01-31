@@ -10438,6 +10438,7 @@ scope.api.declaration.path = path;
           var templateUrl = template.ownerDocument.baseURI;
           Polymer.styleResolver.loadStyles(styles, templateUrl, callback);
 					//@@@MS Hack, without this, it's not possible do load style in dyn. created elements.
+					if( window.ShadowDOMPolyfill) return;
         }
       }
       if (callback) {
