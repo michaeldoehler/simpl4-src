@@ -59,10 +59,10 @@
 		Polymer( 'simpl-mmenu', {
 			level: -1,
 			attached: function() {
-				console.log("attached");
+				console.log( "attached" );
 			},
 			domReady: function() {
-				console.log("domReady");
+				console.log( "Menu.domReady" );
 				$( this.$.mainmenu ).mmenu( {
 					classes: "mm-white mm-zoom-panels",
 					slidingSubmenus: this.slidingSubmenus == "true",
@@ -73,19 +73,31 @@
 				} );
 			},
 			ready: function() {
-				console.log("Name:"+this.name+"/"+this.slidingSubmenus);
 				this.nodes = jQuery.ajax( {
-					url: this.name+".json",
+					url: this.name + ".json",
 					async: false,
 					dataType: "json"
-				} ).responseJSON;
+				} ).responseText;
+				try {
+					this.nodes = JSON.parse( this.nodes );
+				} catch ( e ) {
+					alert( "Error.Read Menu:" + e );
+					return;
+				}
 				this.pages = [];
 				this._traverse( this.nodes );
 			},
 			_traverse: function( nodes ) {
 				for ( var i = 0; i < nodes.length; i++ ) {
 					var node = nodes[ i ];
-					//					node.hash = node.url;
+					if ( node.hash == null ) {
+						if ( node.name ) {
+							var lc = node.name.toLowerCase();
+							node.hash = lc.replace( /[^a-z0-9_]/g, "" );
+						} else {
+							alert("Warning.menu:name and hash are empty");
+						}
+					}
 					if ( node.children && node.children.length > 0 ) {
 						this.pages.push( node );
 						this._traverse( node.children );

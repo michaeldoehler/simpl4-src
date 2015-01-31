@@ -31,92 +31,96 @@
 		<content></content>
 	</template>
 	<script>
-		Polymer('simpl-dispatcher', {
+		Polymer( 'simpl-dispatcher', {
 			ready: function() {
-//				console.log("dispatcher.Ready:" + this.selected);
-				if (this.selected) {
-					var node = this.getNodeByHash(this.selected);
-					if (node) {
+				//				console.log("dispatcher.Ready:" + this.selected);
+				if ( this.selected ) {
+					var node = this.getNodeByHash( this.selected );
+					if ( node ) {
 						this.selectedModel = {
 							node: node
 						};
-						this.fire("mmenu-selected", {
+						this.fire( "mmenu-selected", {
 							isSelected: true,
 							model: this.selectedModel
-						});
+						} );
 					}
 				}
 			},
 			domReady: function() {
-//				console.log("dispatcher.DomReady:" + this.selected);
-				var aList = document.getElementsByTagName("simpl-mmenu")[0].shadowRoot.querySelectorAll("a");
-				for( var i=0; i< aList.length;i++){
-					var a = aList[i];
-					if (a["className"] != "mm-subopen") {
-						Polymer.addEventListener(a, "tap", this.activateListener.bind(this));
+				console.log( "dispatcher.DomReady:" + this.selected );
+				var aList = document.getElementsByTagName( "simpl-mmenu" )[ 0 ].shadowRoot.querySelectorAll( "a" );
+				for ( var i = 0; i < aList.length; i++ ) {
+					var a = aList[ i ];
+					if ( a[ "className" ] != "mm-subopen" ) {
+						Polymer.addEventListener( a, "tap", this.activateListener.bind( this ) );
 					}
 				}
-				this.mainMenuElement = document.getElementsByTagName("simpl-mmenu")[0].shadowRoot;
-				if (this.selected) {
-					this.openMenuByHash(this.mainMenuElement, this.selected);
+				this.mainMenuElement = document.getElementsByTagName( "simpl-mmenu" )[ 0 ].shadowRoot;
+				if ( this.selected ) {
+					var self = this;
+					setTimeout( function() {
+						self.openMenuByHash( self.mainMenuElement, self.selected );
+					}, 300 );
 				}
 			},
-			activateListener: function(e) {
-				console.log("Dispatcher.activateListener");
-				if (e.target["className"] == "mm-subopen") {
+			activateListener: function( e ) {
+				console.log( "Dispatcher.activateListener" );
+				if ( e.target[ "className" ] == "mm-subopen" ) {
 					return;
 				}
 				var model = e.target.templateInstance.model;
-				if (!model.node) return;
+				if ( !model.node ) return;
 				var node = model.node;
-				if (this.selectedModel) {
-					this.fire("mmenu-selected", {
+				if ( this.selectedModel ) {
+					this.fire( "mmenu-selected", {
 						isSelected: false,
 						model: this.selectedModel
-					});
+					} );
 				}
 				this.selectedModel = model;
-				this.fire("mmenu-selected", {
+				this.fire( "mmenu-selected", {
 					isSelected: true,
 					model: this.selectedModel
-				});
+				} );
 				this.selected = node.hash;
-				console.log("activateListener:" + node.hash);
+				console.log( "activateListener:" + node.hash );
 			},
-			getNodeByHash: function(hash) {
-				for (var i = 0; i < this.pages.length; i++) {
-					if (this.pages[i].hash == hash) {
-						return this.pages[i];
+			getNodeByHash: function( hash ) {
+				for ( var i = 0; i < this.pages.length; i++ ) {
+					if ( this.pages[ i ].hash == hash ) {
+						return this.pages[ i ];
 					}
 				}
 			},
-			openMenuByHash: function(mainelem, hash) {
-				if (mainelem == null) return;
-				var li = $(mainelem.querySelector('#X' + hash));
-				var pli = li.parents("li");
-				pli.each(function() {
-					if (!$(this).hasClass("mm-opened")) {
-						$(this).find("a").first().trigger("click");
+			openMenuByHash: function( mainelem, hash ) {
+				console.log( "openMenuByHash:" + hash );
+				if ( mainelem == null ) return;
+				var li = $( mainelem.querySelector( '#X' + hash ) );
+				var pli = li.parents( "li" );
+				pli.each( function() {
+					if ( !$( this ).hasClass( "mm-opened" ) ) {
+						$( this ).find( "a" ).first().trigger( "click" );
 					}
-				})
-				li.trigger("setSelected", true);
+				} )
+				li.trigger( "setSelected", true );
 			},
-			selectedChanged: function(e) {
-			//	console.log("selectedChanged:" + this.selectedModel);
-				if (this.selectedModel == null || this.selected != this.selectedModel.node.hash) {
-					var node = this.getNodeByHash(this.selected);
-					if (node) {
+			selectedChanged: function( e ) {
+				//console.log( "Dispatcher.selectedChanged:" + this.selectedModel );
+				if ( this.selectedModel == null || this.selected != this.selectedModel.node.hash ) {
+					var node = this.getNodeByHash( this.selected );
+					if ( node ) {
 						this.selectedModel = {
 							node: node
 						};
-						this.fire("mmenu-selected", {
+						this.fire( "mmenu-selected", {
 							isSelected: true,
 							model: this.selectedModel
-						});
+						} );
 					}
 				}
-				this.openMenuByHash(this.mainMenuElement, this.selected);
+				this.openMenuByHash( this.mainMenuElement, this.selected );
 			}
-		});
+		} );
 	</script>
 </polymer-element>
