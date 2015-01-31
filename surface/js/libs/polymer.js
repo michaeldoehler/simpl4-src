@@ -10436,7 +10436,8 @@ scope.api.declaration.path = path;
         var styles = this.findLoadableStyles(content);
         if (styles.length) {
           var templateUrl = template.ownerDocument.baseURI;
-          return Polymer.styleResolver.loadStyles(styles, templateUrl, callback);
+          Polymer.styleResolver.loadStyles(styles, templateUrl, callback);
+					//@@@MS Hack, without this, it's not possible do load style in dyn. created elements.
         }
       }
       if (callback) {
