@@ -19,9 +19,10 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-mmenu" attributes="name searchfield slidingSubmenus pages" flex relative>
+<polymer-element name="simpl-mmenu" attributes="classes background name searchfield slidingSubmenus pages" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
+		<core-style ref="mmenu"></core-style>
 		<style>
 			:host /deep/ .mm-search input {
 				border-radius: 6px;
@@ -30,6 +31,9 @@
 				padding-top: 15px;
 				padding-left: 1px;
 				padding-right: 1px;
+			}
+			:host(.mm-background) .mm-menu {
+				background: {{backgroundColor}};
 			}
 		</style>
 		<nav class="nav" id="mainmenu">
@@ -58,19 +62,29 @@
 	<script>
 		Polymer( 'simpl-mmenu', {
 			level: -1,
+			classes: "mm-white mm-zoom-panels",
+			backgroundColor: "invalid",
 			attached: function() {
 				console.log( "attached" );
 			},
 			domReady: function() {
 				console.log( "Menu.domReady" );
-				$( this.$.mainmenu ).mmenu( {
-					classes: "mm-white mm-zoom-panels",
+				var menu = $( this.$.mainmenu ).mmenu( {
+					//classes: "mm-white mm-zoom-panels",
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
 					body: $( this.$.mainmenu ),
+					classes: this.classes,
 					offCanvas: false
 
 				} );
+
+				var b = this.background;
+				if( b && b.length>=0){
+					this.backgroundColor=b;
+					menu.addClass( "mm-background" );
+					$(this).addClass( "mm-background" );
+				}
 			},
 			ready: function() {
 				this.nodes = jQuery.ajax( {
@@ -95,7 +109,7 @@
 							var lc = node.name.toLowerCase();
 							node.hash = lc.replace( /[^a-z0-9_]/g, "" );
 						} else {
-							alert("Warning.menu:name and hash are empty");
+							alert( "Warning.menu:name and hash are empty" );
 						}
 					}
 					if ( node.children && node.children.length > 0 ) {

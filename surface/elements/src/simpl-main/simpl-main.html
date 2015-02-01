@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-main" attributes="">
+<polymer-element name="simpl-main" attributes="mmenuClasses mmenuBackground logo logoBackground">
 	<template>
 		<link rel="stylesheet" type="text/css" href="/sw/surface/libs.css.gz">
 		<core-style ref="main"></core-style>
@@ -80,9 +80,9 @@
 
 		<core-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
 			<div vertical layout drawer>
-				<nav layout vertical fit style="background:white;">
-					<img src='{{logo}}' style="width:120px;max-width:150px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;background:white;" />
-					<simpl-mmenu name="menu" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
+				<nav layout vertical fit style="background:{{logoBackground}};">
+					<img src='{{logo}}' style="background:{{logoBackground}};width:120px;max-width:150px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+					<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
 
@@ -117,6 +117,7 @@
 	<script>
 		Polymer( 'simpl-main', {
 			DEFAULT_ROUTE: '0',
+			logoBackground:'white',
 			logo: 'logo.svg',
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;

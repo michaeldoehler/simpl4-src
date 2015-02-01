@@ -230,7 +230,7 @@ html.mm-opened .mm-page {
     background: rgba(255, 255, 255, 0.05); }
   .mm-menu.mm-vertical .mm-list li.mm-opened > a.mm-subopen,
   .mm-menu.mm-vertical .mm-list li.mm-opened > ul {
-    background: rgba(255, 255, 255, 0.05); }
+    xackground: rgba(255, 255, 255, 0.05); }
 
 /*
 	jQuery.mmenu offcanvas addon CSS
@@ -1209,7 +1209,7 @@ html.mm-opened.mm-black .mm-page {
     background: rgba(255, 255, 255, 0.15); }
   .mm-menu.mm-black.mm-vertical .mm-list li.mm-opened > a.mm-subopen,
   .mm-menu.mm-black.mm-vertical .mm-list li.mm-opened > ul {
-    background: rgba(255, 255, 255, 0.15); }
+    xackground: rgba(255, 255, 255, 0.15); }
 
 .mm-menu.mm-black .mm-buttonbar {
   border-color: rgba(255, 255, 255, 0.6);
