@@ -117,7 +117,7 @@
 	<script>
 		Polymer( 'simpl-main', {
 			DEFAULT_ROUTE: '0',
-			logoBackground:'white',
+			logoBackground: 'white',
 			logo: 'logo.svg',
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;
@@ -196,6 +196,13 @@
 				var insertPoint = this.corePages.selectedItem.firstElementChild;
 				if ( this.corePages.selectedItem.getAttribute( "wrap" ) == null ) {
 					this.injectBoundHTML( html, insertPoint );
+					var self = this;
+					Polymer.whenReady( function() {
+						if ( !window.ShadowDOMPolyfill ) {
+							console.log( "Ready" );
+							self.convertSheetsToStyles( insertPoint );
+						}
+					} );
 				} else {
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					Polymer( encapsulateElementName, {
@@ -213,16 +220,46 @@
 					Polymer.whenReady( function() {
 						console.log( "Ready" );
 						var encapsulateElement = document.createElement( encapsulateElementName );
-						encapsulateElement.id= encapsulateElementName;
+						encapsulateElement.id = encapsulateElementName;
 						insertPoint.replaceChild( encapsulateElement, insertPoint.firstElementChild );
 					} );
 				}
-
 				//var codes = corePages.selectedItem.firstElementChild.getElementsByTagName( "script" );
 				//for ( var i = 0; i < codes.length; i++ ) {
 				//	eval( codes[ i ].text );
 				//}
 			},
+			convertSheetsToStyles: function( root ) {
+				var SHEET_SELECTOR = 'link[rel=stylesheet]';
+				var s$ = root.querySelectorAll( SHEET_SELECTOR );
+				for ( var i = 0, l = s$.length, s, c;
+					( i < l ) && ( s = s$[ i ] ); i++ ) {
+					c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ),
+						this.ownerDocument );
+					this.copySheetAttributes( c, s );
+					s.parentNode.replaceChild( c, s );
+				}
+			},
+			copySheetAttributes: function( style, link ) {
+				for ( var i = 0, a$ = link.attributes, l = a$.length, a;
+					( a = a$[ i ] ) && i < l; i++ ) {
+					if ( a.name !== 'rel' && a.name !== 'href' ) {
+						style.setAttribute( a.name, a.value );
+					}
+				}
+			},
+			importRuleForSheet: function( sheet, baseUrl ) {
+				var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
+				return '@import \'' + href + '\';';
+			},
+			createStyleElement: function( cssText, scope ) {
+				scope = scope || document;
+				scope = scope.createElement ? scope : scope.ownerDocument;
+				var style = scope.createElement( 'style' );
+				style.textContent = cssText;
+				return style;
+			},
+
 			login: function( e ) {
 				this.$.loginDialog.toggle();
 			},
