@@ -19,6 +19,17 @@
  */
 -->
 <polymer-element name="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
+	<template>
+		<style>
+			:host /deep/ .button-content {
+				padding-left: 5px;
+				padding-right: 5px;
+				padding-top: 12px;
+				padding-bottom: 12px;
+			}
+		</style>
+		<shadow></shadow>
+	</template>
 </polymer-element>
 
 <polymer-element name="simpl-header" noscript>
@@ -240,7 +251,7 @@
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
-				console.log( "formNameChanged:", this.formName );
+				console.log( "formNameChanged:", this.formName + "/" + this.namespace );
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.shapes = this.prepareShape( form ).childShapes;
@@ -282,6 +293,13 @@
 						shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
 					}
 					shape.childShapes = [];
+				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
+					var icon = shape.properties.xf_iconname;
+					var action = shape.properties.xf_action;
+					if ( icon == null || icon == "" ) {
+						shape.properties.xf_iconname = ( action == "execute" ) ? "check" : "clear";
+					}
+
 				} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
 					shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
 				} else {
