@@ -19,47 +19,48 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-datatables" attributes="meta data" flex relative>
+<polymer-element name="simpl-datatables" attributes="meta data options" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
 		<link rel="stylesheet" type="text/css" href="dataTables.responsive.css" />
+		<core-style ref="datatables"></core-style>
 		<style shim_shadowdom>
-			:host /deep/ table.dataTable {
+			:host /deep/ #dataTablesId {
 				width: 100%;
 				max-width: 100%;
 				font-size: 12px;
 				cursor: default;
 			}
-			:host /deep/ table.dataTable tr {
+			:host /deep/ #dataTablesId tr {
 				height: 24px;
 			}
 			@media screen and (max-width: 767px) {
-				:host /deep/ table.dataTable tr {
+				:host /deep/ #dataTablesId tr {
 					height: 28px;
 				}
 			}
-			:host /deep/ #datatables_main_length {
+			:host /deep/ #dataTablesId_length {
 				max-width: 170px;
 				font-size: 12px;
 				float: left;
 			}
-			:host /deep/ #datatables_main_length select {
+			:host /deep/ #dataTablesId_length select {
 				font-size: 11px;
 				width: 50px;
 			}
-			:host /deep/ #datatables_main_length label {
+			:host /deep/ #dataTablesId_length label {
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				display: block;
 			}
-			:host /deep/ #datatables_main_filter label {
+			:host /deep/ #dataTablesId_filter label {
 				font-size: 12px;
 			}
-			:host /deep/ #datatables_main_filter input {
+			:host /deep/ #dataTablesId_filter input {
 				width: 90px;
 			}
-			:host /deep/ td:first-child:before {
+			:host /deep/ #dataTablesId td:first-child:before {
 				top: 3px !important;
 				height: 16px !important;
 				width: 16px !important;
@@ -71,11 +72,11 @@
 				border: 1px solid black !important;
 				border-radius: 3px !important;
 				box-shadow: 0 0 0px !important;
-				background-color: white !important;
-				color: black !important;
+				background-color: white;
+				color: black;
 			}
 			@media screen and (max-width: 767px) {
-				:host /deep/ td:first-child:before {
+				:host /deep/ #dataTablesId td:first-child:before {
 					top: 1px !important;
 					height: 23px !important;
 					width: 22px !important;
@@ -85,52 +86,32 @@
 					left: 0px !important;
 				}
 			}
-			:host /deep/ table.dataTable.stripe tbody tr.odd,
-			table.dataTable.display tbody tr.odd {
-				cursor: default;
+			polyfill-rule {
+				content: '#dataTablesId td:first-child:before';
+				top: 6px !important;
 			}
-			,
-			:host /deep/ table.dataTable.stripe tbody tr.even,
-			table.dataTable.display tbody tr.even {
-				cursor: default;
-			}
-			:host /deep/ table.dataTable.display tbody tr.odd > .sorting_1 {}:host /deep/ table.dataTable.display tbody tr.even > .sorting_1 {}:host /deep/ table.dataTable.stripe tbody tr.odd.selected,
-			table.dataTable.display tbody tr.odd.selected > .sorting_1,
-			:host /deep/ table.dataTable.stripe tbody tr.odd.selected,
-			table.dataTable.display tbody tr.odd.selected,
-			:host /deep/ table.dataTable.stripe tbody tr.even.selected,
-			table.dataTable.display tbody tr.even.selected > .sorting_1,
-			:host /deep/ table.dataTable.stripe tbody tr.even.selected,
-			table.dataTable.display tbody tr.even.selected {
-				background: #969FA3;
-				color: white;
-			}
-			:host /deep/ .dtr-title {
-				font-size: 13px;
-			}
-			:host /deep/ .dtr-data {
-				white-space: normal;
-				font-size: 12px;
-			}
-			:host /deep/ table.dataTable {
-				background: #fff;
-			}
-			:host /deep/ table.dataTable tbody tr td:not(:first-child) {
+			:host /deep/ #dataTablesId tbody tr td:not(:first-child) {
 				padding: 5px 8px 5px;
 				line-height: 1.0;
 			}
-			:host /deep/ table.dataTable tbody tr td:first-child {
+			:host /deep/ #dataTablesId tbody tr td:first-child {
 				padding: 5px 28px 5px;
 			}
-			:host /deep/ table.dataTable thead tr th,
+			:host /deep/ #dataTablesId thead tr th,
 			table.dataTable tfoot tr th {
-				background: #fff;
 				padding: 0em 0.625em 0em;
 				text-align: left;
 				line-height: 1.6;
 			}
-			:host /deep/ table.dataTable thead tr th:first-child {
+			:host /deep/ #dataTablesId thead tr th:first-child {
 				padding: 0px 30px 0px;
+			}
+			:host /deep/ #dataTablesId .dtr-title {
+				font-size: 13px;
+			}
+			:host /deep/ #dataTablesId .dtr-data {
+				white-space: normal;
+				font-size: 12px;
 			}
 		</style>
 		<div style="overflow:hidden;">
@@ -144,10 +125,13 @@
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
-				console.log("dataTables.domReady");
+				console.log( "dataTables.domReady" );
 			},
 			createTable: function( dtMeta, dataSet ) {
-				console.log( "createTable:", this.dtTable );
+				var options={};
+				if( this.options){
+					options = JSON.parse(this.options);
+				}
 				if ( this.dtTable ) {
 					this.dtTable.destroy( false );
 				}
@@ -158,7 +142,7 @@
 						new jQuery.fn.dataTable.Responsive( settings );
 					} );
 				}
-				this.dtTable = dtMainElem.DataTable( {
+				this.dtTable = dtMainElem.DataTable( jQuery.extend({
 					language: {
 						"sEmptyTable": "Keine Daten in der Tabelle vorhanden",
 						"sInfo": "_START_ bis _END_ von _TOTAL_ Einträgen",
@@ -182,8 +166,9 @@
 							"sSortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
 						}
 					},
-					bFilter:false,
-					bLengthChange:false,
+					bSort: false,
+					bFilter: true,
+					bLengthChange: true,
 					stateSave: false,
 					_columnDefs: [ {
 						className: 'control',
@@ -197,25 +182,25 @@
 					},
 					data: dataSet,
 					columns: dtMeta
-				} );
+				}, options) );
 			},
-			metaChanged:function(){
-				this.preparedMeta = this.prepareMeta(this.meta);
-				console.log("metaChanged2",this.preparedMeta);
+			metaChanged: function() {
+				this.preparedMeta = this.prepareMeta( this.meta );
+				console.log( "metaChanged2", this.preparedMeta );
 			},
-			dataChanged:function(){
-				console.log("dataChanged:",this.data);
-				this.createTable(this.preparedMeta, this.data);
+			dataChanged: function() {
+				console.log( "dataChanged:", this.data );
+				this.createTable( this.preparedMeta, this.data );
 			},
 			prepareMeta: function( meta ) {
 				var fields = meta.fields;
 				var aliases = meta.aliases;
 				var ret = [];
-				fields.forEach( function( field,i ) {
-					var alias = aliases[i];
+				fields.forEach( function( field, i ) {
+					var alias = aliases[ i ];
 					var title = field;
-					if( alias && alias.match(/^[@%]/)){
-						title = tr( alias.substring(1));
+					if ( alias && alias.match( /^[@%]/ ) ) {
+						title = tr( alias.substring( 1 ) );
 					}
 					var col = {
 						title: title,
