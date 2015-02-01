@@ -97,7 +97,7 @@
 				} ) );
 			},
 			q: function( sel ) {
-				return $( this.$.datatables_main.querySelectorAll( sel ) );
+				return $( this.$.dataTablesId.querySelectorAll( sel ) );
 			},
 			getMeta: function() {
 				var colHds = [];
@@ -174,6 +174,7 @@
 							rmap[ "assigned" ] = rmap.assignee;
 							rmap[ "action" ] = tr( "tasks.table.complete" );
 						}
+//						rmap["processName"] = "<div style='position:relative;'>"+rmap["processName"]+"<paper-ripple fit></paper-ripple></div>";
 						rows.push( rmap );
 					}
 					self.dataSet = rows;

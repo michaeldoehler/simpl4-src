@@ -21,6 +21,7 @@
 <polymer-element name="simpl-main" attributes="">
 	<template>
 		<link rel="stylesheet" type="text/css" href="/sw/surface/libs.css.gz">
+		<core-style ref="main"></core-style>
 
 		<style>
 			core-animated-pages > * {
@@ -211,6 +212,7 @@
 					Polymer.whenReady( function() {
 						console.log( "Ready" );
 						var encapsulateElement = document.createElement( encapsulateElementName );
+						encapsulateElement.id= encapsulateElementName;
 						insertPoint.replaceChild( encapsulateElement, insertPoint.firstElementChild );
 					} );
 				}
