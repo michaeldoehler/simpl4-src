@@ -66,7 +66,7 @@
 				display: none;
 			}
 		</style>
-		<simpl-globals id="globals"></simpl-globals>
+		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
 		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
 
 		<!-- Route controller. -->
@@ -207,21 +207,41 @@
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					Polymer( encapsulateElementName, {
 						created: function() {
-							console.log( "created" );
+							console.log( "created.globals:", this.globals );
+						},
+						ready: function() {
+							console.log( "ready.globals:", this.globals );
 						}
 					} );
 					var encapsulateElementWrapper = document.createElement( 'div' );
-					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="" noscript><template>' + html + '</template></polymer-element>';
-					console.log( "HTML;" + elementDecl );
+					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></polymer-element>';
+					//console.log( "ElementDecl;" + elementDecl );
 					encapsulateElementWrapper.innerHTML = elementDecl;
 					document.body.appendChild( encapsulateElementWrapper );
 
+					var whenElementsReady = function( done ) {
+						function waitForElements() {
+							var elementsNotReady = Polymer.waitingFor();
+							console.log( "ElementsNotReady:", elementsNotReady.length );
+							if ( elementsNotReady.length == 0 ) {
+								done();
+								return;
+							}
+							console.log( "NewRound" );
+							setTimeout( waitForElements, 20 );
+						}
+						waitForElements();
+					};
+
+					var start = new Date().getTime();
 					var self = this;
 					Polymer.whenReady( function() {
-						console.log( "Ready" );
-						var encapsulateElement = document.createElement( encapsulateElementName );
-						encapsulateElement.id = encapsulateElementName;
-						insertPoint.replaceChild( encapsulateElement, insertPoint.firstElementChild );
+						console.log( "Ready1:" + ( new Date().getTime() - start ) );
+						whenElementsReady( function() {
+							console.log( "Ready2:" + ( new Date().getTime() - start ) );
+							var html = '<' + encapsulateElementName + ' id="' + encapsulateElementName + '" globals="{{globals}}"></' + encapsulateElementName + '>';
+							self.injectBoundHTML( html, insertPoint );
+						} );
 					} );
 				}
 				//var codes = corePages.selectedItem.firstElementChild.getElementsByTagName( "script" );
