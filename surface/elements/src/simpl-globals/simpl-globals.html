@@ -20,7 +20,7 @@
 -->
 
 <link rel="import" href="utils-import.html">
-<polymer-element name="simpl-globals" hidden>
+<polymer-element name="simpl-globals" attributes="globals" hidden>
 	<template>
 		<simpl-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl-rpc>
 	</template>
@@ -62,6 +62,8 @@
 
 			Polymer('simpl-globals', {
 				ready: function() {
+					this.globals={};
+					this.globals.lang=simpl4MessageManager.getLanguage();
 					this.config = config;
 					console.debug("Globals.Ready:"+  tr('data.customer.cid'));
 				},
