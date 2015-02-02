@@ -781,7 +781,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				response.setDateHeader("Last-Modified", modTime + 10000 );
 				response.setStatus(HttpServletResponse.SC_OK);
 				if( "adoc".equals(ext)){
-					response.setContentType( "text/html" );
+					response.setContentType( "text/html; charset=UTF-8" );
 					Writer w  = response.getWriter();
 					String t = request.getParameter("t");
 					if( t!= null){

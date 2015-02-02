@@ -250,7 +250,8 @@ class BaseDocbookServiceImpl {
 		return retList;
 	}
 	public void adocToHtml( File adocFile, Writer w) throws Exception {
-		getAsciidoctor().convert( new FileReader(adocFile), w, new HashMap<String, Object>());
+		Reader in = new InputStreamReader(new FileInputStream(adocFile), "UTF-8");
+		getAsciidoctor().convert( in, w, new HashMap<String, Object>());
 	}
 
 	protected synchronized Asciidoctor getAsciidoctor(){
