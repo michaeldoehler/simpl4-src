@@ -103,6 +103,10 @@
 			_traverse: function( nodes ) {
 				for ( var i = 0; i < nodes.length; i++ ) {
 					var node = nodes[ i ];
+					if ( node.name ) {
+						node.name = tr(node.name);
+					}
+			
 					if ( node.hash == null ) {
 						if ( node.name ) {
 							var lc = node.name.toLowerCase();
