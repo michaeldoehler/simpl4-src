@@ -196,58 +196,59 @@
 				var insertPoint = this.corePages.selectedItem.firstElementChild;
 				if ( this.corePages.selectedItem.getAttribute( "wrap" ) == null ) {
 					this.injectBoundHTML( html, insertPoint );
-					var self = this;
-					Polymer.whenReady( function() {
+					Polymer.whenReady( ( function() {
 						if ( !window.ShadowDOMPolyfill ) {
 							console.log( "Ready" );
-							self.convertSheetsToStyles( insertPoint );
+							this.convertSheetsToStyles( insertPoint );
 						}
-					} );
+					} ).bind( this ) );
 				} else {
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					Polymer( encapsulateElementName, {
-						created: function() {
-							console.log( "created.globals:", this.globals );
-						},
 						ready: function() {
-							console.log( "ready.globals:", this.globals );
+							console.log( "EncapsulateElement.ready.globals:", this.globals );
 						}
 					} );
 					var encapsulateElementWrapper = document.createElement( 'div' );
 					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></polymer-element>';
-					//console.log( "ElementDecl;" + elementDecl );
 					encapsulateElementWrapper.innerHTML = elementDecl;
 					document.body.appendChild( encapsulateElementWrapper );
 
-					var whenElementsReady = function( done ) {
-						function waitForElements() {
-							var elementsNotReady = Polymer.waitingFor();
-							console.log( "ElementsNotReady:", elementsNotReady.length );
-							if ( elementsNotReady.length == 0 ) {
-								done();
-								return;
-							}
-							console.log( "NewRound" );
-							setTimeout( waitForElements, 20 );
-						}
-						waitForElements();
-					};
-
 					var start = new Date().getTime();
-					var self = this;
-					Polymer.whenReady( function() {
-						console.log( "Ready1:" + ( new Date().getTime() - start ) );
-						whenElementsReady( function() {
-							console.log( "Ready2:" + ( new Date().getTime() - start ) );
-							var html = '<' + encapsulateElementName + ' id="' + encapsulateElementName + '" globals="{{globals}}"></' + encapsulateElementName + '>';
-							self.injectBoundHTML( html, insertPoint );
-						} );
-					} );
+					this.whenElementsReady( ( function() {
+						console.log( "Elements.Ready:" + ( new Date().getTime() - start ) );
+						var html = '<' + encapsulateElementName + ' id="' + encapsulateElementName + '" globals="{{globals}}"></' + encapsulateElementName + '>';
+						this.injectBoundHTML( html, insertPoint );
+						this.evalScripts( encapsulateElementName );
+					} ).bind( this ) );
 				}
-				//var codes = corePages.selectedItem.firstElementChild.getElementsByTagName( "script" );
-				//for ( var i = 0; i < codes.length; i++ ) {
-				//	eval( codes[ i ].text );
-				//}
+			},
+			evalScripts: function( id ) {
+				if ( !window.ShadowDOMPolyfill ) {
+					return
+				}
+				var e = this.shadowRoot.querySelector( "#" + id );
+				var scripts = e.shadowRoot.querySelectorAll( "script" );
+				for ( var i = 0; i < scripts.length; i++ ) {
+					eval( scripts[ i ].text );
+				}
+			},
+			whenElementsReady: function( done ) {
+				Polymer.whenReady( function() {
+					console.log( "Polymer.Ready" );
+
+					function waitForElements() {
+						var elementsNotReady = Polymer.waitingFor();
+						console.log( "ElementsNotReady:", elementsNotReady.length );
+						if ( elementsNotReady.length == 0 ) {
+							done();
+							return;
+						}
+						console.log( "NewRound" );
+						setTimeout( waitForElements, 20 );
+					}
+					waitForElements();
+				} );
 			},
 			convertSheetsToStyles: function( root ) {
 				var SHEET_SELECTOR = 'link[rel=stylesheet]';
