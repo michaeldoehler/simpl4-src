@@ -8249,7 +8249,8 @@
 			}
 		}
 	
-//@@@MS Timing!?!		_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis] );
+		//@@@MS the timeing problem was not here
+		_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis] );
 	
 		_fnSaveState( settings );
 	};
