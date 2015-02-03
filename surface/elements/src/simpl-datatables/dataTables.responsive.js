@@ -123,6 +123,10 @@ Responsive.prototype = {
 		// Destroy event handler
 		dt.on( 'destroy.dtr', function () {
 			$(window).off( 'resize.dtr orientationchange.dtr draw.dtr' );
+			//@@@MS destroy event handler also
+			dt.off( 'column-visibility.dtr');
+			dt.off( 'draw.dtr');
+			dt.off( 'destroy.dtr');
 		} );
 
 		// Reorder the breakpoints array here in case they have been added out
@@ -489,9 +493,9 @@ Responsive.prototype = {
 		var haveHidden = true;
 
 		if ( hiddenColumns.length === 0 || ( hiddenColumns.length === 1 && this.s.columns[ hiddenColumns[0] ].control ) ) {
-			//@@@MS haveHidden = false;
+			haveHidden = false;
 		}
-
+console.log("haveHidden:"+haveHidden);
 		if ( haveHidden ) {
 			// Got hidden columns
 			$( dt.table().node() ).addClass('collapsed');
