@@ -62,6 +62,8 @@ import org.osgi.framework.Bundle;
 import static org.asciidoctor.Asciidoctor.Factory.create;
 import org.asciidoctor.Asciidoctor;
 import org.jruby.embed.osgi.OSGiScriptingContainer;
+import static org.asciidoctor.AttributesBuilder.attributes;
+import static org.asciidoctor.OptionsBuilder.options;
 
 /**
  *
@@ -251,7 +253,12 @@ class BaseDocbookServiceImpl {
 	}
 	public void adocToHtml( File adocFile, Writer w) throws Exception {
 		Reader in = new InputStreamReader(new FileInputStream(adocFile), "UTF-8");
-		getAsciidoctor().convert( in, w, new HashMap<String, Object>());
+		Map<String, Object> options = new HashMap();
+		Map<String, Object> attributes = new HashMap();
+		attributes.put("icons", org.asciidoctor.Attributes.FONT_ICONS);
+		options.put("attributes", attributes);
+		options.put("safe", 0);
+		getAsciidoctor().convert( in, w, options);
 	}
 
 	protected synchronized Asciidoctor getAsciidoctor(){
