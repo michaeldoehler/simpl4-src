@@ -19,7 +19,7 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-mmenu" attributes="classes background name searchfield slidingSubmenus pages" flex relative>
+<polymer-element name="simpl-mmenu" attributes="globals classes background name searchfield slidingSubmenus pages" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
 		<core-style ref="mmenu"></core-style>
@@ -41,7 +41,7 @@
 				<template repeat="{{node in nodes  }}" id="t">
 					<template if="{{ node.children==null || node.children.length==0 }}">
 						<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-							<a onclick="return false" href="{{node.url}}">
+							<a onclick="return false" href="#">
 								<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
 						</li>
 					</template>
@@ -95,10 +95,12 @@
 					this.nodes = JSON.parse( this.nodes );
 				} catch ( e ) {
 					alert( "Error.Read Menu:" + e );
+					console.error( "Error.Read Menu:" , e );
 					return;
 				}
 				this.pages = [];
 				this._traverse( this.nodes );
+				//console.log("Pages:"+JSON.stringify(this.pages,null,2));
 			},
 			_traverse: function( nodes ) {
 				for ( var i = 0; i < nodes.length; i++ ) {
@@ -110,10 +112,13 @@
 					if ( node.hash == null ) {
 						if ( node.name ) {
 							var lc = node.name.toLowerCase();
-							node.hash = lc.replace( /[^a-z0-9_]/g, "" );
+							node.hash = lc.replace( /[^a-z0-9_.]/g, "" );
 						} else {
 							alert( "Warning.menu:name and hash are empty" );
 						}
+					}
+					if( node.url && node.url.indexOf("%l")!=-1){
+						node.url = node.url.replace("%l", this.globals.lang);
 					}
 					if ( node.children && node.children.length > 0 ) {
 						this.pages.push( node );
