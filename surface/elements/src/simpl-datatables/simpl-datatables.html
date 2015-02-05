@@ -128,9 +128,9 @@
 				console.log( "dataTables.domReady" );
 			},
 			createTable: function( dtMeta, dataSet ) {
-				var options={};
-				if( this.options){
-					options = JSON.parse(this.options);
+				var options = {};
+				if ( this.options ) {
+					options = JSON.parse( this.options );
 				}
 				if ( this.dtTable ) {
 					this.dtTable.destroy( false );
@@ -142,33 +142,11 @@
 						new jQuery.fn.dataTable.Responsive( settings );
 					} );
 				}
-				this.dtTable = dtMainElem.DataTable( jQuery.extend({
-					language: {
-						"sEmptyTable": "Keine Daten in der Tabelle vorhanden",
-						"sInfo": "_START_ bis _END_ von _TOTAL_ Einträgen",
-						"sInfoEmpty": "0 bis 0 von 0 Einträgen",
-						"sInfoFiltered": "(gefiltert von _MAX_ Einträgen)",
-						"sInfoPostFix": "",
-						"sInfoThousands": ".",
-						"sLengthMenu": "_MENU_ Einträge",
-						"sLoadingRecords": "Wird geladen...",
-						"sProcessing": "Bitte warten...",
-						"sSearch": "Ergebnis filtern",
-						"sZeroRecords": "Keine Einträge vorhanden.",
-						"oPaginate": {
-							"sFirst": "Erste",
-							"sPrevious": "Zurück",
-							"sNext": "Nächste",
-							"sLast": "Letzte"
-						},
-						"oAria": {
-							"sSortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
-							"sSortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
-						}
-					},
+				this.dtTable = dtMainElem.DataTable( jQuery.extend( {
+					language: this.getLang(),
 					bSort: false,
 					bFilter: true,
-					bDestroy:true,
+					bDestroy: true,
 					bLengthChange: true,
 					stateSave: false,
 					_columnDefs: [ {
@@ -183,7 +161,7 @@
 					},
 					data: dataSet,
 					columns: dtMeta
-				}, options) );
+				}, options ) );
 			},
 			metaChanged: function() {
 				this.preparedMeta = this.prepareMeta( this.meta );
@@ -210,6 +188,31 @@
 					ret.push( col );
 				}, this );
 				return ret;
+			},
+			getLang: function() {
+				return {
+					"sEmptyTable": tr( "datatables.sEmptyTable" ),
+					"sInfo": tr( "datatables.sInfo" ),
+					"sInfoEmpty": tr( "datatables.sInfoEmpty" ),
+					"sInfoFiltered": tr( "datatables.sInfoFiltered" ),
+					"sInfoPostFix": tr( "datatables.sInfoPostFix" ),
+					"sInfoThousands": tr( "datatables.sInfoThousands" ),
+					"sLengthMenu": tr( "datatables.sLengthMenu" ),
+					"sLoadingRecords": tr( "datatables.sLoadingRecords" ),
+					"sProcessing": tr( "datatables.sProcessing" ),
+					"sSearch": tr( "datatables.sSearch" ),
+					"sZeroRecords": tr( "datatables.sZeroRecords" ),
+					"oPaginate": {
+						"sFirst": tr( "datatables.sFirst" ),
+						"sPrevious": tr( "datatables.sPrevious" ),
+						"sNext": tr( "datatables.sNext" ),
+						"sLast": tr( "datatables.sLast" )
+					},
+					"oAria": {
+						"sSortAscending": tr( "datatables.sSortAscending" ),
+						"sSortDescending": tr( "datatables.sSortDescending" )
+					}
+				}
 			}
 		} );
 	</script>
