@@ -64,6 +64,7 @@ import org.asciidoctor.Asciidoctor;
 import org.jruby.embed.osgi.OSGiScriptingContainer;
 import static org.asciidoctor.AttributesBuilder.attributes;
 import static org.asciidoctor.OptionsBuilder.options;
+import org.asciidoctor.groovydsl.GroovyExtensionRegistry;
 
 /**
  *
@@ -283,6 +284,8 @@ class BaseDocbookServiceImpl {
 		System.out.println("loadPaths:"+loadPaths);
 		sc.setLoadPaths(loadPaths);
 		m_asciidoctor = create(sc.getProvider().getRuntime());
+		new AsciidoctorX().register();
+		new GroovyExtensionRegistry().register(m_asciidoctor);
 		return m_asciidoctor;
 	}
 
