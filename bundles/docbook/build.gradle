@@ -31,5 +31,6 @@ dependencies {
 	compile files("${repository}/zuss.jar")
 	compile files("${repository}/asciidoctorj-1.5.2.bar")
 	compile files("${repository}/jruby-complete-1.7.16.1.jar")
+	compile files("${repository}/asciidoctorj-groovy-dsl.bar")
   compile files('build/classes/main')
 }
