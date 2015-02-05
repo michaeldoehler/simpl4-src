@@ -29,6 +29,7 @@
 			color: #4285f4;
 		}
 		/*Extra Würste for polyfills*/
+		
 		paper-button[affirmative] {
 			color: #4285f4;
 		}
@@ -41,14 +42,14 @@
 	<template>
 		<template if="{{namespace!=null && formName!=null}}">
 			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}" variables="{{variables}}"></simpl-form>
-			<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
-			<paper-action-dialog id="error" class="scrolling">
-				<core-icon class="error-big" icon="error"></core-icon>
-				<p></p>
-				<paper-button raised affirmative autofocus>
-					<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
-			</paper-action-dialog>
 		</template>
+		<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
+		<paper-action-dialog id="error" class="scrolling">
+			<core-icon class="error-big" icon="error"></core-icon>
+			<p></p>
+			<paper-button raised affirmative autofocus>
+				<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
+		</paper-action-dialog>
 	</template>
 
 	<script>
@@ -67,18 +68,19 @@
 				console.log( "ProcessController:startByName" + namespace + "/" + name );
 				this.start( pc, parameter );
 			},
-			start: function( processDefinition, parameter ) {
+			start: function( processDefinition, parameter, finishCallback ) {
 				this.processDefinition = processDefinition;
 				this.processName = processDefinition.name;
+				this.namespace = processDefinition.category;
 				console.log( "Start:" + JSON.stringify( processDefinition, null, 2 ) );
 				var pid = this.processDefinition.id;
 				console.log( "startFormResourceKey:" + this.processDefinition.startFormResourceKey );
 				if ( this.processDefinition.startFormResourceKey ) {
-					this.showForm( null );
+					this.showForm( null,finishCallback );
 				} else {
 					var processVariables = parameter || {};
 					processVariables[ "processDefinitionId" ] = this.processDefinition.id;
-					this.completeActivity( processVariables, null );
+					this.completeActivity( processVariables, null,finishCallback );
 				}
 			},
 			showForm: function( task, finishCallback ) {
@@ -125,6 +127,7 @@
 						}
 						self.handleExecuteButton( data, task, formName, buttonKey );
 					}
+console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 					if ( target.xaction == "cancel" ) {
 						if ( self.finishCallback ) {
 							self.finishCallback();
@@ -217,7 +220,7 @@
 				}
 				return result;
 			},
-			completeActivity: function( processVariables, task ) {
+			completeActivity: function( processVariables, task,finishCallback ) {
 				var pdata = JSON.stringify( processVariables );
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
@@ -230,8 +233,8 @@
 					}
 					//this.fireDataEvent( "taskCompleted", task, null );
 					var tasks = this.getTasks( pid );
-					if ( tasks.total > 0 ) {
-						this.showForm( tasks.data[ 0 ] );
+					if ( tasks && tasks.total > 0 ) {
+						this.showForm( tasks.data[ 0 ],finishCallback );
 					} else {
 						if ( task && task.fromTaskList ) {
 							this.alert( tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
@@ -256,7 +259,7 @@
 					var message = "<b>" + tr( "processes." + ( ( task != null ) ? "taskform" : "startform" ) + ".notstarted" ) + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
 					this.alert( message );
 					if ( task != null ) {
-						this.showForm( task );
+						this.showForm( task,finishCallback );
 					}
 				} ).bind( this );
 
@@ -337,7 +340,7 @@
 			},
 			getTasks: function( processInstanceId ) {
 				var result = null;
-				var userid = simpl4.uti.BaseManager.getUser();
+				var userid = simpl4.util.BaseManager.getUser();
 				try {
 					result = simpl4.util.Rpc.rpcSync( "activiti:getTasks", {
 						queryParams: {
