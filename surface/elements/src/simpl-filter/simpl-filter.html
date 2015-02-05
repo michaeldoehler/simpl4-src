@@ -56,17 +56,17 @@
 			:host /deep/ .query-builder {
 				background: beige;
 			}
-			:host /deep/ #builder .rule-container  {
+			:host /deep/ #builder .rule-container {
 				background: beige;
 			}
-			:host /deep/ #builder .rules-group-container  {
+			:host /deep/ #builder .rules-group-container {
 				background: beige;
 			}
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
 		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
 		<div style="text-align:right;">
-			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>Suchen</paper-button>
+			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{'searchfilter.searchbutton'|tr}}</paper-button>
 		</div>
 		<div id="builder"></div>
 		<!--segment>
@@ -82,6 +82,7 @@
 			domReady: function() {
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity );
 				//				console.debug( "Filter:" + JSON.stringify( filters, null, 2 ) );
+				console.log( "TR:" + JSON.stringify( this.getLang(), null, 2 ) );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -96,6 +97,7 @@
 					display_errors: true,
 
 					filters: filters,
+					lang: this.getLang()
 				} );
 
 				// set rules
@@ -197,6 +199,40 @@
 				console.error( "submit" );
 				this.asyncFire( 'core-signal', event );
 				//this.$.data.textContent = jsonData;
+			},
+			getLang: function() {
+				return {
+					"add_rule": tr( "querybuilder.add_rule" ),
+					"add_group": tr( "querybuilder.add_group" ),
+					"delete_rule": tr( "querybuilder.delete_rule" ),
+					"delete_group": tr( "querybuilder.delete_group" ),
+
+					"condition_and": tr( "querybuilder.condition_and" ),
+					"condition_or": tr( "querybuilder.condition_or" ),
+
+					"filter_select_placeholder": tr( "querybuilder.filter_select_placeholder" ),
+
+					"operators": {
+						"equal": tr( "querybuilder.equal" ),
+						"not_equal": tr( "querybuilder.not_equal" ),
+						"in": tr( "querybuilder.in" ),
+						"not_in": tr( "querybuilder.not_in" ),
+						"less": tr( "querybuilder.less" ),
+						"less_or_equal": tr( "querybuilder.less_or_equal" ),
+						"greater": tr( "querybuilder.greater" ),
+						"greater_or_equal": tr( "querybuilder.greater_or_equal" ),
+						"begins_with": tr( "querybuilder.begins_with" ),
+						"not_begins_with": tr( "querybuilder.not_begins_with" ),
+						"contains": tr( "querybuilder.contains" ),
+						"not_contains": tr( "querybuilder.not_contains" ),
+						"ends_with": tr( "querybuilder.ends_with" ),
+						"not_ends_with": tr( "querybuilder.not_ends_with" ),
+						"is_empty": tr( "querybuilder.is_empty" ),
+						"is_not_empty": tr( "querybuilder.is_not_empty" ),
+						"is_null": tr( "querybuilder.is_null" ),
+						"is_not_null": tr( "querybuilder.is_not_null" )
+					}
+				}
 			}
 		} );
 	</script>
