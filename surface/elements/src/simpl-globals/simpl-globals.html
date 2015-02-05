@@ -38,7 +38,8 @@
 			window.is_chromium = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
 			simpl4.util.BaseManager.setNamespace(namespace);
-			simpl4.util.BaseManager.setLanguage("de");
+			var lang = Simpl4.Cache.getItem("lang");
+			simpl4.util.BaseManager.setLanguage(lang ? lang : "de");
 			simpl4.util.BaseManager.setUser("admin");
 			simpl4.util.BaseManager.setPassword("admin");
 
