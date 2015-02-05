@@ -90,7 +90,7 @@
 					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
-					<core-icon-button on-click="{{reload}}" icon="refresh"></core-icon-button>
+					<core-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></core-icon-button>
 					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
 				</core-toolbar>
 
@@ -281,7 +281,13 @@
 			login: function( e ) {
 				this.$.loginDialog.toggle();
 			},
+			
+			langIcon: function( lang ) {
+				return (lang == "de" || lang==null) ? "en.svg" : "de.svg";
+			},
 			reload: function( e ) {
+				var lang = Simpl4.Cache.getItem("lang");
+				Simpl4.Cache.setItem("lang", (lang == "de" || lang==null) ? "en" : "de");
 				history.go( 0 )
 			}
 		} );
