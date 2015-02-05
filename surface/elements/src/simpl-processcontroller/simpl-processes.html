@@ -1,0 +1,140 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-processes" extends="simpl-datatables" attributes="">
+	<template>
+		<style>
+			#list li {
+				height: 30px;
+				cursor: pointer;
+			}
+			#list li.core-selected:after {
+				content: "\2713";
+				padding-left: 10px;
+			}
+			paper-button.blue-ripple {
+				color: #4285f4;
+				float: left;
+				position: relative;
+			}
+			core-label {
+				font-family: 'Helvetica Neue', Helvetica, Arial;
+				font-size: 20px;
+				margin: 5px;
+			}
+		</style>
+
+		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
+			<section style="padding:3px;position:relative;">
+				<template if="{{currentProcess!=null}}">
+					<div style="margin-bottom:30px;text-align:left;" layout vertical>
+						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action+' ('+currentProcess+')'}}</paper-button>
+					</div>
+				</template>
+				<shadow></shadow>
+			</section>
+			<section style="position:relative;" unresolved>
+				<simpl-processcontroller id="processController"></simpl-processcontroller>
+			</section>
+		</core-animated-pages>
+	</template>
+
+	<script>
+		Polymer( 'simpl-processes', {
+			dtMeta: null,
+			pageSelected: 0,
+			action: tr( "processexplorer.definition.start_workflow" ),
+			currentProcess: null,
+			currentIndex: null,
+			domReady: function() {
+				console.log( "ready" );
+				this.namespace = "kfzplan";//@@@MS simpl4.util.BaseManager.getNamespace();
+				if ( this.dtMeta == null ) {
+					this.dtMeta = this.getMeta();
+				}
+				this.dataSet = this.getProcessDefinitions();
+				console.log( "dataSet:" + JSON.stringify( this.dataSet, null, 2 ) );
+				console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
+				this.createTable( this.dtMeta, this.dataSet );
+				this.createRowListener();
+			},
+			createRowListener: function() {
+				var self = this;
+				this.q( 'tbody tr' ).on( 'tap', ( function( e ) {
+					console.log( "Click:", e.currentTarget._DT_RowIndex );
+					var index = e.currentTarget._DT_RowIndex;
+					self.currentIndex = index;
+					if ( $( this ).hasClass( 'selected' ) ) {} else {
+						self.q( 'tr.selected' ).removeClass( 'selected' );
+						$( this ).addClass( 'selected' );
+						self.currentProcess = self.dataSet[ index ].key;
+					}
+				} ) );
+			},
+			q: function( sel ) {
+				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			},
+			getMeta: function() {
+				var colHds = [];
+				var col = {};
+				col.data = "id";
+				col.title = "Id";
+				colHds.push( col );
+
+				var col = {};
+				col.data = "key";
+				col.title = tr( "tasks.table.processName" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "processCategory";
+				col.title = tr( "tasks.table.processCategory" );
+				//colHds.push( col );
+				return colHds;
+			},
+			submit: function( e ) {
+				this.pageSelected = 1;
+				console.log( "submit:", e );
+				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
+				var process = this.dataSet[ this.currentIndex ];
+				var self = this;
+				this.$.processController.start( process, {}, function() {
+					console.log( "finishCallback2" );
+					self.pageSelected = 0;
+				} );
+			},
+			getProcessDefinitions: function() {
+				var result = null;
+				try {
+					result = simpl4.util.Rpc.rpcSync( "activiti:getProcessDefinitions", {
+						namespace: this.namespace,
+						version: -1
+					} );
+				} catch ( e ) {
+					alert( "ProcessDefinitions.getProcessDefinitions:" + e );
+					return;
+				}
+				return result[ "data" ];
+			}
+
+		} );
+	</script>
+
+</polymer-element>
