@@ -26,16 +26,13 @@ can.Construct.extend( "simpl4.util.SelectableItems",{
 	 ******************************************************************************/
 	init: function( context ) {
 		this._url = context.url;
-console.debug("Init:",this._url);
-		this._varMap = context.varMap;
-		if ( !this._varMap ) this._varMap = {};
+		this._varMap = context.varMap || {};
 		this._items = null;
 		this.namespace = context.namespace || simpl4.util.BaseManager.getNamespace();
 	},
 
 	setVarMap: function( varMap ) {
 		this._varMap = simpl4.util.Merge.deepmerge( this._varMap, varMap );
-		console.log( "setVarMap:" + varMap );
 		this._items = null;
 	},
 	setVariable: function( name, value ) {
@@ -54,7 +51,6 @@ console.debug("Init:",this._url);
 		return this._missingParamList;
 	},
 	_evalUrl: function() {
-
 		if ( this._url instanceof Array ) {
 			this._items = this._url;
 			this._items = this._translate( this._items );
@@ -132,8 +128,8 @@ console.debug("Init:",this._url);
 					this._items = url;
 				}
 			} catch ( e ) {
-console.log(e.stack);
 				console.error( "SelectableItems.Could not parse:" + this._url + ":" + e );
+				console.error(e.stack);
 			}
 		} else {
 			var values = this._url.split( ";" );
@@ -169,7 +165,7 @@ console.log(e.stack);
 				var val = this._items[ key ];
 				if ( typeof val === 'string' ) {
 					if ( val.match( /^[@%]/ ) ) {
-						val = this.tr( val.substring( 1 ) );
+						val = tr( val.substring( 1 ) );
 					}
 					var o = {};
 					o.label = val;
@@ -185,9 +181,9 @@ console.log(e.stack);
 	_translate: function( o ) {
 		if ( typeof o == "string" ) {
 			if ( o.match( /^[@%]/ ) ) {
-				var tr = this.tr( o.substring( 1 ) );
-				if ( tr ) {
-					o = tr;
+				var t = tr( o.substring( 1 ) );
+				if ( t ) {
+					o = t;
 				}
 			}
 			return o.toString();
