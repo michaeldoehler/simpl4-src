@@ -17,6 +17,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
+	selectableItemsMap: {},
 	getForm: function(name,namespace) {
 		var failed = function(details) {
 			alert("GetForm failed" + ":" + details.message);
@@ -33,6 +34,18 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			failed(e);
 			return [];
 		}
+	},
+	createSelectableItems:function(namespace,formName,fieldName,url){
+		namespace = namespace || simpl4.util.BaseManager.getNamespace();
+		var si = new simpl4.util.SelectableItems( {namespace:namespace,url:url } );
+		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = si;
+		return si;
+	},
+	addSelectableItems:function(namespace,formName,fieldName,items){
+		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = items;
+	},
+	getSelectableItems:function(namespace,formName,fieldName){
+		return this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName];
 	},
 	handleQueryBuilderSearchInput: function( rule, filter ) {
 		var regulaConstraints = null;

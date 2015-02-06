@@ -16,21 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend( "simpl4.util.SelectableItems", {
+can.Construct.extend( "simpl4.util.SelectableItems",{
+	/******************************************************************************
+	 Static
+	 ******************************************************************************/
+	}, {
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
 	init: function( context ) {
 		this._url = context.url;
+console.debug("Init:",this._url);
 		this._varMap = context.varMap;
 		if ( !this._varMap ) this._varMap = {};
 		this._items = null;
-		this.storeId = simpl4.util.BaseManager.getStoreId();
-		this.namespace = simpl4.util.BaseManager.namespace;
+		this.namespace = context.namespace || simpl4.util.BaseManager.getNamespace();
 	},
 
 	setVarMap: function( varMap ) {
-		jQuery.extend( this._varMap, varMap );
+		this._varMap = simpl4.util.Merge.deepmerge( this._varMap, varMap );
 		console.log( "setVarMap:" + varMap );
 		this._items = null;
 	},
@@ -128,6 +132,7 @@ can.Construct.extend( "simpl4.util.SelectableItems", {
 					this._items = url;
 				}
 			} catch ( e ) {
+console.log(e.stack);
 				console.error( "SelectableItems.Could not parse:" + this._url + ":" + e );
 			}
 		} else {
@@ -200,11 +205,6 @@ can.Construct.extend( "simpl4.util.SelectableItems", {
 		if ( !this._varMap.namespace ) {
 			this._varMap.namespace = this._varMap.NAMESPACE;
 		}
-		if ( this.namespace == "global" ) {
-			this.setVariable( "STORE_ID", "global_meta" );
-		} else {
-			this.setVariable( "STORE_ID", this.storeId );
-		}
 	},
 	_handleEnumDescricption: function( url ) {
 		var itemsRet = null;
@@ -232,7 +232,7 @@ can.Construct.extend( "simpl4.util.SelectableItems", {
 			}
 			if ( type == "sw.filter" ) {
 				console.log( "Namespace:" + JSON.stringify( this._varMap, null, 2 ) );
-				var storeId = this._varMap.STORE_ID || this.storeId;
+				var storeId = this._varMap.STORE_ID || this.getStoreId();
 				var ret = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
 					name: name,
 					params: this._varMap,
@@ -297,7 +297,9 @@ can.Construct.extend( "simpl4.util.SelectableItems", {
 		}
 	},
 
-
+	getStoreId:function(){
+		return this.namespace+"_data";
+	},
 	toString: function() {
 		return "SelectableItems:" + this._url;
 	}
