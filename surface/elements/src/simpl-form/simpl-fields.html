@@ -63,7 +63,7 @@
 			detached: function() {
 				this.fire( 'remove-form-field', this );
 			},
-			checkConstraints:function(){
+			checkConstraints: function() {
 				var c = this.getAttribute( "data-constraints" );
 				if ( c == null || c.length == 0 ) return;
 				var elements = [ this ];
@@ -73,9 +73,9 @@
 				var errorList = regula.validate( {
 					elements: elements
 				} );
-				this.setInvalid(errorList.length > 0);
+				this.setInvalid( errorList.length > 0 );
 				if ( errorList.length > 0 ) {
-					this.setErrorMessage(errorList[ 0 ].message);
+					this.setErrorMessage( errorList[ 0 ].message );
 				}
 			}
 		} );
@@ -141,13 +141,13 @@
 					this.preventInvalidInput = true;
 				}
 				var showTime = this.type.match( /^datetime/ ) != null;
-				console.log( "input-field:" + this.label + "/" + this.type );
+				console.log( "input-field:" + this.label + "/" + this.type + "/showTime:" + showTime );
 				if ( this.type.match( /^date/ ) != null && !this.hasDate ) {
 					var picker = new Pikaday( {
 						field: this.$.input,
 						trigger: this.$.input,
 						onSelect: function( a ) {}.bind( this ),
-						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n : null,
+						i18n: simpl4.util.BaseManager.getLanguage() == 'de' ? this.i18n_de : this.i18n_en,
 						format: simpl4.util.BaseManager.getDateFormat() + ( showTime ? " HH:mm" : "" ),
 						showTime: showTime,
 						showSeconds: false,
@@ -173,12 +173,21 @@
 					}
 				}
 			},
-			i18n: {
+			i18n_de: {
 				previousMonth: 'Vorheriger Monat',
 				nextMonth: 'Nächster Monat',
 				months: [ 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
 				weekdays: [ 'Sontag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag' ],
 				weekdaysShort: [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ]
+			},
+			i18n_en: {
+				previousMonth: 'Previous Month',
+				nextMonth: 'Next Month',
+				months: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ],
+				weekdays: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
+				weekdaysShort: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
+				midnight: 'Midnight',
+				noon: 'Noon'
 			},
 			isAuthorizedType: function() {
 				var okTypes = [ 'checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'month', 'number', 'password', 'radio', 'range', 'tel', 'text', 'time', 'url', 'week' ];
@@ -201,7 +210,7 @@
 					this.input.setAttribute( 'type', this.type );
 				}
 			},
-			committedValueChanged: function() {//@@@MS ???
+			committedValueChanged: function() { //@@@MS ???
 			},
 			editValueChanged: function() {
 				if ( this.type == "date" && !this.hasDate ) {
@@ -309,7 +318,7 @@
 		</div>
 
 		<div horizontal layout>
-			<paper-checkbox  checked="{{value}}"></paper-checkbox>
+			<paper-checkbox checked="{{value}}"></paper-checkbox>
 
 			<div class="error" style="margin-left:15px;" layout horizontal hidden?="{{!isInvalid}}">
 				<div class="error-text" auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
@@ -322,7 +331,7 @@
 		Polymer( {
 			publish: {
 				domReady: function() {
-					this.domReady=true;
+					this.domReady = true;
 				},
 				setErrorMessage: function( message ) {
 					this.error = message;
@@ -331,7 +340,7 @@
 					this.isInvalid = b;
 				},
 				valueChanged: function( e ) {
-					if(this.domReady!=true) return;
+					if ( this.domReady != true ) return;
 					this.checkConstraints();
 				}
 			}
