@@ -118,8 +118,16 @@
 				border-radius: 8px;
 				border: 1px solid #4B575C;
 			}
-			input-field {
+			input-field,
+			dropdown-field {
 				margin: 5px;
+			}
+			core-label {
+				margin-bottom: 10px;
+			}
+			html-echo {
+				color: red;
+				margin: 15px;
 			}
 			xaction-button {
 				margin-top: 20px;
@@ -158,7 +166,7 @@
 		<fieldset id="formdiv" verticax xayout>
 			<template repeat="{{shapes}}" id="root">
 
-				<template if="{{id=='Input' || id=='ActionButton' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
+				<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
 				<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
@@ -171,7 +179,8 @@
 		</fieldset>
 
 		<template id="group">
-			<simpl-group>
+			<simpl-group class="group">
+				<core-label for=".group">{{label}}</core-label>
 				<template ref="root" repeat="{{childShapes}}"></template>
 			</simpl-group>
 		</template>
@@ -206,15 +215,22 @@
 
 		<template id="element">
 			<template if="{{ id=='Input' && xf_type == 'boolean' }}">
-				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}">
-					</input-field>
+				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></checkbox-field>
 			</template>
 			<template if="{{ id=='Input' && xf_type != 'boolean' }}">
 				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
 				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
-					<core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}</xaction-button>
+					<core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}
+				</xaction-button>
+			</template>
+			<template if="{{ id=='Enumselect' }}">
+				<dropdown-field flex name="{{xf_id}}" label="{{label}}" raised>
+					<template repeat="{{items}}">
+						<paper-item name="{{value}}">{{label}}</paper-item>
+					</template>
+				</dropdown-field>
 			</template>
 			<template if="{{ id=='Textarea' }}">
 				<multiline-field flex name="{{xf_id}}" label="{{label}}" xvalue="{{data.street}}"></multiline-field>
@@ -222,7 +238,6 @@
 			<template if="{{ id=='Alert' }}">
 				<html-echo html="{{xf_message}}"></html-echo>
 			</template>
-
 			<template if="{{ id=='Group' }}" ref="group" bind></template>
 			<template if="{{ id=='Row' }}" ref="row" bind></template>
 		</template>
@@ -235,6 +250,9 @@
 			</simpl-row>
 		</template>
 
+		<div>
+			<button on-tap="{{submit}}">Submit</button>
+		</div>
 	</template>
 	<script>
 		Polymer( 'simpl-form', {
@@ -244,6 +262,14 @@
 			eventDelegates: {
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
+			},
+			submit: function( e ) {
+				var data = {};
+				this.fields.forEach( function( f ) {
+					data[ f.name ] = f.value;
+				}, this );
+				var jsonData = JSON.stringify( data, null, 2 );
+				console.log( "Values:" + jsonData );
 			},
 			created: function() {},
 			ready: function() {},
@@ -287,12 +313,33 @@
 				return shape;
 			},
 			cleanShape: function( shape ) {
-				if ( shape.stencil.id.toLowerCase() == "input" || shape.stencil.id.toLowerCase() == 'textarea' ) {
-					shape.properties.label = shape.childShapes[ 0 ].properties.xf_text;
-					if ( ( shape.properties.xf_id == null || shape.properties.xf_id == "" ) && shape.properties.label ) {
-						shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
+				if ( shape.stencil.id.toLowerCase() == "input" ||
+					shape.stencil.id.toLowerCase() == 'textarea' ||
+					shape.stencil.id.toLowerCase() == 'enumselect' ||
+					shape.stencil.id.toLowerCase() == 'group'
+				) {
+					var labelChild = this.getLabelShape( shape.childShapes );
+					if ( labelChild != null ) {
+						shape.properties.label = labelChild.properties.xf_text;
+						if ( ( shape.properties.xf_id == null || shape.properties.xf_id == "" ) && shape.properties.label ) {
+							shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
+						}
+						if ( shape.childShapes.length == 1 ) {
+							shape.childShapes = [];
+						}
 					}
-					shape.childShapes = [];
+					if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
+						var props = shape.properties;
+						var enumembed = props.xf_enumembed;
+						var si;
+						if ( enumembed && enumembed.totalCount > 0 ) {
+							si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, enumembed );
+						} else {
+							si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
+						}
+						props.items = si.getItems();
+						console.log( "SI:"+ JSON.stringify(si.getItems(),null,2) );
+					}
 				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 					var icon = shape.properties.xf_iconname;
 					var action = shape.properties.xf_action;
@@ -308,6 +355,14 @@
 				return _.extend( shape.properties, shape.stencil, {
 					childShapes: shape.childShapes
 				} );
+			},
+			getLabelShape: function( childs ) {
+				for ( var i = 0; i < childs.length; i++ ) {
+					if ( childs[ i ].stencil.id.toLowerCase() == 'label' ) {
+						return childs[ i ];
+					}
+				}
+				return null;
 			},
 			isLineBreak: function( child, next ) {
 				var UL = child.bounds.upperLeft;

@@ -83,7 +83,8 @@
 			},
 			createRowListener: function() {
 				var self = this;
-				this.q( 'tbody tr' ).on( 'tap', ( function( e ) {
+				var rows = this.dtTable.rows().nodes();
+				$( rows ).on( 'tap', ( function( e ) {
 					console.log( "Click:", e.currentTarget._DT_RowIndex );
 					var index = e.currentTarget._DT_RowIndex;
 					self.currentIndex = index;
@@ -152,10 +153,10 @@
 				this.pageSelected = 1;
 				console.log( "submit:", e );
 				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
-				var task =  this.dataSet[ this.currentIndex ];
-				task.fromTaskList=true;
+				var task = this.dataSet[ this.currentIndex ];
+				task.fromTaskList = true;
 				var self = this;
-				this.$.processController.showForm( task, function(){
+				this.$.processController.showForm( task, function() {
 					self.pageSelected = 0;
 				} );
 			},
@@ -174,7 +175,6 @@
 							rmap[ "assigned" ] = rmap.assignee;
 							rmap[ "action" ] = tr( "tasks.table.complete" );
 						}
-//						rmap["processName"] = "<div style='position:relative;'>"+rmap["processName"]+"<paper-ripple fit></paper-ripple></div>";
 						rows.push( rmap );
 					}
 					self.dataSet = rows;
