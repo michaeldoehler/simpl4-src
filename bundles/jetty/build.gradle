@@ -22,4 +22,5 @@ dependencies {
  	compile files("${repository}/servlet-api-2.5.jar")
  	compile files("${repository}/slf4j-api-1.6.1.jar")
   compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
+  compile files("${repository}/snakeyaml-1.13-SNAPSHOT.jar")
 }

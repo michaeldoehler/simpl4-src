@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ import org.ms123.common.libhelper.Inflector;
 import java.lang.reflect.*;
 import org.ms123.common.utils.IOUtils;
 import flexjson.*;
+import org.yaml.snakeyaml.*;
 
 /** JettyService implementation
  */
@@ -112,6 +114,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("json", "application/json");
 		result.put("json.gz", "application/json");
+		result.put("yaml", "text/x-yaml");
+		result.put("yml", "text/x-yaml");
 		result.put("js", "text/javascript");
 		result.put("js.gz", "text/javascript");
 		result.put("css", "text/css");
@@ -791,6 +795,15 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 					if( t!= null){
 						w.write("</template>");
 					}
+					w.close();
+				}else if( "yaml".equals(ext) || "yml".equals(ext)){
+					response.setContentType( "application/json; charset=UTF-8" );
+					PrintWriter w  = response.getWriter();
+					Yaml yaml = new Yaml();
+  				Object yamlObj = yaml.load(new InputStreamReader(new FileInputStream(asset), "UTF8"));
+					JSONSerializer serializer = new JSONSerializer();
+					Object jsonObj = serializer.deepSerialize(yamlObj);
+					w.print(jsonObj);
 					w.close();
 				}else{
 					response.setContentType( contentType );

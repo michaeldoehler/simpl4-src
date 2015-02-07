@@ -119,12 +119,15 @@ public class LoginFilter implements Filter {
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".adoc.gz")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".json")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".json.gz")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".yaml")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".yml")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".png")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".jpg")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".gif")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".svg")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".jpeg")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".woff")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".woff.gz")) ||
 				pathInfo.startsWith("/" + namespace + "/dav") || 
 				pathInfo.startsWith("/" + namespace + "/legacy") || 
 				pathInfo.startsWith("/" + namespace + "/resource");
