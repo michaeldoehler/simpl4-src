@@ -1187,7 +1187,7 @@
 
                 /* falls through */
                 case 'text': default:
-                    value.push($value.find('input-field[name='+ name +']').val());
+                    value.push($value.find('[name='+ name +']').val());
             }
         }
 
