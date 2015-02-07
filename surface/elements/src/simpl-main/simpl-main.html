@@ -94,7 +94,7 @@
 					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
 				</core-toolbar>
 
-				<div class="content">
+				<div class="content" style="height:100%">
 					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up">
 						<template repeat="{{page, i in pages}}">
 							<section style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
