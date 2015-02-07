@@ -53,9 +53,22 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			var c = JSON.parse( filter.constraints );
 			regulaConstraints = this.constructRegulaConstraints( c );
 		}
-		var attributes = this.constructAttributes( filter.type, filter.label, c );
-		rule.find( ".rule-value-container" ).
-			append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
+		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues!=null );
+		if( filter.dataValues ){
+			rule.find( ".rule-value-container" ).
+				append( '<dropdown-field ' + attributes +  ' name="' + rule.selector.substring( 1 ) + '_value_0" >'+this.getSelectables(filter.dataValues)+'</dropdown-field>' );
+		}else{
+			rule.find( ".rule-value-container" ).
+				append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
+		}
+	},
+	getSelectables:function(selectables){
+		var elements = "";
+		for(var i=0; i< selectables.length;i++){
+			var sel = selectables[i];
+			 elements+='<paper-item name="'+sel.value+'">'+sel.label+'</paper-item>';
+		}
+		return elements;
 	},
 	constructRegulaConstraints: function( c ) {
 		var ret = 'data-constraints="';
@@ -82,7 +95,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		ret += '"';
 		return ret;
 	},
-	constructAttributes: function( xtype, label, c ) {
+	constructAttributes: function( xtype, label, c, dropdown ) {
 		var map={};
 		if( c == null) c = [];
 		map.type = "text";
@@ -96,6 +109,9 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			map.type = "number";
 		}
 		map.style="min-width:60px;"
+		if( dropdown){
+			map.style+="display:inline-block;"
+		}
 		map.label=label;
 		map.floatingLabel=false;
 		map.compact=true;

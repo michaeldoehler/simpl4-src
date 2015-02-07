@@ -32,6 +32,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			node.datatype = f.datatype;
 			node.edittype = f.edittype;
 			node.constraints = f.constraints;
+			node.dataValues = f.dataValues;
 			node.input = f.input;
 			node.operators = this._adaptOps( f.ops );
 			ret.push( node );
@@ -279,7 +280,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		var search_options;
 		if ( col.datatype == 'date' || col.datatype == 'integer' || col.datatype == 'long' || col.id == 'id' || col.datatype == 'number' || col.datatype == 'decimal' || col.datatype == 'double' ) {
 			search_options = [ "gt", "lt", "eq" ];
-		} else if ( col.edittype == "select" || col.edittype == "checkbox" || col.datatype == 'boolean' ) {
+		} else if ( col.selectable_items || col.edittype == "select" || col.edittype == "checkbox" || col.datatype == 'boolean' ) {
 			search_options = [ "eq", "ne" ];
 		} else {
 			search_options = [ "cn", "bw", "eq", "ne" ];
