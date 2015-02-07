@@ -82,7 +82,6 @@
 			domReady: function() {
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity );
 				//				console.debug( "Filter:" + JSON.stringify( filters, null, 2 ) );
-				console.log( "TR:" + JSON.stringify( this.getLang(), null, 2 ) );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -188,7 +187,6 @@
 				$( this.$.builder ).queryBuilder( 'reset' );
 			},
 			submit: function( e ) {
-				var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				var event = {
 					name: "filter-changed",
 					data: {
@@ -198,6 +196,7 @@
 				}
 				console.error( "submit" );
 				this.asyncFire( 'core-signal', event );
+				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				//this.$.data.textContent = jsonData;
 			},
 			getLang: function() {
