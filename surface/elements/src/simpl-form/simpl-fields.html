@@ -442,11 +442,16 @@
 </polymer-element>
 
 
-<polymer-element name="dropdown-field" extends="form-field" kind="dropdown" noscript>
+<polymer-element name="dropdown-field" extends="form-field" kind="dropdown">
 	<template>
 		<style>
 			:host {
 				padding: 0.75em 0;
+			}
+			:host(.compact) {
+				position: relative;
+				top:-3px;
+				margin: 0;
 			}
 			[invisible] {
 				visibility: hidden;
@@ -456,32 +461,55 @@
 				white-space: nowrap;
 				color: #757575;
 			}
+			#floatedLabel.compact {
+				display:none;
+			}
 			.label-text {
 				display: inline-block;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
-			paper-dropdown-menu {
+			#paperDropdownMenu {
 				width: 100%;
 				background-color: transparent;
 				padding: 0;
+			}
+			#paperDropdownMenu.compact {
+				margin:0;
 			}
 			paper-dropdown-menu::shadow #dropdown {
 				min-width: 100%;
 			}
 		</style>
-		<div class="floated-label" invisible?="{{value === undefined}}">
+		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined}}">
 			<span class="label-text">{{label}}</span>
 		</div>
-		<paper-dropdown-menu label="{{label}}" selected="{{value}}" valueattr="textContent">
-			<paper-dropdown class="dropdown">
+		<paper-dropdown-menu id="paperDropdownMenu" label="{{label}}" selected="{{value}}" valueattr="textContent">
+			<paper-dropdown flex class="dropdown">
 				<core-menu selected="{{value}}" icon="arrow-drop-down">
 					<content></content>
 				</core-menu>
 			</paper-dropdown>
 		</paper-dropdown-menu>
 	</template>
+	<script>
+		Polymer( {
+			publish: {
+				compact: {
+					value: false,
+					reflect: true
+				}
+			},
+			domReady: function(){
+				if ( this.compact ) {
+					jQuery( this.$.floatedLabel ).addClass( "compact" );
+					jQuery( this.$.paperDropdownMenu ).addClass( "compact" );
+					jQuery( this ).addClass( "compact" );
+				}
+			}
+		} );
+	</script>
 </polymer-element>
 
 
