@@ -24,57 +24,81 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 		simpl4.config.EntityManager.entityCache = {};
 	},
 	getFields: function( entity, withAutoGen, withRelations, filter, mapping ) {
-		var storeId = this.getStoreId();
-		withAutoGen = withAutoGen === true;
-		withRelations = withRelations === true;
-		var fields = simpl4.util.EntityManager.fieldCache[ "fields-" + storeId + "-" + entity + "-" + withAutoGen + "-" + withRelations + "-" + filter + "-" + mapping ];
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			withAutoGen: Args.BOOLEAN | Args.Optional
+		}, {
+			withRelations: Args.BOOLEAN | Args.Optional
+		}, {
+			filter: Args.STRING | Args.Optional
+		}, {
+			mapping: Args.STRING | Args.Optional
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
+		var withAutoGen = args.withAutoGen === true;
+		var withRelations = args.withRelations === true;
+		var fields = simpl4.util.EntityManager.fieldCache[ "fields-" + storeId + "-" + args.entity + "-" + withAutoGen + "-" + withRelations + "-" + args.filter + "-" + args.mapping ];
 		if ( !fields ) {
 			try {
 				fields = simpl4.util.Rpc.rpcSync( "entity:getFields", {
-					storeId: storeId,
+					storeId: namespace + "_data",
 					withAutoGen: withAutoGen,
 					withRelations: withRelations,
-					filter: filter,
-					mapping: mapping,
-					entity: entity
+					filter: args.filter,
+					mapping: args.mapping,
+					entity: args.entity
 				} );
-				simpl4.util.EntityManager.fieldCache[ "fields-" + storeId + "-" + entity + "-" + withAutoGen + "-" + withRelations + "-" + filter + "-" + mapping ] = fields;
+				simpl4.util.EntityManager.fieldCache[ "fields-" + storeId + "-" + args.entity + "-" + withAutoGen + "-" + withRelations + "-" + args.filter + "-" + args.mapping ] = fields;
 			} catch ( e ) {
-				this._error( "EntityManager.getFields" , e );
+				this._error( "EntityManager.getFields", e );
 				return [];
 			}
 		}
 		return fields;
 	},
-	getEntities: function( ) {
-		var storeId = this.getStoreId();
-		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + storeId ];
+	getEntities: function() {
+		var args = Args( [ {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
+		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + namespace ];
 		if ( !entities ) {
 			try {
 				entities = simpl4.util.Rpc.rpcSync( "entity:getEntities", {
-					storeId: storeId
+					storeId: namespace + "_data"
 				} );
-				simpl4.util.EntityManager.entityCache[ "entities-" + storeId ] = entities;
+				simpl4.util.EntityManager.entityCache[ "entities-" + namespace ] = entities;
 			} catch ( e ) {
-				this._error( "EntityManager.getEntities" , e );
+				this._error( "EntityManager.getEntities", e );
 				return [];
 			}
 		}
 		return entities;
 	},
 	getEntity: function( name ) {
-		var namespace = this.getNamespace();
-		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + this.getStoreId() ];
+		var args = Args( [ {
+			name: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = args.namespace || this.getNamespace();
+		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + namespace ];
 		if ( !entities ) {
-			entities = this.getEntities(  );
+			entities = this.getEntities( namespace );
 		}
 		if ( !entities ) {
-			this._error( "EntityManager.getEntity:" + name + "(" + namespace + ") not found" );
+			this._error( "EntityManager.getEntity:" + args.name + "(" + namespace + ") not found" );
 			return null;
 		}
 		for ( var i = 0; i < entities.length; i++ ) {
 			var entity = entities[ i ];
-			if ( entity.name == name ) {
+			if ( entity.name == args.name ) {
 				return entity;
 			}
 		}
@@ -83,7 +107,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			var entity = entities[ i ];
 			for ( var j = 0; entity.childs && j < entity.childs.length; j++ ) {
 				var child = entity.childs[ j ];
-				if ( child.modulename == name ) {
+				if ( child.modulename == args.name ) {
 					return child;
 				}
 			}
@@ -93,145 +117,179 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 
 
 	getEntityViewProperties: function( entity, view ) {
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			view: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
 		var namespace = simpl4.util.BaseManager.getNamespace();
-		var storeId = simpl4.util.BaseManager.getStoreId();
-		var props = simpl4.util.EntityManager.fieldCache[ "mvcf-" + entity + "-" + storeId + "-" + view ];
+		var props = simpl4.util.EntityManager.fieldCache[ "mvcf-" + args.entity + "-" + namespace + "-" + args.view ];
 		if ( !props ) {
 			try {
-				props = this.__getEntityViewProperties( entity, view );
+				props = this.__getEntityViewProperties( namespace, args.entity, args.view );
 				if ( !props ) {
 					props = simpl4.util.Rpc.rpcSync( "setting:getPropertiesForEntityView", {
 						settingsid: "global",
 						namespace: namespace,
-						entity: entity,
-						view: view
+						entity: args.entity,
+						view: args.view
 					} );
 				}
 				if ( props == null ) props = {};
-				simpl4.util.EntityManager.fieldCache[ "mvcf-" + entity + "-" + storeId + "-" + view ] = props;
+				simpl4.util.EntityManager.fieldCache[ "mvcf-" + args.entity + "-" + namespace + "-" + args.view ] = props;
 			} catch ( e ) {
-				this._error( "EntityManager.getEntityViewProperties" , e );
+				this._error( "EntityManager.getEntityViewProperties", e );
 			}
 		}
 		return props;
 	},
 	getFieldsetsForEntity: function( entity ) {
-		var storeId = simpl4.util.BaseManager.getStoreId();
-		var namespace = simpl4.util.BaseManager.getNamespace();
-		var fieldsets = simpl4.util.EntityManager.fieldCache[ "fsetf-" + storeId + "-" + entity ];
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
+		var fieldsets = simpl4.util.EntityManager.fieldCache[ "fsetf-" + namespace + "-" + args.entity ];
 		if ( fieldsets === undefined ) {
-			fieldsets = this.__getFieldsetsForEntity( entity );
+			fieldsets = this.__getFieldsetsForEntity( namespace, args.entity );
 			if ( !fieldsets ) {
 				fieldsets = simpl4.util.Rpc.rpcSync( "setting:getFieldsetsForEntity", {
 					namespace: namespace,
 					settingsid: "global",
-					storeId: storeId,
-					entity: entity
+					entity: args.entity
 				} );
 			}
-			simpl4.util.EntityManager.fieldCache[ "fsetf-" + storeId + "-" + entity ] = fieldsets;
+			simpl4.util.EntityManager.fieldCache[ "fsetf-" + namespace + "-" + args.entity ] = fieldsets;
 		}
 		return fieldsets;
 	},
 	getPropertiesForEntity: function( entity ) {
-		var storeId = simpl4.util.BaseManager.getStoreId();
-		var namespace = simpl4.util.BaseManager.getNamespace();
-		var properties = simpl4.util.EntityManager.fieldCache[ "eprops-" + storeId + "-" + entity ];
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
+		var properties = simpl4.util.EntityManager.fieldCache[ "eprops-" + namespace + "-" + args.entity ];
 		if ( properties === undefined ) {
-			properties = this.__getPropertiesForEntity( entity );
+			properties = this.__getPropertiesForEntity( namespace, args.entity );
 			if ( !properties ) {
 				properties = simpl4.util.Rpc.rpcSync( "setting:getPropertiesForEntityView", {
 					namespace: namespace,
 					settingsid: "global",
 					view: null,
-					entity: entity
+					entity: args.entity
 				} );
 			}
-			simpl4.util.EntityManager.fieldCache[ "eprops-" + storeId + "-" + entity ] = properties;
+			simpl4.util.EntityManager.fieldCache[ "eprops-" + namespace + "-" + args.entity ] = properties;
 		}
 		return properties;
 	},
 
 	getEntityViewFields: function( entity, view, build ) {
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		}, {
+			view: Args.STRING | Args.Required
+		}, {
+			build: Args.BOOLEAN | Args.Optional
+		} ], arguments );
+
 		var buildstr = build !== false ? "true" : "no";
-		var storeId = this.getStoreId();
-		var namespace = this.getNamespace();
-		var fields = simpl4.util.EntityManager.fieldCache[ "vf-" + entity + "-" + storeId + "-" + view + "-" + buildstr ];
+		var namespace = args.namespace || this.getNamespace();
+		console.error( "namespace:" + namespace + "/" + args.view );
+		var fields = simpl4.util.EntityManager.fieldCache[ "vf-" + args.entity + "-" + namespace + "-" + args.view + "-" + buildstr ];
 		if ( fields === undefined ) {
 			try {
-				fields = this.__getEntityViewFields( entity, view );
+				fields = this.__getEntityViewFields( namespace, args.entity, args.view );
 				if ( !fields ) {
 					fields = simpl4.util.Rpc.rpcSync( "setting:getFieldsForEntityView", {
 						settingsid: "global",
 						namespace: namespace,
-						entity: entity,
-						view: view
+						entity: args.entity,
+						view: args.view
 					} );
 				}
 			} catch ( e ) {
-				this._error("EntityManager.getEntityViewFields",e);
+				console.log( "e;", e );
+				this._error( "EntityManager.getEntityViewFields", e );
 			}
 			if ( build !== false ) {
-				fields = this.buildColModel( fields, entity, view );
+				fields = this.buildColModel( fields, namespace, args.entity, args.view );
 			}
-			simpl4.util.EntityManager.fieldCache[ "vf-" + entity + "-" + storeId + "-" + view + "-" + buildstr ] = fields;
+			simpl4.util.EntityManager.fieldCache[ "vf-" + args.entity + "-" + namespace + "-" + args.view + "-" + buildstr ] = fields;
 		}
 		return fields;
 	},
-	__getEntityViewFields: function( entity, view ) {
+	__getEntityViewFields: function( namespace, entity, view ) {
 		view = view || "all";
-		var settings = this.getAllSettingsForEntityList( entity );
+		var settings = this.getAllSettingsForEntityList( namespace, entity );
 		return settings.viewFields[ view ];
 	},
-	__getEntityViewProperties: function( entity, view ) {
+	__getEntityViewProperties: function( namespace, entity, view ) {
 		view = view || "all";
-		var settings = this.getAllSettingsForEntityList( entity );
+		var settings = this.getAllSettingsForEntityList( namespace, entity );
 		return settings.viewProps[ view ];
 	},
-	__getFieldsetsForEntity: function( entity ) {
-		var settings = this.getAllSettingsForEntityList( entity );
+	__getFieldsetsForEntity: function( namespace, entity ) {
+		var settings = this.getAllSettingsForEntityList( namespace, entity );
 		return settings.fieldSets;
 	},
-	__getPropertiesForEntity: function( entity ) {
-		var settings = this.getAllSettingsForEntityList( entity );
+	__getPropertiesForEntity: function( namespace, entity ) {
+		var settings = this.getAllSettingsForEntityList( namespace, entity );
 		return settings.properties;
 	},
-	getAllSettingsForEntityList: function( entityList ) {
-		var storeId = this.getStoreId();
+	getAllSettingsForEntityList: function( namespace, entityList ) {
+		console.log( "namespace:" + namespace );
 		if ( !Array.isArray( entityList ) ) {
 			entityList = [ entityList ];
 		}
 		var ok = true;
 		for ( var i = 0; i < entityList.length; i++ ) {
 			var e = entityList[ i ];
-			if ( !simpl4.util.EntityManager.fieldCache[ "as-" + storeId + "-" + e ] ) {
+			if ( !simpl4.util.EntityManager.fieldCache[ "as-" + namespace + "-" + e ] ) {
 				ok = false;
 				break;
 			}
 		}
 		if ( !ok ) {
 			var settingList = simpl4.util.Rpc.rpcSync( "setting:getAllSettingsForEntityList", {
-				namespace: this.getNamespace(),
+				namespace: namespace || this.getNamespace(),
 				settingsid: "global",
 				entities: entityList
 			} );
 			for ( var i = 0; i < entityList.length; i++ ) {
 				var entity = entityList[ i ];
 				var setting = settingList[ i ];
-				simpl4.util.EntityManager.fieldCache[ "as-" + storeId + "-" + entity ] = setting;
+				simpl4.util.EntityManager.fieldCache[ "as-" + namespace + "-" + entity ] = setting;
 			}
 		}
-		return simpl4.util.EntityManager.fieldCache[ "as-" + storeId + "-" + entityList[ 0 ] ];
+		return simpl4.util.EntityManager.fieldCache[ "as-" + namespace + "-" + entityList[ 0 ] ];
 	},
 
 	getEntityPermittedFields: function( entity ) {
-		var fields = simpl4.util.EntityManager.fieldCache[ "af-" + entity ];
+		var args = Args( [ {
+			entity: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
+		var fields = simpl4.util.EntityManager.fieldCache[ "af-" + args.entity ];
 		if ( fields === undefined ) {
 			fields = simpl4.util.Rpc.rpcSync( "entity:getPermittedFields", {
-				storeId: simpl4.util.BaseManager.getStoreId(),
-				entity: entity
+				storeId: namespace + "_data",
+				entity: args.entity
 			} );
-			simpl4.util.EntityManager.fieldCache[ "af-" + entity ] = fields;
+			simpl4.util.EntityManager.fieldCache[ "af-" + args.entity ] = fields;
 		}
 		return fields;
 	},
@@ -250,23 +308,23 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 		}
 		return true;
 	},
-	_error:function(msg, e){
-		if( e){
-			console.error( msg+":" + e.message );
-			alert( msg+":" + e.message );
-		}else{
+	_error: function( msg, e ) {
+		if ( e ) {
+			console.error( msg + ":" + ( e.message || e ) );
+			alert( msg + ":" + ( e.message || e ) );
+		} else {
 			console.error( msg );
-			alert( msg);
+			alert( msg );
 		}
 	},
-	createSelectableItems: function( url, varMap, entity, name, view ) {
+	createSelectableItems: function( url, varMap, namespace, entity, name, view ) {
 		return new simpl4.util.SelectableItems( {
 			url: url,
+			namespace: namespace,
 			varMap: varMap
 		} );
 	},
-	buildColModel: function( gridfields, entity, view ) {
-		var storeId = this.getStoreId();
+	buildColModel: function( gridfields, namespace, entity, view ) {
 		var category = "data";
 		if ( gridfields == null ) {
 			return;
@@ -342,12 +400,12 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 				};
 				var varMap = {};
 				if ( this._hasSelectableItems( col.selectable_items ) ) {
-					col.selectable_items = this.createSelectableItems( col.selectable_items, varMap, entity, col.name, view );
+					col.selectable_items = this.createSelectableItems( col.selectable_items, varMap, namespace, entity, col.name, view );
 				} else {
 					col.selectable_items = null;
 				}
 				if ( this._hasSelectableItems( col.searchable_items ) ) {
-					col.searchable_items = this.createSelectableItems( col.searchable_items, varMap, entity, col.name, view );
+					col.searchable_items = this.createSelectableItems( col.searchable_items, varMap, namespace, entity, col.name, view );
 				} else {
 					col.searchable_items = null;
 				}

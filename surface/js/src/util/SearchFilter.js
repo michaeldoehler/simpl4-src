@@ -18,8 +18,14 @@
  */
 can.Construct.extend( "simpl4.util.SearchFilter", {
 	createSearchFilter: function( entityname ) {
-		var f1 = this._getSearchFilterFieldSets( entityname );
-		var f2 = this._getSearchFilterFields( entityname );
+		var args = Args( [ {
+			entityname: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+
+		var f1 = this._getSearchFilterFieldSets( args.namespace, args.entityname );
+		var f2 = this._getSearchFilterFields( args.namespace, args.entityname );
 		var fields = f1.concat( f2 );
 
 		var ret = [];
@@ -40,21 +46,26 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		return ret;
 	},
 	createSearchFilterWithChilds: function( entityname ) {
-		var f1 = this._getSearchFilterFieldSets( entityname );
+		var args = Args( [ {
+			entityname: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+		var f1 = this._getSearchFilterFieldSets( args.namespace, args.entityname );
 		var fsids = [];
 		jQuery.each( f1, function( e ) {
 			fsids.push( e.itemval );
 		} );
-		var f2 = this._getSearchFilterFields( entityname );
+		var f2 = this._getSearchFilterFields( args.namespace, args.entityname );
 		var fields = f1.concat( f2 );
 
-		var moduleList = simpl4.util.EntityManager.getEntity( entityname );
+		var moduleList = simpl4.util.EntityManager.getEntity( args.entityname,{namespace:args.namespace} );
 		if ( moduleList && moduleList.childs != null ) {
 			for ( var j = 0; j < moduleList.childs.length; j++ ) {
 				var child = moduleList.childs[ j ];
 				child.label = tr( "data." + moduleList.name + "." + child.name );
-				var fs = this._getSearchFilterFieldSets( child.modulename );
-				var ff = this._getSearchFilterFields( child.modulename );
+				var fs = this._getSearchFilterFieldSets( args.namespace, child.modulename );
+				var ff = this._getSearchFilterFields( args.namespace, child.modulename );
 				child.fields = fs.concat( ff );
 			}
 		}
@@ -69,7 +80,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			var node = {};
 
 			if ( fsids.indexOf( f.itemval ) == -1 ) {
-				node.id = entityname + "." + f.itemval;
+				node.id = args.entityname + "." + f.itemval;
 				f.itemval = node.id;
 			} else {
 				node.id = f.itemval;
@@ -83,7 +94,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		for ( var i = 0;
 			( moduleList && moduleList.childs != null ) && i < moduleList.childs.length; i++ ) {
 			var child = moduleList.childs[ i ];
-			if ( child.name == entityname ) continue;
+			if ( child.name == args.entityname ) continue;
 			var node = {};
 			node.id = child.name;
 			node.label = child.title;
@@ -96,7 +107,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 				field.module = child.name;
 				fields.push( field );
 				var fnode = {};
-				fnode.id = entityname + "$" + child.name + "." + field.itemval;
+				fnode.id = args.entityname + "$" + child.name + "." + field.itemval;
 				field.itemval = fnode.id;
 				fnode.label = field.text;
 				fnode.module = child.name;
@@ -110,7 +121,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			fields: fields
 		};
 	},
-	_getSearchFilterFieldSets: function( entityname ) {
+	_getSearchFilterFieldSets: function( namespace, entityname ) {
 		var allops = [ 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'inn', 'ew', 'en', 'cn', 'nc' ];
 		var odata = tr( "meta.lists.odata" );
 		odata = odata.replace( /'/g, '"' );
@@ -118,7 +129,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			odata = JSON.parse( odata );
 		} catch ( e ) {}
 		try {
-			var list = simpl4.util.EntityManager.getFieldsetsForEntity( entityname );
+			var list = simpl4.util.EntityManager.getFieldsetsForEntity( entityname,{namespace:namespace} );
 			var fields = [];
 			for ( var i = 0; i < list.length; i++ ) {
 				var o = list[ i ];
@@ -152,7 +163,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			return []
 		}
 	},
-	_getSearchFilterFields: function( entityname ) {
+	_getSearchFilterFields: function( namespace, entityname ) {
 		var allops = [ 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'inn', 'ew', 'en', 'cn', 'nc' ];
 		var odata = tr( "meta.lists.odata" );
 		odata = odata.replace( /'/g, '"' );
@@ -160,7 +171,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			odata = JSON.parse( odata );
 		} catch ( e ) {}
 
-		var model = simpl4.util.EntityManager.getEntityViewFields( entityname, "search" );
+		var model = simpl4.util.EntityManager.getEntityViewFields( entityname, "search", {namespace:namespace} );
 		if ( model == undefined ) return [];
 		var category = "data";
 

@@ -44,8 +44,12 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 	addSelectableItems:function(namespace,formName,fieldName,items){
 		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = items;
 	},
-	getSelectableItems:function(namespace,formName,fieldName){
-		return this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName];
+	getSelectableItems:function(namespace,formName,fieldName,url){
+		var si =  this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName];
+		if( si == null && url != null){
+			si = this.createSelectableItems(namespace,formName,fieldName,url);
+		}
+		return si;
 	},
 	handleQueryBuilderSearchInput: function( rule, filter ) {
 		var regulaConstraints = null;
