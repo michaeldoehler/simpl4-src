@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="" flex relative>
+<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="rules" flex relative>
 	<template>
 		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
 		<shadow></shadow>
@@ -29,24 +29,33 @@
 			eventDelegates: {
 				'filter-changed': 'filterChanged'
 			},
-			filterChanged: function( e ) {
-				console.log( "filterChanged" );
-				var data = e.detail;
-				this.entity = data.entity;
+			rulesChanged: function( e ) {
+				console.log( "rulesChanged" );
+				this.entity = this.rules.entity;
 				if ( this.dtMeta == null ) {
-					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( data.entity, "main-grid", true ) );
+					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true ) );
 				}
-				var dataSet = this.preProcessData( this.getData( e.detail.entity, e.detail.filter ) );
+				var dataSet = this.preProcessData( this.getData( this.rules.entity, this.rules ) );
 				this.createTable( this.dtMeta, dataSet );
 			},
 			preProcessData: function( rows ) {
-				rows.forEach( function( r ) {}, this );
+				var keys = Object.keys( this.selectables);
+				rows.forEach( function( r ) {
+					keys.forEach( function(key){
+						var val = r[key];
+						r[key] = this.selectables[key][val];
+					},this);
+				}, this );
 				return rows;
 			},
 			preProcessMeta: function( fields ) {
+				this.selectables = {};
 				var ret = [];
 				fields.forEach( function( f ) {
 					if ( f.hidden ) return;
+					if( f.selectable_items){
+						this.selectables[f.name] = this.toMap(f.selectable_items.getItems());
+					}
 					var col = {
 						title: tr( 'data.' + this.entity + '.' + f.name ),
 						data: f.name
@@ -54,6 +63,13 @@
 					ret.push( col );
 				}, this );
 				return ret;
+			},
+			toMap: function( sel ) {
+				var map = {};
+				sel.forEach(function(elem){
+					map[elem.value]=elem.label;
+				},this);
+				return map;
 			},
 			getData: function( entity, filter ) {
 				console.debug( "GetData" );
