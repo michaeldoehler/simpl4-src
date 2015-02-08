@@ -1,0 +1,44 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-crud" attributes="entity" flex relative>
+	<template>
+    <style>
+			:host{
+				min-height:400px;
+				display:inherit;
+			}
+    </style>
+		<core-animated-pages selected="{{pageSelected}}">
+			<section style="position:relative;">
+				<simpl-filter entity="{{entity}}" rules="{{rules}}"></simpl-filter>
+				<simpl-crudtable rules="{{rules}}"></simpl-crudtable>
+			</section>
+			<section style="position:relative;" unresolved>
+			</section>
+		</core-animated-pages>
+	</template>
+	<script>
+		Polymer( 'simpl-crud', {
+			pageSelected: 0
+		} );
+
+	</script>
+</polymer-element>

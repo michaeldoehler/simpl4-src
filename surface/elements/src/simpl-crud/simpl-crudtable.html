@@ -20,48 +20,100 @@
 -->
 <polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="rules" flex relative>
 	<template>
-		<core-signals on-core-signal-filter-changed="{{filterChanged}}"></core-signals>
+		<style>
+			paper-button.blue-ripple {
+				color: #4285f4;
+				float: left;
+				position: relative;
+			}
+		</style>
+	<template if="{{dataSet}}">
+		<div layout horizontal style="text-align:left;">
+			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
+			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
+		</div>
 		<shadow></shadow>
+	</template>
 	</template>
 	<script>
 		Polymer( 'simpl-crudtable', {
 			dtMeta: null,
-			eventDelegates: {
-				'filter-changed': 'filterChanged'
-			},
 			rulesChanged: function( e ) {
 				console.log( "rulesChanged" );
 				this.entity = this.rules.entity;
+				this.namespace = this.rules.namespace|| simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true ) );
 				}
-				var dataSet = this.preProcessData( this.getData( this.rules.entity, this.rules ) );
-				this.createTable( this.dtMeta, dataSet );
+				this.dataSet = this.preProcessData( this.getData( this.rules.entity, this.rules ) );
+				this.createTable( this.dtMeta, this.dataSet );
+				this.createRowListener();
+			},
+			createRowListener: function() {
+				var self = this;
+				var rows = this.dtTable.rows().nodes();
+				$( rows ).on( 'tap', ( function( e ) {
+					console.log( "Click:", e.currentTarget._DT_RowIndex );
+					var index = e.currentTarget._DT_RowIndex;
+					if ( $( this ).hasClass( 'selected' ) ) {
+					} else {
+						self.q( 'tr.selected' ).removeClass( 'selected' );
+						$( this ).addClass( 'selected' );
+						console.log("dataSet:"+JSON.stringify(self.dataSet[ index ],null,2));
+					}
+				} ) );
+			},
+			q: function( sel ) {
+				return $( this.$.dataTablesId.querySelectorAll( sel ) );
 			},
 			preProcessData: function( rows ) {
-				var keys = Object.keys( this.selectables);
+				var selKeys = Object.keys( this.selectableList);
+				var dateKeys = Object.keys( this.dateList);
+				var datetimeKeys = Object.keys( this.datetimeList);
 				rows.forEach( function( r ) {
-					keys.forEach( function(key){
+					selKeys.forEach( function(key){
 						var val = r[key];
-						r[key] = this.selectables[key][val];
+						r[key+"_display"] = this.selectableList[key][val];
+					},this);
+					dateKeys.forEach( function(key){
+						var val = r[key];
+						r[key+"_display"] = this.getDate(val);
 					},this);
 				}, this );
 				return rows;
 			},
 			preProcessMeta: function( fields ) {
-				this.selectables = {};
+				this.selectableList = {};
+				this.dateList = {};
+				this.datetimeList = {};
+				this.columns  = [];
 				var ret = [];
 				fields.forEach( function( f ) {
+					var dtName = f.name;
 					if ( f.hidden ) return;
 					if( f.selectable_items){
-						this.selectables[f.name] = this.toMap(f.selectable_items.getItems());
+						this.selectableList[f.name] = this.toMap(f.selectable_items.getItems());
+						dtName = f.name + "_display";
+					}
+					if( f.datatype == 'date'){
+						this.dateList[f.name] = true;
+						dtName = f.name + "_display";
+					}
+					if( f.datatype == 'datetime'){
+						this.datetimeList[f.name] = true;
+						dtName = f.name + "_display";
 					}
 					var col = {
 						title: tr( 'data.' + this.entity + '.' + f.name ),
-						data: f.name
+						data: dtName
 					}
 					ret.push( col );
+					this.columns.push( f.name );
 				}, this );
+				this.allModList= [];
+				this.allModList.concat(this.selectableList);
+				this.allModList.concat(this.dateList);
+				this.allModList.concat(this.datetimeList);
 				return ret;
 			},
 			toMap: function( sel ) {
@@ -71,10 +123,16 @@
 				},this);
 				return map;
 			},
+			getDate:function(val){
+				if( val == null){
+					return "--";
+				}
+				return moment(parseInt(val)).format("L");
+			},
 			getData: function( entity, filter ) {
 				console.debug( "GetData" );
 				var data = simpl4.util.Rpc.rpcSync( "data:query", {
-					storeId: "firstapp_data",
+					storeId: this.namespace+"_data",
 					pageSize: 100,
 					entity: entity,
 					filter: filter
