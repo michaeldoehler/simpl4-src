@@ -43,6 +43,8 @@
 			simpl4.util.BaseManager.setUser("admin");
 			simpl4.util.BaseManager.setPassword("admin");
 
+			moment.locale(simpl4.util.BaseManager.getLanguage());
+
 			window.simpl4FormManager = simpl4.util.FormManager;
 			window.simpl4MessageManager = simpl4.util.MessageManager;
 			window.simpl4EntityManager = simpl4.util.EntityManager;
