@@ -35,14 +35,19 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			return [];
 		}
 	},
+	getCrudForm: function(entityname,namespace) {
+		var props = simpl4.util.EntityManager.getEntityViewProperties(entityname,"main-form", {namespace:namespace});
+		var fields = simpl4.util.EntityManager.getEntityViewFields(entityname,"main-form",true, {namespace:namespace});
+		var cf = new simpl4.util.CrudForm(namespace, entityname, fields,props);
+		console.log("Fields:"+JSON.stringify(props,null,2));
+		return cf.getSpec();
+			
+	},
 	createSelectableItems:function(namespace,formName,fieldName,url){
 		namespace = namespace || simpl4.util.BaseManager.getNamespace();
 		var si = new simpl4.util.SelectableItems( {namespace:namespace,url:url } );
 		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = si;
 		return si;
-	},
-	addSelectableItems:function(namespace,formName,fieldName,items){
-		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = items;
 	},
 	getSelectableItems:function(namespace,formName,fieldName,url){
 		var si =  this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName];

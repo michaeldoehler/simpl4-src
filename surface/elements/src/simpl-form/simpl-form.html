@@ -281,6 +281,7 @@
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.shapes = this.prepareShape( form ).childShapes;
+				console.log("Shapes:"+JSON.stringify(this.shapes,null,2));
 			},
 			/*----------------------------------*/
 			prepareShape: function( shape ) {

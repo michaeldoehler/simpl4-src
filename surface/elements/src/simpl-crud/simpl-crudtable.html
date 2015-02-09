@@ -26,22 +26,26 @@
 				float: left;
 				position: relative;
 			}
+
 		</style>
-	<template if="{{dataSet}}">
-		<div layout horizontal style="text-align:left;">
-			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
-			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
-		</div>
+		<template if="{{dataSet}}">
+			<div layout horizontal style="text-align:left;">
+				<paper-button raised class="blue-ripple" on-tap="{{showAddForm}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{showCopyForm}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
+			</div>
+		</template>
 		<shadow></shadow>
-	</template>
 	</template>
 	<script>
 		Polymer( 'simpl-crudtable', {
 			dtMeta: null,
+			showAddForm: function( e ) {
+				simpl4FormManager.getCrudForm("contact");
+			},
 			rulesChanged: function( e ) {
 				console.log( "rulesChanged" );
 				this.entity = this.rules.entity;
-				this.namespace = this.rules.namespace|| simpl4.util.BaseManager.getNamespace();
+				this.namespace = this.rules.namespace || simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true ) );
 				}
@@ -55,11 +59,10 @@
 				$( rows ).on( 'tap', ( function( e ) {
 					console.log( "Click:", e.currentTarget._DT_RowIndex );
 					var index = e.currentTarget._DT_RowIndex;
-					if ( $( this ).hasClass( 'selected' ) ) {
-					} else {
+					if ( $( this ).hasClass( 'selected' ) ) {} else {
 						self.q( 'tr.selected' ).removeClass( 'selected' );
 						$( this ).addClass( 'selected' );
-						console.log("dataSet:"+JSON.stringify(self.dataSet[ index ],null,2));
+						console.log( "dataSet:" + JSON.stringify( self.dataSet[ index ], null, 2 ) );
 					}
 				} ) );
 			},
@@ -67,18 +70,18 @@
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
 			},
 			preProcessData: function( rows ) {
-				var selKeys = Object.keys( this.selectableList);
-				var dateKeys = Object.keys( this.dateList);
-				var datetimeKeys = Object.keys( this.datetimeList);
+				var selKeys = Object.keys( this.selectableList );
+				var dateKeys = Object.keys( this.dateList );
+				var datetimeKeys = Object.keys( this.datetimeList );
 				rows.forEach( function( r ) {
-					selKeys.forEach( function(key){
-						var val = r[key];
-						r[key+"_display"] = this.selectableList[key][val];
-					},this);
-					dateKeys.forEach( function(key){
-						var val = r[key];
-						r[key+"_display"] = this.getDate(val);
-					},this);
+					selKeys.forEach( function( key ) {
+						var val = r[ key ];
+						r[ key + "_display" ] = this.selectableList[ key ][ val ];
+					}, this );
+					dateKeys.forEach( function( key ) {
+						var val = r[ key ];
+						r[ key + "_display" ] = this.getDate( val );
+					}, this );
 				}, this );
 				return rows;
 			},
@@ -86,21 +89,21 @@
 				this.selectableList = {};
 				this.dateList = {};
 				this.datetimeList = {};
-				this.columns  = [];
+				this.columns = [];
 				var ret = [];
 				fields.forEach( function( f ) {
 					var dtName = f.name;
 					if ( f.hidden ) return;
-					if( f.selectable_items){
-						this.selectableList[f.name] = this.toMap(f.selectable_items.getItems());
+					if ( f.selectable_items ) {
+						this.selectableList[ f.name ] = this.toMap( f.selectable_items.getItems() );
 						dtName = f.name + "_display";
 					}
-					if( f.datatype == 'date'){
-						this.dateList[f.name] = true;
+					if ( f.datatype == 'date' ) {
+						this.dateList[ f.name ] = true;
 						dtName = f.name + "_display";
 					}
-					if( f.datatype == 'datetime'){
-						this.datetimeList[f.name] = true;
+					if ( f.datatype == 'datetime' ) {
+						this.datetimeList[ f.name ] = true;
 						dtName = f.name + "_display";
 					}
 					var col = {
@@ -110,29 +113,29 @@
 					ret.push( col );
 					this.columns.push( f.name );
 				}, this );
-				this.allModList= [];
-				this.allModList.concat(this.selectableList);
-				this.allModList.concat(this.dateList);
-				this.allModList.concat(this.datetimeList);
+				this.allModList = [];
+				this.allModList.concat( this.selectableList );
+				this.allModList.concat( this.dateList );
+				this.allModList.concat( this.datetimeList );
 				return ret;
 			},
 			toMap: function( sel ) {
 				var map = {};
-				sel.forEach(function(elem){
-					map[elem.value]=elem.label;
-				},this);
+				sel.forEach( function( elem ) {
+					map[ elem.value ] = elem.label;
+				}, this );
 				return map;
 			},
-			getDate:function(val){
-				if( val == null){
+			getDate: function( val ) {
+				if ( val == null ) {
 					return "--";
 				}
-				return moment(parseInt(val)).format("L");
+				return moment( parseInt( val ) ).format( "L" );
 			},
 			getData: function( entity, filter ) {
 				console.debug( "GetData" );
 				var data = simpl4.util.Rpc.rpcSync( "data:query", {
-					storeId: this.namespace+"_data",
+					storeId: this.namespace + "_data",
 					pageSize: 100,
 					entity: entity,
 					filter: filter
@@ -140,5 +143,6 @@
 				return data.rows;
 			}
 		} );
+
 	</script>
 </polymer-element>
