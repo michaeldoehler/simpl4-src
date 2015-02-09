@@ -230,6 +230,11 @@
 				} else {
 					this.value = this.editValue;
 				}
+				if( this.editValue){
+					this.$.decorator.updateLabelVisibility("X");
+				}else{
+					this.$.decorator.updateLabelVisibility("");
+				}
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;

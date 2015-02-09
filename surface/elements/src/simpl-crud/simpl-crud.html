@@ -35,9 +35,10 @@
 			<section style="position:relative;" unresolved>
 				<simpl-crudform id="formid" spec="{{spec}}"></simpl-crudform>
 				<div layout horizontal style="margin-top:20px;text-align:left;">
-					<paper-button raised on-tap="{{cancelAction}}" flex>{{'tasks.form.cancel'|tr}}</paper-button>
-					<paper-button raised on-tap="{{saveAction}}" flex>{{'data.form.save'|tr}}</paper-button>
+					<paper-button raised on-tap="{{cancelAction}}" flex><core-icon icon="cancel"></core-icon>{{'tasks.form.cancel'|tr}}</paper-button>
+					<paper-button raised on-tap="{{saveAction}}" flex><core-icon icon="save"></core-icon>{{'data.form.save'|tr}}</paper-button>
 				</div>
+				<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
 			</section>
 		</core-animated-pages>
 	</template>
@@ -58,11 +59,21 @@
 				this.pageSelected = 1;
 			},
 			saveAction: function() {
+				var valid = this.$.formid.validate();
 				var data = this.$.formid.getData();
+
+				if ( !this.valid ) {
+					this.error_message = tr("widgets.table.form_incomplete");
+					this.shadowRoot.querySelector( "#toast" ).show();
+					return;
+				}
+
+				console.log( "saveAction.valid:" + valid );
 				console.log( "saveAction:" + JSON.stringify( data, null, 2 ) );
 			},
 			addAction: function() {
 				console.log( "addAction:", this );
+				this.$.formid.setData( {} );
 				this.pageSelected = 1;
 			}
 		} );

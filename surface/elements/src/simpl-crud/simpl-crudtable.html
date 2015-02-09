@@ -22,17 +22,17 @@
 	<template>
 		<style>
 			paper-button.blue-ripple {
-				color: #4285f4;
+				//color: #4285f4;
 				float: left;
 				position: relative;
 			}
 
 		</style>
 		<template if="{{dataSet}}">
-			<div layout horizontal style="text-align:left;">
-				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex>{{'widgets.table.edit_button'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
+			<div layout horizontal xtyle="text-align:left;">
+				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex><core-icon icon="add"></core-icon>{{'button.new'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" flex><core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
 			</div>
 		</template>
 		<shadow></shadow>

@@ -60,7 +60,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		var regulaConstraints = null;
 		if ( filter.constraints ) {
 			var c = JSON.parse( filter.constraints );
-			regulaConstraints = this.constructRegulaConstraints( c );
+			regulaConstraints = 'data-constraints="' + this.constructRegulaConstraints( c )+'"';
 		}
 		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues!=null );
 		if( filter.dataValues ){
@@ -80,28 +80,27 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		return elements;
 	},
 	constructRegulaConstraints: function( c ) {
-		var ret = 'data-constraints="';
+		var ret = '';
 		var b="";
 		c.forEach( function( x ) {
 			var params = this._constraintParams[ x.annotation ];
 			ret += b+ '@' + x.annotation;
+			ret += '(message="' + tr( "validation." + x.annotation ) + '"';
 			if ( params ) {
-				ret += '(';
 				if ( params.length > 0 ) {
 					var key = params[ 0 ];
 					var val = key=='format' ? 'YMD' : x.parameter1;
-					ret += key + '=' + val;
+					ret += ',' + key + '=' + val;
 				}
 				if ( params.length > 1 ) {
 					var key = params[ 1 ];
 					var val = x.parameter2;
 					ret += ',' + key + '=' + val;
 				}
-				ret += ')';
 			}
+			ret += ')';
 			b=' ';
 		}, this );
-		ret += '"';
 		return ret;
 	},
 	constructAttributes: function( xtype, label, c, dropdown ) {

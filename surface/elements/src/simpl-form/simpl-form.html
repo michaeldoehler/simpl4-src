@@ -285,6 +285,7 @@
 				if ( elements.length == 0 ) {
 					return true;
 				}
+console.log("Bind:",elements);
 				regula.bind( {
 					elements: elements
 				} );
@@ -298,6 +299,16 @@
 					} );
 				} );
 				return errorList.length == 0;
+			},
+			filterToArray: function( nodeList ) {
+				var ret = [];
+				for ( var i = 0; i < nodeList.length; i++ ) {
+					var c = nodeList[ i ].getAttribute( "data-constraints" );
+					if ( c != null && c.length > 0 ) {
+						ret.push( nodeList[ i ] );
+					}
+				}
+				return ret;
 			},
 			addField: function( e ) {
 				this.fields.push( e.detail );
@@ -523,17 +534,6 @@
 					console.error( e.stack );
 				}
 				return def;
-			},
-			/*----------------------------------*/
-			filterToArray: function( nodeList ) {
-				var ret = [];
-				for ( var i = 0; i < nodeList.length; i++ ) {
-					var c = nodeList[ i ].getAttribute( "data-constraints" );
-					if ( c != null && c.length > 0 ) {
-						ret.push( nodeList[ i ] );
-					}
-				}
-				return ret;
 			}
 		} );
 	</script>

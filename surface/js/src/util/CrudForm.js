@@ -69,6 +69,12 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 		shape.xf_id = f.name;
 		shape.xf_type = this.convertFieldType(f);
 		shape.label = tr( "data." + this.entityname + "." + f.name );
+		if ( f.constraints ) {
+console.log("constraints:",f.constraints);
+			var c = JSON.parse( f.constraints );
+			shape.regulaConstraints = simpl4.util.FormManager.constructRegulaConstraints( c );
+console.log("regulaConstraints:",shape.regulaConstraints);
+		}
 		return shape;
 	},
 	convertFieldType: function( f ) {
