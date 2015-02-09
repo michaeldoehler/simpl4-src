@@ -89,7 +89,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			if ( params ) {
 				if ( params.length > 0 ) {
 					var key = params[ 0 ];
-					var val = key=='format' ? 'YMD' : x.parameter1;
+					var val = key=='format' ? '"YMD"' : x.parameter1;
 					ret += ',' + key + '=' + val;
 				}
 				if ( params.length > 1 ) {
