@@ -99,7 +99,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-form" attributes="namespace formName actionCallback variables" constructor="SimplForm" vertical layout>
+<polymer-element name="simpl-baseform" attributes="actionCallback" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -255,10 +255,7 @@
 		</div>
 	</template>
 	<script>
-		Polymer( 'simpl-form', {
-			data: null,
-			namespace: null,
-			formName: null,
+		Polymer( 'simpl-baseform', {
 			eventDelegates: {
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
@@ -274,6 +271,64 @@
 			created: function() {},
 			ready: function() {},
 			domReady: function() {},
+			validate: function( e ) {
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
+				Array.prototype.forEach.call( elements, function( elem ) {
+					elem.setInvalid( false );
+				} );
+				if ( elements.length == 0 ) {
+					return true;
+				}
+				regula.bind( {
+					elements: elements
+				} );
+				var errorList = regula.validate( {
+					elements: elements
+				} );
+				errorList.forEach( function( err ) {
+					err.failingElements.forEach( function( elem ) {
+						elem.setInvalid( true );
+						elem.setErrorMessage( err.message );
+					} );
+				} );
+				return errorList.length == 0;
+			},
+			addField: function( e ) {
+				this.fields.push( e.detail );
+				this.fieldsMap[ e.detail.name ] = e.detail;
+			},
+			removeField: function( e ) {
+				var i = this.fields.indexOf( e.detail );
+				if ( i >= 0 ) {
+					this.fields.splice( i, 1 );
+				}
+			},
+			setData: function( data ) {
+				this.fields.forEach( function( field ) {
+					field.editValue = data[ field.name ];
+				}, this );
+			},
+			getData: function() {
+				var data = {};
+				this.fields.forEach( function( field ) {
+					data[ field.name ] = field.value;
+				}, this );
+				return data;
+			}
+		} );
+	</script>
+</polymer-element>
+
+
+<polymer-element name="simpl-form" extends="simpl-baseform" attributes="namespace formName variables" constructor="SimplForm" vertical layout>
+	<template>
+   <shadow></shadow>
+	</template>
+	<script>
+		Polymer( 'simpl-form', {
+			data: null,
+			namespace: null,
+			formName: null,
 			formNameChanged: function() {
 				this.fields = [];
 				this.fieldsMap = {};
@@ -473,51 +528,8 @@
 					}
 				}
 				return ret;
-			},
-			validate: function( e ) {
-				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
-				Array.prototype.forEach.call( elements, function( elem ) {
-					elem.setInvalid( false );
-				} );
-				if ( elements.length == 0 ) {
-					return true;
-				}
-				regula.bind( {
-					elements: elements
-				} );
-				var errorList = regula.validate( {
-					elements: elements
-				} );
-				errorList.forEach( function( err ) {
-					err.failingElements.forEach( function( elem ) {
-						elem.setInvalid( true );
-						elem.setErrorMessage( err.message );
-					} );
-				} );
-				return errorList.length == 0;
-			},
-			addField: function( e ) {
-				this.fields.push( e.detail );
-				this.fieldsMap[ e.detail.name ] = e.detail;
-			},
-			removeField: function( e ) {
-				var i = this.fields.indexOf( e.detail );
-				if ( i >= 0 ) {
-					this.fields.splice( i, 1 );
-				}
-			},
-			setData: function( data ) {
-				this.fields.forEach( function( field ) {
-					field.editValue = data[ field.name ];
-				}, this );
-			},
-			getData: function() {
-				var data = {};
-				this.fields.forEach( function( field ) {
-					data[ field.name ] = field.value;
-				}, this );
-				return data;
 			}
 		} );
 	</script>
 </polymer-element>
+
