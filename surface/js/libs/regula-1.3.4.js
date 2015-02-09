@@ -5219,7 +5219,7 @@
 	 * @type {{validateEmptyFields: boolean, enableHTML5Validation: boolean, debug: boolean}}
 	 */
 	var config = {
-		validateEmptyFields: true,
+		validateEmptyFields: false,
 		enableHTML5Validation: false,
 		debug: false
 	};
