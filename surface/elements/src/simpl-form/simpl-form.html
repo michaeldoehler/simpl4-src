@@ -27,6 +27,7 @@
 				padding-top: 12px;
 				padding-bottom: 12px;
 			}
+
 		</style>
 		<shadow></shadow>
 	</template>
@@ -39,6 +40,7 @@
 				font-size: 1.3em;
 				padding: 16px 24px;
 			}
+
 		</style>
 		<content></content>
 	</template>
@@ -51,6 +53,7 @@
 				font-size: 0.75em;
 				padding: 1.1em 24px;
 			}
+
 		</style>
 		<content></content>
 	</template>
@@ -64,6 +67,7 @@
 				this.innerHTML = this.html;
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -77,6 +81,7 @@
 				padding: 7px;
 				background: white !important;
 			}
+
 		</style>
 		<content></content>
 	</template>
@@ -94,6 +99,7 @@
 			html /deep/ simpl-row >:not(:last-child) {
 				margin-right: 0px;
 			}
+
 		</style>
 		<content></content>
 	</template>
@@ -161,99 +167,100 @@
 			paper-tabs.transparent-teal paper-tab::shadow #ink {
 				color: beige;
 			}
+
 		</style>
 
-  <paper-shadow z=1>
+		<paper-shadow z=1>
 
-		<fieldset id="formdiv" verticax xayout>
-			<template repeat="{{shapes}}" id="root">
+			<fieldset id="formdiv" verticax xayout>
+				<template repeat="{{shapes}}" id="root">
 
-				<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
+					<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
-				<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
+					<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
+					<template if="{{ id=='Group' }}" ref="group" bind></template>
+
+					<template if="{{ id=='Row' }}" ref="row" bind></template>
+
+				</template>
+
+			</fieldset>
+			</paper-shapes>
+
+			<template id="group">
+				<simpl-group class="group">
+					<core-label for=".group">{{label}}</core-label>
+					<template ref="root" repeat="{{childShapes}}"></template>
+				</simpl-group>
+			</template>
+
+			<template id="row">
+				<simpl-row>
+					<template ref="root" repeat="{{childShapes}}"></template>
+				</simpl-row>
+			</template>
+
+			<template id="tabs">
+				<div class="tabcontainer" layout vertical felx>
+					<paper-tabs class="transparent-teal" selected="{{selected}}">
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<paper-tab id="{{xf_id}}">{{title||xf_id}}</paper-tab>
+							</template>
+						</template>
+					</paper-tabs>
+
+					<core-animated-pages selected="{{selected}}" vertical layout>
+						<template repeat="{{childShapes}}">
+							<template if="{{ id=='Page' }}">
+								<section style="position:relative;padding:0px;">
+									<template ref="element" repeat="{{childShapes}}"></template>
+								</section>
+							</template>
+						</template>
+					</core-animated-pages>
+				</div>
+			</template>
+
+			<template id="element">
+				<template if="{{ id=='Input' && xf_type == 'boolean' }}">
+					<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
+				</template>
+				<template if="{{ id=='Input' && xf_type != 'boolean' }}">
+					<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
+				</template>
+				<template if="{{ id=='ActionButton' }}">
+					<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
+						<core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}
+					</xaction-button>
+				</template>
+				<template if="{{ id=='Enumselect' }}">
+					<dropdown-field flex name="{{xf_id}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+						<template repeat="{{items}}">
+							<paper-item name="{{value}}">{{label}}</paper-item>
+						</template>
+					</dropdown-field>
+				</template>
+				<template if="{{ id=='Textarea' }}">
+					<multiline-field flex name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
+				</template>
+				<template if="{{ id=='Alert' }}">
+					<html-echo html="{{xf_message}}"></html-echo>
+				</template>
 				<template if="{{ id=='Group' }}" ref="group" bind></template>
-
 				<template if="{{ id=='Row' }}" ref="row" bind></template>
-
+			</template>
+			<template if="{{ defaultButtons }}">
+				<simpl-row>
+					<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="execute" raised>
+						<core-icon icon="check"></core-icon>{{'form.execute'|tr}}</xaction-button>
+					<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="cancel" raised>
+						<core-icon icon="clear"></core-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
+				</simpl-row>
 			</template>
 
-		</fieldset>
-</paper-shapes>
-
-		<template id="group">
-			<simpl-group class="group">
-				<core-label for=".group">{{label}}</core-label>
-				<template ref="root" repeat="{{childShapes}}"></template>
-			</simpl-group>
-		</template>
-
-		<template id="row">
-			<simpl-row>
-				<template ref="root" repeat="{{childShapes}}"></template>
-			</simpl-row>
-		</template>
-
-		<template id="tabs">
-			<div class="tabcontainer" layout vertical felx>
-				<paper-tabs class="transparent-teal" selected="{{selected}}">
-					<template repeat="{{childShapes}}">
-						<template if="{{ id=='Page' }}">
-							<paper-tab id="{{xf_id}}">{{title||xf_id}}</paper-tab>
-						</template>
-					</template>
-				</paper-tabs>
-
-				<core-animated-pages selected="{{selected}}" vertical layout>
-					<template repeat="{{childShapes}}">
-						<template if="{{ id=='Page' }}">
-							<section style="position:relative;padding:0px;">
-								<template ref="element" repeat="{{childShapes}}"></template>
-							</section>
-						</template>
-					</template>
-				</core-animated-pages>
-			</div>
-		</template>
-
-		<template id="element">
-			<template if="{{ id=='Input' && xf_type == 'boolean' }}">
-				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
-			</template>
-			<template if="{{ id=='Input' && xf_type != 'boolean' }}">
-				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
-			</template>
-			<template if="{{ id=='ActionButton' }}">
-				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
-					<core-icon icon="{{xf_iconname}}"></core-icon>{{xf_label}}
-				</xaction-button>
-			</template>
-			<template if="{{ id=='Enumselect' }}">
-				<dropdown-field flex name="{{xf_id}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
-					<template repeat="{{items}}">
-						<paper-item name="{{value}}">{{label}}</paper-item>
-					</template>
-				</dropdown-field>
-			</template>
-			<template if="{{ id=='Textarea' }}">
-				<multiline-field flex name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
-			</template>
-			<template if="{{ id=='Alert' }}">
-				<html-echo html="{{xf_message}}"></html-echo>
-			</template>
-			<template if="{{ id=='Group' }}" ref="group" bind></template>
-			<template if="{{ id=='Row' }}" ref="row" bind></template>
-		</template>
-		<template if="{{ defaultButtons }}">
-			<simpl-row>
-				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="execute" raised>
-					<core-icon icon="check"></core-icon>{{'form.execute'|tr}}</xaction-button>
-				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" xaction="cancel" raised>
-					<core-icon icon="clear"></core-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
-			</simpl-row>
-		</template>
-
-		<!--div>
+			<!--div>
 			<button on-tap="{{submit}}">Submit</button>
 		</div-->
 	</template>
@@ -275,7 +282,7 @@
 			ready: function() {},
 			domReady: function() {},
 			shapesChanged: function() {
-				console.debug("shapesChanged:",this.shapes);
+				console.debug( "shapesChanged:", this.shapes );
 			},
 			validate: function( e ) {
 				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
@@ -321,9 +328,12 @@
 			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
-console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+data[field.name]);
-					field.editValue = data[ field.name ] || field.defaultValue;
+					//console.log( "Val:editValue:" + field.editValue + "/value:" + field.defaultValue + "/" + data[ field.name ] );
+					field.editValue = data[ field.name ] || field.defaultValue || "";
 				}, this );
+				/*setTimeout( ( function() {
+					console.log( "Data:" + JSON.stringify( this.getData(), null, 2 ) );
+				} ).bind( this ), 2000 );*/
 			},
 			getData: function() {
 				var data = {};
@@ -333,13 +343,14 @@ console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+da
 				return data;
 			}
 		} );
+
 	</script>
 </polymer-element>
 
 
 <polymer-element name="simpl-form" extends="simpl-baseform" attributes="namespace formName variables" constructor="SimplForm" vertical layout>
 	<template>
-   <shadow></shadow>
+		<shadow></shadow>
 	</template>
 	<script>
 		Polymer( 'simpl-form', {
@@ -353,7 +364,7 @@ console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+da
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.shapes = this.prepareShape( form ).childShapes;
-				console.log("Shapes:"+JSON.stringify(this.shapes,null,2));
+				console.log( "Shapes:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			/*----------------------------------*/
 			prepareShape: function( shape ) {
@@ -400,8 +411,8 @@ console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+da
 						if ( shape.childShapes.length == 1 ) {
 							shape.childShapes = [];
 						}
-					}else{
-						shape.properties.label="";
+					} else {
+						shape.properties.label = "";
 					}
 					if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
 						var props = shape.properties;
@@ -413,7 +424,7 @@ console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+da
 							si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
 						}
 						props.items = si.getItems();
-						console.log( "SI:"+ JSON.stringify(si.getItems(),null,2) );
+						console.log( "SI:" + JSON.stringify( si.getItems(), null, 2 ) );
 					}
 				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 					var icon = shape.properties.xf_iconname;
@@ -536,6 +547,6 @@ console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+da
 				return def;
 			}
 		} );
+
 	</script>
 </polymer-element>
-
