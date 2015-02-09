@@ -38,7 +38,7 @@
 					<paper-button raised on-tap="{{cancelAction}}" flex><core-icon icon="cancel"></core-icon>{{'tasks.form.cancel'|tr}}</paper-button>
 					<paper-button raised on-tap="{{saveAction}}" flex><core-icon icon="save"></core-icon>{{'data.form.save'|tr}}</paper-button>
 				</div>
-				<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
+				<paper-toast id="toast" duration=4000 class="capsule" text="{{toast_message}}" style="padding-right: 60px;"></paper-toast>
 			</section>
 		</core-animated-pages>
 	</template>
@@ -54,6 +54,7 @@
 				this.pageSelected = 0;
 			},
 			editAction: function( e ) {
+				this.mode='edit';
 				console.log( "editAction:", e );
 				this.$.formid.setData( e.detail.data );
 				this.pageSelected = 1;
@@ -62,16 +63,24 @@
 				var valid = this.$.formid.validate();
 				var data = this.$.formid.getData();
 
-				if ( !this.valid ) {
-					this.error_message = tr("widgets.table.form_incomplete");
+				console.log( "saveAction.valid:" + valid );
+				if ( !valid ) {
+					this.toast_message = tr("widgets.table.form_incomplete");
 					this.shadowRoot.querySelector( "#toast" ).show();
 					return;
+				}else{
+					if( this.mode=='add'){
+						this.toast_message = tr("data.form.created");
+					}else{
+						this.toast_message = tr("data.form.saved");
+					}
+					this.shadowRoot.querySelector( "#toast" ).show();
+					setTimeout((function(){ this.pageSelected=0; }).bind(this), 4000);
 				}
-
-				console.log( "saveAction.valid:" + valid );
 				console.log( "saveAction:" + JSON.stringify( data, null, 2 ) );
 			},
 			addAction: function() {
+				this.mode='add';
 				console.log( "addAction:", this );
 				this.$.formid.setData( {} );
 				this.pageSelected = 1;

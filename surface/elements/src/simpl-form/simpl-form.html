@@ -218,10 +218,10 @@
 
 		<template id="element">
 			<template if="{{ id=='Input' && xf_type == 'boolean' }}">
-				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></checkbox-field>
+				<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
 			</template>
 			<template if="{{ id=='Input' && xf_type != 'boolean' }}">
-				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" xalue="{{data.value}}"></input-field>
+				<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
 			</template>
 			<template if="{{ id=='ActionButton' }}">
 				<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
@@ -229,14 +229,14 @@
 				</xaction-button>
 			</template>
 			<template if="{{ id=='Enumselect' }}">
-				<dropdown-field flex name="{{xf_id}}" label="{{label}}" raised>
+				<dropdown-field flex name="{{xf_id}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 					<template repeat="{{items}}">
 						<paper-item name="{{value}}">{{label}}</paper-item>
 					</template>
 				</dropdown-field>
 			</template>
 			<template if="{{ id=='Textarea' }}">
-				<multiline-field flex name="{{xf_id}}" label="{{label}}" xvalue="{{data.street}}"></multiline-field>
+				<multiline-field flex name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 			</template>
 			<template if="{{ id=='Alert' }}">
 				<html-echo html="{{xf_message}}"></html-echo>
@@ -285,7 +285,6 @@
 				if ( elements.length == 0 ) {
 					return true;
 				}
-console.log("Bind:",elements);
 				regula.bind( {
 					elements: elements
 				} );
@@ -322,7 +321,8 @@ console.log("Bind:",elements);
 			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
-					field.editValue = data[ field.name ];
+console.log("Val:editValue:"+field.editValue+"/value:"+field.defaultValue+"/"+data[field.name]);
+					field.editValue = data[ field.name ] || field.defaultValue;
 				}, this );
 			},
 			getData: function() {
