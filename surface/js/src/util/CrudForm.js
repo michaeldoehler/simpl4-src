@@ -73,7 +73,7 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 			var c = JSON.parse( f.constraints );
 			shape.regulaConstraints = simpl4.util.FormManager.constructRegulaConstraints( c );
 		}
-    shape.defaultValue = f.default_value;
+    shape.defaultValue = f.default_value !== '' ? f.default_value : null;
 		return shape;
 	},
 	convertFieldType: function( f ) {
