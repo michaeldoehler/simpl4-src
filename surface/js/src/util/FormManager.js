@@ -39,7 +39,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		var props = simpl4.util.EntityManager.getEntityViewProperties(entityname,"main-form", {namespace:namespace});
 		var fields = simpl4.util.EntityManager.getEntityViewFields(entityname,"main-form",true, {namespace:namespace});
 		var cf = new simpl4.util.CrudForm(namespace, entityname, fields,props);
-		console.log("Fields:"+JSON.stringify(props,null,2));
+		//console.log("Fields:"+JSON.stringify(props,null,2));
 		return cf.getSpec();
 			
 	},

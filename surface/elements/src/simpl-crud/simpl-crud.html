@@ -29,15 +29,22 @@
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="min-height:400px;position:relative;">
 				<simpl-filter entity="{{entity}}" rules="{{rules}}"></simpl-filter>
-				<simpl-crudtable rules="{{rules}}"></simpl-crudtable>
+				<simpl-crudtable on-add-action="{{addAction}}" rules="{{rules}}"></simpl-crudtable>
 			</section>
 			<section style="position:relative;" unresolved>
+				<simpl-crudform description="{{spec}}"></simpl-crudform>
 			</section>
 		</core-animated-pages>
 	</template>
 	<script>
 		Polymer( 'simpl-crud', {
-			pageSelected: 0
+			pageSelected: 0,
+			addAction:function(){
+				console.log("addAction:",this);
+				var spec = simpl4FormManager.getCrudForm(this.entity,"firstapp");
+				this.spec= [spec];
+				this.pageSelected=1;
+			}
 		} );
 
 	</script>

@@ -271,6 +271,9 @@
 			created: function() {},
 			ready: function() {},
 			domReady: function() {},
+			shapesChanged: function() {
+				console.debug("shapesChanged:",this.shapes);
+			},
 			validate: function( e ) {
 				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
 				Array.prototype.forEach.call( elements, function( elem ) {

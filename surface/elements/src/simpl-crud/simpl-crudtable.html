@@ -30,8 +30,8 @@
 		</style>
 		<template if="{{dataSet}}">
 			<div layout horizontal style="text-align:left;">
-				<paper-button raised class="blue-ripple" on-tap="{{showAddForm}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{showCopyForm}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
 			</div>
 		</template>
 		<shadow></shadow>
@@ -39,8 +39,9 @@
 	<script>
 		Polymer( 'simpl-crudtable', {
 			dtMeta: null,
-			showAddForm: function( e ) {
-				simpl4FormManager.getCrudForm("contact");
+			addAction:function(){
+					this.fire( "add-action", {
+					} );
 			},
 			rulesChanged: function( e ) {
 				console.log( "rulesChanged" );

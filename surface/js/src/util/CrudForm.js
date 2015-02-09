@@ -26,16 +26,15 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 	 ******************************************************************************/
 	init: function( namespace, entityname, fields, props ) {
 		this.entityname = entityname;
+		this.namespace = namespace;
 		var tabView = this.getTabview( props.formlayout, entityname );
 		this._fields = fields;
 		this._form = {};
 		var tabLists = this.getTabLists( this._fields );
 		var tabKeys = Object.keys( tabLists );
 		console.log( "tabKeys:" + tabKeys );
-		console.log( "tabLists:" + JSON.stringify( tabLists, null, 2 ) );
 		tabKeys.forEach( function( tabKey ) {
 			var tabviewPage = this.getTabViewPage( tabView, tabKey );
-			console.log( "tabviewPage:", tabviewPage );
 			tabviewPage.childShapes = [];
 			var layout = tabviewPage.layout;
 			var row = null;
@@ -57,13 +56,34 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 				row.childShapes.push( this.getFieldShape( f ) );
 			}, this );
 		}, this );
-		console.log( "tabView:" + JSON.stringify( tabView, null, 2 ) );
+//		console.log( "tabView:" + JSON.stringify( tabView, null, 2 ) );
+		this._form = tabView;
 	},
 	getFieldShape: function( f ) {
 		var shape = {};
-		shape.id = f.edittype;
+		shape.id = "Input";
+		if( f.edittype=="select"){
+			shape.id= "Enumselect";
+			shape.items = f.selectable_items.getItems();
+		}
+		shape.xf_id = f.name;
+		shape.xf_type = this.convertFieldType(f);
 		shape.label = tr( "data." + this.entityname + "." + f.name );
 		return shape;
+	},
+	convertFieldType: function( f ) {
+		var retType="text";
+		if ( f.datatype && f.datatype == 'date' ) {
+			retType = f.edittype == "text" ? "date" : f.edittype;
+		} else if ( f.datatype && ( f.datatype == 'decimal' || f.datatype == 'double' ) ) {
+			retType = "double";
+		} else if ( f.datatype && ( f.datatype == 'number' || f.datatype == 'integer' || f.datatype == 'long' ) ) {
+			retType = "integer";
+		}
+		if ( retType === "boolean" ) {
+			retType = "integer";
+		}
+		return retType;
 	},
 	getTabViewPage: function( tabView, tabKey ) {
 		var childShapes = tabView.childShapes;
