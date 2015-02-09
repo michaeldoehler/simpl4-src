@@ -560,6 +560,12 @@ console.log("haveHidden:"+haveHidden);
 		var breakpoints = this.c.breakpoints;
 		var breakpoint = breakpoints[0].name;
 
+
+		var widthAvailable = dt.table().container().offsetWidth;
+		console.log("widthAvailable:"+widthAvailable);
+		//Width is 0, when table not visible
+		if( widthAvailable==0) return;
+
 		// Determine what breakpoint we are currently at
 		for ( var i=breakpoints.length-1 ; i>=0 ; i-- ) {
 			if ( width <= breakpoints[i].width ) {
