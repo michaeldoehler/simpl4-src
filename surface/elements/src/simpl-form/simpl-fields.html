@@ -31,6 +31,7 @@
 			}
 		};
 	} );
+
 </script>
 
 <polymer-element name="form-field" attributes="label compact name value meta editValue" field>
@@ -48,6 +49,7 @@
 			:host /deep/ paper-input-decorator {
 				padding: 0 !important;
 			}
+
 		</style>
 	</template>
 	<script>
@@ -79,6 +81,7 @@
 				}
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -213,6 +216,11 @@
 			committedValueChanged: function() { //@@@MS ???
 			},
 			editValueChanged: function() {
+				var isString = ( typeof this.editValue ) === "string";
+				if ( isString && this.type.match( /^date/ ) && !this.editValue.match( /-/ ) ) {
+					var showTime = this.type.match( /^datetime/ ) != null;
+					this.editValue = moment( parseInt( this.editValue ) ).format( showTime ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD" );
+				}
 				if ( this.type == "date" && !this.hasDate ) {
 					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() );
 					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
@@ -237,6 +245,7 @@
 				//Dummy,regula want access this
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -250,6 +259,7 @@
 			textarea {
 				width: 100%;
 			}
+
 		</style>
 		<paper-input-decorator flex label="{{label}}" floatingLabel>
 			<paper-autogrow-textarea>
@@ -283,6 +293,7 @@
 				this.value = this.editValue;
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -312,6 +323,7 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
+
 		</style>
 		<div class="floated-label" invalid?="{{isInvalid}}" invisible?="{{value === undefined}}">
 			<span invalid?="{{isInvalid}}" class="label-text">{{label}}</span>
@@ -345,6 +357,7 @@
 				}
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -368,6 +381,7 @@
 				font-size: 0.75em;
 				color: #757575;
 			}
+
 		</style>
 		<div class="floated-label" invisibxe?="{{value === undefined}}">
 			<span class="label-text">{{label}}</span>
@@ -399,6 +413,7 @@
 				font-size: 0.75em;
 				color: #757575;
 			}
+
 		</style>
 		<div class="floated-label" invisible?="{{value === undefined}}">
 			<span class="label-text">{{label}}</span>
@@ -431,6 +446,7 @@
 				font-size: 0.75em;
 				padding: 1em;
 			}
+
 		</style>
 		<div class="floated-label" invisible?="{{value === undefined}}">
 			<span class="label-text">{{label}}</span>
@@ -450,7 +466,7 @@
 			}
 			:host(.compact) {
 				position: relative;
-				top:-3px;
+				top: -3px;
 				margin: 0;
 			}
 			[invisible] {
@@ -462,7 +478,7 @@
 				color: #757575;
 			}
 			#floatedLabel.compact {
-				display:none;
+				display: none;
 			}
 			.label-text {
 				display: inline-block;
@@ -476,11 +492,12 @@
 				padding: 0;
 			}
 			#paperDropdownMenu.compact {
-				margin:0;
+				margin: 0;
 			}
 			paper-dropdown-menu::shadow #dropdown {
 				min-width: 100%;
 			}
+
 		</style>
 		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined}}">
 			<span class="label-text">{{label}}</span>
@@ -501,7 +518,10 @@
 					reflect: true
 				}
 			},
-			domReady: function(){
+			editValueChanged: function() {
+				this.value = this.editValue;
+			},
+			domReady: function() {
 				if ( this.compact ) {
 					jQuery( this.$.floatedLabel ).addClass( "compact" );
 					jQuery( this.$.paperDropdownMenu ).addClass( "compact" );
@@ -509,6 +529,7 @@
 				}
 			}
 		} );
+
 	</script>
 </polymer-element>
 
@@ -532,6 +553,7 @@
 			span {
 				margin-right: 12px;
 			}
+
 		</style>
 		<span>{{name}}</span>
 		<paper-input three-digits value="{{partA}}"></paper-input> -
@@ -553,5 +575,6 @@
 				}
 			}
 		} );
+
 	</script>
 </polymer-element>

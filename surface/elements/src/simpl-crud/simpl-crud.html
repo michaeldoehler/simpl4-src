@@ -20,30 +20,50 @@
 -->
 <polymer-element name="simpl-crud" attributes="entity" flex relative>
 	<template>
-    <style>
-			:host{
-				min-height:400px;
-				display:inherit;
+		<style>
+			:host {
+				min-height: 400px;
+				display: inherit;
 			}
-    </style>
+
+		</style>
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="min-height:400px;position:relative;">
 				<simpl-filter entity="{{entity}}" rules="{{rules}}"></simpl-filter>
-				<simpl-crudtable on-add-action="{{addAction}}" rules="{{rules}}"></simpl-crudtable>
+				<simpl-crudtable on-add-action="{{addAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
 			</section>
 			<section style="position:relative;" unresolved>
-				<simpl-crudform description="{{spec}}"></simpl-crudform>
+				<simpl-crudform id="formid" spec="{{spec}}"></simpl-crudform>
+				<div layout horizontal style="margin-top:20px;text-align:left;">
+					<paper-button raised on-tap="{{cancelAction}}" flex>{{'tasks.form.cancel'|tr}}</paper-button>
+					<paper-button raised on-tap="{{saveAction}}" flex>{{'data.form.save'|tr}}</paper-button>
+				</div>
 			</section>
 		</core-animated-pages>
 	</template>
 	<script>
 		Polymer( 'simpl-crud', {
 			pageSelected: 0,
-			addAction:function(){
-				console.log("addAction:",this);
-				var spec = simpl4FormManager.getCrudForm(this.entity,"firstapp");
-				this.spec= [spec];
-				this.pageSelected=1;
+			domReady: function() {
+				var spec = simpl4FormManager.getCrudForm( this.entity, "firstapp" );
+				this.spec = [ spec ];
+			},
+			cancelAction: function() {
+				console.log( "CancelAction:", this );
+				this.pageSelected = 0;
+			},
+			editAction: function( e ) {
+				console.log( "editAction:", e );
+				this.$.formid.setData( e.detail.data );
+				this.pageSelected = 1;
+			},
+			saveAction: function() {
+				var data = this.$.formid.getData();
+				console.log( "saveAction:" + JSON.stringify( data, null, 2 ) );
+			},
+			addAction: function() {
+				console.log( "addAction:", this );
+				this.pageSelected = 1;
 			}
 		} );
 

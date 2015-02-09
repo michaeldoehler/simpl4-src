@@ -31,6 +31,7 @@
 		<template if="{{dataSet}}">
 			<div layout horizontal style="text-align:left;">
 				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex>{{'widgets.table.add_button'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex>{{'widgets.table.edit_button'|tr}}</paper-button>
 				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" flex>{{'widgets.table.copy_button'|tr}}</paper-button>
 			</div>
 		</template>
@@ -39,9 +40,15 @@
 	<script>
 		Polymer( 'simpl-crudtable', {
 			dtMeta: null,
-			addAction:function(){
-					this.fire( "add-action", {
-					} );
+			currentRowIndex: null,
+			addAction: function() {
+				this.fire( "add-action", {} );
+			},
+			editAction: function() {
+				if ( this.currentRowIndex == null ) return;
+				this.fire( "edit-action", {
+					data: this.dataSet[ this.currentRowIndex ]
+				} );
 			},
 			rulesChanged: function( e ) {
 				console.log( "rulesChanged" );
@@ -58,14 +65,18 @@
 				var self = this;
 				var rows = this.dtTable.rows().nodes();
 				$( rows ).on( 'tap', ( function( e ) {
-					console.log( "Click:", e.currentTarget._DT_RowIndex );
-					var index = e.currentTarget._DT_RowIndex;
-					if ( $( this ).hasClass( 'selected' ) ) {} else {
-						self.q( 'tr.selected' ).removeClass( 'selected' );
-						$( this ).addClass( 'selected' );
-						console.log( "dataSet:" + JSON.stringify( self.dataSet[ index ], null, 2 ) );
-					}
+					self.tapAction( e, this, false );
 				} ) );
+			},
+			tapAction: function( e, t, double ) {
+				if ( $( t ).hasClass( 'selected' ) ) {
+					return;
+				}
+				var rowIndex = e.currentTarget._DT_RowIndex;
+				console.log( "tapAction:", rowIndex );
+				this.currentRowIndex = rowIndex;
+				this.q( 'tr.selected' ).removeClass( 'selected' );
+				$( t ).addClass( 'selected' );
 			},
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );

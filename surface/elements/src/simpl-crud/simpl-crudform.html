@@ -1,15 +1,15 @@
-<polymer-element name="simpl-crudform" extends="simpl-baseform" attributes="description" vertical layout>
+<polymer-element name="simpl-crudform" extends="simpl-baseform" attributes="spec" vertical layout>
 	<template>
    <shadow></shadow>
 	</template>
 	<script>
 		Polymer( 'simpl-crudform', {
-			descriptionChanged: function(e) {
+			specChanged: function(e) {
 				this.fields = [];
 				this.fieldsMap = {};
 				console.log("e:",e);
-				//console.log( "descriptionChanged:"+JSON.stringify(this.description,null,2) );
-				this.shapes =  this.description;
+				//console.log( "descriptionChanged:"+JSON.stringify(this.spec,null,2) );
+				this.shapes =  this.spec;
 			}
 		} );
 	</script>
