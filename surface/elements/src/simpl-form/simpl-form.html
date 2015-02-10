@@ -326,14 +326,14 @@
 					this.fields.splice( i, 1 );
 				}
 			},
+			getLabel: function( path ) {
+				var f = this.fieldsMap[path];
+				return f.label;
+			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
-					//console.log( "Val:editValue:" + field.editValue + "/value:" + field.defaultValue + "/" + data[ field.name ] );
 					field.editValue = data[ field.name ] || field.defaultValue || "";
 				}, this );
-				/*setTimeout( ( function() {
-					console.log( "Data:" + JSON.stringify( this.getData(), null, 2 ) );
-				} ).bind( this ), 2000 );*/
 			},
 			getData: function() {
 				var data = {};

@@ -60,7 +60,7 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		var regulaConstraints = null;
 		if ( filter.constraints ) {
 			var c = JSON.parse( filter.constraints );
-			regulaConstraints = 'data-constraints="' + this.constructRegulaConstraints( c )+'"';
+			regulaConstraints = "data-constraints='" + this.constructRegulaConstraints( c )+"'";
 		}
 		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues!=null );
 		if( filter.dataValues ){
