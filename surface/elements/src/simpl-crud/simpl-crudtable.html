@@ -32,7 +32,7 @@
 			<div layout horizontal xtyle="text-align:left;">
 				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex><core-icon icon="add"></core-icon>{{'button.new'|tr}}</paper-button>
 				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" flex><core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
 			</div>
 		</template>
 		<shadow></shadow>
@@ -47,6 +47,12 @@
 			editAction: function() {
 				if ( this.currentRowIndex == null ) return;
 				this.fire( "edit-action", {
+					data: this.dataSet[ this.currentRowIndex ]
+				} );
+			},
+			copyAction: function() {
+				if ( this.currentRowIndex == null ) return;
+				this.fire( "copy-action", {
 					data: this.dataSet[ this.currentRowIndex ]
 				} );
 			},

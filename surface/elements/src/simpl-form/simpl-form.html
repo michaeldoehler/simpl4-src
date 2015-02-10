@@ -214,7 +214,7 @@
 					<core-animated-pages selected="{{selected}}" vertical layout>
 						<template repeat="{{childShapes}}">
 							<template if="{{ id=='Page' }}">
-								<section style="position:relative;padding:0px;">
+								<section style="margin-top:20px;position:relative;padding:0px;">
 									<template ref="element" repeat="{{childShapes}}"></template>
 								</section>
 							</template>
@@ -327,11 +327,13 @@
 				}
 			},
 			getLabel: function( path ) {
-				var f = this.fieldsMap[path];
+				var f = this.fieldsMap[ path ];
 				return f.label;
 			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
+					field.withoutCheck = true;
+					if ( field.setInvalid ) field.setInvalid( false );
 					field.editValue = data[ field.name ] || field.defaultValue || "";
 				}, this );
 			},

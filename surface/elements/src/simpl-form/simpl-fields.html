@@ -215,6 +215,18 @@
 			},
 			committedValueChanged: function() { //@@@MS ???
 			},
+			openObeserver: function() {//Example
+				this.params = {};
+				this.editValue = null;
+				this.observer = new PathObserver( this, "editValue" );
+				this.observer.open( function( added, removed, changed, getOldValueFn ) {
+					Object.keys( changed ).forEach( function( property ) {
+						//console.log( "changed:" + property + "=" + changed[ property ] );
+					} );
+					console.debug( "editValue(" + this.name + ")ev::" + this.editValue + "|add:" + added + "|rm:" + removed );
+					this.editValueChanged2( false );
+				}, this );
+			},
 			editValueChanged: function() {
 				var isString = ( typeof this.editValue ) === "string";
 				if ( isString && this.type.match( /^date/ ) && !this.editValue.match( /-/ ) ) {
@@ -230,14 +242,18 @@
 				} else {
 					this.value = this.editValue;
 				}
-				if( this.editValue){
-					this.$.decorator.updateLabelVisibility("X");
-				}else{
-					this.$.decorator.updateLabelVisibility("");
+				if ( this.editValue ) {
+					this.$.decorator.updateLabelVisibility( "X" );
+				} else {
+					this.$.decorator.updateLabelVisibility( "" );
 				}
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
+				}
 				this.checkConstraints();
 			},
 			setErrorMessage: function( message ) {

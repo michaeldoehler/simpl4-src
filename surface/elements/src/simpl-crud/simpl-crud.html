@@ -30,7 +30,7 @@
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="min-height:400px;position:relative;">
 				<simpl-filter entity="{{entity}}" rules="{{rules}}"></simpl-filter>
-				<simpl-crudtable on-add-action="{{addAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+				<simpl-crudtable on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
 			</section>
 			<section style="position:relative;" unresolved>
 				<simpl-crudform id="formid" spec="{{spec}}"></simpl-crudform>
@@ -60,6 +60,12 @@
 			cancelAction: function() {
 				console.log( "CancelAction:", this );
 				this.pageSelected = 0;
+			},
+			copyAction: function( e ) {
+				this.mode = 'add';
+				console.log( "copyAction:", e );
+				this.$.formid.setData( e.detail.data );
+				this.pageSelected = 1;
 			},
 			editAction: function( e ) {
 				this.mode = 'edit';
