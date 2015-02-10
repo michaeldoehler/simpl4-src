@@ -30,6 +30,7 @@
 				max-width: 100%;
 				font-size: 12px;
 				cursor: default;
+				border: 0 none;
 			}
 			:host /deep/ #dataTablesId tr {
 				height: 24px;
@@ -88,6 +89,10 @@
 					line-height: 23px !important;
 					left: 0px !important;
 				}
+			}
+			:host /deep/ #dataTablesId thead tr th,
+			:host /deep/ #dataTablesId tfoot tr th {
+				background: white;
 			}
 			:host /deep/ #dataTablesId.no-footer {
 				border-bottom: 1px solid gray;
