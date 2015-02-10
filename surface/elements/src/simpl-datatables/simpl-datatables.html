@@ -42,6 +42,7 @@
 			:host /deep/ #dataTablesId_length {
 				max-width: 170px;
 				font-size: 12px;
+				margin-bottom: 2px;
 				float: left;
 			}
 			:host /deep/ #dataTablesId_length select {
@@ -56,11 +57,11 @@
 			}
 			:host /deep/ #dataTablesId_filter label {
 				font-size: 12px;
-				margin-top:2px;
+				margin-top: 2px;
 			}
 			:host /deep/ #dataTablesId_filter input {
 				width: 90px;
-				margin-top:2px;
+				margin-top: 2px;
 			}
 			:host /deep/ #dataTablesId td:first-child:before {
 				top: 3px !important;
@@ -71,11 +72,11 @@
 				line-height: 14px !important;
 				left: 4px !important;
 				font-weight: 800 !important;
-				border: 1px solid black !important;
+				//border: 1px solid gray !important;
 				border-radius: 3px !important;
 				box-shadow: 0 0 0px !important;
-				background-color: beige;
-				color: black;
+				background-color: white;
+				color: gray;
 			}
 			@media screen and (max-width: 767px) {
 				:host /deep/ #dataTablesId td:first-child:before {
@@ -87,6 +88,28 @@
 					line-height: 23px !important;
 					left: 0px !important;
 				}
+			}
+			:host /deep/ #dataTablesId.no-footer {
+				border-bottom: 1px solid gray;
+			}
+			:host /deep/ #dataTablesId thead th,
+			:host /deep/ #dataTablesId thead td {
+				border-bottom: 1px solid gray;
+				border-top: 1px solid gray;
+			}
+			:host /deep/ #dataTablesId thead tr th:first-child {
+				border-left: 1px solid gray;
+				border-top-left-radius: 3px;
+			}
+			:host /deep/ #dataTablesId thead tr th:last-child {
+				border-right: 1px solid gray;
+				border-top-right-radius: 3px;
+			}
+			:host /deep/ #dataTablesId tbody tr td:first-child {
+				border-left: 1px solid gray;
+			}
+			:host /deep/ #dataTablesId tbody tr td:last-child {
+				border-right: 1px solid gray;
 			}
 			polyfill-rule {
 				content: '#dataTablesId td:first-child:before';
@@ -115,6 +138,7 @@
 				white-space: normal;
 				font-size: 12px;
 			}
+
 		</style>
 		<div style="overflow:hidden;">
 			<table id="dataTablesId" class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
@@ -217,5 +241,6 @@
 				}
 			}
 		} );
+
 	</script>
 </polymer-element>

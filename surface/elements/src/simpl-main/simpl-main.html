@@ -115,10 +115,10 @@
 				</core-toolbar>
 
 				<div class="content" style="xeight:100%"> <!--height:100% slow scroll in chromium androit-->
-					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="scale-up">
+					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="cross-fade">
 						<template repeat="{{page, i in pages}}">
 							<section style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
-								<div scale-up="" style="height:100%">
+								<div cross-fade style="height:100%">
 									<div style="max-width:100%;">Loading...{{page.name}}</div>
 								</div>
 							</section>
