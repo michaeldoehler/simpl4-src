@@ -56,8 +56,13 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 				row.childShapes.push( this.getFieldShape( f ) );
 			}, this );
 		}, this );
-//		console.log( "tabView:" + JSON.stringify( tabView, null, 2 ) );
-		this._form = tabView;
+		var h1 = "data."+entityname+"."+tabView.childShapes[0].xf_id;
+		if( tabView.childShapes.length==1 && h1 == tr(h1)){
+			this._form = tabView.childShapes[0];
+			this._form.id="Form";
+		}else{
+			this._form = tabView;
+		}
 	},
 	getFieldShape: function( f ) {
 		var shape = {};

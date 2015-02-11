@@ -183,10 +183,16 @@
 
 					<template if="{{ id=='Row' }}" ref="row" bind></template>
 
+					<template if="{{ id=='Form' }}" ref="form" bind></template>
+
 				</template>
 
 			</fieldset>
 			</paper-shapes>
+
+			<template id="form">
+					<template ref="root" repeat="{{childShapes}}"></template>
+			</template>
 
 			<template id="group">
 				<simpl-group class="group">
