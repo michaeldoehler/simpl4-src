@@ -1095,7 +1095,7 @@
 		} );
 	
 		if ( cellData === undefined ) {
-			if ( settings.iDrawError != draw && defaultContent === null ) {
+			if ( false && settings.iDrawError != draw && defaultContent === null ) {
 				_fnLog( settings, 0, "Requested unknown parameter "+
 					(typeof col.mData=='function' ? '{function}' : "'"+col.mData+"'")+
 					" for row "+rowIdx, 4 );
