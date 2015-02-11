@@ -518,6 +518,16 @@
 			paper-dropdown-menu::shadow #dropdown {
 				min-width: 100%;
 			}
+ 			:host /deep/ #scroller {
+    overflow: auto;
+    max-height: 300px;
+  }
+
+ 		::content paper-item /deep/ .button-content {
+    padding: 0.35em 1em;
+		font-size:14px;
+  }
+</style>
 
 		</style>
 		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined}}">

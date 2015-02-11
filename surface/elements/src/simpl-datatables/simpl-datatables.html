@@ -65,7 +65,7 @@
 				margin-top: 2px;
 			}
 			:host /deep/ #dataTablesId td:first-child:before {
-				top: 3px !important;
+				top: 2px !important;
 				height: 16px !important;
 				width: 16px !important;
 				font-size: 14px !important;
@@ -81,13 +81,13 @@
 			}
 			@media screen and (max-width: 767px) {
 				:host /deep/ #dataTablesId td:first-child:before {
-					top: 1px !important;
-					height: 23px !important;
-					width: 22px !important;
+					top: 2px !important;
+					height: 20px !important;
+					width: 20px !important;
 					font-size: 20px !important;
 					font-family: verdana !important;
-					line-height: 23px !important;
-					left: 0px !important;
+					line-height: 21px !important;
+					left: 2px !important;
 				}
 			}
 			:host /deep/ #dataTablesId thead tr th,
@@ -118,7 +118,7 @@
 			}
 			polyfill-rule {
 				content: '#dataTablesId td:first-child:before';
-				top: 6px !important;
+				top: 3px !important;
 			}
 			:host /deep/ #dataTablesId tbody tr td:not(:first-child) {
 				padding: 5px 8px 5px;
@@ -133,6 +133,14 @@
 				text-align: left;
 				line-height: 1.6;
 			}
+:host /deep/ #dataTablesId tbody tr.odd.selected, table.dataTable.display tbody tr.odd.selected,
+:host /deep/ #dataTablesId tbody tr.even.selected, table.dataTable.display tbody tr.even.selected {
+  background-color: #DDDDC6;
+}
+:host /deep/ #dataTablesId thead tr th, :host /deep/ #dataTablesId tfoot tr th {
+background: beige;
+}
+
 			:host /deep/ #dataTablesId thead tr th:first-child {
 				padding: 0px 30px 0px;
 			}
