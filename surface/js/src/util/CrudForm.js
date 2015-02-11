@@ -36,7 +36,7 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 		tabKeys.forEach( function( tabKey ) {
 			var tabviewPage = this.getTabViewPage( tabView, tabKey );
 			tabviewPage.childShapes = [];
-			var layout = tabviewPage.layout;
+			var layout = tabviewPage.layout || "single";
 			var row = null;
 			tabLists[ tabKey ].forEach( function( f, i ) {
 				if ( layout == "single" ) {
