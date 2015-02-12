@@ -76,8 +76,8 @@
 					this.dtMeta = this.getMeta();
 				}
 				var dataSet = this.getTasks();
-				console.log( "dataSet:" + JSON.stringify( dataSet, null, 2 ) );
-				console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
+				//console.log( "dataSet:" + JSON.stringify( dataSet, null, 2 ) );
+				//console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
 				this.createTable( this.dtMeta, dataSet );
 				this.createRowListener();
 			},

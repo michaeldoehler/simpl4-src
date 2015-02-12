@@ -51,6 +51,7 @@
 			}
 
 		</style>
+		<content></content>
 	</template>
 	<script>
 		Polymer( {
@@ -64,6 +65,9 @@
 			},
 			detached: function() {
 				this.fire( 'remove-form-field', this );
+			},
+			domReady: function() {
+				this.isDomReady = true;
 			},
 			checkConstraints: function() {
 				var c = this.getAttribute( "data-constraints" );
@@ -79,6 +83,17 @@
 				if ( errorList.length > 0 ) {
 					this.setErrorMessage( errorList[ 0 ].message );
 				}
+			}
+		} );
+
+	</script>
+</polymer-element>
+
+<polymer-element name="html-echo" extends="form-field" kind="alert" attributes="html">
+	<script>
+		Polymer( 'html-echo', {
+			htmlChanged: function() {
+				this.innerHTML = this.html;
 			}
 		} );
 
@@ -215,7 +230,7 @@
 			},
 			committedValueChanged: function() { //@@@MS ???
 			},
-			openObeserver: function() {//Example
+			openObeserver: function() { //Example
 				this.params = {};
 				this.editValue = null;
 				this.observer = new PathObserver( this, "editValue" );
@@ -247,6 +262,7 @@
 				} else {
 					this.$.decorator.updateLabelVisibility( "" );
 				}
+				this.fire( 'value-changed', this );
 			},
 			valueChanged: function() {
 				if ( !this.$.decorator ) return;
@@ -282,7 +298,7 @@
 			}
 
 		</style>
-		<paper-input-decorator flex label="{{label}}" floatingLabel>
+		<paper-input-decorator id="decorator" flex label="{{label}}" floatingLabel>
 			<paper-autogrow-textarea>
 				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{editValue}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
 			</paper-autogrow-textarea>
@@ -312,6 +328,14 @@
 			value: "",
 			editValueChanged: function() {
 				this.value = this.editValue;
+			},
+			valueChanged: function() {
+				if ( !this.$.decorator ) return;
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
+				}
+				this.checkConstraints();
 			}
 		} );
 
@@ -363,9 +387,6 @@
 	<script>
 		Polymer( {
 			publish: {
-				domReady: function() {
-					this.domReady = true;
-				},
 				setErrorMessage: function( message ) {
 					this.error = message;
 				},
@@ -373,7 +394,11 @@
 					this.isInvalid = b;
 				},
 				valueChanged: function( e ) {
-					if ( this.domReady != true ) return;
+					if ( this.isDomReady != true ) return;
+					if ( this.withoutCheck ) {
+						this.withoutCheck = false;
+						return;
+					}
 					this.checkConstraints();
 				}
 			}
@@ -518,16 +543,16 @@
 			paper-dropdown-menu::shadow #dropdown {
 				min-width: 100%;
 			}
- 			:host /deep/ #scroller {
-    overflow: auto;
-    max-height: 300px;
-  }
+			:host /deep/ #scroller {
+				overflow: auto;
+				max-height: 300px;
+			}
+			::content paper-item /deep/ .button-content {
+				padding: 0.35em 1em;
+				font-size: 14px;
+			}
 
- 		::content paper-item /deep/ .button-content {
-    padding: 0.35em 1em;
-		font-size:14px;
-  }
-</style>
+		</style>
 
 		</style>
 		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined}}">
@@ -552,7 +577,16 @@
 			editValueChanged: function() {
 				this.value = this.editValue;
 			},
+			valueChanged: function( e ) {
+				if ( this.isDomReady != true ) return;
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
+				}
+				this.fire( 'value-changed', this );
+			},
 			domReady: function() {
+				this.isDomReady = true;
 				if ( this.compact ) {
 					jQuery( this.$.floatedLabel ).addClass( "compact" );
 					jQuery( this.$.paperDropdownMenu ).addClass( "compact" );

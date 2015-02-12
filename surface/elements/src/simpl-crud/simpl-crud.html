@@ -33,7 +33,7 @@
 				<simpl-crudtable on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
 			</section>
 			<section style="padding:0px;position:relative;" unresolved>
-				<simpl-crudform id="formid" spec="{{spec}}"></simpl-crudform>
+				<simpl-crudform id="formid" mode="{{mode}}" spec="{{spec}}"></simpl-crudform>
 				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
 					<paper-button raised on-tap="{{saveAction}}" flex>
 						<core-icon icon="save"></core-icon>{{'data.form.save'|tr}}</paper-button>

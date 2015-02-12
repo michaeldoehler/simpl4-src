@@ -60,16 +60,6 @@
 </polymer-element>
 
 
-<polymer-element name="html-echo" attributes="html">
-	<script>
-		Polymer( 'html-echo', {
-			htmlChanged: function() {
-				this.innerHTML = this.html;
-			}
-		} );
-
-	</script>
-</polymer-element>
 
 <polymer-element name="simpl-group" vertical flex layout noscript>
 	<template>
@@ -105,7 +95,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-baseform" attributes="actionCallback" vertical layout>
+<polymer-element name="simpl-baseform" attributes="actionCallback mode" vertical layout>
 	<template>
 		<link rel="stylesheet" type="text/css" href="grids.css">
 		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
@@ -167,6 +157,12 @@
 			paper-tabs.transparent-teal paper-tab::shadow #ink {
 				color: beige;
 			}
+			[invisible] {
+				visibility: hidden;
+			}
+			[exclude] {
+				display: none !important;
+			}
 
 		</style>
 
@@ -191,7 +187,7 @@
 			</paper-shapes>
 
 			<template id="form">
-					<template ref="root" repeat="{{childShapes}}"></template>
+				<template ref="root" repeat="{{childShapes}}"></template>
 			</template>
 
 			<template id="group">
@@ -231,10 +227,10 @@
 
 			<template id="element">
 				<template if="{{ id=='Input' && xf_type == 'boolean' }}">
-					<checkbox-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
+					<checkbox-field flex type={{xf_type}} enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
 				</template>
 				<template if="{{ id=='Input' && xf_type != 'boolean' }}">
-					<input-field flex type={{xf_type}} data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
+					<input-field flex type={{xf_type}} enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
 				</template>
 				<template if="{{ id=='ActionButton' }}">
 					<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
@@ -242,17 +238,17 @@
 					</xaction-button>
 				</template>
 				<template if="{{ id=='Enumselect' }}">
-					<dropdown-field flex name="{{xf_id}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					<dropdown-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 						<template repeat="{{items}}">
 							<paper-item name="{{value}}">{{label}}</paper-item>
 						</template>
 					</dropdown-field>
 				</template>
 				<template if="{{ id=='Textarea' }}">
-					<multiline-field flex name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
+					<multiline-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 				</template>
 				<template if="{{ id=='Alert' }}">
-					<html-echo html="{{xf_message}}"></html-echo>
+					<html-echo name="{{xf_id}}" html="{{xf_message}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
 				</template>
 				<template if="{{ id=='Group' }}" ref="group" bind></template>
 				<template if="{{ id=='Row' }}" ref="row" bind></template>
@@ -273,8 +269,69 @@
 	<script>
 		Polymer( 'simpl-baseform', {
 			eventDelegates: {
+				'value-changed': 'valueChanged',
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
+			},
+			valueChanged: function( e ) {
+				console.debug( "valueChanged:", e );
+				var map = {};
+				for ( var i = 0, l = this.fields.length; i < l; i++ ) {
+					var f = this.fields[ i ];
+					map[ f.name ] = f.value;
+				}
+				map[ "isEdit" ] = this.mode == "edit";
+				console.log( "Map:" + JSON.stringify( map, null, 2 ) );
+
+				for ( var i = 0, l = this.fields.length; i < l; i++ ) {
+					var f = this.fields[ i ];
+					var enabledExpr = f.getAttribute( "enabled-expr" );
+					var readonlyExpr = f.getAttribute( "readonly-expr" );
+					console.log( "Name:" + f.name + "|enabled-expr:" + enabledExpr + "|readonlyExpr:" + readonlyExpr + "|" );
+					if ( this.isNotEmpty( readonlyExpr ) ) {
+						var e = this._maskedEval( readonlyExpr, map );
+						if ( e ) {
+							f.setAttribute( "disabled", "" );
+						} else {
+							f.removeAttribute( "disabled" );
+						}
+					} else if ( this.isNotEmpty( enabledExpr ) ) {
+						var e = this._maskedEval( enabledExpr, map );
+						if ( e ) {
+							f.removeAttribute( "disabled" );
+						} else {
+							f.setAttribute( "disabled", "" );
+						}
+					}
+					var excludeExpr = f.getAttribute( "exclude-expr" );
+					console.log( "Name:" + f.name + "|excludeExpr:" + excludeExpr + "|" );
+					if ( this.isNotEmpty( excludeExpr ) ) {
+						var e = this._maskedEval( excludeExpr, map );
+						if ( e ) {
+							f.setAttribute( "exclude", "" );
+						} else {
+							f.removeAttribute( "exclude" );
+						}
+						console.log("exclude:"+e);
+					}
+					var invisibleExpr = f.getAttribute( "invisible-expr" );
+					console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
+					if ( this.isNotEmpty( invisibleExpr ) ) {
+						var e = this._maskedEval( invisibleExpr, map );
+						if ( e ) {
+							f.setAttribute( "invisible", "" );
+						} else {
+							f.removeAttribute( "invisible" );
+						}
+						console.log("invisible:"+e);
+					}
+				}
+			},
+			isNotEmpty: function( s ) {
+				if ( s == null || s.length == 0 ) {
+					return false;
+				}
+				return true;
 			},
 			submit: function( e ) {
 				var data = {};
@@ -289,6 +346,7 @@
 			domReady: function() {},
 			shapesChanged: function() {
 				console.debug( "shapesChanged:", this.shapes );
+				this.valueChanged();
 			},
 			validate: function( e ) {
 				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
@@ -321,6 +379,16 @@
 					}
 				}
 				return ret;
+			},
+			_maskedEval: function( scr, env, def ) {
+				try {
+					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+				} catch ( e ) {
+					console.log( "Form._maskedEval:" + scr );
+					console.error( "error:" + e );
+					console.error( e.stack );
+				}
+				return def;
 			},
 			addField: function( e ) {
 				this.fields.push( e.detail );
@@ -372,7 +440,6 @@
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.shapes = this.prepareShape( form ).childShapes;
-				console.log( "Shapes:" + JSON.stringify( this.shapes, null, 2 ) );
 			},
 			/*----------------------------------*/
 			prepareShape: function( shape ) {
@@ -432,7 +499,6 @@
 							si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
 						}
 						props.items = si.getItems();
-						console.log( "SI:" + JSON.stringify( si.getItems(), null, 2 ) );
 					}
 				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 					var icon = shape.properties.xf_iconname;
@@ -543,16 +609,6 @@
 				} else {
 					return newString;
 				}
-			},
-			_maskedEval: function( scr, env, def ) {
-				try {
-					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
-				} catch ( e ) {
-					console.log( "Form._maskedEval:" + scr );
-					console.error( "error:" + e );
-					console.error( e.stack );
-				}
-				return def;
 			}
 		} );
 
