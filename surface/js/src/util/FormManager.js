@@ -85,11 +85,14 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		c.forEach( function( x ) {
 			var params = this._constraintParams[ x.annotation ];
 			ret += b+ '@' + x.annotation;
-			ret += '(message="' + tr( "validation." + x.annotation ) + '"';
+			ret += '(message="' + this.getMessage(x) + '"';
 			if ( params ) {
 				if ( params.length > 0 ) {
 					var key = params[ 0 ];
 					var val = key=='format' ? '"YMD"' : x.parameter1;
+					if( key == "regex" ){
+						val = "/"+val+"/";
+					}
 					ret += ',' + key + '=' + val;
 				}
 				if ( params.length > 1 ) {
@@ -102,6 +105,16 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 			b=' ';
 		}, this );
 		return ret;
+	},
+	getMessage:function(x){
+		if( x.message && x.message.length>0){
+			if( x.message.match(/^[%@]/)){
+				return tr(x.message.substring(1));
+			}else{
+				return x.message;
+			}
+		}
+		return tr("validation." + x.annotation);
 	},
 	constructAttributes: function( xtype, label, c, dropdown ) {
 		var map={};
