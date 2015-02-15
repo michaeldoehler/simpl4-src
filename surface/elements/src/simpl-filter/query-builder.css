@@ -120,7 +120,9 @@ dd.rules-group-body{
   cursor:move;
   display:inline-block;
   vertical-align:middle;
-  margin-left:5px;
+	padding-top:4px;
+	font-size:120%;
+  margin:0px !important;
 }
 
 .query-builder  .dragged {
