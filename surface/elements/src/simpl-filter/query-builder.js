@@ -2086,7 +2086,7 @@ $.fn.queryBuilder.defaults.set({
     }
 		function showHide(elements, show) {
       if (show) {
-				jQuery(elements).css('display', 'inline-block');
+				jQuery(elements).css('display', '');
 			}else{
 				jQuery(elements).css('display', 'none');
 			}
