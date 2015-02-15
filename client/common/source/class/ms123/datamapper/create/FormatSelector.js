@@ -331,6 +331,10 @@ qx.Class.define('ms123.datamapper.create.FormatSelector', {
 				bt.setEnabled(true);
 				if( this._use == ms123.datamapper.Config.USE_IMPORT){
 					var ret =qx.lang.Json.parse( uploadForm.getIframeTextContent()); 
+					if( ret.error){
+						ms123.form.Dialog.alert("Error:"+ret.error.message);
+						return;
+					}
 					ret.result.fileId = "internal";
 					this._cache[this._getCacheKey()] = ret.result;
 					this.fireDataEvent("changeValue", ret.result, null);
