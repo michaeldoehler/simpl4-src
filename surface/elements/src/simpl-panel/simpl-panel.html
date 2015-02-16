@@ -2,11 +2,11 @@
 	<svg>
 		<defs>
 			<g id="icon-expand">
-				<path d="m279.05,704.57-48.91,28.238,0-56.476z" transform="matrix(0,0.70542636,-1,0,754.56672,-129.59897)"  />
+				<path d="m279.05,704.57-48.91,28.238,0-56.476z" transform="matrix(0,0.70542636,-1,0,754.56672,-129.59897)" />
 			</g>
 			<g id="icon-collapse">
 				<g transform="translate(-526.59247,-7.9999998e-5)">
-					<path d="m593.84,50c-11.501,9.4127-23.002,18.825-34.502,28.238v-56.476c11.501,9.4127,23.002,18.825,34.502,28.238z"/>
+					<path d="m593.84,50c-11.501,9.4127-23.002,18.825-34.502,28.238v-56.476c11.501,9.4127,23.002,18.825,34.502,28.238z" />
 				</g>
 			</g>
 		</defs>
@@ -16,152 +16,158 @@
 <polymer-element name="simpl-panel" attributes="data heading height bgcolor color collapsable collapsed collapsecolor">
 	<template>
 		<style>
-		:host {
-			margin-bottom:10px;
-			display:block;
-			background:white;
-			position:relative;
-			box-sizing:border-box;
-		}
-		div#panel {
-			position:relative;
-			height:100%;
-			box-sizing:border-box;
-			display:flex;
-			flex-direction:column;
-			display:-webkit-flex;
-			-webkit-flex-direction:column;
-			display: -ms-flexbox;
-			-ms-flex-direction: column;
-		}
+			:host {
+				margin-bottom: 10px;
+				display: block;
+				background: white;
+				position: relative;
+				box-sizing: border-box;
+			}
+			div#panel {
+				position: relative;
+				height: 100%;
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				display: -webkit-flex;
+				-webkit-flex-direction: column;
+				display: -ms-flexbox;
+				-ms-flex-direction: column;
+			}
+			header {
+				height: 34px;
+				color: white;
+				padding-left: 10px;
+				background: #428bca;
+				-moz-user-select: -moz-none;
+				-webkit-user-select: none;
+				-ms-user-select: none;
+				font-size: 1.2em;
+				display: -ms-flexbox;
+				display: flex;
+				display: -webkit-flex;
+				align-items: center;
+				-ms-flex-align: center;
+				-webkit-align-items: center;
+				box-sizing: border-box;
+			}
+			header > span {
+				display: inline-block;
+				-webkit-flex: 1;
+				-ms-flex: 1;
+				flex: 1;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			div#content {
+				-webkit-flex: 1;
+				-ms-flex: 1;
+				flex: 1;
+				padding: 10px;
+				overflow: auto;
+				border: 0px solid #428bca;
+				box-sizing: border-box;
+			}
+			#collapsable {
+				display: none;
+				height: 40px;
+				width: 40px;
+			}
 
-		header {
-			height: 34px;
-			color: white;
-			padding-left: 10px;
-			background: #428bca;
-			-moz-user-select:-moz-none;
-			-webkit-user-select:none;
-			-ms-user-select: none;
-			font-size:1.2em;
-			display: -ms-flexbox;
-			display:flex;
-			display:-webkit-flex;
-			align-items: center;
-			-ms-flex-align:center;
-			-webkit-align-items:center;
-			box-sizing:border-box;
-		}
-		header > span {
-			display:inline-block;
-			-webkit-flex:1;
-			-ms-flex:1;
-			flex:1;
-			white-space:nowrap;
-			text-overflow:ellipsis;
-			overflow:hidden;
-		}
-		div#content {
-			-webkit-flex:1;
-			-ms-flex:1;
-			flex:1;
-			padding:10px;
-			overflow:auto;
-			border:0px solid #428bca;
-			box-sizing:border-box;
-		}
-
-		#collapsable {
-			display:none;
-			height:40px;
-			width:40px;
-		}
 		</style>
-<paper-shadow z="1">
-		<div id="panel">
-			<header id="heading" ><span>{{heading}}</span> <core-icon icon="custom-icons:icon-expand" id="collapsable" style="fill:{{collapsecolor}}"></header>
-			<div id="content" >
-			        <content></content>
+		<paper-shadow z="3">
+			<div id="panel">
+				<header id="heading"><span>{{heading}}</span>
+					<core-icon icon="custom-icons:icon-expand" id="collapsable" style="fill:{{collapsecolor}}">
+				</header>
+				<div id="content">
+					<content></content>
+				</div>
 			</div>
-		</div>
-</paper-shadow>
+		</paper-shadow>
 	</template>
 	<script>
-	Polymer('simpl-panel', {
-		height:"",
-		collapsable:false,
-		collapsed:false,
-		collapsecolor:"white",
-		bgcolor:"#428bca",
-		color:"white",
-		ready: function() {
-			var that = this;
-			this.$.heading.style.background = this.bgcolor;
-			this.$.heading.style.color = this.color;
-			this.$.content.style.borderColor = this.bgcolor;
-			if(!this.height && !this.style.height ) {
-				this.$.content.style["-ms-flex"] = "none";
-			} else {
-				if( this.style.height && !this.height ) {
-					this.height = parseInt(this.style.height,10);
-				}
-				if( this.collapsable && this.collapsed ) {
-					this.style.height = parseInt(this.height,10)+"px";
+		Polymer( 'simpl-panel', {
+			height: "",
+			collapsable: false,
+			collapsed: false,
+			collapsecolor: "white",
+			bgcolor: "#428bca",
+			color: "white",
+			ready: function() {
+				var that = this;
+				this.$.heading.style.background = this.bgcolor;
+				this.$.heading.style.color = this.color;
+				this.$.content.style.borderColor = this.bgcolor;
+				if ( !this.height && !this.style.height ) {
+					this.$.content.style[ "-ms-flex" ] = "none";
 				} else {
-					this.style.height = "34px";
-				}
-				this.$.content.style["-ms-flex-preferred-size"] = (parseInt(this.height,10)-50)+"px";
-			}
-			if( this.collapsable) {
-				this.$.collapsable.style.display = "block";
-				if( this.collapsed ) {
-					this.$.content.style.display = "none";
-				} else {
-					this.$.content.style.display = "block";
-				}
-				this.$.collapsable.icon = "custom-icons:"+ (this.collapsed?"icon-collapse":"icon-expand");
-			}
-			this.$.heading.addEventListener("click",function() { that.toggleCollapse() },false);
-		},
-		heightChanged: function(oldValue, newValue) {
-			if(!this.height && !this.style.height ) {
-				this.$.content.style["-ms-flex"] = "none";
-			} else {
-				if( this.style.height && !this.height ) {
-					this.height = parseInt(this.style.height,10);
-				}
-				if( this.collapsable && this.collapsed ) {
-					this.style.height = parseInt(this.height,10)+"px";
-				} else {
-					this.style.height = "34px";
-				}
-				this.$.content.style["-ms-flex-preferred-size"] = (parseInt(this.height,10)-50)+"px";
-			}
-		},
-		toggleCollapse: function() {
-		this.collapsed = !this.collapsed;
-			this.$.collapsable.icon = "custom-icons:"+ (this.collapsed?"icon-collapse":"icon-expand");
-		},
-		collapsedChanged: function() {
-			if( this.collapsable ) {
-				this.setAttribute("collapsed",this.collapsed);
-				if( this.collapsed ) {
-					this.$.content.style.display = "none";
-					this.style.height = "34px";
-				} else {
-					if(this.height) {
-						this.style.height = parseInt(this.height,10)+"px";
-						this.$.content.style.height = (parseInt(this.height,10)-40)+"px";
-						this.$.content.style["-ms-flex"] = "none";
-					} else {
-						this.style.height = null;
-						this.$.content.style["-ms-flex"] = "none";
+					if ( this.style.height && !this.height ) {
+						this.height = parseInt( this.style.height, 10 );
 					}
-					this.$.content.style.display = "block";
-					this.fire( "open-action", {data:this.data} );
+					if ( this.collapsable && this.collapsed ) {
+						this.style.height = parseInt( this.height, 10 ) + "px";
+					} else {
+						this.style.height = "34px";
+					}
+					this.$.content.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
+				}
+				if ( this.collapsable ) {
+					this.$.collapsable.style.display = "block";
+					if ( this.collapsed ) {
+						this.$.content.style.display = "none";
+					} else {
+						this.$.content.style.display = "block";
+					}
+					this.$.collapsable.icon = "custom-icons:" + ( this.collapsed ? "icon-collapse" : "icon-expand" );
+				}
+				this.$.heading.addEventListener( "click", function() {
+					that.toggleCollapse()
+				}, false );
+			},
+			heightChanged: function( oldValue, newValue ) {
+				if ( !this.height && !this.style.height ) {
+					this.$.content.style[ "-ms-flex" ] = "none";
+				} else {
+					if ( this.style.height && !this.height ) {
+						this.height = parseInt( this.style.height, 10 );
+					}
+					if ( this.collapsable && this.collapsed ) {
+						this.style.height = parseInt( this.height, 10 ) + "px";
+					} else {
+						this.style.height = "34px";
+					}
+					this.$.content.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
+				}
+			},
+			toggleCollapse: function() {
+				this.collapsed = !this.collapsed;
+				this.$.collapsable.icon = "custom-icons:" + ( this.collapsed ? "icon-collapse" : "icon-expand" );
+			},
+			collapsedChanged: function() {
+				if ( this.collapsable ) {
+					this.setAttribute( "collapsed", this.collapsed );
+					if ( this.collapsed ) {
+						this.$.content.style.display = "none";
+						this.style.height = "34px";
+					} else {
+						if ( this.height ) {
+							this.style.height = parseInt( this.height, 10 ) + "px";
+							this.$.content.style.height = ( parseInt( this.height, 10 ) - 40 ) + "px";
+							this.$.content.style[ "-ms-flex" ] = "none";
+						} else {
+							this.style.height = null;
+							this.$.content.style[ "-ms-flex" ] = "none";
+						}
+						this.$.content.style.display = "block";
+						this.fire( "open-action", {
+							data: this.data
+						} );
+					}
 				}
 			}
-		}
-	});
+		} );
+
 	</script>
 </polymer-element>
