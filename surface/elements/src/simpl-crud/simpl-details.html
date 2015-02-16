@@ -1,4 +1,4 @@
-<polymer-element name="simpl-details" attributes="entity">
+<polymer-element name="simpl-details" attributes="namespace entity">
 	<template>
 		<style>
 			.col0 {
@@ -37,10 +37,8 @@
 	<script>
 		Polymer( 'simpl-details', {
 			entityChanged: function( e ) {
-				console.debug( "entityChanged" );
 				this.namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
-				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.entity, "main-form", true ) );
-				console.log( "Meta:", JSON.stringify( this.meta, null, 2 ) );
+				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.entity, "main-form", true, {namespace:this.namespace} ) );
 			},
 			preProcessData: function( rows ) {
 				var selKeys = Object.keys( this.selectableList );

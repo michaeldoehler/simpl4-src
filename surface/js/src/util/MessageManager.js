@@ -17,6 +17,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 simpl4.util.BaseManager.extend("simpl4.util.MessageManager", {
+	namespaceMap:null,
 	transMap: null,
 	getMessages: function(namespace) {
 		var failed = function(details) {
@@ -42,12 +43,18 @@ simpl4.util.BaseManager.extend("simpl4.util.MessageManager", {
 			transMap[row.msgid] = row.msgstr;
 		}
 	},
-	installMessages: function() {
-		simpl4.util.MessageManager.transMap = {};
-		var rows = simpl4.util.MessageManager.getMessages("global");
-		simpl4.util.MessageManager.toMap(rows);
-		var rows = simpl4.util.MessageManager.getMessages(simpl4.util.BaseManager.getNamespace());
-		simpl4.util.MessageManager.toMap(rows);
+	installMessages: function(namespace) {
+		if( this.namespaceMap[namespace] == null){
+			var rows = this.getMessages(namespace);
+			this.toMap(rows);
+			this.namespaceMap[namespace] = true;
+		}
+	},
+	installBaseMessages: function() {
+		this.namespaceMap={};
+		this.transMap = {};
+		this.installMessages("global");
+		this.installMessages(simpl4.util.BaseManager.getNamespace());
 	},
 	tr:function(id){
 		var t = simpl4.util.MessageManager.transMap[id];

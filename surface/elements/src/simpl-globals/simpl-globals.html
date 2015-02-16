@@ -50,7 +50,7 @@
 			window.simpl4EntityManager = simpl4.util.EntityManager;
 
 
-			simpl4MessageManager.installMessages();
+			simpl4MessageManager.installBaseMessages();
 			window.tr = simpl4MessageManager.tr;
 			PolymerExpressions.prototype.tr = function(input) {
 				return simpl4MessageManager.tr(input);

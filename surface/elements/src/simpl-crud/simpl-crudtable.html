@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="detailButton rules" flex relative>
+<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="detailButton namespace rules" flex relative>
 	<template>
 		<style>
 			paper-button.blue-ripple {
@@ -54,7 +54,7 @@
 				console.debug( "crudtable.created" );
 			},
 			ready: function() {
-				console.debug( "crudtable.ready" );
+				console.debug( "crudtable.ready:"+this.namespace );
 			},
 			domReady: function() {
 				console.debug( "crudtable.domReady" );
@@ -94,11 +94,11 @@
 				} );
 			},
 			rulesChanged: function( e ) {
-				console.log( "rulesChanged" );
 				this.entity = this.rules.entity;
 				this.namespace = this.rules.namespace || simpl4.util.BaseManager.getNamespace();
+				console.log( "rulesChanged:"+this.entity+"/"+this.namespace );
 				if ( this.dtMeta == null ) {
-					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true ) );
+					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true, {namespace:this.namespace} ) );
 				}
 				this.dataSet = this.preProcessData( this.getData( this.rules ) );
 				this.createTable( this.dtMeta, this.dataSet );

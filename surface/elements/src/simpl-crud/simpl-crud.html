@@ -32,22 +32,24 @@
 				padding-right: 3px;
 				//border-color: lightgray !important;
 			}
+			simpl-panel,
 			simpl-panel /deep/ #heading {
-				border-top-left-radius: 3px;
-				border-top-right-radius: 3px;
-				font-weight: bold;
+				border-top-left-radius: 4px;
+				border-top-right-radius: 4px;
+			}
+			simpl-panel /deep/ #heading {
 			}
 
 		</style>
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="padding:0px;min-height:400px;position:relative;">
-				<simpl-filter entity="{{mainEntityName}}" rules="{{rules}}"></simpl-filter>
-				<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
-					<simpl-crudtable on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" rules="{{rules}}"></simpl-filter>
+				<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
+					<simpl-crudtable namespace="{{namespace}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
 				</simpl-panel>
 			</section>
 			<section style="padding:0px;position:relative;" unresolved>
-				<simpl-panel bgcolor="black" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
 					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
 						<paper-button raised on-tap="{{saveAction}}" flex>
@@ -69,11 +71,11 @@
 					<paper-button raised on-tap="{{cancelAction}}" flex>
 						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>
 				</div>
-				<simpl-panel bgcolor="black" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="true">
-					<simpl-details id="detailid" entity="{{mainEntityName}}"></simpl-details>
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="true">
+					<simpl-details id="detailid" namespace="{{namespace}}" entity="{{mainEntityName}}"></simpl-details>
 				</simpl-panel>
 				<template if="{{entityChildList}}" repeat="{{rules in entityChildList}}">
-					<simpl-panel bgcolor="black" data="{{rules}}" heading="{{rules.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
+					<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{rules}}" heading="{{rules.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
 						<simpl-crudtable id="{{rules.id}}" detailButton="{{false}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
@@ -87,7 +89,11 @@
 	<script>
 		Polymer( 'simpl-crud', {
 			pageSelected: 0,
+			panelBackgroundColor:'#000',
 			domReady: function() {
+				if( this.namespace && this.namespace != simpl4.util.BaseManager.getNamespace()){
+					simpl4MessageManager.installMessages(this.namespace);
+				}
 				this.mainEntityName = this.entity;
 				this.panelHeaderCrudTable = tr( "data." + this.mainEntityName + "_list" );
 				this.pageStack = new Array();

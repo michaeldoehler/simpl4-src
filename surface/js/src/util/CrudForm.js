@@ -32,7 +32,6 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 		this._form = {};
 		var tabLists = this.getTabLists( this._fields );
 		var tabKeys = Object.keys( tabLists );
-		console.log( "tabKeys:" + tabKeys );
 		tabKeys.forEach( function( tabKey ) {
 			var tabviewPage = this.getTabViewPage( tabView, tabKey );
 			tabviewPage.childShapes = [];

@@ -125,7 +125,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			namespace: Args.STRING | Args.Optional
 		} ], arguments );
 
-		var namespace = simpl4.util.BaseManager.getNamespace();
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
 		var props = simpl4.util.EntityManager.fieldCache[ "mvcf-" + args.entity + "-" + namespace + "-" + args.view ];
 		if ( !props ) {
 			try {

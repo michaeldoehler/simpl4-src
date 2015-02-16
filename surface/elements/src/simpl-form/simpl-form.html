@@ -412,7 +412,6 @@
 				this.fields.forEach( function( field ) {
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
-console.log("Field:"+field.name+"="+data[field.name]);
 					field.setValue( data[ field.name ] || field.defaultValue || "");
 				}, this );
 			},
