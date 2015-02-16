@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="rules" flex relative>
+<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="detailButton rules" flex relative>
 	<template>
 		<style>
 			paper-button.blue-ripple {
@@ -38,8 +38,10 @@
 					<core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
 				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" disabled?="{{currentRowIndex==null}}" flex>
 					<core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{detailAction}}" disabled?="{{currentRowIndex==null}}" flex>
-					<core-icon icon="view-list"></core-icon>{{'button.details'|tr}}</paper-button>
+				<template if="{{detailButton!==false}}">
+					<paper-button raised class="blue-ripple" on-tap="{{detailAction}}" disabled?="{{currentRowIndex==null}}" flex>
+						<core-icon icon="view-list"></core-icon>{{'button.details'|tr}}</paper-button>
+				</template>
 			</div>
 		</template>
 		<shadow></shadow>
