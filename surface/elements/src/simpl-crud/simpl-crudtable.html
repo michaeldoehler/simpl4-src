@@ -25,6 +25,9 @@
 				float: left;
 				position: relative;
 			}
+			paper-button {
+				font-size:10px;
+			}
 
 		</style>
 		<template if="{{dataSet}}">
@@ -32,6 +35,7 @@
 				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex><core-icon icon="add"></core-icon>{{'button.new'|tr}}</paper-button>
 				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
 				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{detailAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="view-list"></core-icon>{{'button.details'|tr}}</paper-button>
 			</div>
 		</template>
 		<shadow></shadow>
@@ -46,6 +50,12 @@
 			editAction: function() {
 				if ( this.currentRowIndex == null ) return;
 				this.fire( "edit-action", {
+					data: this.dataSet[ this.currentRowIndex ]
+				} );
+			},
+			detailAction: function() {
+				if ( this.currentRowIndex == null ) return;
+				this.fire( "detail-action", {
 					data: this.dataSet[ this.currentRowIndex ]
 				} );
 			},

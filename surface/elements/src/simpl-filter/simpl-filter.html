@@ -50,15 +50,21 @@
 				background-color: #4B575C !important;
 				border-color: #4B575C !important;
 			}
+			:host /deep/ .core-tooltip {
+				font-size:12px;
+				padding:0;
+				background:transparent;
+				color:black;
+			}
 			:host /deep/ #builder_group_0 {
-				border-color: gray;
+				border: 2px #eaeaea solid;
 				border-radius: 5px;
 			}
 			:host /deep/ .#builder {
 				background: white;
 			}
 			:host /deep/ .query-builder {
-				margin-bottom:10px;
+				margin-bottom: 10px;
 				background: white;
 			}
 			:host /deep/ #builder .rule-container {
@@ -67,19 +73,53 @@
 			:host /deep/ #builder .rules-group-container {
 				background: white;
 			}
+			:host /deep/ #builder [invisible] {
+				display: none;
+			}
+			:host /deep/ #builder li.rule-container[simpleSearch]:not(:first-child) {
+				display: none;
+			}
+			:host /deep/ #builder .rule-container[simpleSearch]::before,
+			:host /deep/ #builder .rule-container[simpleSearch]::after {
+				border: 0px;
+			}
+			:host /deep/ #builder .rules-group-container[simpleSearch] {
+				padding: 0;
+			}
+			:host /deep/ #builder ul>.rules-group-container[simpleSearch] {
+				display: none;
+			}
 			:host /deep/ paper-dropdown-menu#paperDropdownMenu {
 				background: white;
-				top:2px;
-				border-radius:3px;
+				top: 2px;
+				border-radius: 3px;
 			}
 			:host /deep/ core-icon#arrow {
 				color: black;
 			}
+			:host /deep/ #builder li.has-error {
+				border-color: white;
+			}
+
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
 		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
-		<div style="text-align:right;">
-			<paper-button raised class="blue-ripple" on-tap="{{submit}}" flex><core-icon icon="search"></core-icon>{{'searchfilter.searchbutton'|tr}}</paper-button>
+		<div layout horizontal>
+			<div style="text-align:left;">
+				<core-tooltip label="{{'button.save-search'|tr}}" on-tap="{{saveSearch}}" position="center">
+					<core-icon-button icon="file-upload"></core-icon-button>
+				</core-tooltip>
+				<core-tooltip label="{{'button.load-search'|tr}}" on-tap="{{loadSearch}}" position="center">
+					<core-icon-button icon="file-download"></core-icon-button>
+				</core-tooltip>
+				<core-tooltip label="{{searchTooltip}}" on-tap="{{toggleSearchMode}}" position="center">
+					<core-icon-button icon="{{searchModeIcon}}"></core-icon-button>
+				</core-tooltip>
+			</div>
+			<div flex style="text-align:right;">
+				<paper-button raised class="blue-ripple" on-tap="{{search}}" flex>
+					<core-icon icon="search"></core-icon>{{'searchfilter.searchbutton'|tr}}</paper-button>
+			</div>
 		</div>
 		<div id="builder"></div>
 		<!--segment>
@@ -93,8 +133,12 @@
 		Polymer( 'simpl-filter', {
 			entity: null,
 			namespace: null,
+			searchMode: "simple",
+			searchModeIcon: "expand-more",
 			domReady: function() {
-				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity,{namespace:this.namespace} );
+				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
+					namespace: this.namespace
+				} );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -102,7 +146,7 @@
 						remove_group: 'fa fa-minus',
 						remove_rule: 'fa fa-minus',
 						error: 'fa fa-bug',
-						sort: 'fa fa-sort'
+						sort: 'fa fa-arrows-v'
 					},
 					sortable: false,
 					//plugins: ["sortable"],
@@ -134,6 +178,7 @@
 						} ]
 					} );
 				} );
+				this.toggleSearchMode();
 			},
 			renameOne: function( from, to, model ) {
 				model[ to ] = model[ from ];
@@ -199,7 +244,29 @@
 			reset: function( e ) {
 				$( this.$.builder ).queryBuilder( 'reset' );
 			},
-			submit: function( e ) {
+			loadSearch: function( e ) {},
+			saveSearch: function( e ) {},
+			toggleSearchMode: function() {
+				this.setSearchMode( this.searchMode );
+				this.searchMode = this.searchMode == 'complex' ? "simple" : "complex";
+				this.searchTooltip = this.searchMode == "complex" ? tr("button.complex-search") : tr("button.simple-search");
+			},
+			setSearchMode: function( mode ) {
+				if ( mode == "complex" ) {
+					this.searchModeIcon = "expand-less";
+					this.shadowRoot.querySelector( ".rules-group-header" ).removeAttribute( "invisible" );
+					this.shadowRoot.querySelector( ".rule-header" ).removeAttribute( "invisible" );
+					$(this.shadowRoot.querySelectorAll( ".rule-container" )).removeAttr( "simpleSearch" );
+					$(this.shadowRoot.querySelectorAll( ".rules-group-container" )).removeAttr( "simpleSearch" );
+				} else {
+					this.searchModeIcon = "expand-more";
+					this.shadowRoot.querySelector( ".rules-group-header" ).setAttribute( "invisible", "" );
+					this.shadowRoot.querySelector( ".rule-header" ).setAttribute( "invisible", "" );
+					$(this.shadowRoot.querySelectorAll( ".rule-container" )).attr( "simpleSearch", "" );
+					$(this.shadowRoot.querySelectorAll( ".rules-group-container" )).attr( "simpleSearch", "" );
+				}
+			},
+			search: function( e ) {
 				var event = {
 					name: "filter-changed",
 					data: {
@@ -208,10 +275,10 @@
 					}
 				}
 				var rules = this.getRules();
-				rules.entity = this.entity;	
-				rules.namespace = this.namespace;	
+				rules.entity = this.entity;
+				rules.namespace = this.namespace;
 				this.rules = rules;
-				console.debug( "submit"+JSON.stringify(this.rules,null,2) );
+				console.debug( "submit" + JSON.stringify( this.rules, null, 2 ) );
 				//this.asyncFire( 'core-signal', event );
 				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				//this.$.data.textContent = jsonData;
@@ -251,6 +318,7 @@
 				}
 			}
 		} );
+
 	</script>
 
 </polymer-element>

@@ -25,12 +25,26 @@
 				min-height: 400px;
 				display: inherit;
 			}
+			simpl-panel /deep/ #content {
+				padding-top: 10px;
+				padding-bottom: 10px;
+				padding-left: 3px;
+				padding-right: 3px;
+				border-color: #B6A8A8 !important;
+			}
+			simpl-panel /deep/ #heading {
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
+				font-weight:bold;
+			}
 
 		</style>
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="padding:0px;min-height:400px;position:relative;">
 				<simpl-filter entity="{{entity}}" rules="{{rules}}"></simpl-filter>
-				<simpl-crudtable on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+				<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
+					<simpl-crudtable on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+				</simpl-panel>
 			</section>
 			<section style="padding:0px;position:relative;" unresolved>
 				<simpl-crudform id="formid" mode="{{mode}}" spec="{{spec}}"></simpl-crudform>
@@ -48,13 +62,23 @@
 						<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
 				</paper-action-dialog>
 			</section>
+			<section style="padding:0px;position:relative;" unresolved>
+				<simpl-panel id="panel3" bgcolor="black" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="false">
+					<simpl-details id="detailid" entity="{{entity}}"></simpl-details>
+				</simpl-panel>
+				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
+					<paper-button raised on-tap="{{cancelAction}}" flex>
+						<core-icon icon="cancel"></core-icon>{{'tasks.form.cancel'|tr}}</paper-button>
+				</div>
+			</section>
 		</core-animated-pages>
 	</template>
 	<script>
 		Polymer( 'simpl-crud', {
 			pageSelected: 0,
 			domReady: function() {
-				var spec = simpl4FormManager.getCrudForm( this.entity, "firstapp" );
+				var spec = simpl4FormManager.getCrudForm( this.entity, this.namespace );
+				this.panelHeaderCrudTable = tr( "data." + this.entity + "_list" );
 				this.spec = [ spec ];
 			},
 			cancelAction: function() {
@@ -73,6 +97,14 @@
 				this.currentRow = e.detail.data;
 				this.$.formid.setData( e.detail.data );
 				this.pageSelected = 1;
+			},
+			detailAction: function( e ) {
+				console.log( "detailAction:", e );
+				this.currentRow = e.detail.data;
+				this.$.detailid.setData( e.detail.data );
+				var props = simpl4EntityManager.getPropertiesForEntity( this.entity );
+				this.panelHeaderDetails = this._maskedEval( props.title_expression, this.currentRow, "" );
+				this.pageSelected = 2;
 			},
 			storeData: function( data ) {
 				var ret = simpl4.util.Rpc.rpcSync( "data:" + ( this.mode == 'add' ? "insert" : "update" ), {
@@ -133,6 +165,15 @@
 				console.log( "addAction:", this );
 				this.$.formid.setData( {} );
 				this.pageSelected = 1;
+			},
+			_maskedEval: function( scr, env, def ) {
+				try {
+					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+				} catch ( e ) {
+					console.log( "Crud._maskedEval:" + scr );
+					console.error( "error:" + e );
+				}
+				return def;
 			},
 			alert: function( message ) {
 				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;

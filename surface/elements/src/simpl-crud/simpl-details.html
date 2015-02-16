@@ -1,0 +1,112 @@
+<polymer-element name="simpl-details" attributes="entity">
+	<template>
+		<style>
+			.col0 {
+				width: 30%;
+			}
+			.col1 {
+				width: 70%;
+			}
+			.details-table th {
+				vertical-align: top;
+				color: #999;
+				padding-left: 15px;
+				text-align: right;
+			}
+			.details-table td {
+				vertical-align: top;
+				color: #545454;
+				word-wrap: break-word;
+				word-break: break-all;
+			}
+		</style>
+		<table class="details-table" style="width:100%;" cellpadding="5">
+			<colgroup>
+				<col class="col0">
+					<col class="col1">
+			</colgroup>
+			<template if="{{data}}" repeat="{{f in meta}}">
+				<tr>
+					<th>{{f.title}}</th>
+					<td>{{data[f.data]}}</td>
+				</tr>
+			</template>
+		</table>
+		<content></content>
+	</template>
+	<script>
+		Polymer( 'simpl-details', {
+			entityChanged: function( e ) {
+				console.debug( "entityChanged" );
+				this.namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
+				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.entity, "main-form", true ) );
+				console.log( "Meta:", JSON.stringify( this.meta, null, 2 ) );
+			},
+			preProcessData: function( rows ) {
+				var selKeys = Object.keys( this.selectableList );
+				var dateKeys = Object.keys( this.dateList );
+				var datetimeKeys = Object.keys( this.datetimeList );
+				rows.forEach( function( r ) {
+					selKeys.forEach( function( key ) {
+						var val = r[ key ];
+						r[ key + "_display" ] = this.selectableList[ key ][ val ];
+					}, this );
+					dateKeys.forEach( function( key ) {
+						var val = r[ key ];
+						r[ key + "_display" ] = this.getDate( val );
+					}, this );
+				}, this );
+				return rows;
+			},
+			preProcessMeta: function( fields ) {
+				this.selectableList = {};
+				this.dateList = {};
+				this.datetimeList = {};
+				this.columns = [];
+				var ret = [];
+				fields.forEach( function( f ) {
+					var dtName = f.name;
+					if ( f.hidden ) return;
+					if ( f.selectable_items ) {
+						this.selectableList[ f.name ] = this.toMap( f.selectable_items.getItems() );
+						dtName = f.name + "_display";
+					}
+					if ( f.datatype == 'date' ) {
+						this.dateList[ f.name ] = true;
+						dtName = f.name + "_display";
+					}
+					if ( f.datatype == 'datetime' ) {
+						this.datetimeList[ f.name ] = true;
+						dtName = f.name + "_display";
+					}
+					var col = {
+						title: tr( 'data.' + this.entity + '.' + f.name ),
+						data: dtName
+					}
+					ret.push( col );
+					this.columns.push( f.name );
+				}, this );
+				return ret;
+			},
+			toMap: function( sel ) {
+				var map = {};
+				sel.forEach( function( elem ) {
+					map[ elem.value ] = elem.label;
+				}, this );
+				return map;
+			},
+			getDate: function( val ) {
+				if ( val == null ) {
+					return "--";
+				}
+				return moment( parseInt( val ) ).format( "L" );
+			},
+			setData: function( data ) {
+				this.data = this.preProcessData( [ data ] )[ 0 ];
+				console.log( "Data:", JSON.stringify( data, null, 2 ) );
+				//this.createTable( this.meta, data );
+			}
+		} );
+
+	</script>
+</polymer-element>
