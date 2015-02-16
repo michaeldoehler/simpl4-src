@@ -17,7 +17,8 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
-	selectableItemsMap: {},
+	selectableItemsCache: {},
+	crudFormCache: {},
 	getForm: function(name,namespace) {
 		var failed = function(details) {
 			alert("GetForm failed" + ":" + details.message);
@@ -36,21 +37,25 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		}
 	},
 	getCrudForm: function(entityname,namespace) {
-		var props = simpl4.util.EntityManager.getEntityViewProperties(entityname,"main-form", {namespace:namespace});
-		var fields = simpl4.util.EntityManager.getEntityViewFields(entityname,"main-form",true, {namespace:namespace});
-		var cf = new simpl4.util.CrudForm(namespace, entityname, fields,props);
-		//console.log("Fields:"+JSON.stringify(props,null,2));
-		return cf.getSpec();
+		var cf =  this.crudFormCache[namespace+"/"+entityname];
+		if( cf == null){
+			var props = simpl4.util.EntityManager.getEntityViewProperties(entityname,"main-form", {namespace:namespace});
+			var fields = simpl4.util.EntityManager.getEntityViewFields(entityname,"main-form",true, {namespace:namespace});
+			var _cf = new simpl4.util.CrudForm(namespace, entityname, fields,props);
+			cf = _cf.getSpec();
+			this.crudFormCache[namespace+"/"+entityname]=cf;
+		}
+		return cf;
 			
 	},
 	createSelectableItems:function(namespace,formName,fieldName,url){
 		namespace = namespace || simpl4.util.BaseManager.getNamespace();
 		var si = new simpl4.util.SelectableItems( {namespace:namespace,url:url } );
-		this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName] = si;
+		this.selectableItemsCache[namespace+"/"+formName+"/"+fieldName] = si;
 		return si;
 	},
 	getSelectableItems:function(namespace,formName,fieldName,url){
-		var si =  this.selectableItemsMap[namespace+"/"+formName+"/"+fieldName];
+		var si =  this.selectableItemsCache[namespace+"/"+formName+"/"+fieldName];
 		if( si == null && url != null){
 			si = this.createSelectableItems(namespace,formName,fieldName,url);
 		}

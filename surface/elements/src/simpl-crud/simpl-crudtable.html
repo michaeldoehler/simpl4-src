@@ -26,16 +26,20 @@
 				position: relative;
 			}
 			paper-button {
-				font-size:10px;
+				font-size: 10px;
 			}
 
 		</style>
 		<template if="{{dataSet}}">
 			<div layout horizontal style="margin-bottom:10px;">
-				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex><core-icon icon="add"></core-icon>{{'button.new'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
-				<paper-button raised class="blue-ripple" on-tap="{{detailAction}}" disabled?="{{currentRowIndex==null}}" flex><core-icon icon="view-list"></core-icon>{{'button.details'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{addAction}}" flex>
+					<core-icon icon="add"></core-icon>{{'button.new'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{editAction}}" disabled?="{{currentRowIndex==null}}" flex>
+					<core-icon icon="create"></core-icon>{{'button.edit'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{copyAction}}" disabled?="{{currentRowIndex==null}}" flex>
+					<core-icon icon="content-copy"></core-icon>{{'button.copy'|tr}}</paper-button>
+				<paper-button raised class="blue-ripple" on-tap="{{detailAction}}" disabled?="{{currentRowIndex==null}}" flex>
+					<core-icon icon="view-list"></core-icon>{{'button.details'|tr}}</paper-button>
 			</div>
 		</template>
 		<shadow></shadow>
@@ -44,13 +48,29 @@
 		Polymer( 'simpl-crudtable', {
 			dtMeta: null,
 			currentRowIndex: null,
+			created: function() {
+				console.debug( "crudtable.created" );
+			},
+			ready: function() {
+				console.debug( "crudtable.ready" );
+			},
+			domReady: function() {
+				console.debug( "crudtable.domReady" );
+			},
 			addAction: function() {
-				this.fire( "add-action", {} );
+				this.fire( "add-action", {
+					entity: this.entity,
+					entityChild: this.id,
+					namespace: this.namespace
+				} );
 			},
 			editAction: function() {
 				if ( this.currentRowIndex == null ) return;
 				this.fire( "edit-action", {
-					data: this.dataSet[ this.currentRowIndex ]
+					data: this.dataSet[ this.currentRowIndex ],
+					entity: this.entity,
+					entityChild: this.id,
+					namespace: this.namespace
 				} );
 			},
 			detailAction: function() {
@@ -62,7 +82,10 @@
 			copyAction: function() {
 				if ( this.currentRowIndex == null ) return;
 				this.fire( "copy-action", {
-					data: this.dataSet[ this.currentRowIndex ]
+					data: this.dataSet[ this.currentRowIndex ],
+					entity: this.entity,
+					entityChild: this.id,
+					namespace: this.namespace
 				} );
 			},
 			rulesChanged: function( e ) {
@@ -72,7 +95,7 @@
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true ) );
 				}
-				this.dataSet = this.preProcessData( this.getData( this.rules.entity, this.rules ) );
+				this.dataSet = this.preProcessData( this.getData( this.rules ) );
 				this.createTable( this.dtMeta, this.dataSet );
 				this.createRowListener();
 			},
@@ -159,14 +182,19 @@
 				}
 				return moment( parseInt( val ) ).format( "L" );
 			},
-			getData: function( entity, filter ) {
+			getData: function( filter ) {
 				console.debug( "GetData" );
-				var data = simpl4.util.Rpc.rpcSync( "data:query", {
-					storeId: this.namespace + "_data",
-					pageSize: 100,
-					entity: entity,
-					filter: filter
-				} );
+				var data;
+				if ( filter.rpc ) {
+					data = simpl4.util.Rpc.rpcSync( "data:query", filter.rpc );
+				} else {
+					data = simpl4.util.Rpc.rpcSync( "data:query", {
+						storeId: this.namespace + "_data",
+						pageSize: 100,
+						entity: filter.entity,
+						filter: filter
+					} );
+				}
 				return data.rows;
 			}
 		} );

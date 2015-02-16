@@ -287,7 +287,7 @@
 					var f = this.fields[ i ];
 					var enabledExpr = f.getAttribute( "enabled-expr" );
 					var readonlyExpr = f.getAttribute( "readonly-expr" );
-					console.log( "Name:" + f.name + "|enabled-expr:" + enabledExpr + "|readonlyExpr:" + readonlyExpr + "|" );
+					//console.log( "Name:" + f.name + "|enabled-expr:" + enabledExpr + "|readonlyExpr:" + readonlyExpr + "|" );
 					if ( this.isNotEmpty( readonlyExpr ) ) {
 						var e = this._maskedEval( readonlyExpr, map );
 						if ( e ) {
@@ -304,7 +304,7 @@
 						}
 					}
 					var excludeExpr = f.getAttribute( "exclude-expr" );
-					console.log( "Name:" + f.name + "|excludeExpr:" + excludeExpr + "|" );
+					//console.log( "Name:" + f.name + "|excludeExpr:" + excludeExpr + "|" );
 					if ( this.isNotEmpty( excludeExpr ) ) {
 						var e = this._maskedEval( excludeExpr, map );
 						if ( e ) {
@@ -315,7 +315,7 @@
 						console.log("exclude:"+e);
 					}
 					var invisibleExpr = f.getAttribute( "invisible-expr" );
-					console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
+					//console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
 					if ( this.isNotEmpty( invisibleExpr ) ) {
 						var e = this._maskedEval( invisibleExpr, map );
 						if ( e ) {
@@ -343,9 +343,11 @@
 			},
 			created: function() {},
 			ready: function() {},
-			domReady: function() {},
+			domReady: function() {
+				console.debug("simpl-baseform.domReady");
+			},
 			shapesChanged: function() {
-				console.debug( "shapesChanged:", this.shapes );
+				console.debug( "simpl-baseform.shapesChanged" );
 				this.valueChanged();
 			},
 			validate: function( e ) {

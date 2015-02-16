@@ -65,7 +65,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 			namespace: Args.STRING | Args.Optional
 		} ], arguments );
 
-		var namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
+		var namespace = args.namespace || simpl4.util.BaseManager.getNamespace();
 		var entities = simpl4.util.EntityManager.entityCache[ "entities-" + namespace ];
 		if ( !entities ) {
 			try {

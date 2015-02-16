@@ -13,7 +13,7 @@
 	</svg>
 </core-iconset-svg>
 
-<polymer-element name="simpl-panel" attributes="heading height bgcolor color collapsable collapsed collapsecolor">
+<polymer-element name="simpl-panel" attributes="data heading height bgcolor color collapsable collapsed collapsecolor">
 	<template>
 		<style>
 		:host {
@@ -137,14 +137,15 @@
 			}
 		},
 		toggleCollapse: function() {
-			this.collapsedChanged(this.collapsed,!this.collapsed);
+			//this.collapsedChanged(this.collapsed,!this.collapsed);
+		this.collapsed = !this.collapsed;
 			this.$.collapsable.icon = "custom-icons:"+ (this.collapsed?"icon-collapse":"icon-expand");
 		},
 		collapsedChanged: function(oldValue, newValue) {
-			if( oldValue === newValue ) { return; }
+			//if( oldValue === newValue ) { return; }
 			if( this.collapsable ) {
-				this.collapsed = newValue;
-				this.setAttribute("collapsed",newValue);
+				//this.collapsed = newValue;
+				this.setAttribute("collapsed",this.collapsed);
 				if( this.collapsed ) {
 					this.$.content.style.display = "none";
 					this.style.height = "40px";
@@ -158,6 +159,7 @@
 						this.$.content.style["-ms-flex"] = "none";
 					}
 					this.$.content.style.display = "block";
+					this.fire( "open-action", {data:this.data} );
 				}
 			}
 		}

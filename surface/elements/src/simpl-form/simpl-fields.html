@@ -276,6 +276,7 @@
 				this.decorator.error = message;
 			},
 			setInvalid: function( b ) {
+				if( this.decorator==null) return;
 				this.decorator.isInvalid = b;
 			},
 			setCustomValidity: function( message ) {
