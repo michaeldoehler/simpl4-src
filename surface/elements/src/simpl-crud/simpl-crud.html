@@ -108,10 +108,10 @@
 			},
 			openAction: function( e ) {
 				var detail = e.detail;
-				console.log( "openAction:", detail.data );
 				var ct = this.shadowRoot.querySelector( "#" + detail.data.id );
-				console.log( "openAction2:", ct );
-				ct.rules = detail.data;
+				var data = detail.data;
+				data.namespace = this.namespace;
+				ct.rules = data;
 			},
 			cancelAction: function( e ) {
 				var prevPage = this.pageStack.pop();
@@ -174,7 +174,7 @@
 				console.log( "detailAction:", e );
 				var currentRow = e.detail.data;
 				this.$.detailid.setData( e.detail.data );
-				var props = simpl4EntityManager.getPropertiesForEntity( this.mainEntityName );
+				var props = simpl4EntityManager.getPropertiesForEntity( this.mainEntityName,{namespace:this.namespace} );
 				this.panelHeaderDetails = this._maskedEval( props.title_expression, currentRow, "" );
 				var mainEntity = simpl4EntityManager.getEntity( this.mainEntityName, this.namespace );
 				this.mainEntityId = currentRow.id;
