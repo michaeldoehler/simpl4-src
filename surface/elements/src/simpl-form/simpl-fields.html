@@ -272,6 +272,9 @@
 				}
 				this.checkConstraints();
 			},
+			setValue:function(v){
+				this.editValue=v;
+			},
 			setErrorMessage: function( message ) {
 				this.decorator.error = message;
 			},
@@ -337,6 +340,9 @@
 					return;
 				}
 				this.checkConstraints();
+			},
+			setValue:function(v){
+				this.editValue=v;
 			}
 		} );
 
@@ -579,12 +585,16 @@
 				this.value = this.editValue;
 			},
 			valueChanged: function( e ) {
+console.log("dropdown.ValueChanged:"+this.value);
 				if ( this.isDomReady != true ) return;
 				if ( this.withoutCheck ) {
 					this.withoutCheck = false;
 					return;
 				}
 				this.fire( 'value-changed', this );
+			},
+			setValue:function(v){
+				this.value=v;
 			},
 			domReady: function() {
 				this.isDomReady = true;

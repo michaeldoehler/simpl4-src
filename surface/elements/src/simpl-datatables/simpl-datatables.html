@@ -99,8 +99,8 @@
 			}
 			:host /deep/ #dataTablesId thead th,
 			:host /deep/ #dataTablesId thead td {
-				border-bottom: 1px solid gray;
-				border-top: 1px solid gray;
+				border-bottom: 1px solid beige;
+				border-top: 1px solid beige;
 			}
 			:host /deep/ #dataTablesId.border thead tr th:first-child {
 				border-left: 1px solid gray;
@@ -133,14 +133,16 @@
 				text-align: left;
 				line-height: 1.6;
 			}
-:host /deep/ #dataTablesId tbody tr.odd.selected, table.dataTable.display tbody tr.odd.selected,
-:host /deep/ #dataTablesId tbody tr.even.selected, table.dataTable.display tbody tr.even.selected {
-  background-color: #DDDDC6;
-}
-:host /deep/ #dataTablesId thead tr th, :host /deep/ #dataTablesId tfoot tr th {
-background: beige;
-}
-
+			:host /deep/ #dataTablesId tbody tr.odd.selected,
+			table.dataTable.display tbody tr.odd.selected,
+			:host /deep/ #dataTablesId tbody tr.even.selected,
+			table.dataTable.display tbody tr.even.selected {
+				background-color: lightgray;
+			}
+			:host /deep/ #dataTablesId thead tr th,
+			:host /deep/ #dataTablesId tfoot tr th {
+				background: beige;
+			}
 			:host /deep/ #dataTablesId thead tr th:first-child {
 				padding: 0px 30px 0px;
 			}

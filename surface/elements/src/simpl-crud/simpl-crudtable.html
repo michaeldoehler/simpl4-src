@@ -192,6 +192,7 @@
 			},
 			getData: function( filter ) {
 				console.debug( "GetData" );
+				this.currentRowIndex=null;
 				var data;
 				if ( filter.rpc ) {
 					data = simpl4.util.Rpc.rpcSync( "data:query", filter.rpc );

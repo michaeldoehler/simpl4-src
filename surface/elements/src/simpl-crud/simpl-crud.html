@@ -30,7 +30,7 @@
 				padding-bottom: 10px;
 				padding-left: 3px;
 				padding-right: 3px;
-				border-color: lightgray !important;
+				//border-color: lightgray !important;
 			}
 			simpl-panel /deep/ #heading {
 				border-top-left-radius: 3px;
@@ -65,7 +65,11 @@
 				</paper-action-dialog>
 			</section>
 			<section style="padding:0px;position:relative;" unresolved>
-				<simpl-panel id="panel3" bgcolor="black" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="false">
+				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
+					<paper-button raised on-tap="{{cancelAction}}" flex>
+						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>
+				</div>
+				<simpl-panel bgcolor="black" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="true">
 					<simpl-details id="detailid" entity="{{mainEntityName}}"></simpl-details>
 				</simpl-panel>
 				<template if="{{entityChildList}}" repeat="{{rules in entityChildList}}">
@@ -75,7 +79,7 @@
 				</template>
 				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
 					<paper-button raised on-tap="{{cancelAction}}" flex>
-						<core-icon icon="cancel"></core-icon>{{'tasks.form.cancel'|tr}}</paper-button>
+						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>
 				</div>
 			</section>
 		</core-animated-pages>
@@ -89,7 +93,7 @@
 				this.pageStack = new Array();
 			},
 			setFormSpec: function( namespace, entity ) {
-				if( namespace=== this.prevNamespace && entity === this.prevEntityName) return;
+				if ( namespace === this.prevNamespace && entity === this.prevEntityName ) return;
 				this.currentNamespace = namespace;
 				var formSpec = simpl4FormManager.getCrudForm( entity, namespace );
 				this.prevEntityName = entity;
@@ -116,13 +120,13 @@
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
-				this.currentRow = detail.data;
+				this.currentRow = this.getData(detail.data);
 				this.currentTable = detail.table;
-				this.panelHeaderCrudForm = tr("data."+detail.entity);
+				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 
 				this.whenElementsReady( ( function() {
 					console.debug( "Ready" );
-					this.$.formid.setData( detail.data );
+					this.$.formid.setData( this.currentRow );
 					this.pageSelected = 1;
 				} ).bind( this ) );
 			},
@@ -134,13 +138,13 @@
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
-				this.currentRow = detail.data;
+				this.currentRow = this.getData(detail.data);
 				this.currentTable = detail.table;
 
-				this.panelHeaderCrudForm = tr("data."+detail.entity);
+				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 				this.whenElementsReady( ( function() {
-					console.debug( "Ready" );
-					this.$.formid.setData( detail.data );
+					console.debug( "Ready:"+JSON.stringify(this.currentRow,null,2) );
+					this.$.formid.setData( this.currentRow );
 					this.pageSelected = 1;
 				} ).bind( this ) );
 			},
@@ -153,7 +157,7 @@
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
 				this.currentTable = detail.table;
-				this.panelHeaderCrudForm = tr("data."+detail.entity);
+				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 
 				this.whenElementsReady( ( function() {
 					this.$.formid.setData( {} );
@@ -210,6 +214,15 @@
 					}
 				}
 				var ret = simpl4.util.Rpc.rpcSync( "data:" + ( this.mode == 'add' ? "insert" : "update" ), rpc );
+				return ret;
+			},
+			getData: function( data ) {
+				var rpc = {
+					storeId: ( this.namespace || simpl4.util.BaseManager.getNamespace() ) + "_data",
+					entity: this.currentEntityName,
+					id: data.id
+				}
+				var ret = simpl4.util.Rpc.rpcSync( "data:queryOne" , rpc );
 				return ret;
 			},
 			saveAction: function() {

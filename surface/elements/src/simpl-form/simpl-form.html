@@ -111,6 +111,8 @@
 				width: 100%;
 			}
 			fieldset#formdiv {
+				padding:0;
+				margin:0;
 				border-radius: 6px;
 				border: 0px solid beige;
 			}
@@ -166,7 +168,7 @@
 
 		</style>
 
-		<paper-shadow z=1>
+		<paper-shadow z=0>
 
 			<fieldset id="formdiv" verticax xayout>
 				<template repeat="{{shapes}}" id="root">
@@ -274,14 +276,14 @@
 				'remove-form-field': 'removeField'
 			},
 			valueChanged: function( e ) {
-				console.debug( "valueChanged:", e );
+				//console.debug( "valueChanged:", e );
 				var map = {};
 				for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 					var f = this.fields[ i ];
 					map[ f.name ] = f.value;
 				}
 				map[ "isEdit" ] = this.mode == "edit";
-				console.log( "Map:" + JSON.stringify( map, null, 2 ) );
+				//console.log( "Map:" + JSON.stringify( map, null, 2 ) );
 
 				for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 					var f = this.fields[ i ];
@@ -410,7 +412,8 @@
 				this.fields.forEach( function( field ) {
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
-					field.editValue = data[ field.name ] || field.defaultValue || "";
+console.log("Field:"+field.name+"="+data[field.name]);
+					field.setValue( data[ field.name ] || field.defaultValue || "");
 				}, this );
 			},
 			getData: function() {

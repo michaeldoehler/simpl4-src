@@ -36,7 +36,7 @@
 		}
 
 		header {
-			height: 40px;
+			height: 34px;
 			color: white;
 			padding-left: 10px;
 			background: #428bca;
@@ -67,7 +67,7 @@
 			flex:1;
 			padding:10px;
 			overflow:auto;
-			border:2px solid #428bca;
+			border:0px solid #428bca;
 			box-sizing:border-box;
 		}
 
@@ -77,12 +77,14 @@
 			width:40px;
 		}
 		</style>
+<paper-shadow z="1">
 		<div id="panel">
 			<header id="heading" ><span>{{heading}}</span> <core-icon icon="custom-icons:icon-expand" id="collapsable" style="fill:{{collapsecolor}}"></header>
 			<div id="content" >
 			        <content></content>
 			</div>
 		</div>
+</paper-shadow>
 	</template>
 	<script>
 	Polymer('simpl-panel', {
@@ -106,7 +108,7 @@
 				if( this.collapsable && this.collapsed ) {
 					this.style.height = parseInt(this.height,10)+"px";
 				} else {
-					this.style.height = "40px";
+					this.style.height = "34px";
 				}
 				this.$.content.style["-ms-flex-preferred-size"] = (parseInt(this.height,10)-50)+"px";
 			}
@@ -131,24 +133,21 @@
 				if( this.collapsable && this.collapsed ) {
 					this.style.height = parseInt(this.height,10)+"px";
 				} else {
-					this.style.height = "40px";
+					this.style.height = "34px";
 				}
 				this.$.content.style["-ms-flex-preferred-size"] = (parseInt(this.height,10)-50)+"px";
 			}
 		},
 		toggleCollapse: function() {
-			//this.collapsedChanged(this.collapsed,!this.collapsed);
 		this.collapsed = !this.collapsed;
 			this.$.collapsable.icon = "custom-icons:"+ (this.collapsed?"icon-collapse":"icon-expand");
 		},
-		collapsedChanged: function(oldValue, newValue) {
-			//if( oldValue === newValue ) { return; }
+		collapsedChanged: function() {
 			if( this.collapsable ) {
-				//this.collapsed = newValue;
 				this.setAttribute("collapsed",this.collapsed);
 				if( this.collapsed ) {
 					this.$.content.style.display = "none";
-					this.style.height = "40px";
+					this.style.height = "34px";
 				} else {
 					if(this.height) {
 						this.style.height = parseInt(this.height,10)+"px";
