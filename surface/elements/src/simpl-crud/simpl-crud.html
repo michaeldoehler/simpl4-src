@@ -118,6 +118,7 @@
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
 				this.currentRow = detail.data;
+				this.currentTable = detail.table;
 
 				this.whenElementsReady( ( function() {
 					console.debug( "Ready" );
@@ -134,6 +135,7 @@
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
 				this.currentRow = detail.data;
+				this.currentTable = detail.table;
 
 				this.whenElementsReady( ( function() {
 					console.debug( "Ready" );
@@ -145,13 +147,16 @@
 				var detail = e.detail;
 				this.mode = 'add';
 				this.pageStack.push( this.pageSelected );
-				this.currentEntityName = detail.entity;
 				console.log( "addAction:", this );
-				this.$.formid.setData( {} );
+				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
-				this.setFormSpec( detail.namespace, detail.entity );
-				this.pageSelected = 1;
+				this.currentTable = detail.table;
+
+				this.whenElementsReady( ( function() {
+					this.$.formid.setData( {} );
+					this.pageSelected = 1;
+				} ).bind( this ) );
 			},
 			detailAction: function( e ) {
 				console.log( "detailAction:", e );
@@ -244,6 +249,7 @@
 
 							setTimeout( ( function() {
 								this.pageSelected = this.pageStack.pop();
+								this.currentTable.refresh();
 							} ).bind( this ), 4000 );
 						}
 					} catch ( e ) {

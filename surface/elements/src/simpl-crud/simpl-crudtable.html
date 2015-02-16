@@ -60,6 +60,7 @@
 			addAction: function() {
 				this.fire( "add-action", {
 					entity: this.entity,
+					table: this,
 					entityChild: this.id,
 					namespace: this.namespace
 				} );
@@ -69,6 +70,7 @@
 				this.fire( "edit-action", {
 					data: this.dataSet[ this.currentRowIndex ],
 					entity: this.entity,
+					table: this,
 					entityChild: this.id,
 					namespace: this.namespace
 				} );
@@ -85,6 +87,7 @@
 					data: this.dataSet[ this.currentRowIndex ],
 					entity: this.entity,
 					entityChild: this.id,
+					table: this,
 					namespace: this.namespace
 				} );
 			},
@@ -181,6 +184,9 @@
 					return "--";
 				}
 				return moment( parseInt( val ) ).format( "L" );
+			},
+			refresh:function(){
+				this.rulesChanged();
 			},
 			getData: function( filter ) {
 				console.debug( "GetData" );
