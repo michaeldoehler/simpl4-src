@@ -161,7 +161,7 @@
 				var showTime = this.type.match( /^datetime/ ) != null;
 				console.log( "input-field:" + this.label + "/" + this.type + "/showTime:" + showTime );
 				if ( this.type.match( /^date/ ) != null && !this.hasDate ) {
-					var picker = new Pikaday( {
+					this.picker = new Pikaday( {
 						field: this.$.input,
 						trigger: this.$.input,
 						onSelect: function( a ) {}.bind( this ),
@@ -171,11 +171,14 @@
 						showSeconds: false,
 						use24hour: simpl4.util.BaseManager.getLanguage() == 'de' ? true : false,
 						firstDay: 1,
-						minDate: new Date( '2000-01-01' ),
-						maxDate: new Date( '2020-12-31' ),
-						yearRange: [ 2000, 2020 ]
+						//minDate: new Date( '2000-01-01' ),
+						//maxDate: new Date( '2020-12-31' ),
+						yearRange: [ 1900, 2030 ]
 					} );
 					this.readonly = true;
+					if ( this._date ) {
+						this.picker.gotoDate( this._date );
+					}
 				}
 				if ( this.type.match( /^date/ ) && this.hasDate ) {
 					this.$.decorator.labelVisible = true;
@@ -243,17 +246,8 @@
 				}, this );
 			},
 			editValueChanged: function() {
-				var isString = ( typeof this.editValue ) === "string";
-				if ( isString && this.type.match( /^date/ ) && !this.editValue.match( /-/ ) ) {
-					var showTime = this.type.match( /^datetime/ ) != null;
-					this.editValue = moment( parseInt( this.editValue ) ).format( showTime ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD" );
-				}
-				if ( this.type == "date" && !this.hasDate ) {
-					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() );
-					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
-				} else if ( this.type.match( /^datetime/ ) != null && !this.hasDate ) {
-					var mdate = moment( this.editValue, simpl4.util.BaseManager.getDateFormat() + " HH:mm" );
-					this.value = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() ) + "T" + this.lpad( mdate.hour() ) + ":" + this.lpad( mdate.minute() );
+				if ( this.type.match( /^date/ ) && !this.hasDate ) {
+					this.value = this._i18nToIso( this.editValue );
 				} else {
 					this.value = this.editValue;
 				}
@@ -272,14 +266,70 @@
 				}
 				this.checkConstraints();
 			},
-			setValue:function(v){
-				this.editValue=v;
+			setValue: function( v ) {
+				if ( this.type.match( /^date/ ) ) {
+					if( !this.hasDate){
+						v = this._convertDate( v );
+					}else{
+						v = this._toIso( v );
+					}
+				}
+				this.editValue = v;
+			},
+			_convertDate: function( v ) {
+				if ( !v ) {
+					if ( this.picker ) {
+						this.picker.gotoDate( new Date() );
+					} else {
+						this._date = new Date();
+					}
+					return null;
+				}
+				var iso = this._toIso( v );
+				this._date = this._isoToDate( iso );
+				if ( this.picker ) {
+					this.picker.gotoDate( this._date );
+					this._date = null;
+				}
+				return this._isoToI18n( iso );
+			},
+			_toIso: function( v ) {
+				var iso = v;
+				var isString = ( typeof v ) === "string";
+				if ( isString && !v.match( /[-]/ ) ) {
+					var showTime = this.type.match( /^datetime/ ) != null;
+					iso = moment( parseInt( v ) ).format( showTime ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD" );
+				}
+				return iso;
+			},
+			_isoToI18n: function( iso ) {
+				var mdate = moment( iso );
+				var showTime = this.type.match( /^datetime/ ) != null;
+				var format = simpl4.util.BaseManager.getDateFormat() + ( showTime ? " HH:mm" : "" );
+
+				var i18n = mdate.format( format );
+				return i18n;
+			},
+			_isoToDate: function( iso ) {
+				var mdate = moment( iso );
+				return mdate.toDate();
+			},
+			_i18nToIso: function( i18n ) {
+				var iso;
+				if ( this.type.match( /^datetime/ ) != null ) {
+					var mdate = moment( i18n, simpl4.util.BaseManager.getDateFormat() + " HH:mm" );
+					iso = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() ) + "T" + this.lpad( mdate.hour() ) + ":" + this.lpad( mdate.minute() );
+				} else {
+					var mdate = moment( i18n, simpl4.util.BaseManager.getDateFormat() );
+					iso = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
+				}
+				return iso;
 			},
 			setErrorMessage: function( message ) {
 				this.decorator.error = message;
 			},
 			setInvalid: function( b ) {
-				if( this.decorator==null) return;
+				if ( this.decorator == null ) return;
 				this.decorator.isInvalid = b;
 			},
 			setCustomValidity: function( message ) {
@@ -341,8 +391,8 @@
 				}
 				this.checkConstraints();
 			},
-			setValue:function(v){
-				this.editValue=v;
+			setValue: function( v ) {
+				this.editValue = v;
 			}
 		} );
 
@@ -592,8 +642,8 @@
 				}
 				this.fire( 'value-changed', this );
 			},
-			setValue:function(v){
-				this.value=v;
+			setValue: function( v ) {
+				this.value = v;
 			},
 			domReady: function() {
 				this.isDomReady = true;
