@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-main" attributes="mmenuClasses mmenuBackground logo logoBackground">
+<polymer-element name="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoBackground">
 	<template>
 		<core-style ref="main"></core-style>
 
@@ -106,7 +106,7 @@
 			</div>
 
 			<core-scroll-header-panel main xondenses>
-				<core-toolbar class="{{toolboxClass}}">
+				<core-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
 					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
@@ -137,6 +137,7 @@
 		Polymer( 'simpl-main', {
 			DEFAULT_ROUTE: '0',
 			logoBackground: 'white',
+			toolbarBackground: null,
 			logo: 'logo.svg',
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;

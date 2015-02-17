@@ -84,6 +84,7 @@
 				var b = this.background;
 				if ( b && b.length >= 0 ) {
 					this.backgroundColor = b;
+					$(this.$.mainmenu).css("backgroundColor", b);
 					menu.addClass( "mm-background" );
 					$( this ).addClass( "mm-background" );
 				}
