@@ -193,6 +193,7 @@
 			getData: function( filter ) {
 				console.debug( "GetData" );
 				this.currentRowIndex=null;
+				var props = simpl4.util.EntityManager.getEntityViewProperties(filter.entity,"main-grid", {namespace:this.namespace});
 				var data;
 				if ( filter.rpc ) {
 					data = simpl4.util.Rpc.rpcSync( "data:query", filter.rpc );
@@ -200,6 +201,7 @@
 					data = simpl4.util.Rpc.rpcSync( "data:query", {
 						storeId: this.namespace + "_data",
 						pageSize: 100,
+						orderby: props.orderby,
 						entity: filter.entity,
 						filter: filter
 					} );
