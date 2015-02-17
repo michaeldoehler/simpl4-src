@@ -240,7 +240,7 @@
 					</xaction-button>
 				</template>
 				<template if="{{ id=='Enumselect' }}">
-					<dropdown-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					<dropdown-field flex name="{{xf_id}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 						<template repeat="{{items}}">
 							<paper-item name="{{value}}">{{label}}</paper-item>
 						</template>
@@ -353,7 +353,7 @@
 				this.valueChanged();
 			},
 			validate: function( e ) {
-				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field" ) );
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field,dropdown-field" ) );
 				Array.prototype.forEach.call( elements, function( elem ) {
 					elem.setInvalid( false );
 				} );

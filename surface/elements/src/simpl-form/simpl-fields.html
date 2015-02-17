@@ -268,9 +268,9 @@
 			},
 			setValue: function( v ) {
 				if ( this.type.match( /^date/ ) ) {
-					if( !this.hasDate){
+					if ( !this.hasDate ) {
 						v = this._convertDate( v );
-					}else{
+					} else {
 						v = this._toIso( v );
 					}
 				}
@@ -572,6 +572,13 @@
 				top: -3px;
 				margin: 0;
 			}
+			.error {
+				color: #d34336;
+			}
+			.error-text {
+				font-size: 0.75em;
+				padding: 0.5em 0;
+			}
 			[invisible] {
 				visibility: hidden;
 			}
@@ -594,6 +601,9 @@
 				background-color: transparent;
 				padding: 0;
 			}
+			#paperDropdownMenu[invalid] {
+				margin: 0;
+			}
 			#paperDropdownMenu.compact {
 				margin: 0;
 			}
@@ -612,16 +622,23 @@
 		</style>
 
 		</style>
-		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined}}">
+		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined || value==''}}">
 			<span class="label-text">{{label}}</span>
 		</div>
-		<paper-dropdown-menu id="paperDropdownMenu" label="{{label}}" selected="{{value}}" valueattr="textContent">
-			<paper-dropdown flex class="dropdown">
-				<core-menu selected="{{value}}" icon="arrow-drop-down">
-					<content></content>
-				</core-menu>
-			</paper-dropdown>
-		</paper-dropdown-menu>
+		<div vertical layout>
+			<paper-dropdown-menu id="paperDropdownMenu" label="{{label}}" invalid?="{{isInvalid}}" selected="{{value}}" valueattr="textContent">
+				<paper-dropdown flex class="dropdown">
+					<core-menu selected="{{value}}" icon="arrow-drop-down">
+						<content></content>
+					</core-menu>
+				</paper-dropdown>
+			</paper-dropdown-menu>
+
+			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
+				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
+				<core-icon class="error-icon" icon="warning"></core-icon>
+			</div>
+		</div>
 	</template>
 	<script>
 		Polymer( {
@@ -631,19 +648,23 @@
 					reflect: true
 				}
 			},
-			editValueChanged: function() {
-				this.value = this.editValue;
-			},
 			valueChanged: function( e ) {
-				if ( this.isDomReady != true ) return;
 				if ( this.withoutCheck ) {
 					this.withoutCheck = false;
 					return;
 				}
+				if ( this.isDomReady != true ) return;
+				this.checkConstraints();
 				this.fire( 'value-changed', this );
 			},
 			setValue: function( v ) {
 				this.value = v;
+			},
+			setErrorMessage: function( message ) {
+				this.error = message;
+			},
+			setInvalid: function( b ) {
+				this.isInvalid = b;
 			},
 			domReady: function() {
 				this.isDomReady = true;
