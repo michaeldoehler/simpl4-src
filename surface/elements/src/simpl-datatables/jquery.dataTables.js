@@ -4266,7 +4266,11 @@
 			}
 			else {
 				last = now;
-				fn.apply( that, args );
+				try{
+					fn.apply( that, args );
+				}catch(e){
+					console.log("_fnThrottle:",e);
+				}
 			}
 		};
 	}
