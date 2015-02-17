@@ -17,13 +17,13 @@
 	<template>
 		<style>
 			:host {
-				margin-bottom: 10px;
+				margin-bottom: 20px;
 				display: block;
 				background: white;
 				position: relative;
 				box-sizing: border-box;
 			}
-			div#panel {
+			#panelId div#panel {
 				position: relative;
 				height: 100%;
 				box-sizing: border-box;
@@ -34,7 +34,7 @@
 				display: -ms-flexbox;
 				-ms-flex-direction: column;
 			}
-			header {
+			#panelId header {
 				height: 34px;
 				color: white;
 				padding-left: 10px;
@@ -51,7 +51,7 @@
 				-webkit-align-items: center;
 				box-sizing: border-box;
 			}
-			header > span {
+			#panelId header > span {
 				display: inline-block;
 				-webkit-flex: 1;
 				-ms-flex: 1;
@@ -60,7 +60,7 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
-			div#content {
+			#panelId div#panelContent {
 				-webkit-flex: 1;
 				-ms-flex: 1;
 				flex: 1;
@@ -69,19 +69,23 @@
 				border: 0px solid #428bca;
 				box-sizing: border-box;
 			}
-			#collapsable {
+			#panelId #collapsable {
 				display: none;
 				height: 40px;
 				width: 40px;
 			}
+			polyfill-rule {
+				content: '#panelId';
+				margin: 5px;
+			}
 
 		</style>
-		<paper-shadow z="3">
+		<paper-shadow id="panelId" z="3">
 			<div id="panel">
 				<header id="heading"><span>{{heading}}</span>
 					<core-icon icon="custom-icons:icon-expand" id="collapsable" style="fill:{{collapsecolor}}">
 				</header>
-				<div id="content">
+				<div id="panelContent">
 					<content></content>
 				</div>
 			</div>
@@ -99,9 +103,9 @@
 				var that = this;
 				this.$.heading.style.background = this.bgcolor;
 				this.$.heading.style.color = this.color;
-				this.$.content.style.borderColor = this.bgcolor;
+				this.$.panelContent.style.borderColor = this.bgcolor;
 				if ( !this.height && !this.style.height ) {
-					this.$.content.style[ "-ms-flex" ] = "none";
+					this.$.panelContent.style[ "-ms-flex" ] = "none";
 				} else {
 					if ( this.style.height && !this.height ) {
 						this.height = parseInt( this.style.height, 10 );
@@ -111,14 +115,14 @@
 					} else {
 						this.style.height = "34px";
 					}
-					this.$.content.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
+					this.$.panelContent.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
 				}
 				if ( this.collapsable ) {
 					this.$.collapsable.style.display = "block";
 					if ( this.collapsed ) {
-						this.$.content.style.display = "none";
+						this.$.panelContent.style.display = "none";
 					} else {
-						this.$.content.style.display = "block";
+						this.$.panelContent.style.display = "block";
 					}
 					this.$.collapsable.icon = "custom-icons:" + ( this.collapsed ? "icon-collapse" : "icon-expand" );
 				}
@@ -128,7 +132,7 @@
 			},
 			heightChanged: function( oldValue, newValue ) {
 				if ( !this.height && !this.style.height ) {
-					this.$.content.style[ "-ms-flex" ] = "none";
+					this.$.panelContent.style[ "-ms-flex" ] = "none";
 				} else {
 					if ( this.style.height && !this.height ) {
 						this.height = parseInt( this.style.height, 10 );
@@ -138,7 +142,7 @@
 					} else {
 						this.style.height = "34px";
 					}
-					this.$.content.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
+					this.$.panelContent.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
 				}
 			},
 			toggleCollapse: function() {
@@ -149,18 +153,18 @@
 				if ( this.collapsable ) {
 					this.setAttribute( "collapsed", this.collapsed );
 					if ( this.collapsed ) {
-						this.$.content.style.display = "none";
+						this.$.panelContent.style.display = "none";
 						this.style.height = "34px";
 					} else {
 						if ( this.height ) {
 							this.style.height = parseInt( this.height, 10 ) + "px";
-							this.$.content.style.height = ( parseInt( this.height, 10 ) - 40 ) + "px";
-							this.$.content.style[ "-ms-flex" ] = "none";
+							this.$.panelContent.style.height = ( parseInt( this.height, 10 ) - 40 ) + "px";
+							this.$.panelContent.style[ "-ms-flex" ] = "none";
 						} else {
 							this.style.height = null;
-							this.$.content.style[ "-ms-flex" ] = "none";
+							this.$.panelContent.style[ "-ms-flex" ] = "none";
 						}
-						this.$.content.style.display = "block";
+						this.$.panelContent.style.display = "block";
 						this.fire( "open-action", {
 							data: this.data
 						} );
