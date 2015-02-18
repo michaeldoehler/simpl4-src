@@ -632,6 +632,7 @@
 			var result = true;
 
 			if (shouldValidate(this, params)) {
+				this.value = this.value ? this.value.toString() : "";
 				var value = this.value.replace(/\s/g, "");
 				var parts = value.split(/\./);
 				result = false;
