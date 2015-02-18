@@ -141,7 +141,9 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 
 				field.text = tr( o.fsname );
 				field.itemval = o.fsname;
+				field.type="string";
 				fields.push( field );
+				field.input = simpl4.util.FormManager.handleQueryBuilderSearchInput.bind( simpl4.util.FormManager );
 				var sopt = o.search_options; //eval(o.sopt);
 				if ( !sopt || sopt.length == 0 ) {
 					sopt = [ "cn", "bw", "eq", "ne" ];
