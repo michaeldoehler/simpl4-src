@@ -35,7 +35,7 @@
 				-ms-flex-direction: column;
 			}
 			#panelId header {
-				height: 34px;
+				height: 30px;
 				color: white;
 				border-top-left-radius:5px;
 				border-top-right-radius:5px;
@@ -115,7 +115,7 @@
 					if ( this.collapsable && this.collapsed ) {
 						this.style.height = parseInt( this.height, 10 ) + "px";
 					} else {
-						this.style.height = "34px";
+						this.style.height = "30px";
 					}
 					this.$.panelContent.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
 				}
@@ -142,7 +142,7 @@
 					if ( this.collapsable && this.collapsed ) {
 						this.style.height = parseInt( this.height, 10 ) + "px";
 					} else {
-						this.style.height = "34px";
+						this.style.height = "30px";
 					}
 					this.$.panelContent.style[ "-ms-flex-preferred-size" ] = ( parseInt( this.height, 10 ) - 50 ) + "px";
 				}
@@ -156,7 +156,7 @@
 					this.setAttribute( "collapsed", this.collapsed );
 					if ( this.collapsed ) {
 						this.$.panelContent.style.display = "none";
-						this.style.height = "34px";
+						this.style.height = "30px";
 					} else {
 						if ( this.height ) {
 							this.style.height = parseInt( this.height, 10 ) + "px";
