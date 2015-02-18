@@ -353,6 +353,13 @@ public class MultiOperations {
 					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
 					debug("propertyType:" + propertyType + " fill with: " + sourceMap.get(propertyName) + ",list:" + destinationMap.get(propertyName) + "/mode:" + mode);
 					Collection sourceList = isList ? new ArrayList() : new HashSet();
+
+					Object fromVal = sourceMap.get(propertyName);
+					if( fromVal instanceof String && ((String)fromVal).length()>0){
+						info("FromVal is StringSchrott, ignore");
+						continue;
+					}
+
 					if (sourceMap.get(propertyName) instanceof Collection) {
 						sourceList = (Collection) sourceMap.get(propertyName);
 					}

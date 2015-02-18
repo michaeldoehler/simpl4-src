@@ -810,6 +810,11 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					Class type = TypeUtils.getTypeForField(to, key);
 					debug("type:" + type + " fill with: " + from.get(key) + ",list:" + beanMap.get(key) + "/mode:" + mode);
 					Collection valList = isList ? new ArrayList() : new HashSet();
+					Object fromVal = from.get(key);
+					if( fromVal instanceof String && ((String)fromVal).length()>0){
+						info("FromVal is StringSchrott, ignore");
+						continue;
+					}
 					if (from.get(key) instanceof Collection) {
 						valList = (Collection) from.get(key);
 					}
@@ -1912,7 +1917,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 				}
 				try {
 					Class type = beanMap.getType(field);
-					debug("Type:"+type+"/"+cm.get("datatype"));
+					debug("Type:"+type+"/"+cm.get("datatype")+"/field:"+field);
 					Object value = beanMap.get(field);
 					if ("binary".equals(cm.get("datatype"))){
 						continue;
@@ -1921,6 +1926,9 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 						continue;
 					}
 					if ("set".equals(cm.get("datatype"))){
+						continue;
+					}
+					if (type.equals(java.util.List.class) || type.equals(java.util.Set.class)) {
 						continue;
 					}
 					map.put(field, prepareValue(sessionContext, beanMap, value, (String) cm.get("datatype")));
