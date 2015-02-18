@@ -740,6 +740,9 @@ public class ClassGenServiceImpl implements ClassGenService {
 					if (pmap.get(key) instanceof Integer) {
 						anno.addMemberValue(key,new IntegerMemberValue(constPool, (Integer) pmap.get(key)) );
 					}
+					if (pmap.get(key) instanceof Long) {
+						anno.addMemberValue(key,new LongMemberValue((Long) pmap.get(key),constPool) );
+					}
 					if (pmap.get(key) instanceof Double) {
 						anno.addMemberValue(key,new DoubleMemberValue((Double) pmap.get(key),constPool ));
 					}
@@ -863,6 +866,9 @@ public class ClassGenServiceImpl implements ClassGenService {
 		if (s.indexOf("i") != -1) {
 			return getInteger(value);
 		}
+		if (s.indexOf("l") != -1) {
+			return getLong(value);
+		}
 		if (s.indexOf("f") != -1) {
 			return getFlags((String) value);
 		}
@@ -892,6 +898,19 @@ public class ClassGenServiceImpl implements ClassGenService {
 			}
 			if (value instanceof String) {
 				return Integer.parseInt((String) value);
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
+
+	protected Long getLong(Object value) {
+		try {
+			if (value instanceof Long) {
+				return (Long) value;
+			}
+			if (value instanceof String) {
+				return Long.parseLong((String) value);
 			}
 		} catch (Exception e) {
 		}
@@ -928,9 +947,9 @@ public class ClassGenServiceImpl implements ClassGenService {
 		mMap.put("Future.List", new Object[] { Future.List.class });
 		mMap.put("Length", new Object[] { Length.class, "min:io", "max:io" });
 		mMap.put("Length.List", new Object[] { Length.List.class });
-		mMap.put("Max", new Object[] { Max.class, "value:i" });
+		mMap.put("Max", new Object[] { Max.class, "value:l" });
 		mMap.put("Max.List", new Object[] { Max.List.class });
-		mMap.put("Min", new Object[] { Min.class, "value:i" });
+		mMap.put("Min", new Object[] { Min.class, "value:l" });
 		mMap.put("Min.List", new Object[] { Min.List.class });
 		mMap.put("NotBlank", new Object[] { NotBlank.class });
 		mMap.put("NotBlank.List", new Object[] { NotBlank.List.class });
@@ -944,7 +963,7 @@ public class ClassGenServiceImpl implements ClassGenService {
 		mMap.put("Past.List", new Object[] { Past.List.class });
 		mMap.put("Pattern", new Object[] { Pattern.class, "regexp", "flags:fo" });
 		mMap.put("Pattern.List", new Object[] { Pattern.List.class });
-		mMap.put("Range", new Object[] { Range.class, "min:io", "max:io" });
+		mMap.put("Range", new Object[] { Range.class, "min:lo", "max:lo" });
 		mMap.put("Range.List", new Object[] { Range.List.class });
 		// mMap.put("ScriptAssert",				new Object[] { ScriptAssert.class,		"script","lang","alias:o"});
 		// mMap.put("ScriptAssert.List",		new Object[] { ScriptAssert.List.class});
