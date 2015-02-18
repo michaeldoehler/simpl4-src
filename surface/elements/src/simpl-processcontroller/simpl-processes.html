@@ -29,8 +29,7 @@
 				content: "\2713";
 				padding-left: 10px;
 			}
-			paper-button.blue-ripple {
-				color: #4285f4;
+			paper-button.ripple {
 				float: left;
 				position: relative;
 			}
@@ -45,7 +44,7 @@
 			<section style="padding:3px;position:relative;">
 				<template if="{{currentProcess!=null}}">
 					<div style="margin-bottom:30px;text-align:left;" layout vertical>
-						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action+' ('+currentProcess+')'}}</paper-button>
+						<paper-button raised class="ripple" on-tap="{{startProcess}}">{{action+' ('+currentProcess+')'}}</paper-button>
 					</div>
 				</template>
 				<shadow></shadow>
@@ -62,7 +61,6 @@
 			pageSelected: 0,
 			action: tr( "processexplorer.definition.start_workflow" ),
 			currentProcess: null,
-			currentIndex: null,
 			domReady: function() {
 				console.log( "ready" );
 				this.namespace = "kfzplan";//@@@MS simpl4.util.BaseManager.getNamespace();
@@ -70,26 +68,19 @@
 					this.dtMeta = this.getMeta();
 				}
 				this.dataSet = this.getProcessDefinitions();
-				console.log( "dataSet:" + JSON.stringify( this.dataSet, null, 2 ) );
-				console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
 				this.createTable( this.dtMeta, this.dataSet );
-				this.createRowListener();
 			},
-			createRowListener: function() {
+			startProcess: function( e ) {
+				this.pageSelected = 1;
+				var process = this.dataSet[ this.rowIndex ];
 				var self = this;
-				this.q( 'tbody tr' ).on( 'tap', ( function( e ) {
-					console.log( "Click:", e.currentTarget._DT_RowIndex );
-					var index = e.currentTarget._DT_RowIndex;
-					self.currentIndex = index;
-					if ( $( this ).hasClass( 'selected' ) ) {} else {
-						self.q( 'tr.selected' ).removeClass( 'selected' );
-						$( this ).addClass( 'selected' );
-						self.currentProcess = self.dataSet[ index ].key;
-					}
-				} ) );
+				this.$.processController.start( process, {}, function() {
+					console.log( "finishCallback2" );
+					self.pageSelected = 0;
+				} );
 			},
-			q: function( sel ) {
-				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			rowIndexChanged:function(){
+				this.currentProcess = this.dataSet[ this.rowIndex ].key;
 			},
 			getMeta: function() {
 				var colHds = [];
@@ -103,22 +94,7 @@
 				col.title = tr( "tasks.table.processName" );
 				colHds.push( col );
 
-				var col = {};
-				col.data = "processCategory";
-				col.title = tr( "tasks.table.processCategory" );
-				//colHds.push( col );
 				return colHds;
-			},
-			submit: function( e ) {
-				this.pageSelected = 1;
-				console.log( "submit:", e );
-				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
-				var process = this.dataSet[ this.currentIndex ];
-				var self = this;
-				this.$.processController.start( process, {}, function() {
-					console.log( "finishCallback2" );
-					self.pageSelected = 0;
-				} );
 			},
 			getProcessDefinitions: function() {
 				var result = null;

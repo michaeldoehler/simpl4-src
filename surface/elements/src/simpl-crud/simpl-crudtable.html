@@ -102,27 +102,9 @@
 				}
 				this.dataSet = this.preProcessData( this.getData( this.rules ) );
 				this.createTable( this.dtMeta, this.dataSet );
-				this.createRowListener();
 			},
-			createRowListener: function() {
-				var self = this;
-				var rows = this.dtTable.rows().nodes();
-				$( rows ).on( 'tap', ( function( e ) {
-					self.tapAction( e, this, false );
-				} ) );
-			},
-			tapAction: function( e, t, double ) {
-				if ( $( t ).hasClass( 'selected' ) ) {
-					return;
-				}
-				var rowIndex = e.currentTarget._DT_RowIndex;
-				console.log( "tapAction:", rowIndex );
-				this.currentRowIndex = rowIndex;
-				this.q( 'tr.selected' ).removeClass( 'selected' );
-				$( t ).addClass( 'selected' );
-			},
-			q: function( sel ) {
-				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			rowIndexChanged:function(){
+				this.currentRowIndex = this.rowIndex;
 			},
 			preProcessData: function( rows ) {
 				var selKeys = Object.keys( this.selectableList );

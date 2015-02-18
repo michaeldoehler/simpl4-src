@@ -163,15 +163,20 @@
 	</template>
 	<script>
 		Polymer( {
+			observe: {
+				'rowIndex': 'rowIndexChanged'
+			},
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
 				console.log( "dataTables.domReady" );
 			},
-			createTable: function( dtMeta, dataSet ) {
-				var options = {};
-				if ( this.options ) {
+			createTable: function( dtMeta, dataSet, options ) {
+				if ( options ) {
+				} else if ( this.options ) {
 					options = JSON.parse( this.options );
+				} else {
+					options = {};
 				}
 				if ( this.dtTable ) {
 					this.dtTable.destroy( false );
@@ -203,13 +208,32 @@
 					data: dataSet,
 					columns: dtMeta
 				}, options ) );
+				this.createRowListener();
+			},
+			createRowListener: function() {
+				var self = this;
+				var rows = this.dtTable.rows().nodes();
+				$( rows ).on( 'tap', ( function( e ) {
+					self.tapAction( e, this, false );
+				} ) );
+			},
+			tapAction: function( e, t, double ) {
+				if ( $( t ).hasClass( 'selected' ) ) {
+					return;
+				}
+				var rowIndex = e.currentTarget._DT_RowIndex;
+				console.log( "DataTables.tapAction:", rowIndex );
+				this.rowIndex = rowIndex;
+				this.q( 'tr.selected' ).removeClass( 'selected' );
+				$( t ).addClass( 'selected' );
+			},
+			q: function( sel ) {
+				return $( this.$.dataTablesId.querySelectorAll( sel ) );
 			},
 			metaChanged: function() {
 				this.preparedMeta = this.prepareMeta( this.meta );
-				console.log( "metaChanged2", this.preparedMeta );
 			},
 			dataChanged: function() {
-				console.log( "dataChanged:", this.data );
 				this.createTable( this.preparedMeta, this.data );
 			},
 			prepareMeta: function( meta ) {

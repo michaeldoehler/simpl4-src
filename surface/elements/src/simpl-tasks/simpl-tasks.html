@@ -29,8 +29,7 @@
 				content: "\2713";
 				padding-left: 10px;
 			}
-			paper-button.blue-ripple {
-				color: #4285f4;
+			paper-button.ripple {
 				float: left;
 				position: relative;
 			}
@@ -43,7 +42,7 @@
 
 		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
 			<section style="padding:3px;position:relative;">
-				<core-selector target="{{$.list}}" selected="{{taskListSelected}}">
+				<core-selector target="{{$.list}}" selected="{{taskListModeSelected}}">
 					<ul id="list">
 						<li>{{"tasks.table.not_assigned"|tr}}</li>
 						<li>{{"tasks.table.assigned"|tr}}</li>
@@ -51,7 +50,7 @@
 				</core-selector>
 				<template if="{{currentTask!=null}}">
 					<div style="margin-bottom:30px;text-align:left;" layout vertical>
-						<paper-button raised class="blue-ripple" on-tap="{{submit}}">{{action+' ('+currentTask+')'}}</paper-button>
+						<paper-button raised class="ripple" on-tap="{{startTask}}">{{action+' ('+currentTask+')'}}</paper-button>
 					</div>
 				</template>
 				<shadow></shadow>
@@ -66,7 +65,7 @@
 		Polymer( 'simpl-tasks', {
 			dtMeta: null,
 			pageSelected: 0,
-			taskListSelected: 1,
+			taskListModeSelected: 1,
 			action: tr( "tasks.table.complete" ),
 			currentTask: null,
 			currentIndex: null,
@@ -76,29 +75,28 @@
 					this.dtMeta = this.getMeta();
 				}
 				var dataSet = this.getTasks();
-				//console.log( "dataSet:" + JSON.stringify( dataSet, null, 2 ) );
-				//console.log( "meta:" + JSON.stringify( this.dtMeta, null, 2 ) );
 				this.createTable( this.dtMeta, dataSet );
-				this.createRowListener();
 			},
-			createRowListener: function() {
+			startTask: function( e ) {
+				this.pageSelected = 1;
+				console.log( "startTask:", e );
+				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
+				var task = this.dataSet[ this.currentIndex ];
+				task.fromTaskList = true;
 				var self = this;
-				var rows = this.dtTable.rows().nodes();
-				$( rows ).on( 'tap', ( function( e ) {
-					console.log( "Click:", e.currentTarget._DT_RowIndex );
-					var index = e.currentTarget._DT_RowIndex;
-					self.currentIndex = index;
-					if ( $( this ).hasClass( 'selected' ) ) {
-						//	$( this ).removeClass( 'selected' );
-					} else {
-						self.q( 'tr.selected' ).removeClass( 'selected' );
-						$( this ).addClass( 'selected' );
-						self.currentTask = self.dataSet[ index ].processName + " / " + self.dataSet[ index ].name;
-					}
-				} ) );
+				this.$.processController.showForm( task, function() {
+					self.pageSelected = 0;
+				} );
 			},
-			q: function( sel ) {
-				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			rowIndexChanged:function(){
+				this.currentTask = this.dataSet[ this.rowIndex ].processName + " / " + this.dataSet[ this.rowIndex ].name;
+			},
+			taskListModeSelectedChanged: function( e ) {
+				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
+				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
+				this.createTable( this.dtMeta, dataSet );
+				this.currentTask = null;
+				this.currentIndex = null;
 			},
 			getMeta: function() {
 				var colHds = [];
@@ -138,27 +136,6 @@
 				col.title = tr( "tasks.table.time" );
 				colHds.push( col );
 				return colHds;
-			},
-			taskListSelectedChanged: function( e ) {
-				console.log( "listChanged:", e );
-				console.log( "equela:" + ( e == 0 ) );
-				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
-				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
-				this.createTable( this.dtMeta, dataSet );
-				this.createRowListener();
-				this.currentTask = null;
-				this.currentIndex = null;
-			},
-			submit: function( e ) {
-				this.pageSelected = 1;
-				console.log( "submit:", e );
-				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
-				var task = this.dataSet[ this.currentIndex ];
-				task.fromTaskList = true;
-				var self = this;
-				this.$.processController.showForm( task, function() {
-					self.pageSelected = 0;
-				} );
 			},
 			getTasks: function( what ) {
 				this.userid = simpl4.util.BaseManager.getUser();
