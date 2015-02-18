@@ -57,7 +57,7 @@ can.Construct.extend("simpl4.util.Rpc", {
 			msg: parameter.msg,
 		}
 		var result = simpl4.util.Rpc._send(url, false, config, requestObject);
-		if (result) {
+		if (!result) {
 			throw "Networkerror:result is null";
 		}
 		if (result.error) {
