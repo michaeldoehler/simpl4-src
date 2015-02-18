@@ -111,7 +111,9 @@
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
 					<core-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></core-icon-button>
-					<core-icon-button on-click="{{login}}" icon="add"></core-icon-button>
+					<core-tooltip label="{{'Login'}}" position="center">
+					  <core-icon-button on-click="{{login}}" icon="system-update-tv"></core-icon-button>
+					</core-tooltip>
 				</core-toolbar>
 
 				<div class="content" style="xeight:100%"> <!--height:100% slow scroll in chromium androit-->
