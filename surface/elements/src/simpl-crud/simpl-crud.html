@@ -44,7 +44,7 @@
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" rules="{{rules}}"></simpl-filter>
 				<template if="{{rules}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
-						<simpl-crudtable namespace="{{namespace}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+						<simpl-crudtable namespace="{{namespace}}" buttons="add,edit,copy,detail" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 			</section>
@@ -76,7 +76,7 @@
 				</simpl-panel>
 				<template if="{{entityChildList}}" repeat="{{rules in entityChildList}}">
 					<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{rules}}" heading="{{rules.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
-						<simpl-crudtable id="{{rules.id}}" detailButton="{{false}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
+						<simpl-crudtable id="{{rules.id}}" buttons="add,edit,copy" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">

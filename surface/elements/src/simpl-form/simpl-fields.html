@@ -679,6 +679,53 @@
 	</script>
 </polymer-element>
 
+<polymer-element name="related-field" extends="form-field" kind="related" attributes="namespace entity" layout horizontal center>
+	<template>
+		<style>
+			:host /deep/ #relatedDialog {
+				top: 5vh;
+				left: 0vw;
+				min-width: 100%;
+				margin: 0px;
+			}
+			:host /deep/ #relatedDialog /deep/ #scroller {
+				padding: 10px 10px 0 10px;
+			}
+
+		</style>
+
+		<paper-input-decorator flex id="decorator" label="{{label}}" invisible?="{{invisible}}" floatingLabel?="{{floatingLabel}}" value="{{value}}" readonly disabled?="{{disabled}}">
+			<input is="core-input" id="input" value="{{editValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly disabled?={{disabled}}>
+		</paper-input-decorator>
+		<paper-button on-tap="{{actionCallback}}" class="button" raised>
+			<core-icon icon="mode-edit"></core-icon>
+		</paper-button>
+		<paper-action-dialog backdrop layered="false" id="relatedDialog" class="scrolling">
+			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" rules="{{rules}}"></simpl-filter>
+			<div style="height:20px;"></div>
+			<simpl-panel bgcolor="black" heading="{{'data.'+entity|tr}}" collapsable="false" collapsed="false">
+				<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="{{selectAction}}" on-cancel-action="{{cancelAction}}" rules="{{rules}}"></simpl-crudtable>
+			</simpl-panel>
+		</paper-action-dialog>
+	</template>
+	<script>
+		Polymer( {
+			actionCallback: function() {
+				this.shadowRoot.querySelector( "#relatedDialog" ).open();
+			},
+			selectAction: function( e ) {
+				this.shadowRoot.querySelector( "#relatedDialog" ).close();
+				console.log( "selectAction:", e.detail.data );
+			},
+			cancelAction: function() {
+				console.log( "cancelAction" );
+				this.shadowRoot.querySelector( "#relatedDialog" ).close();
+			}
+		} );
+
+	</script>
+</polymer-element>
+
 
 //@@@ More as Example for polyfields
 <polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
