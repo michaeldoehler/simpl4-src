@@ -117,6 +117,7 @@
 				border: 0px solid beige;
 			}
 			input-field,
+			related-field,
 			dropdown-field {
 				margin: 5px;
 			}
@@ -173,7 +174,7 @@
 			<fieldset id="formdiv" verticax xayout>
 				<template repeat="{{shapes}}" id="root">
 
-					<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='Alert' || id=='break'}}" ref="element" bind></template>
+					<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='RelatedTo' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
 					<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
@@ -249,6 +250,9 @@
 				<template if="{{ id=='Textarea' }}">
 					<multiline-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 				</template>
+				<template if="{{ id=='RelatedTo' }}">
+					<related-field flex name="{{xf_id}}" namespace="crm" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  label="{{label}}" ></related-field>
+				</template>
 				<template if="{{ id=='Alert' }}">
 					<html-echo name="{{xf_id}}" html="{{xf_message}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
 				</template>
@@ -264,7 +268,6 @@
 				</simpl-row>
 			</template>
 
-					<related-field flex namespace="crm" entity="contact" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  name="xxxx{{xf_id}}" label="TEST{{label}}" ></related-field>
 			<!--div>
 			<button on-tap="{{submit}}">Submit</button>
 		</div-->
@@ -410,9 +413,11 @@
 				return f.label;
 			},
 			setData: function( data ) {
+console.log("Data:"+JSON.stringify(data,null,2));
 				this.fields.forEach( function( field ) {
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
+console.log("setData:"+field.name+"="+data[field.name]);
 					field.setValue( data[ field.name ] || field.defaultValue || "");
 				}, this );
 			},
@@ -479,6 +484,7 @@
 			cleanShape: function( shape ) {
 				if ( shape.stencil.id.toLowerCase() == "input" ||
 					shape.stencil.id.toLowerCase() == 'textarea' ||
+					shape.stencil.id.toLowerCase() == 'relatedto' ||
 					shape.stencil.id.toLowerCase() == 'enumselect' ||
 					shape.stencil.id.toLowerCase() == 'group'
 				) {

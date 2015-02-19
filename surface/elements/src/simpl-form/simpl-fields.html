@@ -610,6 +610,9 @@
 			paper-dropdown-menu::shadow #dropdown {
 				min-width: 100%;
 			}
+			paper-dropdown-menu {
+				margin: 0px;
+			}
 			:host /deep/ #scroller {
 				overflow: auto;
 				max-height: 300px;
@@ -679,17 +682,29 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="related-field" extends="form-field" kind="related" attributes="namespace entity" layout horizontal center>
+<polymer-element name="related-field" extends="form-field" kind="related" attributes="namespace entity floatingLabel readonly disabled autofocus label name" layout horizontal center>
 	<template>
 		<style>
 			:host /deep/ #relatedDialog {
 				top: 5vh;
-				left: 0vw;
-				min-width: 100%;
-				margin: 0px;
+				min-width: 70%;
+			}
+			@media screen and (max-width: 767px) {
+				:host /deep/ #relatedDialog {
+					top: 5vh;
+					left: 0vw;
+					min-width: 100%;
+					margin: 0px;
+				}
 			}
 			:host /deep/ #relatedDialog /deep/ #scroller {
 				padding: 10px 10px 0 10px;
+			}
+			:host /deep/ .button-content {
+				padding: 0.2em 0.27em;
+			}
+			paper-button {
+				min-width: 0px;
 			}
 
 		</style>
@@ -698,7 +713,10 @@
 			<input is="core-input" id="input" value="{{editValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly disabled?={{disabled}}>
 		</paper-input-decorator>
 		<paper-button on-tap="{{actionCallback}}" class="button" raised>
-			<core-icon icon="mode-edit"></core-icon>
+			<core-icon icon="input"></core-icon>
+		</paper-button>
+		<paper-button on-tap="{{clearCallback}}" class="button" raised>
+			<core-icon icon="clear"></core-icon>
 		</paper-button>
 		<paper-action-dialog backdrop layered="false" id="relatedDialog" class="scrolling">
 			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" rules="{{rules}}"></simpl-filter>
@@ -710,16 +728,61 @@
 	</template>
 	<script>
 		Polymer( {
+			floatingLabel: true,
+			id: null,
+			ready: function() {
+				this.props = simpl4.util.EntityManager.getPropertiesForEntity( this.entity, {
+					namespace: this.namespace
+				} );
+				console.log( "props:", this.props );
+			},
 			actionCallback: function() {
 				this.shadowRoot.querySelector( "#relatedDialog" ).open();
 			},
+			clearCallback: function() {
+				this.editValue = null;
+				this.id = null;
+			},
 			selectAction: function( e ) {
+				var data = e.detail.data;
 				this.shadowRoot.querySelector( "#relatedDialog" ).close();
-				console.log( "selectAction:", e.detail.data );
+				var t = this._maskedEval( this.props.title_expression, data );
+				this.id = data.id;
+				this.editValue = t;
 			},
 			cancelAction: function() {
-				console.log( "cancelAction" );
 				this.shadowRoot.querySelector( "#relatedDialog" ).close();
+			},
+
+			editValueChanged: function() {
+				if ( this.editValue ) {
+					this.value = this.editValue + "/" + this.id;
+					this.$.decorator.updateLabelVisibility( "X" );
+				} else {
+					this.$.decorator.updateLabelVisibility( "" );
+					this.value = null;
+				}
+				this.fire( 'value-changed', this );
+			},
+			setValue: function( v ) {
+				if ( v != null ) {
+					var s = v.split( "/" );
+					this.editValue = s[ 0 ];
+					this.id = s[ 1 ];
+				} else {
+					this.editValue = null;
+				}
+				console.log( "related:", this.editValue );
+				console.log( "id:", this.id );
+			},
+			_maskedEval: function( scr, env, def ) {
+				try {
+					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+				} catch ( e ) {
+					console.log( "RelatedField._maskedEval:" + scr );
+					console.error( "error:" + e );
+				}
+				return def;
 			}
 		} );
 
