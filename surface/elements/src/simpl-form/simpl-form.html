@@ -251,7 +251,7 @@
 					<multiline-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 				</template>
 				<template if="{{ id=='RelatedTo' }}">
-					<related-field flex name="{{xf_id}}" namespace="crm" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  label="{{label}}" ></related-field>
+					<related-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  label="{{label}}" ></related-field>
 				</template>
 				<template if="{{ id=='Alert' }}">
 					<html-echo name="{{xf_id}}" html="{{xf_message}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
@@ -394,7 +394,6 @@
 				} catch ( e ) {
 					console.log( "Form._maskedEval:" + scr );
 					console.error( "error:" + e );
-					console.error( e.stack );
 				}
 				return def;
 			},
@@ -413,11 +412,9 @@
 				return f.label;
 			},
 			setData: function( data ) {
-console.log("Data:"+JSON.stringify(data,null,2));
 				this.fields.forEach( function( field ) {
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
-console.log("setData:"+field.name+"="+data[field.name]);
 					field.setValue( data[ field.name ] || field.defaultValue || "");
 				}, this );
 			},

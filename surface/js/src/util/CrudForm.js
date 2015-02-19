@@ -82,6 +82,7 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 			var s= f.datatype.split("/");
 			shape.id="RelatedTo";
 			shape.xf_type=s[2];
+			shape.xf_namespace=this.namespace;
 		}
 
     shape.xf_enabled = f.form_enabled_expr;
