@@ -153,6 +153,11 @@
 				white-space: normal;
 				font-size: 12px;
 			}
+			:host /deep/ #dataTablesId td {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 			:host /deep/ .paginate_enabled_previous,
 			:host /deep/ .paginate_enabled_next {
 				font-size: 2.2em !important;
@@ -173,9 +178,9 @@
 				float: left !important;
 				text-align: left !important;
 			}
-			:host /deep/ .dataTables_paginate{
+			:host /deep/ .dataTables_paginate {
 				text-align: right !important;
-				padding:0px !important;
+				padding: 0px !important;
 			}
 			:host /deep/ .dataTables_paginate {
 				margin-top: 0.05em !important;
@@ -216,8 +221,8 @@
 				}
 				this.dtTable = dtMainElem.DataTable( jQuery.extend( {
 					language: this.getLang(),
-					paging:true,
-					pagingType:"four_button",
+					paging: true,
+					pagingType: "two_button",
 					bSort: false,
 					bFilter: true,
 					bDestroy: true,

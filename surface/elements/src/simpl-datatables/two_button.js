@@ -17,7 +17,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$.fn.dataTableExt.oPagination.four_button = {
+$.fn.dataTableExt.oPagination.two_button = {
 	"fnInit": function( oSettings, nPaging, fnCallbackDraw ) {
 		var nPrevious = document.createElement( 'span' );
 		var nNext = document.createElement( 'span' );
