@@ -153,9 +153,36 @@
 				white-space: normal;
 				font-size: 12px;
 			}
+			:host /deep/ .paginate_enabled_previous,
+			:host /deep/ .paginate_enabled_next {
+				font-size: 2.2em !important;
+				font-weight: bold !important;
+				cursor: pointer;
+			}
+			:host /deep/ .paginate_disabled_previous,
+			:host /deep/ .paginate_disabled_next {
+				font-size: 2.2em !important;
+				cursor: normal;
+				visibility: hidden;
+			}
+			:host /deep/ .paginate_disabled_previous,
+			:host /deep/ .paginate_enabled_previous {
+				margin-right: 25px;
+			}
+			:host /deep/ .dataTables_info {
+				float: left !important;
+				text-align: left !important;
+			}
+			:host /deep/ .dataTables_paginate{
+				text-align: right !important;
+				padding:0px !important;
+			}
+			:host /deep/ .dataTables_paginate {
+				margin-top: 0.05em !important;
+			}
 
 		</style>
-		<div style="overflow:hidden;">
+		<div id="dtId" style="overflow:hidden;">
 			<table id="dataTablesId" class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
 		</div>
 		<content>
@@ -172,8 +199,7 @@
 				console.log( "dataTables.domReady" );
 			},
 			createTable: function( dtMeta, dataSet, options ) {
-				if ( options ) {
-				} else if ( this.options ) {
+				if ( options ) {} else if ( this.options ) {
 					options = JSON.parse( this.options );
 				} else {
 					options = {};
@@ -190,6 +216,8 @@
 				}
 				this.dtTable = dtMainElem.DataTable( jQuery.extend( {
 					language: this.getLang(),
+					paging:true,
+					pagingType:"four_button",
 					bSort: false,
 					bFilter: true,
 					bDestroy: true,
@@ -208,6 +236,7 @@
 					data: dataSet,
 					columns: dtMeta
 				}, options ) );
+				//				$(this.$.dtId.querySelectorAll( "table.dataTables")).attr("id", "dataTablesId");
 				this.createRowListener();
 			},
 			createRowListener: function() {
