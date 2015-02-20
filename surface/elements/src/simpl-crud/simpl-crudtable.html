@@ -70,6 +70,16 @@
 					namespace: this.namespace
 				} );
 			},
+			showAction: function() {
+				if ( this.rowIndex == null ) return;
+				this.fire( "show-action", {
+					data: this.dataSet[ this.rowIndex ],
+					entity: this.entity,
+					table: this,
+					entityChild: this.id,
+					namespace: this.namespace
+				} );
+			},
 			detailAction: function() {
 				if ( this.rowIndex == null ) return;
 				this.fire( "detail-action", {
@@ -103,6 +113,7 @@
 			rowIndexChanged: function() {
 				this.buttonDef[ "edit" ].disabled =
 					this.buttonDef[ "copy" ].disabled =
+					this.buttonDef[ "show" ].disabled =
 					this.buttonDef[ "select" ].disabled =
 					this.buttonDef[ "detail" ].disabled = this.rowIndex == null;
 			},
@@ -118,6 +129,12 @@
 						action: this.editAction,
 						icon: "create",
 						text: tr( 'button.edit' ),
+						disabled: true
+					},
+					show: {
+						action: this.showAction,
+						icon: "bookmark-outline",
+						text: tr( 'button.show' ),
 						disabled: true
 					},
 					copy: {
