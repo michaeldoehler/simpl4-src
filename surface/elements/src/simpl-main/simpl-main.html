@@ -111,7 +111,7 @@
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
 					<core-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></core-icon-button>
-					<core-tooltip label="{{'Login'}}" position="center">
+					<core-tooltip label="{{loginMessage}}" position="left">
 					  <core-icon-button on-click="{{login}}" icon="system-update-tv"></core-icon-button>
 					</core-tooltip>
 				</core-toolbar>
@@ -132,7 +132,7 @@
 		</core-drawer-panel>
 
 		<paper-dialog id="loginDialog">
-			<simpl-login id="login"></simpl-login>
+			<simpl-login on-login-ok="{{loginOk}}" id="login"></simpl-login>
 		</paper-dialog>
 	</template>
 	<script>
@@ -141,6 +141,7 @@
 			logoBackground: 'white',
 			toolbarBackground: null,
 			logo: 'logo.svg',
+			loginMessage:"Login",
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;
 				this.ajax = this.$.ajax;
@@ -303,6 +304,10 @@
 				return style;
 			},
 
+			loginOk: function( e ) {
+				this.loginMessage="User:"+e.detail.identifier;
+				this.$.loginDialog.toggle();
+			},
 			login: function( e ) {
 				this.$.loginDialog.toggle();
 			},
