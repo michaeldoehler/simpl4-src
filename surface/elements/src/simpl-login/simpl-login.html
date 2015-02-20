@@ -18,114 +18,91 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-login" attributes="heading identification">
+<polymer-element name="simpl-login" attributes="heading namespace identification">
 
-  <template>
-    <link rel="stylesheet" href="simpl-login.css" />
-    <h2>{{heading}}</h2>
-    <content select="[top]"></content>
-    <content select="[identifierHeading]"></content>
-    <paper-input id="identifierInput" value="{{identifier}}" label="{{identification}}" floatingLabel></paper-input>
-    <content select="[passwordHeading]"></content>
-    <paper-input id="passwordInput" value="{{password}}" label="Password" type="password" floatingLabel></paper-input>
-    <paper-button id="submitbutton" raised on-click="{{validate}}">{{submit}}</paper-button>
-    <content select="[bottom]"></content>
-  </template>
+	<template>
+		<link rel="stylesheet" href="simpl-login.css" />
+		<h2>{{heading}}</h2>
+		<content select="[top]"></content>
+		<content select="[identifierHeading]"></content>
+		<paper-input id="identifierInput" value="{{identifier}}" label="{{identification}}" floatingLabel></paper-input>
+		<content select="[passwordHeading]"></content>
+		<paper-input id="passwordInput" value="{{password}}" label="Password" type="password" floatingLabel></paper-input>
+		<paper-button id="submitbutton" raised on-click="{{validate}}">{{submit}}</paper-button>
+		<content select="[bottom]"></content>
+		<paper-toast id="toast_error" text="" style="background:red;padding-right:60px;" role="alert" class="capsule">
+			<div style="color:black;font-weight:bold;">{{message}}</div>
+		</paper-toast>
+		<paper-toast id="toast_ok" text="" style="background:gray;padding-right:60px;" role="alert" class="capsule">
+			<div style="">{{message}}</div>
+		</paper-toast>
+	</template>
 
-  <script>
+	<script>
+		Polymer( 'simpl-login', {
+			heading: 'Login',
+			submit: 'Login',
+			identification: 'Username',
+			identifier: "",
+			password: "",
+			namespace: "crm", //@@@MS 
 
-    Polymer('simpl-login', {
-      /**
-       * The `heading` attribute sets an initial heading
-       * 
-       * @attribute heading
-       * @type string
-       * @default 'Login'
-       */
-      heading: 'Login',
+			validate: function() {
+				this.$.identifierInput.invalid = !!!this.identifier;
+				this.$.passwordInput.invalid = !!!this.password;
+				if ( !this.password || !this.password ) return this.shake();
 
-      /**
-       * The `submit` attribute sets an initial submit
-       * 
-       * @attribute submit
-       * @type string
-       * @default 'Login'
-       */
-      submit: 'Login',
+				var ret = jQuery.ajax( {
+					url: "/sw/" + this.namespace + "/checkcredentials/",
+					async: false,
+					data: "credentials=" + this.identifier + ":" + this.password,
+					method: "POST",
+				} );
+				if ( ret.status == 200 ) {
+					simpl4.util.BaseManager.setUser( this.identifier );
+					simpl4.util.BaseManager.setPassword( this.password );
+					this.showOk( tr( "login.ok" ) );
+					setTimeout( ( function() {
+						this.fireLoginOk();
+						this.$.passwordInput.value = "";
+					} ).bind( this ), 3000 );
+				} else {
+					this.showError( tr( "login.error" ) );
+					this.shake();
+				}
 
-      /**
-       * The `identification` attribute sets an initial identification.
-       * 
-       * @attribute identification
-       * @type string
-       * @default 'Username'
-       */
-      identification: 'Username',
+			},
+			showError: function( msg ) {
+				this.message = msg;
+				this.$.toast_error.show();
+			},
+			showOk: function( msg ) {
+				this.message = msg;
+				this.$.toast_ok.show();
+			},
 
-      /**
-       * The `identifier` attribute sets an initial identifier.
-       * 
-       * @attribute identifier
-       * @type string
-       * @default ''
-       */
-      identifier: "",
+			shake: function() {
+				var animation = new Animation( this, [ {
+					transform: "translateX(-10px)"
+				}, {
+					transform: "translateX(10px)"
+				} ], {
+					direction: "alternate",
+					duration: 50,
+					iterations: 3
+				} );
+				document.timeline.play( animation );
+			},
 
-      /**
-       * The `password` attribute sets an initial password.
-       * 
-       * @attribute password
-       * @type string
-       * @default ''
-       */      
-      password: "",
+			fireLoginOk: function() {
+				this.fire( 'login-ok', {
+					identifier: this.identifier,
+					password: this.password
+				} );
+			}
 
-      validate: function() {
-        this.$.identifierInput.invalid = !!!this.identifier;
-        this.$.passwordInput.invalid = !!!this.password;
-        if (!this.password || !this.password) return this.shake();
-        this.fireLoginTry();
-      },
+		} );
 
-      /**
-       * The `shake` method will shake this element (negative behaviour).
-       * 
-       * @method shake
-       */
-      shake: function() {
-        var animation = new Animation(this, [
-            {transform: "translateX(-10px)"},
-            {transform: "translateX(10px)"}
-          ], {
-            direction: "alternate", duration: 50, iterations: 3
-          });
-        document.timeline.play(animation);
-      },
-
-      /**
-       * The `simpl-login-login-try` event is fired whenever we
-       * call fireLoginTry
-       * 
-       * @event simpl-login-login-try
-       * @param {Object} detail
-       *   @param {string} detail.identifier The identifying value (e.g. username)
-       *   @param {string} detail.password The password value
-       */
-
-      /**
-       * The `fireLoginTry` method will fire the login try event.
-       * 
-       * @method fireLoginTry
-       */
-      fireLoginTry: function() {
-        this.fire('simpl-login-login-try', {
-          identifier: this.identifier,
-          password: this.password
-        });
-      }
-
-    });
-
-  </script>
+	</script>
 
 </polymer-element>
