@@ -12,3 +12,10 @@
          return this.value !== true;
       }
   });
+ regula.custom({
+      name: "NotNull",
+      defaultMessage: "",
+      validator: function() {
+         return this.getValue() !== null;
+      }
+  });
