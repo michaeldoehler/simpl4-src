@@ -31,6 +31,7 @@ can.Construct.extend("simpl4.util.Rpc", {
 		if (s.length != 2) {
 			throw "RpcSync wrong arg(service:method)";
 		}
+		parameter = parameter || {};
 		var service = s[0];
 		var method = s[1];
 		var newArgs = [];
