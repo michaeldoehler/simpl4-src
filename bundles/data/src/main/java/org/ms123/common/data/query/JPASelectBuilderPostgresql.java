@@ -58,6 +58,7 @@ public class JPASelectBuilderPostgresql extends JPASelectBuilder implements Sele
 				try{
 					if( data instanceof String){
 						d = new SimpleDateFormat("yyyy-MM-dd").parse((String)data,new ParsePosition(0));
+						if( d==null) d = new Date();
 					}
 				}catch(Exception e1){
 					System.out.println("E:"+e);
