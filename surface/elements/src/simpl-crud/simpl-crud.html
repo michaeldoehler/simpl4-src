@@ -37,6 +37,9 @@
 				border-top-left-radius: 4px;
 				border-top-right-radius: 4px;
 			}
+			paper-button[invisible]{
+				display:none;
+			}
 
 		</style>
 		<core-animated-pages selected="{{pageSelected}}">
@@ -52,6 +55,13 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
 					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
+							<paper-button id="prevButton" invisible?="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}" flex>
+								<core-icon icon="image:navigate-before"></core-icon>
+							</paper-button>
+							<paper-button id="nextButton" invisible?="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{nextAction}}" flex>
+								<core-icon icon="image:navigate-next"></core-icon>
+							</paper-button>
+
 						<paper-button raised on-tap="{{saveAction}}" flex>
 							<core-icon icon="save"></core-icon>{{'data.form.save'|tr}}</paper-button>
 						<paper-button raised on-tap="{{cancelAction}}" flex>
@@ -90,8 +100,8 @@
 		Polymer( 'simpl-crud', {
 			pageSelected: 0,
 			panelBackgroundColor: '#000',
-			buttonList:'add,edit,copy,detail',
-			buttonListDetail:'add,edit,copy',
+			buttonList: 'add,edit,copy,detail',
+			buttonListDetail: 'add,edit,copy',
 			domReady: function() {
 				//var ea = simpl4.util.EntityManager.getEntityAccess( this.namespace ||  simpl4.util.BaseManager.getNamespace());
 				//console.log("loggin-ok:"+JSON.stringify(ea,null,2));
@@ -118,11 +128,19 @@
 				ct.rules = data;
 			},
 			cancelAction: function( e ) {
+				this.prevNextButtonsInvisible = true;
 				var prevPage = this.pageStack.pop();
 				console.log( "CancelAction:" + prevPage );
 				this.pageSelected = prevPage;
+				if( this.needRefresh){
+					this.needRefresh=false;
+					setTimeout( ( function() {
+							this.currentTable.refresh();
+					} ).bind( this ), 100 );
+				}
 			},
 			copyAction: function( e ) {
+				this.prevNextButtonsInvisible = true;
 				var detail = e.detail;
 				this.mode = 'add';
 				this.pageStack.push( this.pageSelected );
@@ -130,15 +148,31 @@
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
-				this.currentRow = this.getData( detail.data );
+				this.currentRowData = this.getData( detail.data );
 				this.currentTable = detail.table;
 				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 
 				this.whenElementsReady( ( function() {
 					console.debug( "Ready" );
-					this.$.formid.setData( this.currentRow );
+					this.$.formid.setData( this.currentRowData );
 					this.pageSelected = 1;
 				} ).bind( this ) );
+			},
+			prevAction: function( e ) {
+				if ( this.currentRowIndex > 0 ) {
+					this.currentRowIndex--;
+					this.currentRowData=this.getData(this.currentDataSet[this.currentRowIndex]);
+					this.$.formid.setData( this.currentRowData );
+				}
+				this.handlePrevNextButtons();
+			},
+			nextAction: function( e ) {
+				if ( this.currentRowIndex < ( this.currentDataSet.length - 1 ) ) {
+					this.currentRowIndex++;
+					this.currentRowData=this.getData(this.currentDataSet[this.currentRowIndex]);
+					this.$.formid.setData( this.currentRowData );
+				}
+				this.handlePrevNextButtons();
 			},
 			editAction: function( e ) {
 				var detail = e.detail;
@@ -148,17 +182,22 @@
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
-				this.currentRow = this.getData( detail.data );
+				this.currentRowData = this.getData( detail.data );
 				this.currentTable = detail.table;
+				this.currentDataSet = detail.dataSet;
+				this.currentRowIndex = detail.rowIndex;
 
+				this.prevNextButtonsInvisible = null;
+				this.handlePrevNextButtons();
 				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 				this.whenElementsReady( ( function() {
-					console.debug( "Ready:" + JSON.stringify( this.currentRow, null, 2 ) );
-					this.$.formid.setData( this.currentRow );
+					console.debug( "Ready:" + JSON.stringify( this.currentRowData, null, 2 ) );
+					this.$.formid.setData( this.currentRowData );
 					this.pageSelected = 1;
 				} ).bind( this ) );
 			},
 			addAction: function( e ) {
+				this.prevNextButtonsInvisible = true;
 				var detail = e.detail;
 				this.mode = 'add';
 				this.pageStack.push( this.pageSelected );
@@ -176,14 +215,14 @@
 			},
 			detailAction: function( e ) {
 				console.log( "detailAction:", e );
-				var currentRow = e.detail.data;
+				var currentRowData = e.detail.data;
 				this.$.detailid.setData( e.detail.data );
 				var props = simpl4EntityManager.getPropertiesForEntity( this.mainEntityName, {
 					namespace: this.namespace
 				} );
-				this.panelHeaderDetails = this._maskedEval( props.title_expression, currentRow, "" );
+				this.panelHeaderDetails = this._maskedEval( props.title_expression, currentRowData, "" );
 				var mainEntity = simpl4EntityManager.getEntity( this.mainEntityName, this.namespace );
-				this.mainEntityId = currentRow.id;
+				this.mainEntityId = currentRowData.id;
 				var entityChildList = [];
 				for ( var i = 0; i < mainEntity.childs.length; i++ ) {
 					var c = mainEntity.childs[ i ];
@@ -197,7 +236,7 @@
 						storeId: this.namespace + "_data",
 						entity: this.mainEntityName,
 						entityChild: c.name,
-						id: currentRow.id,
+						id: currentRowData.id,
 						pageSize: 0
 					}
 					console.log( "cn:" + JSON.stringify( cn, null, 2 ) );
@@ -254,7 +293,7 @@
 				} else {
 					try {
 						if ( this.mode == 'edit' ) {
-							data = simpl4.util.Merge.deepmerge( this.currentRow, data );
+							data = simpl4.util.Merge.deepmerge( this.currentRowData, data );
 						}
 						var ret = this.storeData( data );
 						console.log( "Ret:", ret );
@@ -275,19 +314,26 @@
 							}
 							this.shadowRoot.querySelector( "#toast" ).show();
 
-							setTimeout( ( function() {
-								var pageSelected = this.pageStack.pop();
-								this.pageSelected = ( pageSelected == null ) ? 0 : pageSelected;
-								setTimeout( ( function() {
-									this.currentTable.refresh();
-								} ).bind( this ), 100 );
-							} ).bind( this ), 3000 );
+							this.needRefresh=true;
+							//setTimeout( ( function() {
+								//var pageSelected = this.pageStack.pop();
+								//this.pageSelected = ( pageSelected == null ) ? 0 : pageSelected;
+								//setTimeout( ( function() {
+								//	this.currentTable.refresh();
+								//} ).bind( this ), 100 );
+							//} ).bind( this ), 3000 );
 						}
 					} catch ( e ) {
 						this.toast_message = tr( "data.form.save" ) + ":" + e.message;
 						this.shadowRoot.querySelector( "#toast" ).show();
 						return;
 					}
+				}
+			},
+			handlePrevNextButtons: function() {
+				if ( !this.prevNextButtonsInvisible ) {
+					this.$.nextButton.disabled = ( this.currentRowIndex < ( this.currentDataSet.length - 1 ) ) ? false : true;
+					this.$.prevButton.disabled = ( this.currentRowIndex > 0 ) ? false : true;
 				}
 			},
 			_maskedEval: function( scr, env, def ) {

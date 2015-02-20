@@ -64,6 +64,8 @@
 				if ( this.rowIndex == null ) return;
 				this.fire( "edit-action", {
 					data: this.dataSet[ this.rowIndex ],
+					dataSet:this.dataSet,
+					rowIndex:this.rowIndex,
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -107,7 +109,8 @@
 				} );
 			},
 			onTap: function( e ) {
-				var name = e.srcElement.getAttribute( "name" ) || e.srcElement.parentElement.getAttribute( "name" );
+				var src = e.srcElement || e.target;
+				var name = src.getAttribute( "name" ) || src.parentElement.getAttribute( "name" );
 				this.buttonDef[ name ].action.call( this );
 			},
 			rowIndexChanged: function() {
