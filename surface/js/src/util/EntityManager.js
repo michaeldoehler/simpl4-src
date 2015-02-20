@@ -60,6 +60,48 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 		}
 		return fields;
 	},
+
+	getUser: function() {
+		var user = simpl4.util.EntityManager.entityCache[ "user" ];
+		if ( !user ) {
+			user = simpl4.util.Rpc.rpcSync( "auth:getUserProperties" );
+			simpl4.util.EntityManager.entityCache[ "user" ] = user;
+		} else {}
+		return user;
+	},
+	getEntityAccess: function( entity ) {
+		var args = Args( [ {
+			antity: Args.STRING | Args.Required
+		}, {
+			namespace: Args.STRING | Args.Optional
+		} ], arguments );
+		var namespace = args.namespace || this.getNamespace();
+		var user = this.getUser();
+		var entityDesc = this.getEntity( entity, {
+			namespace: namespace
+		} );
+		var access = {
+			"update": "all",
+			"import": "all",
+			"delete": "all"
+		};
+		if ( entityDesc && entityDesc.write === false ) {
+			access[ "update" ] = "no";
+			access[ "import" ] = "no";
+			access[ "delete" ] = "no";
+		}
+		return access;
+	},
+
+	hasEntityUpdatePermission: function (entity,namespace) {
+		var access = this.getEntityAccess(entity,namespace);
+console.log("access:",access);
+		var user = this.getUser();
+console.log("user:",user);
+		if (user.admin) return true;
+		if (access["update"] === undefined || access["update"] == "all" || access["update"] == "owner") return true;
+		return false;
+	},
 	getEntities: function() {
 		var args = Args( [ {
 			namespace: Args.STRING | Args.Optional
