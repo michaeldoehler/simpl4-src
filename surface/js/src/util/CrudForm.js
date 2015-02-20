@@ -70,6 +70,10 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 			shape.id= "Enumselect";
 			shape.items = f.selectable_items.getItems();
 		}
+		if( f.edittype=="textarea"){
+			shape.id= "Textarea";
+			shape.xf_rows = f.editoptions_rows;
+		}
 		shape.xf_id = f.name;
 		shape.xf_type = this.convertFieldType(f);
 		shape.label = tr( "data." + this.entityname + "." + f.name );

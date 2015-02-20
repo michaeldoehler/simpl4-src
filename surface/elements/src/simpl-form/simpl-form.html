@@ -248,7 +248,7 @@
 					</dropdown-field>
 				</template>
 				<template if="{{ id=='Textarea' }}">
-					<multiline-field flex name="{{xf_id}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
+					<multiline-field flex name="{{xf_id}}" rows="{{xf_rows}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 				</template>
 				<template if="{{ id=='RelatedTo' }}">
 					<related-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  label="{{label}}" ></related-field>
@@ -496,6 +496,11 @@
 						}
 					} else {
 						shape.properties.label = "";
+					}
+					if ( shape.stencil.id.toLowerCase() == 'textarea' ) {
+						if( shape.properties.xf_rows == null){
+							shape.properties.xf_rows=3;
+						}
 					}
 					if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
 						var props = shape.properties;
