@@ -69,6 +69,9 @@
 			domReady: function() {
 				this.isDomReady = true;
 			},
+			getValue:function(){
+				return this.value;
+			},
 			checkConstraints: function() {
 				var c = this.getAttribute( "data-constraints" );
 				if ( c == null || c.length == 0 ) return;
@@ -275,6 +278,14 @@
 					}
 				}
 				this.editValue = v;
+			},
+			getValue:function(){
+				if ( this.type.match( /^date/ ) ) {
+					if( typeof this.value === "string" && this.value.match(/[a-zA-Z]/)){
+						return null;
+					}
+				}
+				return this.value;
 			},
 			_convertDate: function( v ) {
 				if ( !v ) {

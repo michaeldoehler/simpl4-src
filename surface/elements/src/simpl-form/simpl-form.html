@@ -421,7 +421,7 @@
 			getData: function() {
 				var data = {};
 				this.fields.forEach( function( field ) {
-					data[ field.name ] = field.value;
+					data[ field.name ] = field.getValue();
 				}, this );
 				return data;
 			}
