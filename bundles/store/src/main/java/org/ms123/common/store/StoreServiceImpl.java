@@ -100,6 +100,7 @@ public class StoreServiceImpl implements StoreService {
 			String ns = fbc.getString("store", storeId, "namespace");
 			String db = fbc.getString("store", storeId, "database");
 			String dbn = fbc.getString("store", storeId, "databasename");
+			String dbh = fbc.getString("store", storeId, "databasehost");
 			String repo = fbc.getString("store", storeId, "repository");
 			if (repo == null){
 				repo = ns;
@@ -110,6 +111,7 @@ public class StoreServiceImpl implements StoreService {
 			m.put(StoreDesc.NAMESPACE, ns);
 			m.put(StoreDesc.REPOSITORY, repo);
 			m.put(StoreDesc.DATABASENAME, dbn);
+			m.put(StoreDesc.DATABASEHOST, dbh);
 			m.put(StoreDesc.STORE_ID, namespace + "_" + storeId);
 			storeMap.put(namespace + "_" + storeId, m);
 		}

@@ -69,7 +69,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		if( m_transactionService.getJtaLocator().equals("jotm")){
 			PGXADataSource xa = new PGXADataSource();
 			xa.setUser("postgres");
-			xa.setServerName("localhost");
+			xa.setServerName(m_sdesc.getDatabaseHost());
 			xa.setDatabaseName(m_sdesc.getDatabaseName());
 			BasicManagedDataSource b = new BasicManagedDataSource();
 			b.setTransactionManager(m_transactionService.getTransactionManager());
@@ -85,7 +85,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 			ds.setTestQuery(null);
 			ds.getDriverProperties().put("databaseName", m_sdesc.getDatabaseName());
 			ds.getDriverProperties().setProperty("user", "postgres");
-			ds.getDriverProperties().setProperty("serverName", "localhost");    
+			ds.getDriverProperties().setProperty("serverName", m_sdesc.getDatabaseHost());    
 			m_props.put("datanucleus.ConnectionFactory", ds);
 			m_poolingDataSource=ds;
 		}
@@ -93,7 +93,7 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		// nontx
 		PGPoolingDataSource pd = new PGPoolingDataSource();
 		pd.setUser("postgres");
-		pd.setServerName("localhost");
+		pd.setServerName(m_sdesc.getDatabaseHost());
 		pd.setDatabaseName(m_sdesc.getDatabaseName());
 		m_props.put("datanucleus.ConnectionFactory2", pd);
 	}

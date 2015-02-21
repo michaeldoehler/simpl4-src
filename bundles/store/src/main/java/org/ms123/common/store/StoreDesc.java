@@ -44,6 +44,7 @@ public class StoreDesc {
 
 	public static final String REPOSITORY = "repository";
 	public static final String DATABASENAME = "databasename";
+	public static final String DATABASEHOST = "databasehost";
 
 	public static final String PACK_DATA = "data";
 
@@ -65,6 +66,7 @@ public class StoreDesc {
 
 	private String m_namespace;
 	private String m_databaseName;
+	private String m_databaseHost;
 
 	private String m_package;
 
@@ -76,7 +78,7 @@ public class StoreDesc {
 
 	private String m_storeId;
 
-	private StoreDesc(String storeId, String namespace, String pack, String store, String repo, String dbName) {
+	private StoreDesc(String storeId, String namespace, String pack, String store, String repo, String dbName, String dbHost) {
 		m_package = assign(pack, PACK_DATA);
 		m_namespace = namespace;
 		int colon = store.indexOf(":");
@@ -89,6 +91,7 @@ public class StoreDesc {
 		m_storeId = storeId;
 		m_repository = repo != null ? repo : m_namespace;
 		m_databaseName = dbName != null ? dbName : m_namespace;
+		m_databaseHost = dbHost != null ? dbHost : "localhost";
 	}
 
 	public String getNamespace() {
@@ -101,6 +104,10 @@ public class StoreDesc {
 
 	public String getDatabaseName() {
 		return m_databaseName;
+	}
+
+	public String getDatabaseHost() {
+		return m_databaseHost;
 	}
 
 	public String getStore() {
@@ -321,7 +328,8 @@ public class StoreDesc {
 					StoreDesc sdesc = new StoreDesc(m.get(STORE_ID), m.get(NAMESPACE), m.get(PACK), 
 							m.get(STORE), 
 							m.get(REPOSITORY),
-							m.get(DATABASENAME)
+							m.get(DATABASENAME),
+							m.get(DATABASEHOST)
 							);
 					m_storeIds.put(m.get(STORE_ID), sdesc);
 				}
