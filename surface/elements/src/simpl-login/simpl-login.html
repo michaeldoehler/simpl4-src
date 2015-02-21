@@ -45,15 +45,15 @@
 			identification: 'Username',
 			identifier: "",
 			password: "",
-			namespace: "crm", //@@@MS 
 
 			validate: function() {
 				this.$.identifierInput.invalid = !!!this.identifier;
 				this.$.passwordInput.invalid = !!!this.password;
 				if ( !this.password || !this.password ) return this.shake();
 
+				var namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
 				var ret = jQuery.ajax( {
-					url: "/sw/" + this.namespace + "/checkcredentials/",
+					url: "/sw/" + namespace + "/checkcredentials/",
 					async: false,
 					data: "credentials=" + this.identifier + ":" + this.password,
 					method: "POST",
