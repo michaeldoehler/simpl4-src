@@ -1,7 +1,7 @@
 <polymer-element name="simpl-viewer" attributes="">
 	<template>
 		<style>
-			:host {
+			<link rel="stylesheet" type="text/css" href="layout-columns.css" />:host {
 				margin-bottom: 20px;
 				display: block;
 				background: white;
@@ -26,17 +26,32 @@
 				background: red;
 				opacity: .45 !important;
 			}
+			#viewer {
+				min-height: 300px;
+				height: 1px;
+			}
+			@media(min-height:768px) {
+				#viewer {
+					min-height: 500px;
+				}
+			}
 
 		</style>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="false">
-			<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
-		</simpl-panel>
-		<simpl-panel id="panel2" on-open-action="{{panelOpen}}" bgcolor="black" heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
-			<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
-		</simpl-panel>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderDrawing}}" collapsable="true" collapsed="false">
-			<div style="height:300px;" id="viewer"> </div>
-		</simpl-panel>
+		<div horizontal layout wrap>
+			<div layout horizontal s100 m100 l100 xl33>
+				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout vertical flex collapsable="true" collapsed="false">
+					<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
+				</simpl-panel>
+			</div>
+			<div layout vertical s100 m100 l100 xl66>
+				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="black" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
+					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+				</simpl-panel>
+				<simpl-panel id="drawingId" bgcolor="black" heading="{{panelHeaderDrawing}}" layout vertical collapsable="true" collapsed="false">
+					<div id="viewer"> </div>
+				</simpl-panel>
+			</div>
+		</div>
 	</template>
 	<script>
 		Polymer( 'simpl-viewer', {
@@ -48,7 +63,7 @@
 				dom: "frtiS",
 				scrollY: '150px'
 			},
-			ready:function(){
+			ready: function() {
 				simpl4.util.MessageManager.installMessages( "bhs" );
 			},
 			domReady: function( context ) {
@@ -74,12 +89,12 @@
 					} ]
 				} );
 			},
-			panelOpen:function(){
-				console.log("panelOpen");
+			panelOpen: function() {
+				console.log( "panelOpen" );
 				var dt = this.$.bomTable;
 				var dtTable = dt.dtTable;
-				$(window).trigger("resize.DT-dataTablesId");
-				$(window).trigger("resize.dtr");
+				$( window ).trigger( "resize.DT-dataTablesId" );
+				$( window ).trigger( "resize.dtr" );
 			},
 			selectedAssemblyChanged: function( e ) {
 				console.log( "selectedAssemblyChanged:", this.selectedAssembly );
@@ -259,7 +274,7 @@
 					console.log( "RowNodes:", rows[ 0 ][ 0 ] );
 					var scroller = dtTable.scroller();
 					console.log( "Scroller:", scroller );
-					scroller.scrollToRow( rows[ 0 ][ 0 ] );
+					scroller.scrollToRow( rows[ 0 ][ 0 ]-2, true );
 				}
 			},
 			_getParameter: function( part ) {
