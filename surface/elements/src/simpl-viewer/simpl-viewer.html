@@ -28,10 +28,10 @@
 			}
 
 		</style>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="true">
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="false">
 			<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
 		</simpl-panel>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderBom}}" collapsable="true" collapsed="true">
+		<simpl-panel id="panel2" on-open-action="{{panelOpen}}" bgcolor="black" heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
 			<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 		</simpl-panel>
 		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderDrawing}}" collapsable="true" collapsed="false">
@@ -45,7 +45,6 @@
 			panelHeaderDrawing: 'Zeichnung',
 			dataTablesOptions: {
 				paging: true,
-				deferRender: true,
 				dom: "frtiS",
 				scrollY: '150px'
 			},
@@ -74,6 +73,13 @@
 						hookHandler: this.onViewerClick.bind( this )
 					} ]
 				} );
+			},
+			panelOpen:function(){
+				console.log("panelOpen");
+				var dt = this.$.bomTable;
+				var dtTable = dt.dtTable;
+				$(window).trigger("resize.DT-dataTablesId");
+				$(window).trigger("resize.dtr");
 			},
 			selectedAssemblyChanged: function( e ) {
 				console.log( "selectedAssemblyChanged:", this.selectedAssembly );
