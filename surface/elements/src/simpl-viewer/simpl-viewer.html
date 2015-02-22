@@ -10,6 +10,7 @@
 			}
 			:host /deep/ .hotspot {
 				border-radius: 3px;
+//				background: yellow;
 				cursor: pointer;
 			}
 			:host /deep/ .navigator {
@@ -28,20 +29,20 @@
 
 		</style>
 		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="true">
-			<simpl-tree selectedItem="{{selectedItem}}"></simpl-tree>
+			<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
 		</simpl-panel>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderSt}}" collapsable="true" collapsed="true">
-			<simpl-datatables meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderBom}}" collapsable="true" collapsed="true">
+			<simpl-datatables on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 		</simpl-panel>
-		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderZ}}" collapsable="true" collapsed="false">
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderDrawing}}" collapsable="true" collapsed="false">
 			<div style="height:300px;" id="viewer"> </div>
 		</simpl-panel>
 	</template>
 	<script>
 		Polymer( 'simpl-viewer', {
 			panelHeader: 'Maschine',
-			panelHeaderSt: 'Stückliste',
-			panelHeaderZ: 'Zeichnung',
+			panelHeaderBom: 'Stückliste',
+			panelHeaderDrawing: 'Zeichnung',
 			domReady: function( context ) {
 				simpl4.util.MessageManager.installMessages( "bhs" );
 				//this.setLayout( new qx.ui.layout.Dock() );
@@ -73,13 +74,19 @@
 					} ]
 				} );
 			},
-			selectedItemChanged: function( e ) {
-				console.log( "selectedItemChanged:", this.selectedItem );
-				this.panelHeaderSt = "Stückliste(" + this.selectedItem.name + ")";
-				this.assemblyTableData = this.getAssembyTableData( this.selectedItem.path );
-				var part = this.selectedItem.part;
+			selectedAssemblyChanged: function( e ) {
+				console.log( "selectedAssemblyChanged:", this.selectedAssembly );
+				this.panelHeaderBom = "Stückliste(" + this.selectedAssembly.name + ")";
+				this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
+				var part = this.selectedAssembly.part;
 				var mapUrl = '/sw/resource/png_' + part + '/map.xml';
 				this.open( part, this._getHotspots( mapUrl ), "page-width" );
+			},
+			partSelected:function(e){
+				console.log("partSelected:",e.detail);
+				var rowIndex = e.detail.rowIndex;
+				var dataRow = e.detail.dataSet[rowIndex];
+				this.selectHotspot(dataRow["part"]);
 			},
 			open: function( url, hotspots, scale ) {
 				this._hotspots = hotspots;
@@ -221,13 +228,13 @@
 			onViewerClick: function( event ) {
 				var e = event.originalEvent;
 				var target = e.target || e.srcElement;
-				console.log( "clickHandler:", event );
-				console.log( "srcElement:" + target[ '$$hotspot' ] );
+				//console.log( "clickHandler:", event );
 				if ( target[ '$$hotspot' ] ) {
 					event.preventDefaultAction = true;
 					event.stopBubbling = true;
 					var data = target[ '$$hotspot' ];
 
+				console.log( "onViewerClick:" + data );
 					this._selectHotspot( data.href, true );
 					this.internalHotspotEvent = true;
 					//	this.fireDataEvent( "hotspot", data, null );
