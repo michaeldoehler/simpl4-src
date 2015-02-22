@@ -8,30 +8,42 @@
 				position: relative;
 				box-sizing: border-box;
 			}
+			:host /deep/ .hotspot {
+				border-radius: 3px;
+				cursor: pointer;
+			}
+			:host /deep/ .navigator {
+				background: white !important;
+			}
+			:host /deep/ .hotspot:hover {
+				border: 1px solid black;
+				background: yellow;
+				opacity: .45 !important;
+			}
+			:host /deep/ .hotspot.selected {
+				border: 1px solid black;
+				background: red;
+				opacity: .45 !important;
+			}
 
 		</style>
-					<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="true">
-<simpl-tree></simpl-tree>
-					</simpl-panel>
-					<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderSt}}" collapsable="true" collapsed="true">
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-<h1>Bauteile</h1>
-					</simpl-panel>
-		<div style="height:400px;" id="viewer"> </div>
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeader}}" collapsable="true" collapsed="true">
+			<simpl-tree selectedItem="{{selectedItem}}"></simpl-tree>
+		</simpl-panel>
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderSt}}" collapsable="true" collapsed="true">
+			<simpl-datatables meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+		</simpl-panel>
+		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderZ}}" collapsable="true" collapsed="false">
+			<div style="height:300px;" id="viewer"> </div>
+		</simpl-panel>
 	</template>
 	<script>
 		Polymer( 'simpl-viewer', {
-			panelHeader:'Maschine',
-			panelHeaderSt:'Stückliste',
+			panelHeader: 'Maschine',
+			panelHeaderSt: 'Stückliste',
+			panelHeaderZ: 'Zeichnung',
 			domReady: function( context ) {
+				simpl4.util.MessageManager.installMessages( "bhs" );
 				//this.setLayout( new qx.ui.layout.Dock() );
 				this._openSeadragon = null;
 				var el = this.$.viewer;
@@ -50,16 +62,24 @@
 				//if ( context.url ) {
 				//	this.open( context.url, context.hotspots );
 				//}
-				this.open("123490603");
-
-				/*this._openSeadragon.addHandler( "open", this._addOverlays.bind( this ) );
+				//this.open( "123490603" );
+				this.assemblyTableMeta = this.getAssembyTableMeta();
+				this._openSeadragon.addHandler( "open", this._addOverlays.bind( this ) );
 				var viewerInputHook = this._openSeadragon.addViewerInputHook( {
 					hooks: [ {
 						tracker: 'viewer',
 						handler: 'clickHandler',
 						hookHandler: this.onViewerClick.bind( this )
 					} ]
-				} );*/
+				} );
+			},
+			selectedItemChanged: function( e ) {
+				console.log( "selectedItemChanged:", this.selectedItem );
+				this.panelHeaderSt = "Stückliste(" + this.selectedItem.name + ")";
+				this.assemblyTableData = this.getAssembyTableData( this.selectedItem.path );
+				var part = this.selectedItem.part;
+				var mapUrl = '/sw/resource/png_' + part + '/map.xml';
+				this.open( part, this._getHotspots( mapUrl ), "page-width" );
 			},
 			open: function( url, hotspots, scale ) {
 				this._hotspots = hotspots;
@@ -82,10 +102,71 @@
 			destroy: function() {
 				this._openSeadragon.destroy();
 			},
+			_getHotspots: function( url ) {
+				var xmlResult;
+				jQuery.ajax( {
+					url: url,
+					async: false,
+					dataType: "text",
+					success: function( e ) {
+						xmlResult = e;
+					}
+				} );
+
+				var xml = new simpl4.util.Xml2Json();
+				var jsonData = xml.convert( xmlResult );
+				console.log( "json:" + JSON.stringify( jsonData, null, 2 ) );
+				var hotspots = jsonData.area;
+				return hotspots;
+			},
+			getAssembyTableMeta: function( data ) {
+				var colHds = [];
+				var col = {};
+				col.data = "part";
+				col.title = tr( "bomviewer.part" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "name";
+				col.title = tr( "bomviewer.name" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "qty";
+				col.title = tr( "bomviewer.qty" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "name2";
+				col.title = "Beschreibung";
+				colHds.push( col );
+
+				var col = {};
+				col.data = "price";
+				col.title = tr( "bomviewer.price" );
+				//	colHds.push( col );
+				return colHds;
+			},
+			getAssembyTableData: function( path ) {
+				try {
+					var d = simpl4.util.Rpc.rpcSync( "bhs:getAssembly", {
+						namespace: "bhs",
+						path: path + ".*{1}"
+					} );
+					//this._tableModel.setDataAsMapArray( d );
+					console.log( "d:" + JSON.stringify( d, null, 2 ) );
+					return d;
+				} catch ( e ) {
+					alert( "BOMViewer._getAssemby:" + e );
+					return;
+				}
+			},
+
 			_selectHotspot: function( href, intern ) {
 				if ( this.internalHotspotEvent === true ) return;
-				var el = this.getContentElement().getDomElement();
-				var elems = el.getElementsByClassName( "hotspot" );
+				//var el = this.getContentElement().getDomElement();
+				var elems = this.$.viewer.getElementsByClassName( "hotspot" );
+				console.log( "elems;", elems );
 				var firstSelected = null;
 				for ( var i = 0; i < elems.length; i++ ) {
 					var e = elems[ i ];
@@ -122,6 +203,7 @@
 					var rec = viewer.viewport.imageToViewportRectangle( x, y, w, h );
 					var p = viewer.viewport.imageToViewportCoordinates( x, y );
 					var div = this.createDiv( hs.href, p );
+					console.log( "addOverlays:", rec );
 					viewer.drawer.addOverlay( div, rec );
 
 				}
@@ -148,7 +230,7 @@
 
 					this._selectHotspot( data.href, true );
 					this.internalHotspotEvent = true;
-					this.fireDataEvent( "hotspot", data, null );
+					//	this.fireDataEvent( "hotspot", data, null );
 					this.internalHotspotEvent = false;
 
 

@@ -272,6 +272,7 @@
 			},
 			prepareMeta: function( meta ) {
 				var fields = meta.fields;
+				if( fields == null) return meta;
 				var aliases = meta.aliases;
 				var ret = [];
 				fields.forEach( function( field, i ) {

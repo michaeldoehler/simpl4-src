@@ -1,17 +1,8 @@
-<polymer-element name="simpl-tree" attributes="data-src">
+<polymer-element name="simpl-tree" attributes="selectedItem">
 	<template>
 		<style>
-			.parent.xollapsed:before {
-				content: '+ ';
-			}
-			.parent.xxpanded:before {
-				content: '- ';
-			}
-			.parent {
+			div[part] {
 				cursor: pointer;
-			}
-			.xarent.collapsed + ul {
-				display: none;
 			}
 			ul {
 				margin: 0;
@@ -23,7 +14,7 @@
 		</style>
 		<div id="main" unresolved="">
 			<template id="tree_template" bind="{{data}}">
-				<div class="{{ children && children.length > 0 ? 'parent' : ''}} collapsed" path="{{path}}" part="{{part}}" on-click="{{selectItem}}">
+				<div class="{{ children && children.length > 0 ? 'parent' : ''}} collapsed" name="{{name}}" path="{{path}}" part="{{part}}" on-click="{{selectItem}}">
 					<core-icon on-click="{{toggleChildren}}" icon="{{ children && children.length > 0 ? 'add' : 'star-rate'}}"></core-icon>
 					{{ name }}
 				</div>
@@ -41,10 +32,9 @@
 		Polymer( 'simpl-tree', {
 			data: {},
 			toggleChildren: function( e, detail, sender ) {
-				var div = e.target.parentNode;
-				var icon = e.target;
-				console.log( "div:", div );
-				console.log( "icon:", icon );
+				var target = e.target|| e.srcElement;
+				var div = target.parentNode;
+				var icon = target;
 				if ( div.className.indexOf( 'parent' ) > -1 && div.nextElementSibling ) {
 					var current_display = div.nextElementSibling.style.display;
 					if ( current_display === 'none' ) {
@@ -59,10 +49,13 @@
 				}
 			},
 			selectItem: function( e, detail, sender ) {
-				var target = e.target;
+				var target = e.target|| e.srcElement;
 				var part = target.getAttribute( "part" );
+				if( part == null) return;
 				var path = target.getAttribute( "path" );
-				console.log( "path:" + path );
+				var name = target.getAttribute( "name" );
+				this.selectedItem= { part:part,path:path, name:name};
+				console.log( "selectedItem:" , this.selectedItem );
 			},
 			// Fires when an instance of the element is created
 			created: function() {},
