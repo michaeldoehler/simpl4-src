@@ -10,7 +10,7 @@
 			}
 			:host /deep/ .hotspot {
 				border-radius: 3px;
-//				background: yellow;
+				//				background: yellow;
 				cursor: pointer;
 			}
 			:host /deep/ .navigator {
@@ -32,7 +32,7 @@
 			<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
 		</simpl-panel>
 		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderBom}}" collapsable="true" collapsed="true">
-			<simpl-datatables on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+			<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 		</simpl-panel>
 		<simpl-panel id="panel2" bgcolor="black" heading="{{panelHeaderDrawing}}" collapsable="true" collapsed="false">
 			<div style="height:300px;" id="viewer"> </div>
@@ -43,15 +43,19 @@
 			panelHeader: 'Maschine',
 			panelHeaderBom: 'Stückliste',
 			panelHeaderDrawing: 'Zeichnung',
-			domReady: function( context ) {
+			dataTablesOptions: {
+				paging: true,
+				deferRender: true,
+				dom: "frtiS",
+				scrollY: '150px'
+			},
+			ready:function(){
 				simpl4.util.MessageManager.installMessages( "bhs" );
-				//this.setLayout( new qx.ui.layout.Dock() );
-				this._openSeadragon = null;
-				var el = this.$.viewer;
-				console.log( "ImageViewer.appear" );
+			},
+			domReady: function( context ) {
 				this._openSeadragon = OpenSeadragon( {
 					hash: "hash_" + this,
-					element: el,
+					element: this.$.viewer,
 					prefixUrl: "/sw/resource/openseadragon/",
 					zoomPerClick: 2.0,
 					autoHideControls: false,
@@ -60,9 +64,6 @@
 					navigatorPosition: 'BOTTOM_LEFT',
 					showNavigator: true
 				} );
-				//if ( context.url ) {
-				//	this.open( context.url, context.hotspots );
-				//}
 				//this.open( "123490603" );
 				this.assemblyTableMeta = this.getAssembyTableMeta();
 				this._openSeadragon.addHandler( "open", this._addOverlays.bind( this ) );
@@ -80,13 +81,13 @@
 				this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
 				var part = this.selectedAssembly.part;
 				var mapUrl = '/sw/resource/png_' + part + '/map.xml';
-				this.open( part, this._getHotspots( mapUrl ), "page-width" );
+				this.open( part, this.getHotspots( mapUrl ), "page-width" );
 			},
-			partSelected:function(e){
-				console.log("partSelected:",e.detail);
+			partSelected: function( e ) {
+				console.log( "partSelected:", e.detail );
 				var rowIndex = e.detail.rowIndex;
-				var dataRow = e.detail.dataSet[rowIndex];
-				this.selectHotspot(dataRow["part"]);
+				var dataRow = e.detail.dataSet[ rowIndex ];
+				this.selectHotspot( dataRow[ "part" ] );
 			},
 			open: function( url, hotspots, scale ) {
 				this._hotspots = hotspots;
@@ -109,7 +110,7 @@
 			destroy: function() {
 				this._openSeadragon.destroy();
 			},
-			_getHotspots: function( url ) {
+			getHotspots: function( url ) {
 				var xmlResult;
 				jQuery.ajax( {
 					url: url,
@@ -122,7 +123,6 @@
 
 				var xml = new simpl4.util.Xml2Json();
 				var jsonData = xml.convert( xmlResult );
-				console.log( "json:" + JSON.stringify( jsonData, null, 2 ) );
 				var hotspots = jsonData.area;
 				return hotspots;
 			},
@@ -160,8 +160,6 @@
 						namespace: "bhs",
 						path: path + ".*{1}"
 					} );
-					//this._tableModel.setDataAsMapArray( d );
-					console.log( "d:" + JSON.stringify( d, null, 2 ) );
 					return d;
 				} catch ( e ) {
 					alert( "BOMViewer._getAssemby:" + e );
@@ -210,7 +208,6 @@
 					var rec = viewer.viewport.imageToViewportRectangle( x, y, w, h );
 					var p = viewer.viewport.imageToViewportCoordinates( x, y );
 					var div = this.createDiv( hs.href, p );
-					console.log( "addOverlays:", rec );
 					viewer.drawer.addOverlay( div, rec );
 
 				}
@@ -234,17 +231,31 @@
 					event.stopBubbling = true;
 					var data = target[ '$$hotspot' ];
 
-				console.log( "onViewerClick:" + data );
+					console.log( "onViewerClick:", data );
 					this._selectHotspot( data.href, true );
 					this.internalHotspotEvent = true;
 					//	this.fireDataEvent( "hotspot", data, null );
+					this.selectBom( data.href );
 					this.internalHotspotEvent = false;
-
-
 				}
 				event.preventDefaultAction = true;
 			},
-
+			selectBom: function( nr ) {
+				var dt = this.$.bomTable;
+				var dtTable = dt.dtTable;
+				var rows = dtTable.rows( function( idx, data, node ) {
+					return data.part === nr ? true : false;
+				} );
+				console.log( "RowNodes:", rows[ 0 ] );
+				dt.unselectAll();
+				dtTable.rows( rows[ 0 ] ).nodes().to$().addClass( 'selected' );
+				if ( rows[ 0 ].length > 0 ) {
+					console.log( "RowNodes:", rows[ 0 ][ 0 ] );
+					var scroller = dtTable.scroller();
+					console.log( "Scroller:", scroller );
+					scroller.scrollToRow( rows[ 0 ][ 0 ] );
+				}
+			},
 			_getParameter: function( part ) {
 				var map = {
 					'123490603': {

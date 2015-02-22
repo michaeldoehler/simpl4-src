@@ -49,6 +49,9 @@
 			iconBOM:'arrow-drop-down',
 			data: {},
 			toggleChildren: function( e, detail, sender ) {
+console.log("toggleChildren");
+e.preventDefault();
+e.stopPropagation();
 				var target = e.target || e.srcElement;
 				var div = target.parentNode;
 				var icon = target;

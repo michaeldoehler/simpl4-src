@@ -201,12 +201,16 @@
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
-				console.log( "dataTables.domReady" );
+				console.log( "dataTables.domReady:",this.options );
 			},
 			createTable: function( dtMeta, dataSet, options ) {
 				this.dataSet = dataSet;
 				if ( options ) {} else if ( this.options ) {
-					options = JSON.parse( this.options );
+					if( typeof this.options == 'string'){
+						options = JSON.parse( this.options );
+					}else{
+						options = this.options;
+					}
 				} else {
 					options = {};
 				}
@@ -259,7 +263,7 @@
 				var rowIndex = e.currentTarget._DT_RowIndex;
 				console.log( "DataTables.tapAction:", rowIndex );
 				this.rowIndex = rowIndex;
-				this.q( 'tr.selected' ).removeClass( 'selected' );
+				this.unselectAll();
 				$( t ).addClass( 'selected' );
 				this.fire( "row-selected", {
 					rowIndex: this.rowIndex,
@@ -268,6 +272,9 @@
 			},
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			},
+			unselectAll:function(){
+				this.q( 'tr.selected' ).removeClass( 'selected' );
 			},
 			metaChanged: function() {
 				this.preparedMeta = this.prepareMeta( this.meta );
