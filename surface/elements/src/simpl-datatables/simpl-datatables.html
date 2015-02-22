@@ -204,6 +204,7 @@
 				console.log( "dataTables.domReady" );
 			},
 			createTable: function( dtMeta, dataSet, options ) {
+				this.dataSet = dataSet;
 				if ( options ) {} else if ( this.options ) {
 					options = JSON.parse( this.options );
 				} else {
@@ -260,6 +261,10 @@
 				this.rowIndex = rowIndex;
 				this.q( 'tr.selected' ).removeClass( 'selected' );
 				$( t ).addClass( 'selected' );
+				this.fire( "row-selected", {
+					rowIndex: this.rowIndex,
+					dataSet: this.dataSet
+				} );
 			},
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
