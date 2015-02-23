@@ -1,7 +1,45 @@
 <polymer-element name="simpl-viewer" attributes="">
 	<template>
 		<style>
-			<link rel="stylesheet" type="text/css" href="layout-columns.css" />:host {
+			@media(max-width:767px) {
+				[s100] {
+					width: 100%!important;
+					-webkit-flex: none!important;
+					-ms-flex: none!important;
+					flex: none!important
+				}
+			}
+			@media(min-width:768px) {
+				[m100] {
+					width: 100%!important;
+					-webkit-flex: none!important;
+					-ms-flex: none!important;
+					flex: none!important;
+				}
+			}
+			@media(min-width:992px) {
+				[l100] {
+					width: 100%!important;
+					-webkit-flex: none!important;
+					-ms-flex: none!important;
+					flex: none!important;
+				}
+			}
+			@media(min-width:1200px) {
+				[xl33] {
+					width: 33.3333%!important;
+					-webkit-flex: none!important;
+					-ms-flex: none!important;
+					flex: none!important;
+				}
+				[xl66] {
+					width: 66.6667%!important;
+					-webkit-flex: none!important;
+					-ms-flex: none!important;
+					flex: none!important;
+				}
+			}
+			:host {
 				margin-bottom: 20px;
 				display: block;
 				background: white;
@@ -258,8 +296,8 @@
 					//	this.fireDataEvent( "hotspot", data, null );
 					this.selectBom( data.href );
 					this.internalHotspotEvent = false;
-				}
 				event.preventDefaultAction = true;
+				}
 			},
 			selectBom: function( nr ) {
 				var dt = this.$.bomTable;
@@ -274,7 +312,7 @@
 					console.log( "RowNodes:", rows[ 0 ][ 0 ] );
 					var scroller = dtTable.scroller();
 					console.log( "Scroller:", scroller );
-					scroller.scrollToRow( rows[ 0 ][ 0 ]-2, true );
+					scroller.scrollToRow( rows[ 0 ][ 0 ] - 2, false );
 				}
 			},
 			_getParameter: function( part ) {
