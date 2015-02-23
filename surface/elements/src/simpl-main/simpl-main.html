@@ -207,7 +207,7 @@
 					sheetsHTML += sheet.outerHTML + "\n";
 				}
 
-				console.error( "Route:" + this.route + "/", this.corePages.selectedItem );
+				//console.error( "Route:" + this.route + "/", this.corePages.selectedItem );
 				// Fix up image paths to not be local.
 				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
 					img.setAttribute( 'src', img.src );
@@ -229,7 +229,6 @@
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					Polymer( encapsulateElementName, {
 						ready: function() {
-							console.log( "EncapsulateElement.ready.globals:", this.globals );
 						}
 					} );
 					var encapsulateElementWrapper = document.createElement( 'div' );
