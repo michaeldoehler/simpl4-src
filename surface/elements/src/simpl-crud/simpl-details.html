@@ -25,12 +25,10 @@
 				<col class="col0">
 					<col class="col1">
 			</colgroup>
-			<template if="{{data}}" repeat="{{f in meta}}">
-				<tr>
+				<tr  template if="{{data}}" repeat="{{f in meta}}">
 					<th>{{f.title}}</th>
 					<td>{{data[f.data]}}</td>
 				</tr>
-			</template>
 		</table>
 		<content></content>
 	</template>
@@ -102,7 +100,6 @@
 			setData: function( data ) {
 				this.data = this.preProcessData( [ data ] )[ 0 ];
 				console.log( "Data:", JSON.stringify( data, null, 2 ) );
-				//this.createTable( this.meta, data );
 			}
 		} );
 
