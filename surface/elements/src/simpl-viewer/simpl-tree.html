@@ -15,6 +15,17 @@
 			li {
 				list-style-type: none;
 			}
+			.truncate {
+				padding-top: 6px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			polyfill-rule {
+				content: '.truncate';
+				width: calc(100% - 28px);
+				padding-top: 3px;
+			}
 			tree-icon {
 				display: inline-block;
 				vertical-align: middle;
@@ -28,9 +39,9 @@
 		</style>
 		<div id="main" unresolved="">
 			<template id="tree_template" bind="{{data}}">
-				<div class="{{ children && children.length > 0 ? 'parent' : ''}} collapsed" name="{{name}}" path="{{path}}" part="{{part}}" on-click="{{selectItem}}">
+				<div layout horizontal class="{{ children && children.length > 0 ? 'parent' : ''}} collapsed" name="{{name}}" path="{{path}}" part="{{part}}" on-click="{{selectItem}}">
 					<tree-icon on-click="{{toggleChildren}}" icon="{{ children && children.length > 0 ? 'hardware:keyboard-arrow-right' : 'arrow-drop-dowx'}}"></tree-icon>
-					<span style="color:{{children && children.length > 0 ? 'black' : 'gray'}}">{{ name }}</span>
+					<span title="{{name}}" class="truncate" style="color:{{children && children.length > 0 ? 'black' : 'gray'}}">{{ name }}</span>
 				</div>
 				<ul style="display:none;">
 					<template repeat="{{ child in children }}">
