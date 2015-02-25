@@ -185,6 +185,9 @@
 			:host /deep/ .dataTables_paginate {
 				margin-top: 0.05em !important;
 			}
+			.dataTables_scrollBody {
+				overflow-x: hidden !important;
+			}
 
 		</style>
 		<div id="dtId" style="overflow:hidden;">
@@ -201,14 +204,14 @@
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
-				console.log( "dataTables.domReady:",this.options );
+				console.log( "dataTables.domReady:", this.options );
 			},
 			createTable: function( dtMeta, dataSet, options ) {
 				this.dataSet = dataSet;
 				if ( options ) {} else if ( this.options ) {
-					if( typeof this.options == 'string'){
+					if ( typeof this.options == 'string' ) {
 						options = JSON.parse( this.options );
-					}else{
+					} else {
 						options = this.options;
 					}
 				} else {
@@ -246,7 +249,7 @@
 					data: dataSet,
 					columns: dtMeta
 				}, options ) );
-								$(this.$.dtId.querySelectorAll( "table.dataTables")).attr("id", "dataTablesId");
+				$( this.$.dtId.querySelectorAll( "table.dataTables" ) ).attr( "id", "dataTablesId" );
 				this.createRowListener();
 			},
 			createRowListener: function() {
@@ -273,7 +276,7 @@
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
 			},
-			unselectAll:function(){
+			unselectAll: function() {
 				this.q( 'tr.selected' ).removeClass( 'selected' );
 			},
 			metaChanged: function() {
@@ -284,7 +287,7 @@
 			},
 			prepareMeta: function( meta ) {
 				var fields = meta.fields;
-				if( fields == null) return meta;
+				if ( fields == null ) return meta;
 				var aliases = meta.aliases;
 				var ret = [];
 				fields.forEach( function( field, i ) {
