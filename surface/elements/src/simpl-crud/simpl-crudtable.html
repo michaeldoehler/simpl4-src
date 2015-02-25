@@ -34,7 +34,7 @@
 			<div layout horizontal style="margin-bottom:10px;">
 				<template repeat="{{b in buttonList}}">
 					<paper-button raised name="{{b.name}}" class="ripple" on-tap="{{onTap}}" disabled?="{{b.disabled}}" flex>
-						<core-icon icon="{{b.icon}}"></core-icon>{{b.text}}</paper-button>
+						<core-icon name="{{b.name}}" icon="{{b.icon}}"></core-icon>{{b.text}}</paper-button>
 				</template>
 			</div>
 		</template>
@@ -64,8 +64,8 @@
 				if ( this.rowIndex == null ) return;
 				this.fire( "edit-action", {
 					data: this.dataSet[ this.rowIndex ],
-					dataSet:this.dataSet,
-					rowIndex:this.rowIndex,
+					dataSet: this.dataSet,
+					rowIndex: this.rowIndex,
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -95,8 +95,7 @@
 				} );
 			},
 			cancelAction: function() {
-				this.fire( "cancel-action", {
-				} );
+				this.fire( "cancel-action", {} );
 			},
 			copyAction: function() {
 				if ( this.rowIndex == null ) return;
@@ -110,7 +109,15 @@
 			},
 			onTap: function( e ) {
 				var src = e.srcElement || e.target;
-				var name = src.getAttribute( "name" ) || src.parentElement.getAttribute( "name" );
+				var name = null;
+				while ( src ) {
+					name = src.getAttribute( "name" );
+					console.log( "sname:", name );
+					if ( name ) break;
+					src = src.parentElement;
+				}
+				console.log( "name:", name );
+				if ( name == null ) return;
 				this.buttonDef[ name ].action.call( this );
 			},
 			rowIndexChanged: function() {
