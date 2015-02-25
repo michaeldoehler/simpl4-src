@@ -42,15 +42,15 @@
 				<template repeat="{{node in nodes  }}" id="t">
 					<template if="{{ node.disabled!==true}}">
 						<template if="{{ node.children==null || node.children.length==0 }}">
-							<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-								<a onclick="return false" href="#">
+							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+								<a style="cursor:pointer;">
 									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
 							</li>
 						</template>
 						<template if="{{ node.children && node.children.length>0 }}">
-							<li class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-								<a onclick="return false" href="#">
-									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
+							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+								<span>
+									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</span>
 								<ul>
 									<template ref="t" repeat="{{node,level in node.children}}"></template>
 								</ul>
