@@ -1,39 +1,21 @@
 <polymer-element name="simpl-viewer" attributes="">
 	<template>
 		<style>
-			@media(max-width:767px) {
-				[s100] {
-					width: 100%!important;
-					-webkit-flex: none!important;
-					-ms-flex: none!important;
-					flex: none!important
-				}
-			}
-			@media(min-width:768px) {
-				[m100] {
-					width: 100%!important;
-					-webkit-flex: none!important;
-					-ms-flex: none!important;
-					flex: none!important;
-				}
+			[vs100] {
+				width: 100%!important;
+				-webkit-flex: none!important;
+				-ms-flex: none!important;
+				flex: none!important;
 			}
 			@media(min-width:992px) {
-				[l100] {
-					width: 100%!important;
+				[vl33] {
+					width: 300px!important;
 					-webkit-flex: none!important;
 					-ms-flex: none!important;
 					flex: none!important;
 				}
-			}
-			@media(min-width:1200px) {
-				[xl33] {
-					width: 33.3333%!important;
-					-webkit-flex: none!important;
-					-ms-flex: none!important;
-					flex: none!important;
-				}
-				[xl66] {
-					width: 66.6667%!important;
+				[vl66] {
+					width: calc(100% - 300px)!important;
 					-webkit-flex: none!important;
 					-ms-flex: none!important;
 					flex: none!important;
@@ -65,23 +47,46 @@
 				opacity: .45 !important;
 			}
 			#viewer {
-				min-height: 300px;
+				min-height: 200px;
 				height: 1px;
 			}
-			@media(min-height:768px) {
+			@media(min-height:650px) {
+				#viewer {
+					min-height: 300px;
+				}
+			}
+			@media(min-height:750px) {
+				#viewer {
+					min-height: 400px;
+				}
+			}
+			@media(min-height:850px) {
 				#viewer {
 					min-height: 500px;
+				}
+			}
+			paper-toast {
+				background: #fc0;
+				max-width:300px;
+				color: black;
+			}
+			@media(max-width:768px) {
+				paper-toast {
+					top: -80px;
+					position: fixed;
+					max-width:100%;
+					height: 30px;
 				}
 			}
 
 		</style>
 		<div horizontal layout wrap>
-			<div layout horizontal s100 m100 l100 xl33>
-				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout vertical flex collapsable="true" collapsed="false">
+			<div layout horizontal vs100 vl33>
+				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal flex collapsable="true" collapsed="false">
 					<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
-			<div layout vertical s100 m100 l100 xl66>
+			<div layout vertical vs100 vl66>
 				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="black" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
 					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
@@ -90,6 +95,7 @@
 				</simpl-panel>
 			</div>
 		</div>
+		<paper-toast id="toast" duration="2000" class="capsule" text="{{toastMessage}}" style="padding-right: 60px;"></paper-toast>
 	</template>
 	<script>
 		Polymer( 'simpl-viewer', {
@@ -135,12 +141,19 @@
 				$( window ).trigger( "resize.dtr" );
 			},
 			selectedAssemblyChanged: function( e ) {
-				console.log( "selectedAssemblyChanged:", this.selectedAssembly );
-				this.panelHeaderBom = "Stückliste(" + this.selectedAssembly.name + ")";
-				this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
 				var part = this.selectedAssembly.part;
-				var mapUrl = '/sw/resource/png_' + part + '/map.xml';
-				this.open( part, this.getHotspots( mapUrl ), "page-width" );
+				this.showLoading( "Loading " + this.selectedAssembly.name + "..." );
+				setTimeout( ( function() {
+					console.log( "selectedAssemblyChanged:", this.selectedAssembly );
+					this.panelHeaderBom = "Stückliste(" + this.selectedAssembly.name + ")";
+					this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
+					var mapUrl = '/sw/resource/png_' + part + '/map.xml';
+					this.open( part, this.getHotspots( mapUrl ), "page-width" );
+				} ).bind( this ), 10 );
+			},
+			showLoading: function( message ) {
+				this.toastMessage = message;
+				this.$.toast.show();
 			},
 			partSelected: function( e ) {
 				console.log( "partSelected:", e.detail );
@@ -296,7 +309,7 @@
 					//	this.fireDataEvent( "hotspot", data, null );
 					this.selectBom( data.href );
 					this.internalHotspotEvent = false;
-				event.preventDefaultAction = true;
+					event.preventDefaultAction = true;
 				}
 			},
 			selectBom: function( nr ) {
