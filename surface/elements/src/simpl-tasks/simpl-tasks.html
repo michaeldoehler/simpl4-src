@@ -95,6 +95,7 @@
 			},
 			rowIndexChanged: function() {
 				this.currentTask = this.dataSet[ this.rowIndex ].processName + " / " + this.dataSet[ this.rowIndex ].name;
+				this.currentIndex=this.rowIndex;
 			},
 			taskListModeSelectedChanged: function( e ) {
 				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
