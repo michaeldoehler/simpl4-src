@@ -71,6 +71,9 @@
 				console.log( "attached" );
 			},
 			domReady: function() {
+				this.async('createMenu');
+			},
+			createMenu: function() {
 				console.log( "Menu.domReady" );
 				var menu = $( this.$.mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
