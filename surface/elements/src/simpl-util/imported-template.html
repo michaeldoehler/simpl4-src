@@ -139,7 +139,7 @@ https://github.com/Juicy/imported-template
       var that = this;
       var subTemplate = this.subTemplate;
       subTemplate.setAttribute("bind", this.getAttribute("bind") || "");
-      subTemplate.setAttribute("repeat", this.getAttribute("repeat") );
+      //subTemplate.setAttribute("repeat", this.getAttribute("repeat") ); @@@MS IE11 like it not
       subTemplate.setAttribute("if", this.getAttribute("if") );
 
       if(window.PolymerExpressions) {

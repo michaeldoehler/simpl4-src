@@ -69,7 +69,7 @@
 			domReady: function() {
 				this.isDomReady = true;
 			},
-			getValue:function(){
+			getValue: function() {
 				return this.value;
 			},
 			checkConstraints: function() {
@@ -279,9 +279,9 @@
 				}
 				this.editValue = v;
 			},
-			getValue:function(){
+			getValue: function() {
 				if ( this.type.match( /^date/ ) ) {
-					if( typeof this.value === "string" && this.value.match(/[a-zA-Z]/)){
+					if ( typeof this.value === "string" && this.value.match( /[a-zA-Z]/ ) ) {
 						return null;
 					}
 				}
@@ -705,10 +705,10 @@
 			:host /deep/ #relatedDialog {
 				top: 5vh;
 				min-width: 70%;
+				max-width: 70%;
 			}
 			@media screen and (max-width: 767px) {
 				:host /deep/ #relatedDialog {
-					top: 5vh;
 					left: 0vw;
 					min-width: 100%;
 					margin: 0px;
@@ -735,7 +735,7 @@
 		<paper-button on-tap="{{clearCallback}}" class="button" raised>
 			<core-icon icon="clear"></core-icon>
 		</paper-button>
-		<paper-action-dialog backdrop layered="false" id="relatedDialog" class="scrolling">
+		<paper-action-dialog backdrop layered="true" id="relatedDialog" class="scrolling">
 			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" rules="{{rules}}"></simpl-filter>
 			<div style="height:20px;"></div>
 			<simpl-panel bgcolor="black" heading="{{'data.'+entity|tr}}" collapsable="false" collapsed="false">
@@ -745,6 +745,20 @@
 	</template>
 	<script>
 		Polymer( {
+			publish: {
+				autofocus: {
+					value: false,
+					reflect: true
+				},
+				readonly: {
+					value: false,
+					reflect: true
+				},
+				disabled: {
+					value: false,
+					reflect: true
+				}
+			},
 			floatingLabel: true,
 			id: null,
 			ready: function() {
@@ -754,7 +768,8 @@
 				console.log( "props:", this.props );
 			},
 			actionCallback: function() {
-				this.shadowRoot.querySelector( "#relatedDialog" ).open();
+				this.$.relatedDialog.open();
+				this.setDimensions();
 			},
 			clearCallback: function() {
 				this.editValue = null;
@@ -762,15 +777,25 @@
 			},
 			selectAction: function( e ) {
 				var data = e.detail.data;
-				this.shadowRoot.querySelector( "#relatedDialog" ).close();
+				this.$.relatedDialog.close();
 				var t = this._maskedEval( this.props.title_expression, data );
 				this.id = data.id;
 				this.editValue = t;
 			},
 			cancelAction: function() {
-				this.shadowRoot.querySelector( "#relatedDialog" ).close();
+				this.$.relatedDialog.close();
 			},
-
+			setDimensions: function() {
+				$( this.$.relatedDialog ).css( "top", "0vw" );
+				$( this.$.relatedDialog ).css( "max-width", "70%" );
+				$( this.$.relatedDialog ).css( "min-width", "70%" );
+				if ( window.matchMedia( "(max-width:768px)" ).matches ) {
+					$( this.$.relatedDialog ).css( "min-width", "100%" );
+					$( this.$.relatedDialog ).css( "max-width", "100%" );
+					$( this.$.relatedDialog ).css( "left", "0vw" );
+					$( this.$.relatedDialog ).css( "margin", "0" );
+				}
+			},
 			editValueChanged: function() {
 				if ( this.editValue ) {
 					this.value = this.editValue + "/" + this.id;

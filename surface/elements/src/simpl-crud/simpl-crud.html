@@ -43,7 +43,7 @@
 
 		</style>
 		<core-animated-pages selected="{{pageSelected}}">
-			<section style="padding:0px;min-height:400px;position:relative;">
+			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" rules="{{rules}}"></simpl-filter>
 				<template if="{{rules}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
@@ -51,7 +51,7 @@
 					</simpl-panel>
 				</template>
 			</section>
-			<section style="padding:0px;position:relative;" unresolved>
+			<section style="padding:0px;position:relative;overflow-x:hidden;" unresolved>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
 					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
@@ -76,7 +76,7 @@
 						<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
 				</paper-action-dialog>
 			</section>
-			<section style="padding:0px;position:relative;" unresolved>
+			<section style="padding:0px;position:relative;overflow-x:hidden;" unresolved>
 				<div layout horizontal style="margin-top:5px;margin-bottom:10px;text-align:left;">
 					<paper-button raised on-tap="{{cancelAction}}" flex>
 						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>

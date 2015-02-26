@@ -37,8 +37,8 @@
 			#panelId header {
 				height: 30px;
 				color: white;
-				border-top-left-radius:5px;
-				border-top-right-radius:5px;
+				border-top-left-radius: 5px;
+				border-top-right-radius: 5px;
 				padding-left: 10px;
 				background: #428bca;
 				-moz-user-select: -moz-none;
@@ -73,16 +73,21 @@
 			}
 			#panelId #collapsable {
 				display: none;
-			//	height: 40px;
+				//	height: 40px;
 				width: 40px;
 			}
-			polyfill-rule {
-				content: '#panelId';
-				margin: 5px;
+			#panelId {
+				margin-left: 5px;
+			}
+			@media screen and (-ms-high-contrast: active),
+			(-ms-high-contrast: none) {
+				#panelId {
+					width: 100%;
+				}
 			}
 
 		</style>
-		<paper-shadow  style="position:relative;flex:1;"  id="panelId" z="3">
+		<paper-shadow style="position:relative;height:100%;-webkit-flex:1;" id="panelId" z="3">
 			<div id="panel">
 				<header id="heading"><span>{{heading}}</span>
 					<core-icon icon="custom-icons:icon-expand" id="collapsable" style="fill:{{collapsecolor}}">
