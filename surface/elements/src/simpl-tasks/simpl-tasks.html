@@ -38,6 +38,7 @@
 				font-size: 20px;
 				margin: 5px;
 			}
+
 		</style>
 
 		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
@@ -53,7 +54,9 @@
 						<paper-button raised class="ripple" on-tap="{{startTask}}">{{action+' ('+currentTask+')'}}</paper-button>
 					</div>
 				</template>
-				<shadow></shadow>
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
+					<shadow></shadow>
+				</simpl-panel>
 			</section>
 			<section style="position:relative;" unresolved>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
@@ -63,6 +66,8 @@
 
 	<script>
 		Polymer( 'simpl-tasks', {
+			panelBackgroundColor: 'black',
+			panelHeader: tr( "tasks.table.assigned" ),
 			dtMeta: null,
 			pageSelected: 0,
 			taskListModeSelected: 1,
@@ -88,11 +93,12 @@
 					self.pageSelected = 0;
 				} );
 			},
-			rowIndexChanged:function(){
+			rowIndexChanged: function() {
 				this.currentTask = this.dataSet[ this.rowIndex ].processName + " / " + this.dataSet[ this.rowIndex ].name;
 			},
 			taskListModeSelectedChanged: function( e ) {
 				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
+				this.panelHeader = e == 0 ? tr( "tasks.table.assigned" ) : tr( "tasks.table.not_assigned" );
 				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
 				this.createTable( this.dtMeta, dataSet );
 				this.currentTask = null;
@@ -180,6 +186,7 @@
 				}
 			}
 		} );
+
 	</script>
 
 </polymer-element>

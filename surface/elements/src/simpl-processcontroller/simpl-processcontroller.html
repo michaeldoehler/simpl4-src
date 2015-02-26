@@ -38,10 +38,13 @@
 			height: 64px;
 			width: 64px;
 		}
+
 	</style>
 	<template>
 		<template if="{{namespace!=null && formName!=null}}">
-			<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}" variables="{{variables}}"></simpl-form>
+			<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
+				<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}" variables="{{variables}}"></simpl-form>
+			</simpl-panel>
 		</template>
 		<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
 		<paper-action-dialog id="error" class="scrolling">
@@ -54,6 +57,8 @@
 
 	<script>
 		Polymer( 'simpl-processcontroller', {
+			panelBackgroundColor: 'black',
+			panelHeader: '',
 			formName: null,
 			namespace: null,
 			domReady: function() {},
@@ -76,11 +81,11 @@
 				var pid = this.processDefinition.id;
 				console.log( "startFormResourceKey:" + this.processDefinition.startFormResourceKey );
 				if ( this.processDefinition.startFormResourceKey ) {
-					this.showForm( null,finishCallback );
+					this.showForm( null, finishCallback );
 				} else {
 					var processVariables = parameter || {};
 					processVariables[ "processDefinitionId" ] = this.processDefinition.id;
-					this.completeActivity( processVariables, null,finishCallback );
+					this.completeActivity( processVariables, null, finishCallback );
 				}
 			},
 			showForm: function( task, finishCallback ) {
@@ -127,7 +132,7 @@
 						}
 						self.handleExecuteButton( data, task, formName, buttonKey );
 					}
-console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
+					console.log( "finishCallback:" + self.finishCallback + "/" + target.xaction );
 					if ( target.xaction == "cancel" ) {
 						if ( self.finishCallback ) {
 							self.finishCallback();
@@ -143,6 +148,7 @@ console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 				} else {
 					processVariables[ "__namespace" ] = simpl4.util.BaseManager.getNamespace();
 				}
+				this.panelHeader = processName + "/" + taskName;
 				this.variables = processVariables;
 				this.namespace = processCategory;
 				this.formName = formName;
@@ -220,7 +226,7 @@ console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 				}
 				return result;
 			},
-			completeActivity: function( processVariables, task,finishCallback ) {
+			completeActivity: function( processVariables, task, finishCallback ) {
 				var pdata = JSON.stringify( processVariables );
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
@@ -234,7 +240,7 @@ console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 					//this.fireDataEvent( "taskCompleted", task, null );
 					var tasks = this.getTasks( pid );
 					if ( tasks && tasks.total > 0 ) {
-						this.showForm( tasks.data[ 0 ],finishCallback );
+						this.showForm( tasks.data[ 0 ], finishCallback );
 					} else {
 						if ( task && task.fromTaskList ) {
 							this.alert( tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
@@ -259,7 +265,7 @@ console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 					var message = "<b>" + tr( "processes." + ( ( task != null ) ? "taskform" : "startform" ) + ".notstarted" ) + ": </b><pre style='font-size:10px'>" + msg + "</pre>";
 					this.alert( message );
 					if ( task != null ) {
-						this.showForm( task,finishCallback );
+						this.showForm( task, finishCallback );
 					}
 				} ).bind( this );
 
@@ -379,6 +385,7 @@ console.log("finishCallback:"+self.finishCallback+"/"+target.xaction);
 				this.shadowRoot.querySelector( "#error" ).open();
 			}
 		} );
+
 	</script>
 
 </polymer-element>

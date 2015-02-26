@@ -38,6 +38,7 @@
 				font-size: 20px;
 				margin: 5px;
 			}
+
 		</style>
 
 		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
@@ -47,7 +48,9 @@
 						<paper-button raised class="ripple" on-tap="{{startProcess}}">{{action+' ('+currentProcess+')'}}</paper-button>
 					</div>
 				</template>
-				<shadow></shadow>
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
+					<shadow></shadow>
+				</simpl-panel>
 			</section>
 			<section style="position:relative;" unresolved>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
@@ -57,13 +60,15 @@
 
 	<script>
 		Polymer( 'simpl-processes', {
+			panelBackgroundColor: 'black',
+			panelHeader: tr( "tr.menu.process_list" ),
 			dtMeta: null,
 			pageSelected: 0,
 			action: tr( "processexplorer.definition.start_workflow" ),
 			currentProcess: null,
 			domReady: function() {
 				console.log( "ready" );
-				this.namespace = "kfzplan";//@@@MS simpl4.util.BaseManager.getNamespace();
+				this.namespace = "kfzplan"; //@@@MS simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.getMeta();
 				}
@@ -79,7 +84,7 @@
 					self.pageSelected = 0;
 				} );
 			},
-			rowIndexChanged:function(){
+			rowIndexChanged: function() {
 				this.currentProcess = this.dataSet[ this.rowIndex ].key;
 			},
 			getMeta: function() {
@@ -111,6 +116,7 @@
 			}
 
 		} );
+
 	</script>
 
 </polymer-element>
