@@ -157,27 +157,13 @@
 					lang: this.getLang()
 				} );
 
-				// set rules
-				$( '.set' ).on( 'click', function() {
-					$( this.$.builder ).queryBuilder( 'setRules', {
-						condition: 'AND',
-						rules: [ {
-							id: 'price',
-							operator: 'less',
-							value: 10.25
-						}, {
-							condition: 'OR',
-							rules: [ {
-								id: 'category',
-								operator: 'in',
-								value: [ 1, 2 ]
-							}, {
-								id: 'name',
-								operator: 'equal',
-								value: "John Doe"
-							} ]
-						} ]
-					} );
+				$( this.$.builder ).queryBuilder( 'setRules', {
+					condition: 'AND',
+					rules: [ {
+						id: filters[0].id,
+						operator: filters[0].operators[0],
+						value: ''
+					} ]
 				} );
 				this.toggleSearchMode();
 			},
