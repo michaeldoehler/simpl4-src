@@ -83,7 +83,7 @@
 		<div horizontal layout wrap>
 			<div layout horizontal vs100 vl33>
 				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
-					<simpl-tree selectedItem="{{selectedAssembly}}"></simpl-tree>
+					<simpl-tree data={{assemblies}} idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
 			<div layout vertical vs100 vl66>
@@ -109,6 +109,18 @@
 			},
 			ready: function() {
 				simpl4.util.MessageManager.installMessages( "bhs" );
+				var t = null;
+				try {
+					t = simpl4.util.Rpc.rpcSync( "bhs:getBOMTree", {
+						namespace: "bhs",
+						machine: "2100097"
+					} );
+				} catch ( e ) {
+					alert( "Viewer._init:" + e );
+					return;
+				}
+				this.assemblies = t;
+
 			},
 			domReady: function( context ) {
 				this._openSeadragon = OpenSeadragon( {
