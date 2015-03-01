@@ -43,7 +43,6 @@ qx.Class.define("ms123.shell.views.SimpleTextEditor", {
 		console.log("config:" , config);
 		if( type= "text/html"){
 			config.htmlMode=true;
-			//config.mode="xml";
 		}
 		
 		this.msgArea = new ms123.codemirror.CodeMirror(config);
@@ -78,7 +77,6 @@ qx.Class.define("ms123.shell.views.SimpleTextEditor", {
 												reponame:this.facade.storeDesc.getNamespace(),
 												path:model.getPath()
 											});
-				console.log("TextEditor:"+value);
 			}catch(e){
 				ms123.form.Dialog.alert("TextEditor._show:"+e.message);
 				return;
