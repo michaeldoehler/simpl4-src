@@ -83,7 +83,7 @@
 		<div horizontal layout wrap>
 			<div layout horizontal vs100 vl33>
 				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
-					<simpl-tree data={{assemblies}} idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
+					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
 			<div layout vertical vs100 vl66>
@@ -144,9 +144,9 @@
 						hookHandler: this.onViewerClick.bind( this )
 					} ]
 				} );
+				this.selected="2100097.141027600.135450200";
 			},
 			panelOpen: function() {
-				console.log( "panelOpen" );
 				var dt = this.$.bomTable;
 				var dtTable = dt.dtTable;
 				$( window ).trigger( "resize.DT-dataTablesId" );

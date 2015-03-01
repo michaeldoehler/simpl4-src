@@ -1,4 +1,4 @@
-<polymer-element name="simpl-tree" attributes="selectedItem data idProp childrenProp nameProp">
+<polymer-element name="simpl-tree" attributes="selectedItem selected data idProp childrenProp nameProp">
 	<template>
 		<style>
 			div[id] {
@@ -39,8 +39,8 @@
 		</style>
 		<div id="main" unresolved="">
 			<template id="tree_template" bind="{{data as d}}">
-				<div layout horizontal id="{{d[idProp]}}" class="{{ d.children && d.children.length > 0 ? 'parent' : ''}} collapsed" on-click="{{selectItem}}">
-					<tree-icon on-click="{{toggleChildren}}" icon="{{ d.children && d.children.length > 0 ? 'hardware:keyboard-arrow-right' : 'arrow-drop-dowx'}}"></tree-icon>
+				<div layout horizontal idvalue="{{d[idProp]}}" class="{{ d.children && d.children.length > 0 ? 'parent' : ''}} collapsed" on-click="{{selectItem}}">
+					<tree-icon on-click="{{toggleEvent}}" icon="{{ d.children && d.children.length > 0 ? 'hardware:keyboard-arrow-right' : 'arrow-drop-dowx'}}"></tree-icon>
 					<span title="{{d[nameProp]}}" class="truncate" style="color:{{d.children && d.children.length > 0 ? 'black' : 'gray'}}">{{ d[nameProp] }}</span>
 				</div>
 				<ul style="display:none;">
@@ -62,12 +62,15 @@
 			idProp: 'path',
 			childrenProp: 'children',
 			nameProp: 'name',
-			toggleChildren: function( e, detail, sender ) {
+			toggleEvent: function( e ) {
 				e.preventDefault();
 				e.stopPropagation();
 				var target = e.target || e.srcElement;
 				var div = target.parentNode;
 				var icon = target;
+				this.toggleChildren( div, icon );
+			},
+			toggleChildren: function( div, icon ) {
 				if ( div.className.indexOf( 'parent' ) > -1 && div.nextElementSibling ) {
 					var current_display = div.nextElementSibling.style.display;
 					if ( current_display === 'none' ) {
@@ -81,30 +84,53 @@
 					}
 				}
 			},
-			selectItem: function( e, detail, sender ) {
+			selectItem: function( e ) {
 				var target = e.target || e.srcElement;
 				var span = target;
 				target = target.parentNode;
-				var id = target.getAttribute( "id" );
-				if( id == null) return;
+				var id = target.getAttribute( "idvalue" );
+				if ( id == null ) return;
 
 				if ( this.prevSelected ) {
 					this.prevSelected.removeAttribute( "selected" );
 				}
-				this.selectedItem = this.getNodeById( id, this.data );
+				this.selectedItem = this.getItemById( id, this.data );
 				span.setAttribute( "selected", "" );
 				this.prevSelected = span;
-				console.log( "selectedItem:", this.selectedItem );
 			},
-			getNodeById: function( id, node ) {
-				if ( node[this.idProp] == id ) {
+			selectedChanged: function() {
+				var selector = '[idvalue="' + this.selected + '"] span';
+				var span = this.$.main.querySelector( selector );
+				this.openTree(span);
+				if ( this.prevSelected ) {
+					this.prevSelected.removeAttribute( "selected" );
+				}
+				this.prevSelected = span;
+				span.setAttribute( "selected", "" );
+				var selectedItem = this.getItemById( this.selected, this.data );
+				this.selectedItem = selectedItem;
+			},
+			openTree:function(span){
+				var div = span.parentElement;
+				while ( div && div.nodeName == "DIV" ) {
+					var li = div.parentElement;
+					if ( li.nodeName != "LI" ) {
+						break;
+					}
+					li = li.parentElement.parentElement;
+					var div = li.querySelector( "div[idvalue]" );
+					var icon = div.querySelector( "tree-icon" );
+					this.toggleChildren( div, icon );
+				}
+			},
+			getItemById: function( id, node ) {
+				if ( node[ this.idProp ] == id ) {
 					return node
 				}
-				var children = node[this.childrenProp];
+				var children = node[ this.childrenProp ];
 				for ( var i = 0; children && i < children.length; i++ ) {
-					var node = this.getNodeById( id, children[ i ] );
+					var node = this.getItemById( id, children[ i ] );
 					if ( node ) return node;
-
 				}
 				return null;
 			},
