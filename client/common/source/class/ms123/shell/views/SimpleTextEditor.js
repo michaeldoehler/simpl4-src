@@ -35,11 +35,18 @@ qx.Class.define("ms123.shell.views.SimpleTextEditor", {
 		this.base(arguments);
 		this.facade=facade;
 		this._setLayout(new qx.ui.layout.Dock());
-		console.log("model:" + qx.util.Serializer.toJson(model));
+		var type = model.getType();
+		console.log("type:" , type);
 
-    //this.msgArea = new qx.ui.form.TextArea();
-
-		this.msgArea = new ms123.codemirror.CodeMirror({});
+		var config ={}
+		config.mode = type;
+		console.log("config:" , config);
+		if( type= "text/html"){
+			config.htmlMode=true;
+			//config.mode="xml";
+		}
+		
+		this.msgArea = new ms123.codemirror.CodeMirror(config);
 		this.msgArea.set({
 			height: null,
 			width: null
