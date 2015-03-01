@@ -21,7 +21,7 @@ simpl4.util.BaseManager.extend("simpl4.util.MessageManager", {
 	transMap: null,
 	getMessages: function(namespace) {
 		var failed = function(details) {
-			alert("GetMessages failed" + ":" + details.message);
+			console.error("GetMessages("+namespace+") failed" + ":" + details.message);
 		};
 
 		try {
