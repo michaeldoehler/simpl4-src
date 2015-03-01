@@ -16,34 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-/**
-	@asset(qx/icon/${qx.icontheme}/22/actions/*)
-	@asset(qx/icon/${qx.icontheme}/16/apps/*)
-	@asset(ms123/icons/*)
-	@asset(ms123/*)
+/*
 */
 
 qx.Class.define("ms123.shell.views.TextEditor", {
-	extend: qx.ui.core.Widget,
-	include: qx.locale.MTranslation,
-
-
+	extend: qx.ui.container.Composite,
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
-	construct: function (model,param,facade) {
+	construct: function (config,value) {
 		this.base(arguments);
-		this.facade=facade;
-		this._setLayout(new qx.ui.layout.Dock());
-		console.log("model:" + qx.util.Serializer.toJson(model));
+		this.config = config||{};
+		var layout = new qx.ui.layout.Dock();
+		this.setLayout(layout);
+		this.add(this._createEditor(config,value),{edge:"center"});
+		this.add(this._createButtons(),{edge:"south"});
 
-    this.msgArea = new qx.ui.form.TextArea();
-		this._add( this.msgArea, {edge:"center"});
-		this._toolbar = this._createToolbar(model);
-		this._add(this._toolbar, {
-			edge: "south"
-		});
-		this._show(model);
+	},
+
+	/******************************************************************************
+	 EVENTS
+	 ******************************************************************************/
+	events: {
+		"save": "qx.event.type.Data"
 	},
 
 
@@ -52,69 +47,45 @@ qx.Class.define("ms123.shell.views.TextEditor", {
 	 ******************************************************************************/
 	properties: {},
 
-
+	/******************************************************************************
+	 STATICS
+	 ******************************************************************************/
+	statics: {},
 	/******************************************************************************
 	 MEMBERS
 	 ******************************************************************************/
 	members: {
-		_show:function(model){
-			var value=null;
-			try{
-				value = ms123.util.Remote.rpcSync( "git:getContent",{
-												reponame:this.facade.storeDesc.getNamespace(),
-												path:model.getPath()
-											});
-				console.log("TextEditor:"+value);
-			}catch(e){
-				ms123.form.Dialog.alert("TextEditor._show:"+e.message);
-				return;
-			}
-
-
-			if( value ){
-				this.msgArea.setValue(value);
-			}
+		_createEditor:function(config, value){
+			var textArea = new ms123.codemirror.CodeMirror(config);
+      textArea.set({
+        height: null,
+        width: null
+      });
+			textArea.setValue( value);
+			this._textArea = textArea;
+			return textArea;
 		},
-		_createToolbar: function (model) {
+
+		_createButtons: function () {
 			var toolbar = new qx.ui.toolbar.ToolBar();
 			toolbar.setSpacing(5);
-			var buttonSave = new qx.ui.toolbar.Button(this.tr("shell.save"), "icon/22/actions/dialog-ok.png");
+
+			var buttonSave = new qx.ui.toolbar.Button(this.tr("Save"), "icon/16/actions/dialog-apply.png");
 			buttonSave.addListener("execute", function () {
-				var value =  this.msgArea.getValue();
-				this._saveContent(model, model.getType(), {json: value});
+				var data = this._textArea.getValue();
+				this.fireDataEvent("save", data);
 			}, this);
-			toolbar.addSpacer();
 			toolbar._add(buttonSave)
+
+			toolbar.addSpacer();
+			toolbar.addSpacer();
+
 			return toolbar;
-		},
-		_saveContent: function (model, type, content) {
-			var path = model.getPath();
-			console.log("path:" + path);
-			var completed = (function (e) {
-				ms123.form.Dialog.alert(this.tr("shell.saved"));
-			}).bind(this);
-
-			var failed = (function (e) {
-				ms123.form.Dialog.alert(this.tr("shell.save_failed")+":"+e.message);
-			}).bind(this);
-
-			var rpcParams = {
-				reponame:this.facade.storeDesc.getNamespace(),
-				path:path,
-				type:type,
-				content: content.json
-			};
-
-			var params = {
-				method:"putContent",
-				service:"git",
-				parameter:rpcParams,
-				async: false,
-				context: this,
-				completed: completed,
-				failed: failed
-			}
-			ms123.util.Remote.rpcAsync(params);
 		}
-	}
+	},
+	/******************************************************************************
+	 DESTRUCTOR
+	 ******************************************************************************/
+	destruct: function () {}
+
 });
