@@ -126,14 +126,19 @@ qx.Class.define('ms123.shell.InternalPlugin', {
 		/**
 		 */
 		getOnClickActions: function () {
-			var actions = [ {
+			var actions = [ 
+			{
 				nodetypes: ms123.shell.FileType.getAllEditables(),
 				clazz: ms123.shell.views.Editor,
-				menuicon: "icon/16/apps/utilities-text-editor.png",
 				title: "%n",
-				defaultEntry:true,
 				kind: "tab"
-			}];
+			}, {
+				nodetypes: ms123.shell.FileType.getAllTextEditables(),
+				clazz: ms123.shell.views.SimpleTextEditor,
+				title: "%n",
+				kind: "tab"
+			}
+			];
 			return actions;
 		},
 
