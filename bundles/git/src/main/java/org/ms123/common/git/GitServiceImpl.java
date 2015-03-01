@@ -122,6 +122,12 @@ public class GitServiceImpl implements GitService {
 		{
 			add("sw.groovy");
 			add("image/svg+xml");
+			add("text/html");
+			add("text/css");
+			add("text/x-asciidoc");
+			add("text/x-yaml");
+			add("text/javascript");
+			add("application/json");
 		}
 	};
 
