@@ -21,6 +21,13 @@ can.Construct.extend("simpl4.util.BaseManager", {
 	language:null,
 	user:null,
 	password:null,
+	baseurl:'',
+	setBaseUrl:function(baseUrl){
+		simpl4.util.BaseManager.baseurl = baseUrl;
+	},
+	getBaseUrl:function(){
+		return simpl4.util.BaseManager.baseurl;
+	},
 	setNamespace:function(namespace){
 		simpl4.util.BaseManager.namespace = namespace;
 	},

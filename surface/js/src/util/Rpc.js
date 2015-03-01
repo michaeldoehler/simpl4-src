@@ -43,7 +43,7 @@ can.Construct.extend("simpl4.util.Rpc", {
 		if (parameter && parameter.namespace) {
 			namespace = parameter.namespace;
 		}
-		var url = "/rpc/" + namespace + "/" + service;
+		var url = simpl4.util.BaseManager.getBaseUrl() + "/rpc/" + namespace + "/" + service;
 
 		var requestObject = {
 			"service": service,

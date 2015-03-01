@@ -20,7 +20,7 @@
 -->
 
 <link rel="import" href="utils-import.html">
-<polymer-element name="simpl-globals" attributes="globals" hidden>
+<polymer-element name="simpl-globals" attributes="globals namespace" hidden>
 	<template>
 		<simpl-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl-rpc>
 	</template>
@@ -32,6 +32,19 @@
 				//cache expiration time for lookup storage in seconds
 				cacheExpiration: 7200
 			};
+
+
+			var scripts = document.querySelectorAll("head > script");
+			for( var i=0; i< scripts.length;i++){
+				var src = scripts[i].src;
+				if( src.match(/sw\/surface/)){
+					var x = src.split("/sw");
+					var baseUrl = x[0];
+					console.log("baseUrl:"+baseUrl);
+					simpl4.util.BaseManager.setBaseUrl(baseUrl);
+					break;
+				}
+			}
 			var x = location.toString().split("/");
 			var namespace = x[x.length - 2];
 
@@ -56,11 +69,6 @@
 				return simpl4MessageManager.tr(input);
 			};
 
-			//var e = simpl4EntityManager.getEntities();
-			//var e = simpl4EntityManager.getEntityViewFields("contact","search", true);
-
-//			var ret = simpl4.util.SearchFilter.createSearchFilter("contact");
-//			console.debug("Filter:"+JSON.stringify(ret,null,2));
 
 
 			Polymer('simpl-globals', {
@@ -69,6 +77,9 @@
 					this.globals.lang=simpl4MessageManager.getLanguage();
 					this.config = config;
 					console.debug("Globals.Ready:"+  tr('data.customer.cid'));
+				},
+				namespaceChanged:function(){
+					simpl4MessageManager.installMessages(this.namespace);
 				},
 				get actions() {//Only for info
 					return this.getFromCache(this.$.axActions, 'baasicActions', 'accessAction');

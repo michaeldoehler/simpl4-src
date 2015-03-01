@@ -1,4 +1,4 @@
-<polymer-element name="simpl-viewer" attributes="">
+<polymer-element name="simpl-viewer" attributes="showAssemblies">
 	<template>
 		<style>
 			[vs100] {
@@ -81,12 +81,12 @@
 
 		</style>
 		<div horizontal layout wrap>
-			<div layout horizontal vs100 vl33>
+			<div id="assemblyId"  layout horizontal vs100 vl33>
 				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
 					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
-			<div layout vertical vs100 vl66>
+			<div id="viewerAndListId" layout vertical vs100 vl66>
 				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="black" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
 					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
@@ -119,14 +119,19 @@
 					alert( "Viewer._init:" + e );
 					return;
 				}
+				if( this.showAssemblies && this.showAssemblies=="false"){
+					$(this.$.assemblyId).css("display", "none");
+					$(this.$.viewerAndListId).attr("vl100", "");
+					$(this.$.viewerAndListId).removeAttr("vl66");
+				}
 				this.assemblies = t;
-
 			},
 			domReady: function( context ) {
+				var prefixUrl = simpl4.util.BaseManager.getBaseUrl() + "/sw/resource/openseadragon/";
 				this._openSeadragon = OpenSeadragon( {
 					hash: "hash_" + this,
 					element: this.$.viewer,
-					prefixUrl: "/sw/resource/openseadragon/",
+					prefixUrl: prefixUrl,
 					zoomPerClick: 2.0,
 					autoHideControls: false,
 					navigatorMaintainSizeRatio: true,
@@ -159,7 +164,7 @@
 					console.log( "selectedAssemblyChanged:", this.selectedAssembly );
 					this.panelHeaderBom = "Stückliste(" + this.selectedAssembly.name + ")";
 					this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
-					var mapUrl = '/sw/resource/png_' + part + '/map.xml';
+					var mapUrl = simpl4.util.BaseManager.getBaseUrl() + '/sw/resource/png_' + part + '/map.xml';
 					this.open( part, this.getHotspots( mapUrl ), "page-width" );
 				} ).bind( this ), 10 );
 			},
@@ -175,13 +180,14 @@
 			},
 			open: function( url, hotspots, scale ) {
 				this._hotspots = hotspots;
+				var self = this;
 				var map = this._getParameter( url );
 				this._openSeadragon.open( {
 					width: map.width,
 					height: map.height,
 					tileSize: 256,
 					getTileUrl: function( level, x, y ) {
-						return "/sw/resource/deep/SD_" + url + "/" + level + "/" + x + "_" + y + ".png";
+						return simpl4.util.BaseManager.getBaseUrl()+ "/sw/resource/deep/SD_" + url + "/" + level + "/" + x + "_" + y + ".png";
 					}
 				} );
 			},
