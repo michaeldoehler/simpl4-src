@@ -83,10 +83,10 @@ qx.Class.define("ms123.shell.FileType", {
 		},
 
 		getAllTextEditables:function(){
-				return  ["image/svg+xml"];
+				return  ["image/svg+xml", "text/html","text/x-asciidoc","text/x-yaml","text/css", "application/json"];
 		},
 		getAllForeigns:function(){
-				return  ["image/png","image/jpg","image/svg+xml"];
+				return  ["image/png","image/jpg","image/jpg", "image/svg+xml", "text/html", "text/x-asciidoc","text/x-yaml","text/css", "application/json"];
 		},
 		_getIconUrl: function (name) {
 			var am = qx.util.AliasManager.getInstance(name);
@@ -96,8 +96,13 @@ qx.Class.define("ms123.shell.FileType", {
 			var iconMap = {};
 			iconMap["sw.unknown"]= "icon/16/status/dialog-error.png";
 			iconMap["image/png"]= "resource/ms123/png.png";
-			iconMap["image/svg+xml"]= "resource/ms123/svg.png";
 			iconMap["image/jpg"]= "resource/ms123/jpg.png";
+			iconMap["image/svg+xml"]= "resource/ms123/svg.png";
+			iconMap["text/html"]= "resource/ms123/html.png";
+			iconMap["text/css"]= "resource/ms123/css.png";
+			iconMap["text/x-asciidoc"]= "resource/ms123/asciidoc.png";
+			iconMap["text/x-yaml"]= "resource/ms123/yaml.png";
+			iconMap["application/json"]= "resource/ms123/json.png";
 			iconMap[ms123.shell.Config.PROCESS_FT]= "icon/16/actions/system-run.png";
 			iconMap[ms123.shell.Config.WEBSITE_FT]= "icon/16/categories/internet.png";
 			iconMap[ms123.shell.Config.WEBPAGE_FT]= "resource/ms123/webpage.png";
