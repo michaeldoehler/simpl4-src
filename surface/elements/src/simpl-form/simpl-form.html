@@ -109,8 +109,8 @@
 				width: 100%;
 			}
 			fieldset#formdiv {
-				padding:0;
-				margin:0;
+				padding: 0;
+				margin: 0;
 				border-radius: 6px;
 				border: 0px solid beige;
 			}
@@ -172,7 +172,7 @@
 			<fieldset id="formdiv" verticax xayout>
 				<template repeat="{{shapes}}" id="root">
 
-					<template if="{{id=='Input' || id=='ActionButton' || id=='Enumselect' || id=='Textarea' || id=='RelatedTo' || id=='Alert' || id=='break'}}" ref="element" bind></template>
+					<template if="{{id=='Input' || id=='ActionButton' || id=='Tableselect'|| id=='Enumselect' || id=='Textarea' || id=='RelatedTo' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
 					<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
@@ -231,7 +231,7 @@
 					<checkbox-field flex type={{xf_type}} enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></checkbox-field>
 				</template>
 				<template if="{{ id=='Input' && xf_type != 'boolean' }}">
-					<input-field flex type={{xf_type}} enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
+					<input-field flex type={{xf_type}} enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" data-constraints="{{regulaConstraints}}" name="{{xf_id}}" label="{{label}}" defaultValue="{{defaultValue}}"></input-field>
 				</template>
 				<template if="{{ id=='ActionButton' }}">
 					<xaction-button on-tap="{{actionCallback}}" class="button" xid="{{xf_id}}" style="color:{{xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{xf_action}}" raised>
@@ -239,20 +239,24 @@
 					</xaction-button>
 				</template>
 				<template if="{{ id=='Enumselect' }}">
-					<dropdown-field flex name="{{xf_id}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					<dropdown-field flex name="{{xf_id}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 						<template repeat="{{items}}">
 							<paper-item name="{{value}}">{{label}}</paper-item>
 						</template>
 					</dropdown-field>
 				</template>
+				<template if="{{ id=='Tableselect' }}">
+					<tableselect-field flex name="{{xf_id}}" height="{{height}}" data="{{data}}" meta="{{meta}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					</tableselect-field>
+				</template>
 				<template if="{{ id=='Textarea' }}">
-					<multiline-field flex name="{{xf_id}}" rows="{{xf_rows}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
+					<multiline-field flex name="{{xf_id}}" rows="{{xf_rows}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}" defaultValue="{{defaultValue}}"></multiline-field>
 				</template>
 				<template if="{{ id=='RelatedTo' }}">
-					<related-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"  label="{{label}}" ></related-field>
+					<related-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}"></related-field>
 				</template>
 				<template if="{{ id=='Alert' }}">
-					<html-echo name="{{xf_id}}" html="{{xf_message}}"  invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
+					<html-echo name="{{xf_id}}" html="{{xf_message}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
 				</template>
 				<template if="{{ id=='Group' }}" ref="group" bind></template>
 				<template if="{{ id=='Row' }}" ref="row" bind></template>
@@ -316,7 +320,7 @@
 						} else {
 							f.removeAttribute( "exclude" );
 						}
-						console.log("exclude:"+e);
+						console.log( "exclude:" + e );
 					}
 					var invisibleExpr = f.getAttribute( "invisible-expr" );
 					//console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
@@ -327,7 +331,7 @@
 						} else {
 							f.removeAttribute( "invisible" );
 						}
-						console.log("invisible:"+e);
+						console.log( "invisible:" + e );
 					}
 				}
 			},
@@ -348,7 +352,7 @@
 			created: function() {},
 			ready: function() {},
 			domReady: function() {
-				console.debug("simpl-baseform.domReady");
+				console.debug( "simpl-baseform.domReady" );
 			},
 			shapesChanged: function() {
 				console.debug( "simpl-baseform.shapesChanged" );
@@ -413,7 +417,7 @@
 				this.fields.forEach( function( field ) {
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
-					field.setValue( data[ field.name ] || field.defaultValue || "");
+					field.setValue( data[ field.name ] || field.defaultValue || "" );
 				}, this );
 			},
 			getData: function() {
@@ -481,6 +485,7 @@
 					shape.stencil.id.toLowerCase() == 'textarea' ||
 					shape.stencil.id.toLowerCase() == 'relatedto' ||
 					shape.stencil.id.toLowerCase() == 'enumselect' ||
+					shape.stencil.id.toLowerCase() == 'tableselect' ||
 					shape.stencil.id.toLowerCase() == 'group'
 				) {
 					var labelChild = this.getLabelShape( shape.childShapes );
@@ -496,8 +501,8 @@
 						shape.properties.label = "";
 					}
 					if ( shape.stencil.id.toLowerCase() == 'textarea' ) {
-						if( shape.properties.xf_rows == null){
-							shape.properties.xf_rows=3;
+						if ( shape.properties.xf_rows == null ) {
+							shape.properties.xf_rows = 3;
 						}
 					}
 					if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
@@ -510,6 +515,34 @@
 							si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
 						}
 						props.items = si.getItems();
+					}
+					if ( shape.stencil.id.toLowerCase() == 'tableselect' ) {
+						var props = shape.properties;
+						var filter = props.xf_filter;
+						if ( filter ) {
+							var filterDesc = { "enumDescription": "sw.filter:"+filter, items:[] };
+							var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
+							si.setVariable("name","");
+							props.data = si.getItems();
+						}
+console.debug("Data:",props.data);
+						var columns = props.xf_columns;
+						var fields = columns.items;
+						props.meta = [];
+						fields.forEach( function( field, i ) {
+							var title = field.display;
+							var alias = field.display;
+							if ( alias && alias.match( /^[@%]/ ) ) {
+								title = tr( alias.substring( 1 ) );
+							}
+							var col = {
+								title: title,
+								data: field.colname
+							}
+							props.meta.push( col );
+						}, this );
+						var bounds = shape.bounds;
+						props.height = bounds.lowerRight.y - bounds.upperLeft.y;	
 					}
 				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 					var icon = shape.properties.xf_iconname;

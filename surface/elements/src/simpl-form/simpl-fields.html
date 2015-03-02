@@ -698,6 +698,83 @@
 	</script>
 </polymer-element>
 
+<polymer-element name="tableselect-field" attributes="meta data height" extends="form-field" kind="tableselect">
+	<template>
+		<style>
+			.error {
+				color: #d34336;
+			}
+			.error-text {
+				font-size: 0.75em;
+				padding: 0.5em 0;
+			}
+			[invisible] {
+				visibility: hidden;
+			}
+			.floated-label {
+				font-size: 0.75em;
+				white-space: nowrap;
+				color: #757575;
+			}
+			#floatedLabel.compact {
+				display: none;
+			}
+			.label-text {
+				display: inline-block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+
+		</style>
+
+		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined || value==''}}">
+			<span class="label-text">{{label}}</span>
+		</div>
+		<div vertical layout style="height:{{height}}px;">
+			<simpl-datatables flex id="bomTable" invalid?="{{isInvalid}}" selected="{{value}}" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{meta}}" data="{{data}}">
+			</simpl-datatables>
+			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
+				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
+				<core-icon class="error-icon" icon="warning"></core-icon>
+			</div>
+		</div>
+	</template>
+	<script>
+		Polymer( {
+			publish: {
+			},
+			valueChanged: function( e ) {
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
+				}
+				if ( this.isDomReady != true ) return;
+				this.checkConstraints();
+				this.fire( 'value-changed', this );
+			},
+			setValue: function( v ) {
+				this.value = v;
+			},
+			setErrorMessage: function( message ) {
+				this.error = message;
+			},
+			setInvalid: function( b ) {
+				this.isInvalid = b;
+			},
+			ready: function() {
+				this.isDomReady = true;
+				this.dataTablesOptions= {
+					paging: true,
+					dom: "frtiS",
+					scrollY: (this.height-80)+"px" 
+				};
+				console.log("dataTablesOptions:"+JSON.stringify(this.dataTablesOptions,null,2));
+			}
+		} );
+	</script>
+</polymer-element>
+
 <polymer-element name="related-field" extends="form-field" kind="related" attributes="namespace entity floatingLabel readonly disabled autofocus label name" layout horizontal center>
 	<template>
 		<style>
