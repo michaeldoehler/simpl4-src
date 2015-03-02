@@ -762,7 +762,7 @@
 				this.isInvalid = b;
 			},
 			selectionChanged:function(){
-				console.debug("selection:",this.selection);
+				this.value = this.selection;
 			},
 			heightChanged:function(){
 				this.dataTablesOptions= {

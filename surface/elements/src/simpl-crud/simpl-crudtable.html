@@ -61,11 +61,11 @@
 				} );
 			},
 			editAction: function() {
-				if ( this.rowIndex == null ) return;
+				if ( this.selection == null ) return;
 				this.fire( "edit-action", {
-					data: this.dataSet[ this.rowIndex ],
+					data: this.selection[0],
 					dataSet: this.dataSet,
-					rowIndex: this.rowIndex,
+					rowIndex:this.currentRowIndex,
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -73,9 +73,9 @@
 				} );
 			},
 			showAction: function() {
-				if ( this.rowIndex == null ) return;
+				if ( this.selection == null ) return;
 				this.fire( "show-action", {
-					data: this.dataSet[ this.rowIndex ],
+					data: this.selection[0],
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -83,24 +83,24 @@
 				} );
 			},
 			detailAction: function() {
-				if ( this.rowIndex == null ) return;
+				if ( this.selection == null ) return;
 				this.fire( "detail-action", {
-					data: this.dataSet[ this.rowIndex ]
+					data: this.selection[0]
 				} );
 			},
 			selectAction: function() {
-				if ( this.rowIndex == null ) return;
+				if ( this.selection == null ) return;
 				this.fire( "select-action", {
-					data: this.dataSet[ this.rowIndex ]
+					data: this.selection[0]
 				} );
 			},
 			cancelAction: function() {
 				this.fire( "cancel-action", {} );
 			},
 			copyAction: function() {
-				if ( this.rowIndex == null ) return;
+				if ( this.selection == null ) return;
 				this.fire( "copy-action", {
-					data: this.dataSet[ this.rowIndex ],
+					data: this.selection[0],
 					entity: this.entity,
 					entityChild: this.id,
 					table: this,
@@ -120,12 +120,12 @@
 				if ( name == null ) return;
 				this.buttonDef[ name ].action.call( this );
 			},
-			rowIndexChanged: function() {
+			selectionChanged: function() {
 				this.buttonDef[ "edit" ].disabled =
 					this.buttonDef[ "copy" ].disabled =
 					this.buttonDef[ "show" ].disabled =
 					this.buttonDef[ "select" ].disabled =
-					this.buttonDef[ "detail" ].disabled = this.rowIndex == null;
+					this.buttonDef[ "detail" ].disabled = this.selection == null;
 			},
 			buttonsChanged: function() {
 				var buttons = {
@@ -261,7 +261,7 @@
 			},
 			getData: function( filter ) {
 				console.debug( "GetData" );
-				this.rowIndex = null;
+				this.selection = null;
 				var props = simpl4.util.EntityManager.getEntityViewProperties( filter.entity, "main-grid", {
 					namespace: this.namespace
 				} );

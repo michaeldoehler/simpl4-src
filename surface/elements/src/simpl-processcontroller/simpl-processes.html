@@ -77,15 +77,15 @@
 			},
 			startProcess: function( e ) {
 				this.pageSelected = 1;
-				var process = this.dataSet[ this.rowIndex ];
+				var process = this.selection[0];
 				var self = this;
 				this.$.processController.start( process, {}, function() {
 					console.log( "finishCallback2" );
 					self.pageSelected = 0;
 				} );
 			},
-			rowIndexChanged: function() {
-				this.currentProcess = this.dataSet[ this.rowIndex ].key;
+			selectionChanged: function() {
+				this.currentProcess = this.selection[0].key;
 			},
 			getMeta: function() {
 				var colHds = [];

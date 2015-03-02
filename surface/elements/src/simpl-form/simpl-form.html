@@ -420,6 +420,9 @@
 					field.setValue( data[ field.name ] || field.defaultValue || "" );
 				}, this );
 			},
+			actionCallback:function(){
+				console.debug("Data:",JSON.stringify(this.getData(),null,2));
+			},
 			getData: function() {
 				var data = {};
 				this.fields.forEach( function( field ) {

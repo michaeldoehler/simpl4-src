@@ -73,7 +73,6 @@
 			taskListModeSelected: 1,
 			action: tr( "tasks.table.complete" ),
 			currentTask: null,
-			currentIndex: null,
 			domReady: function() {
 				console.log( "ready" );
 				if ( this.dtMeta == null ) {
@@ -85,17 +84,17 @@
 			startTask: function( e ) {
 				this.pageSelected = 1;
 				console.log( "startTask:", e );
-				console.log( "currentIndex:" + JSON.stringify( this.dataSet[ this.currentIndex ], null, 2 ) );
-				var task = this.dataSet[ this.currentIndex ];
+				console.log( "currentTask:" + JSON.stringify( this.selection[0], null, 2 ) );
+				var task = this.selection[0];
 				task.fromTaskList = true;
 				var self = this;
 				this.$.processController.showForm( task, function() {
 					self.pageSelected = 0;
 				} );
 			},
-			rowIndexChanged: function() {
-				this.currentTask = this.dataSet[ this.rowIndex ].processName + " / " + this.dataSet[ this.rowIndex ].name;
-				this.currentIndex=this.rowIndex;
+			selectionChanged: function() {
+				var sel = this.selection[0];
+				this.currentTask = sel.processName + " / " + sel.name;
 			},
 			taskListModeSelectedChanged: function( e ) {
 				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
@@ -103,7 +102,6 @@
 				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
 				this.createTable( this.dtMeta, dataSet );
 				this.currentTask = null;
-				this.currentIndex = null;
 			},
 			getMeta: function() {
 				var colHds = [];

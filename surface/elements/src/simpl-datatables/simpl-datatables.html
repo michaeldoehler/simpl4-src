@@ -254,6 +254,7 @@
 				var self = this;
 				var rows = this.dtTable.rows().nodes();
 				$( rows ).on( 'tap', ( function( e ) {
+					self.currentRowIndex = e.currentTarget._DT_RowIndex;
 					if( self.multiSelect){
 						self.tapActionMulti( e, this, false );
 					}else{
@@ -267,17 +268,19 @@
 				}
 				this.unselectAll();
 				$( t ).addClass( 'selected' );
+				var sel = this.copySelection(this.dtTable.rows('.selected').data());
 				this.fire( "rows-selected", {
-					rows: this.dtTable.rows('.selected').data()
+					rows: sel
 				} );
-				this.selection = this.dtTable.rows('.selected').data();
+				this.selection = sel;
 			},
 			tapActionMulti: function( e, t, double ) {
 				$(t).toggleClass('selected');
+				var sel = this.copySelection(this.dtTable.rows('.selected').data());
 				this.fire( "rows-selected", {
-					rows: this.dtTable.rows('.selected').data()
+					rows: sel
 				} );
-				this.selection = this.dtTable.rows('.selected').data();
+				this.selection = sel;
 			},
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
@@ -287,6 +290,13 @@
 			},
 			unselectAll: function() {
 				this.q( 'tr.selected' ).removeClass( 'selected' );
+			},
+			copySelection:function(sel){
+				var raw = [];
+				for(var i=0; i < sel.length;i++){
+					raw.push(sel[i]);
+				}
+				return raw;
 			},
 			metaChanged: function() {
 				this.preparedMeta = this.prepareMeta( this.meta );
