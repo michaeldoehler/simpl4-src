@@ -482,6 +482,7 @@ Scroller.prototype = /** @lends Scroller.prototype */{
 			that.s.dt.oApi._fnSaveState( that.s.dt );
 		}, 500 );
 		$(this.dom.scroller).on( 'scroll.DTS', function (e) {
+console.log("scroll:");
 			that._fnScroll.call( that );
 		} );
 

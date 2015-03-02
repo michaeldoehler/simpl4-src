@@ -67,21 +67,21 @@
 			}
 			paper-toast {
 				background: #fc0;
-				max-width:300px;
+				max-width: 300px;
 				color: black;
 			}
 			@media(max-width:768px) {
 				paper-toast {
 					top: -80px;
 					position: fixed;
-					max-width:100%;
+					max-width: 100%;
 					height: 30px;
 				}
 			}
 
 		</style>
 		<div horizontal layout wrap>
-			<div id="assemblyId"  layout horizontal vs100 vl33>
+			<div id="assemblyId" layout horizontal vs100 vl33>
 				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
 					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
@@ -119,10 +119,10 @@
 					alert( "Viewer._init:" + e );
 					return;
 				}
-				if( this.showAssemblies && this.showAssemblies=="false"){
-					$(this.$.assemblyId).css("display", "none");
-					$(this.$.viewerAndListId).attr("vl100", "");
-					$(this.$.viewerAndListId).removeAttr("vl66");
+				if ( this.showAssemblies && this.showAssemblies == "false" ) {
+					$( this.$.assemblyId ).css( "display", "none" );
+					$( this.$.viewerAndListId ).attr( "vl100", "" );
+					$( this.$.viewerAndListId ).removeAttr( "vl66" );
 				}
 				this.assemblies = t;
 			},
@@ -149,7 +149,11 @@
 						hookHandler: this.onViewerClick.bind( this )
 					} ]
 				} );
-				this.selected="2100097.141027600.135450200";
+				this.selected = "2100097.141027600.135450200";
+
+				if ( navigator.userAgent.match( /android/i ) ) { //@@@MS without this, the  dataTable want scrolling, if the drawing i szommed
+					$( this.$.viewer.querySelector( ".openseadragon-container" ) ).css( "overflow", "auto" );
+				}
 			},
 			panelOpen: function() {
 				var dt = this.$.bomTable;
@@ -187,7 +191,7 @@
 					height: map.height,
 					tileSize: 256,
 					getTileUrl: function( level, x, y ) {
-						return simpl4.util.BaseManager.getBaseUrl()+ "/sw/resource/deep/SD_" + url + "/" + level + "/" + x + "_" + y + ".png";
+						return simpl4.util.BaseManager.getBaseUrl() + "/sw/resource/deep/SD_" + url + "/" + level + "/" + x + "_" + y + ".png";
 					}
 				} );
 			},
@@ -261,7 +265,7 @@
 				if ( this.internalHotspotEvent === true ) return;
 				//var el = this.getContentElement().getDomElement();
 				var elems = this.$.viewer.getElementsByClassName( "hotspot" );
-				console.log( "elems;", elems );
+				//console.log( "elems;", elems );
 				var firstSelected = null;
 				for ( var i = 0; i < elems.length; i++ ) {
 					var e = elems[ i ];
