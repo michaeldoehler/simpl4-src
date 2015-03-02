@@ -19,7 +19,7 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-datatables" attributes="meta data options" flex relative>
+<polymer-element name="simpl-datatables" attributes="multiSelect selection meta data options" flex relative>
 	<template>
 		<link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
 		<link rel="stylesheet" type="text/css" href="dataTables.responsive.css" />
@@ -198,9 +198,7 @@
 	</template>
 	<script>
 		Polymer( {
-			observe: {
-				'rowIndex': 'rowIndexChanged'
-			},
+			multiSelect:false,
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
@@ -256,25 +254,36 @@
 				var self = this;
 				var rows = this.dtTable.rows().nodes();
 				$( rows ).on( 'tap', ( function( e ) {
-					self.tapAction( e, this, false );
+					if( self.multiSelect){
+						self.tapActionMulti( e, this, false );
+					}else{
+						self.tapActionSingle( e, this, false );
+					}
 				} ) );
 			},
-			tapAction: function( e, t, double ) {
+			tapActionSingle: function( e, t, double ) {
 				if ( $( t ).hasClass( 'selected' ) ) {
 					return;
 				}
-				var rowIndex = e.currentTarget._DT_RowIndex;
-				console.log( "DataTables.tapAction:", rowIndex );
-				this.rowIndex = rowIndex;
 				this.unselectAll();
 				$( t ).addClass( 'selected' );
-				this.fire( "row-selected", {
-					rowIndex: this.rowIndex,
-					dataSet: this.dataSet
+				this.fire( "rows-selected", {
+					rows: this.dtTable.rows('.selected').data()
 				} );
+				this.selection = this.dtTable.rows('.selected').data();
+			},
+			tapActionMulti: function( e, t, double ) {
+				$(t).toggleClass('selected');
+				this.fire( "rows-selected", {
+					rows: this.dtTable.rows('.selected').data()
+				} );
+				this.selection = this.dtTable.rows('.selected').data();
 			},
 			q: function( sel ) {
 				return $( this.$.dataTablesId.querySelectorAll( sel ) );
+			},
+			getSelection: function() {
+				return this.selection;
 			},
 			unselectAll: function() {
 				this.q( 'tr.selected' ).removeClass( 'selected' );

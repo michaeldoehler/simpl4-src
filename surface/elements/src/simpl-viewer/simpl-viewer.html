@@ -88,7 +88,7 @@
 			</div>
 			<div id="viewerAndListId" layout vertical vs100 vl66>
 				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="black" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
-					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
 				<simpl-panel id="drawingId" bgcolor="black" heading="{{panelHeaderDrawing}}" layout vertical collapsable="true" collapsed="false">
 					<div id="viewer"> </div>
@@ -177,9 +177,8 @@
 				this.$.toast.show();
 			},
 			partSelected: function( e ) {
-				console.log( "partSelected:", e.detail );
-				var rowIndex = e.detail.rowIndex;
-				var dataRow = e.detail.dataSet[ rowIndex ];
+				var dataRow = e.detail.rows[ 0 ];
+				console.log( "partSelected:", dataRow["part"] );
 				this.selectHotspot( dataRow[ "part" ] );
 			},
 			open: function( url, hotspots, scale ) {

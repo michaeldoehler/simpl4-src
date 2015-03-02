@@ -698,7 +698,7 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="tableselect-field" attributes="meta data height" extends="form-field" kind="tableselect">
+<polymer-element name="tableselect-field" attributes="multiSelect meta data height" extends="form-field" kind="tableselect">
 	<template>
 		<style>
 			.error {
@@ -732,7 +732,7 @@
 			<span class="label-text">{{label}}</span>
 		</div>
 		<div vertical layout style="height:{{height}}px;">
-			<simpl-datatables flex id="bomTable" invalid?="{{isInvalid}}" selected="{{value}}" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{meta}}" data="{{data}}">
+			<simpl-datatables flex id="bomTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{meta}}" data="{{data}}">
 			</simpl-datatables>
 			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
 				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
@@ -742,8 +742,7 @@
 	</template>
 	<script>
 		Polymer( {
-			publish: {
-			},
+			multiSelect:false,
 			valueChanged: function( e ) {
 				if ( this.withoutCheck ) {
 					this.withoutCheck = false;
@@ -762,14 +761,19 @@
 			setInvalid: function( b ) {
 				this.isInvalid = b;
 			},
-			ready: function() {
-				this.isDomReady = true;
+			selectionChanged:function(){
+				console.debug("selection:",this.selection);
+			},
+			heightChanged:function(){
 				this.dataTablesOptions= {
 					paging: true,
 					dom: "frtiS",
 					scrollY: (this.height-80)+"px" 
 				};
 				console.log("dataTablesOptions:"+JSON.stringify(this.dataTablesOptions,null,2));
+			},
+			ready: function() {
+				this.isDomReady = true;
 			}
 		} );
 	</script>
