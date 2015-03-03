@@ -184,7 +184,6 @@
 			rulesChanged: function( e ) {
 				this.entity = this.rules.entity;
 				this.namespace = this.rules.namespace || simpl4.util.BaseManager.getNamespace();
-				console.log( "rulesChanged:" + this.entity + "/" + this.namespace );
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true, {
 						namespace: this.namespace
@@ -260,7 +259,6 @@
 				this.rulesChanged();
 			},
 			getData: function( filter ) {
-				console.debug( "GetData" );
 				this.selection = null;
 				var props = simpl4.util.EntityManager.getEntityViewProperties( filter.entity, "main-grid", {
 					namespace: this.namespace

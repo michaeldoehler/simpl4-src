@@ -298,10 +298,11 @@
 				}
 				return raw;
 			},
-			metaChanged: function() {
-				this.preparedMeta = this.prepareMeta( this.meta );
+			_metaChanged: function() {
 			},
 			dataChanged: function() {
+				this.preparedMeta = this.prepareMeta( this.meta );
+				console.log("dataChanged.Meta:"+JSON.stringify(this.prepareMeta,null,2));
 				this.createTable( this.preparedMeta, this.data );
 			},
 			prepareMeta: function( meta ) {
