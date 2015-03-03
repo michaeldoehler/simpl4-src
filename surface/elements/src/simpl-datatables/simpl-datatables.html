@@ -302,8 +302,9 @@
 			},
 			dataChanged: function() {
 				this.preparedMeta = this.prepareMeta( this.meta );
-				console.log("dataChanged.Meta:"+JSON.stringify(this.prepareMeta,null,2));
-				this.createTable( this.preparedMeta, this.data );
+				console.log("dataChanged.Meta:"+JSON.stringify(this.meta,null,2));
+				console.log("dataChanged.Options:"+JSON.stringify(this.options,null,2));
+				this.createTable( this.preparedMeta, this.data,this.options );
 			},
 			prepareMeta: function( meta ) {
 				var fields = meta.fields;
