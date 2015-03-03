@@ -110,7 +110,7 @@
 					processCategory = simpl4.util.BaseManager.getNamespace();
 				}
 				if ( formResourceKey == null ) {
-					this.handleExecuteButton( null, task, null, null );
+					this.handleExecuteButton( null, task, null, null, finishCallback );
 					return;
 				}
 				var formName = this.getFormName( formResourceKey );
@@ -130,9 +130,8 @@
 							self.shadowRoot.querySelector( "#toast" ).show();
 							return;
 						}
-						self.handleExecuteButton( data, task, formName, buttonKey );
+						self.handleExecuteButton( data, task, formName, buttonKey, finishCallback );
 					}
-					console.log( "finishCallback:" + self.finishCallback + "/" + target.xaction );
 					if ( target.xaction == "cancel" ) {
 						if ( self.finishCallback ) {
 							self.finishCallback();
@@ -162,7 +161,7 @@
 				}
 				return formName;
 			},
-			handleExecuteButton: function( data, task, formName, executeButtonKey ) {
+			handleExecuteButton: function( data, task, formName, executeButtonKey, finishCallback ) {
 				var processVariables = {};
 				var formVals = {};
 				if ( data ) {
@@ -182,7 +181,7 @@
 					processVariables[ this.removeSuffix( formName ) ] = formVals;
 				}
 				console.log( "processVariables:" + JSON.stringify( processVariables, null, 2 ) );
-				this.completeActivity( processVariables, task );
+				this.completeActivity( processVariables, task, finishCallback );
 			},
 			removeSuffix: function( formName ) {
 				if ( formName.match( /.*\.form$/ ) ) {
@@ -228,6 +227,7 @@
 			},
 			completeActivity: function( processVariables, task, finishCallback ) {
 				var pdata = JSON.stringify( processVariables );
+				var hasMoreTasks = true;
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
 					console.log( "ret:" + x );
@@ -247,6 +247,7 @@
 						} else {
 							this.alert( tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ) );
 						}
+						hasMoreTasks = false;
 					}
 				} ).bind( this );
 				var failed = ( function( ret ) {
@@ -290,6 +291,8 @@
 					return simpl4.util.Rpc.rpcAsync( params );
 				} else {
 					this.completeTask( task.id, processVariables, completed, failed );
+					console.log( "hasMoreTasks:" + hasMoreTasks );
+					if ( !hasMoreTasks ) finishCallback();
 				}
 			},
 			completeTask: function( taskId, processVariables, completed, failed ) {
