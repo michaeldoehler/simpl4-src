@@ -225,6 +225,9 @@
 						new jQuery.fn.dataTable.Responsive( settings );
 					} );
 				}
+				if( dataSet && dataSet.length< 10){
+					options.dom = "t";
+				}
 				this.dtTable = dtMainElem.DataTable( jQuery.extend( {
 					language: this.getLang(),
 					paging: true,
