@@ -65,11 +65,11 @@
 				display: none;
 			}
 			:host /deep/ paper-button {
-				min-width:3em !important;
+				min-width: 3em !important;
 			}
 			:host /deep/ div.button-content {
-				overflow:hidden;
-				font-size:10px;
+				overflow: hidden;
+				font-size: 10px;
 			}
 			:host /deep/ select {
 				padding: 3px;
@@ -119,11 +119,12 @@
 					<div flex>{{selectedModel.node.name}}</div>
 					<core-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></core-icon-button>
 					<core-tooltip label="{{loginMessage}}" position="left">
-					  <core-icon-button on-click="{{login}}" icon="system-update-tv"></core-icon-button>
+						<core-icon-button on-click="{{login}}" icon="system-update-tv"></core-icon-button>
 					</core-tooltip>
 				</core-toolbar>
 
-				<div class="content" style="xeight:100%"> <!--height:100% slow scroll in chromium androit-->
+				<div class="content" style="xeight:100%">
+					<!--height:100% slow scroll in chromium androit-->
 					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="cross-fade">
 						<template repeat="{{page, i in pages}}">
 							<section style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
@@ -148,14 +149,14 @@
 			logoBackground: 'white',
 			toolbarBackground: null,
 			logo: 'logo.svg',
-			loginMessage:"Login",
+			loginMessage: "Login",
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;
 				this.ajax = this.$.ajax;
 				this.corePages = this.$.pages;
 				this.keys = this.$.keys;
 				this.cache = {};
-				$(this.$.logo).css("background",this.logoBackground);
+				$( this.$.logo ).css( "background", this.logoBackground );
 				// Allow selecting pages by num keypad. 
 				var keysToAdd = Array.apply( null, this.pages ).map( function( x, i ) {
 					return i + 1;
@@ -169,6 +170,12 @@
 				console.log( "location:" + window.location );
 				this.route = this.route || this.DEFAULT_ROUTE; // Select initial route.
 				this.toolboxClass = "";
+			},
+			routeChanged: function() {
+				console.log( "routeChanged:" + this.route );
+				channel.publish( "route.changed", {
+					route: this.route
+				} );
 			},
 			togglePanel: function() {
 				this.drawerPanel.togglePanel();
@@ -235,8 +242,7 @@
 				} else {
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					Polymer( encapsulateElementName, {
-						ready: function() {
-						}
+						ready: function() {}
 					} );
 					var encapsulateElementWrapper = document.createElement( 'div' );
 					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></polymer-element>';
@@ -311,7 +317,7 @@
 			},
 
 			loginOk: function( e ) {
-				this.loginMessage="User:"+e.detail.identifier;
+				this.loginMessage = "User:" + e.detail.identifier;
 				this.$.loginDialog.toggle();
 			},
 			login: function( e ) {

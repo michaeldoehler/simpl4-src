@@ -73,6 +73,16 @@
 			taskListModeSelected: 1,
 			action: tr( "tasks.table.complete" ),
 			currentTask: null,
+			created: function() {
+				var subscription = channel.subscribe( "route.changed", ( function( data ) {
+					if ( data.route != 'tasklist' ) return;
+					if ( this.pageSelected != 0 ) return;
+					console.debug( "TaskList active" );
+					setTimeout( ( function() {
+						this.taskListModeSelectedChanged( this.taskListModeSelected == 1 ? 0 : 1 );
+					} ).bind( this ), 30 );
+				} ).bind( this ) );
+			},
 			domReady: function() {
 				console.log( "ready" );
 				if ( this.dtMeta == null ) {
@@ -84,19 +94,21 @@
 			startTask: function( e ) {
 				this.pageSelected = 1;
 				console.log( "startTask:", e );
-				console.log( "currentTask:" + JSON.stringify( this.selection[0], null, 2 ) );
-				var task = this.selection[0];
+				console.log( "currentTask:" + JSON.stringify( this.selection[ 0 ], null, 2 ) );
+				var task = this.selection[ 0 ];
 				task.fromTaskList = true;
 				var self = this;
 				this.$.processController.showForm( task, function() {
 					self.pageSelected = 0;
+					self.taskListModeSelectedChanged( self.taskListModeSelected == 1 ? 0 : 1 );
 				} );
 			},
 			selectionChanged: function() {
-				var sel = this.selection[0];
+				var sel = this.selection[ 0 ];
 				this.currentTask = sel.processName + " / " + sel.name;
 			},
 			taskListModeSelectedChanged: function( e ) {
+				console.log( "e:" + e );
 				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
 				this.panelHeader = e == 0 ? tr( "tasks.table.assigned" ) : tr( "tasks.table.not_assigned" );
 				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
