@@ -69,6 +69,9 @@
 			domReady: function() {
 				this.isDomReady = true;
 			},
+			setForm: function( form ) {
+				this.form = form;
+			},
 			getValue: function() {
 				return this.value;
 			},
@@ -698,7 +701,7 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="tableselect-field" attributes="multiSelect meta data height" extends="form-field" kind="tableselect">
+<polymer-element name="tableselect-field" attributes="multiSelect required meta data height" extends="form-field" kind="tableselect">
 	<template>
 		<style>
 			.error {
@@ -712,12 +715,10 @@
 				visibility: hidden;
 			}
 			.floated-label {
-				font-size: 0.75em;
+				font-size: 1.05em;
 				white-space: nowrap;
 				color: #757575;
-			}
-			#floatedLabel.compact {
-				display: none;
+				margin-bottom: 10px;
 			}
 			.label-text {
 				display: inline-block;
@@ -725,35 +726,45 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
+			:host /deep/ .dataTables_wrapper.no-footer .dataTables_scrollBody {
+				border-bottom: 0px solid #fc0;
+			}
+			simpl-datatables /deep/ #dataTablesId thead tr th,
+			:host /deep/ #dataTablesId tfoot tr th {
+				background: white;
+			}
 
 		</style>
 
-		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined || value==''}}">
+		<div id="floatedLabel" class="floated-label">
 			<span class="label-text">{{label}}</span>
 		</div>
 		<div vertical layout style="height:{{height}}px;">
-			<simpl-datatables flex id="bomTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" on-row-selected="{{partSelected}}" meta="{{meta}}" data="{{data}}">
+			<simpl-datatables flex id="dataTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" meta="{{meta}}" data="{{tableData}}">
 			</simpl-datatables>
 			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
-				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
+				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}"></div>
+				<div class="error-text" role="alert" aria-hidden="{{!isInvalid}}">{{error}}&nbsp;&nbsp;</div>
 				<core-icon class="error-icon" icon="warning"></core-icon>
 			</div>
 		</div>
 	</template>
 	<script>
 		Polymer( {
-			multiSelect:false,
-			valueChanged: function( e ) {
-				if ( this.withoutCheck ) {
-					this.withoutCheck = false;
+			multiSelect: false,
+			required: "",
+			checkConstraints: function() {
+				this.setInvalid( false );
+				if ( !this.isRequired() ) return;
+				if ( this.selection && this.selection.length > 0 ) {
 					return;
 				}
-				if ( this.isDomReady != true ) return;
-				this.checkConstraints();
-				this.fire( 'value-changed', this );
+				this.setInvalid( true );
+				this.setErrorMessage( tr( "This field is required" ) );
 			},
 			setValue: function( v ) {
-				this.value = v;
+				this.$.dataTable.unselectAll();
+				this.value = null;
 			},
 			setErrorMessage: function( message ) {
 				this.error = message;
@@ -761,21 +772,32 @@
 			setInvalid: function( b ) {
 				this.isInvalid = b;
 			},
-			selectionChanged:function(){
+			selectionChanged: function() {
 				this.value = this.selection;
+				this.checkConstraints();
+				this.fire( 'value-changed', this );
 			},
-			heightChanged:function(){
-				this.dataTablesOptions= {
+			heightChanged: function() {
+				this.dataTablesOptions = {
 					paging: true,
-					dom: "frtiS",
-					scrollY: (this.height-80)+"px" 
+					dom: "rtS",
+					//dom: "frtiS",
+					scrollCollapse: false,
+					scrollY: ( this.height - 50 ) + "px"
 				};
-				console.log("dataTablesOptions:"+JSON.stringify(this.dataTablesOptions,null,2));
+				console.log( "dataTablesOptions:" + JSON.stringify( this.dataTablesOptions, null, 2 ) );
+				this.tableData = this.data;
+			},
+			isRequired: function() {
+				var data = this.form.getData();
+				var req = this.form._maskedEval( this.required, data, false );
+				return req;
 			},
 			ready: function() {
 				this.isDomReady = true;
 			}
 		} );
+
 	</script>
 </polymer-element>
 

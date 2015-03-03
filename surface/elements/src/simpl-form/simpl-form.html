@@ -246,7 +246,7 @@
 					</dropdown-field>
 				</template>
 				<template if="{{ id=='Tableselect' }}">
-					<tableselect-field flex name="{{xf_id}}" multiSelect height="{{height}}" data="{{data}}" meta="{{meta}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					<tableselect-field flex name="{{xf_id}}" multiSelect?="{{xf_multiselection}}" required="{{xf_required}}" height="{{height}}" data="{{data}}" meta="{{meta}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 					</tableselect-field>
 				</template>
 				<template if="{{ id=='Textarea' }}">
@@ -359,32 +359,39 @@
 				this.valueChanged();
 			},
 			validate: function( e ) {
-				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field,dropdown-field" ) );
+				var errorList=[];
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field,dropdown-field" ), false );
 				Array.prototype.forEach.call( elements, function( elem ) {
 					elem.setInvalid( false );
 				} );
-				if ( elements.length == 0 ) {
-					return true;
-				}
-				regula.bind( {
-					elements: elements
-				} );
-				var errorList = regula.validate( {
-					elements: elements
-				} );
-				errorList.forEach( function( err ) {
-					err.failingElements.forEach( function( elem ) {
-						elem.setInvalid( true );
-						elem.setErrorMessage( err.message );
+				if ( elements.length > 0 ) {
+					regula.bind( {
+						elements: elements
 					} );
-				} );
+					errorList = regula.validate( {
+						elements: elements
+					} );
+					errorList.forEach( function( err ) {
+						err.failingElements.forEach( function( elem ) {
+							elem.setInvalid( true );
+							elem.setErrorMessage( err.message );
+						} );
+					} );
+				}
+				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "tableselect-field" ), true );
+				for ( var i = 0; i < elements.length; i++ ) {
+					elements[ i ].checkConstraints();
+					if ( elements[ i ].isInvalid ) {
+						errorList.push( "Error" );
+					}
+				}
 				return errorList.length == 0;
 			},
-			filterToArray: function( nodeList ) {
+			filterToArray: function( nodeList, all ) {
 				var ret = [];
 				for ( var i = 0; i < nodeList.length; i++ ) {
 					var c = nodeList[ i ].getAttribute( "data-constraints" );
-					if ( c != null && c.length > 0 ) {
+					if ( all || (c != null && c.length > 0) ) {
 						ret.push( nodeList[ i ] );
 					}
 				}
@@ -402,6 +409,7 @@
 			addField: function( e ) {
 				this.fields.push( e.detail );
 				this.fieldsMap[ e.detail.name ] = e.detail;
+				e.detail.setForm( this );
 			},
 			removeField: function( e ) {
 				var i = this.fields.indexOf( e.detail );
@@ -420,8 +428,8 @@
 					field.setValue( data[ field.name ] || field.defaultValue || "" );
 				}, this );
 			},
-			actionCallback:function(){
-				console.debug("Data:",JSON.stringify(this.getData(),null,2));
+			actionCallback: function() {
+				console.debug( "Data:", JSON.stringify( this.getData(), null, 2 ) );
 			},
 			getData: function() {
 				var data = {};
@@ -521,18 +529,21 @@
 					}
 					if ( shape.stencil.id.toLowerCase() == 'tableselect' ) {
 						var props = shape.properties;
-						var xf_id= props.xf_id;
+						var xf_id = props.xf_id;
 						var filter = props.xf_filter;
 						var inputListName = props.xf_inputlistname;
 						if ( filter ) {
-							var filterDesc = { "enumDescription": "sw.filter:"+filter, items:[] };
+							var filterDesc = {
+								"enumDescription": "sw.filter:" + filter,
+								items: []
+							};
 							var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
-							si.setVariable("name","");
+							si.setVariable( "name", "" );
 							props.data = si.getItems();
-						}else if( inputListName){
-							props.data = this.variables[inputListName];
+						} else if ( inputListName ) {
+							props.data = this.variables[ inputListName ];
 						}
-						if( props.data == null) props.data = [];
+						if ( props.data == null ) props.data = [];
 						var columns = props.xf_columns;
 						var fields = columns.items;
 						props.meta = [];
@@ -542,8 +553,8 @@
 							if ( alias && alias.match( /^[@%]/ ) ) {
 								title = tr( alias.substring( 1 ) );
 							}
-							if( title==null){
-								title = xf_id+"."+field.colname;
+							if ( title == null ) {
+								title = xf_id + "." + field.colname;
 							}
 							var col = {
 								title: title,
@@ -552,7 +563,7 @@
 							props.meta.push( col );
 						}, this );
 						var bounds = shape.bounds;
-						props.height = bounds.lowerRight.y - bounds.upperLeft.y;	
+						props.height = bounds.lowerRight.y - bounds.upperLeft.y;
 					}
 				} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 					var icon = shape.properties.xf_iconname;
