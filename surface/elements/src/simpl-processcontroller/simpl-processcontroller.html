@@ -119,8 +119,8 @@
 				console.warn( "formName:" + formName );
 				var self = this;
 				this.actionCallback = function( e ) {
-					var target = e.target;
-					console.log( "actionCallback:", this );
+					event.stopPropagation();
+					var target = $( e.target ).is( 'xaction-button' ) ? e.target : e.target.parentNode;
 					console.log( "actionCallback:", target.xaction + "/" + target.xid );
 					if ( target.xaction == "execute" ) {
 						var buttonKey = target.xid;
