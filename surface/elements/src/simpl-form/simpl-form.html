@@ -521,14 +521,18 @@
 					}
 					if ( shape.stencil.id.toLowerCase() == 'tableselect' ) {
 						var props = shape.properties;
+						var xf_id= props.xf_id;
 						var filter = props.xf_filter;
+						var inputListName = props.xf_inputlistname;
 						if ( filter ) {
 							var filterDesc = { "enumDescription": "sw.filter:"+filter, items:[] };
 							var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
 							si.setVariable("name","");
 							props.data = si.getItems();
+						}else if( inputListName){
+							props.data = this.variables[inputListName];
 						}
-console.debug("Data:",props.data);
+						if( props.data == null) props.data = [];
 						var columns = props.xf_columns;
 						var fields = columns.items;
 						props.meta = [];
@@ -537,6 +541,9 @@ console.debug("Data:",props.data);
 							var alias = field.display;
 							if ( alias && alias.match( /^[@%]/ ) ) {
 								title = tr( alias.substring( 1 ) );
+							}
+							if( title==null){
+								title = xf_id+"."+field.colname;
 							}
 							var col = {
 								title: title,
