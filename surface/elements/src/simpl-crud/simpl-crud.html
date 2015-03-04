@@ -44,10 +44,10 @@
 		</style>
 		<core-animated-pages selected="{{pageSelected}}">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;">
-				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" rules="{{rules}}"></simpl-filter>
-				<template if="{{rules}}">
+				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
+				<template if="{{filter}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
-						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" rules="{{rules}}"></simpl-crudtable>
+						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 			</section>
@@ -84,9 +84,9 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="false">
 					<simpl-details id="detailid" namespace="{{namespace}}" entity="{{mainEntityName}}"></simpl-details>
 				</simpl-panel>
-				<template if="{{entityChildList}}" repeat="{{rules in entityChildList}}">
-					<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{rules}}" heading="{{rules.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
-						<simpl-crudtable id="{{rules.id}}" buttons="{{rules.buttonListDetail}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
+				<template if="{{entityChildList}}" repeat="{{filter in entityChildList}}">
+					<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{filter}}" heading="{{filter.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
+						<simpl-crudtable id="{{filter.id}}" buttons="{{filter.buttonListDetail}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
@@ -125,7 +125,7 @@
 				var ct = this.shadowRoot.querySelector( "#" + detail.data.id );
 				var data = detail.data;
 				data.namespace = this.namespace;
-				ct.rules = data;
+				ct.filter = data;
 			},
 			cancelAction: function( e ) {
 				this.prevNextButtonsInvisible = true;

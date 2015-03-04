@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="buttons namespace rules" flex relative>
+<polymer-element name="simpl-crudtable" extends="simpl-datatables" attributes="buttons namespace meta filter" flex relative>
 	<template>
 		<style>
 			paper-button.ripple {
@@ -181,15 +181,15 @@
 				} ).bind( this ) );
 				this.buttonList = bList;
 			},
-			rulesChanged: function( e ) {
-				this.entity = this.rules.entity;
-				this.namespace = this.rules.namespace || simpl4.util.BaseManager.getNamespace();
+			filterChanged: function( e ) {
+				this.entity = this.filter.entity;
+				this.namespace = this.filter.namespace || simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
-					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.rules.entity, "main-grid", true, {
+					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.filter.entity, "main-grid", true, {
 						namespace: this.namespace
 					} ) );
 				}
-				this.dataSet = this.preProcessData( this.getData( this.rules ) );
+				this.dataSet = this.preProcessData( this.getData( this.filter ) );
 				this.createTable( this.dtMeta, this.dataSet );
 			},
 			preProcessData: function( rows ) {
@@ -207,6 +207,9 @@
 					}, this );
 				}, this );
 				return rows;
+			},
+			metaChanged:function(){
+				this.dtMeta = this.preProcessMeta(this.meta);
 			},
 			preProcessMeta: function( fields ) {
 				this.selectableList = {};
@@ -230,8 +233,9 @@
 						dtName = f.name + "_display";
 					}
 					var col = {
-						title: tr( 'data.' + this.entity + '.' + f.name ),
-						data: dtName
+						title: f.title || tr( 'data.' + this.entity + '.' + f.name ),
+						data: dtName,
+						mRender: this.renderColumn
 					}
 					ret.push( col );
 					this.columns.push( f.name );
@@ -241,6 +245,10 @@
 				this.allModList.concat( this.dateList );
 				this.allModList.concat( this.datetimeList );
 				return ret;
+			},
+			renderColumn:function(data,type,row,meta){
+				var name = meta.settings.aoColumns[meta.col].mData;
+				return row[name];
 			},
 			toMap: function( sel ) {
 				var map = {};
@@ -256,7 +264,7 @@
 				return moment( parseInt( val ) ).format( "L" );
 			},
 			refresh: function() {
-				this.rulesChanged();
+				this.filterChanged();
 			},
 			getData: function( filter ) {
 				this.selection = null;
@@ -267,11 +275,19 @@
 				if ( filter.rpc ) {
 					data = simpl4.util.Rpc.rpcSync( "data:query", filter.rpc );
 				} else {
+					var fields = null;
+					if( this.meta){
+						fields = [];
+						for(var i=0; i< this.meta.length;i++){
+							fields.push(this.meta[i].name);
+						}
+					}
 					data = simpl4.util.Rpc.rpcSync( "data:query", {
 						storeId: this.namespace + "_data",
 						pageSize: 100,
 						orderby: props.orderby,
 						entity: filter.entity,
+						fields:fields,
 						filter: filter
 					} );
 				}

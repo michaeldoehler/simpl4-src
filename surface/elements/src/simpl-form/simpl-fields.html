@@ -839,10 +839,10 @@
 			<core-icon icon="clear"></core-icon>
 		</paper-button>
 		<paper-action-dialog backdrop layered="true" id="relatedDialog" class="scrolling">
-			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" rules="{{rules}}"></simpl-filter>
+			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
 			<div style="height:20px;"></div>
 			<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="false" collapsed="false">
-				<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="{{selectAction}}" on-cancel-action="{{cancelAction}}" rules="{{rules}}"></simpl-crudtable>
+				<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="{{selectAction}}" on-cancel-action="{{cancelAction}}" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
 			</simpl-panel>
 		</paper-action-dialog>
 	</template>
@@ -1017,6 +1017,7 @@
 						var fd = simpl4.util.Merge.deepmerge( {}, fieldDesc );
 						fd.fqn = selField.path + "." + selField.id;
 						fd.label = tr( "data." + simpl4.util.Inflector.getEntityName( selField.module ) ) + "/" + tr( "data." + selField.module + "." + selField.id );
+						fd.title = fd.label;
 						displayColumns.push( fd.fqn );
 						aliasColumns.push( selField.mapping );
 						fd[ "id" ] = fd.fqn;
@@ -1027,6 +1028,7 @@
 				console.log( "displayColumns:", displayColumns );
 				console.log( "aliasColumns:", aliasColumns );
 				console.log( "columns:", columns );
+				this.meta = columns;
 			}
 		} );
 

@@ -19,7 +19,7 @@
  */
 -->
 <link rel="import" href="import-js.html">
-<polymer-element name="simpl-filter" attributes="namespace entity rules">
+<polymer-element name="simpl-filter" attributes="namespace entity filter">
 
 	<template>
 		<style>
@@ -265,8 +265,8 @@
 				rules.entity = this.entity;
 				console.log( "Filter.namespace:", this.namespace );
 				rules.namespace = this.namespace;
-				this.rules = rules;
-				console.debug( "submit" + JSON.stringify( this.rules, null, 2 ) );
+				this.filter = rules;
+				console.debug( "submit" + JSON.stringify( this.filter, null, 2 ) );
 				//this.asyncFire( 'core-signal', event );
 				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				//this.$.data.textContent = jsonData;
