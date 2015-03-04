@@ -228,6 +228,7 @@
 			completeActivity: function( processVariables, task, finishCallback ) {
 				var pdata = JSON.stringify( processVariables );
 				var hasMoreTasks = true;
+
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
 					console.log( "ret:" + x );
@@ -250,6 +251,7 @@
 						hasMoreTasks = false;
 					}
 				} ).bind( this );
+
 				var failed = ( function( ret ) {
 					console.log( "ret:" + JSON.stringify( ret ) );
 					ret = ret.toString();
