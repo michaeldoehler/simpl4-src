@@ -742,6 +742,7 @@
 		<div vertical layout style="height:{{height}}px;">
 			<simpl-datatables flex id="dataTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" meta="{{meta}}" data="{{tableData}}">
 			</simpl-datatables>
+			<hr style="width:100%;color:black;" />
 			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
 				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}"></div>
 				<div class="error-text" role="alert" aria-hidden="{{!isInvalid}}">{{error}}&nbsp;&nbsp;</div>
@@ -783,7 +784,7 @@
 					dom: "rtS",
 					//dom: "frtiS",
 					scrollCollapse: false,
-					scrollY: ( this.height - 50 ) + "px"
+					scrollY: ( this.height - 40 ) + "px"
 				};
 				console.log( "dataTablesOptions:" + JSON.stringify( this.dataTablesOptions, null, 2 ) );
 				this.tableData = this.data;
@@ -840,7 +841,7 @@
 		<paper-action-dialog backdrop layered="true" id="relatedDialog" class="scrolling">
 			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" rules="{{rules}}"></simpl-filter>
 			<div style="height:20px;"></div>
-			<simpl-panel bgcolor="black" heading="{{'data.'+entity|tr}}" collapsable="false" collapsed="false">
+			<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="false" collapsed="false">
 				<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="{{selectAction}}" on-cancel-action="{{cancelAction}}" rules="{{rules}}"></simpl-crudtable>
 			</simpl-panel>
 		</paper-action-dialog>
@@ -919,6 +920,12 @@
 				console.log( "related:", this.editValue );
 				console.log( "id:", this.id );
 			},
+			namespaceChanged: function() {
+				simpl4.util.MessageManager.installMessages( this.namespace );
+			},
+			entityChanged: function() {
+				this.entityName = this.entity;
+			},
 			_maskedEval: function( scr, env, def ) {
 				try {
 					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
@@ -927,6 +934,99 @@
 					console.error( "error:" + e );
 				}
 				return def;
+			}
+		} );
+
+	</script>
+</polymer-element>
+
+<polymer-element name="db-selector-field" extends="related-field" kind="db-selector" attributes="namespace entity fieldlist readonly disabled autofocus label name" layout horizontal center>
+	<template>
+		<shadow></shadow>
+	</template>
+	<script>
+		Polymer( 'db-selector-field', {
+			assignFormValues: function() {
+				var formModel = this._form.getModel();
+				var items = this.fieldlist.items;
+				for ( var i = 0; i < items.length; i++ ) {
+					var fmap = this.items[ i ];
+					var path = fmap.path + "." + fmap.id;
+					var value = cr[ path ];
+					if ( value == undefined ) value = null;
+					console.log( "setting(" + path + "):" + fmap.form_fieldname + "=" + value );
+					try {
+						formModel.set( fmap.form_fieldname, value );
+					} catch ( e ) {
+						console.error( "Cannot set:" + e );
+					}
+				}
+			},
+			getFieldDesc: function( entity, id ) {
+				var colModel = this.fieldmap[ entity ];
+				if ( colModel == null ) {
+					this.getSelectableFields( entity );
+					colModel = this.fieldmap[ entity ];
+				}
+				for ( var f = 0; f < colModel.length; f++ ) {
+					var field = colModel[ f ];
+					if ( field.hidden ) continue;
+					if ( field.id == id ) {
+						return field;
+					}
+				}
+				return null;
+			},
+			getSelectableFields: function( entity ) {
+				var colModel = this.fieldmap[ entity ];
+				if ( colModel === undefined ) {
+					try {
+						var em = simpl4.util.EntityManager;
+						var data = em.getEntityViewFields( entity, this.namespace, "report", false );
+						colModel = em.buildColModel( data, this.namespace, entity, "search" );
+						this.fieldmap[ entity ] = colModel;
+					} catch ( e ) {
+						console.error( "Selector.getSelectableFields:" + e.stack );
+						return;
+					}
+				}
+				console.log( "colModel:", colModel );
+				return colModel;
+			},
+			fieldlistChanged: function() {
+				simpl4.util.MessageManager.installMessages( this.namespace );
+				this.fieldmap = {};
+				console.debug( "fieldlistChanged:" + JSON.stringify( JSON.parse( this.fieldlist ), null, 2 ) );
+				var columns = new Array();
+				var displayColumns = new Array();
+				var aliasColumns = new Array();
+				var selFields = JSON.parse( this.fieldlist ).items;
+				for ( var f = 0; f < selFields.length; f++ ) {
+					var selField = selFields[ f ];
+
+					if ( selField.display === true ) {
+						var fieldDesc = this.getFieldDesc( selField.module, selField.id );
+						if ( fieldDesc == null ) {
+							console.error( "Selector._getTableColumns:field(\"" + selField.id + "\") not found in \"" + selField.module + "\"" );
+							return null;
+						}
+						var dt = fieldDesc[ "datatype" ];
+						if ( dt && dt.match( "^array" ) ) {
+							continue;
+						}
+						var fd = simpl4.util.Merge.deepmerge( {}, fieldDesc );
+						fd.fqn = selField.path + "." + selField.id;
+						fd.label = tr( "data." + simpl4.util.Inflector.getEntityName( selField.module ) ) + "/" + tr( "data." + selField.module + "." + selField.id );
+						displayColumns.push( fd.fqn );
+						aliasColumns.push( selField.mapping );
+						fd[ "id" ] = fd.fqn;
+						fd[ "name" ] = fd.fqn;
+						columns.push( fd );
+					}
+				}
+				console.log( "displayColumns:", displayColumns );
+				console.log( "aliasColumns:", aliasColumns );
+				console.log( "columns:", columns );
 			}
 		} );
 

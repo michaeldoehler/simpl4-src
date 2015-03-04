@@ -169,10 +169,10 @@
 
 		<paper-shadow z=0>
 
-			<fieldset id="formdiv" verticax xayout>
+			<fieldset style="width:1px;min-width:100%;" id="formdiv" verticax xayout>
 				<template repeat="{{shapes}}" id="root">
 
-					<template if="{{id=='Input' || id=='ActionButton' || id=='Tableselect'|| id=='Enumselect' || id=='Textarea' || id=='RelatedTo' || id=='Alert' || id=='break'}}" ref="element" bind></template>
+					<template if="{{id=='Input' || id=='ActionButton' || id=='Tableselect'|| id=='Enumselect' || id=='Textarea' || id=='RelatedTo' || id=='Moduleselector' || id=='Alert' || id=='break'}}" ref="element" bind></template>
 
 					<template if="{{ id=='Tabview' }}" ref="tabs" bind></template>
 
@@ -254,6 +254,9 @@
 				</template>
 				<template if="{{ id=='RelatedTo' }}">
 					<related-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" entity="{{xf_type}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}"></related-field>
+				</template>
+				<template if="{{ id=='Moduleselector' }}">
+					<db-selector-field flex name="{{xf_id}}" namespace="{{xf_namespace}}" fieldlist="{{xf_fieldlist}}" entity="{{xf_module}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" label="{{label}}"></db-selector-field>
 				</template>
 				<template if="{{ id=='Alert' }}">
 					<html-echo name="{{xf_id}}" html="{{xf_message}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}"></html-echo>
@@ -352,7 +355,7 @@
 			created: function() {},
 			ready: function() {},
 			domReady: function() {
-				console.debug( "simpl-baseform.domReady" );
+				console.debug( "simpl-baseform.domReady:",this.namespace );
 			},
 			shapesChanged: function() {
 				console.debug( "simpl-baseform.shapesChanged" );
@@ -495,6 +498,7 @@
 				if ( shape.stencil.id.toLowerCase() == "input" ||
 					shape.stencil.id.toLowerCase() == 'textarea' ||
 					shape.stencil.id.toLowerCase() == 'relatedto' ||
+					shape.stencil.id.toLowerCase() == 'moduleselector' ||
 					shape.stencil.id.toLowerCase() == 'enumselect' ||
 					shape.stencil.id.toLowerCase() == 'tableselect' ||
 					shape.stencil.id.toLowerCase() == 'group'
@@ -515,6 +519,9 @@
 						if ( shape.properties.xf_rows == null ) {
 							shape.properties.xf_rows = 3;
 						}
+					}
+					if ( shape.stencil.id.toLowerCase() == 'moduleselector' ) {
+						shape.properties.xf_namespace = this.namespace;
 					}
 					if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
 						var props = shape.properties;
