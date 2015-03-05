@@ -61,7 +61,7 @@
 				} );
 			},
 			attached: function() {
-				if( this.attributes.getNamedItem("exclude-expr") ){ //Fire only if from form , not from dialog
+				if ( this.attributes.getNamedItem( "exclude-expr" ) ) { //Fire only if from form , not from dialog
 					this.fire( 'add-form-field', this );
 				}
 			},
@@ -837,9 +837,11 @@
 		<paper-button on-tap="{{actionCallback}}" class="button" raised>
 			<core-icon icon="launch"></core-icon>
 		</paper-button>
-		<paper-button on-tap="{{clearCallback}}" class="button" raised>
-			<core-icon icon="clear"></core-icon>
-		</paper-button>
+		<template if="{{meta==null}}">
+			<paper-button on-tap="{{clearCallback}}" class="button" raised>
+				<core-icon icon="clear"></core-icon>
+			</paper-button>
+		</template>
 		<paper-action-dialog backdrop layered="true" id="relatedDialog" class="scrolling">
 			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
 			<div style="height:20px;"></div>
@@ -951,9 +953,9 @@
 			selectAction: function( e ) {
 				var data = e.detail.data;
 				this.$.relatedDialog.close();
-				this.assignValue(data);
+				this.assignValues( data );
 			},
-			assignValue: function(cr) {
+			assignValues: function( cr ) {
 				var items = JSON.parse( this.fieldlist ).items;
 				for ( var i = 0; i < items.length; i++ ) {
 					var fmap = items[ i ];
@@ -961,16 +963,16 @@
 					var value = cr[ path ];
 					if ( value == undefined ) value = null;
 					var form_fieldname = fmap.form_fieldname ? fmap.form_fieldname : fmap.db_fieldname;
-					console.log( "setting(" + path + "):" + form_fieldname + "=" + value );
+					console.debug( "db-selector-field.assignValue(" + path + "):" + form_fieldname + "=" + value );
 					try {
-						var f = this.form.getField( form_fieldname);
-						if( f == null){
-							console.error("assignValue.field:"+form_fieldname+" not found");
+						var f = this.form.getField( form_fieldname );
+						if ( f == null ) {
+							console.error( "db-selector-field.assignValue:field:" + form_fieldname + " not found" );
 							continue;
 						}
 						f.setValue( value );
 					} catch ( e ) {
-						console.error( "Cannot set:" + e +"/"+e.stack );
+						console.error( "db-selector-field.Cannot set value:" + e + "/" + e.stack );
 					}
 				}
 			},
@@ -998,11 +1000,10 @@
 						colModel = em.buildColModel( data, this.namespace, entity, "search" );
 						this.fieldmap[ entity ] = colModel;
 					} catch ( e ) {
-						console.error( "Selector.getSelectableFields:" + e.stack );
+						console.error( "db-selector-field.getSelectableFields:" + e.stack );
 						return;
 					}
 				}
-				console.log( "colModel:", colModel );
 				return colModel;
 			},
 			fieldlistChanged: function() {
@@ -1018,7 +1019,7 @@
 					if ( selField.display === true ) {
 						var fieldDesc = this.getFieldDesc( selField.module, selField.id );
 						if ( fieldDesc == null ) {
-							console.error( "Selector._getTableColumns:field(\"" + selField.id + "\") not found in \"" + selField.module + "\"" );
+							console.error( "db-selector-field.fieldlistChanged:field(\"" + selField.id + "\") not found in \"" + selField.module + "\"" );
 							return null;
 						}
 						var dt = fieldDesc[ "datatype" ];
@@ -1036,9 +1037,6 @@
 						columns.push( fd );
 					}
 				}
-				console.log( "displayColumns:", displayColumns );
-				console.log( "aliasColumns:", aliasColumns );
-				console.log( "columns:", columns );
 				this.meta = columns;
 			}
 		} );
