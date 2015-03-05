@@ -421,6 +421,10 @@
 					this.fields.splice( i, 1 );
 				}
 			},
+			getField: function( path ) {
+				var f = this.fieldsMap[ path ];
+				return f;
+			},
 			getLabel: function( path ) {
 				var f = this.fieldsMap[ path ];
 				return f.label;
