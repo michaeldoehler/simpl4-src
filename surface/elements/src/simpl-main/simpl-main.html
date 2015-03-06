@@ -40,7 +40,7 @@
 					height: 100%;
 				}
 			}
-			section {
+			section.main {
 				padding: 6px;
 				width: 100%;
 				height: 100%;
@@ -127,7 +127,7 @@
 					<!--height:100% slow scroll in chromium androit-->
 					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="cross-fade">
 						<template repeat="{{page, i in pages}}">
-							<section style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
+							<section class="main" style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
 								<div cross-fade style="height:100%">
 									<div style="max-width:100%;">{{'tr.loading'|tr}} {{page.name}}</div>
 								</div>

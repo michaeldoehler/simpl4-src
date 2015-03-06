@@ -95,7 +95,10 @@
 				background: white;
 			}
 			:host /deep/ #dataTablesId.no-footer {
-				border-bottom: 1px solid gray;
+				border-bottom: 1px solid #e0e0e0;
+			}
+			:host /deep/ .dataTables_scrollBody #dataTablesId.no-footer {
+				border-bottom: 0px;
 			}
 			:host /deep/ #dataTablesId thead th,
 			:host /deep/ #dataTablesId thead td {
@@ -141,7 +144,7 @@
 			}
 			:host /deep/ #dataTablesId thead tr th,
 			:host /deep/ #dataTablesId tfoot tr th {
-				background: #FCF9ED;
+				background: #F6f6f6;
 			}
 			:host /deep/ #dataTablesId thead tr th:first-child {
 				padding: 0px 30px 0px;
@@ -307,7 +310,6 @@
 				} else {
 					this.preparedMeta = this.prepareMeta( this.meta );
 				}
-				console.log( "dataChanged.Meta:" + JSON.stringify( this.preparedMeta, null, 2 ) );
 				this.createTable( this.preparedMeta, this.data, this.options );
 			},
 			prepareMeta: function( meta ) {
