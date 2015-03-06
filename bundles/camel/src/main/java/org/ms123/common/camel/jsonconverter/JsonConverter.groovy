@@ -361,6 +361,12 @@ class FtpEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class SqlEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class HttpClientEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);

@@ -384,7 +384,7 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 	protected synchronized CamelContext createCamelContext(String namespace) throws Exception {
 		Map beans = Context.getProcessEngineConfiguration().getBeans();
 		BundleContext bc = (BundleContext) beans.get("bundleContext");
-		Registry gr = new GroovyRegistry( BaseCamelBehavior.class.getClassLoader(), namespace);
+		Registry gr = new GroovyRegistry( BaseCamelBehavior.class.getClassLoader(), bc, namespace);
 		CamelContext camelContext = CamelContextBuilder.createCamelContext(namespace,gr, bc,false);
 		return camelContext;
 	}

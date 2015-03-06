@@ -258,7 +258,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					continue;
 				}
 				cce = new ContextCacheEntry();
-				cce.groovyRegistry = new GroovyRegistry( BaseCamelServiceImpl.class.getClassLoader(), namespace);
+				cce.groovyRegistry = new GroovyRegistry( BaseCamelServiceImpl.class.getClassLoader(), m_bundleContext, namespace);
 				cce.context = CamelContextBuilder.createCamelContext(namespace,cce.groovyRegistry, m_bundleContext,true);
 				cce.context.setNameStrategy( new FixedCamelContextNameStrategy(contextKey));
 				cce.context.start();

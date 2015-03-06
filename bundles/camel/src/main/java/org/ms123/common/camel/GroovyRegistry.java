@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import java.io.File;
 import org.ms123.common.libhelper.FileSystemClassLoader;
+import org.osgi.framework.BundleContext;
 import org.apache.camel.NoSuchBeanException;
+import org.osgi.framework.ServiceReference;
 import org.apache.camel.spi.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,28 +37,53 @@ public class GroovyRegistry implements Registry {
 
 	private ClassLoader m_fsClassLoader;
 
+	private BundleContext m_bundleContect;
 	private File[] m_locations;
 
-	public GroovyRegistry(ClassLoader parent, String namespace) {
+	public GroovyRegistry(ClassLoader parent, BundleContext bc, String namespace) {
 		String basedir = System.getProperty("workspace") + "/" + "groovy" + "/" + namespace;
 		m_locations = new File[1];
 		m_locations[0] = new File(basedir);
 		m_fsClassLoader = new FileSystemClassLoader(parent, m_locations);
+		m_bundleContect=bc;
 	}
 
 	public Object lookupByName(String name) {
 		debug("lookupByName1:" + name);
+		Object obj = getObjectFromFileSystemClassloader(name);
+		if( obj == null){
+			obj = getDataSource(name);
+		}
+		debug("lookupByName2:" + obj);
+		return obj;
+	}
+
+	private Object getDataSource(String name){
 		try {
-			Class clazz = m_fsClassLoader.loadClass(name);
-			Object obj = clazz.newInstance();
-			debug("lookupByName2:" + clazz + "/" + obj);
-			return obj;
+			ServiceReference[] sr = m_bundleContect.getServiceReferences((String)null, "(&(objectClass=javax.sql.DataSource)(dataSourceName="+name+"))");
+			if( sr != null && sr.length>0){
+					debug("ds:"+sr[0]);
+				return m_bundleContect.getService(sr[0]);
+			}else{
+				error("getDataSource1(" + name + "):not found");
+			}
 		} catch (Throwable e) {
-			debug("lookupByNameError(" + name + "):" + e);
+			error("getDataSource2(" + name + "):" + e);
 		}
 		return null;
 	}
 
+	private Object getObjectFromFileSystemClassloader(String name){
+		try {
+			Class clazz = m_fsClassLoader.loadClass(name);
+			Object obj = clazz.newInstance();
+			debug("getObjectFromFileSystemClassloader:" + clazz + "/" + obj);
+			return obj;
+		} catch (Throwable e) {
+			debug("getObjectFromFileSystemClassloader(" + name + "):" + e);
+		}
+		return null;
+	}
 	public <T> T lookupByNameAndType(String name, Class<T> type) {
 		debug("lookupByNameAndType:" + name + "/" + type);
 		Object answer = lookupByName(name);
@@ -106,7 +133,12 @@ public class GroovyRegistry implements Registry {
 	public void newClassLoader() {
 		m_fsClassLoader = new FileSystemClassLoader(GroovyRegistry.class.getClassLoader(), m_locations);
 	}
+	private static void error(String msg) {
+		System.out.println(msg);
+		m_logger.error(msg);
+	}
 	private static void debug(String msg) {
+		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 	private static final Logger m_logger = LoggerFactory.getLogger(GroovyRegistry.class);

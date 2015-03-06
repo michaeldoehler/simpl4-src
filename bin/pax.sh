@@ -119,6 +119,12 @@ do
 	camelbundles=${camelbundles}"scan-bundle:file:$i "
 done
 
+paxbundles=""
+for i in $REPOSITORY/pax-jdbc-0.50/*jar
+do
+	paxbundles=${paxbundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-4.3.1.jar \
@@ -148,6 +154,7 @@ $SRCTOPDIR/bin/pax-run.sh \
 ${activitibundles} \
 ${nucleusbundles} \
 ${camelbundles} \
+${paxbundles} \
 ${localbundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-3.0.7.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-1.0.4.jar@3 \
@@ -190,9 +197,9 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/milyn-smooks-all-1.5.jar \
 	scan-bundle:file:$REPOSITORY/mina-core-2.0.2.jar \
   scan-bundle:file:$REPOSITORY/mvel2-2.1.RC1.jar \
-	scan-bundle:file:$REPOSITORY/mysql-connector-java-5.1.6.bar \
+	scan-bundle:file:$REPOSITORY/mysql-connector-java-5.1.34-bin.jar \
 	scan-bundle:file:$REPOSITORY/object-traverser.bar \
-  scan-bundle:file:$REPOSITORY/ops4j-base-lang-1.2.2.jar \
+  scan-bundle:file:$REPOSITORY/ops4j-base-lang-1.5.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.shell-1.4.3.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.boot-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.config-2.4.0.jar \
@@ -251,8 +258,9 @@ ${localbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
-  scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.3.1.jar \
-  scan-bundle:file:$REPOSITORY/pax-swissbox-lifecycle-1.3.1.jar \
+  scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.8.0.jar \
+  scan-bundle:file:$REPOSITORY/pax-swissbox-lifecycle-1.8.0.jar \
+  scan-bundle:file:$REPOSITORY/pax-swissbox-core-1.8.0.jar \
   scan-bundle:file:$REPOSITORY/pax-logging-logback-1.7.1.jar \
   scan-bundle:file:$REPOSITORY/pax-logging-api-1.7.1.jar \
   scan-bundle:file:$REPOSITORY/commons.compiler-2.6.1.jar \
