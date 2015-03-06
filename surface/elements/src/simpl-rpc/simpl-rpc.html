@@ -18,266 +18,190 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-
-<polymer-element name="simpl-rpc" hidden attributes="handleAs params sync response error service method loading">
+<!--
+/**
+ * json-rpc can be used to perform XMLHttpRequests.
+ *
+ * Example:
+ *
+ *     <simpl-rpc auto url="http://gdata.youtube.com/feeds/api/videos/" 
+ *         params='{"alt":"json", "q":"chrome"}'
+ *         handleAs="json"
+ *         on-response="{{handleResponse}}">
+ *     </simpl-rpc>
+ *
+ * @class json-rpc
+ */
+/**
+ * Fired when a response is received.
+ * @event response
+ */
+/**
+ * Fired when an error is received.
+ * @event error
+ */
+/**
+ * Fired whenever a response or an error is received.
+ * @event complete
+ */
+-->
+<polymer-element name="simpl-rpc" attributes="url auto service method params response headers">
 	<script>
-		Polymer('simpl-rpc', {
+		Polymer( 'simpl-rpc', {
 			/**
-			 * Fired when a response is received.
+			 * The URL target of the request.
 			 *
-			 * @event rpc-response
-			 */
-
-			/**
-			 * Fired when an error is received.
-			 *
-			 * @event rpc-error
-			 */
-
-			/**
-			 * Fired whenever a response or an error is received.
-			 *
-			 * @event rpc-complete
-			 */
-
-			/**
-			 * Specifies what data to store in the response property, and
-			 * to deliver as event.response in response events.
-			 * One of:
-			 *    'text': uses 'XHR.responseText'.
-			 *    'xml': uses 'XHR.responseXML'.
-			 *    'json': uses 'XHR.responseText' parsed as JSON.
-			 *    'arraybuffer': uses 'XHR.response'.
-			 *    'blob': uses 'XHR.response'.
-			 *    'document': uses 'XHR.response'.
-			 *
-			 * @attribute handleAs
+			 * @attribute url
 			 * @type string
-			 * @default 'json'
+			 * @default ''
 			 */
-			handleAs: 'json',
-
+			url: '/rpc/xyz',
 			/**
-			 * Parameters to send to the specified URL, as JSON.
+			 * If true, automatically performs an Ajax request when either url or params has changed.
+			 *
+			 * @attribute auto
+			 * @type boolean
+			 * @default false
+			 */
+			auto: true,
+			/**
+			 * The JSON-RPC method to call
+			 *
+			 * @attribute method
+			 * @type string
+			 * @default ''
+			 */
+			method: '',
+			/**
+			 * Optional parameters for the JSON-RPC method
 			 *
 			 * @attribute params
 			 * @type string (JSON)
 			 * @default ''
 			 */
-			params: null,
-
+			params: '',
 			/**
-			 * The response for the current request, or null if it hasn't
-			 * completed yet or the request resulted in error.
+			 * Returns the response object.
 			 *
 			 * @attribute response
 			 * @type Object
 			 * @default null
 			 */
 			response: null,
-
 			/**
-			 * The error for the current request, or null if it hasn't
-			 * completed yet or the request resulted in success.
+			 * HTTP request headers to send.
 			 *
-			 * @attribute error
+			 * Example:
+			 *
+			 *     <simpl-rpc-ajax auto 
+			 *         headers='{"X-Requested-With": "XMLHttpRequest"}'
+			 *         handleAs="json"
+			 *         on-response="{{handleResponse}}">
+			 *     </simpl-rpc>
+			 *
+			 * @attribute headers
 			 * @type Object
 			 * @default null
 			 */
-			error: null,
-
-			/**
-			 * Whether the current request is currently loading.
-			 *
-			 * @attribute loading
-			 * @type boolean
-			 * @default false
-			 */
-			loading: false,
-			sync: false,
-
-			service: '',
-
-			method: '',
-
+			request_id: 1,
+			headers: null,
 			ready: function() {
-				this.xhr = document.createElement('core-xhr');
+				console.log( "Ready:" )
+				this.xhr = document.createElement( 'core-xhr' );
+				console.log( "xhr:", this.xhr )
 			},
-
-			receive: function(response, xhr) {
-				if (this.isSuccess(xhr)) {
-					this.processResponse(xhr);
+			receive: function( response, xhr ) {
+				if ( this.isSuccess( xhr ) ) {
+					this.processResponse( xhr );
 				} else {
-					this.processError(xhr);
+					this.error( xhr );
 				}
-				this.complete(xhr);
+				this.complete( xhr );
 			},
-
-			isSuccess: function(xhr) {
+			isSuccess: function( xhr ) {
 				var status = xhr.status || 0;
-				return !status || (status >= 200 && status < 300);
+				return !status || ( status >= 200 && status < 300 );
 			},
-
-			processResponse: function(xhr) {
-				var response = this.evalResponse(xhr);
-				if (xhr === this.activeRequest) {
-					this.response = response;
-				}
-				this.fire('rpc-response', {
+			processResponse: function( xhr ) {
+				var response = this.evalResponse( xhr );
+				this.response = response;
+				this.fire( 'response', {
 					response: response,
 					xhr: xhr
-				});
+				} );
 			},
-
-			processError: function(xhr) {
+			error: function( xhr ) {
 				var response = xhr.status + ': ' + xhr.responseText;
-				if (xhr === this.activeRequest) {
-					this.error = response;
-				}
-				this.fire('rpc-error', {
+				this.fire( 'error', {
 					response: response,
 					xhr: xhr
-				});
+				} );
 			},
-
-
-			complete: function(xhr) {
-				if (xhr === this.activeRequest) {
-					this.loading = false;
-				}
-				this.fire('rpc-complete', {
+			complete: function( xhr ) {
+				this.fire( 'complete', {
 					response: xhr.status,
 					xhr: xhr
-				});
+				} );
 			},
-
-			evalResponse: function(xhr) {
-				return this[(this.handleAs || 'text') + 'Handler'](xhr);
-			},
-
-			xmlHandler: function(xhr) {
-				return xhr.responseXML;
-			},
-
-			textHandler: function(xhr) {
-				return xhr.responseText;
-			},
-
-			jsonHandler: function(xhr) {
+			evalResponse: function( xhr ) {
 				var r = xhr.responseText;
 				try {
-					return JSON.parse(r);
-				} catch (x) {
-					console.warn('core-ajax caught an exception trying to parse response as JSON:');
-					console.warn('url:', this.url);
-					console.warn(x);
+					var response = JSON.parse( r );
+					// TODO: Add error checking
+					return response.result;
+				} catch ( x ) {
 					return r;
 				}
 			},
-
-			documentHandler: function(xhr) {
-				return xhr.response;
+			getId: function() {
+				return this.request_id++;
 			},
-
-			blobHandler: function(xhr) {
-				return xhr.response;
+			urlChanged: function() {
+				this.autoGo();
 			},
-
-			arraybufferHandler: function(xhr) {
-				return xhr.response;
+			paramsChanged: function() {
+				this.autoGo();
 			},
-
+			autoChanged: function() {
+				this.autoGo();
+			},
+			autoGo: function() {
+				if ( this.auto ) {
+					this.goJob = this.job( this.goJob, this.go, 0 );
+				}
+			},
 			/**
-			 * Performs an Ajax request to the specified URL.
+			 * Performs an Ajax request to the url specified.
 			 *
 			 * @method go
 			 */
 			go: function() {
-				console.log("GO");
-				var args = {};
-				var params = this.params || "{}";
-				if (params && typeof(params) == 'string') {
-					params = JSON.parse(params);
+				var args = this.xhrArgs || {};
+				args.headers = this.headers || {};
+				if ( args.headers && typeof( args.headers ) == 'string' ) {
+					args.headers = JSON.parse( args.headers );
 				}
-				args.body = JSON.stringify({
-					"service": this.service,
-					"method": this.method,
-					"params": params
-				});
-				var namespace = params.namespace || 'xyz';
-				args.params = null;
-				console.log("RPC.Body:" + args.body);
-				var username = "admin";
-				var password = "admin";
-				args.headers = {};
-				args.headers['Authorization'] = 'Basic ' + btoa(username + ":" + password)
-				args.headers['Content-Type'] = 'application/json; charset=utf-8';
-				if (this.handleAs === 'arraybuffer' || this.handleAs === 'blob' || this.handleAs === 'document') {
-					args.responseType = this.handleAs;
-				}
-				args.callback = this.receive.bind(this);
-				args.url = "/rpc/" + namespace + "/" + this.service;
+				args.headers[ 'Content-Type' ] = 'application/json';
+				var username = simpl4.util.Rpc._getUserName();
+				var password = simpl4.util.Rpc._getPassword();
+				args.headers[ 'Authorization' ] = 'Basic ' + btoa( username + ":" + password );
+				args.callback = this.receive.bind( this );
+				args.url = this.url;
 				args.method = 'POST';
-				this.response = this.error = null;
-				args.sync = this.sync;
-				this.activeRequest = args.url && this.xhr.request(args);
-				if (this.activeRequest) {
-					this.loading = true;
-					var activeRequest = this.activeRequest;
+				var body = {
+					jsonrpc: '2.0',
+					method: this.method,
+					service: this.service,
+					id: this.getId()
+				};
+				if ( this.params ) {
+					body.params = JSON.parse( this.params );
 				}
-				if( this.sync){
-						var ret = this.evalResponse(this.activeRequest);
-						if( ret && ret.result){
-							return JSON.parse(ret.result);
-						}else if( ret && ret.error ){
-							throw ret.error;
-						}
-						return ret;
-				}else{
-					return this.activeRequest;
-				}
-			},
-			request: function() {
-				var self = this;
-				return new Promise(function(resolve, reject) {
-					var xhr = self.go();
-					xhr.onload = function() {
-						if (self.isSuccess(xhr)) {
-							var response = self.evalResponse(xhr);
-							console.debug("RPC(" + self.service + "," + self.method + ").response:", response);
-							if( response && response.error && response.error.code !== 0){
-								console.log("Error:",response.error);
-								reject({
-									response: response.error,
-									xhr: xhr
-								});
-							}else{
-								if( response && response.result){
-									resolve({
-										response: JSON.parse(response.result),
-										xhr: xhr
-									});
-								}else{
-									resolve({
-										response: response,
-										xhr: xhr
-									});
-								}
-							}
-						} else {
-							var response = xhr.status + ': ' + xhr.responseText;
-							reject({
-								response: Error(response),
-								xhr: xhr
-							});
-						}
-					};
-					// Handle network errors
-					xhr.onerror = function() {
-						reject(Error("Network Error"));
-					};
-				});
+				args.body = JSON.stringify( body, null, 2 );
+				console.log( "xhr2:", args.body )
+				return this.xhr.request( args );
 			}
-		});
+		} );
+
 	</script>
 </polymer-element>
