@@ -48,14 +48,23 @@ public class GroovyRegistry implements Registry {
 		m_bundleContect=bc;
 	}
 
-	public Object lookupByName(String name) {
-		debug("lookupByName1:" + name);
+
+	private Object _lookupByNameType (String name,Class type) {
+		debug("_lookupByNameAndType1:" + name);
 		Object obj = getObjectFromFileSystemClassloader(name);
-		if( obj == null){
+		if( obj == null || !canCast(obj,type)){
 			obj = getDataSource(name);
 		}
-		debug("lookupByName2:" + obj);
+		debug("_lookupByNameAndType2:" + obj);
 		return obj;
+	}
+	private boolean canCast(Object obj, Class type){
+		if( type == null) return false;
+		try {
+			return type.cast(obj) != null;
+		} catch (Throwable e) {
+			return false;
+		}
 	}
 
 	private Object getDataSource(String name){
@@ -84,9 +93,13 @@ public class GroovyRegistry implements Registry {
 		}
 		return null;
 	}
+
+	public Object lookupByName(String name) {
+		return _lookupByNameType(name,null);
+	}
 	public <T> T lookupByNameAndType(String name, Class<T> type) {
 		debug("lookupByNameAndType:" + name + "/" + type);
-		Object answer = lookupByName(name);
+		Object answer = _lookupByNameType(name,type);
 		if (answer == null) {
 			return null;
 		}
