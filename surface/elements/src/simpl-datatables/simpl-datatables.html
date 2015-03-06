@@ -198,7 +198,7 @@
 	</template>
 	<script>
 		Polymer( {
-			multiSelect:false,
+			multiSelect: false,
 			dtTable: null,
 			ready: function() {},
 			domReady: function() {
@@ -206,12 +206,11 @@
 			},
 			createTable: function( dtMeta, dataSet, options ) {
 				this.dataSet = dataSet;
-				if ( options ) {} else if ( this.options ) {
-					if ( typeof this.options == 'string' ) {
-						options = JSON.parse( this.options );
-					} else {
-						options = this.options;
-					}
+				console.log( "dataTables.options:", this.options );
+				if ( options ) {
+					options = this.parseOptions( options );
+				} else if ( this.options ) {
+					options = this.parseOptions( this.options );
 				} else {
 					options = {};
 				}
@@ -225,7 +224,7 @@
 						new jQuery.fn.dataTable.Responsive( settings );
 					} );
 				}
-				if( dataSet && dataSet.length< 10){
+				if ( dataSet && dataSet.length < 10 ) {
 					options.dom = "t";
 				}
 				this.dtTable = dtMainElem.DataTable( jQuery.extend( {
@@ -258,9 +257,9 @@
 				var rows = this.dtTable.rows().nodes();
 				$( rows ).on( 'tap', ( function( e ) {
 					self.currentRowIndex = e.currentTarget._DT_RowIndex;
-					if( self.multiSelect){
+					if ( self.multiSelect ) {
 						self.tapActionMulti( e, this, false );
-					}else{
+					} else {
 						self.tapActionSingle( e, this, false );
 					}
 				} ) );
@@ -271,15 +270,15 @@
 				}
 				this.unselectAll();
 				$( t ).addClass( 'selected' );
-				var sel = this.copySelection(this.dtTable.rows('.selected').data());
+				var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
 				this.fire( "rows-selected", {
 					rows: sel
 				} );
 				this.selection = sel;
 			},
 			tapActionMulti: function( e, t, double ) {
-				$(t).toggleClass('selected');
-				var sel = this.copySelection(this.dtTable.rows('.selected').data());
+				$( t ).toggleClass( 'selected' );
+				var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
 				this.fire( "rows-selected", {
 					rows: sel
 				} );
@@ -294,20 +293,22 @@
 			unselectAll: function() {
 				this.q( 'tr.selected' ).removeClass( 'selected' );
 			},
-			copySelection:function(sel){
+			copySelection: function( sel ) {
 				var raw = [];
-				for(var i=0; i < sel.length;i++){
-					raw.push(sel[i]);
+				for ( var i = 0; i < sel.length; i++ ) {
+					raw.push( sel[ i ] );
 				}
 				return raw;
 			},
-			_metaChanged: function() {
-			},
+			_metaChanged: function() {},
 			dataChanged: function() {
-				this.preparedMeta = this.prepareMeta( this.meta );
-				console.log("dataChanged.Meta:"+JSON.stringify(this.meta,null,2));
-				console.log("dataChanged.Options:"+JSON.stringify(this.options,null,2));
-				this.createTable( this.preparedMeta, this.data,this.options );
+				if ( this.meta == null ) {
+					this.preparedMeta = this.prepareMetaFromData( this.data );
+				} else {
+					this.preparedMeta = this.prepareMeta( this.meta );
+				}
+				console.log( "dataChanged.Meta:" + JSON.stringify( this.preparedMeta, null, 2 ) );
+				this.createTable( this.preparedMeta, this.data, this.options );
 			},
 			prepareMeta: function( meta ) {
 				var fields = meta.fields;
@@ -327,6 +328,32 @@
 					ret.push( col );
 				}, this );
 				return ret;
+			},
+			prepareMetaFromData: function( data ) {
+				if ( data == null ) return;
+				if ( !Array.isArray( data ) ) {
+					data = data.result;
+				}
+				if ( data.length == 0 ) {
+					return;
+				}
+				var ret = [];
+				var keys = Object.keys( data[ 0 ] );
+				keys.forEach( function( key ) {
+					var col = {
+						title: key,
+						data: key
+					}
+					ret.push( col );
+				}, this );
+				return ret;
+			},
+			parseOptions: function( o ) {
+				if ( o == null ) return;
+				if ( typeof o == 'string' ) {
+					o = JSON.parse( o );
+				}
+				return o;
 			},
 			getLang: function() {
 				return {
