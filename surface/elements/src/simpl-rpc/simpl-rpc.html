@@ -179,7 +179,7 @@
 				var args = this.xhrArgs || {};
 				args.headers = this.headers || {};
 				if ( args.headers && typeof( args.headers ) == 'string' ) {
-					args.headers = JSON.parse( args.headers );
+					args.headers = JSON5.parse( args.headers );
 				}
 				args.headers[ 'Content-Type' ] = 'application/json';
 				var username = simpl4.util.Rpc._getUserName();
@@ -195,7 +195,7 @@
 					id: this.getId()
 				};
 				if ( this.params ) {
-					body.params = JSON.parse( this.params );
+					body.params = JSON5.parse( this.params );
 				}
 				args.body = JSON.stringify( body, null, 2 );
 				console.log( "xhr2:", args.body )

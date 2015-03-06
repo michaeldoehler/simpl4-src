@@ -353,7 +353,7 @@
 			parseOptions: function( o ) {
 				if ( o == null ) return;
 				if ( typeof o == 'string' ) {
-					o = JSON.parse( o );
+					o = JSON5.parse( o );
 				}
 				return o;
 			},
