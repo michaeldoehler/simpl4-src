@@ -94,16 +94,16 @@
 			:host /deep/ #dataTablesId tfoot tr th {
 				background: white;
 			}
-			:host /deep/ #dataTablesId.no-footer {
+			:host /deep/ .dataTables_scroll {
 				border-bottom: 1px solid #e0e0e0;
-			}
-			:host /deep/ .dataTables_scrollBody #dataTablesId.no-footer {
-				border-bottom: 0px;
 			}
 			:host /deep/ #dataTablesId thead th,
 			:host /deep/ #dataTablesId thead td {
-				border-bottom: 1px solid #CBCBC4;
-				border-top: 1px solid #CBCBC4;
+				border-bottom: 1px solid #e0e0e0;
+				border-top: 1px solid #e0e0e0;
+			}
+			:host /deep/ #dataTablesId[aria-describedby] {
+				border-bottom: 1px solid #e0e0e0;
 			}
 			:host /deep/ #dataTablesId.border thead tr th:first-child {
 				border-left: 1px solid gray;
@@ -144,7 +144,7 @@
 			}
 			:host /deep/ #dataTablesId thead tr th,
 			:host /deep/ #dataTablesId tfoot tr th {
-				background: #F6f6f6;
+				background: white;
 			}
 			:host /deep/ #dataTablesId thead tr th:first-child {
 				padding: 0px 30px 0px;

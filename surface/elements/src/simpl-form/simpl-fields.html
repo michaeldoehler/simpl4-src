@@ -738,13 +738,13 @@
 
 		</style>
 
-		<div id="floatedLabel" class="floated-label">
+		<div id="floatedLabel" hidden?="{{label==null || label==''}}" class="floated-label">
 			<span class="label-text">{{label}}</span>
 		</div>
 		<div vertical layout style="height:{{height}}px;">
 			<simpl-datatables flex id="dataTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" meta="{{meta}}" data="{{tableData}}">
 			</simpl-datatables>
-			<hr style="width:100%;color:black;" />
+			<!--hr style="width:100%;color:black;" /-->
 			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
 				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}"></div>
 				<div class="error-text" role="alert" aria-hidden="{{!isInvalid}}">{{error}}&nbsp;&nbsp;</div>
