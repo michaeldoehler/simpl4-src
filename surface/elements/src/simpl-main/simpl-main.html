@@ -107,7 +107,9 @@
 		<core-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
 			<div vertical layout drawer>
 				<nav layout vertical fit style="background:{{logoBackground}};">
-					<img id="logo" src='{{logo}}' style="max-width:220px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+					<div>
+						<img id="logo" src='{{logo}}' style="max-width:220px;padding-left:5px;padding-top:3px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+					</div>
 					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
