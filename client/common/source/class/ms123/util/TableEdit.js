@@ -194,7 +194,7 @@ qx.Class.define("ms123.util.TableEdit", {
 					tcm.setDataCellRenderer(i, new ms123.util.DateRenderer());
 				}
 				if (col.type == "TextField") {
-					var f = new qx.ui.table.celleditor.TextField();
+					var f = new ms123.util.TableCellTextField(col);
 					tcm.setCellEditorFactory(i, f);
 					table.getTableModel().setColumnEditable(i, true);
 				}
@@ -367,6 +367,9 @@ qx.Class.define("ms123.util.TableEdit", {
 				if (!fieldData.type) {
 					fieldData.type = "TextField";
 					fieldData.readonly = true;
+				}
+				if (col.filter) {
+					fieldData.validation = {filter: col.filter};
 				}
 				formData[col.name] = fieldData;
 			}

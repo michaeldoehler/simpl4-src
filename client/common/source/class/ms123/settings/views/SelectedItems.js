@@ -110,6 +110,13 @@ qx.Class.define("ms123.settings.views.SelectedItems", {
 					header: "%settings.hide"
 				},
 				{
+					name: "tags",
+					type: "TextField",
+					width: 30,
+					header: "Tags",
+				  filter:/[a-zA-Z0-9_ ]/
+				},
+				{
 					name: "enabled",
 					type: "CheckBox",
 					width: 15,
