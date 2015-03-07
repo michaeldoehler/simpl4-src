@@ -134,7 +134,7 @@ class BaseDocbookServiceImpl {
 	}
 
 	protected void oryxToDocbook(String namespace, String json, OutputStream out, Map<String, Object> paramsIn, Map<String, String> paramsOut)  throws Exception{
-		DocbookBuilder db = new DocbookBuilder(m_dataLayer, m_bc);
+		DocbookBuilder db = new DocbookBuilder(m_dataLayer, m_bc, getAsciidoctor());
 		db.toDocbook(namespace, json, out, paramsIn, paramsOut);
 	}
 

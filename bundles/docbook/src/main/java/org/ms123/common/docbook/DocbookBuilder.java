@@ -48,6 +48,7 @@ import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
 import org.osgi.framework.BundleContext;
 import org.dbdoclet.trafo.html.docbook.*;
+import org.asciidoctor.Asciidoctor;
 
 /**
  *
@@ -62,9 +63,11 @@ class DocbookBuilder extends BaseBuilder {
 		add("region.after.extent");
 		add("region.before.extent");
 	}};
+	protected Asciidoctor m_asciidoctor;
 
-	DocbookBuilder(DataLayer dataLayer, BundleContext bc) {
+	DocbookBuilder(DataLayer dataLayer, BundleContext bc,Asciidoctor ad) {
 		super(dataLayer, bc);
+		m_asciidoctor=ad;
 	}
 
 	protected void toDocbook(String namespace, String json, OutputStream out, Map<String, Object> paramsIn, Map<String, String> paramsOut)  throws Exception{
@@ -319,6 +322,13 @@ System.out.println("handleRowGroup");
 					for (Object o : ol) {
 						content.add(o);
 					}
+				}else if( "asciidoctor".equals(syntax)){
+					String html = adocToHtml(markdown);
+					System.out.println("AfterAdoc:"+html);
+					DocBookTransformer tf = new DocBookTransformer();
+					String db = tf.transformFragment(html);
+					System.out.println("AfterDB:"+db);
+					addDBChunkToContent(content, db );
 				}else{
 					Context ctx = new Context(null, null, false, new HashMap(), new HashMap());
 					String html = xwikiToHtml(ctx, markdown);
@@ -343,9 +353,17 @@ System.out.println("handleRowGroup");
 			System.out.println("WikiParser.etime:" + (endTime - startTime) );
 		}
 	}
+	private String adocToHtml( String adoc) throws Exception {
+		Map<String, Object> options = new HashMap();
+		Map<String, Object> attributes = new HashMap();
+		attributes.put("icons", org.asciidoctor.Attributes.FONT_ICONS);
+		options.put("attributes", attributes);
+		options.put("safe", 0);
+		return m_asciidoctor.convert( adoc, options);
+	}
 	private void addDBChunkToContent(List content, String db) throws Exception{
 		if( db == null || db.trim().equals("")) return;
-		Document doc = new Builder().build( "<div>"+db+"</div>", null);
+		Document doc = new Builder().build( "<div xmlns:xl=\"http://www.w3.org/1999/xlink\">"+db+"</div>", null);
 		printXom(doc);
 		Element rootElement = (Element) doc.getRootElement().getChild(0);
 		System.out.println("childs:"+rootElement.getChildElements().size());

@@ -53,8 +53,8 @@ public class FOURIResolver implements URIResolver {
 	public Source resolve(String href, String base) throws TransformerException {
 		System.out.println("[FOURIResolver.resolve: href=" + href + " for base=" + base + "]");
 		String tmp = href.toLowerCase();
-		if (tmp.startsWith("repo:")) {
-			String file = href.substring(5);
+		if (true)/*tmp.startsWith("repo:"))*/ {
+			String file = tmp.startsWith("repo:") ? href.substring(5) : href;
 			String type = null;
 			if (tmp.endsWith(".svg")) {
 				type = "image/svg+xml";

@@ -25,4 +25,9 @@ public class Article extends Base {
 	public Article() {
 		super("article");
 	}
+	public Element toXom() {
+		Element e = super.toXom();
+		e.addNamespaceDeclaration("xl","http://www.w3.org/1999/xlink");
+		return e;
+	}
 }
