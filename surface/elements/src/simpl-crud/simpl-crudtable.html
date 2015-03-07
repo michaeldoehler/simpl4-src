@@ -28,6 +28,22 @@
 			paper-button {
 				font-size: 10px;
 			}
+			:host /deep/ td.phone {
+				padding:0px !important;
+			}
+			:host /deep/ a {
+				color: #888;
+				text-decoration: initial;
+				font-weight: 400;
+				padding: 4px !important;
+				font-size:11px;
+				min-width:70px;
+			}
+			:host /deep/ div.phone{
+  box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
+display:inline;
+max-width:70px;
+			}
 
 		</style>
 		<template if="{{dataSet}}">
@@ -63,9 +79,9 @@
 			editAction: function() {
 				if ( this.selection == null ) return;
 				this.fire( "edit-action", {
-					data: this.selection[0],
+					data: this.selection[ 0 ],
 					dataSet: this.dataSet,
-					rowIndex:this.currentRowIndex,
+					rowIndex: this.currentRowIndex,
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -75,7 +91,7 @@
 			showAction: function() {
 				if ( this.selection == null ) return;
 				this.fire( "show-action", {
-					data: this.selection[0],
+					data: this.selection[ 0 ],
 					entity: this.entity,
 					table: this,
 					entityChild: this.id,
@@ -85,13 +101,13 @@
 			detailAction: function() {
 				if ( this.selection == null ) return;
 				this.fire( "detail-action", {
-					data: this.selection[0]
+					data: this.selection[ 0 ]
 				} );
 			},
 			selectAction: function() {
 				if ( this.selection == null ) return;
 				this.fire( "select-action", {
-					data: this.selection[0]
+					data: this.selection[ 0 ]
 				} );
 			},
 			cancelAction: function() {
@@ -100,7 +116,7 @@
 			copyAction: function() {
 				if ( this.selection == null ) return;
 				this.fire( "copy-action", {
-					data: this.selection[0],
+					data: this.selection[ 0 ],
 					entity: this.entity,
 					entityChild: this.id,
 					table: this,
@@ -208,8 +224,8 @@
 				}, this );
 				return rows;
 			},
-			metaChanged:function(){
-				this.dtMeta = this.preProcessMeta(this.meta);
+			metaChanged: function() {
+				this.dtMeta = this.preProcessMeta( this.meta );
 			},
 			preProcessMeta: function( fields ) {
 				this.selectableList = {};
@@ -235,6 +251,7 @@
 					var col = {
 						title: f.title || tr( 'data.' + this.entity + '.' + f.name ),
 						data: dtName,
+						class:f.tags,
 						mRender: this.renderColumn
 					}
 					ret.push( col );
@@ -246,9 +263,14 @@
 				this.allModList.concat( this.datetimeList );
 				return ret;
 			},
-			renderColumn:function(data,type,row,meta){
-				var name = meta.settings.aoColumns[meta.col].mData;
-				return row[name];
+			renderColumn: function( data, type, row, meta ) {
+				var name = meta.settings.aoColumns[ meta.col ].mData;
+				var clazz = meta.settings.aoColumns[ meta.col ].sClass;
+				if ( clazz && clazz.toLowerCase().indexOf( "phone" ) > -1 ) {
+					return "<div class='phone'><a href='tel:" + row[ name ] + "'>" + row[ name ] + "</a></div>";
+				} else {
+					return row[ name ];
+				}
 			},
 			toMap: function( sel ) {
 				var map = {};
@@ -276,10 +298,10 @@
 					data = simpl4.util.Rpc.rpcSync( "data:query", filter.rpc );
 				} else {
 					var fields = null;
-					if( this.meta){
+					if ( this.meta ) {
 						fields = [];
-						for(var i=0; i< this.meta.length;i++){
-							fields.push(this.meta[i].name);
+						for ( var i = 0; i < this.meta.length; i++ ) {
+							fields.push( this.meta[ i ].name );
 						}
 					}
 					data = simpl4.util.Rpc.rpcSync( "data:query", {
@@ -287,7 +309,7 @@
 						pageSize: 100,
 						orderby: props.orderby,
 						entity: filter.entity,
-						fields:fields,
+						fields: fields,
 						filter: filter
 					} );
 				}
