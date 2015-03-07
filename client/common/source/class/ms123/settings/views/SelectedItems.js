@@ -80,6 +80,13 @@ qx.Class.define("ms123.settings.views.SelectedItems", {
 					header: "%settings.fillin"
 				},
 				{
+					name: "tags",
+					type: "TextField",
+					width: 30,
+					header: "Tags",
+				  filter:/[a-zA-Z0-9_ ]/
+				},
+				{
 					name: "readonly",
 					type: "CheckBox",
 					width: 15,
@@ -101,13 +108,6 @@ qx.Class.define("ms123.settings.views.SelectedItems", {
 				{
 					name: "displayname",
 					header: "%settings.displayname"
-				},
-				{
-					name: "hide",
-					type: "SelectBox",
-					width: 30,
-					options: [{value:null, label:"---"},{value:"phone",label:"Phone"},{value:"phone,tablet",label:"Phone,Tablet"}],
-					header: "%settings.hide"
 				},
 				{
 					name: "tags",
