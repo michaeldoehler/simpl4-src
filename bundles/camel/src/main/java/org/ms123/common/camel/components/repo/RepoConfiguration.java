@@ -28,9 +28,47 @@ public class RepoConfiguration {
 
 	private String path;
 
+	private String type;
+
 	private String newpath;
 
+	private String repo;
+	private String target;
+	private String header;
+
 	private RepoOperation operation;
+
+	public String getRepo() {
+		return repo;
+	}
+
+	public void setRepo(String repo) {
+		this.repo = repo;
+	}
+
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+	public String getHeader() {
+		return header;
+	}
+
+	public void setHeader(String header) {
+		this.header = header;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getPath() {
 		return path;

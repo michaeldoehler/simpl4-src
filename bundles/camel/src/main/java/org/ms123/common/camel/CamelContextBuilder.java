@@ -37,6 +37,7 @@ import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.apache.camel.support.EventNotifierSupport;
 import org.ms123.common.camel.components.*;
 import org.ms123.common.camel.components.groovytemplate.*;
+import org.ms123.common.camel.components.repo.*;
 import org.ms123.common.camel.trace.*;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
@@ -69,6 +70,7 @@ public class CamelContextBuilder {
 		sr.put("namespace", namespace);
 		sr.put("activiti", new ActivitiComponent());
 		sr.put("swdata", new SWDataComponent());
+		sr.put("repo", new RepoComponent());
 		sr.put("groovytemplate", new GroovyTemplateComponent());
 		TransactionService ts = (TransactionService) or.lookupByName(TransactionService.class.getName());
 		sr.put(org.springframework.transaction.PlatformTransactionManager.class.getName(), ts.getPlatformTransactionManager());

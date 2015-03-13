@@ -25,7 +25,6 @@ import org.ms123.common.camel.components.repo.producer.RepoDelProducer;
 import org.ms123.common.camel.components.repo.producer.RepoGetProducer;
 import org.ms123.common.camel.components.repo.producer.RepoMoveProducer;
 import org.ms123.common.camel.components.repo.producer.RepoPutProducer;
-import org.ms123.common.camel.components.repo.producer.RepoSearchProducer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +33,14 @@ public class RepoEndpoint extends DefaultEndpoint {
 
 	private static final transient Logger LOG = LoggerFactory.getLogger(RepoEndpoint.class);
 
-	private RepoConfiguration configuration;
+	private RepoConfiguration m_configuration;
 
 	public RepoEndpoint() {
 	}
 
 	public RepoEndpoint(String uri, RepoComponent component, RepoConfiguration configuration) {
 		super(uri, component);
-		this.configuration = configuration;
+		m_configuration = configuration;
 	}
 
 	public RepoEndpoint(String endpointUri) {
@@ -49,17 +48,15 @@ public class RepoEndpoint extends DefaultEndpoint {
 	}
 
 	public Producer createProducer() throws Exception {
-		LOG.info("resolve producer repo endpoint {" + configuration.getOperation().toString() + "}");
-		if (configuration.getOperation() == RepoOperation.put) {
-			return new RepoPutProducer(this, configuration);
-		} else if (this.configuration.getOperation() == RepoOperation.search) {
-			return new RepoSearchProducer(this, configuration);
-		} else if (this.configuration.getOperation() == RepoOperation.del) {
-			return new RepoDelProducer(this, configuration);
-		} else if (this.configuration.getOperation() == RepoOperation.get) {
-			return new RepoGetProducer(this, configuration);
-		} else if (this.configuration.getOperation() == RepoOperation.move) {
-			return new RepoMoveProducer(this, configuration);
+		LOG.info("resolve producer repo endpoint {" + m_configuration.getOperation().toString() + "}");
+		if (m_configuration.getOperation() == RepoOperation.put) {
+			return new RepoPutProducer(this, m_configuration);
+		} else if (m_configuration.getOperation() == RepoOperation.del) {
+			return new RepoDelProducer(this, m_configuration);
+		} else if (m_configuration.getOperation() == RepoOperation.get) {
+			return new RepoGetProducer(this, m_configuration);
+		} else if (m_configuration.getOperation() == RepoOperation.move) {
+			return new RepoMoveProducer(this, m_configuration);
 		} else {
 			throw new RuntimeException("operation specified is not valid for producer!");
 		}

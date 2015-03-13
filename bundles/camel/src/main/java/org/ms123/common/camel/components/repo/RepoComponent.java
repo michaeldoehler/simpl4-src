@@ -21,6 +21,7 @@ package org.ms123.common.camel.components.repo;
 import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
+import org.apache.camel.CamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,11 @@ public class RepoComponent extends DefaultComponent {
 		RepoConfiguration configuration = new RepoConfiguration();
 		// set options from component
 		configuration.setPath((String) parameters.get("path"));
-		configuration.setOperation(RepoOperation.valueOf(remaining));
+		configuration.setTarget((String) parameters.get("target"));
+		configuration.setHeader((String) parameters.get("header"));
+		configuration.setRepo((String) parameters.get("repo"));
+		configuration.setNewPath((String) parameters.get("newpath"));
+		configuration.setOperation(RepoOperation.valueOf((String) parameters.get("operation")));
 		// and then override from parameters
 		setProperties(configuration, parameters);
 		LOG.info("repo configuration set!");

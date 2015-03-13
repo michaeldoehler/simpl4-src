@@ -19,10 +19,14 @@
 package org.ms123.common.camel.components.repo.producer;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.CamelContext;
 import org.ms123.common.camel.components.repo.RepoConfiguration;
 import org.ms123.common.camel.components.repo.RepoEndpoint;
 import org.slf4j.Logger;
+import java.io.File;
 import org.slf4j.LoggerFactory;
+import org.ms123.common.git.GitService;
+import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
 public class RepoGetProducer extends RepoProducer {
 
@@ -34,5 +38,18 @@ public class RepoGetProducer extends RepoProducer {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		String path = configuration.getPath();
+		String repo = configuration.getRepo();
+		String type = configuration.getType();
+		String target = configuration.getTarget();
+		String header = configuration.getHeader();
+		GitService gitService = getGitService();
+		LOG.info("producer --> get:repo: " + repo + ",path:" + path + ",type:" + type);
+		File file = gitService.searchFile(repo, path, type);
+		if( "body".equals(target)){
+			exchange.getIn().setBody(readFileToByteArray(file));
+		}else{
+			exchange.getIn().setHeader(header, readFileToByteArray(file));
+		}
 	}
 }

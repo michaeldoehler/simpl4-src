@@ -21,6 +21,7 @@ package org.ms123.common.camel.components.repo.producer;
 import org.ms123.common.camel.components.repo.RepoConfiguration;
 import org.ms123.common.camel.components.repo.RepoEndpoint;
 import org.apache.camel.impl.DefaultProducer;
+import org.ms123.common.git.GitService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,14 @@ public abstract class RepoProducer extends DefaultProducer {
 		super(endpoint);
 		this.endpoint = endpoint;
 		this.configuration = configuration;
+	}
+
+	public GitService getGitService() {
+		return getByType(GitService.class);
+	}
+
+	private <T> T getByType(Class<T> kls) {
+		return kls.cast(endpoint.getCamelContext().getRegistry().lookupByName(kls.getName()));
 	}
 
 	@Override

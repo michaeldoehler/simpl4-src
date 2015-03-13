@@ -28,6 +28,7 @@ qx.Class.define("ms123.Application", {
 			//this._initTheme("ea");
 
 			ms123.util.RelationList;
+			ms123.util.RepoList;
 			this.__taskbars = {};
 			this.__desktops = {};
 			this.__topPanels = {};
