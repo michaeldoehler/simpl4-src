@@ -588,7 +588,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 									}
 									new obj( this.facade, formElement, config );								
 								}catch(e){
-									console.error("Editor.Ex:"+e);
+									console.error("Editor.Ex:"+e.stack);
 								}
 							}else{
 								items.each((function (value) {
