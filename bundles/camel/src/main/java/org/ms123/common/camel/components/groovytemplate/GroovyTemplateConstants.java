@@ -23,10 +23,11 @@ package org.ms123.common.camel.components.groovytemplate;
  */
 public final class GroovyTemplateConstants {
 
-	public static final String GROOVYTEMPLATE_RESOURCE_URI = "CamelGroovyTemplateResourceUri";
+	public static final String GROOVYTEMPLATE_RESOURCE_URI = "groovyTemplateResourceUri";
 
-	public static final String GROOVYTEMPLATE_VARIABLE_MAP = "CamelGroovyTemplateVariableMap";
-	public static final String GROOVYTEMPLATE = "CamelGroovyTemplate";
+	public static final String GROOVYTEMPLATE_VARIABLE_MAP = "groovyTemplateVariableMap";
+
+	public static final String GROOVYTEMPLATE = "groovyTemplate";
 
 	private GroovyTemplateConstants() {
 	}

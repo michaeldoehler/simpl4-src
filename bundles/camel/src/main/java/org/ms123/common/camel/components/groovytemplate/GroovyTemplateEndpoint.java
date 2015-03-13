@@ -97,7 +97,6 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 		Message out = exchange.getOut();
 		out.setBody(answer);
 		out.setHeaders(exchange.getIn().getHeaders());
-		out.setHeader(GroovyTemplateConstants.GROOVYTEMPLATE_RESOURCE_URI, getResourceUri());
 		out.setAttachments(exchange.getIn().getAttachments());
 	}
 
