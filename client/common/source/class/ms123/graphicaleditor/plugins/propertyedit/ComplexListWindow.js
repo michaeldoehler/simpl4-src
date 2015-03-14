@@ -480,7 +480,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				useResizeFrame: true
 			});
 			win.setLayout(new qx.ui.layout.Dock);
-			win.setWidth(700);
+			win.setWidth(500);
 			win.setHeight(400);
 			win.setAllowMaximize(false);
 			win.setAllowMinimize(false);
