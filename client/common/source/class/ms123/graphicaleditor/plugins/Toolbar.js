@@ -30,10 +30,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.Toolbar", {
 	construct: function (facade) {
 		this.base(arguments);
 		this.facade = facade;
-		this.setLayout(new qx.ui.layout.Grow());
+		this.setLayout(new qx.ui.layout.Dock());
 		var toolbar = new qx.ui.toolbar.ToolBar().set({});
 		toolbar.setSpacing(0);
-		this.add(toolbar);
+		this.add(toolbar,{edge:"west"});
 		this._toolbar = toolbar;
 		this.groupIndex = new Hash();
 
