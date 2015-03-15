@@ -107,6 +107,16 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		debug("properties:" + properties);
 		debug("headers:" + headers);
 
+
+		String returnSpec = getString(shape, "rpcReturn", "body");
+		List<String> returnHeaderList = new ArrayList();
+		List<Map> rh = getItemList(shape, "rpcReturnHeaders");
+		if( rh!=null){
+			for( Map<String,String> m : rh){
+				returnHeaderList.add( m.get("name"));
+			}
+		}
+
 		String routeId = getId(shape);
 		Route route = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT)).getRoute(routeId);
 		if( route == null){
@@ -115,7 +125,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
-			answer = m_camelService.camelSend(ns, route.getEndpoint(), body.keySet().size()>0 ? body:null, headers, properties);
+			answer = m_camelService.camelSend(ns, route.getEndpoint(), body.keySet().size()>0 ? body:null, headers, properties,returnSpec, returnHeaderList);
 			debug("Answer:" + answer);
 		} catch (Exception e) {
 			e.printStackTrace();

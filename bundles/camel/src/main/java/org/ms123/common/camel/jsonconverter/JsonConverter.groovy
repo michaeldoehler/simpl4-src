@@ -373,6 +373,12 @@ class RepoEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class XDocReportEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class HttpClientEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);

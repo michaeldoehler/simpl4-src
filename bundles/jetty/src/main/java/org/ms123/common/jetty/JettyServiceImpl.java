@@ -130,6 +130,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("woff", "application/x-font-woff");
 		result.put("woff.gz", "application/x-font-woff");
 		result.put("svg", "image/svg+xml");
+		result.put("odt", "application/vnd.oasis.opendocument.text");
 		return Collections.unmodifiableMap(result);
 	}
 

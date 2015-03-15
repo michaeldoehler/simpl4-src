@@ -272,7 +272,9 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/secondstring-20140225.bar \
   scan-bundle:file:$REPOSITORY/shiro-aspectj-1.2.0.jar \
   scan-bundle:file:$REPOSITORY/shiro-core-1.2.0.jar \
-  scan-bundle:file:$REPOSITORY/freemarker-2.3.15.bar \
+	scan-bundle:file:$REPOSITORY/xdocreport-1.0.5.jar \
+	scan-bundle:file:$REPOSITORY/freemarker-2.3.20.jar \
+	scan-bundle:file:$REPOSITORY/velocity-1.7.jar \
   scan-bundle:file:$REPOSITORY/sojo-1.0.0.bar \
 	scan-bundle:file:$REPOSITORY/sshd-core-0.12.0.jar \
   scan-bundle:file:$REPOSITORY/tika-core-1.5-SNAPSHOT.jar \

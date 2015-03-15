@@ -277,6 +277,60 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		return answer;
 	}
 
+	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties,String returnSpec, List<String> returnHeaderList) {
+		Processor p = new Processor() {
+
+			public void process(Exchange exchange) {
+				if (properties != null) {
+					for (String key : properties.keySet()) {
+						exchange.setProperty(key, properties.get(key));
+					}
+				}
+				Message in = exchange.getIn();
+				if (headers != null) {
+					for (String key : headers.keySet()) {
+						in.setHeader(key, headers.get(key));
+					}
+				}
+				in.setBody(body);
+			}
+		};
+		ProducerTemplate template = getCamelContext(ns, CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		Exchange exchange = template.send(endpoint, p);
+
+		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);
+		if( "body".equals(returnSpec)){
+			return ExchangeHelper.extractResultBody(exchange, null);
+		}else if( "headers".equals(returnSpec)){
+			Map<String, Object> camelVarMap = new HashMap();
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		}else if( "bodyAndHeaders".equals(returnSpec)){
+			Map<String, Object> camelVarMap = new HashMap();
+			if (camelBody instanceof Map<?, ?>) {
+				Map<?, ?> camelBodyMap = (Map<?, ?>) camelBody;
+				for (@SuppressWarnings("rawtypes") Map.Entry e : camelBodyMap.entrySet()) {
+					if (e.getKey() instanceof String) {
+						camelVarMap.put((String) e.getKey(), e.getValue());
+					}
+				}
+			} else {
+				camelVarMap.put("body", camelBody);
+			}
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		}
+		return null;
+	}
+
 	@Reference(target = "(kind=jdo)", dynamic = true, optional = true)
 	public void setDataLayer(DataLayer dataLayer) {
 		info("CamelServiceImpl.setDataLayer:" + dataLayer);

@@ -35,6 +35,7 @@ public interface CamelService {
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties);
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);
 	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);
+	public Object camelSend(String ns, Endpoint endpoint, final Object body, final Map<String, Object> headers, final Map<String, Object> properties, String returnSpec,List<String> returnHeaderList);
 	public Object camelSend(String ns, String routeName,Map<String, Object> properties);
 	public Object camelSend(String ns, String routeName,Object body, Map<String, Object> headers, Map<String, Object> properties);
 }

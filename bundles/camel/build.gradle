@@ -34,6 +34,7 @@ dependencies {
   compile files("${repository}/servlet-api-2.5.jar")
   compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/spring-tx-3.2.5.RELEASE.jar")
+	compile files("${repository}/xdocreport-1.0.5.jar")
 	compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
   compile files('build/classes/main')
 }

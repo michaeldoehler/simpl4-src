@@ -16,32 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components.repo;
+package org.ms123.common.camel.components.xdocreport;
 
 import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
-import org.apache.camel.CamelContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.camel.util.ResourceHelper;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 
-public class RepoComponent extends DefaultComponent {
-
-	private static final transient Logger LOG = LoggerFactory.getLogger(RepoComponent.class);
+/**
+ * @version 
+ */
+public class XDocReportComponent extends DefaultComponent {
 
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-		RepoConfiguration configuration = new RepoConfiguration();
-		// set options from component
-		configuration.setPath((String) parameters.get("path"));
-		configuration.setTarget((String) parameters.get("target"));
-		configuration.setHeader((String) parameters.get("header"));
-		configuration.setRepo((String) parameters.get("repo"));
-		configuration.setNewPath((String) parameters.get("newpath"));
-		configuration.setOperation(RepoOperation.valueOf(remaining));
-		// and then override from parameters
-		setProperties(configuration, parameters);
-		LOG.info("repo configuration set!");
-		Endpoint endpoint = new RepoEndpoint(uri, this, configuration);
+		XDocReportEndpoint endpoint = new XDocReportEndpoint(uri, this, remaining);
+		endpoint.setTemplateEngineKind(TemplateEngineKind.valueOf(remaining));
+		setProperties(endpoint, parameters);
 		return endpoint;
 	}
 }

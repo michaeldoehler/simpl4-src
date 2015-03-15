@@ -128,6 +128,7 @@ public class GitServiceImpl implements GitService {
 			add("text/x-yaml");
 			add("text/javascript");
 			add("application/json");
+			add("application/vnd.oasis.opendocument.text");
 		}
 	};
 
@@ -290,13 +291,16 @@ public class GitServiceImpl implements GitService {
 	}
 
 	public List getRepositories() throws RpcException {
+System.out.println("getRepositories0;");
 		return getRepositories(new ArrayList());
 	}
 
 	public List getRepositories(List<String> flags) throws RpcException {
+System.out.println("getRepositories1;"+flags);
 		return getRepositories(flags,false);
 	}
 	public List getRepositories(List<String> flags, boolean all) throws RpcException {
+System.out.println("getRepositories2;"+flags+"/"+all);
 		try {
 			String gitSpace = System.getProperty("git.repos");
 			File dir = new File(gitSpace);
@@ -445,16 +449,16 @@ public class GitServiceImpl implements GitService {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:Repo(" + repoName + ") not exists");
 			}
 			List<String> pathList = null;
-			if( name.indexOf("/")>=0){
+			//if( name.indexOf("/")>=0){
 				File f = new File(gitDir,name);
-				if( f.exists() && getFileType(f).equals(type)){
+				if( f.exists() && (isEmpty(type) || getFileType(f).equals(type))){
 					info("searchFile.found:"+f);
 					return f;
 				}
-				pathList = new ArrayList();
-			}else{
+				//pathList = new ArrayList();
+			//}else{
 				pathList = assetList(repoName, name, type, true);
-			}
+			//}
 			long endTime = new Date().getTime();
 			debug("searchFile.time:" + (endTime - startTime));
 			if (pathList.size() == 0) {
@@ -1136,6 +1140,8 @@ public class GitServiceImpl implements GitService {
 			return "text/x-yaml";
 		}else if( file.toString().endsWith(".json") || file.toString().endsWith(".json.gz")){
 			return "application/json";
+		}else if( file.toString().endsWith(".odt")){
+			return "application/vnd.oasis.opendocument.text";
 		}else if( file.toString().endsWith(".groovy")){
 			return "sw.groovy";
 		}
@@ -1243,6 +1249,13 @@ public class GitServiceImpl implements GitService {
 		return "swstore.ms123.org";
 	}
 
+	private boolean isEmpty(Object o) {
+		if (o instanceof String) {
+			String s = (String) o;
+			return (s == null || "".equals(s.trim()) || "all".equals(s.trim().toLowerCase()));
+		}
+		return o == null;
+	}
 	private static class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 
 		@Override

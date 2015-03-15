@@ -16,19 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components.repo.producer;
+package org.ms123.common.camel.components.xdocreport;
 
-import org.apache.camel.Exchange;
-import org.ms123.common.camel.components.repo.RepoConfiguration;
-import org.ms123.common.camel.components.repo.RepoEndpoint;
+/**
+ * XDocReport constants.
+ */
+public final class XDocReportConstants {
 
-public class RepoSearchProducer extends RepoProducer {
+	public static final String XDOCREPORT_RESOURCE_URI = "xdocReportResourceUri";
 
-	public RepoSearchProducer(RepoEndpoint endpoint, RepoConfiguration configuration) {
-		super(endpoint, configuration);
-	}
+	public static final String XDOCREPORT_DATA = "xdocreportDATA";
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+	public static final String XDOCREPORT_ODT = "xdocreportODT";
+
+	private XDocReportConstants() {
 	}
 }

@@ -44,12 +44,16 @@ public class RepoGetProducer extends RepoProducer {
 		String target = configuration.getTarget();
 		String header = configuration.getHeader();
 		GitService gitService = getGitService();
-		LOG.info("producer --> get:repo: " + repo + ",path:" + path + ",type:" + type);
+		info("producer --> get:repo: " + repo + ",path:" + path + ",type:" + type+"/target:"+target);
 		File file = gitService.searchFile(repo, path, type);
 		if( "body".equals(target)){
 			exchange.getIn().setBody(readFileToByteArray(file));
 		}else{
 			exchange.getIn().setHeader(header, readFileToByteArray(file));
 		}
+	}
+	private void info(String msg) {
+		System.out.println(msg);
+		LOG.info(msg);
 	}
 }

@@ -61,6 +61,8 @@ qx.Class.define("ms123.shell.FileType", {
 					return "resource/ms123/png.png";
 				}else if (type == "image/jpg") {
 					return "resource/ms123/jpg.png";
+				}else if (type == "application/vnd.oasis.opendocument.text") {
+					return "resource/ms123/odt.png";
 				} else if (type == ms123.shell.Config.RULE_FT) {
 					return ms123.shell.FileType._getIconUrl("bpmn/activity/list/type.business.rule.png");
 				} else if (type == ms123.shell.Config.DOCUMENT_FT) {
@@ -86,7 +88,7 @@ qx.Class.define("ms123.shell.FileType", {
 				return  ["image/svg+xml", "text/html","text/x-asciidoc","text/x-yaml","text/css", "application/json"];
 		},
 		getAllForeigns:function(){
-				return  ["image/png","image/jpg","image/jpg", "image/svg+xml", "text/html", "text/x-asciidoc","text/x-yaml","text/css", "application/json"];
+				return  ["image/png","image/jpg","image/jpg", "application/vnd.oasis.opendocument.text", "image/svg+xml", "text/html", "text/x-asciidoc","text/x-yaml","text/css", "application/json"];
 		},
 		_getIconUrl: function (name) {
 			var am = qx.util.AliasManager.getInstance(name);
@@ -103,6 +105,7 @@ qx.Class.define("ms123.shell.FileType", {
 			iconMap["text/x-asciidoc"]= "resource/ms123/asciidoc.png";
 			iconMap["text/x-yaml"]= "resource/ms123/yaml.png";
 			iconMap["application/json"]= "resource/ms123/json.png";
+			iconMap["application/vnd.oasis.opendocument.text"]= "resource/ms123/odt.png";
 			iconMap[ms123.shell.Config.PROCESS_FT]= "icon/16/actions/system-run.png";
 			iconMap[ms123.shell.Config.WEBSITE_FT]= "icon/16/categories/internet.png";
 			iconMap[ms123.shell.Config.WEBPAGE_FT]= "resource/ms123/webpage.png";
