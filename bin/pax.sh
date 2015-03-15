@@ -171,6 +171,7 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/commons-codec-1.9.jar \
 	scan-bundle:file:$REPOSITORY/commons-digester-1.8.bar \
 	scan-bundle:file:$REPOSITORY/commons-email-1.3.1.jar \
+	scan-bundle:file:$REPOSITORY/commons-validator-1.4.0.jar \
   scan-bundle:file:$REPOSITORY/commons-exec-1.1.jar \
   scan-bundle:file:$REPOSITORY/com.springsource.org.jaxen-1.1.1.jar \
   scan-bundle:file:$REPOSITORY/connector-api-1.5.bar \
@@ -274,6 +275,15 @@ ${localbundles} \
   scan-bundle:file:$REPOSITORY/shiro-core-1.2.0.jar \
 	scan-bundle:file:$REPOSITORY/xdocreport-1.0.5.jar \
 	scan-bundle:file:$REPOSITORY/freemarker-2.3.20.jar \
+	scan-bundle:file:$REPOSITORY/xercesImpl-2.11.0.bar \
+	scan-bundle:file:$REPOSITORY/java-rdfa-0.4.2.bar \
+	scan-bundle:file:$REPOSITORY/jena-arq-2.13.0.bar \
+	scan-bundle:file:$REPOSITORY/jena-core-2.13.0.bar \
+	scan-bundle:file:$REPOSITORY/jena-iri-1.1.2.bar \
+  scan-bundle:file:$REPOSITORY/itextpdf-5.1.0.jar \
+  scan-bundle:file:$REPOSITORY/odfdom-java-0.8.10-incubating.bar \
+  scan-bundle:file:$REPOSITORY/org.odftoolkit.odfdom.converter.pdf.itext5-1.0.5.jar \
+  scan-bundle:file:$REPOSITORY/org.odftoolkit.odfdom.converter.core-1.0.5.jar \
 	scan-bundle:file:$REPOSITORY/velocity-1.7.jar \
 	scan-bundle:file:$REPOSITORY/oro-2.0.8.bar \
   scan-bundle:file:$REPOSITORY/sojo-1.0.0.bar \

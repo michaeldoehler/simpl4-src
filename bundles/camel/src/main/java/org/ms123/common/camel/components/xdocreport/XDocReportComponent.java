@@ -33,6 +33,7 @@ public class XDocReportComponent extends DefaultComponent {
 		XDocReportEndpoint endpoint = new XDocReportEndpoint(uri, this, remaining);
 		endpoint.setTemplateEngineKind(TemplateEngineKind.valueOf(remaining));
 		endpoint.setHeaderfields((String) parameters.get("headerfields"));
+		endpoint.setOutputformat((String) parameters.get("outputformat"));
 		setProperties(endpoint, parameters);
 		return endpoint;
 	}

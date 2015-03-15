@@ -38,6 +38,9 @@ import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.core.document.DocumentKind;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import java.security.MessageDigest;
@@ -48,6 +51,7 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 
 	private TemplateEngineKind m_templateEngineKind = TemplateEngineKind.Freemarker;
 	private String m_headerFields;
+	private String m_outputformat;
 
 	public XDocReportEndpoint() {
 	}
@@ -80,6 +84,14 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 
 	public String getHeaderfields() {
 		return m_headerFields;
+	}
+
+	public void setOutputformat(String t) {
+		m_outputformat = t;
+	}
+
+	public String getOutputformat() {
+		return m_outputformat;
 	}
 
 
@@ -115,7 +127,12 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 		IContext context = report.createContext();
 		context.putMap(variableMap);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		report.process(context, out);
+		if( "pdf".equals(getOutputformat() )){
+			Options options = Options.getTo(ConverterTypeTo.PDF);
+			report.convert(context, options, out);
+		}else{
+			report.process(context, out);
+		}
 		Message mout = exchange.getOut();
 		out.close();
 		mout.setBody(out.toByteArray());
