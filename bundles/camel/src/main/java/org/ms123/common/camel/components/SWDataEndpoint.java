@@ -38,6 +38,7 @@ public class SWDataEndpoint extends DefaultEndpoint {
 	private String m_namespace;
 
 	private String m_filterName;
+	private String m_resultHeader;
 
 	private String m_objectId;
 
@@ -90,6 +91,14 @@ public class SWDataEndpoint extends DefaultEndpoint {
 
 	public String getFilterName() {
 		return m_filterName;
+	}
+
+	public void setResultHeader(String data) {
+		this.m_resultHeader = data;
+	}
+
+	public String getResultHeader() {
+		return m_resultHeader;
 	}
 
 	public void setEntityType(String data) {

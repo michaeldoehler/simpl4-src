@@ -24,8 +24,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.apache.camel.Component;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
@@ -45,6 +47,7 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 
 
 	private TemplateEngineKind m_templateEngineKind = TemplateEngineKind.Freemarker;
+	private String m_headerFields;
 
 	public XDocReportEndpoint() {
 	}
@@ -67,16 +70,36 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 	public TemplateEngineKind getTemplateEngineKind() {
 		return m_templateEngineKind;
 	}
-
 	public void setTemplateEngineKind(TemplateEngineKind t) {
 		m_templateEngineKind = t;
 	}
 
+	public void setHeaderfields(String t) {
+		m_headerFields = t;
+	}
+
+	public String getHeaderfields() {
+		return m_headerFields;
+	}
+
+
 	@Override
 	protected void onExchange(Exchange exchange) throws Exception {
+		List<String> headerList=null;	
+		if( m_headerFields!=null){
+			headerList = Arrays.asList(m_headerFields.split(","));
+		}else{
+			headerList = new ArrayList();
+		}
 		Map<String, Object> variableMap = exchange.getIn().getHeader(XDocReportConstants.XDOCREPORT_DATA, Map.class);
 		if (variableMap == null) {
-			variableMap = ExchangeHelper.createVariableMap(exchange);
+			//variableMap = ExchangeHelper.createVariableMap(exchange);
+			variableMap = new HashMap();
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( headerList.size()==0 || headerList.contains( header.getKey())){
+					variableMap.put(header.getKey(), header.getValue());
+				}
+			}
 		}
 		byte[] bytes = exchange.getIn().getHeader(XDocReportConstants.XDOCREPORT_ODT, byte[].class);
 		if (bytes != null) {
@@ -85,9 +108,7 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 		if (bytes == null) {
 			bytes = exchange.getIn().getBody(byte[].class);
 		}
-		Map m = new HashMap();
-		m.put("name", "ProjectXXX");
-		variableMap.put("project", m);
+		info("variableMap:"+ variableMap);
 
 		InputStream in = new ByteArrayInputStream(bytes);
 		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, m_templateEngineKind);

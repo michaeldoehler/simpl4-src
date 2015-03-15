@@ -32,6 +32,7 @@ public class XDocReportComponent extends DefaultComponent {
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		XDocReportEndpoint endpoint = new XDocReportEndpoint(uri, this, remaining);
 		endpoint.setTemplateEngineKind(TemplateEngineKind.valueOf(remaining));
+		endpoint.setHeaderfields((String) parameters.get("headerfields"));
 		setProperties(endpoint, parameters);
 		return endpoint;
 	}

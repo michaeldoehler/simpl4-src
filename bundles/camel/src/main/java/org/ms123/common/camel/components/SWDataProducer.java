@@ -44,6 +44,7 @@ import org.ms123.common.system.ThreadContext;
 public class SWDataProducer extends DefaultProducer {
 
 	private String m_filterName = null;
+	private String m_resultHeader = null;
 
 	private String m_namespace = null;
 
@@ -75,6 +76,7 @@ public class SWDataProducer extends DefaultProducer {
 		m_options = endpoint.getOptions();
 		m_namespace = endpoint.getNamespace();
 		m_filterName = endpoint.getFilterName();
+		m_resultHeader = endpoint.getResultHeader();
 		m_objectId = endpoint.getObjectId();
 		m_entityType = endpoint.getEntityType();
 		m_lookupRelationObjectExpr = endpoint.getLookupRelationObjectExpr();
@@ -249,15 +251,21 @@ public class SWDataProducer extends DefaultProducer {
 
 	private void doFindById(Exchange exchange) {
 		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
+		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
 		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext();
 		Object ret = sc.getObjectMapById(m_entityType, m_objectId);
 		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findById);
-		resultMessage.setBody(ret);
+		if( resultHeader != null && resultHeader.length()>0){
+			resultMessage.setHeader(resultHeader, ret);
+		}else{
+			resultMessage.setBody(ret);
+		}
 	}
 
 	private void doFindByFilter(Exchange exchange) {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
+		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
 		Boolean disableStateSelect = getBoolean(exchange, SWDataConstants.DISABLE_STATESELECT, m_disableStateSelect);
 		Map options = m_options != null ? new HashMap(m_options) : new HashMap();
 		if( disableStateSelect){
@@ -274,11 +282,16 @@ public class SWDataProducer extends DefaultProducer {
 		}
 		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findByFilter);
 		resultMessage.setHeader(SWDataConstants.ROW_COUNT, result.size());
-		resultMessage.setBody(result);
+		if( resultHeader != null && resultHeader.length()>0){
+			resultMessage.setHeader(resultHeader, result);
+		}else{
+			resultMessage.setBody(result);
+		}
 	}
 
 	private void doFindOneByFilter(Exchange exchange) {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
+		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
 		SessionContext sc = getSessionContext();
 		Map result = null;
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
@@ -292,7 +305,11 @@ public class SWDataProducer extends DefaultProducer {
 		}
 		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findOneByFilter);
 		resultMessage.setHeader(SWDataConstants.ROW_COUNT, 1);
-		resultMessage.setBody(result);
+		if( resultHeader != null && resultHeader.length()>0){
+			resultMessage.setHeader(resultHeader, result);
+		}else{
+			resultMessage.setBody(result);
+		}
 	}
 
 	private SessionContext getSessionContext() {

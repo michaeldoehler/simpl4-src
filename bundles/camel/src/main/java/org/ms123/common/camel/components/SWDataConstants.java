@@ -21,6 +21,7 @@ package org.ms123.common.camel.components;
 public final class SWDataConstants {
 
 	public static final String FILTER_NAME = "filterName";
+	public static final String RESULT_HEADER = "resultHeader";
 
 	public static final String OBJECT_ID = "objectId";
 
