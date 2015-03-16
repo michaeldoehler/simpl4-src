@@ -65,7 +65,11 @@ can.Construct.extend("simpl4.util.Rpc", {
 			throw "ServerError:"+result.error.message;
 		}
 		if( typeof result.result == 'string'){
-			return JSON.parse(result.result);
+			try{
+				return JSON.parse(result.result);
+			}catch(e){
+				return result.result;
+			}
 		}
 		return result.result;
 	},
