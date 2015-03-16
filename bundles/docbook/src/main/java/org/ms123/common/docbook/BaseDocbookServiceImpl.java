@@ -262,6 +262,15 @@ class BaseDocbookServiceImpl {
 		getAsciidoctor().convert( in, w, options);
 	}
 
+	public String adocToHtml( String adoc) throws Exception {
+		Map<String, Object> options = new HashMap();
+		Map<String, Object> attributes = new HashMap();
+		attributes.put("icons", org.asciidoctor.Attributes.FONT_ICONS);
+		options.put("attributes", attributes);
+		options.put("safe", 0);
+		return getAsciidoctor().convert( adoc, options);
+	}
+
 	protected synchronized Asciidoctor getAsciidoctor(){
 		if( m_asciidoctor!=null){
 			 return m_asciidoctor;

@@ -30,4 +30,5 @@ public interface DocbookService {
 	public void website( String namespace, String name, HttpServletRequest request, HttpServletResponse response) throws RpcException;
 	public void getAsset( String namespace, String name, String type, HttpServletRequest request, HttpServletResponse response) throws RpcException;
 	public void adocToHtml( File adocFile, Writer w) throws Exception;
+	public String adocToHtml( String adoc ) throws Exception;
 }
