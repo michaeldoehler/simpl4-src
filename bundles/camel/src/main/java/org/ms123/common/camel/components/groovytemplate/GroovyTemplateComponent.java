@@ -29,13 +29,10 @@ import org.apache.camel.util.ResourceHelper;
 public class GroovyTemplateComponent extends DefaultComponent {
 
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-		GroovyTemplateEndpoint answer = new GroovyTemplateEndpoint(uri, this, remaining);
-		setProperties(answer, parameters);
-		// if its a http resource then append any remaining parameters and update the resource uri
-		if (ResourceHelper.isHttpUri(remaining)) {
-			remaining = ResourceHelper.appendParameters(remaining, parameters);
-			answer.setResourceUri(remaining);
-		}
-		return answer;
+		GroovyTemplateEndpoint endpoint = new GroovyTemplateEndpoint(uri, this, remaining);
+		endpoint.setEngineType(remaining);
+		endpoint.setHeaderfields((String) parameters.get("headerfields"));
+		setProperties(endpoint, parameters);
+		return endpoint;
 	}
 }

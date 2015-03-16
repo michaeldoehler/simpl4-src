@@ -379,6 +379,12 @@ class XDocReportEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class GroovyTemplateEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class HttpClientEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);

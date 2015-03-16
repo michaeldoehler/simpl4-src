@@ -25,7 +25,7 @@ public final class GroovyTemplateConstants {
 
 	public static final String GROOVYTEMPLATE_RESOURCE_URI = "groovyTemplateResourceUri";
 
-	public static final String GROOVYTEMPLATE_VARIABLE_MAP = "groovyTemplateVariableMap";
+	public static final String GROOVYTEMPLATE_DATA = "groovyTemplateDATA";
 
 	public static final String GROOVYTEMPLATE = "groovyTemplate";
 

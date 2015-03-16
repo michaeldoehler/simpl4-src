@@ -20,6 +20,10 @@ package org.ms123.common.camel.components.groovytemplate;
 
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import org.apache.camel.Component;
 import org.apache.camel.Exchange;
@@ -42,6 +46,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 	private TemplateEngine m_engine = new SimpleTemplateEngine();
 
 	private String m_engineType = "simple";
+	private String m_headerFields;
 
 	public GroovyTemplateEndpoint() {
 	}
@@ -70,11 +75,35 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 		m_engine = createTemplateEngine(et);
 	}
 
+	public void setHeaderfields(String t) {
+		m_headerFields = t;
+	}
+
+	public String getHeaderfields() {
+		return m_headerFields;
+	}
+
 	@Override
 	protected void onExchange(Exchange exchange) throws Exception {
-		Map<String, Object> variableMap = exchange.getIn().getHeader(GroovyTemplateConstants.GROOVYTEMPLATE_VARIABLE_MAP, Map.class);
+		List<String> headerList=null;	
+		if( m_headerFields!=null){
+			headerList = Arrays.asList(m_headerFields.split(","));
+		}else{
+			headerList = new ArrayList();
+		}
+		Map<String, Object> variableMap = exchange.getIn().getHeader(GroovyTemplateConstants.GROOVYTEMPLATE_DATA, Map.class);
 		if (variableMap == null) {
-			variableMap = ExchangeHelper.createVariableMap(exchange);
+			//variableMap = ExchangeHelper.createVariableMap(exchange);
+			variableMap = new HashMap();
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( headerList.size()==0 || headerList.contains( header.getKey())){
+					if( header.getValue() instanceof Map){
+						variableMap.putAll((Map)header.getValue());
+					}else{
+						variableMap.put(header.getKey(), header.getValue());
+					}
+				}
+			}
 		}
 
 		String text = exchange.getIn().getHeader(GroovyTemplateConstants.GROOVYTEMPLATE, String.class);
@@ -82,7 +111,8 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 			exchange.getIn().removeHeader(GroovyTemplateConstants.GROOVYTEMPLATE);
 		}
 		if( text == null){
-			text = exchange.getContext().getTypeConverter().mandatoryConvertTo(String.class, getResourceAsInputStream());
+			text = exchange.getIn().getBody(String.class);
+			//text = exchange.getContext().getTypeConverter().mandatoryConvertTo(String.class, getResourceAsInputStream());
 		}
 
 		String key = getMD5OfUTF8(text);
