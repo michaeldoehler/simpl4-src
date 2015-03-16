@@ -85,8 +85,10 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 
 		Map<String, Object> properties = new HashMap();
 		Map<String, Object> headers = new HashMap();
-		Map<String, Object> body = new HashMap();
+		Map<String, Object> bodyMap = new HashMap();
+		Object bodyObj=null;
 		List<Map> paramList = getItemList(shape, "rpcParameter");
+		int bodyCount = countBodyParams(paramList);
 		for (Map param : paramList) {
 			String destination = (String) param.get("destination");
 			String name = (String) param.get("name");
@@ -98,7 +100,16 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			} else if ("header".equals(destination)) {
 				headers.put(name, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("body".equals(destination)) {
-				body.put(name, getValue(name, methodParams.get(name), def, opt, type));
+				bodyObj = getValue(name, methodParams.get(name), def, opt, type);
+				bodyMap.put(name, bodyObj);
+			}
+		}
+
+		if( bodyCount != 1){
+			if( bodyMap.keySet().size()>0){
+				bodyObj = bodyMap;
+			}else{
+				bodyObj = null;
 			}
 		}
 		properties.put("__logExceptionsOnly", getBoolean(shape, "logExceptionsOnly", false));
@@ -125,8 +136,8 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
-			answer = m_camelService.camelSend(ns, route.getEndpoint(), body.keySet().size()>0 ? body:null, headers, properties,returnSpec, returnHeaderList);
-			debug("Answer:" + answer);
+			answer = m_camelService.camelSend(ns, route.getEndpoint(), bodyObj, headers, properties,returnSpec, returnHeaderList);
+			info("Answer:" + answer);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService", e);

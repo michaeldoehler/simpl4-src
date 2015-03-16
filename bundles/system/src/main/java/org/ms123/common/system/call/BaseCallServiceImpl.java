@@ -260,6 +260,17 @@ abstract class BaseCallServiceImpl {
 		return userRoleList;
 	}
 
+	protected int countBodyParams(List<Map> paramList){
+		int count = 0;
+		for (Map param : paramList) {
+			String destination = (String) param.get("destination");
+			if ("body".equals(destination)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	protected List<Map> getItemList(Map shape, String name) {
 		Map properties = (Map) shape.get(PROPERTIES);
 		Map m = (Map) properties.get(name);
