@@ -18,6 +18,8 @@
     "polymer-fontawesome": "code-maverick/polymer-fontawesome#master",
     "PolymerLabs-flatiron-director": "PolymerLabs/flatiron-director",
     "html5-paper-input": "cbalit/html5-paper-input",
-    "imported-template": "Juicy/imported-template"
+    "imported-template": "Juicy/imported-template",
+    "flip-card": "rupl/flip-card",
+    "media-carousel": "wix/media-carousel"
   }
 }

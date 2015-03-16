@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-executeFilter" attributes="pageSize offset name params meta data" flex relative>
+<polymer-element name="simpl-executeFilter" attributes="pageSize offset namespace name params meta data" flex relative>
 	<template>
 		<content></content>
 	</template>
@@ -26,6 +26,7 @@
 		Polymer( 'simpl-executeFilter', {
 			pageSize:100,
 			offset:0,
+			namespace:"firstdata",
 			created: function() {
 				this.params = {};
 				var observer = new ObjectObserver( this.params );
@@ -48,7 +49,7 @@
 			execute: function(withMeta) {
 				console.debug( "execute:",this.params );
 				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
-					storeId: "firstapp_data",
+					storeId: this.namespace+"_data",
 					withMeta: withMeta,
 					pageSize: this.pageSize,
 					offset: this.offset,
