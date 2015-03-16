@@ -385,6 +385,12 @@ class GroovyTemplateEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class AsciidoctorEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class HttpClientEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);

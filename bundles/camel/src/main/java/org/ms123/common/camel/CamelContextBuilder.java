@@ -37,6 +37,7 @@ import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.apache.camel.support.EventNotifierSupport;
 import org.ms123.common.camel.components.*;
 import org.ms123.common.camel.components.groovytemplate.*;
+import org.ms123.common.camel.components.asciidoctor.*;
 import org.ms123.common.camel.components.xdocreport.*;
 import org.ms123.common.camel.components.repo.*;
 import org.ms123.common.camel.trace.*;
@@ -74,6 +75,7 @@ public class CamelContextBuilder {
 		sr.put("repo", new RepoComponent());
 		sr.put("xdocreport", new XDocReportComponent());
 		sr.put("groovytemplate", new GroovyTemplateComponent());
+		sr.put("asciidoctor", new AsciidoctorComponent());
 		TransactionService ts = (TransactionService) or.lookupByName(TransactionService.class.getName());
 		sr.put(org.springframework.transaction.PlatformTransactionManager.class.getName(), ts.getPlatformTransactionManager());
 		createTransactionPolicies(ts.getPlatformTransactionManager(), sr);
