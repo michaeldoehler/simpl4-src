@@ -109,7 +109,11 @@ public class XDocReportEndpoint extends ResourceEndpoint {
 			variableMap = new HashMap();
 			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
 				if( headerList.size()==0 || headerList.contains( header.getKey())){
-					variableMap.put(header.getKey(), header.getValue());
+					if( header.getValue() instanceof Map){
+						variableMap.putAll((Map)header.getValue());
+					}else{
+						variableMap.put(header.getKey(), header.getValue());
+					}
 				}
 			}
 		}
