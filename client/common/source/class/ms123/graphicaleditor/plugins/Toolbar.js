@@ -113,6 +113,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Toolbar", {
 						button.setToolTipText(value.description);
 					}
 					button.setUserData("id", value.id);
+					button.setWidth(26);
 					value['buttonInstance'] = button;
 					splitMenu.add(button);
 				} else if (value.addFill) {
@@ -129,6 +130,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Toolbar", {
 						button.setToolTipText(value.description);
 					}
 					button.setUserData("id", value.id);
+					button.setWidth(26);
 					this._toolbar.add(button);
 					value['buttonInstance'] = button;
 				}
