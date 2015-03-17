@@ -46,8 +46,29 @@
 		( function() {
 			var carousel;
 			Polymer( {
+				get pageWidth() {
+					return this.getBoundingClientRect().width;
+				},
+				publish: {
+					threshold: 0.25,
+				},
 				attached: function() {
 					carousel = this.$.carousel;
+					PolymerGestures.addEventListener( this, "trackend", function( event ) {
+						var userIsSwipingLeftwards = ( event.dx < 0 );
+						var userIsSwipingRightwards = ( event.dx > 0 );
+
+						var thresholdWasCrossed = ( Math.abs( event.dx ) / this.pageWidth ) > this.threshold;
+
+						if ( thresholdWasCrossed ) {
+							if ( userIsSwipingRightwards ) {
+								this.prev();
+							}
+							if ( userIsSwipingLeftwards ) {
+								this.next();
+							}
+						}
+					} );
 				},
 				detached: function() {
 					carousel = null;
@@ -59,6 +80,7 @@
 					carousel.selected = ( carousel.selected === 0 ) ? carousel.items.length - 1 : carousel.selected - 1;
 				},
 				get selected() {
+					if ( carousel == null ) return;
 					return carousel.selected;
 				}
 			} );

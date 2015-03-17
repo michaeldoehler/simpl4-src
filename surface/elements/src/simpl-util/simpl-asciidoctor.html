@@ -20,6 +20,12 @@
 -->
 <polymer-element name="simpl-asciidoctor" attributes="data" flex relative>
 	<template>
+<style>
+:host /deep/ img {
+  height: 175px !important;
+	margin-bottom:20px;
+}
+</style>
 		<core-style ref="main"></core-style>
 		<core-style ref="card"></core-style>
 		<span style="display:none;">
