@@ -8,9 +8,9 @@ core-animated-pages {
   height: 100%;
 }
 
-.item {
+.itex {
   position: absolute;
-  top: 50%;
+  top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
@@ -23,9 +23,9 @@ core-animated-pages {
   top: 0;
   bottom: 0;
   width: 77px;
-  z-index: 100;
+  z-index: 10;
   background-repeat: repeat-x;
-  opacity: 0.5;
+//  opacity: 0.5;
 }
 
 #prev core-icon, #next core-icon {
@@ -36,11 +36,11 @@ core-animated-pages {
 }
 #prev {
   left: 0;
-  background-image: linear-gradient(to right, white 0, rgba(0,0,0,.0001) 100%)
+  //background-image: linear-gradient(to right, white 0, rgba(0,0,0,.0001) 100%)
 }
 #next {
   right: 0;
-  background-image: linear-gradient(to right, rgba(0,0,0,.0001) 0, white 100%);
+  //background-image: linear-gradient(to right, rgba(0,0,0,.0001) 0, white 100%);
 }
 
 #prev:hover, #next:hover {
