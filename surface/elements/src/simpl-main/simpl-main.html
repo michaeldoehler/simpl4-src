@@ -127,10 +127,10 @@
 
 				<div class="content" style="xeight:100%">
 					<!--height:100% slow scroll in chromium androit-->
-					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="cross-fade">
+					<core-animated-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="slide-from-right">
 						<template repeat="{{page, i in pages}}">
 							<section class="main" style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
-								<div cross-fade style="height:100%">
+								<div slide-from-right style="height:100%">
 									<div style="max-width:100%;">{{'tr.loading'|tr}} {{page.name}}</div>
 								</div>
 							</section>
