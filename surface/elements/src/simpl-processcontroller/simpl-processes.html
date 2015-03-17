@@ -42,7 +42,7 @@
 		</style>
 
 		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
-			<section style="padding:3px;position:relative;">
+			<section style="overflow-x:hidden;padding:3px;position:relative;">
 				<template if="{{currentProcess!=null}}">
 					<div style="margin-bottom:30px;text-align:left;" layout vertical>
 						<paper-button raised class="ripple" on-tap="{{startProcess}}">{{action+' ('+currentProcess+')'}}</paper-button>

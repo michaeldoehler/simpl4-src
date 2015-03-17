@@ -42,7 +42,7 @@
 		</style>
 
 		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
-			<section style="padding:3px;position:relative;">
+			<section style="overflow-x:hidden;padding:3px;position:relative;">
 				<core-selector target="{{$.list}}" selected="{{taskListModeSelected}}">
 					<ul id="list">
 						<li>{{"tasks.table.not_assigned"|tr}}</li>
