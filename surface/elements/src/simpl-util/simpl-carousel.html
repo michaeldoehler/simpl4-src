@@ -28,8 +28,8 @@
 
 		<core-animated-pages id="carousel" transitions="slide-from-right">
 			<template repeat="{{item,i in items}}">
-				<section>
-					<div class="item">
+				<section style="overflow:hidden;position:relative;">
+					<div slide-from-right>
 						<content select="*[data-index='{{i}}']"></content>
 					</div>
 				</section>
@@ -50,7 +50,7 @@
 					return this.getBoundingClientRect().width;
 				},
 				publish: {
-					threshold: 0.25,
+					threshold: 0.20,
 				},
 				attached: function() {
 					carousel = this.$.carousel;
@@ -74,9 +74,13 @@
 					carousel = null;
 				},
 				next: function() {
+					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
+					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
 					carousel.selected = ( carousel.items.length === carousel.selected + 1 ) ? 0 : carousel.selected + 1;
 				},
 				prev: function() {
+					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
+					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
 					carousel.selected = ( carousel.selected === 0 ) ? carousel.items.length - 1 : carousel.selected - 1;
 				},
 				get selected() {
