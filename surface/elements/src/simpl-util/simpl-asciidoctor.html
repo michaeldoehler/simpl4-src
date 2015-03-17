@@ -29,16 +29,20 @@
 	</template>
 	<script>
 		Polymer( {
-			ready: function() {
-				console.log( "card.domReady:", this.outerHTML );
-			},
 			dataChanged: function( filter ) {
 				var template = this.textContent;
+				var data = null;
+				if ( typeof this.data == "object" && !Array.isArray( this.data ) ) {
+					data = this.data;
+				} else {
+					data = {
+						data: this.data
+					};
+				}
+
 				var html = simpl4.util.Rpc.rpcSync( "camelRoute:asciidoctor", {
 					namespace: "global",
-					data: {
-						data: this.data
-					},
+					data: data,
 					template: template
 				} );
 				this.$.cardId.innerHTML = html;

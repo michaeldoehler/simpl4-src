@@ -97,6 +97,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 			variableMap = new HashMap();
 			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
 				if( headerList.size()==0 || headerList.contains( header.getKey())){
+System.out.println("Key:"+header.getKey()+"/isMap:"+(header.getValue() instanceof Map)+"/"+header.getValue());
 					if( header.getValue() instanceof Map){
 						variableMap.putAll((Map)header.getValue());
 					}else{

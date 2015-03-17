@@ -19,52 +19,51 @@
  */
 -->
 <polymer-element name="simpl-carousel" attributes="items">
-  <template>
-    <link rel="stylesheet" href="carousel.css"/>
+	<template>
+		<link rel="stylesheet" href="carousel.css" />
 
-    <div layout vertical center center-justified id="prev" on-click="{{prev}}">
-      <core-icon icon="chevron-left"></core-icon>
-    </div>
+		<div layout vertical center center-justified id="prev" on-click="{{prev}}">
+			<core-icon icon="chevron-left"></core-icon>
+		</div>
 
-    <core-animated-pages id="carousel" transitions="slide-from-right">
-      <template repeat="{{item,i in items}}">
-        <section>
-          <div class="item">
-            <content select="*[data-index='{{i}}']"></content>
-          </div>
-        </section>
-      </template>
-    </core-animated-pages>
+		<core-animated-pages id="carousel" transitions="slide-from-right">
+			<template repeat="{{item,i in items}}">
+				<section>
+					<div class="item">
+						<content select="*[data-index='{{i}}']"></content>
+					</div>
+				</section>
+			</template>
+		</core-animated-pages>
 
-    <div layout vertical center center-justified id="next" on-click="{{next}}">
-      <core-icon icon="chevron-right"></core-icon>
-    </div>
+		<div layout vertical center center-justified id="next" on-click="{{next}}">
+			<core-icon icon="chevron-right"></core-icon>
+		</div>
 
-  </template>
+	</template>
 
-  <script>
-    (function () {
-      var carousel;
-      Polymer({
-        created: function () {
-        },
-        attached: function () {
-          carousel = this.$.carousel;
-        },
-        detached: function () {
-          carousel = null;
-        },
-        next: function () {
-          carousel.selected = (carousel.items.length === carousel.selected + 1) ? 0 : carousel.selected + 1;
-        },
-        prev: function () {
-          carousel.selected = (carousel.selected === 0) ? carousel.items.length - 1 : carousel.selected - 1;
-        },
-        get selected() {
-          return carousel.selected;
-        }
-      });
-    })();
-  </script>
+	<script>
+		( function() {
+			var carousel;
+			Polymer( {
+				attached: function() {
+					carousel = this.$.carousel;
+				},
+				detached: function() {
+					carousel = null;
+				},
+				next: function() {
+					carousel.selected = ( carousel.items.length === carousel.selected + 1 ) ? 0 : carousel.selected + 1;
+				},
+				prev: function() {
+					carousel.selected = ( carousel.selected === 0 ) ? carousel.items.length - 1 : carousel.selected - 1;
+				},
+				get selected() {
+					return carousel.selected;
+				}
+			} );
+		} )();
+
+	</script>
 
 </polymer-element>
