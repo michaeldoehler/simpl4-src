@@ -184,7 +184,7 @@
 				args.headers[ 'Content-Type' ] = 'application/json';
 				var username = simpl4.util.Rpc._getUserName();
 				var password = simpl4.util.Rpc._getPassword();
-				args.headers[ 'Authorization' ] = 'Basic ' + btoa( username + ":" + password );
+				args.headers[ 'Authorization' ] = 'Basic ' + simpl4.util.Base64.encode( username + ":" + password );
 				args.callback = this.receive.bind( this );
 				args.url = this.url;
 				args.method = 'POST';

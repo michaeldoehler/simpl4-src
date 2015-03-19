@@ -149,7 +149,7 @@ can.Construct.extend("simpl4.util.Rpc", {
 		var username = simpl4.util.Rpc._getUserName();
 		var password = simpl4.util.Rpc._getPassword();
 		req.headers = {
-			"Authorization": "Basic " + btoa(username + ":" + password)
+			"Authorization": "Basic " + simpl4.util.Base64.encode(username + ":" + password)
 		}
 		$.ajax(req);
 		return ret;

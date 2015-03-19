@@ -33,6 +33,9 @@
 				cacheExpiration: 7200
 			};
 
+			if( window.console.debug == null){
+				window.console.debug = window.console.log;
+			}
 
 			var scripts = document.querySelectorAll("head > script");
 			for( var i=0; i< scripts.length;i++){
