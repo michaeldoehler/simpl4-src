@@ -119,6 +119,11 @@
 					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
 					<div flex>{{selectedModel.node.name}}</div>
+					<template if="{{selectedModel.node.help!=null}}">
+						<core-tooltip label="{{helpMessage}}" position="left">
+							<core-icon-button on-click="{{showHelp}}" icon="help"></core-icon-button>
+						</core-tooltip>
+					</template>
 					<core-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></core-icon-button>
 					<core-tooltip label="{{loginMessage}}" position="left">
 						<core-icon-button on-click="{{login}}" icon="system-update-tv"></core-icon-button>
@@ -141,6 +146,9 @@
 
 		</core-drawer-panel>
 
+		<paper-dialog layered="false" id="descDialog">
+		  <template is="imported-template" content="{{selectedModel.node.help|makeHelpUrl}}"></template>
+		</paper-dialog>
 		<paper-dialog id="loginDialog">
 			<simpl-login on-login-ok="{{loginOk}}" id="login"></simpl-login>
 		</paper-dialog>
@@ -152,6 +160,7 @@
 			toolbarBackground: null,
 			logo: 'logo.svg',
 			loginMessage: "Login",
+			helpMessage: tr("button.help"),
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;
 				this.ajax = this.$.ajax;
@@ -319,13 +328,26 @@
 				style.textContent = cssText;
 				return style;
 			},
-
+			makeHelpUrl:function(url){
+				if( url==null) return;
+				if (url.indexOf( "%l" ) != -1 ) {
+					url = url.replace( "%l", this.globals.lang );
+				}
+				if( url.match(/^[a-zA-Z].*/)){
+					url = "./"+ url;
+				}
+				url += "?t=1";
+				console.log("url:"+url);
+				return url;
+			},
+			showHelp: function( e ) {
+				this.$.descDialog.toggle();
+			},
 			loginOk: function( e ) {
 				this.loginMessage = "User:" + e.detail.identifier;
 				this.$.loginDialog.toggle();
 			},
 			login: function( e ) {
-console.log("Url:"+this.ajax.url);
 				this.$.loginDialog.toggle();
 			},
 
