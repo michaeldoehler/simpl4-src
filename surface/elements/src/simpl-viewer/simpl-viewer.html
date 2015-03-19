@@ -1,4 +1,4 @@
-<polymer-element name="simpl-viewer" attributes="showAssemblies">
+<polymer-element name="simpl-viewer" attributes="showAssemblies tableHeight viewerHeight">
 	<template>
 		<style>
 			[vs100] {
@@ -22,7 +22,7 @@
 				}
 			}
 			:host {
-				margin-bottom: 20px;
+				//margin-bottom: 20px;
 				display: block;
 				background: white;
 				position: relative;
@@ -102,6 +102,7 @@
 			panelHeader: 'Maschine',
 			panelHeaderBom: 'Stückliste',
 			panelHeaderDrawing: 'Zeichnung',
+			showAssemblies:true,
 			dataTablesOptions: {
 				paging: true,
 				dom: "frtiS",
@@ -119,12 +120,23 @@
 					alert( "Viewer._init:" + e );
 					return;
 				}
-				if ( this.showAssemblies && this.showAssemblies == "false" ) {
+				if ( this.showAssemblies!=null && (this.showAssemblies == "false" || this.showAssemblies===false) ) {
 					$( this.$.assemblyId ).css( "display", "none" );
 					$( this.$.viewerAndListId ).attr( "vl100", "" );
 					$( this.$.viewerAndListId ).removeAttr( "vl66" );
 				}
 				this.assemblies = t;
+			},
+			tableHeightChanged:function(){
+				if( this.tableHeight){
+					this.dataTablesOptions.scrollY=this.tableHeight+"px";
+				}
+			},
+			viewerHeightChanged:function(){
+				if( this.viewerHeight){
+					$( this.$.viewer ).css( "min-height", this.viewerHeight+"px" );
+					$( this.$.viewer ).css( "height", this.viewerHeight+"px" );
+				}
 			},
 			domReady: function( context ) {
 				var prefixUrl = simpl4.util.BaseManager.getBaseUrl() + "/sw/resource/openseadragon/";
