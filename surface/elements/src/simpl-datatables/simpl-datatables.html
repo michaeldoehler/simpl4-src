@@ -258,14 +258,16 @@
 			createRowListener: function() {
 				var self = this;
 				var rows = this.dtTable.rows().nodes();
-				$( rows ).on( 'tap', ( function( e ) {
-					self.currentRowIndex = e.currentTarget._DT_RowIndex;
-					if ( self.multiSelect ) {
-						self.tapActionMulti( e, this, false );
-					} else {
-						self.tapActionSingle( e, this, false );
-					}
-				} ) );
+				for ( var i = 0; i < rows.length; i++ ) {
+					Polymer.addEventListener( rows[ i ], 'tap', ( function( e ) {
+						self.currentRowIndex = e.currentTarget._DT_RowIndex;
+						if ( self.multiSelect ) {
+							self.tapActionMulti( e, this, false );
+						} else {
+							self.tapActionSingle( e, this, false );
+						}
+					} ) );
+				}
 			},
 			tapActionSingle: function( e, t, double ) {
 				if ( $( t ).hasClass( 'selected' ) ) {
