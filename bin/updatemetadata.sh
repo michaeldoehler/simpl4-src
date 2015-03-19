@@ -17,8 +17,9 @@ echo "#############################"
 
 #bin/start.sh start
 
-rm -r $SIMPL4DIR/gitrepos
-rm -r $SIMPL4DIR/workspace
+rm -r $SIMPL4DIR/gitrepos/global
+rm -r $SIMPL4DIR/gitrepos/global_data
+#rm -r $SIMPL4DIR/workspace
 
 mkdir -p $SIMPL4DIR/gitrepos/global_data
 cd $SIMPL4DIR/gitrepos/global_data
