@@ -91,6 +91,19 @@
 				cursor: pointer;
 			}
 
+			@media screen and (max-width: 767px) {
+				:host /deep/ #helpDialog /deep/ #scroller {
+					padding: 10px 10px 10px 10px;
+					margin-left:  0px;
+					margin-right:  0px;
+					margin-bottom:  10px;
+				}
+				:host /deep/ #helpDialog {
+					margin-left: 0px;
+					margin-right: 0px;
+					margin-top: 85px;
+				}
+			}
 		</style>
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
 		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
@@ -146,7 +159,7 @@
 
 		</core-drawer-panel>
 
-		<paper-dialog layered="false" id="descDialog">
+		<paper-dialog layered="false" id="helpDialog">
 		  <template is="imported-template" content="{{selectedModel.node.help|makeHelpUrl}}"></template>
 		</paper-dialog>
 		<paper-dialog id="loginDialog">
@@ -342,7 +355,7 @@
 				return url;
 			},
 			showHelp: function( e ) {
-				this.$.descDialog.toggle();
+				this.$.helpDialog.toggle();
 			},
 			loginOk: function( e ) {
 				this.loginMessage = "User:" + e.detail.identifier;
