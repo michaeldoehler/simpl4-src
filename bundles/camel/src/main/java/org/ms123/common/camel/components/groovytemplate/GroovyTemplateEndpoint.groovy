@@ -39,6 +39,7 @@ import groovy.text.TemplateEngine;
 import java.security.MessageDigest;
 
 @SuppressWarnings("unchecked") 
+@groovy.transform.CompileStatic
 public class GroovyTemplateEndpoint extends ResourceEndpoint {
 
 	private Map<String, Template> m_templateCache = new LinkedHashMap();
@@ -97,7 +98,6 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 			variableMap = new HashMap();
 			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
 				if( headerList.size()==0 || headerList.contains( header.getKey())){
-System.out.println("Key:"+header.getKey()+"/isMap:"+(header.getValue() instanceof Map)+"/"+header.getValue());
 					if( header.getValue() instanceof Map){
 						variableMap.putAll((Map)header.getValue());
 					}else{
@@ -122,9 +122,11 @@ System.out.println("Key:"+header.getKey()+"/isMap:"+(header.getValue() instanceo
 			template = m_engine.createTemplate(text);
 			m_templateCache.put(key, template);
 		}
-		info("GroovyTemplate is writing using attributes:" + variableMap);
-		String answer = template.make(variableMap).toString();
-		// now lets output the results to the exchange
+		Map binding = [:].withDefault { x -> new DefaultBinding(x) }
+		binding.putAll( variableMap);
+		info("GroovyTemplate is writing using attributes:" + binding);
+		String answer = template.make(binding).toString();
+
 		Message out = exchange.getOut();
 		out.setBody(answer);
 		out.setHeaders(exchange.getIn().getHeaders());
@@ -173,5 +175,21 @@ System.out.println("Key:"+header.getKey()+"/isMap:"+(header.getValue() instanceo
 		m_logger.info(msg);
 	}
 
+	class DefaultBinding   {
+		private String value
+
+		DefaultBinding(x) {
+			value = String.valueOf(x);
+		}
+
+		def propertyMissing(x) { 
+			value += '.' + String.valueOf(x);
+			return this;
+		}
+
+		String toString() { 
+			'${' + value + '}' 
+		}
+	}
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(GroovyTemplateEndpoint.class);
 }
