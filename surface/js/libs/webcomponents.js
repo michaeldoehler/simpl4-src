@@ -4355,6 +4355,10 @@ if (WebComponents.flags.shadow) {
         var scopeStyles = this.prepareRoot(root, name, extendsName);
         var typeExtension = this.isTypeExtension(extendsName);
         var scopeSelector = this.makeScopeSelector(name, typeExtension);
+				if( name.match(/encapsulate.*/)){
+					console.log("Treffer");
+					scopeSelector = "#"+scopeSelector;
+				}
         var cssText = stylesToCssText(scopeStyles, true);
         cssText = this.scopeCssText(cssText, scopeSelector);
         if (root) {
