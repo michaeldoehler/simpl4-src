@@ -13,7 +13,7 @@
 	</svg>
 </core-iconset-svg>
 
-<polymer-element name="simpl-panel" attributes="data heading height bgcolor color collapsable collapsed collapsecolor">
+<polymer-element name="simpl-panel" attributes="data heading fontWeight fontSize height bgcolor color collapsable collapsed collapsecolor">
 	<template>
 		<style>
 			:host {
@@ -110,10 +110,14 @@
 			collapsed: false,
 			collapsecolor: "white",
 			bgcolor: "#428bca",
+			fontWeight:"normal",
+			fontSize:"1.2em",
 			color: "white",
 			ready: function() {
 				var that = this;
 				this.$.heading.style.background = this.bgcolor;
+				this.$.heading.style.fontWeight = this.fontWeight;
+				this.$.heading.style.fontSize = this.fontSize;
 				this.$.heading.style.color = this.color;
 				this.$.panelContent.style.borderColor = this.bgcolor;
 				if ( !this.height && !this.style.height ) {

@@ -22,7 +22,7 @@
 	<template>
 		<link rel="stylesheet" href="carousel.css" />
 
-		<div layout vertical center center-justified id="prev" on-click="{{prev}}">
+		<div style="padding-bottom:20px;" layout vertical center end-justified id="prev" on-click="{{prev}}">
 			<core-icon icon="chevron-left"></core-icon>
 		</div>
 
@@ -36,7 +36,7 @@
 			</template>
 		</core-animated-pages>
 
-		<div layout vertical center center-justified id="next" on-click="{{next}}">
+		<div style="padding-bottom:20px;" layout vertical center end-justified id="next" on-click="{{next}}">
 			<core-icon icon="chevron-right"></core-icon>
 		</div>
 
@@ -44,8 +44,8 @@
 
 	<script>
 		( function() {
-			var carousel;
 			Polymer( {
+				carousel:null,
 				get pageWidth() {
 					return this.getBoundingClientRect().width;
 				},
@@ -53,7 +53,7 @@
 					threshold: 0.20,
 				},
 				attached: function() {
-					carousel = this.$.carousel;
+					this.carousel = this.$.carousel;
 					PolymerGestures.addEventListener( this, "trackend", function( event ) {
 						var userIsSwipingLeftwards = ( event.dx < 0 );
 						var userIsSwipingRightwards = ( event.dx > 0 );
@@ -71,21 +71,21 @@
 					} );
 				},
 				detached: function() {
-					carousel = null;
+					this.carousel = null;
 				},
 				next: function() {
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
 					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
-					carousel.selected = ( carousel.items.length === carousel.selected + 1 ) ? 0 : carousel.selected + 1;
+					this.carousel.selected = ( this.carousel.items.length === this.carousel.selected + 1 ) ? 0 : this.carousel.selected + 1;
 				},
 				prev: function() {
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
 					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
-					carousel.selected = ( carousel.selected === 0 ) ? carousel.items.length - 1 : carousel.selected - 1;
+					this.carousel.selected = ( this.carousel.selected === 0 ) ? this.carousel.items.length - 1 : this.carousel.selected - 1;
 				},
 				get selected() {
-					if ( carousel == null ) return;
-					return carousel.selected;
+					if ( this.carousel == null ) return;
+					return this.carousel.selected;
 				}
 			} );
 		} )();

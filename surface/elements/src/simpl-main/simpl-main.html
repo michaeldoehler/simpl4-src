@@ -103,6 +103,11 @@
 					margin-right: 0px;
 					margin-top: 85px;
 				}
+				#headlineId {
+					font-size:14px;
+					margin-left: 0px;
+					margin-right: 0px;
+				}
 			}
 		</style>
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
@@ -131,7 +136,7 @@
 				<core-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
 					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
-					<div flex>{{selectedModel.node.name}}</div>
+					<div id="headlineId" flex>{{selectedModel.node.name}}</div>
 					<template if="{{selectedModel.node.help!=null}}">
 						<core-tooltip label="{{helpMessage}}" position="left">
 							<core-icon-button on-click="{{showHelp}}" icon="help"></core-icon-button>

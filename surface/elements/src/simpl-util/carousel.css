@@ -29,10 +29,10 @@ core-animated-pages {
 }
 
 #prev core-icon, #next core-icon {
-  -webkit-transform: scale(2);
-  -moz-transform: scale(2);
-  -ms-transform: scale(2);
-  transform: scale(2);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  transform: scale(1.2);
 }
 #prev {
   left: 0;
