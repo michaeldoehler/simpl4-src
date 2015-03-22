@@ -26,7 +26,7 @@
 		Polymer( 'simpl-executeFilter', {
 			pageSize:100,
 			offset:0,
-			namespace:"firstapp",
+			namespace:null,
 			created: function() {
 				this.params = {};
 				var observer = new ObjectObserver( this.params );
@@ -55,9 +55,10 @@
 			},
 			execute: function(withMeta) {
 				var params = this.parseParams(this.params);
+				var namespace = this.namespace || globals.mainNamespace;
 				console.debug( "execute:",this.params );
 				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
-					storeId: this.namespace+"_data",
+					storeId: namespace+"_data",
 					withMeta: withMeta,
 					pageSize: this.pageSize,
 					offset: this.offset,
