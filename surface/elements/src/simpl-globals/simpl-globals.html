@@ -56,8 +56,8 @@
 			simpl4.util.BaseManager.setNamespace(namespace);
 			var lang = Simpl4.Cache.getItem("lang");
 			simpl4.util.BaseManager.setLanguage(lang ? lang : "de");
-			simpl4.util.BaseManager.setUser("admin");
-			simpl4.util.BaseManager.setPassword("admin");
+			simpl4.util.BaseManager.setUser("guest");
+			simpl4.util.BaseManager.setPassword("guest");
 
 			moment.locale(simpl4.util.BaseManager.getLanguage());
 
@@ -76,9 +76,8 @@
 
 
 			Polymer('simpl-globals', {
-				ready: function() {
-					this.globals={};
-					this.globals.lang=simpl4MessageManager.getLanguage();
+				created: function() {
+					this.getProperties();
 					this.config = config;
 					console.debug("Globals.Ready:"+  tr('data.customer.cid'));
 				},
@@ -87,6 +86,28 @@
 				},
 				get actions() {//Only for info
 					return this.getFromCache(this.$.axActions, 'baasicActions', 'accessAction');
+				},
+				getProperties:function(){
+					jQuery.ajax( {
+						url: "properties.yaml",
+						async: false,
+						dataType: "json"
+					} ).done((function(data){
+						try {
+							this.globals =  data;
+							this.globals.lang=simpl4MessageManager.getLanguage();
+							console.log("properties:"+JSON.stringify(this.globals,null,2));
+						} catch ( e ) {
+							alert( "Error.Read properties:" + e );
+							console.error( "Error.Read properties:", e );
+							this.globals={};
+							this.globals.lang=simpl4MessageManager.getLanguage();
+						}
+						window.globals = this.globals;
+						if( this.globals.mainNamespace){
+							simpl4.util.BaseManager.setNamespace(this.globals.mainNamespace);
+						}
+					}).bind(this));
 				},
 				getFromCache: function(ajax, cacheKey, collectionKey) {
 					var _this = this;
