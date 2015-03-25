@@ -203,6 +203,10 @@
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );
+					if( this.route.match(/^!/)){
+						this.route = this.route.substring(1);
+					}
+				console.log( "routeChanged2:" + this.route );
 					$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
 					$( this.$.pages.querySelector( "section.core-selected" ) ).css( "display", "none" );
 				channel.publish( "route.changed", {
