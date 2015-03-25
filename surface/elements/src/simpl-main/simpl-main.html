@@ -90,13 +90,12 @@
 				//appearance: none;
 				cursor: pointer;
 			}
-
 			@media screen and (max-width: 767px) {
 				:host /deep/ #helpDialog /deep/ #scroller {
 					padding: 10px 10px 10px 10px;
-					margin-left:  0px;
-					margin-right:  0px;
-					margin-bottom:  10px;
+					margin-left: 0px;
+					margin-right: 0px;
+					margin-bottom: 10px;
 				}
 				:host /deep/ #helpDialog {
 					margin-left: 0px;
@@ -104,11 +103,12 @@
 					margin-top: 85px;
 				}
 				#headlineId {
-					font-size:14px;
+					font-size: 14px;
 					margin-left: 0px;
 					margin-right: 0px;
 				}
 			}
+
 		</style>
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
 		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
@@ -165,7 +165,7 @@
 		</core-drawer-panel>
 
 		<paper-dialog layered="false" id="helpDialog">
-		  <template is="imported-template" content="{{selectedModel.node.help|makeHelpUrl}}"></template>
+			<template is="imported-template" content="{{selectedModel.node.help|makeHelpUrl}}"></template>
 		</paper-dialog>
 		<paper-dialog id="loginDialog">
 			<simpl-login on-login-ok="{{loginOk}}" id="login"></simpl-login>
@@ -178,7 +178,7 @@
 			toolbarBackground: null,
 			logo: 'logo.svg',
 			loginMessage: "Login",
-			helpMessage: tr("button.help"),
+			helpMessage: tr( "button.help" ),
 			domReady: function() {
 				this.drawerPanel = this.$.drawerPanel;
 				this.ajax = this.$.ajax;
@@ -203,15 +203,29 @@
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );
-					if( this.route.match(/^!/)){
-						this.route = this.route.substring(1);
-					}
+				var route = this.route;
+				if ( route.match( /^!/ ) ) {
+					route = route.substring( 1 );
+				}
+				if ( route == '' ) route = "0";
+				if ( this.route != route ) {
+					this.route = route;
+				}
 				console.log( "routeChanged2:" + this.route );
-					$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
-					$( this.$.pages.querySelector( "section.core-selected" ) ).css( "display", "none" );
+				$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
+				$( this.$.pages.querySelector( "section.core-selected" ) ).css( "display", "none" );
 				channel.publish( "route.changed", {
 					route: this.route
 				} );
+				try {
+					if ( window._paq ) {
+						var action = this.route == "0" ? "main" : this.route;
+						console.log( "trackEvent,webclient:" + action )
+						_paq.push( [ 'trackEvent', "webclient", action ] )
+					}
+				} catch ( e ) {
+					console.error( "trackEvent:", e.stack );
+				}
 			},
 			togglePanel: function() {
 				this.drawerPanel.togglePanel();
@@ -351,16 +365,16 @@
 				style.textContent = cssText;
 				return style;
 			},
-			makeHelpUrl:function(url){
-				if( url==null) return;
-				if (url.indexOf( "%l" ) != -1 ) {
+			makeHelpUrl: function( url ) {
+				if ( url == null ) return;
+				if ( url.indexOf( "%l" ) != -1 ) {
 					url = url.replace( "%l", this.globals.lang );
 				}
-				if( url.match(/^[a-zA-Z].*/)){
-					url = "./"+ url;
+				if ( url.match( /^[a-zA-Z].*/ ) ) {
+					url = "./" + url;
 				}
 				url += "?t=1";
-				console.log("url:"+url);
+				console.log( "url:" + url );
 				return url;
 			},
 			showHelp: function( e ) {
