@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoBackground">
+<polymer-element name="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoLink logoBackground">
 	<template>
 		<core-style ref="main"></core-style>
 
@@ -126,7 +126,9 @@
 			<div vertical layout drawer>
 				<nav id="nav" layout vertical fit>
 					<div>
-						<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+						<a href="{{logoLink|substituteLang}}" target="_blank">
+							<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+						</a>
 					</div>
 					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
@@ -165,7 +167,7 @@
 		</core-drawer-panel>
 
 		<paper-dialog layered="false" id="helpDialog">
-			<template is="imported-template" content="{{selectedModel.node.help|makeHelpUrl}}"></template>
+			<template is="imported-template" content="{{selectedModel.node.help|substituteLang}}"></template>
 		</paper-dialog>
 		<paper-dialog id="loginDialog">
 			<simpl-login on-login-ok="{{loginOk}}" id="login"></simpl-login>
@@ -175,6 +177,7 @@
 		Polymer( 'simpl-main', {
 			DEFAULT_ROUTE: '0',
 			logoBackground: 'white',
+			logoLink: '',
 			toolbarBackground: null,
 			logo: 'logo.svg',
 			loginMessage: "Login",
@@ -365,15 +368,17 @@
 				style.textContent = cssText;
 				return style;
 			},
-			makeHelpUrl: function( url ) {
-				if ( url == null ) return;
+			substituteLang: function( url ) {
+				if ( url == null || url=='') return;
 				if ( url.indexOf( "%l" ) != -1 ) {
 					url = url.replace( "%l", this.globals.lang );
 				}
-				if ( url.match( /^[a-zA-Z].*/ ) ) {
-					url = "./" + url;
+				if( !url.match(/^http/)){
+					if ( url.match( /^[a-zA-Z].*/ ) ) {
+						url = "./" + url;
+					}
+					url += "?t=1";
 				}
-				url += "?t=1";
 				console.log( "url:" + url );
 				return url;
 			},
@@ -394,6 +399,7 @@
 			reload: function( e ) {
 				var lang = Simpl4.Cache.getItem( "lang" );
 				Simpl4.Cache.setItem( "lang", ( lang == "de" || lang == null ) ? "en" : "de" );
+				location.search="";
 				history.go( 0 )
 			}
 		} );

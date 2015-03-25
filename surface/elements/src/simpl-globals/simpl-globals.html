@@ -29,7 +29,6 @@
 			/**
 			 */
 			var config = {
-				//cache expiration time for lookup storage in seconds
 				cacheExpiration: 7200
 			};
 
@@ -40,6 +39,22 @@
 			function getParameterByName( name ) {
 				var match = RegExp( '[?&]' + name + '=([^&]*)' ).exec( window.location.search );
 				return match && decodeURIComponent( match[ 1 ].replace( /\+/g, ' ' ) );
+			}
+
+			function removeQueryParameter() {
+				var uri = window.location.toString();
+				if ( uri.indexOf( "?" ) > 0 ) {
+					var hash = '';
+					if ( uri.indexOf( "#" ) > 0 ) {
+						hash = uri.substring( uri.indexOf( "#" ) );
+					}
+					var clean_uri = uri.substring( 0, uri.indexOf( "?" ) ) + hash;
+					try {
+						window.history.replaceState( {}, document.title, clean_uri );
+					} catch ( e ) {
+						console.error( e.stack );
+					}
+				}
 			}
 
 			var scripts = document.querySelectorAll( "head > script" );
@@ -61,6 +76,7 @@
 			simpl4.util.BaseManager.setNamespace( namespace );
 
 			var qlang = getParameterByName( "lang" );
+			removeQueryParameter();
 			console.log( "search:", location );
 			console.log( "qlang:" + qlang );
 			var lang = Simpl4.Cache.getItem( "lang" );
