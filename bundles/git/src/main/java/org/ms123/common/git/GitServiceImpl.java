@@ -1126,6 +1126,8 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 	protected static String getFileType(File file) {
 		if (file.isDirectory()){
 			return "sw.directory";
+		}else if( file.toString().endsWith(".txt")){
+			return "text/plain";
 		}else if( file.toString().endsWith(".woff") || file.toString().endsWith(".woff.gz")){
 			return "application/x-font-woff";
 		}else if( file.toString().endsWith(".js") || file.toString().endsWith(".js.gz")){

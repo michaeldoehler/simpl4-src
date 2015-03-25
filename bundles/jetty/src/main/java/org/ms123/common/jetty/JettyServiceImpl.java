@@ -122,6 +122,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("css.gz", "text/css");
 		result.put("adoc", "text/x-asciidoc");
 		result.put("html", "text/html");
+		result.put("txt", "text/plain");
 		result.put("html.gz", "text/html");
 		result.put("gif", "image/gif");
 		result.put("png", "image/png");
