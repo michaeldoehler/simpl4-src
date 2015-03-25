@@ -90,6 +90,9 @@
 				//appearance: none;
 				cursor: pointer;
 			}
+			#headlineId {
+				font-size: 18px;
+			}
 			@media screen and (max-width: 767px) {
 				:host /deep/ #helpDialog /deep/ #scroller {
 					padding: 10px 10px 10px 10px;
@@ -138,7 +141,7 @@
 				<core-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
 					<!-- tall or medium-tall for bigger header-->
 					<core-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></core-icon-button>
-					<div id="headlineId" flex>{{selectedModel.node.name}}</div>
+					<h2 id="headlineId" flex>{{selectedModel.node.name}}</h2>
 					<template if="{{selectedModel.node.help!=null}}">
 						<core-tooltip label="{{helpMessage}}" position="left">
 							<core-icon-button on-click="{{showHelp}}" icon="help"></core-icon-button>
@@ -369,11 +372,11 @@
 				return style;
 			},
 			substituteLang: function( url ) {
-				if ( url == null || url=='') return;
+				if ( url == null || url == '' ) return;
 				if ( url.indexOf( "%l" ) != -1 ) {
 					url = url.replace( "%l", this.globals.lang );
 				}
-				if( !url.match(/^http/)){
+				if ( !url.match( /^http/ ) ) {
 					if ( url.match( /^[a-zA-Z].*/ ) ) {
 						url = "./" + url;
 					}
@@ -399,7 +402,7 @@
 			reload: function( e ) {
 				var lang = Simpl4.Cache.getItem( "lang" );
 				Simpl4.Cache.setItem( "lang", ( lang == "de" || lang == null ) ? "en" : "de" );
-				location.search="";
+				location.search = "";
 				history.go( 0 )
 			}
 		} );
