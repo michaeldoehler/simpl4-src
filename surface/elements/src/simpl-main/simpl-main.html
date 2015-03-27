@@ -386,6 +386,10 @@
 				return url;
 			},
 			showHelp: function( e ) {
+				if ( window._paq && !this.$.helpDialog.opened) {
+					var action = this.route == "0" ? "main" : this.route;
+					_paq.push( [ 'trackEvent', "webclient", action+"_help" ] )
+				}
 				this.$.helpDialog.toggle();
 			},
 			loginOk: function( e ) {
