@@ -50,10 +50,10 @@
 				border-color: #4B575C !important;
 			}
 			:host /deep/ .core-tooltip {
-				font-size: 10px;
-				padding: 0;
-				background: transparent;
-				color: black;
+				color: #000;
+				background-color: rgba(255, 255, 255, 0.9);
+				border: 1px solid black;
+				padding: 4px;
 			}
 			:host /deep/ #builder_group_0 {
 				border: 2px #eaeaea solid;
@@ -99,11 +99,11 @@
 			:host /deep/ #builder li.has-error {
 				border-color: white;
 			}
-
 			polyfill-rule {
 				content: '#shadowId';
 				margin: 3px;
 			}
+
 		</style>
 		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
 		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
@@ -160,8 +160,8 @@
 				$( this.$.builder ).queryBuilder( 'setRules', {
 					condition: 'AND',
 					rules: [ {
-						id: filters[0].id,
-						operator: filters[0].operators[0],
+						id: filters[ 0 ].id,
+						operator: filters[ 0 ].operators[ 0 ],
 						value: ''
 					} ]
 				} );
