@@ -116,6 +116,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("json.gz", "application/json");
 		result.put("yaml", "text/x-yaml");
 		result.put("yml", "text/x-yaml");
+		result.put("xml", "text/xml");
 		result.put("js", "text/javascript");
 		result.put("js.gz", "text/javascript");
 		result.put("css", "text/css");

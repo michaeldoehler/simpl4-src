@@ -126,6 +126,7 @@ public class LoginFilter implements Filter {
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".gif")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".odt")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".svg")) ||
+				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".xml")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".jpeg")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".txt")) ||
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".woff")) ||

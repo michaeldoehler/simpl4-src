@@ -123,6 +123,7 @@ public class GitServiceImpl implements GitService {
 			add("sw.groovy");
 			add("image/svg+xml");
 			add("text/html");
+			add("text/xml");
 			add("text/css");
 			add("text/x-asciidoc");
 			add("text/x-yaml");
@@ -1128,6 +1129,8 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			return "sw.directory";
 		}else if( file.toString().endsWith(".txt")){
 			return "text/plain";
+		}else if( file.toString().endsWith(".xml")){
+			return "text/xml";
 		}else if( file.toString().endsWith(".woff") || file.toString().endsWith(".woff.gz")){
 			return "application/x-font-woff";
 		}else if( file.toString().endsWith(".js") || file.toString().endsWith(".js.gz")){
