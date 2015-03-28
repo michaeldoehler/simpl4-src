@@ -169,10 +169,16 @@ public class SmooksSojoWalkerInterceptor implements WalkerInterceptor {
 	}
 
 	private String getClassName(Object clazz) {
+		if( clazz == null){
+			return m_inflector.getClassName(rootTag.toLowerCase());
+		}
 		return m_inflector.getClassName(getLastSegment((String) clazz)).toLowerCase();
 	}
 
 	private String getEntityName(Object clazz) {
+		if( clazz == null){
+			return m_inflector.getEntityName(rootTag.toLowerCase());
+		}
 		return m_inflector.getEntityName(getLastSegment((String) clazz)).toLowerCase();
 	}
 
