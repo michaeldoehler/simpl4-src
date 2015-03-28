@@ -226,8 +226,11 @@
 				try {
 					if ( window._paq ) {
 						var action = this.route == "0" ? "main" : this.route;
-						console.log( "trackEvent,webclient:" + action )
-						_paq.push( [ 'trackEvent', "webclient", action ] )
+						if( this.lastAction != action){
+							console.log( "trackEvent,webclient:" + action )
+							_paq.push( [ 'trackEvent', "webclient", action+ "/"+globals.lang ] )
+						}
+						this.lastAction = action;
 					}
 				} catch ( e ) {
 					console.error( "trackEvent:", e.stack );
