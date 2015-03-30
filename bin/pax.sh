@@ -125,6 +125,12 @@ do
 	paxbundles=${paxbundles}"scan-bundle:file:$i "
 done
 
+openfirebundles=""
+for i in $REPOSITORY/openfire/*ar
+do
+	openfirebundles=${openfirebundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-4.3.1.jar \
@@ -155,6 +161,7 @@ ${activitibundles} \
 ${nucleusbundles} \
 ${camelbundles} \
 ${paxbundles} \
+${openfirebundles} \
 ${localbundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-3.0.7.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-1.0.4.jar@3 \

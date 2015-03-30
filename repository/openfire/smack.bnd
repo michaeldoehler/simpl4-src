@@ -1,0 +1,4 @@
+version=3.0.4
+Bundle-SymbolicName                      org.jivesoftware.smack
+Export-Package: org.jivesoftware*;version=${version}
+Bundle-Version: ${version}

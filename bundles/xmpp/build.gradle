@@ -1,0 +1,24 @@
+version='1.0.0'
+dependencies {
+  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+	compile files("${repository}/commons-io-2.4.jar")
+	compile files("${bundlesBuild}/org.ms123.common.activiti-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.data.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.git-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.libhelper-1.0.0.jar")
+ 	compile files("${bundlesBuild}/org.ms123.common.system-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
+  compile files("${repository}/flexjson-2.1.bar")
+	compile files("${repository}/mail-1.4.7.bar")
+	compile files("${repository}/mvel2-2.1.RC1.jar")
+  compile files("${repository}/org.osgi.compendium-4.3.1.jar")
+  compile files("${repository}/org.osgi.core-4.3.1.jar")
+  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+	compile files("${repository}/slf4j-api-1.6.1.jar")
+	compile files("${repository}/openfire/openfire-3.10ms.bar")
+}
+

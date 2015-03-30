@@ -1,0 +1,13 @@
+version=1.0.0
+Export-Package org.ms123.common.xmpp
+Import-Package *
+Bundle-Version:${version}
+Bundle-Vendor: MS123, Org.
+Bundle-Description: Xmpp Service
+Bundle-ManifestVersion: 2
+Bundle-Name: XmppService Bundle
+Bundle-SymbolicName:org.ms123.common.xmpp
+Bundle-ClassPath: .
+Include-Resource: OSGI-INF=src/main/resources/OSGI-INF,xml=src/main/resources/xml,xsl=src/main/resources/xsl
+Service-Component: *
+-metatype: *
