@@ -1,0 +1,130 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected recvMessage" constructor="SimplWebsocket">
+	<template>
+		<style>
+			:host {
+				display: none;
+			}
+		</style>
+	</template>
+	<script type="text/javascript">
+		( function() {
+			Polymer( "simpl-websocket", {
+				connected: false,
+
+				send: function( data ) {
+					if ( !this.connected ) {
+						throw new Error( "simpl-websocket.send(...): not connected." );
+					}
+					data = JSON.stringify( data );
+					console.log( "<- sendMessage:", data );
+					this.socket.onNext( data );
+				},
+				sendPing: function() {
+					if ( !this.connected ) return;
+					console.debug( "-> Ping" );
+					var message = {
+						event: "ping",
+						data: {}
+					};
+					this.send( message );
+				},
+				sendMessage: function(msg) {
+					this.send( msg );
+				},
+				close: function( reason ) {
+					if ( this.ws ) {
+						this.ws.close( reason );
+						this.ws = null;
+					}
+					this.connected = false;
+				},
+				go: function(user,pw,resourceId,timeoutCallback) {
+					var password = simpl4.util.BaseManager.getPassword();
+					var username = simpl4.util.BaseManager.getUser();
+					var credentials = simpl4.util.Base64.encode( username + ":" + password );
+					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
+					baseUrl = baseUrl.replace( "http", "ws" );
+					var params = {};
+					params[ "namespace" ] = this.namespace;
+					params[ "username" ] = user;
+					params[ "password" ] = pw;
+					params[ "routes" ] = this.routeSpec;
+					params[ "credentials" ] = credentials;
+					params[ "resourceId" ] = resourceId;
+					params[ "service" ] = this.service;
+
+					var qs = $.param( params );
+
+					this.url = baseUrl + "/ws/xyz?" + qs;
+
+					var openObserver = Rx.Observer.create( ( function( e ) {
+						console.info( '-> websocket open' );
+						this.connected = true;
+						setInterval( ( function() {
+							//this.sendPing();
+						} ).bind( this ), 5000 );
+					} ).bind( this ) );
+
+					var closingObserver = Rx.Observer.create( ( function(x) {
+						console.log( 'websocket is about to close:',x );
+						this.connected = false;
+					} ).bind( this ) );
+
+					var options = {
+						timeoutCallback:timeoutCallback,
+						debug: false,
+						reconnectInterval: 50
+					}
+					this.socket = simpl4.util.Rx.observableFromWebSocket( this.url, options, openObserver, closingObserver );
+					var self = this;
+					this.socket.subscribe(
+						function( e ) {
+							var data = e.data;
+							data = JSON.parse( data );
+							self.fire( "message", {
+								data: data
+							} );
+							self.async( function() {
+								self.recvMessage = data;
+							}, null, 0 );
+						},
+						function( e ) {
+							console.error("Error:"+e.reason+"("+e.code+")");
+						},
+						function() {
+							console.info( 'websocket closed' );
+							self.connected = false;
+						}
+					);
+				},
+				closeConnection:function(){
+					var message = {
+						command: "close",
+					}; 
+					this.send(message);
+				}
+			} );
+		} )();
+
+	</script>
+</polymer-element>

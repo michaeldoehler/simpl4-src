@@ -1,7 +1,7 @@
 version='1.0.0'
 jar.enabled=true
 dependencies {
- 	compile files("${repository}/jcommander-1.31-SNAPSHOT.jar")
+ 	compile files("${repository}/jcommander-1.35.jar")
  	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
  	compile files("${bundlesBuild}/org.ms123.common.libhelper-1.0.0.jar")
 	compile files("${repository}/flexjson-2.1.bar")

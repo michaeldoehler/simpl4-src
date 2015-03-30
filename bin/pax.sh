@@ -98,6 +98,7 @@ vmOptions="\
  -Ddrools.dialect.java.compiler=JANINO \
  -Dkaraf.local.roles=admin,manager \
  -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory \
+ -DopenfireHome=\$SIMPL4DIR/etc/openfire \
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
@@ -125,9 +126,15 @@ do
 	paxbundles=${paxbundles}"scan-bundle:file:$i "
 done
 
+openfirebundles=""
+for i in $REPOSITORY/openfire/*ar
+do
+	openfirebundles=${openfirebundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
-	scan-bundle:file:$REPOSITORY/org.osgi.compendium-4.3.1.jar \
+	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx.api-1.0.0.jar \
@@ -155,16 +162,20 @@ ${activitibundles} \
 ${nucleusbundles} \
 ${camelbundles} \
 ${paxbundles} \
+${openfirebundles} \
 ${localbundles} \
-	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-3.0.7.jar@3 \
-	scan-bundle:file:$REPOSITORY/pax-web-spi-1.0.4.jar@3 \
-	scan-bundle:file:$REPOSITORY/pax-web-extender-war-1.0.4.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
+	scan-bundle:file:$REPOSITORY/javax.servlet.jsp.jstl-1.2.4.bar \
+	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
+  scan-bundle:file:$REPOSITORY/xbean-bundleutils-4.2.jar \
+  scan-bundle:file:$REPOSITORY/xbean-finder-4.2.jar \
   scan-bundle:file:$REPOSITORY/ant-1.8.2.bar \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
   scan-bundle:file:$REPOSITORY/antlr-runtime-3.3.bar \
-	scan-bundle:file:$REPOSITORY/asm-all-3.3.jar \
-	scan-bundle:file:$REPOSITORY/asm-all-4.1.jar \
-  scan-bundle:file:$REPOSITORY/aspectjrt-1.7.1.bar \
+	scan-bundle:file:$REPOSITORY/asm-all-5.0.3.jar \
+  scan-bundle:file:$REPOSITORY/aspectjrt-1.8.5.bar \
 	scan-bundle:file:$REPOSITORY/biz.aQute.bndlib.jar \
   scan-bundle:file:$REPOSITORY/codemodel-2.4.bar \
 	scan-bundle:file:$REPOSITORY/commons-beanutils-1.8.4-SNAPSHOT.jar \
@@ -179,7 +190,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/ezmorph-1.0.6.jar \
   scan-bundle:file:$REPOSITORY/flexjson-2.1.bar \
   scan-bundle:file:$REPOSITORY/guava-10.0-rc3.bar \
-	scan-bundle:file:$REPOSITORY/h2-1.4.182.jar \
+	scan-bundle:file:$REPOSITORY/h2-1.4.187.jar \
   scan-bundle:file:$REPOSITORY/hibernate-5.0.1.jar \
 	scan-bundle:file:$REPOSITORY/hsqldb.jar \
 	scan-bundle:file:$REPOSITORY/itext-2.1.7.bar \
@@ -257,13 +268,14 @@ ${localbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.camel.api-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.docbook-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.xmpp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.8.0.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-lifecycle-1.8.0.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-core-1.8.0.jar \
-  scan-bundle:file:$REPOSITORY/pax-logging-logback-1.7.1.jar \
-  scan-bundle:file:$REPOSITORY/pax-logging-api-1.7.1.jar \
+  scan-bundle:file:$REPOSITORY/pax-logging-logback-1.7.1.jar@2 \
+  scan-bundle:file:$REPOSITORY/pax-logging-api-1.7.1.jar@2 \
   scan-bundle:file:$REPOSITORY/commons.compiler-2.6.1.jar \
   scan-bundle:file:$REPOSITORY/phonet4j-1.0.2.bar \
 	scan-bundle:file:$REPOSITORY/poi-3.8beta4-all.bar \
@@ -308,13 +320,12 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/spring-context-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/spring-core-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.servicemix.bundles.commons-csv-1.0-r706899_5.jar \
-	scan-bundle:file:$REPOSITORY/jsp-api-2.0.bar  \
 	scan-bundle:file:$REPOSITORY/xstream-1.4.7-ms.jar  \
 	scan-bundle:file:$REPOSITORY/xpp3-1.1.4c.bar \
 	scan-bundle:file:$REPOSITORY/jettison-1.3.5.jar \
 	scan-bundle:file:$REPOSITORY/opencsv-2.3.bar \
 	scan-bundle:file:$REPOSITORY/gson-2.2.4.jar \
-	scan-bundle:file:$REPOSITORY/xmlbeans-all-2.6.bar \
+	scan-bundle:file:$REPOSITORY/xmlbeans-2.6ms.bar \
 	scan-bundle:file:$REPOSITORY/httpclient-osgi-4.3.1.jar \
 	scan-bundle:file:$REPOSITORY/httpcore-osgi-4.3.jar \
 	scan-bundle:file:$REPOSITORY/commons-lang3-3.3.2.jar \
@@ -330,6 +341,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.core-3.0.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.command-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
+	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13-SNAPSHOT.jar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \

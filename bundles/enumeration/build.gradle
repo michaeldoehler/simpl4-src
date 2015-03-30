@@ -12,7 +12,7 @@ dependencies {
   compile files("${repository}/ostermillerutils_1_07_00.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
-  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/mvel2-2.1.RC1.jar")
   compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")

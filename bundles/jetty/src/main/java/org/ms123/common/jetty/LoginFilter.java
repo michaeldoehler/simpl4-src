@@ -21,7 +21,8 @@ package org.ms123.common.jetty;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.util.*;
+import java.util.Date;
+import java.util.Enumeration;
 import java.sql.Timestamp;
 import com.Ostermiller.util.*;
 import org.ms123.common.permission.api.PermissionService;
@@ -133,6 +134,7 @@ public class LoginFilter implements Filter {
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".woff.gz")) ||
 				pathInfo.startsWith("/" + namespace + "/dav") || 
 				pathInfo.startsWith("/" + namespace + "/legacy") || 
+				pathInfo.startsWith("/openfire") || 
 				pathInfo.startsWith("/" + namespace + "/resource");
 		if (!ok) {
 			String origin = request.getHeader("Origin");

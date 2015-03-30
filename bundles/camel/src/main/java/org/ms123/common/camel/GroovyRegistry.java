@@ -74,7 +74,7 @@ public class GroovyRegistry implements Registry {
 					debug("ds:"+sr[0]);
 				return m_bundleContect.getService(sr[0]);
 			}else{
-				error("getDataSource1(" + name + "):not found");
+				//error("getDataSource1(" + name + "):not found");
 			}
 		} catch (Throwable e) {
 			error("getDataSource2(" + name + "):" + e);
@@ -151,7 +151,6 @@ public class GroovyRegistry implements Registry {
 		m_logger.error(msg);
 	}
 	private static void debug(String msg) {
-		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 	private static final Logger m_logger = LoggerFactory.getLogger(GroovyRegistry.class);

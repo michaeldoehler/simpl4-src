@@ -19,7 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +60,7 @@ public class RemoteCallUtils {
 	 *                          objects - must not be
 	 *                          <code>null</code>).
 	 */
-	public Object callCompatibleMethod(final Object instance, String methodName, final Object originalArguments, HttpServletRequest request, HttpServletResponse response) throws RemoteException, InvocationTargetException, IllegalAccessException, RpcException, NoSuchMethodException {
+	public Object callCompatibleMethod(final Object instance, String methodName, final Object originalArguments, HttpServletRequest request, HttpServletResponse response) throws InvocationTargetException, IllegalAccessException, RpcException, NoSuchMethodException {
 		int argsCount = 0;
 		if (originalArguments instanceof List) {
 			argsCount = ((List) originalArguments).size();
@@ -82,7 +81,7 @@ public class RemoteCallUtils {
 			}
 			goodMethodNameFound = true;
 			Class[] exceptions = candidateMethod.getExceptionTypes();
-			if (!(exceptions.length == 1 && (exceptions[0] == RemoteException.class || exceptions[0] == RpcException.class))) {
+			if (!(exceptions.length == 1 && (exceptions[0] == RpcException.class))) {
 				badExceptions = exceptions;
 				continue;
 			}
@@ -198,6 +197,9 @@ public class RemoteCallUtils {
 		try {
 			debugCall(methodToCall, convertedArguments);
 			methodResult = methodToCall.invoke(instance, convertedArguments.toArray());
+			if( methodToCall.getReturnType().equals(Void.TYPE)){
+				return Void.TYPE;
+			}
 			debugResult(methodResult);
 		} catch (IllegalAccessException e) {
 			error("ERROR IllegalAccessException while trying to call " + methodToCall.getName() + " on a " + instance.getClass().getName() + " with arguments : (");
@@ -208,9 +210,7 @@ public class RemoteCallUtils {
 			trace(e);
 			throw e;
 		} catch (InvocationTargetException e) {
-			if (e.getCause() instanceof RemoteException) {
-				throw (RemoteException) e.getCause();
-			} else if (e.getCause() instanceof RpcException) {
+			if (e.getCause() instanceof RpcException) {
 				throw (RpcException) e.getCause();
 			} else if (e.getCause() instanceof org.apache.shiro.authz.UnauthorizedException) {
 				throw new RpcException( 0,0,e.getMessage(), e.getCause());

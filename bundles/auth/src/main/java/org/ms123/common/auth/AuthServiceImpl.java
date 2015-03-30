@@ -128,6 +128,33 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 		}
 	}
 
+	public List<Map> getUserList( Map mfilter, int startIndex, int numResults){
+		StoreDesc sdesc = getStoreDesc();
+		List<Map> result = new ArrayList();
+		String filter = null;//"userid == '" + id + "'";
+		PersistenceManager pm = m_nucleusService.getPersistenceManagerFactory(sdesc).getPersistenceManager();
+		Class clazz = m_nucleusService.getClass(sdesc, m_inflector.getClassName(USER_ENTITY));
+		Extent e = pm.getExtent(clazz, true);
+		Query q = pm.newQuery(e, filter);
+		Bean2Map b2m = new Bean2Map();
+		try {
+			int count = 0;
+			Collection coll = (Collection) q.execute();
+			Iterator iter = coll.iterator();
+			while (iter.hasNext()) {
+				if( count < startIndex ) continue;
+				if( numResults!=0 && (count-startIndex) > numResults) break;
+				count++;
+				Object obj = iter.next();
+				result.add( b2m.transform(obj, new HashMap()));
+			}
+		} catch( Exception ex){
+			throw new RuntimeException(ex);
+		} finally {
+			q.closeAll();
+		}
+		return result;
+	}
 	private Map getUserByUserid(StoreDesc sdesc, String id) throws Exception {
 		String filter = "userid == '" + id + "'";
 		debug("getUserByUserid:" + filter);
@@ -147,6 +174,23 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 			q.closeAll();
 		}
 		return null;
+	}
+
+	public List<Map> getUserList( ) {
+		return getUserList(null,0,0);
+	}
+	public List<Map> getUserList( Map filter) {
+		return getUserList(filter,0,0);
+	}
+
+	public Map getUserData( String userid)  {
+		try {
+			StoreDesc sdesc = getStoreDesc();
+			return getUserByUserid(sdesc, userid);
+		} catch (Throwable e) {
+			throw new RuntimeException("AuthServiceImpl.getUserData:", e);
+		} finally {
+		}
 	}
 
 	private Map _createUser(String userid, Map data) throws Exception {
@@ -233,7 +277,7 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 			StoreDesc sdesc = getStoreDesc();
 			return getUserByUserid(sdesc, userid);
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "AuthServiceImpl.createUser:", e);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "AuthServiceImpl.getUser:", e);
 		} finally {
 		}
 	}

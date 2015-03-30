@@ -61,7 +61,7 @@ public class BaseRouteJsonConverter {
 		return id.equals("oncompletion");
 	}
 	protected boolean isFrom(Map shape) {
-		return !isOnException(shape);
+		return !(isOnException(shape)  || isOnCompletion(shape));
 	}
 
 	protected void sortStartShapeList(List<Map> shapes) {
@@ -87,7 +87,7 @@ public class BaseRouteJsonConverter {
 			if( isOnException(shape)) cOnException++;
 			if( isOnCompletion(shape)) cOnCompletion++;
 		}
-		return cFrom == 1 && cOnException<2 && cOnCompletion<2;
+		return cFrom > 0 && cOnException<2 && cOnCompletion<2;
 	}
 
 	protected String getId(Map shape) {
@@ -97,6 +97,18 @@ public class BaseRouteJsonConverter {
 			id = (String)shape.get("resourceId");
 		}
 		return id;
+	}
+
+	protected String getSharedOriginRef(Map shape) {
+		Map<String,String> properties = (Map) shape.get("properties");
+		if( "origin".equals(properties.get("shared"))){
+			return properties.get("shareRef");
+		}
+		return null;
+	}
+
+	protected String createRouteId( String baseId, int index){
+		return baseId+"_"+index;
 	}
 
 	protected List<Map> getShapeList(List<Map> list, List<String> types) {

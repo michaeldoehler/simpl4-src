@@ -14,7 +14,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
  	compile files("${repository}/ostermillerutils_1_07_00.jar")
- 	compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+ 	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/flexjson-2.1.bar")
  	compile files("${repository}/shiro-aspectj-1.2.0.jar")
  	compile files("${repository}/shiro-core-1.2.0.jar")

@@ -23,8 +23,11 @@ package org.ms123.common.camel.jsonconverter;
  */
 public class JsonConverterContext {
 	public def modelCamelContext = null;
-	public def routeDefinition = null;
+	public def routesDefinition = null;
+	public def routeStart;
 	public def current;
+	public def sharedEndpoints;
+	public def buildEnvSubstitutor;
 	public def logExceptionsOnly;
 
 	static class ChoiceBlock{//@@@Maybe needed,if choices nested

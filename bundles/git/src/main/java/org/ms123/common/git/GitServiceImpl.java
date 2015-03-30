@@ -488,7 +488,16 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			if (!gitDir.exists()) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchContent:Repo(" + repoName + ") not exists");
 			}
-			List<String> pathList = assetList(repoName, name, type, true);
+
+			List<String> pathList = null;
+			File f = new File(gitDir,name);
+			if( f.exists() && (isEmpty(type) || getFileType(f).equals(type))){
+				info("searchContent.found:"+f);
+				FileHolder fr = new FileHolder(f);
+				return fr.getContent();
+			}
+
+			pathList = assetList(repoName, name, type, true);
 			long endTime = new Date().getTime();
 			debug("searchContent.time:" + (endTime - startTime));
 			if (pathList.size() == 0) {

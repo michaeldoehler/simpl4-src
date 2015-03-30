@@ -4,4 +4,4 @@
 #
 #
 
-java $JAVA_OPTS -cp .:$REPOSITORY/pax-runner-1.8.5.jar org.ops4j.pax.runner.Run "$@"
+java $JAVA_OPTS -cp .:$REPOSITORY/pax-runner-1.8.6.jar org.ops4j.pax.runner.Run "$@"

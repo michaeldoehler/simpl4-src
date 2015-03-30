@@ -1,6 +1,6 @@
 version='1.0.0'
 jar.enabled=true
 dependencies {
-	compile files("${repository}/org.apache.felix.main-4.4.1.jar")
+	compile files("${repository}/org.apache.felix.main-4.6.1.jar")
 
 }

@@ -74,13 +74,15 @@ public class VisGenerator {
 	public VisGenerator() {
 	}
 
-	public Map<String, List> getGraph(RouteDefinition routeDefinition) {
+	public Map<String, List> getGraph(List<RouteDefinition> routeDefinitions) {
 		Map<String, List> data = new HashMap();
 		List<Map> nodes = new ArrayList();
 		List<Map> edges = new ArrayList();
 		data.put(NODES, nodes);
 		data.put(EDGES, edges);
-		doRoutes(data, routeDefinition);
+		for( RouteDefinition routeDef : routeDefinitions){
+			doRoutes(data, routeDef);
+		}
 		return data;
 	}
 

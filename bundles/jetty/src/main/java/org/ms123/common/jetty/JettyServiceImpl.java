@@ -76,6 +76,8 @@ import java.lang.reflect.*;
 import org.ms123.common.utils.IOUtils;
 import flexjson.*;
 import org.yaml.snakeyaml.*;
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
 
 /** JettyService implementation
  */
@@ -94,6 +96,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 //	private MiltonService m_miltonService;
 
 	private JsonRpcServlet m_rpcServlet;
+	private S4WebSocketServlet m_websocketServlet;
 
 	private BundleContext m_bundleContext;
 
@@ -171,18 +174,18 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private void initJetty() throws Exception {
 		String port = System.getProperty("jetty.port");
-		int p = getInt(port, 8075);
-		m_server = new Server(p);
+		m_server = new Server( getInt(port, 8075) );
+
 		String sh = System.getProperty("workspace");
 		m_basedir = new File(sh).getCanonicalFile().getParent();
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		if (new File(sh + "/webapps/guvnor").exists()) {
-			WebAppContext webapp = new WebAppContext(contexts, sh + "/webapps/guvnor", "/guvnor");
-		}
-		// WebAppContext webapp = new WebAppContext(contexts, sh + "/webapps/e", "/e");
-		// webapp.setWar(sh+"/webapps/guvnor-webapp-5.2.0.Final.war");
-		// webapp.setExtractWAR(true);
-		// webapp.setResourceBase(sh + "/webapps/guvnor");
+
+		WebAppContext webapp = new WebAppContext(contexts, m_basedir + "/etc/openfire/web", "/openfire/");
+		webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		webapp.setWelcomeFiles(new String[]{"index.jsp"});
+		webapp.setResourceBase(m_basedir + "/etc/openfire/web");
+		webapp.setContextPath("/openfire/");
+
 		LoginFilter loginFilter = new LoginFilter(m_permissionService);
 		FilterHolder loginFilterHolder = new FilterHolder(loginFilter);
 		loginFilterHolder.setName("LoginFilter");
@@ -192,6 +195,11 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		BundleContext bc = m_bundleContext;
 		m_rpcServlet = new JsonRpcServlet(bc);
 		context0.addServlet(new ServletHolder(m_rpcServlet), "/rpc/*");
+
+		Map<String,Object> config = new HashMap();
+		config.put("bundleContext",m_bundleContext);
+		m_websocketServlet = new S4WebSocketServlet(config);
+		context0.addServlet(new ServletHolder(m_websocketServlet), "/ws/*");
 		context0.addServlet(new ServletHolder(new DefaultServlet() {
 
 
@@ -217,6 +225,9 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				try {
 					if( req.getPathInfo().endsWith(".__pdf")){
 						super.doGet(req,response);
+						return;
+					}
+					if( req.getPathInfo().startsWith("/openfire/")){
 						return;
 					}
 					info("Repo Request:"+req.getPathInfo());
@@ -253,7 +264,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				}
 			}
 		}), "/*");
-		contexts.setHandlers(new Handler[] { context0 });
+		contexts.setHandlers(new Handler[] { context0, webapp });
 		m_server.setHandler(contexts);
 		m_server.start();
 		info("initJetty.ok");

@@ -1,0 +1,766 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-chat">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+			paper-button /deep/ .button-content {
+				padding: 0.5em 0.5em;
+			}
+			paper-button {
+				max-width: 100px;
+			}
+			paper-button.sendButton {
+				max-width: 80px;
+			}
+			paper-button.userButton {
+				text-transform: none;
+				min-width: 60px !important;
+				max-width: 120px;
+			}
+			.userButtons core-icon.small {
+				color: #4285F4;
+				pointer-events: none;
+			}
+			paper-button.sendButton /deep/ .button-content {
+				justify-content: flex-start !important;
+			}
+			section.chatSection {
+				padding-left: 3px;
+			}
+			input-field {
+				margin: 0;
+			}
+			simpl-form {
+				width: 100%;
+			}
+			:host /deep/ xaction-button /deep/ .button-content {
+				width: 120px;
+				font-size: 12px;
+				padding: 0.5em 0.5em;
+			}
+			simpl-row {
+				margin-bottom: 12px;
+			}
+			core-icon.small {
+				width: 16px;
+				height: 16px;
+			}
+			core-icon.big {
+				width: 24px;
+				height: 24px;
+			}
+			simpl-panel /deep/ #panelContent {
+				min-height: 450px;
+				padding: 0px 0px 0px 0px !important;
+				overflow-x: hidden !important;
+			}
+			polyfill-rule {
+				content: 'simpl-panel#mainPanel';
+				font-size:80%;
+			}
+			.small-input {
+				padding: 3px;
+				margin-right: 2px;
+				max-width: 50px;
+				border-radius: 3px;
+				border: 1px solid #CCC;
+				background-image: none;
+			}
+			.message-column {
+				padding: 2px;
+				font-size: 11px;
+				word-wrap: break-word;
+				color: #d50303;
+			}
+			.icon-column {
+				color: #4285F4;
+			}
+			.name-column {
+				color: black;
+				padding: 2px;
+				font-size: 10px;
+				font-weight: bold;
+			}
+			.timestamp-column {
+				font-size: 10px;
+				font-weight: lighter;
+				width: 65px;
+				padding-top: 5px;
+				padding: 3px;
+				color: gray;
+			}
+			polyfill-rule {
+				content: '.timestamp-column';
+				padding:0px !important;
+			}
+			polyfill-rule {
+				content: '.name-column';
+				padding:0px !important;
+			}
+			polyfill-rule {
+				content: '.message-column';
+				padding:0px !important;
+			}
+
+			polyfill-rule {
+				content: 'simpl-panel #panelId';
+    		margin-left: 0px;
+			}
+			.presence {
+				color: #d50303;
+				padding: 5px;
+				font-size: 10px;
+				font-weight: bold;
+			}
+			.messageLine {
+				padding: 2px;
+			}
+			.messagesBox {
+				overflow-y: auto;
+				min-height: 100px;
+				font-size: 12px;
+			}
+			input.currentParticipant {
+				border: 0px;
+			}
+			.shadow {
+				display: inline-block;
+				background: white;
+				box-sizing: border-box;
+				padding-left: 3px;
+				height: 22px;
+			}
+			ol {
+				list-style: none;
+				margin: 0px;
+				padding: 0px;
+			}
+			polyfill-rule {
+				content: 'ol';
+				margin-left:0px !important;
+			}
+			li {
+				float: left;
+				display: inline;
+				border-bottom: 1px solid #e2e2e2;
+				width: 100%;
+				height: 100%;
+				padding-bottom: 0px;
+			}
+			core-toolbar.core-narrow /deep/ #topBar.toolbar-tools {
+				align-items: baseline;
+			}
+			core-toolbar.core-narrow {
+				height: 90px;
+				background: #f6f6f6;
+			}
+			core-item {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			paper-tab {
+				z-index: 100;
+				border-radius: 4px;
+			}
+			paper-tabs::shadow #selectionBar {
+				//background-color: black;
+				background: #d50303;
+			}
+			paper-tabs paper-tab::shadow #ink {
+				opacity: .6;
+				color: #d50303;
+			}
+			.dropdown {
+				border-radius: 3px;
+				color: #000;
+				//border: 1px solid #0f9d58;
+				border: 1px solid #ccc;
+				//background-color: #b7e1cd;
+				background-color: #eee;
+			}
+
+		</style>
+
+
+		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
+
+			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
+				<section view-id="loginView">
+					<simpl-row>
+						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
+					</simpl-row>
+				</section>
+				<section class="mainSection" style="position:relative;" view-id="chatView">
+					<simpl-row>
+						<core-toolbar flex class="core-narrow">
+							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
+							<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
+							<core-menu-button>
+								<core-icon-button icon="menu"></core-icon-button>
+								<core-dropdown class="dropdown" layered="true">
+									<core-menu>
+										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
+										<!--core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item-->
+										<core-item on-tap="{{showJoinRoomForm}}" icon="content-copy">{{'chat.joinRoom'|tr}}</core-item>
+										<core-item on-tap="{{showLeaveRoomForm}}" icon="launch">{{'chat.leaveRoom'|tr}}</core-item>
+									</core-menu>
+								</core-dropdown>
+							</core-menu-button>
+
+							<span style="color:#D50303;">{{chatState}}</span>
+							<div class="bottom fit" horizontal layout>
+								<paper-tabs selected="{{chatId}}" flex style="max-width:600px;" valueattr="chat-id" scrollable>
+									<template repeat="{{chat, i in chatList}}">
+										<paper-tab chat-id="{{chat.id}}">{{chat.id}}</paper-tab>
+									</template>
+								</paper-tabs>
+							</div>
+						</core-toolbar>
+					</simpl-row>
+
+
+					<core-animated-pages id="chatPages" selected="{{chatId}}" transitions="slide-from-right" valueattr="chat-id">
+						<template repeat="{{chat, i in chatList}}">
+							<section class="chatSection" style="position:relative;" chat-id="{{chat.id}}">
+								<template if="{{chat.type != 'groupchat'}}">
+									<div layout vertical>
+										<div class="userButtons" style="flex-wrap:wrap;" layout horizontal>
+											<template repeat="{{entry in rosterEntries}}">
+												<paper-button class="userButton" data-username="[[entry.username]]" raised on-tap="{{setCurrentParticipant}}">
+													<core-icon class="small" icon="account-box"></core-icon>[[entry.username|cutDomain]]</paper-button>
+											</template>
+										</div>
+										<simpl-row>
+										</simpl-row>
+										<div style="padding-top:4px;">
+											<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">
+												{{'chat.participant'|tr}}:
+											</label>
+											<paper-shadow class="shadow" z="2">
+												<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
+											</paper-shadow>
+										</div>
+									</div>
+								</template>
+								<simpl-row>
+								</simpl-row>
+								<template if="{{chat.type == 'groupchat'}}">
+											<label style="vertical-align:middle;color:#d50303;font-weight:bold;">
+												{{'chat.occupiants'|tr}}:
+											</label>
+								<simpl-row>
+								</simpl-row>
+									<div style="flex-wrap:wrap;" layout horizontal>
+										<template repeat="{{user,i in chat.presence}}">
+											<paper-button class="userButton" raised on-tap="{{sendMessageInput}}">
+												<core-icon class="small" icon="account-box"></core-icon>{{user}}</paper-button>
+										</template>
+									</div>
+								</template>
+								<simpl-row>
+									<input-field flex type="text" name="" id="{{'messageInput-'+chat.id}}" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
+									<paper-button class="sendButton" raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
+										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
+								</simpl-row>
+								<div class="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
+									<template repeat="{{message in chat.messages}}">
+										<ol>
+											<li>
+												<div class="messageLine" layout horizontal style="{{message.style}}">
+													<core-icon class="icon-column small" icon="mail"></core-icon>
+													<div flex layout vertical>
+														<div layout horizontal>
+															<div class="timestamp-column">{{ message.time }}</div>
+															<div flex class="name-column">{{ message.from }}</div>
+														</div>
+														<div class="message-column">{{ message.body }} </div>
+													</div>
+												</div>
+											</li>
+										</ol>
+									</template>
+								</div>
+							</section>
+						</template>
+					</core-animated-pages>
+				</section>
+				<section view-id="addUserView">
+					<h2>{{'chat.new_contact_header1'|tr}}</h2>
+					<h4>{{'chat.new_contact_header2'|tr}}</h4>
+					<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
+				</section>
+				<section view-id="addGroupView">
+					<h2>{{'chat.new_group_header'|tr}}</h2>
+					<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
+				</section>
+				<section view-id="joinRoomView">
+					<simpl-form id="joinRoomForm" namespace="global" actionCallback="{{joinRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
+				</section>
+				<section view-id="leaveRoomView">
+					<simpl-form id="leaveRoomForm" namespace="global" actionCallback="{{leaveRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
+				</section>
+			</core-animated-pages>
+
+		</simpl-panel>
+		<paper-toast id="toast_error" duration="5000" text="" style="background:#d50303;padding-right:60px;" role="alert" class="capsule">
+			<div style="color:white;font-weight:bold;">{{errorMessage}}</div>
+		</paper-toast>
+	</template>
+	<script>
+		Polymer( "simpl-chat", {
+			chatId: 'main',
+			viewId: "loginView",
+			recvMessage: null,
+			connected: false,
+			autoConnect: true,
+			resourceId: null,
+			pausingTimeout: 2500,
+			messages: [],
+			ready: function() {
+				this.resetChatList();
+				this.loginData = {};
+				this.resourceId = getShortId();
+				this.addUserCallback = this.addUser.bind( this );
+				this.addGroupCallback = this.addGroup.bind( this );
+				this.loginCallback = this.login.bind( this );
+				this.joinRoomCallback = this.joinRoom.bind( this );
+				this.leaveRoomCallback = this.leaveRoom.bind( this );
+				window.addEventListener( 'unload', ( function( e ) {
+					if ( this.connected ) {
+						this.sendChatState( "gone" );
+					}
+				} ).bind( this ) );
+			},
+			sendMessageInput: function() {
+				var chat = this.chatHash[ this.chatId ];
+				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				if ( this.isEmpty( participant ) && chat.type !== 'groupchat' ) {
+					this.showError( "no participant selected" );
+					console.error( "no participant selected" );
+					return;
+				}
+				if ( messageInput.value != "" ) {
+					var message = {
+						body: messageInput.value,
+						from: this.loginData.username
+					};
+					if ( !this.isEmpty( participant ) ) {
+						message.participant = participant;
+					}
+					if ( chat.type === 'groupchat' ) {
+						message.room = chat.id;
+					}
+					if ( chat.type !== 'groupchat' ) {
+						message.style = "background:light-yellow;";
+						message.time = this.getTime();
+						chat.messages.unshift( message );
+					}
+					this.$.websocket.sendMessage( message );
+					messageInput.setValue( "" );
+					this.sendChatState( "active" );
+					this.isComposing = false;
+				}
+			},
+			recvMessageChanged: function() {
+				var message = this.recvMessage;
+				message.time = this.getTime();
+				console.log( "-> recvMessage", message );
+				var chatState = message.chatState;
+				if ( message.from && message.type === "chat" ) {
+					message.from = message.from.split( "@" )[ 0 ];
+				}
+				var chat = null;
+				if ( message.errorMessage ) {
+					this.showError( message.errorMessage );
+					console.error( message.errorMessage );
+					if ( message.room ) {
+						this.removeChat( message.room );
+					}
+					return;
+				}
+				if ( message.type == "groupchat" ) {
+					var room = message.from.split( "@" )[ 0 ];
+					message.from = message.from.split( "/" )[ 1 ];
+					chat = this.chatHash[ room ];
+				} else if ( message.type == "chat" ) {
+					chat = this.chatHash[ "main" ];
+				}
+				if ( !this.isEmpty( message.body ) ) {
+					message.style = "background:#f8f8f8;";
+					chat.messages.unshift( message );
+				}
+				if ( message.chatState ) {
+					this.chatState = tr( 'chat.state_' + chatState );
+				}
+				if ( chat && chat.type === 'groupchat' ) {
+					this.chatState = '';
+				}
+				if ( message.rosterEntries ) {
+					this.rosterEntries = message.rosterEntries;
+					this.rosterEntries.sort( this.sortRosterEntries );
+				}
+				if ( message.presence ) {
+					var chatId = message.from.split( "@" )[ 0 ];
+					var chat = this.chatHash[ chatId ];
+					if ( chat ) {
+						chat.presence = message.presence;
+						console.log( "chat.presence:" + JSON.stringify( chat, null, 2 ) );
+					}
+				}
+			},
+			login: function( e ) {
+				var loginForm = this.shadowRoot.querySelector( "#loginForm" );
+				var formData = loginForm.getData();
+				console.log( "loginData:", formData );
+				if ( this.isEmpty( formData.username ) ) {
+					return;
+				}
+				if ( !this.isEmpty( formData.resource ) ) {
+					this.resourceId = formData.resource;
+				}
+
+				this.loginData = formData;
+				this.rosterEntries = [];
+				this.chatId = 'main';
+				this.resetChatList();
+				this.$.websocket.go( formData.username, formData.password, this.resourceId, this.socketTimeoutCallback.bind( this ) );
+			},
+			disconnect: function() {
+				this.sendChatState( "gone" );
+				this.async( function() {
+					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
+				}, null, 300 );
+			},
+			socketTimeoutCallback: function() {
+				this.async( function() {
+					var chat = this.chatHash[ this.chatId ];
+					for ( var i = 0; i < this.chatList.length; i++ ) {
+						var chat = this.chatList[ i ];
+						if ( chat.type === 'groupchat' ) {
+							this.sendJoin( chat );
+						}
+					}
+				}, null, 500 );
+			},
+			connectedChanged: function() {
+				this.isComposing = false;
+				this.async( function() {
+					if ( this.connected ) {
+						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
+						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
+						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
+						this.viewId = "chatView";
+					} else {
+						this.isComposing = false;
+						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
+						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
+						this.viewId = "loginView";
+					}
+				}, null, 100 );
+			},
+			showJoinRoomForm: function() {
+				this.viewId = "joinRoomView";
+				var params = {
+					service: "xmpp",
+					method: "getRooms",
+					parameter: {
+						serviceName: "conference"
+					},
+					async: true,
+					context: this,
+					failed: function( e ) {
+						console.error( "showJoinRoomForm:", e );
+					},
+					completed: function( roomList ) {
+						var rooms = [];
+						for ( var i = 0; i < roomList.length; i++ ) {
+							var room = {};
+							room.name = roomList[ i ].name;
+							room.description = roomList[ i ].description;
+							rooms.push( room );
+						}
+						var items = {
+							room: rooms
+						};
+						var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
+						joinRoomForm.setItems( items );
+					}
+				}
+				simpl4.util.Rpc.rpcAsync( params );
+			},
+			joinRoom: function( e ) {
+				var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
+				var formData = joinRoomForm.getData();
+				console.log( "roomListData:", formData );
+
+				this.viewId = "chatView";
+				if ( e.target.xaction == "cancel" ) {
+					return;
+				}
+				if ( formData.room == null ) {
+					return;
+				}
+				var chat = {};
+				chat.id = formData.room[ 0 ].name;
+				chat.description = formData.room[ 0 ].description;
+				if ( this.chatHash[ chat.id ] ) {
+					this.chatId = chat.id;
+					return;
+				}
+				chat.messages = [];
+				chat.type = 'groupchat',
+				this.addChat( chat );
+				this.async( function() {
+					this.chatId = chat.id;
+					this.sendJoin();
+				}, null, 300 );
+			},
+			showLeaveRoomForm: function() {
+				this.viewId = "leaveRoomView";
+				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var items = [];
+				for ( var i = 0; i < this.chatList.length; i++ ) {
+					if ( this.chatList[ i ].type === 'groupchat' ) {
+						var item = {
+							name: this.chatList[ i ].id,
+							description: this.chatList[ i ].description
+						}
+						items.push( item );
+					}
+				}
+				this.async( function() {
+					leaveRoomForm.setItems( {
+						room: items
+					} );
+					var actionButton = leaveRoomForm.querySelector( "simpl-form /deep/ xaction-button" );
+					actionButton.innerHTML = '<core-icon icon="launch"></core-icon>' + tr( 'chat.leaveRoom' );
+					console.log( "actionButton:", actionButton );
+				}, null, 30 );
+			},
+			leaveRoom: function( e ) {
+				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var formData = leaveRoomForm.getData();
+				console.log( "leaveRoomData:", formData );
+				console.log( "xaction:", e.target.xaction );
+
+				this.viewId = "chatView";
+				if ( e.target.xaction == "cancel" ) {
+					return;
+				}
+				if ( formData.room == null ) {
+					return;
+				}
+				var chatId = formData.room[ 0 ].name;
+				var message = {
+					command: "leaveRoom",
+					parameter: {
+						room: chatId
+					}
+				};
+				this.$.websocket.sendMessage( message );
+				this.removeChat( chatId );
+			},
+			showAddUserForm: function() {
+				this.viewId = "addUserView";
+			},
+			showAddGroupForm: function() {
+				this.viewId = "addGroupView";
+			},
+			addUser: function( e ) {
+				this.viewId = "chatView";
+				var addUserForm = this.shadowRoot.querySelector( "#addUserForm" );
+				var formData = addUserForm.getData();
+				if ( this.isEmpty( formData.username ) ) {
+					return;
+				}
+				var message = {
+					command: "addUser",
+					parameter: {
+						username: formData.username,
+						nickname: formData.nickname
+					}
+				};
+				this.$.websocket.sendMessage( message );
+			},
+			addGroup: function( e ) {
+				this.viewId = "chatView";
+				var addGroupForm = this.shadowRoot.querySelector( "#addGroupForm" );
+				console.log( "addGroup:", addGroupForm.getData() );
+				var formData = addUserForm.getData();
+				if ( this.isEmpty( formData.groupname ) ) {
+					return;
+				}
+				var message = {
+					command: "addGroup",
+					parameter: {
+						groupname: formData.groupname,
+					}
+				};
+				this.$.websocket.sendMessage( message );
+			},
+			onMessageKeydown: function( e ) {
+				if ( e.keyCode && e.keyCode == 13 ) this.sendMessageInput();
+			},
+			chatEventListener: function( e ) {
+				var chat = this.chatHash[ this.chatId ];
+				if( chat.type === 'groupchat'){
+					return;
+				}
+				var type = e.type;
+				if ( type == 'keyup' && e.keyCode != 13 ) {
+					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
+						this.isComposing = true;
+						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
+						this.sendChatState( 'composing' );
+					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
+						this.isComposing = false;
+						this.sendChatState( 'active' );
+					} else if ( $( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
+						clearTimeout( this.checkPausingTimeout );
+						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
+					}
+				}
+				if ( type == 'focus' ) {
+					if ( !$( this.messageInputElement ).val() ) {
+						this.sendChatState( 'active' );
+					} else {
+						this.sendChatState( 'composing' );
+					}
+				}
+				if ( type == 'blur' ) {
+					this.sendChatState( 'inactive' );
+				}
+			},
+			checkPausing: function() {
+				if ( this.isComposing ) {
+					this.sendChatState( "paused" );
+					this.isComposing = false;
+				}
+			},
+			sendJoin: function( chat ) {
+				if ( chat == null ) {
+					chat = this.chatHash[ this.chatId ];
+				}
+				if ( chat.type !== 'groupchat' ) return;
+				var message = {
+					body: "",
+					from: this.loginData.username,
+					room: chat.id
+				}
+				this.$.websocket.sendMessage( message );
+			},
+			sendChatState: function( state ) {
+				var chat = this.chatHash[ this.chatId ];
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				if ( this.isEmpty( participant ) ) {
+					if ( chat.type !== 'groupchat' ) {
+						console.error( "no participant selected" );
+					}
+					return;
+				}
+				var message = {
+					command: "chatState",
+					participant: participant,
+					parameter: {
+						state: state
+					}
+				};
+				this.$.websocket.sendMessage( message );
+			},
+			sortRosterEntries: function compare( a, b ) {
+				if ( a.username < b.username ) {
+					return -1;
+				}
+				if ( a.username > b.username ) {
+					return 1;
+				}
+				return 0;
+			},
+			showError: function( msg ) {
+				this.errorMessage = msg;
+				this.$.toast_error.show();
+			},
+			getTime: function() {
+				//var format = simpl4.util.BaseManager.getDateFormat() + " HH:mm:ss";
+				var format = " HH:mm.ss";
+				return "[" + moment().format( format ) + "]";
+			},
+			chatIdChanged:function(){
+				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
+				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
+				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
+				this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
+			},
+			cutDomain: function( name ) {
+				if ( name.indexOf( "@" ) == -1 ) return name;
+				return name.split( "@" )[ 0 ];
+			},
+			setCurrentParticipant: function( e ) {
+				console.log( "setCurrentParticipant:", e.target.dataset.username );
+				var chat = this.chatHash[ this.chatId ];
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
+				participant.val( e.target.dataset.username );
+			},
+			resetChatList: function() {
+				this.chatList = [];
+				var chat = {
+					id: 'main',
+					messages: [],
+					type: 'mixedchat'
+				};
+				this.addChat( chat );
+			},
+			removeChat: function( name ) {
+				for ( var i = 0; i < this.chatList.length; i++ ) {
+					if ( name === this.chatList[ i ].id ) {
+						this.chatList.splice( i, 1 );
+						break;
+					}
+				}
+				this.chatHash = this.toHash( this.chatList );
+				this.chatId = "main";
+			},
+			addChat: function( chat ) {
+				chat.presence = [];
+				this.chatList.push( chat );
+				this.chatHash = this.toHash( this.chatList );
+			},
+			toHash: function( list ) {
+				var hash = {}
+				for ( var i = 0; i < list.length; i++ ) {
+					hash[ list[ i ].id ] = list[ i ];
+				}
+				return hash;
+			},
+			isEmpty: function( s ) {
+				if ( s == null || s == '' ) return true;
+				return false;
+			}
+		} );
+
+	</script>
+</polymer-element>

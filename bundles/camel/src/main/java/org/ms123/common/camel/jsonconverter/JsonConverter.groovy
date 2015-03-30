@@ -18,6 +18,7 @@
  */
 package org.ms123.common.camel.jsonconverter;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.ExpressionSubElementDefinition;
 import org.apache.camel.model.WhenDefinition;
 import org.apache.camel.model.DataFormatDefinition;
@@ -71,9 +72,9 @@ abstract class JsonConverterImpl implements JsonConverter{
 	def children = []
 	def engine = new SimpleTemplateEngine();
 	void finishToCamel(ctx){}
-	def constructUri(){
-		def uriValueMap = createMap("urivalue_");
-		def uriParamMap = createMap("uriparam_");
+	def constructUri(ctx){
+		def uriValueMap = createMap(ctx,"urivalue_");
+		def uriParamMap = createMap(ctx,"uriparam_");
 		println("uriValueMap:"+uriValueMap);
 		println("uriParamMap:"+uriParamMap);
 		def extraParams = shapeProperties.extraParams;
@@ -89,6 +90,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 		if( shapeProperties.uri_template ){
 			uri = engine.createTemplate(shapeProperties.uri_template).make(uriValueMap).toString();
 		}
+		uri = ctx.buildEnvSubstitutor.replace( uri );
 		if( uriParamMap.size() > 0){
 			def delim = "?";
 			uriParamMap.each(){key,value->
@@ -144,7 +146,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	def getDataformat(ctx){
 		def format = shapeProperties.format;
 		
-		def map = createMap(format+"_");
+		def map = createMap(ctx,format+"_");
 		println("ParameterMap:"+map);
 		def dataFormatDef = null;
 		if( shapeProperties.json_library == "flexjson"){
@@ -168,11 +170,11 @@ abstract class JsonConverterImpl implements JsonConverter{
 		return shapeProperties.format;
 	}
 
-	def createMap(prefix){
+	def createMap(ctx,prefix){
 		def map=[:];
 		shapeProperties.each(){key,value->
 			if(key.startsWith(prefix)){
-				map[key.substring(prefix.length())] = value!=null ? value.toString() : "";
+				map[key.substring(prefix.length())] = value!=null ? ctx.buildEnvSubstitutor.replace(value.toString()) : "";
 			}
 		}	
 		return map;
@@ -208,12 +210,18 @@ abstract class JsonConverterImpl implements JsonConverter{
 		try {
 			def gs = new GroovyShell();
 			def clazz  = (Class) gs.evaluate(code);
-			System.out.println("clazz:" + clazz);
 			return clazz.newInstance();
 		} catch (Throwable e) {
 			String msg = Utils.formatGroovyException(e,code);
 			throw new RuntimeException(msg);
 		}
+	}
+
+	def getSharedLinkRef() {
+		if( "link".equals(shapeProperties.get("shared"))){
+			return shapeProperties.get("shareRef");
+		}
+		return null;
 	}
 
 	def prettyPrint(msg, obj){
@@ -297,7 +305,8 @@ class OnExceptionJsonConverter extends JsonConverterImpl{
 		if( exList.size()==0){
 			exList.add(java.lang.Exception.class);
 		}
-		ctx.current = ctx.routeDefinition.onException(exList as Class[]);
+		RouteDefinition rd = ctx.routesDefinition.getRoutes().get(0);
+		ctx.current = rd.onException(exList  as Class[]);
 		ctx.current.id(resourceId);
 		if(isNotEmpty(shapeProperties.continued)){
 			ctx.current.setContinued(new ExpressionSubElementDefinition((Expression)createExpression(shapeProperties.continued,shapeProperties.continuedLanguage)));
@@ -312,20 +321,33 @@ class OnExceptionJsonConverter extends JsonConverterImpl{
 }
 class OnCompletionJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
-		ctx.current = ctx.routeDefinition.onCompletion();
+		RouteDefinition rd = ctx.routesDefinition.getRoutes().get(0);
+		ctx.current = rd.onCompletion();
 		ctx.current.id(resourceId);
 	}
 }
 
 class EndpointJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
-		if( ctx.routeDefinition == null){
-			ctx.routeDefinition = new RouteDefinition();
-			setConstants(ctx.routeDefinition, rootProperties);
-			ctx.current = ctx.routeDefinition.from(constructUri());
+		def link = getSharedLinkRef();
+		def sharedEndpoint = null;
+		if( link != null){
+			sharedEndpoint = ctx.sharedEndpoints[link];
+			if( sharedEndpoint == null) throw new RuntimeException("EndpointJsonConverter:sharedEnpoint("+link+") not found.");
+		}
+		if( ctx.routesDefinition == null){
+			ctx.routesDefinition = new RoutesDefinition();
+			def routeDefinition = ctx.routesDefinition.from(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
+			setConstants(routeDefinition, rootProperties);
+			ctx.current = routeDefinition;
 			ctx.current.getInputs().get(0).id(resourceId);
+			ctx.routeStart = false;
+		}else if(ctx.routeStart==true){
+			ctx.routeStart = false;
+			ctx.current = ctx.routesDefinition.from(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
+			//ctx.current.getInputs().get(0).id(resourceId);
 		}else{
-			ctx.current = ctx.current.to(constructUri());
+			ctx.current = ctx.current.to(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
 			ctx.current.id(resourceId);
 		}
 	}
@@ -398,6 +420,12 @@ class HttpClientEndpointJsonConverter extends EndpointJsonConverter{
 }
 
 class MailEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
+class XmppEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);
 	}

@@ -35,12 +35,15 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Route;
 import org.apache.camel.Exchange;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.view.RouteDotGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.language.ConstantExpression;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 /**
  */
 class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms123.common.camel.Constants{
@@ -48,13 +51,16 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 	def m_ctx;
 	def m_typesMap = [:];
 	def m_shapeMap = [:];
-	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding) {
+	def m_sharedEndpointMap = [:];
+	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv) {
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
+		m_ctx.buildEnvSubstitutor = new StrSubstitutor(buildEnv,"{{", "}}");
 		def logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
 		fillShapeMap(rootShape);
 		fillTypesMap();
+		m_ctx.sharedEndpoints = createSharedOriginEndpoints(camelContext);
 		def startList = getStartList(rootShape);
 		for( def startShape : startList){
 			def converter = m_typesMap[getStencilId(startShape)];
@@ -63,14 +69,22 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			}
 			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding);
 			createConverterGraph(startJsonConverter, startShape);
+			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
-		m_ctx.routeDefinition.routeId( getId(rootShape));
-		if( logExceptionsOnly){
-			def expr = new ConstantExpression(logExceptionsOnly as String);
-			m_ctx.routeDefinition.setProperty("__logExceptionsOnly",expr);
+		def baseId = getId(rootShape);
+		def i=1;
+		int size = m_ctx.routesDefinition.getRoutes().size();
+		m_ctx.routesDefinition.getRoutes().each(){ routeDef ->
+			routeDef.routeId( size == 1 ? baseId : createRouteId(baseId,i));
+			i++;
+			if( logExceptionsOnly){
+				def expr = new ConstantExpression(logExceptionsOnly as String);
+				routeDef.setProperty("__logExceptionsOnly",expr);
+			}
 		}
-		println("RouteDefinition:"+m_ctx.routeDefinition);
+
+		println("RoutesDefinition:"+m_ctx.routesDefinition);
 	}
 	private def getStartList(Map rootShape) {
 		def outgoings =[];
@@ -116,6 +130,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_typesMap["sedaendpoint"] = SedaEndpointJsonConverter.class;
 		m_typesMap["vmendpoint"] = VMEndpointJsonConverter.class;
 		m_typesMap["mailendpoint"] = MailEndpointJsonConverter.class;
+		m_typesMap["xmppendpoint"] = XmppEndpointJsonConverter.class;
 		m_typesMap["ftpendpoint"] = FtpEndpointJsonConverter.class;
 		m_typesMap["sqlendpoint"] = SqlEndpointJsonConverter.class;
 		m_typesMap["repoendpoint"] = RepoEndpointJsonConverter.class;
@@ -158,8 +173,30 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		}
 
 	}
-	public RouteDefinition getRouteDefinition() {
-		return m_ctx.routeDefinition;
+
+	def createSharedOriginEndpoints(CamelContext cc){
+		def sharedEndpointMap = [:];
+		for ( e in m_shapeMap ) {
+			def shape = e.value;
+			String sharedRef = getSharedOriginRef(shape);
+			println("sharedRef:"+sharedRef);
+			if( sharedRef != null){
+				def id = getStencilId(shape);
+				def converter = m_typesMap[id];
+				println("converter:"+converter);
+				def jsonConverter = converter.newInstance(shapeProperties:shape.properties, resourceId:getId(shape));
+				def uri = jsonConverter.constructUri(m_ctx);
+				def endpoint = cc.getEndpoint(uri);
+				println("endpoint:"+endpoint);
+				cc.addEndpoint( sharedRef, endpoint);
+				sharedEndpointMap[sharedRef] = endpoint;
+			}
+		}
+		return sharedEndpointMap;
+	}
+
+	public RoutesDefinition getRoutesDefinition() {
+		return m_ctx.routesDefinition;
 	}
 
 	public void toDot(){

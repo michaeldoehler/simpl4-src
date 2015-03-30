@@ -73,7 +73,9 @@ import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.MessageHistory;
 import org.apache.camel.FailedToCreateRouteException;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.model.ModelHelper;
 import groovy.lang.GroovyShell;
 import org.codehaus.groovy.tools.FileSystemCompiler;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -90,6 +92,8 @@ import static org.ms123.common.system.LogService.LOG_KEY;
 import static org.ms123.common.system.LogService.LOG_TYPE;
 import static org.ms123.common.system.LogService.LOG_HINT;
 import static org.ms123.common.system.LogService.LOG_TIME;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 /**
  *
  */
@@ -121,6 +125,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected JSONSerializer m_js = new JSONSerializer();
 
 	private Map<String, ContextCacheEntry> m_contextCache = new LinkedHashMap();
+	private Map<String, List<Route>> m_routeCache = new LinkedHashMap();
 
 	public CamelContext getCamelContext(String namespace, String camelName) {
 		try{
@@ -225,9 +230,75 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			throw new RuntimeException("_getVisGraph:context:"+contextKey+" not found");
 		}
 		CamelContext cc = cce.context;
+		List<RouteDefinition> routeDefinitions = new ArrayList();
 		RouteDefinition routeDefinition =  cc.getRouteDefinition(routeId);
+		if( routeDefinition != null ){
+			routeDefinitions.add( routeDefinition);
+		}else{
+			int i=1;
+			while(true){
+				routeDefinition =  cc.getRouteDefinition(createRouteId(routeId,i));
+				if( routeDefinition==null){
+					break;
+				}
+				routeDefinitions.add(routeDefinition);
+			}
+		}
+
 		VisGenerator vg = new VisGenerator();
-		return vg.getGraph(routeDefinition);
+		return vg.getGraph(routeDefinitions);
+	}
+
+	public synchronized List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg,Map<String,String> meta) {
+		ModelCamelContext context = (ModelCamelContext)getCamelContext(namespace,"default");
+		String routeString = m_gitService.searchContent( namespace, name, "sw.camel" );
+		String md5 = getMD5OfUTF8(routeString+(buildEnv != null ? buildEnv.toString():""));
+		List<Route> routes = m_routeCache.get(md5);
+		if( routes != null) return routes;
+		Map shape = (Map)m_ds.deserialize(routeString);
+
+		String recvEndpoint = getString(shape, "recvEndpoint",null);
+		String sendEndpoint = getString(shape, "sendEndpoint",null);
+		if( recvEndpoint == null){
+			throw new RuntimeException("Missing \"ReceiveEndpoint\" in:"+namespace+"/"+name);
+		}
+		if( sendEndpoint == null){
+			throw new RuntimeException("Missing \"SendEndpoint\" in:"+namespace+"/"+name);
+		}
+	  StrSubstitutor ss = new StrSubstitutor(buildEnv, "{{", "}}");
+	
+		meta.put("recvEndpoint", ss.replace(recvEndpoint));
+		meta.put("sendEndpoint", ss.replace(sendEndpoint));
+		println("Meta:"+meta);
+
+		List<String> permittedRoleList = getStringList(shape, "startableGroups");
+		List<String> permittedUserList = getStringList(shape, "startableUsers");
+		List<String> userRoleList = getUserRoles(userName);
+		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
+			throw new RuntimeException("User(" + userName + ") has no permission execute route:"+namespace+"/"+name);
+		}
+
+		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv);
+		RoutesDefinition routesDef = c.getRoutesDefinition();
+						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+		int i=1;
+		routes = new ArrayList();
+		def baseId = getId( shape);
+		int size = routesDef.getRoutes().size();
+		routesDef.getRoutes().each(){RouteDefinition routeDef->
+			String routeId = size == 1 ? baseId : createRouteId(baseId,i);
+			routeDef.routeId(routeId);
+			addRouteDefinition( context, routeDef, null);
+			Route route = context.getRoute(routeId);
+			routes.add(route);
+			i++;
+		}
+		m_routeCache.put(md5, routes);
+		return routes;
+	}
+
+	protected String createRouteId( String baseId, int index){
+		return baseId+"_"+index;
 	}
 	protected synchronized void _createRoutesFromShape(){
 		List<Map> repos = m_gitService.getRepositories(new ArrayList(),false);
@@ -236,9 +307,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			_createRoutesFromShape(namespace);
 		}
 	}
-	private RouteDefinition createRouteDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
-		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding());
-		return c.getRouteDefinition();
+
+
+	private RoutesDefinition createRoutesDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
+		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null);
+		return c.getRoutesDefinition();
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){
 		_createRoutesFromShape(namespace,null);
@@ -269,48 +342,87 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				Map routeShape = (Map)map.routeShape;
 				String md5 = (String)map.md5;
 				String _path = (String)map.path;
-				String routeId = getId(routeShape);
-				info("path:"+path+"/_path:"+_path);
+				String routeBaseId = getId(routeShape);
 				if( path != null && _path != path ){
-					okList.add( routeId);
+					okList.add( routeBaseId);
 					continue;
 				}
-				info("routeId:"+routeId);
+				info("routeBaseId:"+routeBaseId);
 				boolean autoStart = getBoolean(routeShape, AUTOSTART, false);
-				RouteCacheEntry re = cce.routeEntryMap[routeId];
+				RouteCacheEntry re = cce.routeEntryMap[routeBaseId];
 				if( re == null){
 					//new Route
-					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeId);
-					info("Add route:"+routeId);
-					RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
-					rd.routeId(routeId);
-					addRouteDefinition(cce.context, rd,re);
-					cce.routeEntryMap[routeId] = re;
-					cce.context.startRoute(routeId);
-					okList.add( routeId);
-				}else{
-					if( re.lastError == null  && re.md5 == md5 ){
-						//Nothing changed.
-						okList.add( routeId);
-						continue;
-					}else{
-						//exchange route
-						info("Exchange route:"+routeId+"/"+autoStart);
-						re.md5 = md5;
-						re.shape = routeShape;
-						RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
-						rd.routeId(routeId);
-						okList.add( routeId);
-						cce.context.stopRoute(routeId);
-						cce.context.removeRoute(routeId);
-						addRouteDefinition(cce.context,rd,re);
+					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeBaseId);
+					info("Add route:"+routeBaseId);
+					RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
+					System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+
+					int i=1;
+					int size = routesDef.getRoutes().size();
+					routesDef.getRoutes().each(){RouteDefinition routeDef->
+						String routeId = size == 1 ? routeBaseId : createRouteId(routeBaseId,i);
+						routeDef.routeId(routeId);
+						routeDef.autoStartup( autoStart);
+						addRouteDefinition(cce.context, routeDef,re);
 						if( autoStart){
 							cce.context.startRoute(routeId);
 						}
+						i++;
+					}
+					cce.routeEntryMap[routeBaseId] = re;
+					okList.add( routeBaseId);
+				}else{
+					if( re.lastError == null  && re.md5 == md5 ){
+						//Nothing changed.
+						okList.add( routeBaseId);
+						continue;
+					}else{
+						//exchange route
+						info("Exchange route:"+routeBaseId+"/"+autoStart);
+						re.md5 = md5;
+						re.shape = routeShape;
+						RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
+						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+
+						stopAndRemoveRoutesForShape(cce.context, routeBaseId);
+						int i=1;
+						int size = routesDef.getRoutes().size();
+						routesDef.getRoutes().each(){RouteDefinition routeDef->
+							String routeId = size == 1 ? routeBaseId : createRouteId(routeBaseId,i);
+							if( i==1 && size > 1)
+							routeDef.routeId(routeId);
+							routeDef.autoStartup( autoStart);
+							addRouteDefinition(cce.context, routeDef,re);
+							if( autoStart){
+								cce.context.startRoute(routeId);
+							}
+							i++;
+						}
+						okList.add( routeBaseId);
 					}
 				}
 			}
 			stopNotActiveRoutes(contextKey,okList);
+		}
+	}
+
+	private void stopAndRemoveRoutesForShape( CamelContext cc, String baseRouteId){
+		RouteDefinition routeDefinition =  cc.getRouteDefinition(baseRouteId);
+		if( routeDefinition != null ){
+			info("stopAndRemoveRoute:"+baseRouteId);
+			cc.stopRoute(baseRouteId);
+			cc.removeRoute(baseRouteId);
+		}
+		int i=1;
+		while(true){
+			String routeId = createRouteId(baseRouteId,i);	
+			routeDefinition =  cc.getRouteDefinition(routeId);
+			if( routeDefinition==null){
+				break;
+			}
+			info("stopAndRemoveRoute:"+routeId);
+			cc.stopRoute(routeId);
+			cc.removeRoute(routeId);
 		}
 	}
 
@@ -323,7 +435,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			ridList.add(rdef.getId());
 		}
 		for( String rid in ridList){
-			if( !okList.contains(rid)){
+			if( !containsRid(okList,rid)){
 				info("Remove route:"+rid);
 				cce.context.stopRoute(rid);
 				cce.context.removeRoute(rid);
@@ -337,14 +449,28 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 
+	private boolean containsRid( List<String> okList, String rid){
+		for( String ok : okList){
+			if( rid.startsWith( ok ) ){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
+						System.out.println("XrouteDef:"+ModelHelper.dumpModelAsXml(rd));
 		try{
 			context.addRouteDefinition(rd );
-			re.lastError = null;
+			if( re != null){
+				re.lastError = null;
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 			context.removeRouteDefinition(rd);
-			re.lastError = e.getMessage();
+			if( re != null){
+				re.lastError = e.getMessage();
+			}
 			if( e instanceof FailedToCreateRouteException){
 				String msg = e.getMessage();
 				println("msg:"+msg);
@@ -357,6 +483,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			throw e;
 		}
 	}
+
+
+
 	private Map<String,List> getRouteShapeMap(String namespace){
 		List<String> types = new ArrayList();
 		types.add(CAMEL_TYPE);
@@ -573,6 +702,32 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 
+	private List<String> getUserRoles(String userName){
+		List<String> userRoleList = null;
+		try {
+			userRoleList = m_permissionService.getUserRoles(userName);
+		} catch (Exception e) {
+			userRoleList = new ArrayList();
+		}
+		return userRoleList;
+	}
+	private boolean isPermitted(String userName, List<String> userRoleList, List<String> permittedUserList, List<String> permittedRoleList) {
+		if (permittedUserList.contains(userName)) {
+			info("userName(" + userName + " is allowed:" + permittedUserList);
+			return true;
+		}
+		for (String userRole : userRoleList) {
+			if (permittedRoleList.contains(userRole)) {
+				info("userRole(" + userRole + " is allowed:" + permittedRoleList);
+				return true;
+			}
+		}
+		return false;
+	}
+	private List<String> getStringList(Map shape, String name) {
+		String s = getString(shape, name, "");
+		return Arrays.asList(s.split(","));
+	}
 
 
 }
