@@ -46,11 +46,12 @@ import org.ms123.common.utils.UtilsService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import org.jivesoftware.openfire.XMPPServer;
+import org.jivesoftware.database.DbConnectionManager;
 
 /** XmppService implementation
  */
@@ -63,6 +64,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
+		new XMPPServer();
+     DbConnectionManager.setConnectionProvider(new Simpl4ConnectionProvider());
 	}
 
 	protected void deactivate() throws Exception {

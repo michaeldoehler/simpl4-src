@@ -19,6 +19,7 @@ dependencies {
   compile files("${repository}/org.osgi.core-4.3.1.jar")
   compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
-	compile files("${repository}/openfire/openfire-3.10ms.bar")
+	compile files("${repository}/openfire/openfire-3.10.0ms.bar")
+	compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")
 }
 
