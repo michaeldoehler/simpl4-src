@@ -63,9 +63,22 @@
 				if ( src.match( /sw\/surface/ ) ) {
 					var x = src.split( "/sw" );
 					var baseUrl = x[ 0 ];
-					console.log( "baseUrl:" + baseUrl );
+					console.log( "baseUrl1:" + baseUrl );
 					simpl4.util.BaseManager.setBaseUrl( baseUrl );
 					break;
+				}
+			}
+			if( simpl4.util.BaseManager.setBaseUrl() == null){
+				var links = document.querySelectorAll( "head > link" );
+				for ( var i = 0; i < links.length; i++ ) {
+					var href = links[ i ].href;
+					if ( href.match( /sw\/surface/ ) ) {
+						var x = href.split( "/sw" );
+						var baseUrl = x[ 0 ];
+						console.log( "baseUrl2:" + baseUrl );
+						simpl4.util.BaseManager.setBaseUrl( baseUrl );
+						break;
+					}
 				}
 			}
 			var x = location.toString().split( "/" );

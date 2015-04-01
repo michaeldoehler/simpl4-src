@@ -588,7 +588,7 @@ public class JsonRpcServlet extends HttpServlet {
 			response.setHeader("Access-Control-Allow-Origin", origin);
 			response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 			response.setHeader("Access-Control-Allow-Headers", "X-PINGOTHER,Authorization,Content-Type");
-			response.setHeader("Access-Control-Max-Age", "1728000");
+			//response.setHeader("Access-Control-Max-Age", "1728000");
 			response.setHeader("Keep-Alive", "timeout=2,max=100");
 			response.setHeader("Connection", "Keep-Alive");
 		}

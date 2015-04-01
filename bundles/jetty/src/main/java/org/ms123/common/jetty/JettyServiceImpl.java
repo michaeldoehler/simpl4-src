@@ -225,6 +225,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 							unknownRequest(req, response);
 						}	
 					}else{
+						response.setHeader("Access-Control-Allow-Origin", "*");
 						boolean handled = handleStatic(req, response);
 						if (!handled) {
 							unknownRequest(req, response);
