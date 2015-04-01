@@ -98,6 +98,7 @@ vmOptions="\
  -Ddrools.dialect.java.compiler=JANINO \
  -Dkaraf.local.roles=admin,manager \
  -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory \
+ -DopenfireHome=\$SIMPL4DIR/etc/openfire \
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
@@ -264,6 +265,7 @@ ${localbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.camel.api-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.docbook-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.xmpp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.8.0.jar \
@@ -321,7 +323,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/jettison-1.3.5.jar \
 	scan-bundle:file:$REPOSITORY/opencsv-2.3.bar \
 	scan-bundle:file:$REPOSITORY/gson-2.2.4.jar \
-	scan-bundle:file:$REPOSITORY/xmlbeans-all-2.6.bar \
+	scan-bundle:file:$REPOSITORY/xmlbeans-2.6ms.bar \
 	scan-bundle:file:$REPOSITORY/httpclient-osgi-4.3.1.jar \
 	scan-bundle:file:$REPOSITORY/httpcore-osgi-4.3.jar \
 	scan-bundle:file:$REPOSITORY/commons-lang3-3.3.2.jar \

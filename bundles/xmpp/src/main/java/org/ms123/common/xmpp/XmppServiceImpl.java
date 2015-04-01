@@ -64,6 +64,9 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
+m_logger.info("XmppServiceImpl.info");
+m_logger.debug("XmppServiceImpl.debug");
+m_logger.error("XmppServiceImpl.error");
 		new XMPPServer();
      DbConnectionManager.setConnectionProvider(new Simpl4ConnectionProvider());
 	}
