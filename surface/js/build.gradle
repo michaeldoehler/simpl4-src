@@ -4,7 +4,6 @@ task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
 		fileset(file:'libs/classlist.js')
 		fileset(file:'libs/matchmedia.js')
-		fileset(file:'libs/webcomponents.js')
 		fileset(file:'libs/underscore.js')
 		fileset(file:'libs/jquery-2.1.1.js')
 		fileset(file:'libs/polymer.js')
@@ -24,6 +23,7 @@ task stage (type:Task) {
 		fileset(dir:'src',includes:'**/*.js')
 	}
 	ant.gzip( src:"${surfaceBuild}/${jsLibs}",destfile:"${surfaceBuild}/${jsLibs}.gz")
+	ant.gzip( src:"libs/webcomponents.js",destfile:"${surfaceBuild}/webcomponents.js.gz")
 	ant.delete( file:"${surfaceBuild}/${jsLibs}")
 }
 
