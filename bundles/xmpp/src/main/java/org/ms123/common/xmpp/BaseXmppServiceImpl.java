@@ -18,7 +18,6 @@
  */
 package org.ms123.common.xmpp;
 
-import flexjson.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,34 +31,15 @@ import java.util.Map;
 import java.util.Set;
 import java.io.OutputStream;
 import java.io.InputStream;
-import org.ms123.common.data.api.DataLayer;
-import org.ms123.common.utils.UtilsService;
-import org.ms123.common.data.api.SessionContext;
-import org.ms123.common.store.StoreDesc;
 import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.libhelper.Inflector;
-import org.osgi.framework.BundleContext;
-import org.ms123.common.activiti.ActivitiService;
 
 /**
  *
  */
 class BaseXmppServiceImpl {
 
-	protected Inflector m_inflector = Inflector.getInstance();
-
-	protected DataLayer m_dataLayer;
-
 	protected PermissionService m_permissionService;
 
 	protected NucleusService m_nucleusService;
-	protected ActivitiService m_activitiService;
-
-	protected UtilsService m_utilsService;
-
-	protected JSONDeserializer m_ds = new JSONDeserializer();
-
-	protected JSONSerializer m_js = new JSONSerializer();
-
 }

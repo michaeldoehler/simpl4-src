@@ -47,6 +47,7 @@ public class Simpl4ConnectionProvider implements ConnectionProvider {
 	public String getBaseDir() {
 		return new File(System.getProperty("workspace"), "openfire").toString();
 	}
+
 	public void start() {
 		try {
 			m_poolingDataSource = getPoolingDataSource();
@@ -66,7 +67,8 @@ public class Simpl4ConnectionProvider implements ConnectionProvider {
 		}
 		return m_poolingDataSource.getConnection();
 	}
-	private PoolingDataSource getPoolingDataSource(){
+
+	private PoolingDataSource getPoolingDataSource() {
 		PoolingDataSource ds = new PoolingDataSource();
 		ds.setClassName("org.h2.jdbcx.JdbcDataSource");
 		ds.setUniqueName("openfire");
@@ -75,12 +77,13 @@ public class Simpl4ConnectionProvider implements ConnectionProvider {
 		ds.setTestQuery("SELECT 1");
 		ds.getDriverProperties().setProperty("user", "sa");
 		ds.getDriverProperties().setProperty("password", "sa");
-		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + getBaseDir() + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;MV_STORE=TRUE;MVCC=TRUE;CACHE_SIZE=33107;DB_CLOSE_ON_EXIT=FALSE");    
+		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + getBaseDir() + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;MV_STORE=TRUE;MVCC=TRUE;CACHE_SIZE=33107;DB_CLOSE_ON_EXIT=FALSE");
 		return ds;
 	}
+
 	public void destroy() {
 		try {
-			if(m_poolingDataSource != null){
+			if (m_poolingDataSource != null) {
 				m_poolingDataSource.close();
 			}
 		} catch (Exception e) {
