@@ -149,6 +149,48 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 		return null;
 	}
 
+	public List<Map> getUserList( ) {
+		return getUserList(null,0,0);
+	}
+	public List<Map> getUserList( Map filter) {
+		return getUserList(filter,0,0);
+	}
+	public List<Map> getUserList( Map filter, int startIndex, int numResults) {
+		StoreDesc sdesc = getStoreDesc();
+		if (filter == null) {
+			filter = new HashMap();
+			Map field1 = new HashMap();
+			field1.put("field", USER_ID);
+			field1.put("op", "cn");
+			field1.put("data", "");
+			field1.put("connector", null);
+			field1.put("children", new ArrayList());
+			List fieldList = new ArrayList();
+			fieldList.add(field1);
+			filter.put("children", fieldList);
+		}
+		SessionContext sessionContext = m_dataLayer.getSessionContext(sdesc);
+		Map params = new HashMap();
+		params.put("filter", filter);
+		params.put("offset", startIndex);
+		params.put("pageSize", numResults);
+		Map ret = m_dataLayer.query(sessionContext, params, sdesc, USER_ENTITY);
+		if (sessionContext.hasAdminRole()){
+			return (List)ret.get("rows");
+		}
+		List<Map> rows = (List) ret.get("rows");
+		List retList = new ArrayList();
+		for (Map row : rows) {
+			Map m = new HashMap();
+			m.put("userid", row.get("userid"));
+			m.put("givenname", row.get("givenname"));
+			m.put("surname", row.get("surname"));
+			m.put("email", row.get("email"));
+			retList.add(m);
+		}
+		return retList;
+	} 
+
 	private Map _createUser(String userid, Map data) throws Exception {
 		StoreDesc sdesc = getStoreDesc();
 		data.put(USER_ID, userid);
@@ -233,7 +275,7 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 			StoreDesc sdesc = getStoreDesc();
 			return getUserByUserid(sdesc, userid);
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "AuthServiceImpl.createUser:", e);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "AuthServiceImpl.getUser:", e);
 		} finally {
 		}
 	}

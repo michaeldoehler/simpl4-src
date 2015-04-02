@@ -20,9 +20,13 @@ package org.ms123.common.auth.api;
 
 import org.ms123.common.rpc.RpcException;
 import java.util.Map;
+import java.util.List;
 
 public interface AuthService {
 	public Map getUserProperties( String id);
 	public String getAdminUser();
 	public Map getUser(String id);
+	public List<Map> getUserList();
+	public List<Map> getUserList(Map filter);
+	public List<Map> getUserList(Map filter,int startIndex, int numResults);
 }
