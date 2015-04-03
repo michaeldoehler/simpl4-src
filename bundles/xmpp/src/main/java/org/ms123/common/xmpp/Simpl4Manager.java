@@ -61,35 +61,16 @@ public class Simpl4Manager {
 	private Simpl4Manager() {
 	}
 
-	//private static <T> List<T> pushBack(List<T> list, Class<T> typeKey) throws Exception {
-	//   list.add(typeKey.getConstructor().newInstance());
-	//  return list;
-	//}
-	public Object lookupServiceByClass(Class clazz) {
-		Object service = null;
+	public <T> T lookupServiceByClass(Class<T> clazz) {
+		T service = null;
 		ServiceReference sr = m_bundleContext.getServiceReference(clazz);
 		if (sr != null) {
-			service = m_bundleContext.getService(sr);
+			service = (T)m_bundleContext.getService(sr);
 		}
 		if (service == null) {
 			throw new RuntimeException("Simpl4Manager.Cannot resolve service:" + clazz);
 		}
 		return service;
-	}
-
-	/**
-	 * Authenticates a user with crowd. If authentication failed, raises a <code>RemoteException</code>
-	 * @param username
-	 * @param password
-	 * @throws RemoteException
-	 */
-	public boolean authenticate(String username, String password) throws Exception {
-		username = JID.unescapeNode(username);
-		if (LOG.isDebugEnabled())
-			LOG.debug("authenticate '" + String.valueOf(username) + "'");
-		boolean auth = true;
-		LOG.info("authenticated user:" + username + " -> " + auth);
-		return auth;
 	}
 
 	/**

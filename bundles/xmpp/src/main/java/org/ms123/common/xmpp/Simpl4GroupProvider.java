@@ -52,7 +52,7 @@ public class Simpl4GroupProvider extends AbstractGroupProvider {
 	}
 
 	public Group getGroup(String name) throws GroupNotFoundException {
-		return null;
+		throw new GroupNotFoundException();
 	}
 
 	private Collection<JID> getGroupMembers(String groupName) {

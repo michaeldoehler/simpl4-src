@@ -58,7 +58,7 @@ public class Simpl4UserProvider implements UserProvider {
 
 	public Simpl4UserProvider() {
 		Simpl4Manager sm = Simpl4Manager.getInstance();
-		m_authService = (AuthService) sm.lookupServiceByClass(AuthService.class);
+		m_authService = sm.lookupServiceByClass(AuthService.class);
 	}
 
 	public User loadUser(String username) throws UserNotFoundException {

@@ -26,8 +26,10 @@ import org.jivesoftware.openfire.auth.InternalUnauthenticatedException;
 import org.jivesoftware.openfire.auth.UnauthorizedException;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.slf4j.Logger;
+import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
+import org.ms123.common.auth.api.AuthService;
 
 /**
  * Auth provider for Atlassian Crowd
@@ -36,14 +38,11 @@ public class Simpl4AuthProvider implements AuthProvider {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Simpl4AuthProvider.class);
 
-	private Simpl4Manager manager = null;
+	private AuthService m_authService;
 
 	public Simpl4AuthProvider() {
-		try {
-			manager = Simpl4Manager.getInstance();
-		} catch (Exception e) {
-			LOG.error("Failure to load the Crowd manager", e);
-		}
+		Simpl4Manager sm = Simpl4Manager.getInstance();
+		m_authService = sm.lookupServiceByClass(AuthService.class);
 	}
 
 	public boolean isPlainSupported() {
@@ -69,9 +68,6 @@ public class Simpl4AuthProvider implements AuthProvider {
      * @throws InternalUnauthenticatedException if there is a problem authentication Openfire itself into the user and group system
      */
 	public void authenticate(String username, String password) throws UnauthorizedException, ConnectionException, InternalUnauthenticatedException {
-		if (manager == null) {
-			throw new ConnectionException("Unable to connect to Crowd");
-		}
 		if (username == null || password == null || "".equals(password.trim())) {
 			throw new UnauthorizedException();
 		}
@@ -86,11 +82,24 @@ public class Simpl4AuthProvider implements AuthProvider {
 				throw new UnauthorizedException();
 			}
 		}
-		try {
-			manager.authenticate(username, password);
-		} catch (Exception re) {
+		_authenticate(username,password);
+	}
+
+	private void _authenticate(String username, String password) throws UnauthorizedException {
+		username = JID.unescapeNode(username);
+		LOG.info("authenticate '" + String.valueOf(username) + "'");
+
+		Map<String,String> userProps = userProps = m_authService.getUserProperties(username);
+		if (userProps == null) {
 			throw new UnauthorizedException();
 		}
+		String _password = (String)userProps.get("password");
+		if( _password != null){
+			if( !_password.trim().equals(password.trim()) &&  !( _password.equals("") && password.equals("admin"))){
+				throw new UnauthorizedException();	
+			}
+		}
+		LOG.info("authenticated user:" + username );
 	}
 
 	public void authenticate(String username, String token, String digest) throws UnauthorizedException, ConnectionException, InternalUnauthenticatedException {
