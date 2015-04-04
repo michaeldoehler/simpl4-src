@@ -134,7 +134,7 @@ done
 
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
-	scan-bundle:file:$REPOSITORY/org.osgi.compendium-4.3.1.jar \
+	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.2.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx.api-1.0.0.jar \
@@ -164,14 +164,15 @@ ${camelbundles} \
 ${paxbundles} \
 ${openfirebundles} \
 ${localbundles} \
-	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-3.0.7.jar@3 \
-	scan-bundle:file:$REPOSITORY/pax-web-spi-1.0.4.jar@3 \
-	scan-bundle:file:$REPOSITORY/pax-web-extender-war-1.0.4.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
+  scan-bundle:file:$REPOSITORY/xbean-bundleutils-4.2.jar \
+  scan-bundle:file:$REPOSITORY/xbean-finder-4.2.jar \
   scan-bundle:file:$REPOSITORY/ant-1.8.2.bar \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
   scan-bundle:file:$REPOSITORY/antlr-runtime-3.3.bar \
-	scan-bundle:file:$REPOSITORY/asm-all-3.3.jar \
-	scan-bundle:file:$REPOSITORY/asm-all-4.1.jar \
+	scan-bundle:file:$REPOSITORY/asm-all-5.0.3.jar \
   scan-bundle:file:$REPOSITORY/aspectjrt-1.7.1.bar \
 	scan-bundle:file:$REPOSITORY/biz.aQute.bndlib.jar \
   scan-bundle:file:$REPOSITORY/codemodel-2.4.bar \

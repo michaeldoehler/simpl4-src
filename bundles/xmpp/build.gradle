@@ -7,7 +7,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
-  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/openfire/openfire-3.10.0ms.bar")
 	compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")

@@ -6,6 +6,6 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
-  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("build/classes/main")
 }

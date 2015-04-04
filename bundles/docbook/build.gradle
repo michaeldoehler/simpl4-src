@@ -19,7 +19,7 @@ dependencies {
 	compile files("${repository}/org.apache.commons.lang_2.5.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
-  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/pegdown-1.2.1.bar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/sojo-1.0.0.bar")

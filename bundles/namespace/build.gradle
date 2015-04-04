@@ -11,7 +11,7 @@ dependencies {
   compile files("${repository}/ostermillerutils_1_07_00.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
-  compile files("${repository}/pax-web-jetty-bundle-3.0.7.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/flexjson-2.1.bar")
   compile files("${repository}/jsch-0.1.44-1.bar")
   compile files("${repository}/postgresql-9.3-1101.jdbc4.bar")

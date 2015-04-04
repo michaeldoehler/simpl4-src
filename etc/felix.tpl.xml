@@ -1,7 +1,7 @@
 
 <platform>
-  <name>Felix 4.4.1</name>
-  <system>file:__REPOSITORY__/org.apache.felix.main-4.4.1.jar</system>
+  <name>Felix 4.6.1</name>
+  <system>file:__REPOSITORY__/org.apache.felix.main-4.6.1.jar</system>
 
   <packages>
 	  org.eclipse.jdt.core.compiler,
