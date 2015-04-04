@@ -82,24 +82,23 @@ public class Simpl4AuthProvider implements AuthProvider {
 				throw new UnauthorizedException();
 			}
 		}
-		_authenticate(username,password);
+		_authenticate(username, password);
 	}
 
 	private void _authenticate(String username, String password) throws UnauthorizedException {
 		username = JID.unescapeNode(username);
 		LOG.info("authenticate '" + String.valueOf(username) + "'");
-
-		Map<String,String> userProps = userProps = m_authService.getUserProperties(username);
+		Map<String, String> userProps = userProps = m_authService.getUserProperties(username);
 		if (userProps == null) {
 			throw new UnauthorizedException();
 		}
-		String _password = (String)userProps.get("password");
-		if( _password != null){
-			if( !_password.trim().equals(password.trim()) &&  !( _password.equals("") && password.equals("admin"))){
-				throw new UnauthorizedException();	
+		String _password = (String) userProps.get("password");
+		if (_password != null) {
+			if (!_password.trim().equals(password.trim()) && !(_password.equals("") && password.equals("admin"))) {
+				throw new UnauthorizedException();
 			}
 		}
-		LOG.info("authenticated user:" + username );
+		LOG.info("authenticated user:" + username);
 	}
 
 	public void authenticate(String username, String token, String digest) throws UnauthorizedException, ConnectionException, InternalUnauthenticatedException {

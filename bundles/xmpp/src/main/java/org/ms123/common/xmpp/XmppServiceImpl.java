@@ -54,6 +54,8 @@ import org.jivesoftware.openfire.muc.ForbiddenException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.NotAllowedException;
+import org.apache.camel.util.IntrospectionSupport;
+import flexjson.*;
 
 /** XmppService implementation
  */
@@ -79,46 +81,99 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	protected void deactivate() throws Exception {
 	}
 
-
 	@RequiresRoles("admin")
 	public void createRoom(
-			@PName("serviceName") String serviceName, 
-			@PName("roomSpec") Map<String,Object> roomSpec) throws RpcException {
-		String roomName = (String)roomSpec.get("roomName");
+			@PName("serviceName")      String serviceName, 
+			@PName("roomSpec")         Map<String, Object> roomSpec) throws RpcException {
+		String roomName = (String) roomSpec.get("roomName");
 		try {
 			createRoom(roomSpec, serviceName);
 		} catch (NotAllowedException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to create the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to create the room:" + roomName);
 		} catch (ForbiddenException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to create the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to create the room:" + roomName);
 		} catch (ConflictException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to create the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to create the room:" + roomName);
 		} catch (Exception e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:"+ roomName);
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:" + roomName+"/"+e.getMessage());
 		}
 	}
 
 	@RequiresRoles("admin")
 	public void updateRoom(
-			@PName("serviceName") String serviceName, 
-			@PName("roomSpec")  Map<String,Object> roomSpec) throws RpcException {
-		String roomName = (String)roomSpec.get("roomName");
+			@PName("serviceName")      String serviceName, 
+			@PName("roomSpec")         Map<String, Object> roomSpec) throws RpcException {
+		String roomName = (String) roomSpec.get("roomName");
 		try {
 			createRoom(roomSpec, serviceName);
 		} catch (NotAllowedException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to update the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to update the room:" + roomName);
 		} catch (ForbiddenException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to update the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to update the room:" + roomName);
 		} catch (ConflictException e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to update the room:"+ roomName);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to update the room:" + roomName);
 		} catch (Exception e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception update the room:"+ roomName);
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception update the room:" + roomName+"/"+e.getMessage());
 		}
 	}
 
+	@RequiresRoles("admin")
+	public void deleteRoom(
+			@PName("serviceName") String serviceName, 
+			@PName("roomName") String roomName) throws RpcException {
+		try {
+			MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRoom(roomName.toLowerCase());
+			if (room == null) {
+				throw new Exception("Room not exists.");
+			}
+			room.destroyRoom(null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "deleteRoom:" + roomName+"/"+e.getMessage());
+		}
+	}
 
+	public List<Map> getRooms(
+			@PName("serviceName") String serviceName, 
+			@PName("channelType") @PDefaultString("all") @POptional String channelType, 
+			@PName("roomSearch") @POptional String roomSearch) throws RpcException {
+		try {
+			List<MUCRoom> rooms = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRooms();
+			List<Map> mucRoomList = new ArrayList<Map>();
+			for (MUCRoom room : rooms) {
+				if (roomSearch != null) {
+					if (!room.getName().contains(roomSearch)) {
+						continue;
+					}
+				}
+				Map roomSpec = convertToRoomSpec(room);
+				if (channelType.equals("all")) {
+					mucRoomList.add(roomSpec);
+				} else if (channelType.equals("public") && room.isPublicRoom()) {
+					mucRoomList.add(roomSpec);
+				}
+			}
+			return mucRoomList;
+		} catch (Exception e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "getRooms");
+		}
+	}
 
-
-
+	public Map getRoom(
+			@PName("serviceName") String serviceName, 
+			@PName("roomName") String roomName) throws RpcException {
+		try {
+			MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRoom(roomName);
+			if (room == null) {
+				throw new Exception("room could be not found." );
+			}
+			return convertToRoomSpec(room);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "getRoom:" + roomName+"/"+e.getMessage());
+		}
+	}
 
 }

@@ -65,7 +65,7 @@ public class Simpl4Manager {
 		T service = null;
 		ServiceReference sr = m_bundleContext.getServiceReference(clazz);
 		if (sr != null) {
-			service = (T)m_bundleContext.getService(sr);
+			service = (T) m_bundleContext.getService(sr);
 		}
 		if (service == null) {
 			throw new RuntimeException("Simpl4Manager.Cannot resolve service:" + clazz);
