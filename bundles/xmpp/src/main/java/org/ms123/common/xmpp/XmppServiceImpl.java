@@ -26,29 +26,34 @@ import java.io.*;
 import java.util.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-//import org.ms123.common.rpc.PDefaultBool;
-//import org.ms123.common.rpc.PDefaultFloat;
-//import org.ms123.common.rpc.PDefaultInt;
-//import org.ms123.common.rpc.PDefaultLong;
-//import org.ms123.common.rpc.PDefaultString;
-//import org.ms123.common.rpc.PName;
-//import org.ms123.common.rpc.POptional;
-//import org.ms123.common.rpc.RpcException;
+import org.ms123.common.rpc.PDefaultBool;
+import org.ms123.common.rpc.PDefaultFloat;
+import org.ms123.common.rpc.PDefaultInt;
+import org.ms123.common.rpc.PDefaultLong;
+import org.ms123.common.rpc.PDefaultString;
+import org.ms123.common.rpc.PName;
+import org.ms123.common.rpc.POptional;
+import org.ms123.common.rpc.RpcException;
 import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.permission.api.PermissionService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import static org.apache.commons.io.FileUtils.readFileToString;
-//import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
-//import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
-//import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
+import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
+import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.auth.AuthFactory;
 import org.jivesoftware.openfire.admin.AdminManager;
+import org.jivesoftware.openfire.muc.ConflictException;
+import org.jivesoftware.openfire.muc.ForbiddenException;
+import org.jivesoftware.openfire.muc.MUCRole;
+import org.jivesoftware.openfire.muc.MUCRoom;
+import org.jivesoftware.openfire.muc.NotAllowedException;
 
 /** XmppService implementation
  */
@@ -73,4 +78,47 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 	protected void deactivate() throws Exception {
 	}
+
+
+	@RequiresRoles("admin")
+	public void createRoom(
+			@PName("serviceName") String serviceName, 
+			@PName("roomSpec") Map<String,Object> roomSpec) throws RpcException {
+		String roomName = (String)roomSpec.get("roomName");
+		try {
+			createRoom(roomSpec, serviceName);
+		} catch (NotAllowedException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to create the room:"+ roomName);
+		} catch (ForbiddenException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to create the room:"+ roomName);
+		} catch (ConflictException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to create the room:"+ roomName);
+		} catch (Exception e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:"+ roomName);
+		}
+	}
+
+	@RequiresRoles("admin")
+	public void updateRoom(
+			@PName("serviceName") String serviceName, 
+			@PName("roomSpec")  Map<String,Object> roomSpec) throws RpcException {
+		String roomName = (String)roomSpec.get("roomName");
+		try {
+			createRoom(roomSpec, serviceName);
+		} catch (NotAllowedException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Not allowed to update the room:"+ roomName);
+		} catch (ForbiddenException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It's forbitten to update the room:"+ roomName);
+		} catch (ConflictException e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to update the room:"+ roomName);
+		} catch (Exception e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception update the room:"+ roomName);
+		}
+	}
+
+
+
+
+
+
 }

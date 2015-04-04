@@ -5,6 +5,8 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
