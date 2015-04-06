@@ -143,9 +143,13 @@ public class LoginFilter implements Filter {
 			}
 		}
 
-		if( request.getParameter("rpc")!= null){
+		if( request.getParameter("rpc")!= null || request.getRequestURI().startsWith("/rpc")){
 			ok=false;
 		}
+		if( request.getParameter("ws")!= null || request.getRequestURI().startsWith("/ws")){
+			ok=false;
+		}
+		
 
 
 		info(pathInfo + ";" + credentials+"/ok:"+ok);
