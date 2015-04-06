@@ -77,7 +77,7 @@ public class Simpl4ConnectionProvider implements ConnectionProvider {
 		ds.setTestQuery("SELECT 1");
 		ds.getDriverProperties().setProperty("user", "sa");
 		ds.getDriverProperties().setProperty("password", "sa");
-		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + getBaseDir() + "/dbh2;TRACE_LEVEL_FILE=2;TRACE_LEVEL_SYSTEM_OUT=1;MV_STORE=TRUE;MVCC=TRUE;CACHE_SIZE=33107;DB_CLOSE_ON_EXIT=FALSE");
+		ds.getDriverProperties().setProperty("URL", "jdbc:h2:file:" + getBaseDir() + "/dbh2;TRACE_LEVEL_FILE=3;TRACE_LEVEL_SYSTEM_OUT=1;MV_STORE=TRUE;MVCC=TRUE;CACHE_SIZE=33107;DB_CLOSE_ON_EXIT=FALSE");
 		return ds;
 	}
 

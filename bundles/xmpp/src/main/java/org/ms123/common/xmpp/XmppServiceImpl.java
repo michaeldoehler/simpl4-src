@@ -54,7 +54,6 @@ import org.jivesoftware.openfire.muc.ForbiddenException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.NotAllowedException;
-import org.apache.camel.util.IntrospectionSupport;
 import flexjson.*;
 
 /** XmppService implementation

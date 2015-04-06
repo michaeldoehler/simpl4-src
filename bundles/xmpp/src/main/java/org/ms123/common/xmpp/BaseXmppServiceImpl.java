@@ -64,6 +64,7 @@ class BaseXmppServiceImpl {
 			roomSpec.put("owners", owners);
 		}
 		String roomName = (String) roomSpec.get("roomName");
+		Boolean isPersistent = (Boolean) roomSpec.get("persistent");
 		MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRoom(roomName.toLowerCase(), owner);
 		IntrospectionSupport.setProperties(room, roomSpec);
 		room.setRolesToBroadcastPresence(new ArrayList<String>());
@@ -72,7 +73,13 @@ class BaseXmppServiceImpl {
 		room.setModificationDate(new Date());
 		// Unlock the room, because the default configuration lock the room.  		
 		room.unlock(room.getRole());
-		room.saveToDB();
+System.out.println("isPersistent:"+isPersistent);
+		if( isPersistent == null){
+			room.setPersistent(true);
+		}
+		if (room.isPersistent()) {
+			room.saveToDB();
+		}
 	}
 
 	private void setRoles(MUCRoom room, Map<String, Object> roomSpec) throws Exception {
