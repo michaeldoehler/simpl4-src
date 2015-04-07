@@ -55,6 +55,9 @@ import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.NotAllowedException;
 import flexjson.*;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import java.util.Map;
 
 /** XmppService implementation
  */
@@ -175,4 +178,40 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
+	public WebSocketAdapter createWebSocket(Map<String,Object> config){
+		return new WebSocket(config);
+	}
+
+	public class WebSocket extends WebSocketAdapter {
+		private Map<String,Object> m_config = null;
+		public WebSocket(Map<String,Object> config){
+			m_config = config;
+		}
+
+		@Override
+		public void onWebSocketConnect(Session sess) {
+			super.onWebSocketConnect(sess);
+			System.out.println("Socket Connected: " + sess);
+			System.out.println("S4WebSocket: " + hashCode());
+		}
+
+		@Override
+		public void onWebSocketText(String message) {
+			super.onWebSocketText(message);
+			System.out.println("Received("+hashCode()+ ")TEXT message: " + message);
+			getSession().getRemote().sendStringByFuture(message);
+		}
+
+		@Override
+		public void onWebSocketClose(int statusCode, String reason) {
+			super.onWebSocketClose(statusCode, reason);
+			System.out.println("Socket Closed: [" + statusCode + "] " + reason);
+		}
+
+		@Override
+		public void onWebSocketError(Throwable cause) {
+			super.onWebSocketError(cause);
+			cause.printStackTrace(System.err);
+		}
+	}
 }
