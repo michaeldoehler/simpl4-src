@@ -94,6 +94,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 //	private MiltonService m_miltonService;
 
 	private JsonRpcServlet m_rpcServlet;
+	private S4WebSocketServlet m_websocketServlet;
 
 	private BundleContext m_bundleContext;
 
@@ -192,6 +193,11 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		BundleContext bc = m_bundleContext;
 		m_rpcServlet = new JsonRpcServlet(bc);
 		context0.addServlet(new ServletHolder(m_rpcServlet), "/rpc/*");
+
+		Map<String,Object> config = new HashMap();
+		config.put("bundleContext",m_bundleContext);
+		m_websocketServlet = new S4WebSocketServlet(config);
+		context0.addServlet(new ServletHolder(m_websocketServlet), "/ws/*");
 		context0.addServlet(new ServletHolder(new DefaultServlet() {
 
 
