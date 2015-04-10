@@ -22,6 +22,7 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -36,6 +37,8 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	protected Inflector m_inflector = Inflector.getInstance();
 
 	private Map m_config = null;
+
+	private Map<String, Object> m_sockets = new HashMap();
 
 	private BundleContext m_bundleContext;
 
@@ -77,14 +80,22 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private String getServiceParameter(Map<String,List<String>> map){
-		List<String> paramList = map.get("service");
-		if( paramList == null || paramList.size() == 0){
-			throw new RuntimeException("WebSocketCreator.Cannot get service parameter from querystring" );
+	private String getUuidParameter(Map<String, List<String>> map) {
+		List<String> paramList = map.get("uuid");
+		if (paramList == null || paramList.size() == 0) {
+			throw new RuntimeException("WebSocketCreator.Cannot get uuid parameter from querystring");
 		}
 		return paramList.get(0);
 	}
-	
+
+	private String getServiceParameter(Map<String, List<String>> map) {
+		List<String> paramList = map.get("service");
+		if (paramList == null || paramList.size() == 0) {
+			throw new RuntimeException("WebSocketCreator.Cannot get service parameter from querystring");
+		}
+		return paramList.get(0);
+	}
+
 	public S4WebSocketCreator(Map config) {
 		m_bundleContext = (BundleContext) config.get("bundleContext");
 		m_config = config;
@@ -92,9 +103,13 @@ public class S4WebSocketCreator implements WebSocketCreator {
 
 	@Override
 	public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-		Object o = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())));
-		System.out.println("createWebSocket:" + req.getServletParameters());
-		System.out.println("createWebSocket:" + o);
-		return o;
+		String uuid = getUuidParameter(req.getParameterMap());
+		Object socket = m_sockets.get(uuid);
+		if (socket == null) {
+			socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())));
+			m_sockets.put(uuid, socket);
+			System.out.println("createWebSocket:" + socket);
+		}
+		return socket;
 	}
 }

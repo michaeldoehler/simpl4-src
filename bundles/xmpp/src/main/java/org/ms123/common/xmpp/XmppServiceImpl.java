@@ -184,6 +184,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 	public class WebSocket extends WebSocketAdapter {
 		private Map<String,Object> m_config = null;
+		int num = 0;
 		public WebSocket(Map<String,Object> config){
 			m_config = config;
 		}
@@ -199,7 +200,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
 			System.out.println("Received("+hashCode()+ ")TEXT message: " + message);
-			getSession().getRemote().sendStringByFuture(message);
+			getSession().getRemote().sendStringByFuture(message+"/"+num);
+			num++;
 		}
 
 		@Override

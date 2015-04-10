@@ -28,6 +28,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 @SuppressWarnings("unchecked")
 public class JsonRpc {
@@ -55,13 +57,16 @@ public class JsonRpc {
 	private JSONSerializer m_jsonSerializer = null;
 
 	private JavaSerializer m_javaSerializer = null;
+	private BundleContext m_bundleContext;
 
-	private RemoteCallUtils remoteCallUtils = null;
+	private RemoteCallUtils m_remoteCallUtils = null;
+	private CallService m_callService;
 
-	public JsonRpc() {
-		this.m_jsonSerializer = new JSONSerializer();
-		this.m_javaSerializer = new JavaSerializer();
-		this.remoteCallUtils = new RemoteCallUtils(m_javaSerializer);
+	public JsonRpc(BundleContext bc) {
+		m_bundleContext = bc;
+		m_jsonSerializer = new JSONSerializer();
+		m_javaSerializer = new JavaSerializer();
+		m_remoteCallUtils = new RemoteCallUtils(m_javaSerializer);
 	}
 
 	public String handleRPC(Object obj, String requestString) throws Exception {
@@ -96,6 +101,9 @@ public class JsonRpc {
 		final String serviceName = (String) requestIntermediateObject.get("service");
 		final String methodName = (String) requestIntermediateObject.get("method");
 		final Object methodParams = requestIntermediateObject.get("params");
+		if( CallService.CAMELSERVICENAME.equals(serviceName)){
+			return getCallService().callCamel(methodName, methodParams, null, null);
+		}
 		return callProcedure(obj, serviceName, methodName, methodParams);
 	}
 
@@ -103,7 +111,7 @@ public class JsonRpc {
 		debug("callProcedure:" + service + "/method:" + method + "/args:" + args);
 		Object methodResult;
 		try {
-			methodResult = remoteCallUtils.callCompatibleMethod(obj, method, args, null, null);
+			methodResult = m_remoteCallUtils.callCompatibleMethod(obj, method, args, null, null);
 		} catch (NoSuchMethodException e) {
 			throw new RpcException(ERROR_FROM_SERVER, METHOD_NOT_FOUND, "Method " + method + " not found", e);
 		} catch (IllegalAccessException e) {
@@ -167,6 +175,15 @@ public class JsonRpc {
 	private String makePretty(String s) {
 		m_js.prettyPrint(true);
 		return m_js.deepSerialize(m_ds.deserialize(s));
+	}
+
+	private CallService getCallService(){
+		if( m_callService != null ) return m_callService;
+	  ServiceReference ref = m_bundleContext.getServiceReference(CallService.class.getName());	
+		if( ref != null){
+			m_callService = (CallService) m_bundleContext.getService(ref);
+		}
+		return m_callService;
 	}
 
 	private void debug(String msg) {
