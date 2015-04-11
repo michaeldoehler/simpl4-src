@@ -403,6 +403,12 @@ class MailEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class XmppEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class JmsEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(JsonConverterContext ctx){
 		super.convertToCamel(ctx);

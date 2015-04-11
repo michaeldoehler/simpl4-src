@@ -1,6 +1,0 @@
-version=3.4.1
-Bundle-Name                           smackx-3.4.1
-Bundle-SymbolicName:                  org.igniterealtime.smack-ext
-Bundle-Version: ${version}
-Export-Package                          org.jivesoftware.smack*;version=${version}
--removeheaders:Fragment-Host
