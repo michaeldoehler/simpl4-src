@@ -91,6 +91,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	private String getServiceParameter(Map<String, List<String>> map) {
 		List<String> paramList = map.get("service");
 		if (paramList == null || paramList.size() == 0) {
+			System.out.println("WebSocketCreator.Cannot get service parameter from querystring");
 			throw new RuntimeException("WebSocketCreator.Cannot get service parameter from querystring");
 		}
 		return paramList.get(0);
@@ -103,13 +104,23 @@ public class S4WebSocketCreator implements WebSocketCreator {
 
 	@Override
 	public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-		String uuid = getUuidParameter(req.getParameterMap());
-		Object socket = m_sockets.get(uuid);
-		if (socket == null) {
-			socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())));
-			m_sockets.put(uuid, socket);
-			System.out.println("createWebSocket:" + socket);
+		try {
+			String uuid = getUuidParameter(req.getParameterMap());
+			Object socket = m_sockets.get(uuid);
+			if (socket == null) {
+				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())));
+				m_sockets.put(uuid, socket);
+				System.out.println("createWebSocket:" + socket);
+			}
+			return socket;
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				resp.sendError(400, e.getMessage());
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
-		return socket;
+		return null;
 	}
 }

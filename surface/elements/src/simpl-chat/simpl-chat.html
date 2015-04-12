@@ -1,0 +1,152 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-chat">
+	<template>
+		<style>
+
+
+		</style>
+		<simpl-websocket id="socketIo" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" outEventName="{{outEventName}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<div>
+			UserName:
+			<input type="text" id="userName" value="{{user.name}}" /> UserColor:
+			<input type="color" id="userColor" value="{{user.color}}" /> Connected:
+			<input type="checkbox" checked={{connected}} disabled/> AutoConnect:
+			<input type="checkbox" checked={{autoConnect}}/>
+			<input type="button" value="connect" on-tap="{{connect}}"> </input>
+			<!--<span style="background-color: {{ {'red': !connected, 'limegreen':connected} | tokenList }}; width:16px;height:16px;display: inline-block;" > </span>-->
+		</div>
+		<div>
+			<input type="text" id="messageInput" on-keydown="{{onMessageKeydown}}" xisabled?="{{!connected}}" />
+			<button on-click="{{send}}">Send</button>
+		</div>
+		<template repeat="{{message in messages}}">
+			<div style="max-height:400px">
+				<div>
+					<!---<span style="color: {{ {'red': message.sender!='me', 'blue':message.sender=='me'} | tokenList  }}">-->
+					<!--<span style="color:{{user.color}}">{{message.sender}}</span>-->
+					<!--FIXME: WE NEED THIS : color:{{clients[message.sender].color}}-->
+					<template if="{{message.sender =='me'}}">
+						<span style="color:{{user.color}}">{{message.sender}} :</span>
+					</template>
+					<template if="{{message.sender !='me'}}">
+						<span style="color:{{message.color}}">{{message.sender}} :</span>
+					</template>
+
+					<span>{{message.content}} </span>
+				</div>
+			</div>
+		</template>
+	</template>
+	<script>
+		Polymer( "simpl-chat", {
+			outEventName: "message",
+			recvMessage: null,
+			sendMessage: null,
+			connected: false,
+			autoConnect: true,
+			messages: [],
+			clients: {},
+			observe: {
+				'user.name': 'userChanged',
+				'user.color': 'userChanged'
+			},
+			ready: function() {
+				this.user = {
+					name: "foo" + Math.floor( ( Math.random() * 10 ) + 1 ),
+					color: "#ff0000"
+				};
+			},
+			//api
+			connect: function() {
+				this.$.socketIo.connect();
+			},
+			send: function( event ) {
+				if ( this.$.messageInput.value != "" ) {
+					var baseMessage = {
+						content: this.$.messageInput.value,
+						ts: new Date().getTime(),
+						sender: "me"
+					}; //without timestamp etc sendMessage does not change (change handlers)
+					this.sendMessage = {
+						event: "message",
+						data: baseMessage
+					};
+					this.messages.push( baseMessage );
+					this.$.messageInput.value = ""; //since we don't do databind we reset the field manually
+				}
+			},
+			onMessageKeydown: function( event ) {
+				if ( event.keyCode && event.keyCode == 13 ) this.send();
+			},
+			//Attribute change handlers
+			_connectedChanged: function() {
+				console.log( "connected changed", this.connected );
+			},
+			recvMessageChanged: function() {
+				console.log( "recvMessage", this.recvMessage );
+				var event = this.recvMessage.event;
+				var data = this.recvMessage.data;
+				switch ( event ) {
+					case "message":
+						//FIXME: HACK !!
+						var cli = this.clients[ data.senderId ];
+						if ( cli ) {
+							data.color = cli.color;
+							data.sender = cli.name;
+							this.messages.push( data );
+						}
+						break;
+					case "userChanged":
+						this.clients = data;
+						var clients = this.clients;
+						for ( var i = 0; i < this.messages.length; i++ ) //TODO: hack/workaround unti polymer expressions allow correct access to object[key].bla
+						{
+							var msg = this.messages[ i ];
+							if ( msg.color ) msg.color = clients[ msg.senderId ].color;
+							if ( msg.sender && msg.sender != "me" ) msg.sender = clients[ msg.senderId ].name;
+						}
+						break;
+				}
+			},
+			userChanged: function() {
+				if ( this.connected ) this.sendMessage = {
+					event: "userChanged",
+					data: {
+						user: this.user
+					}
+				};
+			},
+			connectedChanged: function() {
+				console.log( "chat:connected changed", this.connected );
+				if ( this.connected ) {
+					this.sendMessage = {
+						event: "userChanged",
+						data: {
+							user: this.user
+						}
+					};
+				}
+			}
+		} );
+
+	</script>
+</polymer-element>

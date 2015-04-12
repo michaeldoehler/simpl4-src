@@ -20,6 +20,9 @@ task stage (type:Task) {
 		fileset(file:'libs/postal.js')
 		fileset(file:'libs/json5.js')
 		fileset(file:'libs/openseadragon-all.js')
+		fileset(file:'libs/reconnecting-websocket.js')
+		fileset(file:'libs/rx.all.compat.js')
+		fileset(file:'libs/rx.dom.compat.js')
 		fileset(dir:'src',includes:'**/*.js')
 	}
 	ant.gzip( src:"${surfaceBuild}/${jsLibs}",destfile:"${surfaceBuild}/${jsLibs}.gz")
