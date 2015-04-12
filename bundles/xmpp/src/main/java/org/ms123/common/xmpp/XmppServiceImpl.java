@@ -200,7 +200,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
 			System.out.println("Received("+hashCode()+ ")TEXT message: " + message);
-			getSession().getRemote().sendStringByFuture(message+"/"+num);
+			getSession().getRemote().sendStringByFuture(message);
 			num++;
 		}
 

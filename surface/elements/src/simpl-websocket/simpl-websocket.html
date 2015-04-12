@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-websocket" attributes="connected sendMessage json jsonSend jsonReceive" constructor="SimplWebsocket">
+<polymer-element name="simpl-websocket" attributes="connected sendMessage recvMessage json jsonSend jsonReceive" constructor="SimplWebsocket">
 	<template>
 		<style>
 			:host {
@@ -42,7 +42,7 @@
 				 * @public
 				 * @type {Boolean}
 				 */
-				json: false,
+				json: true,
 				/**
 				 * Should sent data be json-encoded, even if {{json}} is falsy ? Defaults to false.
 				 * @public
@@ -67,7 +67,17 @@
 					if ( this.json || this.jsonSend ) {
 						data = JSON.stringify( data );
 					}
+console.log("ws:send:",data);
 					this.ws.send( data );
+				},
+				sendPing: function(  ) {
+					if( !this.connected) return;
+					console.debug("Ping");
+					var message = {
+						event: "ping",
+						data: {}
+					};
+					this.send(message);
 				},
 				sendMessageChanged:function(){
 					this.send(this.sendMessage);
@@ -111,11 +121,16 @@
 					}
 
 
-					this.ws = new ReconnectingWebSocket( this.url );
+					this.ws = new ReconnectingWebSocket( this.url, null, { debug: false, reconnectInterval: 50 } 
+																			);
 					this.ws.onopen = this.onOpen.bind( this );
 					this.ws.onerror = this.onError.bind( this );
 					this.ws.onmessage = this.onMessage.bind( this );
 					this.ws.onclose = this.onClose.bind( this );
+
+					setInterval((function(){ this.sendPing(); }).bind(this), 3000);
+
+
 				},
 				onOpen: function(event) {
 					console.log("onOpen", event);

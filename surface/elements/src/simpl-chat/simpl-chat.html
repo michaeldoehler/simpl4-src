@@ -35,7 +35,7 @@
 			<!--<span style="background-color: {{ {'red': !connected, 'limegreen':connected} | tokenList }}; width:16px;height:16px;display: inline-block;" > </span>-->
 		</div>
 		<div>
-			<input type="text" id="messageInput" on-keydown="{{onMessageKeydown}}" xisabled?="{{!connected}}" />
+			<input type="text" id="messageInput" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}" />
 			<button on-click="{{send}}">Send</button>
 		</div>
 		<template repeat="{{message in messages}}">
@@ -100,6 +100,9 @@
 			//Attribute change handlers
 			_connectedChanged: function() {
 				console.log( "connected changed", this.connected );
+			},
+			sendMessageChanged: function() {
+				console.log( "sendMessageChanged changed" );
 			},
 			recvMessageChanged: function() {
 				console.log( "recvMessage", this.recvMessage );
