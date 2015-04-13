@@ -50,7 +50,7 @@ public class GroovyRegistry implements Registry {
 
 
 	private Object _lookupByNameType (String name,Class type) {
-		debug("_lookupByNameAndType1:" + name);
+		debug("_lookupByNameAndType1:" + name+"/"+type);
 		Object obj = getObjectFromFileSystemClassloader(name);
 		if( obj == null || !canCast(obj,type)){
 			obj = getDataSource(name);
@@ -59,7 +59,7 @@ public class GroovyRegistry implements Registry {
 		return obj;
 	}
 	private boolean canCast(Object obj, Class type){
-		if( type == null) return false;
+		if( type == null) return true;
 		try {
 			return type.cast(obj) != null;
 		} catch (Throwable e) {
