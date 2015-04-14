@@ -1074,7 +1074,9 @@ if (WebComponents.flags.shadow) {
           continue;
         }
         try {
-          if (typeof listener.handler === "function") listener.handler.call(currentTarget, event); else listener.handler.handleEvent(event);
+					if( canCall(listener.handler)){ //@@@MS
+						if (typeof listener.handler === "function") listener.handler.call(currentTarget, event); else listener.handler.handleEvent(event);
+					}
           if (stopImmediatePropagationTable.get(event)) return false;
         } catch (ex) {
           if (!pendingError) pendingError = ex;
@@ -1090,6 +1092,14 @@ if (WebComponents.flags.shadow) {
       }
       return !stopPropagationTable.get(event);
     }
+		function canCall(obj) { //@@@MS
+      try{            
+        var x = !!(obj && obj.constructor && obj.call && obj.apply);
+        return true;  
+      }catch(e){      
+        return false; 
+      }               
+    };      
     function Listener(type, handler, capture) {
       this.type = type;
       this.handler = handler;
