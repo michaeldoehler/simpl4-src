@@ -1,4 +1,4 @@
-<polymer-element name="simpl-viewer" attributes="showAssemblies tableHeight viewerHeight">
+<polymer-element name="simpl-viewer" attributes="showAssemblies panelBackgroundColor tableHeight viewerHeight">
 	<template>
 		<style>
 			[vs100] {
@@ -82,15 +82,15 @@
 		</style>
 		<div horizontal layout wrap>
 			<div id="assemblyId" layout horizontal vs100 vl33>
-				<simpl-panel bgcolor="black" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
 					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
 			<div id="viewerAndListId" layout vertical vs100 vl66>
-				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="black" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
+				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
 					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
-				<simpl-panel id="drawingId" bgcolor="black" heading="{{panelHeaderDrawing}}" layout vertical collapsable="true" collapsed="false">
+				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" layout vertical collapsable="true" collapsed="false">
 					<div id="viewer"> </div>
 				</simpl-panel>
 			</div>
@@ -99,6 +99,7 @@
 	</template>
 	<script>
 		Polymer( 'simpl-viewer', {
+			panelBackgroundColor:"#666666",
 			panelHeader: 'Maschine',
 			panelHeaderBom: 'Stückliste',
 			panelHeaderDrawing: 'Zeichnung',
@@ -126,6 +127,7 @@
 					$( this.$.viewerAndListId ).removeAttr( "vl66" );
 				}
 				this.assemblies = t;
+				window.buttonClicked=this.buttonClicked.bind(this);
 			},
 			tableHeightChanged:function(){
 				if( this.tableHeight){
@@ -165,6 +167,9 @@
 
 				if ( navigator.userAgent.match( /android/i ) ) { //@@@MS without this, the  dataTable want scrolling, if the drawing i szommed
 					$( this.$.viewer.querySelector( ".openseadragon-container" ) ).css( "overflow", "auto" );
+				}
+				if( window.etk){
+					window.etk.onExternalReady()
 				}
 			},
 			panelOpen: function() {
@@ -234,8 +239,27 @@
 			getAssembyTableMeta: function( data ) {
 				var colHds = [];
 				var col = {};
+				col.data = "menge";
+				col.title = "";
+				col.class="input";
+				col.width="20";
+				col.mRender= this.renderColumn;
+				colHds.push( col );
+
+				var col = {};
+				col.data = "basket";
+				col.title = "";
+				col.class="button";
+				col.icon="basket.gif";
+				col.width="20";
+				col.mRender= this.renderColumn;
+				colHds.push( col );
+
+				var col = {};
 				col.data = "part";
+				col.width="70";
 				col.title = tr( "bomviewer.part" );
+				col.class = "alignLeft";
 				colHds.push( col );
 
 				var col = {};
@@ -246,6 +270,7 @@
 				var col = {};
 				col.data = "qty";
 				col.title = tr( "bomviewer.qty" );
+				col.width="20";
 				colHds.push( col );
 
 				var col = {};
@@ -258,6 +283,30 @@
 				col.title = tr( "bomviewer.price" );
 				//	colHds.push( col );
 				return colHds;
+			},
+			renderColumn: function( data, type, row, meta ) {
+				var name = meta.settings.aoColumns[ meta.col ].mData;
+				var clazz = meta.settings.aoColumns[ meta.col ].sClass;
+				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
+					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;width:100%;' type='text'></input></div>";
+				}else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
+					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:13px;background:#787878;' src='basket.gif' type='image'></input></div>";
+				} else {
+					return row[ name ];
+				}
+			},
+			buttonClicked:function(e){
+				var nr = e;
+				var inp = $(document.querySelector("html /deep/ #id"+e));
+				var val = parseInt(inp.val());
+				console.log("Part:"+nr+"/"+val);
+				if( !isNaN(val) && val > 0){
+					//alert("addToBasket:"+nr);
+					inp.val(null);
+					if( window.etk){
+						window.etk.addToBasket( nr, val );
+					}
+				}
 			},
 			getAssembyTableData: function( path ) {
 				try {
