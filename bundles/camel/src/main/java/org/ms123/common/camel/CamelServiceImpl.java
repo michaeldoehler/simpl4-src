@@ -115,6 +115,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				e = e.getCause();
 				msg += "\n"+e.getMessage();
 			}
+			e.printStackTrace();
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromShape:"+msg);
 		}
 	}
@@ -133,6 +134,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				e = e.getCause();
 				msg += "\n"+e.getMessage();
 			}
+			e.printStackTrace();
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteShape:"+msg);
 		}
 	}
