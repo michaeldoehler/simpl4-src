@@ -76,6 +76,8 @@ import java.lang.reflect.*;
 import org.ms123.common.utils.IOUtils;
 import flexjson.*;
 import org.yaml.snakeyaml.*;
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
 
 /** JettyService implementation
  */
@@ -172,18 +174,24 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private void initJetty() throws Exception {
 		String port = System.getProperty("jetty.port");
-		int p = getInt(port, 8075);
-		m_server = new Server(p);
+		m_server = new Server( getInt(port, 8075) );
+
+		String ofPort = System.getProperty("openfireAdmin.port");
+		Server ofServer = new Server( getInt(ofPort, 8081));
+
 		String sh = System.getProperty("workspace");
 		m_basedir = new File(sh).getCanonicalFile().getParent();
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		if (new File(sh + "/webapps/guvnor").exists()) {
-			WebAppContext webapp = new WebAppContext(contexts, sh + "/webapps/guvnor", "/guvnor");
+
+		WebAppContext webapp = new WebAppContext();
+		if (new File(sh + "/webapps/openfire.war").exists()) {
+			webapp.setContextPath("/");
+			webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+			webapp.setWelcomeFiles(new String[]{"index.jsp"});
+			webapp.setResourceBase(sh + "/webapps/openfire");
+			ofServer.setHandler(webapp);
 		}
-		// WebAppContext webapp = new WebAppContext(contexts, sh + "/webapps/e", "/e");
-		// webapp.setWar(sh+"/webapps/guvnor-webapp-5.2.0.Final.war");
-		// webapp.setExtractWAR(true);
-		// webapp.setResourceBase(sh + "/webapps/guvnor");
+
 		LoginFilter loginFilter = new LoginFilter(m_permissionService);
 		FilterHolder loginFilterHolder = new FilterHolder(loginFilter);
 		loginFilterHolder.setName("LoginFilter");
@@ -262,6 +270,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		contexts.setHandlers(new Handler[] { context0 });
 		m_server.setHandler(contexts);
 		m_server.start();
+		ofServer.start();
 		info("initJetty.ok");
 	}
 

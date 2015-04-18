@@ -133,6 +133,7 @@ public class LoginFilter implements Filter {
 				(pathInfo.startsWith("/" + namespace + "/") && pathInfo.endsWith(".woff.gz")) ||
 				pathInfo.startsWith("/" + namespace + "/dav") || 
 				pathInfo.startsWith("/" + namespace + "/legacy") || 
+				pathInfo.startsWith("/openfire") || 
 				pathInfo.startsWith("/" + namespace + "/resource");
 		if (!ok) {
 			String origin = request.getHeader("Origin");
