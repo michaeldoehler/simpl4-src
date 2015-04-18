@@ -18,5 +18,7 @@ dependencies {
 	compile files("${repository}/h2-1.3.170.jar")
 	compile files("${repository}/jta-1.1.jar")
 	compile files("${repository}/rxjava-1.0.9.jar")
+	compile files("${repository}/javax.servlet.jsp.jstl-1.2.4.bar")
+	compile files("${repository}/pax-web-jsp-4.1.1.bar")
 }
 

@@ -71,6 +71,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
+	 org.apache.taglibs.standard.tag.common.fmt.BundleSupport.registerClassLoader("openfire_i18n",  XMPPServer.class.getClassLoader());
+
 		Simpl4Manager.setBundleContext(bundleContext);
 		UserManager.setUserProvider(new Simpl4UserProvider());
 		GroupManager.setGroupProvider(new Simpl4GroupProvider());

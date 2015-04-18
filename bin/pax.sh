@@ -167,6 +167,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
+	scan-bundle:file:$REPOSITORY/javax.servlet.jsp.jstl-1.2.4.bar \
 	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
   scan-bundle:file:$REPOSITORY/xbean-bundleutils-4.2.jar \
   scan-bundle:file:$REPOSITORY/xbean-finder-4.2.jar \
