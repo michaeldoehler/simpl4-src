@@ -29,10 +29,7 @@
 			UserName:
 			<input type="text" id="userName" value="{{user.name}}" /> UserColor:
 			<input type="color" id="userColor" value="{{user.color}}" /> Connected:
-			<input type="checkbox" checked={{connected}} disabled/> AutoConnect:
-			<input type="checkbox" checked={{autoConnect}}/>
-			<input type="button" value="connect" on-tap="{{connect}}"> </input>
-			<!--<span style="background-color: {{ {'red': !connected, 'limegreen':connected} | tokenList }}; width:16px;height:16px;display: inline-block;" > </span>-->
+			<input type="checkbox" checked={{connected}} disabled/> 
 		</div>
 		<div>
 			<input type="text" id="messageInput" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}" />
@@ -76,9 +73,6 @@
 				};
 			},
 			//api
-			connect: function() {
-				this.$.socketIo.connect();
-			},
 			send: function( event ) {
 				if ( this.$.messageInput.value != "" ) {
 					var baseMessage = {

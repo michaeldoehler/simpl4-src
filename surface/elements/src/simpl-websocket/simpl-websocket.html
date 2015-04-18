@@ -30,13 +30,7 @@
 	<script type="text/javascript">
 		( function() {
 			Polymer( "simpl-websocket", {
-			publish: {
-				connected: {
-					value: false,
-					reflect: true
-				}
-			},
-				connected:false,
+				connected: false,
 				/**
 				 * Should both sent and received data be interpreted as json and encoded/decoded ? Defaults to false.
 				 * @public
@@ -59,7 +53,6 @@
 				 * @private
 				 * @type {WebSocket}
 				 */
-				ws: null,
 				send: function( data ) {
 					if ( !this.connected ) {
 						throw new Error( "simpl-websocket.send(...): not connected." );
@@ -67,40 +60,27 @@
 					if ( this.json || this.jsonSend ) {
 						data = JSON.stringify( data );
 					}
-console.log("ws:send:",data);
-					this.ws.send( data );
+					console.log( "socket:onNext:", data );
+					this.socket.onNext( data );
 				},
-				sendPing: function(  ) {
-					if( !this.connected) return;
-					console.debug("Ping");
+				sendPing: function() {
+					if ( !this.connected ) return;
+					console.debug( "Ping" );
 					var message = {
 						event: "ping",
 						data: {}
 					};
-					this.send(message);
+					this.send( message );
 				},
-				sendMessageChanged:function(){
-					this.send(this.sendMessage);
+				sendMessageChanged: function() {
+					this.send( this.sendMessage );
 				},
 				close: function( reason ) {
 					if ( this.ws ) {
 						this.ws.close( reason );
 						this.ws = null;
 					}
-					this.connected=false;
-				},
-				/**
-				 * Underlying connection readyState getter.
-				 * @see {@link http://www.w3.org/TR/websockets/#dom-websocket-readystate}
-				 * @public
-				 * @type {Number}
-				 */
-				get readyState() {
-					if ( this.ws ) {
-						return this.ws.readyState;
-					} else {
-						return -1;
-					}
+					this.connected = false;
 				},
 				ready: function() {
 					var password = simpl4.util.BaseManager.getPassword();
@@ -108,60 +88,122 @@ console.log("ws:send:",data);
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
 					var uuid = this.generateUUID();
 					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
-					baseUrl = baseUrl.replace("http", "ws");
-					console.log("baseUrl:"+baseUrl);
-					this.url = baseUrl + "/ws/xyz?service=xmpp&credentials=" + credentials+"&uuid="+uuid;
-					console.log("url:"+this.url);
-					this.wsConnect();
-				},
+					baseUrl = baseUrl.replace( "http", "ws" );
+					this.url = baseUrl + "/ws/xyz?service=xmpp&credentials=" + credentials + "&uuid=" + uuid;
 
-				wsConnect: function() {
-					if ( this.ws ) {
-						//throw new Error( "simpl-websocket.connect(...): already connected." );
+					var open = Rx.Observer.create( ( function( e ) {
+						console.info( 'websocket open' );
+						this.connected = true;
+						setInterval( ( function() {
+							this.sendPing();
+						} ).bind( this ), 1300000 );
+					} ).bind( this ) );
+
+					var closingObserver = Rx.Observer.create( ( function() {
+						console.log( 'websocket is about to close' );
+						this.connected = false;
+					} ).bind( this ) );
+
+					this.socket = this.fromWebSocket( this.url, open, closingObserver );
+					console.log( "SOCKET:", this.socket );
+					var self = this;
+					this.socket.subscribe(
+						function( e ) {
+							var data = e.data;
+							if ( this.json || this.jsonReceive ) {
+								data = JSON.parse( data );
+							}
+							self.fire( "message", {
+								data: data
+							} );
+							console.log( 'recv message: ', data );
+							self.recvMessage = data;
+						},
+						function( e ) {
+							console.error( 'error: ', e );
+						},
+						function() {
+							console.info( 'websocket closed' );
+							self.connected = false;
+						}
+					);
+				},
+				fromWebSocket: function( url, openObserver, closingObserver ) {
+					if ( !WebSocket ) {
+						throw new TypeError( 'WebSocket not implemented in your runtime.' );
 					}
 
+					var socket;
 
-					this.ws = new ReconnectingWebSocket( this.url, null, { debug: false, reconnectInterval: 50 } 
-																			);
-					this.ws.onopen = this.onOpen.bind( this );
-					this.ws.onerror = this.onError.bind( this );
-					this.ws.onmessage = this.onMessage.bind( this );
-					this.ws.onclose = this.onClose.bind( this );
+					var socketClose = function( code, reason ) {
+						if ( socket ) {
+							if ( closingObserver ) {
+								closingObserver.onNext();
+								closingObserver.onCompleted();
+							}
+							if ( !code ) {
+								socket.close();
+							} else {
+								socket.close( code, reason );
+							}
+						}
+					};
 
-					setInterval((function(){ this.sendPing(); }).bind(this), 3000);
+					var observable = new Rx.AnonymousObservable( function( obs ) {
+						socket = new ReconnectingWebSocket( url, null, {
+							debug: false,
+							reconnectInterval: 50
+						} );
 
+						var openHandler = function( e ) {
+							openObserver.onNext( e );
+							openObserver.onCompleted();
+							socket.removeEventListener( 'open', openHandler, false );
+						};
+						var messageHandler = function( e ) {
+							obs.onNext( e );
+						};
+						var errHandler = function( e ) {
+							obs.onError( e );
+						};
+						var closeHandler = function( e ) {
+							console.log( "do not close", e );
+							if ( e.code == null ) return;
+							if ( e.code !== 1000 || !e.wasClean ) {
+								return obs.onError( e );
+							}
+							obs.onCompleted();
+						};
 
-				},
-				onOpen: function(event) {
-					console.log("onOpen", event);
-					this.connected=true;
-					this.fire( "open" );
-				},
+						openObserver && socket.addEventListener( 'open', openHandler, false );
+						socket.addEventListener( 'message', messageHandler, false );
+						socket.addEventListener( 'error', errHandler, false );
+						socket.addEventListener( 'close', closeHandler, false );
 
-				onError: function(e) {
-					console.log("OnError", e);
-					this.fire( "error" );
-				},
+						return function() {
+							socketClose();
 
-				onMessage: function( event ) {
-					var data = event.data;
-					if ( this.json || this.jsonReceive ) {
-						data = JSON.parse( data );
-					}
-					this.fire( "message", {
-						data: data
+							socket.removeEventListener( 'message', messageHandler, false );
+							socket.removeEventListener( 'error', errHandler, false );
+							socket.removeEventListener( 'close', closeHandler, false );
+						};
 					} );
-					this.recvMessage = data;
-				},
 
-				onClose: function( event ) {
-					console.log("Onclose", event);
-					this.fire( "error", {
-						code: event.code,
-						reason: event.reason
-					} );
-					this.connected=false;
-					//this.wsConnect();
+					var observer = Rx.Observer.create( function( data ) {
+							socket.readyState === WebSocket.OPEN && socket.send( data );
+						},
+						function( e ) {
+							if ( !e.code ) {
+								throw new Error( 'no code specified. be sure to pass { code: ###, reason: "" } to onError()' );
+							}
+
+							socketClose( e.code, e.reason || '' );
+						},
+						function() {
+							socketClose( 1000, '' );
+						} );
+
+					return Rx.Subject.create( observer, observable );
 				},
 				generateUUID: function() {
 					var d = new Date().getTime();
