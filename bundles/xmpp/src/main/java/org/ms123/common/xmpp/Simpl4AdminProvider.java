@@ -44,6 +44,7 @@ public class Simpl4AdminProvider implements AdminProvider {
 	public List<JID> getAdmins() {
 		List<JID> results = new ArrayList<JID>();
 		results.add(new JID("admin", XMPPServer.getInstance().getServerInfo().getXMPPDomain(), null, true));
+System.out.println("getAdmins:"+results);
 		return results;
 	}
 

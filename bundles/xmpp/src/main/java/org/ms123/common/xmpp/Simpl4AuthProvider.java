@@ -36,7 +36,7 @@ import org.ms123.common.auth.api.AuthService;
  */
 public class Simpl4AuthProvider implements AuthProvider {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Simpl4AuthProvider.class);
+	private static final Logger m_log = LoggerFactory.getLogger(Simpl4AuthProvider.class);
 
 	private AuthService m_authService;
 
@@ -87,7 +87,7 @@ public class Simpl4AuthProvider implements AuthProvider {
 
 	private void _authenticate(String username, String password) throws UnauthorizedException {
 		username = JID.unescapeNode(username);
-		LOG.info("authenticate '" + String.valueOf(username) + "'");
+		info("authenticate '" + String.valueOf(username) + "'");
 		Map<String, String> userProps = userProps = m_authService.getUserProperties(username);
 		if (userProps == null) {
 			throw new UnauthorizedException();
@@ -98,9 +98,13 @@ public class Simpl4AuthProvider implements AuthProvider {
 				throw new UnauthorizedException();
 			}
 		}
-		LOG.info("authenticated user:" + username);
+		info("authenticated user:" + username);
 	}
 
+	private void info(String msg){
+		System.out.println(msg);
+		m_log.info(msg);
+	}
 	public void authenticate(String username, String token, String digest) throws UnauthorizedException, ConnectionException, InternalUnauthenticatedException {
 		throw new UnsupportedOperationException("XMPP digest authentication not supported by this version of authentication provider");
 	}
