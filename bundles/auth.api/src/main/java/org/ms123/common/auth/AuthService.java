@@ -27,6 +27,7 @@ public interface AuthService {
 	public String getAdminUser();
 	public Map getUser(String id);
 	public List<Map> getUserList();
+	public Map getUserData(String d);
 	public List<Map> getUserList(Map filter);
 	public List<Map> getUserList(Map filter,int startIndex, int numResults);
 }
