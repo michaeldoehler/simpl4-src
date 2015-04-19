@@ -176,21 +176,15 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		String port = System.getProperty("jetty.port");
 		m_server = new Server( getInt(port, 8075) );
 
-		String ofPort = System.getProperty("openfireAdmin.port");
-		Server ofServer = new Server( getInt(ofPort, 8081));
-
 		String sh = System.getProperty("workspace");
 		m_basedir = new File(sh).getCanonicalFile().getParent();
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
 
-		WebAppContext webapp = new WebAppContext();
-		if (new File(sh + "/webapps/openfire.war").exists()) {
-			webapp.setContextPath("/");
-			webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
-			webapp.setWelcomeFiles(new String[]{"index.jsp"});
-			webapp.setResourceBase(sh + "/webapps/openfire");
-			ofServer.setHandler(webapp);
-		}
+		WebAppContext webapp = new WebAppContext(contexts, m_basedir + "/etc/openfire/web", "/openfire/");
+		webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		webapp.setWelcomeFiles(new String[]{"index.jsp"});
+		webapp.setResourceBase(m_basedir + "/etc/openfire/web");
+		webapp.setContextPath("/openfire/");
 
 		LoginFilter loginFilter = new LoginFilter(m_permissionService);
 		FilterHolder loginFilterHolder = new FilterHolder(loginFilter);
@@ -233,6 +227,9 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 						super.doGet(req,response);
 						return;
 					}
+					if( req.getPathInfo().startsWith("/openfire/")){
+						return;
+					}
 					info("Repo Request:"+req.getPathInfo());
 					if( req.getPathInfo().startsWith("/repo/")){
 						if(!handleRepo(req,response)){
@@ -267,10 +264,9 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				}
 			}
 		}), "/*");
-		contexts.setHandlers(new Handler[] { context0 });
+		contexts.setHandlers(new Handler[] { context0, webapp });
 		m_server.setHandler(contexts);
 		m_server.start();
-		ofServer.start();
 		info("initJetty.ok");
 	}
 
