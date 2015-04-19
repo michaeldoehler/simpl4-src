@@ -62,8 +62,9 @@ public class Simpl4UserProvider implements UserProvider {
 	}
 
 	public User loadUser(String username) throws UserNotFoundException {
+		System.out.println("loadUser:" + username);
 		try {
-			Map<String, String> map = m_authService.getUser(username);
+			Map<String, String> map = m_authService.getUserData(username);
 			if (map == null) {
 				throw new UserNotFoundException();
 			}
@@ -97,11 +98,13 @@ public class Simpl4UserProvider implements UserProvider {
 	}
 
 	public int getUserCount() {
+		System.out.println("getUserCount");
 		List list = m_authService.getUserList(null);
 		return list.size();
 	}
 
 	public Collection<User> getUsers() {
+		System.out.println("getUsers");
 		lock.readLock().lock();
 		try {
 			List<Map> list = m_authService.getUserList(null);
@@ -116,6 +119,7 @@ public class Simpl4UserProvider implements UserProvider {
 	}
 
 	public Collection<String> getUsernames() {
+		System.out.println("getUsernames");
 		lock.readLock().lock();
 		try {
 			Collection<String> results = new ArrayList();
@@ -148,6 +152,7 @@ public class Simpl4UserProvider implements UserProvider {
 	}
 
 	public Collection<User> findUsers(Set<String> fields, String query) throws UnsupportedOperationException {
+		System.out.println("findUsers:" + query);
 		lock.readLock().lock();
 		try {
 			ArrayList<User> results = new ArrayList<User>();
@@ -190,6 +195,7 @@ public class Simpl4UserProvider implements UserProvider {
 	}
 
 	public Collection<User> findUsers(Set<String> fields, String query, int startIndex, int numResults) throws UnsupportedOperationException {
+		System.out.println("findUsers:" + query);
 		lock.readLock().lock();
 		try {
 			ArrayList<User> foundUsers = (ArrayList<User>) findUsers(fields, query);
