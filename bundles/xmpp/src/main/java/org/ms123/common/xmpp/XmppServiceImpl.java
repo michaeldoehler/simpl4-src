@@ -58,6 +58,17 @@ import flexjson.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import java.util.Map;
+import org.ms123.common.camel.api.CamelService;
+import org.apache.camel.CamelContext;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.Producer;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Route;
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import rx.Observable;
+import rx.functions.Action1;
+import org.apache.camel.rx.*;
 
 /** XmppService implementation
  */
@@ -180,15 +191,47 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
-	public WebSocketAdapter createWebSocket(Map<String,Object> config){
-		return new WebSocket(config);
+	public WebSocketAdapter createWebSocket(Map<String,Object> config,Map<String,List<String>> parameterMap){
+		return new WebSocket(config,parameterMap);
 	}
 
 	public class WebSocket extends WebSocketAdapter {
 		private Map<String,Object> m_config = null;
+		private Map<String,List<String>> m_params = null;
 		int num = 0;
-		public WebSocket(Map<String,Object> config){
+		public WebSocket(Map<String,Object> config, Map<String,List<String>> parameterMap){
 			m_config = config;
+			m_params = parameterMap;
+			System.out.println("parameterMap:"+m_params);
+			Map env = new HashMap();
+			env.put("userName", "msa");
+			CamelContext context=null;
+			Route route = null;
+			try{
+				route = m_camelService.createRoute("tutorials", "xmpp_in.camel", "admin", env, "tutorials/xmpp_in");
+				System.out.println("route:"+route+"/"+route.getId());
+				context = m_camelService.getCamelContext("tutorials", "default");
+				System.out.println("conext:"+context);
+				context.startRoute(route.getId());
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			ReactiveCamel reactiveCamel = new ReactiveCamel(context);
+			Observable<Message> observable = reactiveCamel.toObservable(route.getConsumer().getEndpoint());
+			//observable.toBlocking().forEach(new Action1<Message>() {
+			observable.subscribe(new Action1<Message>() {
+
+				@Override
+				public void call(Message message) {
+					String body = "Processing message headers " + message.getHeaders();
+					System.out.print(body);
+					System.out.println("\t"+message.getBody());
+					if( message.getBody() != null){
+						//endpoint.setParticipant("guest@simpl4.org");
+						//template.sendBody( endpoint, "Answer XXXXX");
+					}
+				}
+			});
 		}
 
 		@Override
@@ -217,5 +260,10 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			super.onWebSocketError(cause);
 			cause.printStackTrace(System.err);
 		}
+	}
+	@Reference(dynamic = true, optional=true)
+	public void setCamelService(CamelService paramService) {
+		this.m_camelService = paramService;
+		info("XmppServiceImpl.setCamelService:" + paramService);
 	}
 }

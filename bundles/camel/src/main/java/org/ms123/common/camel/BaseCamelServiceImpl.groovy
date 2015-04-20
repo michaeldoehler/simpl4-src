@@ -121,6 +121,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected JSONSerializer m_js = new JSONSerializer();
 
 	private Map<String, ContextCacheEntry> m_contextCache = new LinkedHashMap();
+	private Map<String, Route> m_routeCache = new LinkedHashMap();
 
 	public CamelContext getCamelContext(String namespace, String camelName) {
 		try{
@@ -229,6 +230,31 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		VisGenerator vg = new VisGenerator();
 		return vg.getGraph(routeDefinition);
 	}
+
+	public synchronized Route createRoute(String namespace, String name, String userName, Map buildEnv, String msg) {
+		ModelCamelContext context = (ModelCamelContext)getCamelContext(namespace,"default");
+		String routeString = m_gitService.searchContent( namespace, name, "sw.camel" );
+		String md5 = getMD5OfUTF8(routeString+(buildEnv != null ? buildEnv.toString():""));
+		Route route = m_routeCache.get(md5);
+		if( route != null) return route;
+		Map shape = (Map)m_ds.deserialize(routeString);
+
+		List<String> permittedRoleList = getStringList(shape, "startableGroups");
+		List<String> permittedUserList = getStringList(shape, "startableUsers");
+		List<String> userRoleList = getUserRoles(userName);
+		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
+			throw new RuntimeException("User(" + userName + ") has no permission execute route:"+namespace+"/"+name);
+		}
+
+		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv);
+		RouteDefinition rd = c.getRouteDefinition();
+		rd.routeId(md5);
+		addRouteDefinition( context, rd, null);
+		route = context.getRoute(md5);
+		m_routeCache.put(md5, route);
+		return route;
+	}
+
 	protected synchronized void _createRoutesFromShape(){
 		List<Map> repos = m_gitService.getRepositories(new ArrayList(),false);
 		for(Map<String,String> repo : repos){
@@ -236,8 +262,10 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			_createRoutesFromShape(namespace);
 		}
 	}
+
+
 	private RouteDefinition createRouteDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
-		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding());
+		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null);
 		return c.getRouteDefinition();
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){
@@ -300,6 +328,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						re.shape = routeShape;
 						RouteDefinition rd = createRouteDefinitionFromShape( _path, cce.context, routeShape);
 						rd.routeId(routeId);
+						rd.autoStartup( autoStart);
 						okList.add( routeId);
 						cce.context.stopRoute(routeId);
 						cce.context.removeRoute(routeId);
@@ -340,11 +369,15 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
 		try{
 			context.addRouteDefinition(rd );
-			re.lastError = null;
+			if( re != null){
+				re.lastError = null;
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 			context.removeRouteDefinition(rd);
-			re.lastError = e.getMessage();
+			if( re != null){
+				re.lastError = e.getMessage();
+			}
 			if( e instanceof FailedToCreateRouteException){
 				String msg = e.getMessage();
 				println("msg:"+msg);
@@ -357,6 +390,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			throw e;
 		}
 	}
+
+
+
 	private Map<String,List> getRouteShapeMap(String namespace){
 		List<String> types = new ArrayList();
 		types.add(CAMEL_TYPE);
@@ -573,6 +609,32 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 
+	private List<String> getUserRoles(String userName){
+		List<String> userRoleList = null;
+		try {
+			userRoleList = m_permissionService.getUserRoles(userName);
+		} catch (Exception e) {
+			userRoleList = new ArrayList();
+		}
+		return userRoleList;
+	}
+	private boolean isPermitted(String userName, List<String> userRoleList, List<String> permittedUserList, List<String> permittedRoleList) {
+		if (permittedUserList.contains(userName)) {
+			info("userName(" + userName + " is allowed:" + permittedUserList);
+			return true;
+		}
+		for (String userRole : userRoleList) {
+			if (permittedRoleList.contains(userRole)) {
+				info("userRole(" + userRole + " is allowed:" + permittedRoleList);
+				return true;
+			}
+		}
+		return false;
+	}
+	private List<String> getStringList(Map shape, String name) {
+		String s = getString(shape, name, "");
+		return Arrays.asList(s.split(","));
+	}
 
 
 }

@@ -32,6 +32,7 @@ import java.util.Set;
 import java.io.OutputStream;
 import java.io.InputStream;
 import org.ms123.common.nucleus.api.NucleusService;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.permission.api.PermissionService;
 import org.apache.camel.util.IntrospectionSupport;
 import org.jivesoftware.openfire.muc.MUCRole;
@@ -39,6 +40,8 @@ import org.jivesoftware.openfire.muc.MUCRoom;
 import org.xmpp.packet.JID;
 import org.jivesoftware.openfire.XMPPServer;
 import flexjson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -48,6 +51,8 @@ class BaseXmppServiceImpl {
 	protected PermissionService m_permissionService;
 
 	protected NucleusService m_nucleusService;
+
+	protected CamelService m_camelService;
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
@@ -169,4 +174,12 @@ System.out.println("isPersistent:"+isPersistent);
 		roomSpec.put("modificationDate", room.getModificationDate());
 		return roomSpec;
 	}
+	protected static void debug(String msg) {
+		m_logger.debug(msg);
+	}
+	protected static void info(String msg) {
+		System.err.println(msg);
+		m_logger.info(msg);
+	}
+	private static final Logger m_logger = LoggerFactory.getLogger(BaseXmppServiceImpl.class);
 }
