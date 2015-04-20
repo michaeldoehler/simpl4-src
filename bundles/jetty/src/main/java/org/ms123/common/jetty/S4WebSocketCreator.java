@@ -58,7 +58,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		return serviceClassName;
 	}
 
-	private Object getWebSocket(String className) {
+	private Object getWebSocket(String className, Map<String,List<String>> parameterMap) {
 		Object service = null;
 		ServiceReference sr = m_bundleContext.getServiceReference(className);
 		if (sr != null) {
@@ -67,12 +67,14 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		if (service == null) {
 			throw new RuntimeException("WebSocketCreator.Cannot resolve service:" + className);
 		}
-		Class[] cargs = new Class[1];
+		Class[] cargs = new Class[2];
 		cargs[0] = Map.class;
+		cargs[1] = Map.class;
 		try {
 			Method meth = service.getClass().getDeclaredMethod("createWebSocket", cargs);
-			Object[] args = new Object[1];
+			Object[] args = new Object[2];
 			args[0] = m_config;
+			args[1] = parameterMap;
 			return meth.invoke(service, args);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,7 +110,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 			String uuid = getUuidParameter(req.getParameterMap());
 			Object socket = m_sockets.get(uuid);
 			if (socket == null) {
-				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())));
+				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())), req.getParameterMap());
 				m_sockets.put(uuid, socket);
 				System.out.println("createWebSocket:" + socket);
 			}
