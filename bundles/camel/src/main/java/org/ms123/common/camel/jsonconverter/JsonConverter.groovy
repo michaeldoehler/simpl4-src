@@ -68,6 +68,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	public def  shapeProperties;
 	public def  resourceId;
 	public def  branding;
+	public def  buildEnv;
 	def children = []
 	def engine = new SimpleTemplateEngine();
 	void finishToCamel(ctx){}
@@ -172,7 +173,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 		def map=[:];
 		shapeProperties.each(){key,value->
 			if(key.startsWith(prefix)){
-				map[key.substring(prefix.length())] = value!=null ? value.toString() : "";
+				map[key.substring(prefix.length())] = value!=null ? substBuildEnv(value.toString()) : "";
 			}
 		}	
 		return map;
@@ -214,6 +215,17 @@ abstract class JsonConverterImpl implements JsonConverter{
 			String msg = Utils.formatGroovyException(e,code);
 			throw new RuntimeException(msg);
 		}
+	}
+
+	def substBuildEnv( value ){
+		if( buildEnv == null) return value;
+		if( value.length() > 5 && value.startsWith("{{") && value.endsWith("}}")){
+			def name = value.substring(2, value.length()-2);
+			def subst = buildEnv.get(name);
+			System.out.println("substBuildEnv:"+value +"->"+subst);
+			return subst;	
+		}
+		return value;
 	}
 
 	def prettyPrint(msg, obj){

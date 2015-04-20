@@ -48,7 +48,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 	def m_ctx;
 	def m_typesMap = [:];
 	def m_shapeMap = [:];
-	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding) {
+	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv) {
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
@@ -61,7 +61,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			if( converter == null){
 				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
 			}
-			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding);
+			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding,buildEnv:buildEnv);
 			createConverterGraph(startJsonConverter, startShape);
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
