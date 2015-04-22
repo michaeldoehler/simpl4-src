@@ -62,7 +62,8 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
 			}
 			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding,buildEnv:buildEnv);
-			createConverterGraph(startJsonConverter, startShape);
+			createConverterGraph(startJsonConverter, startShape, buildEnv);
+			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
 		m_ctx.routeDefinition.routeId( getId(rootShape));
@@ -144,7 +145,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_typesMap["marshal"] = MarshalJsonConverter.class;
 		m_typesMap["unmarshal"] = UnmarshalJsonConverter.class;
 	}
-	private void createConverterGraph(JsonConverter jsonConverter, Map shape) throws Exception {
+	private void createConverterGraph(JsonConverter jsonConverter, Map shape, Map buildEnv) throws Exception {
 		def outgoing = shape.outgoing;
 		for (def out : outgoing) {
 			def childShape = m_shapeMap[out.resourceId];
@@ -153,9 +154,9 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			if( converter == null){
 				throw new RuntimeException(m_path+":No converter for StencilId:"+id);
 			}
-			def childJsonConverter = converter.newInstance(shapeProperties:childShape.properties, resourceId:getId(childShape));
+			def childJsonConverter = converter.newInstance(shapeProperties:childShape.properties, resourceId:getId(childShape), buildEnv:buildEnv);
 			jsonConverter.children.add(childJsonConverter);
-			createConverterGraph(childJsonConverter, childShape);
+			createConverterGraph(childJsonConverter, childShape, buildEnv);
 		}
 
 	}
