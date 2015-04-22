@@ -24,6 +24,7 @@ package org.ms123.common.camel.jsonconverter;
 public class JsonConverterContext {
 	public def modelCamelContext = null;
 	public def routeDefinition = null;
+	public def routeStart;
 	public def current;
 	public def logExceptionsOnly;
 

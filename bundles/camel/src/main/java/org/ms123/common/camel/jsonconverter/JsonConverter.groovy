@@ -209,7 +209,6 @@ abstract class JsonConverterImpl implements JsonConverter{
 		try {
 			def gs = new GroovyShell();
 			def clazz  = (Class) gs.evaluate(code);
-			System.out.println("clazz:" + clazz);
 			return clazz.newInstance();
 		} catch (Throwable e) {
 			String msg = Utils.formatGroovyException(e,code);
@@ -218,11 +217,12 @@ abstract class JsonConverterImpl implements JsonConverter{
 	}
 
 	def substBuildEnv( value ){
-		if( buildEnv == null) return value;
+		if( buildEnv == null){
+			 return value;
+		}
 		if( value.length() > 5 && value.startsWith("{{") && value.endsWith("}}")){
 			def name = value.substring(2, value.length()-2);
 			def subst = buildEnv.get(name);
-			System.out.println("substBuildEnv:"+value +"->"+subst);
 			return subst;	
 		}
 		return value;
@@ -336,6 +336,12 @@ class EndpointJsonConverter extends JsonConverterImpl{
 			setConstants(ctx.routeDefinition, rootProperties);
 			ctx.current = ctx.routeDefinition.from(constructUri());
 			ctx.current.getInputs().get(0).id(resourceId);
+			ctx.routeStart = false;
+		}else if(ctx.routeStart==true){
+			ctx.routeStart = false;
+			ctx.current.end();
+			ctx.current = ctx.routeDefinition.from(constructUri());
+			//ctx.current.getInputs().get(0).id(resourceId);
 		}else{
 			ctx.current = ctx.current.to(constructUri());
 			ctx.current.id(resourceId);

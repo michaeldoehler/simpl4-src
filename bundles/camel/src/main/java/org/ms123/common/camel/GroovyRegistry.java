@@ -151,7 +151,6 @@ public class GroovyRegistry implements Registry {
 		m_logger.error(msg);
 	}
 	private static void debug(String msg) {
-		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 	private static final Logger m_logger = LoggerFactory.getLogger(GroovyRegistry.class);
