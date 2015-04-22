@@ -69,6 +69,8 @@ import org.apache.camel.Message;
 import rx.Observable;
 import rx.functions.Action1;
 import org.apache.camel.rx.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.camel.ProducerTemplate;
 
 /** XmppService implementation
  */
@@ -82,8 +84,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
-		org.apache.taglibs.standard.tag.common.fmt.BundleSupport.registerClassLoader("openfire_i18n",  XMPPServer.class.getClassLoader());
-
+		org.apache.taglibs.standard.tag.common.fmt.BundleSupport.registerClassLoader("openfire_i18n", XMPPServer.class.getClassLoader());
 		Simpl4Manager.setBundleContext(bundleContext);
 		UserManager.setUserProvider(new Simpl4UserProvider());
 		GroupManager.setGroupProvider(new Simpl4GroupProvider());
@@ -111,7 +112,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to create the room:" + roomName);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:" + roomName+"/"+e.getMessage());
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:" + roomName + "/" + e.getMessage());
 		}
 	}
 
@@ -130,14 +131,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "It'ss a conflict to update the room:" + roomName);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception update the room:" + roomName+"/"+e.getMessage());
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception update the room:" + roomName + "/" + e.getMessage());
 		}
 	}
 
 	@RequiresRoles("admin")
 	public void deleteRoom(
-			@PName("serviceName") String serviceName, 
-			@PName("roomName") String roomName) throws RpcException {
+			@PName("serviceName")      String serviceName, 
+			@PName("roomName")         String roomName) throws RpcException {
 		try {
 			MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRoom(roomName.toLowerCase());
 			if (room == null) {
@@ -146,14 +147,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			room.destroyRoom(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "deleteRoom:" + roomName+"/"+e.getMessage());
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "deleteRoom:" + roomName + "/" + e.getMessage());
 		}
 	}
 
 	public List<Map> getRooms(
-			@PName("serviceName") String serviceName, 
-			@PName("channelType") @PDefaultString("all") @POptional String channelType, 
-			@PName("roomSearch") @POptional String roomSearch) throws RpcException {
+			@PName("serviceName")      String serviceName, 
+			@PName("channelType")      @PDefaultString("all") @POptional String channelType, 
+			@PName("roomSearch")       @POptional String roomSearch) throws RpcException {
 		try {
 			List<MUCRoom> rooms = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRooms();
 			List<Map> mucRoomList = new ArrayList<Map>();
@@ -177,47 +178,65 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	}
 
 	public Map getRoom(
-			@PName("serviceName") String serviceName, 
-			@PName("roomName") String roomName) throws RpcException {
+			@PName("serviceName")      String serviceName, 
+			@PName("roomName")         String roomName) throws RpcException {
 		try {
 			MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(serviceName).getChatRoom(roomName);
 			if (room == null) {
-				throw new Exception("room could be not found." );
+				throw new Exception("room could be not found.");
 			}
 			return convertToRoomSpec(room);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "getRoom:" + roomName+"/"+e.getMessage());
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "getRoom:" + roomName + "/" + e.getMessage());
 		}
 	}
 
-	public WebSocketAdapter createWebSocket(Map<String,Object> config,Map<String,List<String>> parameterMap){
-		return new WebSocket(config,parameterMap);
+	public WebSocketAdapter createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
+		return new WebSocket(config, parameterMap);
 	}
 
 	public class WebSocket extends WebSocketAdapter {
-		private Map<String,Object> m_config = null;
-		private Map<String,List<String>> m_params = null;
+
+		private Map<String, Object> m_config = null;
+
+		private Map<String, List<String>> m_params = null;
+
+		JSONDeserializer m_ds = new JSONDeserializer();
+
 		int num = 0;
-		public WebSocket(Map<String,Object> config, Map<String,List<String>> parameterMap){
+		private Route m_routeIn;
+//		private Route m_routeOut;
+		private CamelContext m_context;
+//		private	Endpoint m_endpointOut;
+		private ProducerTemplate m_outTemplate;
+		private Endpoint m_epIn;
+
+		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 			m_config = config;
 			m_params = parameterMap;
-			System.out.println("parameterMap:"+m_params);
-			Map env = new HashMap();
-			env.put("userName", "msa");
-			CamelContext context=null;
-			Route route = null;
-			try{
-				route = m_camelService.createRoute("tutorials", "xmpp_in.camel", "admin", env, "tutorials/xmpp_in");
-				System.out.println("route:"+route+"/"+route.getId());
-				context = m_camelService.getCamelContext("tutorials", "default");
-				System.out.println("conext:"+context);
-				context.startRoute(route.getId());
-			}catch(Exception e){
+			System.out.println("parameterMap:" + m_params);
+			Map<String,String> env = convertMap(parameterMap);
+			String namespace = env.get("namespace");
+			String routeIn = env.get("routeIn");
+			String routeOut = env.get("routeOut");
+			m_context = m_camelService.getCamelContext(namespace, "default");
+info("Vor createProducer");
+			m_outTemplate = m_context.createProducerTemplate();
+info("Nach createProducer");
+			try {
+				m_routeIn = m_camelService.createRoute(namespace, routeIn, "admin", env, namespace+"/"+routeIn);
+				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId()+"/"+m_routeIn.getClass());
+				//m_routeOut = m_camelService.createRoute(namespace, routeOut, "admin", env, namespace+"/"+routeOut); info("routeOut:" + m_routeOut + "/" + m_routeOut.getId()); m_endpointOut = m_routeOut.getEndpoint();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			ReactiveCamel reactiveCamel = new ReactiveCamel(context);
-			Observable<Message> observable = reactiveCamel.toObservable(route.getConsumer().getEndpoint());
+			ReactiveCamel reactiveCamel = new ReactiveCamel(m_context);
+			Endpoint epOut = m_routeIn.getRouteContext().resolveEndpoint("direct:out");
+			m_epIn = m_routeIn.getEndpoint();
+info("EndpointIn:"+m_routeIn.getEndpoint());
+info("EndpointOut:"+epOut);
+			Observable<Message> observable = reactiveCamel.toObservable(epOut);
 			//observable.toBlocking().forEach(new Action1<Message>() {
 			observable.subscribe(new Action1<Message>() {
 
@@ -225,10 +244,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				public void call(Message message) {
 					String body = "Processing message headers " + message.getHeaders();
 					System.out.print(body);
-					System.out.println("\t"+message.getBody());
-					if( message.getBody() != null){
-						//endpoint.setParticipant("guest@simpl4.org");
-						//template.sendBody( endpoint, "Answer XXXXX");
+					System.out.println("\t" + message.getBody());
+					if (message.getBody() != null) {
 					}
 				}
 			});
@@ -238,14 +255,23 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
 			System.out.println("Socket Connected: " + sess);
-			System.out.println("S4WebSocket: " + hashCode());
+			try{
+				m_context.startRoute(m_routeIn.getId());
+				//m_context.startRoute(m_routeOut.getId());
+			}catch(Exception e){
+				e.printStackTrace();
+				throw new RuntimeException("WebSocket.onWebSocketConnect:"+e);
+			}
 		}
 
 		@Override
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
-			System.out.println("Received("+hashCode()+ ")TEXT message: " + message);
-			getSession().getRemote().sendStringByFuture(message);
+			Map<String,Object> event = (Map)m_ds.deserialize(message);
+			Map<String,Object> data = (Map)event.get("data");
+			System.out.println("Received(" + hashCode() + ")TEXT message: " + event);
+			
+			m_outTemplate.sendBody( m_epIn, data.get("content"));
 			num++;
 		}
 
@@ -261,9 +287,19 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			cause.printStackTrace(System.err);
 		}
 	}
-	@Reference(dynamic = true, optional=true)
+
+	@Reference(dynamic = true, optional = true)
 	public void setCamelService(CamelService paramService) {
 		this.m_camelService = paramService;
 		info("XmppServiceImpl.setCamelService:" + paramService);
+	}
+
+	private Map<String,String> convertMap( Map<String,List<String>> inMap){
+		Map<String,String> outMap = new HashMap();
+		for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
+			outMap.put( entry.getKey() , StringUtils.join( entry.getValue(),","));
+		}
+System.out.println("convertMap:"+outMap);
+		return outMap;
 	}
 }

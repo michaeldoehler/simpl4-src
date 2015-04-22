@@ -86,17 +86,31 @@
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
-					var uuid = this.generateUUID();
+					var uuid = "msa" ;//this.generateUUID();
 					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 					baseUrl = baseUrl.replace( "http", "ws" );
-					this.url = baseUrl + "/ws/xyz?service=xmpp&credentials=" + credentials + "&uuid=" + uuid;
+					var params = {};
+					params["namespace"]= "tutorials";
+					params["username"]= "msa";
+					params["password"]= "msa";
+					params["routeIn"]= "xmpp_in.camel";
+					params["routeOut"]= "xmpp_out.camel";
+					params["participant"]= "guest@simpl4.org";
+					params["credentials"]= credentials;
+					params["uuid"]= uuid;
+					params["service"]= "xmpp";
 
+					var qs = $.param(params);
+
+					this.url = baseUrl + "/ws/xyz?"+qs;
+
+						console.info( 'uri' +qs);
 					var open = Rx.Observer.create( ( function( e ) {
 						console.info( 'websocket open' );
 						this.connected = true;
 						setInterval( ( function() {
-							this.sendPing();
-						} ).bind( this ), 1300000 );
+							//this.sendPing();
+						} ).bind( this ), 5000 );
 					} ).bind( this ) );
 
 					var closingObserver = Rx.Observer.create( ( function() {
