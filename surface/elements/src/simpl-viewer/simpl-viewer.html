@@ -287,10 +287,11 @@
 			renderColumn: function( data, type, row, meta ) {
 				var name = meta.settings.aoColumns[ meta.col ].mData;
 				var clazz = meta.settings.aoColumns[ meta.col ].sClass;
+				var baseUrl = simpl4.util.BaseManager().getBaseUrl();
 				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
-					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;width:100%;' type='text'></input></div>";
+					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;height:13px;width:100%;' type='text'></input></div>";
 				}else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
-					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:13px;background:#787878;' src='basket.gif' type='image'></input></div>";
+					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:13px;background:#787878;' src='"+baseUrl+"/fis/basket.gif' type='image'></input></div>";
 				} else {
 					return row[ name ];
 				}
