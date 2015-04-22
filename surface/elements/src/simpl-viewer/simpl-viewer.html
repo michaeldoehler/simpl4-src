@@ -299,16 +299,19 @@
 			buttonClicked:function(e){
 				var nr = e;
 				var inp = $(document.querySelector("html /deep/ #id"+e));
-				var val = parseInt(inp.val());
+				var val = this.isEmpty(inp.val()) ? 1 : parseInt(inp.val());
 				console.log("Part:"+nr+"/"+val);
 				if( !isNaN(val) && val > 0){
-					//alert("addToBasket:"+nr);
 					inp.val(null);
 					if( window.etk){
 						window.etk.addToBasket( nr, val );
 					}
 				}
 			},
+		   isEmpty:function(s){
+        if( s == null || s == '' ) return true;
+        return false;
+      },
 			getAssembyTableData: function( path ) {
 				try {
 					var d = simpl4.util.Rpc.rpcSync( "bhs:getAssembly", {
