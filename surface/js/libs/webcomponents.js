@@ -1,3 +1,20 @@
+if( !window.console){ //ie9 problem
+ window.console = {
+      warn: function (s) {
+        void(0);
+      },
+      log: function (s) {
+        void(0);
+      },
+      error: function (s) {
+        void(0);
+      },
+      debug: function (s) {
+        void(0);
+      }
+    }
+}
+
 /**
  * @license
  * Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
