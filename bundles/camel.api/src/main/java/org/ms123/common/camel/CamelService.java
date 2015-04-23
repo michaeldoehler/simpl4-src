@@ -32,7 +32,7 @@ public interface CamelService {
 	public CamelContext getCamelContext(String namespace, String name);
 	public Map getShapeByRouteId(String namespace, String routeId);
 	public void saveHistory(Exchange exchange);
-	public Route createRoute(String namespace, String name, String userName, Map buildEnv, String msg);
+	public List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg);
 	public Object camelSend(String epUri, final Map<String, Object> properties);
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties);
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);

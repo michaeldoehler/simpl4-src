@@ -99,6 +99,10 @@ public class BaseRouteJsonConverter {
 		return id;
 	}
 
+	protected String createRouteId( String baseId, int index){
+		return baseId+"_"+index;
+	}
+
 	protected List<Map> getShapeList(List<Map> list, List<String> types) {
 		List<Map> retList = new ArrayList();
 		for (Map<String, Map> e : list) {

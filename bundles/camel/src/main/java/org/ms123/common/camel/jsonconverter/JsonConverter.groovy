@@ -18,6 +18,7 @@
  */
 package org.ms123.common.camel.jsonconverter;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.ExpressionSubElementDefinition;
 import org.apache.camel.model.WhenDefinition;
 import org.apache.camel.model.DataFormatDefinition;
@@ -309,7 +310,8 @@ class OnExceptionJsonConverter extends JsonConverterImpl{
 		if( exList.size()==0){
 			exList.add(java.lang.Exception.class);
 		}
-		ctx.current = ctx.routeDefinition.onException(exList as Class[]);
+		RouteDefinition rd = ctx.routesDefinition.getRoutes().get(0);
+		ctx.current = rd.onException(exList  as Class[]);
 		ctx.current.id(resourceId);
 		if(isNotEmpty(shapeProperties.continued)){
 			ctx.current.setContinued(new ExpressionSubElementDefinition((Expression)createExpression(shapeProperties.continued,shapeProperties.continuedLanguage)));
@@ -324,23 +326,24 @@ class OnExceptionJsonConverter extends JsonConverterImpl{
 }
 class OnCompletionJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
-		ctx.current = ctx.routeDefinition.onCompletion();
+		RouteDefinition rd = ctx.routesDefinition.getRoutes().get(0);
+		ctx.current = rd.onCompletion();
 		ctx.current.id(resourceId);
 	}
 }
 
 class EndpointJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
-		if( ctx.routeDefinition == null){
-			ctx.routeDefinition = new RouteDefinition();
-			setConstants(ctx.routeDefinition, rootProperties);
-			ctx.current = ctx.routeDefinition.from(constructUri());
+		if( ctx.routesDefinition == null){
+			ctx.routesDefinition = new RoutesDefinition();
+			def routeDefinition = ctx.routesDefinition.from(constructUri());
+			setConstants(routeDefinition, rootProperties);
+			ctx.current = routeDefinition;
 			ctx.current.getInputs().get(0).id(resourceId);
 			ctx.routeStart = false;
 		}else if(ctx.routeStart==true){
 			ctx.routeStart = false;
-			ctx.current.end();
-			ctx.current = ctx.routeDefinition.from(constructUri());
+			ctx.current = ctx.routesDefinition.from(constructUri());
 			//ctx.current.getInputs().get(0).id(resourceId);
 		}else{
 			ctx.current = ctx.current.to(constructUri());

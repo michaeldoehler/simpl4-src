@@ -35,6 +35,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Route;
 import org.apache.camel.Exchange;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.view.RouteDotGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -66,12 +67,19 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
-		m_ctx.routeDefinition.routeId( getId(rootShape));
-		if( logExceptionsOnly){
-			def expr = new ConstantExpression(logExceptionsOnly as String);
-			m_ctx.routeDefinition.setProperty("__logExceptionsOnly",expr);
+		def baseId = getId(rootShape);
+		def i=1;
+		int size = m_ctx.routesDefinition.getRoutes().size();
+		m_ctx.routesDefinition.getRoutes().each(){ routeDef ->
+			routeDef.routeId( size == 1 ? baseId : createRouteId(baseId,i));
+			i++;
+			if( logExceptionsOnly){
+				def expr = new ConstantExpression(logExceptionsOnly as String);
+				routeDef.setProperty("__logExceptionsOnly",expr);
+			}
 		}
-		println("RouteDefinition:"+m_ctx.routeDefinition);
+
+		println("RoutesDefinition:"+m_ctx.routesDefinition);
 	}
 	private def getStartList(Map rootShape) {
 		def outgoings =[];
@@ -160,8 +168,8 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		}
 
 	}
-	public RouteDefinition getRouteDefinition() {
-		return m_ctx.routeDefinition;
+	public RoutesDefinition getRoutesDefinition() {
+		return m_ctx.routesDefinition;
 	}
 
 	public void toDot(){

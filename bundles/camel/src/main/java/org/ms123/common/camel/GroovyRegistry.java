@@ -74,7 +74,7 @@ public class GroovyRegistry implements Registry {
 					debug("ds:"+sr[0]);
 				return m_bundleContect.getService(sr[0]);
 			}else{
-				error("getDataSource1(" + name + "):not found");
+				//error("getDataSource1(" + name + "):not found");
 			}
 		} catch (Throwable e) {
 			error("getDataSource2(" + name + "):" + e);

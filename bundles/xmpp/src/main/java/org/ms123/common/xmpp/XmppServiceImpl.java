@@ -225,7 +225,8 @@ info("Vor createProducer");
 			m_outTemplate = m_context.createProducerTemplate();
 info("Nach createProducer");
 			try {
-				m_routeIn = m_camelService.createRoute(namespace, routeIn, "admin", env, namespace+"/"+routeIn);
+				List<Route> routes = m_camelService.createRoutes(namespace, routeIn, "admin", env, namespace+"/"+routeIn);
+				m_routeIn = routes.get(0);
 				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId()+"/"+m_routeIn.getClass());
 				//m_routeOut = m_camelService.createRoute(namespace, routeOut, "admin", env, namespace+"/"+routeOut); info("routeOut:" + m_routeOut + "/" + m_routeOut.getId()); m_endpointOut = m_routeOut.getEndpoint();
 			} catch (Exception e) {
