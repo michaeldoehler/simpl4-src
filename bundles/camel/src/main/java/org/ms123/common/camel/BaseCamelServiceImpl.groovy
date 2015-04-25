@@ -247,13 +247,24 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		return vg.getGraph(routeDefinitions);
 	}
 
-	public synchronized List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg) {
+	public synchronized List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg,Map<String,String> meta) {
 		ModelCamelContext context = (ModelCamelContext)getCamelContext(namespace,"default");
 		String routeString = m_gitService.searchContent( namespace, name, "sw.camel" );
 		String md5 = getMD5OfUTF8(routeString+(buildEnv != null ? buildEnv.toString():""));
 		List<Route> routes = m_routeCache.get(md5);
 		if( routes != null) return routes;
 		Map shape = (Map)m_ds.deserialize(routeString);
+
+		String recvEndpoint = getString(shape, "recvEndpoint",null);
+		String sendEndpoint = getString(shape, "sendEndpoint",null);
+		if( recvEndpoint == null){
+			throw new RuntimeException("Missing \"ReceiveEndpoint\" in:"+namespace+"/"+name);
+		}
+		if( sendEndpoint == null){
+			throw new RuntimeException("Missing \"SendEndpoint\" in:"+namespace+"/"+name);
+		}
+		meta.put("recvEndpoint", recvEndpoint);
+		meta.put("sendEndpoint", sendEndpoint);
 
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
