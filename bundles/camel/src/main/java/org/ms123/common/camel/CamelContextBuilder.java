@@ -175,7 +175,7 @@ public class CamelContextBuilder {
 	}
 
 	private static void info(String msg) {
-		System.out.println(msg);
+		//System.out.println(msg);
 		m_logger.info(msg);
 	}
 }
