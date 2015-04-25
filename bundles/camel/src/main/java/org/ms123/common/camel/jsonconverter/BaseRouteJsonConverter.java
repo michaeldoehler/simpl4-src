@@ -99,6 +99,14 @@ public class BaseRouteJsonConverter {
 		return id;
 	}
 
+	protected String getSharedOriginRef(Map shape) {
+		Map<String,String> properties = (Map) shape.get("properties");
+		if( "origin".equals(properties.get("shared"))){
+			return properties.get("shareRef");
+		}
+		return null;
+	}
+
 	protected String createRouteId( String baseId, int index){
 		return baseId+"_"+index;
 	}

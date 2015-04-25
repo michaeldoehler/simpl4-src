@@ -160,12 +160,12 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 	}
 
 	private void debug(String msg) {
-		System.out.println(msg);
+		//System.out.println(msg);
 		m_logger.debug(msg);
 	}
 
 	private void info(String msg) {
-		System.err.println(msg);
+		//System.err.println(msg);
 		m_logger.info(msg);
 	}
 

@@ -26,6 +26,8 @@ public class JsonConverterContext {
 	public def routesDefinition = null;
 	public def routeStart;
 	public def current;
+	public def sharedEndpoints;
+	public def buildEnv;
 	public def logExceptionsOnly;
 
 	static class ChoiceBlock{//@@@Maybe needed,if choices nested

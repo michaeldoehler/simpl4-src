@@ -49,20 +49,23 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 	def m_ctx;
 	def m_typesMap = [:];
 	def m_shapeMap = [:];
+	def m_sharedEndpointMap = [:];
 	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv) {
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
+		m_ctx.buildEnv = buildEnv;
 		def logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
 		fillShapeMap(rootShape);
 		fillTypesMap();
+		m_ctx.sharedEndpoints = createSharedOriginEndpoints(camelContext);
 		def startList = getStartList(rootShape);
 		for( def startShape : startList){
 			def converter = m_typesMap[getStencilId(startShape)];
 			if( converter == null){
 				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
 			}
-			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding,buildEnv:buildEnv);
+			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding);
 			createConverterGraph(startJsonConverter, startShape, buildEnv);
 			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
@@ -162,12 +165,34 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			if( converter == null){
 				throw new RuntimeException(m_path+":No converter for StencilId:"+id);
 			}
-			def childJsonConverter = converter.newInstance(shapeProperties:childShape.properties, resourceId:getId(childShape), buildEnv:buildEnv);
+			def childJsonConverter = converter.newInstance(shapeProperties:childShape.properties, resourceId:getId(childShape));
 			jsonConverter.children.add(childJsonConverter);
 			createConverterGraph(childJsonConverter, childShape, buildEnv);
 		}
 
 	}
+
+	def createSharedOriginEndpoints(CamelContext cc){
+		def sharedEndpointMap = [:];
+		for ( e in m_shapeMap ) {
+			def shape = e.value;
+			String sharedRef = getSharedOriginRef(shape);
+			println("sharedRef:"+sharedRef);
+			if( sharedRef != null){
+				def id = getStencilId(shape);
+				def converter = m_typesMap[id];
+				println("converter:"+converter);
+				def jsonConverter = converter.newInstance(shapeProperties:shape.properties, resourceId:getId(shape));
+				def uri = jsonConverter.constructUri(m_ctx);
+				def endpoint = cc.getEndpoint(uri);
+				println("endpoint:"+endpoint);
+				cc.addEndpoint( sharedRef, endpoint);
+				sharedEndpointMap[sharedRef] = endpoint;
+			}
+		}
+		return sharedEndpointMap;
+	}
+
 	public RoutesDefinition getRoutesDefinition() {
 		return m_ctx.routesDefinition;
 	}

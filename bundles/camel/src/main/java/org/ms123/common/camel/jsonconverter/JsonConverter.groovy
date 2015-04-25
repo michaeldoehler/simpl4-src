@@ -69,13 +69,12 @@ abstract class JsonConverterImpl implements JsonConverter{
 	public def  shapeProperties;
 	public def  resourceId;
 	public def  branding;
-	public def  buildEnv;
 	def children = []
 	def engine = new SimpleTemplateEngine();
 	void finishToCamel(ctx){}
-	def constructUri(){
-		def uriValueMap = createMap("urivalue_");
-		def uriParamMap = createMap("uriparam_");
+	def constructUri(ctx){
+		def uriValueMap = createMap(ctx,"urivalue_");
+		def uriParamMap = createMap(ctx,"uriparam_");
 		println("uriValueMap:"+uriValueMap);
 		println("uriParamMap:"+uriParamMap);
 		def extraParams = shapeProperties.extraParams;
@@ -146,7 +145,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	def getDataformat(ctx){
 		def format = shapeProperties.format;
 		
-		def map = createMap(format+"_");
+		def map = createMap(ctx,format+"_");
 		println("ParameterMap:"+map);
 		def dataFormatDef = null;
 		if( shapeProperties.json_library == "flexjson"){
@@ -170,11 +169,11 @@ abstract class JsonConverterImpl implements JsonConverter{
 		return shapeProperties.format;
 	}
 
-	def createMap(prefix){
+	def createMap(ctx,prefix){
 		def map=[:];
 		shapeProperties.each(){key,value->
 			if(key.startsWith(prefix)){
-				map[key.substring(prefix.length())] = value!=null ? substBuildEnv(value.toString()) : "";
+				map[key.substring(prefix.length())] = value!=null ? substBuildEnv(ctx,value.toString()) : "";
 			}
 		}	
 		return map;
@@ -217,16 +216,23 @@ abstract class JsonConverterImpl implements JsonConverter{
 		}
 	}
 
-	def substBuildEnv( value ){
-		if( buildEnv == null){
+	def substBuildEnv( ctx,value ){
+		if( ctx.buildEnv == null){
 			 return value;
 		}
 		if( value.length() > 5 && value.startsWith("{{") && value.endsWith("}}")){
 			def name = value.substring(2, value.length()-2);
-			def subst = buildEnv.get(name);
+			def subst = ctx.buildEnv.get(name);
 			return subst;	
 		}
 		return value;
+	}
+
+	def getSharedLinkRef() {
+		if( "link".equals(shapeProperties.get("shared"))){
+			return shapeProperties.get("shareRef");
+		}
+		return null;
 	}
 
 	def prettyPrint(msg, obj){
@@ -334,19 +340,25 @@ class OnCompletionJsonConverter extends JsonConverterImpl{
 
 class EndpointJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
+		def link = getSharedLinkRef();
+		def sharedEndpoint = null;
+		if( link != null){
+			sharedEndpoint = ctx.sharedEndpoints[link];
+			if( sharedEndpoint == null) throw new RuntimeException("EndpointJsonConverter:sharedEnpoint("+link+") not found.");
+		}
 		if( ctx.routesDefinition == null){
 			ctx.routesDefinition = new RoutesDefinition();
-			def routeDefinition = ctx.routesDefinition.from(constructUri());
+			def routeDefinition = ctx.routesDefinition.from(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
 			setConstants(routeDefinition, rootProperties);
 			ctx.current = routeDefinition;
 			ctx.current.getInputs().get(0).id(resourceId);
 			ctx.routeStart = false;
 		}else if(ctx.routeStart==true){
 			ctx.routeStart = false;
-			ctx.current = ctx.routesDefinition.from(constructUri());
+			ctx.current = ctx.routesDefinition.from(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
 			//ctx.current.getInputs().get(0).id(resourceId);
 		}else{
-			ctx.current = ctx.current.to(constructUri());
+			ctx.current = ctx.current.to(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
 			ctx.current.id(resourceId);
 		}
 	}
