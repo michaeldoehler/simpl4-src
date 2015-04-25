@@ -82,29 +82,29 @@
 					}
 					this.connected = false;
 				},
-				ready: function() {
+				go: function(user,pw) {
+					console.error("GO:"+user+"/"+pw);
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
-					var uuid = "msa" ;//this.generateUUID();
+					var uuid = user; //this.generateUUID();
 					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 					baseUrl = baseUrl.replace( "http", "ws" );
 					var params = {};
-					params["namespace"]= "tutorials";
-					params["username"]= "msa";
-					params["password"]= "msa";
-					params["routeIn"]= "xmpp_in.camel";
-					params["routeOut"]= "xmpp_out.camel";
-					params["participant"]= "guest@simpl4.org";
-					params["credentials"]= credentials;
-					params["uuid"]= uuid;
-					params["service"]= "xmpp";
+					params[ "namespace" ] = "tutorials";
+					params[ "username" ] = user;
+					params[ "password" ] = pw;
+					params[ "routes" ] = "xmpp.camel";
+					//params[ "participant" ] = "guest@simpl4.org";
+					params[ "credentials" ] = credentials;
+					params[ "uuid" ] = uuid;
+					params[ "service" ] = "xmpp";
 
-					var qs = $.param(params);
+					var qs = $.param( params );
 
-					this.url = baseUrl + "/ws/xyz?"+qs;
+					this.url = baseUrl + "/ws/xyz?" + qs;
 
-						console.info( 'uri' +qs);
+					console.info( 'uri:' + qs );
 					var open = Rx.Observer.create( ( function( e ) {
 						console.info( 'websocket open' );
 						this.connected = true;
@@ -118,13 +118,13 @@
 						this.connected = false;
 					} ).bind( this ) );
 
-					this.socket = this.fromWebSocket( this.url, open, closingObserver );
+					this.socket = this.observableFromWebSocket( this.url, open, closingObserver );
 					console.log( "SOCKET:", this.socket );
 					var self = this;
 					this.socket.subscribe(
 						function( e ) {
 							var data = e.data;
-							if ( this.json || this.jsonReceive ) {
+							if ( self.json || self.jsonReceive ) {
 								data = JSON.parse( data );
 							}
 							self.fire( "message", {
@@ -142,7 +142,7 @@
 						}
 					);
 				},
-				fromWebSocket: function( url, openObserver, closingObserver ) {
+				observableFromWebSocket: function( url, openObserver, closingObserver ) {
 					if ( !WebSocket ) {
 						throw new TypeError( 'WebSocket not implemented in your runtime.' );
 					}

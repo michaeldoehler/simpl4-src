@@ -14,6 +14,8 @@ dependencies {
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/openfire/openfire-3.10.0ms.bar")
+	compile files("${repository}/openfire/smack-3.4.1.bar")
+	compile files("${repository}/openfire/smackx-3.4.1.bar")
 	compile files("${repository}/btm-3.0.0-SNAPSHOT.jar")
   compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/h2-1.3.170.jar")
@@ -23,6 +25,7 @@ dependencies {
 	compile files("${repository}/pax-web-jsp-4.1.1.bar")
 	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
 	compile files("${repository}/camel-2.14-ms/camel-rx-2.14-ms.jar")
+	compile files("${repository}/camel-2.14-ms/camel-xmpp-2.14-ms.jar")
 	compile files("${repository}/commons-lang3-3.3.2.jar")
 }
 

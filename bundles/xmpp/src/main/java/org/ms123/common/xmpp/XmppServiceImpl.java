@@ -66,11 +66,13 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Route;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.component.xmpp.XmppMessage;
 import rx.Observable;
 import rx.functions.Action1;
 import org.apache.camel.rx.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.camel.ProducerTemplate;
+import org.jivesoftware.smackx.packet.MessageEvent;
 
 /** XmppService implementation
  */
@@ -199,55 +201,95 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	public class WebSocket extends WebSocketAdapter {
 
 		private Map<String, Object> m_config = null;
-
 		private Map<String, List<String>> m_params = null;
-
 		JSONDeserializer m_ds = new JSONDeserializer();
-
-		int num = 0;
+		JSONSerializer m_js = new JSONSerializer();
 		private Route m_routeIn;
-//		private Route m_routeOut;
-		private CamelContext m_context;
-//		private	Endpoint m_endpointOut;
+		private Route m_routeOut;
 		private ProducerTemplate m_outTemplate;
-		private Endpoint m_epIn;
+		private CamelContext m_context;
+		private Session m_session;
+		private Endpoint sendEndpoint;
 
 		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 			m_config = config;
 			m_params = parameterMap;
 			System.out.println("parameterMap:" + m_params);
-			Map<String,String> env = convertMap(parameterMap);
+			Map<String, String> env = convertMap(parameterMap);
 			String namespace = env.get("namespace");
-			String routeIn = env.get("routeIn");
-			String routeOut = env.get("routeOut");
+			String routesName = env.get("routes");
 			m_context = m_camelService.getCamelContext(namespace, "default");
-info("Vor createProducer");
 			m_outTemplate = m_context.createProducerTemplate();
-info("Nach createProducer");
+
+			Map<String,String> meta = new HashMap();
+			m_js.prettyPrint(true);
 			try {
-				List<Route> routes = m_camelService.createRoutes(namespace, routeIn, "admin", env, namespace+"/"+routeIn);
+				List<Route> routes = m_camelService.createRoutes(namespace, routesName, "admin", env, namespace + "/" + routesName,meta);
 				m_routeIn = routes.get(0);
-				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId()+"/"+m_routeIn.getClass());
-				//m_routeOut = m_camelService.createRoute(namespace, routeOut, "admin", env, namespace+"/"+routeOut); info("routeOut:" + m_routeOut + "/" + m_routeOut.getId()); m_endpointOut = m_routeOut.getEndpoint();
+				m_routeOut = routes.get(1);
+				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId() + "/" + m_routeIn.getClass());
+				info("routeOut:" + m_routeOut + "/" + m_routeOut.getId() + "/" + m_routeOut.getClass());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			sendEndpoint = m_context.getEndpoint( meta.get("sendEndpoint"));
+			Endpoint recvEndpoint = m_context.getEndpoint( meta.get("recvEndpoint"));
+			info("sendEndpoint:"+sendEndpoint);
+			info("recvEndpoint:"+recvEndpoint);
+			
 			ReactiveCamel reactiveCamel = new ReactiveCamel(m_context);
-			Endpoint epOut = m_routeIn.getRouteContext().resolveEndpoint("direct:out");
-			m_epIn = m_routeIn.getEndpoint();
-info("EndpointIn:"+m_routeIn.getEndpoint());
-info("EndpointOut:"+epOut);
-			Observable<Message> observable = reactiveCamel.toObservable(epOut);
-			//observable.toBlocking().forEach(new Action1<Message>() {
+			Observable<Message> observable = reactiveCamel.toObservable(recvEndpoint);
 			observable.subscribe(new Action1<Message>() {
 
 				@Override
-				public void call(Message message) {
-					String body = "Processing message headers " + message.getHeaders();
-					System.out.print(body);
-					System.out.println("\t" + message.getBody());
-					if (message.getBody() != null) {
+				public void call(Message _message) {
+					org.jivesoftware.smack.packet.Message message = ((XmppMessage)_message).getXmppMessage();;
+					Map<String,Object>  sendMap = new HashMap();
+					Collection<String> propertyNames = message.getPropertyNames();
+					for( String name : propertyNames){
+						sendMap.put( name, message.getProperty(name));
 					}
+					String defaultSubject = message.getSubject();
+
+					List<String> subList = new ArrayList();
+					for (org.jivesoftware.smack.packet.Message.Subject subject : message.getSubjects()) {
+						String sub = subject.getSubject();
+						if(defaultSubject.equals(sub)) continue;
+						subList.add(sub);
+					}
+
+					sendMap.put("from", message.getFrom());
+					sendMap.put("to", message.getTo());
+					sendMap.put("packetId", message.getPacketID());
+					if( defaultSubject != null){
+						sendMap.put("subject", defaultSubject);
+					}
+					if(subList.size() >0){
+						sendMap.put("subjects", subList);
+					}
+					sendMap.put("thread", message.getThread());
+					sendMap.put("type", message.getType());
+					sendMap.put("language", message.getLanguage());
+					sendMap.put("body", message.getBody());
+
+					List<String> extensionList = new ArrayList();
+					for( org.jivesoftware.smack.packet.PacketExtension ep : message.getExtensions()){
+						if( ep instanceof org.jivesoftware.smackx.packet.ChatStateExtension){
+							sendMap.put("chatState", ep.getElementName());
+						}
+						if( ep instanceof MessageEvent){
+							MessageEvent me = (MessageEvent)ep;
+							sendMap.put("isComposing", me.isComposing());
+							sendMap.put("isOffline", me.isOffline());
+							//sendMap.put("isCancelled", me.isCancelled());
+							//sendMap.put("isDisplayed", me.isDisplayed());
+							//sendMap.put("isDelivered", me.isDelivered());
+						}
+					}
+
+					String sendString = m_js.deepSerialize(sendMap);
+					System.out.println("\nXMPPMessage:"+sendString);
+					m_session.getRemote().sendStringByFuture(sendString);
 				}
 			});
 		}
@@ -255,25 +297,26 @@ info("EndpointOut:"+epOut);
 		@Override
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
+			m_session = sess;
 			System.out.println("Socket Connected: " + sess);
-			try{
+			try {
 				m_context.startRoute(m_routeIn.getId());
-				//m_context.startRoute(m_routeOut.getId());
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
-				throw new RuntimeException("WebSocket.onWebSocketConnect:"+e);
+				throw new RuntimeException("WebSocket.onWebSocketConnect:" + e);
 			}
 		}
 
 		@Override
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
-			Map<String,Object> event = (Map)m_ds.deserialize(message);
-			Map<String,Object> data = (Map)event.get("data");
-			System.out.println("Received(" + hashCode() + ")TEXT message: " + event);
-			
-			m_outTemplate.sendBody( m_epIn, data.get("content"));
-			num++;
+			Map<String, Object> map = (Map) m_ds.deserialize(message);
+			String body = (String)map.get("body");
+			String participant = (String)map.get("participant");
+			System.out.println("Received(" + hashCode() + ")TEXT message: " + map);
+			if( body != null){
+				m_outTemplate.sendBodyAndHeader(sendEndpoint, body,"CamelXmppTo", participant);
+			}
 		}
 
 		@Override
@@ -287,6 +330,15 @@ info("EndpointOut:"+epOut);
 			super.onWebSocketError(cause);
 			cause.printStackTrace(System.err);
 		}
+
+		private Map<String, String> convertMap(Map<String, List<String>> inMap) {
+			Map<String, String> outMap = new HashMap();
+			for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
+				outMap.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
+			}
+			System.out.println("convertMap:" + outMap);
+			return outMap;
+		}
 	}
 
 	@Reference(dynamic = true, optional = true)
@@ -295,12 +347,4 @@ info("EndpointOut:"+epOut);
 		info("XmppServiceImpl.setCamelService:" + paramService);
 	}
 
-	private Map<String,String> convertMap( Map<String,List<String>> inMap){
-		Map<String,String> outMap = new HashMap();
-		for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
-			outMap.put( entry.getKey() , StringUtils.join( entry.getValue(),","));
-		}
-System.out.println("convertMap:"+outMap);
-		return outMap;
-	}
 }

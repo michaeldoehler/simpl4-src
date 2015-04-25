@@ -24,12 +24,19 @@
 
 
 		</style>
-		<simpl-websocket id="socketIo" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" outEventName="{{outEventName}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}"  autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<div>
 			UserName:
-			<input type="text" id="userName" value="{{user.name}}" /> UserColor:
-			<input type="color" id="userColor" value="{{user.color}}" /> Connected:
-			<input type="checkbox" checked={{connected}} disabled/> 
+			<input type="text" id="userName" value="{{user.name}}" /> Password:
+			<input type="text" id="password" value="{{user.password}}" />
+			<button on-click="{{connect}}">Connect</button>
+			<input type="checkbox" checked={{connected}} disabled/>
+		</div>
+		<div>
+			Participant:
+			<select id="participant">
+				<option value="guest@simpl4.org">Guest</option>
+			</select>
 		</div>
 		<div>
 			<input type="text" id="messageInput" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}" />
@@ -38,54 +45,43 @@
 		<template repeat="{{message in messages}}">
 			<div style="max-height:400px">
 				<div>
-					<!---<span style="color: {{ {'red': message.sender!='me', 'blue':message.sender=='me'} | tokenList  }}">-->
-					<!--<span style="color:{{user.color}}">{{message.sender}}</span>-->
-					<!--FIXME: WE NEED THIS : color:{{clients[message.sender].color}}-->
-					<template if="{{message.sender =='me'}}">
-						<span style="color:{{user.color}}">{{message.sender}} :</span>
+					<template if="{{message.from =='me'}}">
+						<span style="color:{{user.color}}">{{message.from}} :</span>
 					</template>
-					<template if="{{message.sender !='me'}}">
-						<span style="color:{{message.color}}">{{message.sender}} :</span>
+					<template if="{{message.from !='me'}}">
+						<span style="color:{{message.color}}">{{message.from}} :</span>
 					</template>
 
-					<span>{{message.content}} </span>
+					<span>{{message.body}} </span>
 				</div>
 			</div>
 		</template>
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
-			outEventName: "message",
 			recvMessage: null,
 			sendMessage: null,
 			connected: false,
 			autoConnect: true,
 			messages: [],
-			clients: {},
-			observe: {
-				'user.name': 'userChanged',
-				'user.color': 'userChanged'
-			},
 			ready: function() {
 				this.user = {
-					name: "foo" + Math.floor( ( Math.random() * 10 ) + 1 ),
+					name: "msa",
+					password: "msa",
 					color: "#ff0000"
 				};
 			},
-			//api
-			send: function( event ) {
+			send: function() {
 				if ( this.$.messageInput.value != "" ) {
-					var baseMessage = {
-						content: this.$.messageInput.value,
-						ts: new Date().getTime(),
-						sender: "me"
-					}; //without timestamp etc sendMessage does not change (change handlers)
-					this.sendMessage = {
-						event: "message",
-						data: baseMessage
-					};
-					this.messages.push( baseMessage );
-					this.$.messageInput.value = ""; //since we don't do databind we reset the field manually
+					var message = {
+						body: this.$.messageInput.value,
+						participant:$(this.$.participant).val(),
+						from: "me"
+					}; 
+					console.log("sendMessage:",message);
+					this.messages.push( message );
+					this.sendMessage = message;
+					this.$.messageInput.value = ""; 
 				}
 			},
 			onMessageKeydown: function( event ) {
@@ -99,38 +95,16 @@
 				console.log( "sendMessageChanged changed" );
 			},
 			recvMessageChanged: function() {
-				console.log( "recvMessage", this.recvMessage );
-				var event = this.recvMessage.event;
-				var data = this.recvMessage.data;
-				switch ( event ) {
-					case "message":
-						//FIXME: HACK !!
-						var cli = this.clients[ data.senderId ];
-						if ( cli ) {
-							data.color = cli.color;
-							data.sender = cli.name;
-							this.messages.push( data );
-						}
-						break;
-					case "userChanged":
-						this.clients = data;
-						var clients = this.clients;
-						for ( var i = 0; i < this.messages.length; i++ ) //TODO: hack/workaround unti polymer expressions allow correct access to object[key].bla
-						{
-							var msg = this.messages[ i ];
-							if ( msg.color ) msg.color = clients[ msg.senderId ].color;
-							if ( msg.sender && msg.sender != "me" ) msg.sender = clients[ msg.senderId ].name;
-						}
-						break;
+				var message = this.recvMessage;
+				var body = message.body;
+				if ( message.body ){
+					message.color = "green";
+					this.messages.push( messages );
 				}
 			},
-			userChanged: function() {
-				if ( this.connected ) this.sendMessage = {
-					event: "userChanged",
-					data: {
-						user: this.user
-					}
-				};
+			connect: function() {
+				console.log( "connect" );
+				this.$.websocket.go( this.user.name, this.user.password );
 			},
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
