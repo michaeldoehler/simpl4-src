@@ -73,6 +73,7 @@ public class CamelContextBuilder {
 		sr.put("activiti", new ActivitiComponent());
 		sr.put("swdata", new SWDataComponent());
 		sr.put("repo", new RepoComponent());
+		sr.put("xmpp", new org.ms123.common.xmpp.camel.XmppComponent());
 		sr.put("xdocreport", new XDocReportComponent());
 		sr.put("groovytemplate", new GroovyTemplateComponent());
 		sr.put("asciidoctor", new AsciidoctorComponent());
