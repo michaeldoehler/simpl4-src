@@ -92,6 +92,8 @@ import static org.ms123.common.system.LogService.LOG_KEY;
 import static org.ms123.common.system.LogService.LOG_TYPE;
 import static org.ms123.common.system.LogService.LOG_HINT;
 import static org.ms123.common.system.LogService.LOG_TIME;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 /**
  *
  */
@@ -263,8 +265,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		if( sendEndpoint == null){
 			throw new RuntimeException("Missing \"SendEndpoint\" in:"+namespace+"/"+name);
 		}
-		meta.put("recvEndpoint", recvEndpoint);
-		meta.put("sendEndpoint", sendEndpoint);
+	  StrSubstitutor ss = new StrSubstitutor(buildEnv, "{{", "}}");
+	
+		meta.put("recvEndpoint", ss.replace(recvEndpoint));
+		meta.put("sendEndpoint", ss.replace(sendEndpoint));
+		println("Meta:"+meta);
 
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");

@@ -42,6 +42,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.language.ConstantExpression;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 /**
  */
 class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms123.common.camel.Constants{
@@ -54,7 +56,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
-		m_ctx.buildEnv = buildEnv;
+		m_ctx.buildEnvSubstitutor = new StrSubstitutor(buildEnv,"{{", "}}");
 		def logExceptionsOnly = getBoolean(rootShape, "logExceptionsOnly", false);
 		fillShapeMap(rootShape);
 		fillTypesMap();
@@ -66,7 +68,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
 			}
 			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding);
-			createConverterGraph(startJsonConverter, startShape, buildEnv);
+			createConverterGraph(startJsonConverter, startShape);
 			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);
 		}
@@ -156,7 +158,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_typesMap["marshal"] = MarshalJsonConverter.class;
 		m_typesMap["unmarshal"] = UnmarshalJsonConverter.class;
 	}
-	private void createConverterGraph(JsonConverter jsonConverter, Map shape, Map buildEnv) throws Exception {
+	private void createConverterGraph(JsonConverter jsonConverter, Map shape) throws Exception {
 		def outgoing = shape.outgoing;
 		for (def out : outgoing) {
 			def childShape = m_shapeMap[out.resourceId];
@@ -167,7 +169,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			}
 			def childJsonConverter = converter.newInstance(shapeProperties:childShape.properties, resourceId:getId(childShape));
 			jsonConverter.children.add(childJsonConverter);
-			createConverterGraph(childJsonConverter, childShape, buildEnv);
+			createConverterGraph(childJsonConverter, childShape);
 		}
 
 	}

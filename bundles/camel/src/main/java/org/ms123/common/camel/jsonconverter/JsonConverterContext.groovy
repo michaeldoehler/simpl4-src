@@ -27,7 +27,7 @@ public class JsonConverterContext {
 	public def routeStart;
 	public def current;
 	public def sharedEndpoints;
-	public def buildEnv;
+	public def buildEnvSubstitutor;
 	public def logExceptionsOnly;
 
 	static class ChoiceBlock{//@@@Maybe needed,if choices nested

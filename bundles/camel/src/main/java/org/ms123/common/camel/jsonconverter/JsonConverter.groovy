@@ -90,6 +90,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 		if( shapeProperties.uri_template ){
 			uri = engine.createTemplate(shapeProperties.uri_template).make(uriValueMap).toString();
 		}
+		uri = ctx.buildEnvSubstitutor.replace( uri );
 		if( uriParamMap.size() > 0){
 			def delim = "?";
 			uriParamMap.each(){key,value->
@@ -173,7 +174,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 		def map=[:];
 		shapeProperties.each(){key,value->
 			if(key.startsWith(prefix)){
-				map[key.substring(prefix.length())] = value!=null ? substBuildEnv(ctx,value.toString()) : "";
+				map[key.substring(prefix.length())] = value!=null ? ctx.buildEnvSubstitutor.replace(value.toString()) : "";
 			}
 		}	
 		return map;
@@ -214,18 +215,6 @@ abstract class JsonConverterImpl implements JsonConverter{
 			String msg = Utils.formatGroovyException(e,code);
 			throw new RuntimeException(msg);
 		}
-	}
-
-	def substBuildEnv( ctx,value ){
-		if( ctx.buildEnv == null){
-			 return value;
-		}
-		if( value.length() > 5 && value.startsWith("{{") && value.endsWith("}}")){
-			def name = value.substring(2, value.length()-2);
-			def subst = ctx.buildEnv.get(name);
-			return subst;	
-		}
-		return value;
 	}
 
 	def getSharedLinkRef() {
