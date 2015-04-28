@@ -25,7 +25,6 @@ dependencies {
 	compile files("${repository}/pax-web-jsp-4.1.1.bar")
 	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
 	compile files("${repository}/camel-2.14-ms/camel-rx-2.14-ms.jar")
-	compile files("${repository}/camel-2.14-ms/camel-xmpp-2.14-ms.jar")
 	compile files("${repository}/commons-lang3-3.3.2.jar")
 }
 

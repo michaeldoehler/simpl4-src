@@ -66,13 +66,17 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Route;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.component.xmpp.XmppMessage;
+import org.ms123.common.xmpp.camel.XmppMessage;
 import rx.Observable;
 import rx.functions.Action1;
 import org.apache.camel.rx.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.camel.ProducerTemplate;
 import org.jivesoftware.smackx.packet.MessageEvent;
+import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
+import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
+import static org.ms123.common.xmpp.camel.XmppConstants.TO;
+
 
 /** XmppService implementation
  */
@@ -201,11 +205,11 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	public class WebSocket extends WebSocketAdapter {
 
 		private Map<String, Object> m_config = null;
-		private Map<String, List<String>> m_params = null;
 		JSONDeserializer m_ds = new JSONDeserializer();
 		JSONSerializer m_js = new JSONSerializer();
 		private Route m_routeIn;
 		private Route m_routeOut;
+		private Map<String, String> m_params;
 		private ProducerTemplate m_outTemplate;
 		private CamelContext m_context;
 		private Session m_session;
@@ -213,18 +217,17 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 			m_config = config;
-			m_params = parameterMap;
-			System.out.println("parameterMap:" + m_params);
-			Map<String, String> env = convertMap(parameterMap);
-			String namespace = env.get("namespace");
-			String routesName = env.get("routes");
+			System.out.println("parameterMap:" + parameterMap);
+			m_params = convertMap(parameterMap);
+			String namespace = m_params.get("namespace");
+			String routesName = m_params.get("routes");
 			m_context = m_camelService.getCamelContext(namespace, "default");
 			m_outTemplate = m_context.createProducerTemplate();
 
 			Map<String,String> meta = new HashMap();
 			m_js.prettyPrint(true);
 			try {
-				List<Route> routes = m_camelService.createRoutes(namespace, routesName, "admin", env, namespace + "/" + routesName,meta);
+				List<Route> routes = m_camelService.createRoutes(namespace, routesName, "admin", m_params, namespace + "/" + routesName,meta);
 				m_routeIn = routes.get(0);
 				m_routeOut = routes.get(1);
 				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId() + "/" + m_routeIn.getClass());
@@ -281,9 +284,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 							MessageEvent me = (MessageEvent)ep;
 							sendMap.put("isComposing", me.isComposing());
 							sendMap.put("isOffline", me.isOffline());
-							//sendMap.put("isCancelled", me.isCancelled());
-							//sendMap.put("isDisplayed", me.isDisplayed());
-							//sendMap.put("isDelivered", me.isDelivered());
 						}
 					}
 
@@ -313,9 +313,13 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			Map<String, Object> map = (Map) m_ds.deserialize(message);
 			String body = (String)map.get("body");
 			String participant = (String)map.get("participant");
-			System.out.println("Received(" + hashCode() + ")TEXT message: " + map);
+			System.out.println("FromSocket(" + hashCode() + ") message: " + map);
 			if( body != null){
-				m_outTemplate.sendBodyAndHeader(sendEndpoint, body,"CamelXmppTo", participant);
+				Map<String,Object> headers = new HashMap();
+				headers.put(TO,participant);
+				headers.put(USERNAME,m_params.get("username"));
+				headers.put(PASSWORD,m_params.get("password"));
+				m_outTemplate.sendBodyAndHeader(sendEndpoint, body,headers);
 			}
 		}
 
