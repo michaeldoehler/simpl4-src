@@ -36,24 +36,27 @@ public class XmppPrivateChatProducer extends DefaultProducer {
     private static final Logger LOG = LoggerFactory.getLogger(XmppPrivateChatProducer.class);
     private final XmppEndpoint endpoint;
     private XMPPConnection connection;
-    private final String participant;
 
-    public XmppPrivateChatProducer(XmppEndpoint endpoint, String participant) {
+    public XmppPrivateChatProducer(XmppEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
-        this.participant = participant;
-        ObjectHelper.notEmpty(participant, "participant");
-
-        LOG.debug("Creating XmppPrivateChatProducer to participant {}", participant);
     }
 
     public void process(Exchange exchange) {
+				XmppConnectionContext cc = null;
+				XMPPConnection connection = null;
 
-        // make sure we are connected
+				String username = exchange.getIn().getHeader(XmppConstants.USERNAME, String.class);
+				String password = exchange.getIn().getHeader(XmppConstants.PASSWORD, String.class);
+				String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
+
+				String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
+				if( command != null && command.equals(XmppConstants.COMMAND_OPEN)){
+					 exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE); 
+				}
         try {
-            if (connection == null) {
-                connection = endpoint.createConnection();
-            }
+						cc = endpoint.createConnectionContext(username,password);
+						connection = cc.getConnection();
 
             if (!connection.isConnected()) {
                 this.reconnect();
@@ -63,15 +66,12 @@ public class XmppPrivateChatProducer extends DefaultProducer {
         }
 
         String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
-        String thread = endpoint.getChatId();
-        if (participant == null) {
-            participant = getParticipant();
-        } else {
-            thread = "Chat:" + participant + ":" + endpoint.getUser();
-        }
+        String thread = "Chat:" + participant + ":" + username;
+				cc.setParticipant(participant);
+				cc.setUsername(username);
 
         ChatManager chatManager = connection.getChatManager();
-        Chat chat = getOrCreateChat(chatManager, participant, thread);
+        Chat chat = getOrCreateChat(chatManager, participant, thread,cc.getChatId());
         Message message = null;
         try {
             message = new Message();
@@ -83,21 +83,21 @@ public class XmppPrivateChatProducer extends DefaultProducer {
             endpoint.getBinding().populateXmppMessage(message, exchange);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Sending XMPP message to {} from {} : {}", new Object[]{participant, endpoint.getUser(), message.getBody()});
+                LOG.debug("Sending XMPP message to {} from {} : {}", new Object[]{participant, cc.getUsername(), message.getBody()});
             }
             chat.sendMessage(message);
         } catch (XMPPException xmppe) {
-            throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + endpoint.getUser() + " : " + message
+            throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message
                     + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
         } catch (Exception e) {
-            throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + endpoint.getUser() + " : " + message
+            throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + cc.getUsername() + " : " + message
                     + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, e);
         }
     }
 
-    private synchronized Chat getOrCreateChat(ChatManager chatManager, final String participant, String thread) {
+    private synchronized Chat getOrCreateChat(ChatManager chatManager, final String participant, String thread,String chatid) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Looking for existing chat instance with thread ID {}", endpoint.getChatId());
+            LOG.trace("Looking for existing chat instance with thread ID {}", chatid);
         }
         Chat chat = chatManager.getThreadChat(thread);
         if (chat == null) {
@@ -128,7 +128,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 
     @Override
     protected void doStart() throws Exception {
-        if (connection == null) {
+       /* if (connection == null) {
             try {
                 connection = endpoint.createConnection();
             } catch (XMPPException e) {
@@ -138,23 +138,20 @@ public class XmppPrivateChatProducer extends DefaultProducer {
                     LOG.warn("Could not connect to XMPP server. {}  Producer will attempt lazy connection when needed.", XmppEndpoint.getXmppExceptionLogMessage(e));
                 }
             }
-        }
+        }*/
         super.doStart();
     }
 
     @Override
     protected void doStop() throws Exception {
-        if (connection != null && connection.isConnected()) {
+       /* if (connection != null && connection.isConnected()) {
             connection.disconnect();
         }
-        connection = null;
+        connection = null;*/
         super.doStop();
     }
 
     // Properties
     // -------------------------------------------------------------------------
 
-    public String getParticipant() {
-        return participant;
-    }
 }

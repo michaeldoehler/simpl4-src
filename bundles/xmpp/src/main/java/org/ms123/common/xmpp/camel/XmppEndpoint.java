@@ -38,6 +38,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,16 +55,13 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
     private XmppBinding binding;
     private String host;
     private int port;
-    private String user;
-    private String password;
     private String resource = "Camel";
     private boolean login = true;
     private boolean createAccount;
     private String room;
-    private String participant;
-    private String nickname;
     private String serviceName;
-    private XMPPConnection connection;
+		private Map<String,XmppConnectionContext> m_connectionContextMap = new HashMap();
+		private Processor m_processor;
     private boolean testConnectionOnStartup = true;
     private int connectionPollDelay = 10;
 
@@ -81,10 +81,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         if (room != null) {
             return createGroupChatProducer();
         } else {
-            if (getParticipant() == null) {
-                throw new IllegalArgumentException("No room or participant configured on this endpoint: " + this);
-            }
-            return createPrivateChatProducer(getParticipant());
+            return createPrivateChatProducer();
         }
     }
 
@@ -92,13 +89,22 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         return new XmppGroupChatProducer(this);
     }
 
-    public Producer createPrivateChatProducer(String participant) throws Exception {
-        return new XmppPrivateChatProducer(this, participant);
+    public Producer createPrivateChatProducer() throws Exception {
+        return new XmppPrivateChatProducer(this);
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
-        XmppConsumer answer = new XmppConsumer(this, processor);
+				m_processor = processor;
+        //XmppConsumer answer = new XmppConsumer(this, processor);
+        //configureConsumer(answer);
+        //return answer;
+				return null;
+    }
+
+    private Consumer createConsumer(XmppConnectionContext cc) throws Exception {
+        XmppConsumer answer = new XmppConsumer(this, m_processor,cc);
         configureConsumer(answer);
+				answer.doStart();
         return answer;
     }
 
@@ -120,17 +126,22 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
     @Override
     protected String createEndpointUri() {
-        return "xmpp://" + host + ":" + port + "/" + getParticipant() + "?serviceName=" + serviceName;
+        return "xmpp://" + host + ":" + port + "?serviceName=" + serviceName;
     }
 
     public boolean isSingleton() {
         return true;
     }
 
-    public synchronized XMPPConnection createConnection() throws XMPPException {
+    public synchronized XmppConnectionContext createConnectionContext(String username, String password) throws XMPPException {
+				XmppConnectionContext  connectionContext = m_connectionContextMap.get(username);
 
+				XMPPConnection connection = null;
+				if( connectionContext!= null){
+					connection = connectionContext.getConnection();
+				}
         if (connection != null && connection.isConnected()) {
-            return connection;
+            return connectionContext;
         }
 
         if (connection == null) {
@@ -159,23 +170,23 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         });
 
         if (!connection.isAuthenticated()) {
-            if (user != null) {
+            if (username != null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Logging in to XMPP as user: {} on connection: {}", user, getConnectionMessage(connection));
+                    LOG.debug("Logging in to XMPP as user: {} on connection: {}", username, getConnectionMessage(connection));
                 }
                 if (password == null) {
-                    LOG.warn("No password configured for user: {} on connection: {}", user, getConnectionMessage(connection));
+                    LOG.warn("No password configured for user: {} on connection: {}", username, getConnectionMessage(connection));
                 }
 
                 if (createAccount) {
                     AccountManager accountManager = new AccountManager(connection);
-                    accountManager.createAccount(user, password);
+                    accountManager.createAccount(username, password);
                 }
                 if (login) {
                     if (resource != null) {
-                        connection.login(user, password, resource);
+                        connection.login(username, password, resource);
                     } else {
-                        connection.login(user, password);
+                        connection.login(username, password);
                     }
                 }
             } else {
@@ -188,7 +199,15 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
             // presence is not needed to be sent after login
         }
 
-        return connection;
+				XmppConnectionContext cc = new XmppConnectionContext();
+				cc.setConnection(connection);
+				try{
+					cc.setConsumer( createConsumer(cc));
+        } catch (Exception e) {
+            throw new RuntimeException("XmppEndpoint:Could not create Consumer.", e);
+        }
+				m_connectionContextMap.put( username, cc);
+        return cc;
     }
     /*
      * If there is no "@" symbol in the room, find the chat service JID and
@@ -235,10 +254,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         return strBuff.toString();
     }
 
-    public String getChatId() {
-        return "Chat:" + getParticipant() + ":" + getUser();
-    }
-
     // Properties
     // -------------------------------------------------------------------------
     public XmppBinding getBinding() {
@@ -272,22 +287,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         this.port = port;
     }
 
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getResource() {
         return resource;
     }
@@ -318,23 +317,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
     public void setRoom(String room) {
         this.room = room;
-    }
-
-    public String getParticipant() {
-        // participant is optional so use user if not provided
-        return participant != null ? participant : user;
-    }
-
-    public void setParticipant(String participant) {
-        this.participant = participant;
-    }
-
-    public String getNickname() {
-        return nickname != null ? nickname : getUser();
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     public void setServiceName(String serviceName) {
@@ -374,11 +356,11 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
     @Override
     protected void doStop() throws Exception {
-        if (connection != null) {
+        /*if (connection != null) {
             connection.disconnect();
         }
         connection = null;
-        binding = null;
+        binding = null;*/
     }
 
 }

@@ -57,7 +57,7 @@ public class XmppComponent extends DefaultComponent implements org.apache.camel.
         endpoint.setHost(u.getHost());
         endpoint.setPort(u.getPort());
         if (u.getUserInfo() != null) {
-            endpoint.setUser(u.getUserInfo());
+            //endpoint.setUser(u.getUserInfo());
         }
         String remainingPath = u.getPath();
         if (remainingPath != null) {
@@ -67,7 +67,7 @@ public class XmppComponent extends DefaultComponent implements org.apache.camel.
 
             // assume its a participant
             if (remainingPath.length() > 0) {
-                endpoint.setParticipant(remainingPath);
+                //endpoint.setParticipant(remainingPath);
             }
         }
 

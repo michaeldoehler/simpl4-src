@@ -46,11 +46,11 @@ public class XmppGroupChatProducer extends DefaultProducer {
     public void process(Exchange exchange) {
 
         if (connection == null) {
-            try {
-                connection = endpoint.createConnection();
-            } catch (XMPPException e) {
-                throw new RuntimeExchangeException("Could not connect to XMPP server.", exchange, e);
-            }
+            //try {
+                connection = null;//endpoint.createConnection();
+            //} catch (XMPPException e) {
+             //   throw new RuntimeExchangeException("Could not connect to XMPP server.", exchange, e);
+            //}
         }
 
         if (chat == null) {
@@ -63,7 +63,7 @@ public class XmppGroupChatProducer extends DefaultProducer {
 
         Message message = chat.createMessage();
         message.setTo(room);
-        message.setFrom(endpoint.getUser());
+        //@@@MSmessage.setFrom(endpoint.getUser());
 
         endpoint.getBinding().populateXmppMessage(message, exchange);
         try {
@@ -95,7 +95,7 @@ public class XmppGroupChatProducer extends DefaultProducer {
 
     @Override
     protected void doStart() throws Exception {
-        if (connection == null) {
+/*        if (connection == null) {
             try {
                 connection = endpoint.createConnection();
             } catch (XMPPException e) {
@@ -109,7 +109,7 @@ public class XmppGroupChatProducer extends DefaultProducer {
 
         if (chat == null && connection != null) {
             initializeChat();
-        }
+        }*/
 
         super.doStart();
     }
@@ -120,10 +120,10 @@ public class XmppGroupChatProducer extends DefaultProducer {
             chat = new MultiUserChat(connection, room);
             DiscussionHistory history = new DiscussionHistory();
             history.setMaxChars(0); // we do not want any historical messages
-            chat.join(endpoint.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Joined room: {} as: {}", room, endpoint.getNickname());
-            }
+          //@@@MS  chat.join(endpoint.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
+          //@@@MS  if (LOG.isInfoEnabled()) {
+          //@@@MS      LOG.info("Joined room: {} as: {}", room, endpoint.getNickname());
+          //@@@MS  }
         }
     }
 

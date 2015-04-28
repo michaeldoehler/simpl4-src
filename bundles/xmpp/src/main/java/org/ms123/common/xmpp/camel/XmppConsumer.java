@@ -54,34 +54,33 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
     private ChatManager chatManager;
     private XMPPConnection connection;
     private ScheduledExecutorService scheduledExecutor;
+		private XmppConnectionContext m_connectionContext;
 
-    public XmppConsumer(XmppEndpoint endpoint, Processor processor) {
+    public XmppConsumer(XmppEndpoint endpoint, Processor processor, XmppConnectionContext cc) {
         super(endpoint, processor);
         this.endpoint = endpoint;
+				this.m_connectionContext = cc;
     }
 
     @Override
     protected void doStart() throws Exception {
-        try {
-            connection = endpoint.createConnection();
-        } catch (XMPPException e) {
-            if (endpoint.isTestConnectionOnStartup()) {
-                throw new RuntimeException("Could not connect to XMPP server.", e);
-            }  else {
-                LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
-                if (getExceptionHandler() != null) {
-                    getExceptionHandler().handleException(XmppEndpoint.getXmppExceptionLogMessage(e), e);
-                }
-                scheduleDelayedStart();
-                return;
-            }
-        }
+				connection = m_connectionContext.getConnection();
+				/*if (endpoint.isTestConnectionOnStartup()) {
+					throw new RuntimeException("Could not connect to XMPP server.", e);
+				}  else {
+					LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
+					if (getExceptionHandler() != null) {
+						getExceptionHandler().handleException(XmppEndpoint.getXmppExceptionLogMessage(e), e);
+					}
+					scheduleDelayedStart();
+					return;
+				}*/
 
         chatManager = connection.getChatManager();
         chatManager.addChatListener(this);
 
         if (endpoint.getRoom() == null) {
-            privateChat = chatManager.getThreadChat(endpoint.getChatId());
+            privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
 
             if (privateChat != null) {
                 if (LOG.isDebugEnabled()) {
@@ -89,7 +88,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
                 }
                 privateChat.addMessageListener(this);
             } else {                
-                privateChat = connection.getChatManager().createChat(endpoint.getParticipant(), endpoint.getChatId(), this);
+                privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Opening private chat to " + privateChat.getParticipant());
                 }
@@ -97,7 +96,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
         } else {
             // add the presence packet listener to the connection so we only get packets that concerns us
             // we must add the listener before creating the muc
-            final ToContainsFilter toFilter = new ToContainsFilter(endpoint.getParticipant());
+            final ToContainsFilter toFilter = new ToContainsFilter(m_connectionContext.getParticipant());
             final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
             connection.addPacketListener(this, packetFilter);
 
@@ -106,9 +105,9 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
             DiscussionHistory history = new DiscussionHistory();
             history.setMaxChars(0); // we do not want any historical messages
 
-            muc.join(endpoint.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
+            muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
             if (LOG.isInfoEnabled()) {
-                LOG.info("Joined room: {} as: {}", muc.getRoom(), endpoint.getNickname());
+                LOG.info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
             }
         }
 
@@ -205,7 +204,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 
     public void processMessage(Chat chat, Message message) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Received XMPP message for {} from {} : {}", new Object[]{endpoint.getUser(), endpoint.getParticipant(), message.getBody()});
+            LOG.debug("Received XMPP message for {} from {} : {}", new Object[]{m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody()});
         }
 
         Exchange exchange = endpoint.createExchange(message);
