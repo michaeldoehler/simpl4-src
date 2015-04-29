@@ -40,6 +40,7 @@ import org.ms123.common.camel.components.groovytemplate.*;
 import org.ms123.common.camel.components.asciidoctor.*;
 import org.ms123.common.camel.components.xdocreport.*;
 import org.ms123.common.camel.components.repo.*;
+import org.ms123.common.camel.components.direct.*;
 import org.ms123.common.camel.trace.*;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
@@ -74,6 +75,7 @@ public class CamelContextBuilder {
 		sr.put("swdata", new SWDataComponent());
 		sr.put("repo", new RepoComponent());
 		sr.put("xmpp", new org.ms123.common.xmpp.camel.XmppComponent());
+		sr.put("direct", new DirectComponent());
 		sr.put("xdocreport", new XDocReportComponent());
 		sr.put("groovytemplate", new GroovyTemplateComponent());
 		sr.put("asciidoctor", new AsciidoctorComponent());
