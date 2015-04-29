@@ -47,25 +47,27 @@ import org.slf4j.LoggerFactory;
  * @version 
  */
 public class XmppConsumer extends DefaultConsumer implements PacketListener, MessageListener, ChatManagerListener {
-    private static final Logger LOG = LoggerFactory.getLogger(XmppConsumer.class);
-    private final XmppEndpoint endpoint;
-    private MultiUserChat muc;
-    private Chat privateChat;
-    private ChatManager chatManager;
-    private XMPPConnection connection;
-    private ScheduledExecutorService scheduledExecutor;
-		private XmppConnectionContext m_connectionContext;
 
-    public XmppConsumer(XmppEndpoint endpoint, Processor processor, XmppConnectionContext cc) {
-        super(endpoint, processor);
-        this.endpoint = endpoint;
-				this.m_connectionContext = cc;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(XmppConsumer.class);
 
-    @Override
-    protected void doStart() throws Exception {
-				connection = m_connectionContext.getConnection();
-				/*if (endpoint.isTestConnectionOnStartup()) {
+	private final XmppEndpoint endpoint;
+	private MultiUserChat muc;
+	private Chat privateChat;
+	private ChatManager chatManager;
+	private XMPPConnection connection;
+	private ScheduledExecutorService scheduledExecutor;
+	private XmppConnectionContext m_connectionContext;
+
+	public XmppConsumer(XmppEndpoint endpoint, Processor processor, XmppConnectionContext cc) {
+		super(endpoint, processor);
+		this.endpoint = endpoint;
+		this.m_connectionContext = cc;
+	}
+
+	@Override
+	protected void doStart() throws Exception {
+		connection = m_connectionContext.getConnection();
+		/*if (endpoint.isTestConnectionOnStartup()) {
 					throw new RuntimeException("Could not connect to XMPP server.", e);
 				}  else {
 					LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
@@ -75,150 +77,145 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 					scheduleDelayedStart();
 					return;
 				}*/
+		chatManager = connection.getChatManager();
+		chatManager.addChatListener(this);
+		if (endpoint.getRoom() == null) {
+			privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
+			if (privateChat != null) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
+				}
+				privateChat.addMessageListener(this);
+			} else {
+				privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Opening private chat to " + privateChat.getParticipant());
+				}
+			}
+		} else {
+			// add the presence packet listener to the connection so we only get packets that concerns us
+			// we must add the listener before creating the muc
+			final ToContainsFilter toFilter = new ToContainsFilter(m_connectionContext.getParticipant());
+			final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
+			connection.addPacketListener(this, packetFilter);
+			muc = new MultiUserChat(connection, endpoint.resolveRoom(connection));
+			muc.addMessageListener(this);
+			DiscussionHistory history = new DiscussionHistory();
+			history.setMaxChars(0);
+			// we do not want any historical messages
+			muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
+			}
+		}
+		this.startRobustConnectionMonitor();
+		super.doStart();
+	}
 
-        chatManager = connection.getChatManager();
-        chatManager.addChatListener(this);
+	protected void scheduleDelayedStart() throws Exception {
+		Runnable startRunnable = new Runnable() {
 
-        if (endpoint.getRoom() == null) {
-            privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
+			@Override
+			public void run() {
+				try {
+					doStart();
+				} catch (Exception e) {
+					LOG.warn("Ignoring an exception caught in the startup connection poller thread.", e);
+				}
+			}
+		};
+		LOG.info("Delaying XMPP consumer startup for endpoint {}. Trying again in {} seconds.", URISupport.sanitizeUri(endpoint.getEndpointUri()), endpoint.getConnectionPollDelay());
+		getExecutor().schedule(startRunnable, endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
+	}
 
-            if (privateChat != null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
-                }
-                privateChat.addMessageListener(this);
-            } else {                
-                privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Opening private chat to " + privateChat.getParticipant());
-                }
-            }
-        } else {
-            // add the presence packet listener to the connection so we only get packets that concerns us
-            // we must add the listener before creating the muc
-            final ToContainsFilter toFilter = new ToContainsFilter(m_connectionContext.getParticipant());
-            final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
-            connection.addPacketListener(this, packetFilter);
+	private void startRobustConnectionMonitor() throws Exception {
+		Runnable connectionCheckRunnable = new Runnable() {
 
-            muc = new MultiUserChat(connection, endpoint.resolveRoom(connection));
-            muc.addMessageListener(this);
-            DiscussionHistory history = new DiscussionHistory();
-            history.setMaxChars(0); // we do not want any historical messages
+			@Override
+			public void run() {
+				try {
+					checkConnection();
+				} catch (Exception e) {
+					LOG.warn("Ignoring an exception caught in the connection poller thread.", e);
+				}
+			}
+		};
+		// background thread to detect and repair lost connections
+		getExecutor().scheduleAtFixedRate(connectionCheckRunnable, endpoint.getConnectionPollDelay(), endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
+	}
 
-            muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
-            }
-        }
+	private void checkConnection() throws Exception {
+		if (!connection.isConnected()) {
+			LOG.info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(connection));
+			try {
+				connection.connect();
+			} catch (XMPPException e) {
+				LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
+			}
+		}
+	}
 
-        this.startRobustConnectionMonitor();
-        super.doStart();
-    }
+	private ScheduledExecutorService getExecutor() {
+		if (this.scheduledExecutor == null) {
+			scheduledExecutor = getEndpoint().getCamelContext().getExecutorServiceManager().newSingleThreadScheduledExecutor(this, "connectionPoll");
+		}
+		return scheduledExecutor;
+	}
 
-    protected void scheduleDelayedStart() throws Exception {
-        Runnable startRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    doStart();
-                } catch (Exception e) {
-                    LOG.warn("Ignoring an exception caught in the startup connection poller thread.", e);
-                }
-            }
-        };
-        LOG.info("Delaying XMPP consumer startup for endpoint {}. Trying again in {} seconds.",
-                URISupport.sanitizeUri(endpoint.getEndpointUri()), endpoint.getConnectionPollDelay());
-        getExecutor().schedule(startRunnable, endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
-    }
+	@Override
+	protected void doStop() throws Exception {
+		super.doStop();
+		// stop scheduler first
+		if (scheduledExecutor != null) {
+			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
+			scheduledExecutor = null;
+		}
+		if (muc != null) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Leaving room: {}", muc.getRoom());
+			}
+			muc.removeMessageListener(this);
+			muc.leave();
+			muc = null;
+		}
+		if (connection != null && connection.isConnected()) {
+			connection.disconnect();
+		}
+	}
 
-    private void startRobustConnectionMonitor() throws Exception {
-        Runnable connectionCheckRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    checkConnection();
-                } catch (Exception e) {
-                    LOG.warn("Ignoring an exception caught in the connection poller thread.", e);
-                }
-            }
-        };
-        // background thread to detect and repair lost connections
-        getExecutor().scheduleAtFixedRate(connectionCheckRunnable, endpoint.getConnectionPollDelay(),
-                endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
-    }
+	public void chatCreated(Chat chat, boolean createdLocally) {
+		System.out.println("consumer.chatCreated:" + chat + "," + createdLocally);
+		if (!createdLocally) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Accepting incoming chat session from " + chat.getParticipant());
+			}
+			chat.addMessageListener(this);
+		}
+	}
 
-    private void checkConnection() throws Exception {
-        if (!connection.isConnected()) {
-            LOG.info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(connection));
-            try {
-                connection.connect();
-            } catch (XMPPException e) {
-                LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
-            }
-        }
-    }
-    private ScheduledExecutorService getExecutor() {
-        if (this.scheduledExecutor == null) {
-            scheduledExecutor = getEndpoint().getCamelContext().getExecutorServiceManager().newSingleThreadScheduledExecutor(this, "connectionPoll");
-        }
-        return scheduledExecutor;
-    }
+	public void processPacket(Packet packet) {
+		if (packet instanceof Message) {
+			processMessage(null, (Message) packet);
+		}
+	}
 
-    @Override
-    protected void doStop() throws Exception {
-        super.doStop();
-
-        // stop scheduler first
-        if (scheduledExecutor != null) {
-            getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
-            scheduledExecutor = null;
-        }
-
-        if (muc != null) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Leaving room: {}", muc.getRoom());
-            }
-            muc.removeMessageListener(this);
-            muc.leave();
-            muc = null;
-        }
-        if (connection != null && connection.isConnected()) {
-            connection.disconnect();
-        }
-    }
-
-    public void chatCreated(Chat chat, boolean createdLocally) {
-        if (!createdLocally) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Accepting incoming chat session from " + chat.getParticipant());
-            }
-            chat.addMessageListener(this);
-        }
-    }
-
-    public void processPacket(Packet packet) {
-        if (packet instanceof Message) {
-            processMessage(null, (Message)packet);
-        }
-    }
-
-    public void processMessage(Chat chat, Message message) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Received XMPP message for {} from {} : {}", new Object[]{m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody()});
-        }
-
-        Exchange exchange = endpoint.createExchange(message);
-        try {
-            getProcessor().process(exchange);
-        } catch (Exception e) {
-            exchange.setException(e);
-        } finally {
-            // must remove message from muc to avoid messages stacking up and causing OutOfMemoryError
-            // pollMessage is a non blocking method
-            // (see http://issues.igniterealtime.org/browse/SMACK-129)
-            if (muc != null) {
-                muc.pollMessage();
-            }
-        }
-    }
+	public void processMessage(Chat chat, Message message) {
+		System.out.println("consumer.processMessage:" + chat + "," + message + "/" + getProcessor());
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Received XMPP message for {} from {} : {}", new Object[] { m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() });
+		}
+		Exchange exchange = endpoint.createExchange(message);
+		try {
+			getProcessor().process(exchange);
+		} catch (Exception e) {
+			exchange.setException(e);
+		} finally {
+			// must remove message from muc to avoid messages stacking up and causing OutOfMemoryError
+			// pollMessage is a non blocking method
+			// (see http://issues.igniterealtime.org/browse/SMACK-129)
+			if (muc != null) {
+				muc.pollMessage();
+			}
+		}
+	}
 }

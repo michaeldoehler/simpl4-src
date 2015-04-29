@@ -69,12 +69,16 @@ import org.apache.camel.Message;
 import org.ms123.common.xmpp.camel.XmppMessage;
 import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import org.apache.camel.rx.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.camel.ProducerTemplate;
 import org.jivesoftware.smackx.packet.MessageEvent;
+import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
 import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
+import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND;
+import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND_OPEN;
 import static org.ms123.common.xmpp.camel.XmppConstants.TO;
 
 
@@ -198,6 +202,15 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
+	ReactiveCamel m_reactiveCamel;
+	public Observable<Message> getObservable(CamelContext context, Endpoint endpoint){
+		Observable<Message> observable;
+		if( m_reactiveCamel==null){
+			m_reactiveCamel = new ReactiveCamel(context);
+		}
+		return m_reactiveCamel.toObservable(endpoint);
+	}
+
 	public WebSocketAdapter createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 		return new WebSocket(config, parameterMap);
 	}
@@ -207,8 +220,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		private Map<String, Object> m_config = null;
 		JSONDeserializer m_ds = new JSONDeserializer();
 		JSONSerializer m_js = new JSONSerializer();
-		private Route m_routeIn;
-		private Route m_routeOut;
 		private Map<String, String> m_params;
 		private ProducerTemplate m_outTemplate;
 		private CamelContext m_context;
@@ -226,27 +237,44 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 			Map<String,String> meta = new HashMap();
 			m_js.prettyPrint(true);
-			try {
-				List<Route> routes = m_camelService.createRoutes(namespace, routesName, "admin", m_params, namespace + "/" + routesName,meta);
-				m_routeIn = routes.get(0);
-				m_routeOut = routes.get(1);
-				info("routeIn:" + m_routeIn + "/" + m_routeIn.getId() + "/" + m_routeIn.getClass());
-				info("routeOut:" + m_routeOut + "/" + m_routeOut.getId() + "/" + m_routeOut.getClass());
-			} catch (Exception e) {
-				e.printStackTrace();
+
+			Map shape = getCamelShape(namespace, routesName);
+			String recvEndpointUri = getString(shape, "recvEndpoint",null);
+			String sendEndpointUri = getString(shape, "sendEndpoint",null);
+			if( recvEndpointUri == null){
+				throw new RuntimeException("XmppServiceImpl:Missing \"ReceiveEndpoint\" in:"+namespace+"/"+routesName);
 			}
-			sendEndpoint = m_context.getEndpoint( meta.get("sendEndpoint"));
-			Endpoint recvEndpoint = m_context.getEndpoint( meta.get("recvEndpoint"));
+			if( sendEndpointUri == null){
+				throw new RuntimeException("XmppServiceImpl:Missing \"SendEndpoint\" in:"+namespace+"/"+routesName);
+			}
+
+			sendEndpoint = m_context.getEndpoint( sendEndpointUri);
+			Endpoint recvEndpoint = m_context.getEndpoint( recvEndpointUri);
 			info("sendEndpoint:"+sendEndpoint);
 			info("recvEndpoint:"+recvEndpoint);
 			
-			ReactiveCamel reactiveCamel = new ReactiveCamel(m_context);
-			Observable<Message> observable = reactiveCamel.toObservable(recvEndpoint);
-			observable.subscribe(new Action1<Message>() {
+			Observable<Message> observable = getObservable(m_context, recvEndpoint);
+
+			observable.filter(new Func1<Message, Boolean>() {
+
+				@Override
+				public Boolean call(Message _message) {
+					org.jivesoftware.smack.packet.Message message =  ((XmppMessage)_message).getXmppMessage();;
+					String to = message.getTo();
+					String username = m_params.get("username") + "@";
+					System.out.print("filter:"+username);
+					if( to.startsWith( username)){
+						System.out.println(" -> ok");
+						return true;
+					}
+					System.out.println(" -> not ok");
+					return false;
+				}
+			}).subscribe(new Action1<Message>() {
 
 				@Override
 				public void call(Message _message) {
-					org.jivesoftware.smack.packet.Message message = ((XmppMessage)_message).getXmppMessage();;
+					org.jivesoftware.smack.packet.Message message =  ((XmppMessage)_message).getXmppMessage();;
 					Map<String,Object>  sendMap = new HashMap();
 					Collection<String> propertyNames = message.getPropertyNames();
 					for( String name : propertyNames){
@@ -299,12 +327,12 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			super.onWebSocketConnect(sess);
 			m_session = sess;
 			System.out.println("Socket Connected: " + sess);
-			try {
-				m_context.startRoute(m_routeIn.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("WebSocket.onWebSocketConnect:" + e);
-			}
+			Map<String,Object> headers = new HashMap();
+			headers.put(USERNAME,m_params.get("username"));
+			headers.put(PASSWORD,m_params.get("password"));
+			headers.put(TO,"dummy");
+			headers.put(COMMAND,COMMAND_OPEN);
+			m_outTemplate.sendBodyAndHeaders(sendEndpoint, null,headers);
 		}
 
 		@Override
@@ -319,7 +347,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				headers.put(TO,participant);
 				headers.put(USERNAME,m_params.get("username"));
 				headers.put(PASSWORD,m_params.get("password"));
-				m_outTemplate.sendBodyAndHeader(sendEndpoint, body,headers);
+				m_outTemplate.sendBodyAndHeaders(sendEndpoint, body,headers);
 			}
 		}
 
@@ -342,6 +370,26 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			}
 			System.out.println("convertMap:" + outMap);
 			return outMap;
+		}
+
+		protected Map getCamelShape(String ns, String name) {
+			Map shape = m_camelService.getShapeByRouteId(ns, name);
+			if (shape == null) {
+				if( !name.endsWith(".camel")){
+					shape = m_camelService.getShapeByRouteId(ns, name+".camel");
+				}
+			}
+			if (shape == null) {
+				throw new RuntimeException("XmppServiceImpl.routeShape: " + name + "(.camel) not found");
+			}
+			return shape;
+		}
+		protected String getString(Map shape, String name,String _default) {
+			Map properties = (Map) shape.get(PROPERTIES);
+
+			Object value  = properties.get(name);
+			if( value == null) return _default;
+			return (String)value;
 		}
 	}
 

@@ -23,16 +23,17 @@ import org.slf4j.LoggerFactory;
 
 public class XmppLogger implements PacketListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XmppLogger.class);
-    private String direction;
+	private static final Logger LOG = LoggerFactory.getLogger(XmppLogger.class);
 
-    public XmppLogger(String direction) {
-        this.direction = direction;
-    }
+	private String direction;
 
-    public void processPacket(Packet packet) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("{} : {}", direction, packet.toXML());
-        }
-    }
+	public XmppLogger(String direction) {
+		this.direction = direction;
+	}
+
+	public void processPacket(Packet packet) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("{} : {}", direction, packet.toXML());
+		}
+	}
 }

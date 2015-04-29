@@ -21,7 +21,6 @@ package org.ms123.common.xmpp.camel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Consumer;
 import org.jivesoftware.smack.XMPPConnection;
@@ -32,48 +31,60 @@ import org.slf4j.LoggerFactory;
  */
 public class XmppConnectionContext {
 
-    private XMPPConnection m_connection;
-    private Consumer m_consumer;
-    private String m_participant;
-    private String m_username;
-    private String m_nickname;
-    public XmppConnectionContext() {
-    }
-		public void setConnection(XMPPConnection conn){
-			m_connection=conn;
-		}
-		public XMPPConnection getConnection(){
-			return m_connection;
-		}
+	private XMPPConnection m_connection;
+	private Consumer m_consumer;
+	private String m_participant;
+	private String m_username;
+	private String m_nickname;
 
-		public void setParticipant(String participant){
-			m_participant=participant;
-		}
-		public String getParticipant(){
-			return m_participant;
-		}
+	public XmppConnectionContext() {
+	}
 
-		public void setUsername(String username){
-			m_username=username;
-		}
-		public String getUsername(){
-			return m_username;
-		}
+	public void setConnection(XMPPConnection conn) {
+		m_connection = conn;
+	}
 
-		public void setNickname(String nickname){
-			m_nickname=nickname;
-		}
-		public String getNickname(){
-			return m_nickname;
-		}
+	public XMPPConnection getConnection() {
+		return m_connection;
+	}
 
-		public void setConsumer(Consumer consumer){
-			m_consumer=consumer;
-		}
-		public Consumer getConsumer(){
-			return m_consumer;
-		}
-    public String getChatId() {
-        return "Chat:" + getParticipant() + ":" + getUsername();
-    }
+	public void setParticipant(String participant) {
+		m_participant = participant;
+	}
+
+	public String getParticipant() {
+		return m_participant;
+	}
+
+	public void setUsername(String username) {
+		m_username = username;
+	}
+
+	public String getUsername() {
+		return m_username;
+	}
+
+	public void setNickname(String nickname) {
+		m_nickname = nickname;
+	}
+
+	public String getNickname() {
+		return m_nickname;
+	}
+
+	public void setConsumer(Consumer consumer) {
+		m_consumer = consumer;
+	}
+
+	public Consumer getConsumer() {
+		return m_consumer;
+	}
+
+	public String getChatId() {
+		return "Chat:" + getParticipant() + ":" + getUsername();
+	}
+
+	public String toString() {
+		return "Context[Username:" + getUsername() + "/Participant:" + getParticipant() + "]";
+	}
 }

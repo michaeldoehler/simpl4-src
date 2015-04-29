@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.util.ServiceHelper;
@@ -36,55 +35,49 @@ import aQute.bnd.annotation.metatype.*;
  * @version 
  */
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "camel.component=xmpp" })
-public class XmppComponent extends DefaultComponent implements org.apache.camel.Component{
-    private static final Logger LOG = LoggerFactory.getLogger(XmppComponent.class);
+public class XmppComponent extends DefaultComponent implements org.apache.camel.Component {
 
-    //keep a cache of endpoints so they can be properly cleaned up
-    private final Map<String, XmppEndpoint> endpointCache = new HashMap<String, XmppEndpoint>();
+	private static final Logger LOG = LoggerFactory.getLogger(XmppComponent.class);
 
-    @Override
-    protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        String cacheKey = extractCacheKeyFromUri(uri);
-        if (endpointCache.containsKey(cacheKey)) {
-            LOG.debug("Using cached endpoint for URI {}", URISupport.sanitizeUri(uri));
-            return endpointCache.get(cacheKey);
-        }
+	//keep a cache of endpoints so they can be properly cleaned up
+	private final Map<String, XmppEndpoint> endpointCache = new HashMap<String, XmppEndpoint>();
 
-        LOG.debug("Creating new endpoint for URI {}", URISupport.sanitizeUri(uri));
-        XmppEndpoint endpoint = new XmppEndpoint(uri, this);
+	@Override
+	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
+		String cacheKey = extractCacheKeyFromUri(uri);
+		if (endpointCache.containsKey(cacheKey)) {
+			LOG.debug("Using cached endpoint for URI {}", URISupport.sanitizeUri(uri));
+			return endpointCache.get(cacheKey);
+		}
+		LOG.debug("Creating new endpoint for URI {}", URISupport.sanitizeUri(uri));
+		XmppEndpoint endpoint = new XmppEndpoint(uri, this);
+		URI u = new URI(uri);
+		endpoint.setHost(u.getHost());
+		endpoint.setPort(u.getPort());
+		if (u.getUserInfo() != null) {
+		}
+		String remainingPath = u.getPath();
+		if (remainingPath != null) {
+			if (remainingPath.startsWith("/")) {
+				remainingPath = remainingPath.substring(1);
+			}
+			// assume its a participant
+			if (remainingPath.length() > 0) {
+			}
+		}
+		endpointCache.put(cacheKey, endpoint);
+		return endpoint;
+	}
 
-        URI u = new URI(uri);
-        endpoint.setHost(u.getHost());
-        endpoint.setPort(u.getPort());
-        if (u.getUserInfo() != null) {
-            //endpoint.setUser(u.getUserInfo());
-        }
-        String remainingPath = u.getPath();
-        if (remainingPath != null) {
-            if (remainingPath.startsWith("/")) {
-                remainingPath = remainingPath.substring(1);
-            }
+	@Override
+	protected void doStop() throws Exception {
+		ServiceHelper.stopServices(endpointCache.values());
+		endpointCache.clear();
+	}
 
-            // assume its a participant
-            if (remainingPath.length() > 0) {
-                //endpoint.setParticipant(remainingPath);
-            }
-        }
-
-        endpointCache.put(cacheKey, endpoint);
-        
-        return endpoint;
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-        ServiceHelper.stopServices(endpointCache.values());
-        endpointCache.clear();
-    }
-
-    private String extractCacheKeyFromUri(String uri) throws URISyntaxException {
-        URI u = new URI(uri);
-        String result = u.getScheme() + "://" + u.getHost() + u.getPort() + u.getQuery();
-        return result;
-    }
+	private String extractCacheKeyFromUri(String uri) throws URISyntaxException {
+		URI u = new URI(uri);
+		String result = u.getScheme() + "://" + u.getHost() + u.getPort() + u.getQuery();
+		return result;
+	}
 }

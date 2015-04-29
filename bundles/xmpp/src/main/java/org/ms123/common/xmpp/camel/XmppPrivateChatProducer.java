@@ -33,102 +33,96 @@ import org.slf4j.LoggerFactory;
  * @version 
  */
 public class XmppPrivateChatProducer extends DefaultProducer {
-    private static final Logger LOG = LoggerFactory.getLogger(XmppPrivateChatProducer.class);
-    private final XmppEndpoint endpoint;
-    private XMPPConnection connection;
 
-    public XmppPrivateChatProducer(XmppEndpoint endpoint) {
-        super(endpoint);
-        this.endpoint = endpoint;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(XmppPrivateChatProducer.class);
 
-    public void process(Exchange exchange) {
-				XmppConnectionContext cc = null;
-				XMPPConnection connection = null;
+	private final XmppEndpoint endpoint;
+	private XMPPConnection connection;
 
-				String username = exchange.getIn().getHeader(XmppConstants.USERNAME, String.class);
-				String password = exchange.getIn().getHeader(XmppConstants.PASSWORD, String.class);
-				String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
+	public XmppPrivateChatProducer(XmppEndpoint endpoint) {
+		super(endpoint);
+		this.endpoint = endpoint;
+	}
 
-				String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
-				if( command != null && command.equals(XmppConstants.COMMAND_OPEN)){
-					 exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE); 
+	public void process(Exchange exchange) {
+		XmppConnectionContext cc = null;
+		XMPPConnection connection = null;
+		String username = exchange.getIn().getHeader(XmppConstants.USERNAME, String.class);
+		String password = exchange.getIn().getHeader(XmppConstants.PASSWORD, String.class);
+		String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
+		String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
+		String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
+		if (command != null && command.equals(XmppConstants.COMMAND_OPEN)) {
+			exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
+		}
+		try {
+			cc = endpoint.createConnectionContext(username, password, participant);
+			connection = cc.getConnection();
+			if (!connection.isConnected()) {
+				this.reconnect();
+			}
+		} catch (XMPPException e) {
+			throw new RuntimeException("Could not connect to XMPP server.", e);
+		}
+		String thread = "Chat:" + participant + ":" + username;
+		cc.setParticipant(participant);
+		cc.setUsername(username);
+		ChatManager chatManager = connection.getChatManager();
+		Chat chat = getOrCreateChat(chatManager, participant, thread, cc.getChatId());
+		Message message = null;
+		try {
+			message = new Message();
+			message.setTo(participant);
+			message.setThread(thread);
+			message.setType(Message.Type.normal);
+			endpoint.getBinding().populateXmppMessage(message, exchange);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Sending XMPP message to {} from {} : {}", new Object[] { participant, cc.getUsername(), message.getBody() });
+			}
+			chat.sendMessage(message);
+		} catch (XMPPException xmppe) {
+			throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
+		} catch (Exception e) {
+			throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, e);
+		}
+	}
+
+	private synchronized Chat getOrCreateChat(ChatManager chatManager, final String participant, String thread, String chatid) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("Looking for existing chat instance with thread ID {}", chatid);
+		}
+		Chat chat = chatManager.getThreadChat(thread);
+		System.out.println("getThreadChat:" + chat);
+		if (chat == null) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Creating new chat instance with thread ID {}", thread);
+			}
+			chat = chatManager.createChat(participant, thread, new MessageListener() {
+
+				public void processMessage(Chat chat, Message message) {
+					System.out.println("getThreadChat.processMessage:" + message);
+					// not here to do conversation
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Received and discarding message from {} : {}", participant, message.getBody());
+					}
 				}
-        try {
-						cc = endpoint.createConnectionContext(username,password);
-						connection = cc.getConnection();
+			});
+		}
+		return chat;
+	}
 
-            if (!connection.isConnected()) {
-                this.reconnect();
-            }
-        } catch (XMPPException e) {
-            throw new RuntimeException("Could not connect to XMPP server.", e);
-        }
+	private synchronized void reconnect() throws XMPPException {
+		if (!connection.isConnected()) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Reconnecting to: {}", XmppEndpoint.getConnectionMessage(connection));
+			}
+			connection.connect();
+		}
+	}
 
-        String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
-        String thread = "Chat:" + participant + ":" + username;
-				cc.setParticipant(participant);
-				cc.setUsername(username);
-
-        ChatManager chatManager = connection.getChatManager();
-        Chat chat = getOrCreateChat(chatManager, participant, thread,cc.getChatId());
-        Message message = null;
-        try {
-            message = new Message();
-
-            message.setTo(participant);
-            message.setThread(thread);
-            message.setType(Message.Type.normal);
-
-            endpoint.getBinding().populateXmppMessage(message, exchange);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Sending XMPP message to {} from {} : {}", new Object[]{participant, cc.getUsername(), message.getBody()});
-            }
-            chat.sendMessage(message);
-        } catch (XMPPException xmppe) {
-            throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message
-                    + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
-        } catch (Exception e) {
-            throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + cc.getUsername() + " : " + message
-                    + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, e);
-        }
-    }
-
-    private synchronized Chat getOrCreateChat(ChatManager chatManager, final String participant, String thread,String chatid) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Looking for existing chat instance with thread ID {}", chatid);
-        }
-        Chat chat = chatManager.getThreadChat(thread);
-        if (chat == null) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Creating new chat instance with thread ID {}", thread);
-            }
-            chat = chatManager.createChat(participant, thread, new MessageListener() {
-                public void processMessage(Chat chat, Message message) {
-                    // not here to do conversation
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Received and discarding message from {} : {}"
-                                , participant, message.getBody());
-                    }
-                }
-            });
-        }
-        return chat;
-    }
-    
-    private synchronized void reconnect() throws XMPPException {
-        if (!connection.isConnected()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reconnecting to: {}", XmppEndpoint.getConnectionMessage(connection));
-            }
-            connection.connect();
-        }
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-       /* if (connection == null) {
+	@Override
+	protected void doStart() throws Exception {
+		/* if (connection == null) {
             try {
                 connection = endpoint.createConnection();
             } catch (XMPPException e) {
@@ -139,19 +133,15 @@ public class XmppPrivateChatProducer extends DefaultProducer {
                 }
             }
         }*/
-        super.doStart();
-    }
+		super.doStart();
+	}
 
-    @Override
-    protected void doStop() throws Exception {
-       /* if (connection != null && connection.isConnected()) {
+	@Override
+	protected void doStop() throws Exception {
+		/* if (connection != null && connection.isConnected()) {
             connection.disconnect();
         }
         connection = null;*/
-        super.doStop();
-    }
-
-    // Properties
-    // -------------------------------------------------------------------------
-
+		super.doStop();
+	}
 }

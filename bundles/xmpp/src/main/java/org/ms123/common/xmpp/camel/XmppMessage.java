@@ -17,7 +17,6 @@
 package org.ms123.common.xmpp.camel;
 
 import java.util.Map;
-
 import org.apache.camel.impl.DefaultMessage;
 import org.apache.camel.util.ExchangeHelper;
 import org.jivesoftware.smack.packet.Message;
@@ -28,59 +27,60 @@ import org.jivesoftware.smack.packet.Message;
  * @version 
  */
 public class XmppMessage extends DefaultMessage {
-    private Message xmppMessage;
 
-    public XmppMessage() {
-        this(new Message());
-    }
+	private Message xmppMessage;
 
-    public XmppMessage(Message jmsMessage) {
-        this.xmppMessage = jmsMessage;
-    }
+	public XmppMessage() {
+		this(new Message());
+	}
 
-    @Override
-    public String toString() {
-        if (xmppMessage != null) {
-            return "XmppMessage: " + xmppMessage;
-        } else {
-            return "XmppMessage: " + getBody();
-        }
-    }
+	public XmppMessage(Message jmsMessage) {
+		this.xmppMessage = jmsMessage;
+	}
 
-    /**
+	@Override
+	public String toString() {
+		if (xmppMessage != null) {
+			return "XmppMessage: " + xmppMessage;
+		} else {
+			return "XmppMessage: " + getBody();
+		}
+	}
+
+	/**
      * Returns the underlying XMPP message
      */
-    public Message getXmppMessage() {
-        return xmppMessage;
-    }
+	public Message getXmppMessage() {
+		return xmppMessage;
+	}
 
-    public void setXmppMessage(Message xmppMessage) {
-        this.xmppMessage = xmppMessage;
-    }
-    
-    @Override
-    public XmppMessage newInstance() {
-        return new XmppMessage();
-    }
+	public void setXmppMessage(Message xmppMessage) {
+		this.xmppMessage = xmppMessage;
+	}
 
-    @Override
-    protected Object createBody() {
-        if (xmppMessage != null) {
-            XmppBinding binding = ExchangeHelper.getBinding(getExchange(), XmppBinding.class);
-            if (binding != null) {
-                return binding.extractBodyFromXmpp(getExchange(), xmppMessage);
-            }
-        }
-        return null;
-    }
-    
-    @Override
-    protected void populateInitialHeaders(Map<String, Object> map) {
-        if (xmppMessage != null) {
-            XmppBinding binding = ExchangeHelper.getBinding(getExchange(), XmppBinding.class);
-            if (binding != null) {
-                map.putAll(binding.extractHeadersFromXmpp(xmppMessage, getExchange()));
-            }
-        }
-    }
+	@Override
+	public XmppMessage newInstance() {
+		return new XmppMessage();
+	}
+
+	@Override
+	protected Object createBody() {
+		if (xmppMessage != null) {
+			XmppBinding binding = ExchangeHelper.getBinding(getExchange(), XmppBinding.class);
+			if (binding != null) {
+				return binding.extractBodyFromXmpp(getExchange(), xmppMessage);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	protected void populateInitialHeaders(Map<String, Object> map) {
+		if (xmppMessage != null) {
+			XmppBinding binding = ExchangeHelper.getBinding(getExchange(), XmppBinding.class);
+			if (binding != null) {
+				map.putAll(binding.extractHeadersFromXmpp(xmppMessage, getExchange()));
+			}
+		}
+	}
 }

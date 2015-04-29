@@ -32,70 +32,64 @@ import org.slf4j.LoggerFactory;
  * @version 
  */
 public class XmppGroupChatProducer extends DefaultProducer {
-    private static final Logger LOG = LoggerFactory.getLogger(XmppGroupChatProducer.class);
-    private final XmppEndpoint endpoint;
-    private XMPPConnection connection;
-    private MultiUserChat chat;
-    private String room;
 
-    public XmppGroupChatProducer(XmppEndpoint endpoint) throws XMPPException {
-        super(endpoint);
-        this.endpoint = endpoint;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(XmppGroupChatProducer.class);
 
-    public void process(Exchange exchange) {
+	private final XmppEndpoint endpoint;
+	private XMPPConnection connection;
+	private MultiUserChat chat;
+	private String room;
 
-        if (connection == null) {
-            //try {
-                connection = null;//endpoint.createConnection();
-            //} catch (XMPPException e) {
-             //   throw new RuntimeExchangeException("Could not connect to XMPP server.", exchange, e);
-            //}
-        }
+	public XmppGroupChatProducer(XmppEndpoint endpoint) throws XMPPException {
+		super(endpoint);
+		this.endpoint = endpoint;
+	}
 
-        if (chat == null) {
-            try {
-                initializeChat();
-            } catch (Exception e) {
-                throw new RuntimeExchangeException("Could not initialize XMPP chat.", exchange, e);
-            }
-        }
+	public void process(Exchange exchange) {
+		if (connection == null) {
+			//try {
+			connection = null;
+		}
+		if (chat == null) {
+			try {
+				initializeChat();
+			} catch (Exception e) {
+				throw new RuntimeExchangeException("Could not initialize XMPP chat.", exchange, e);
+			}
+		}
+		Message message = chat.createMessage();
+		message.setTo(room);
+		//@@@MSmessage.setFrom(endpoint.getUser());
+		endpoint.getBinding().populateXmppMessage(message, exchange);
+		try {
+			// make sure we are connected
+			if (!connection.isConnected()) {
+				this.reconnect();
+			}
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Sending XMPP message: {}", message.getBody());
+			}
+			chat.sendMessage(message);
+			// must invoke nextMessage to consume the response from the server
+			// otherwise the client local queue will fill up (CAMEL-1467)
+			chat.pollMessage();
+		} catch (XMPPException e) {
+			throw new RuntimeExchangeException("Could not send XMPP message: " + message, exchange, e);
+		}
+	}
 
-        Message message = chat.createMessage();
-        message.setTo(room);
-        //@@@MSmessage.setFrom(endpoint.getUser());
+	private synchronized void reconnect() throws XMPPException {
+		if (!connection.isConnected()) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Reconnecting to: {}", XmppEndpoint.getConnectionMessage(connection));
+			}
+			connection.connect();
+		}
+	}
 
-        endpoint.getBinding().populateXmppMessage(message, exchange);
-        try {
-            // make sure we are connected
-            if (!connection.isConnected()) {
-                this.reconnect();
-            }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Sending XMPP message: {}", message.getBody());
-            }
-            chat.sendMessage(message);
-            // must invoke nextMessage to consume the response from the server
-            // otherwise the client local queue will fill up (CAMEL-1467)
-            chat.pollMessage();
-        } catch (XMPPException e) {
-            throw new RuntimeExchangeException("Could not send XMPP message: " + message, exchange, e);
-        }
-    }
-
-    private synchronized void reconnect() throws XMPPException {
-        if (!connection.isConnected()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reconnecting to: {}", XmppEndpoint.getConnectionMessage(connection));
-            }
-            connection.connect();
-        }
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-/*        if (connection == null) {
+	@Override
+	protected void doStart() throws Exception {
+		/*        if (connection == null) {
             try {
                 connection = endpoint.createConnection();
             } catch (XMPPException e) {
@@ -110,44 +104,35 @@ public class XmppGroupChatProducer extends DefaultProducer {
         if (chat == null && connection != null) {
             initializeChat();
         }*/
+		super.doStart();
+	}
 
-        super.doStart();
-    }
+	protected synchronized void initializeChat() throws XMPPException {
+		if (chat == null) {
+			room = endpoint.resolveRoom(connection);
+			chat = new MultiUserChat(connection, room);
+			DiscussionHistory history = new DiscussionHistory();
+			history.setMaxChars(0);
+		}
+	}
 
-    protected synchronized void initializeChat() throws XMPPException {
-        if (chat == null) {
-            room = endpoint.resolveRoom(connection);
-            chat = new MultiUserChat(connection, room);
-            DiscussionHistory history = new DiscussionHistory();
-            history.setMaxChars(0); // we do not want any historical messages
-          //@@@MS  chat.join(endpoint.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-          //@@@MS  if (LOG.isInfoEnabled()) {
-          //@@@MS      LOG.info("Joined room: {} as: {}", room, endpoint.getNickname());
-          //@@@MS  }
-        }
-    }
+	@Override
+	protected void doStop() throws Exception {
+		if (chat != null) {
+			LOG.info("Leaving room: {}", room);
+			chat.leave();
+		}
+		chat = null;
+		if (connection != null && connection.isConnected()) {
+			connection.disconnect();
+		}
+		connection = null;
+		super.doStop();
+	}
 
-    @Override
-    protected void doStop() throws Exception {
-        if (chat != null) {
-            LOG.info("Leaving room: {}", room);
-            chat.leave();
-        }
-        chat = null;
-
-        if (connection != null && connection.isConnected()) {
-            connection.disconnect();
-        }
-        connection = null;
-
-        super.doStop();
-    }
-
-    // Properties
-    // -------------------------------------------------------------------------
-
-    public String getRoom() {
-        return room;
-    }
-
+	// Properties
+	// -------------------------------------------------------------------------
+	public String getRoom() {
+		return room;
+	}
 }
