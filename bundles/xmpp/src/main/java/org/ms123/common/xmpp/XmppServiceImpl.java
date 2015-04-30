@@ -56,6 +56,7 @@ import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.NotAllowedException;
 import flexjson.*;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.CloseStatus;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import java.util.Map;
 import org.ms123.common.camel.api.CamelService;
@@ -79,6 +80,7 @@ import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
 import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
 import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND;
 import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND_OPEN;
+import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND_CLOSE;
 import static org.ms123.common.xmpp.camel.XmppConstants.TO;
 
 
@@ -202,15 +204,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
-	ReactiveCamel m_reactiveCamel;
-	public Observable<Message> getObservable(CamelContext context, Endpoint endpoint){
-		Observable<Message> observable;
-		if( m_reactiveCamel==null){
-			m_reactiveCamel = new ReactiveCamel(context);
-		}
-		return m_reactiveCamel.toObservable(endpoint);
-	}
-
 	public WebSocketAdapter createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 		return new WebSocket(config, parameterMap);
 	}
@@ -227,16 +220,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		private Endpoint sendEndpoint;
 
 		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
+			m_js.prettyPrint(true);
 			m_config = config;
-			System.out.println("parameterMap:" + parameterMap);
 			m_params = convertMap(parameterMap);
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
 			m_context = m_camelService.getCamelContext(namespace, "default");
 			m_outTemplate = m_context.createProducerTemplate();
 
-			Map<String,String> meta = new HashMap();
-			m_js.prettyPrint(true);
 
 			Map shape = getCamelShape(namespace, routesName);
 			String recvEndpointUri = getString(shape, "recvEndpoint",null);
@@ -250,10 +241,60 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 			sendEndpoint = m_context.getEndpoint( sendEndpointUri);
 			Endpoint recvEndpoint = m_context.getEndpoint( recvEndpointUri);
-			info("sendEndpoint:"+sendEndpoint);
-			info("recvEndpoint:"+recvEndpoint);
-			
-			Observable<Message> observable = getObservable(m_context, recvEndpoint);
+
+			Action1 action = new Action1<Message>() {
+
+        @Override
+        public void call(Message _message) {
+          org.jivesoftware.smack.packet.Message message =  ((XmppMessage)_message).getXmppMessage();;
+          Map<String,Object>  sendMap = new HashMap();
+          Collection<String> propertyNames = message.getPropertyNames();
+          for( String name : propertyNames){
+            sendMap.put( name, message.getProperty(name));
+          }
+          String defaultSubject = message.getSubject();
+
+          List<String> subList = new ArrayList();
+          for (org.jivesoftware.smack.packet.Message.Subject subject : message.getSubjects()) {
+            String sub = subject.getSubject();
+            if(defaultSubject.equals(sub)) continue;
+            subList.add(sub);
+          }
+
+          sendMap.put("from", message.getFrom());
+          sendMap.put("to", message.getTo());
+          sendMap.put("packetId", message.getPacketID());
+          if( defaultSubject != null){
+            sendMap.put("subject", defaultSubject);
+          }
+          if(subList.size() >0){
+            sendMap.put("subjects", subList);
+          }
+          sendMap.put("thread", message.getThread());
+          sendMap.put("type", message.getType());
+          sendMap.put("language", message.getLanguage());
+          sendMap.put("body", message.getBody());
+
+          List<String> extensionList = new ArrayList();
+          for( org.jivesoftware.smack.packet.PacketExtension ep : message.getExtensions()){
+            if( ep instanceof org.jivesoftware.smackx.packet.ChatStateExtension){
+              sendMap.put("chatState", ep.getElementName());
+            }
+            if( ep instanceof MessageEvent){
+              MessageEvent me = (MessageEvent)ep;
+              sendMap.put("isComposing", me.isComposing());
+              sendMap.put("isOffline", me.isOffline());
+            }
+          }
+
+          String sendString = m_js.deepSerialize(sendMap);
+          System.out.println("\nXMPPMessage:"+sendString);
+          m_session.getRemote().sendStringByFuture(sendString);
+        }
+      };
+ 
+			ReactiveCamel reactiveCamel = new ReactiveCamel(m_context);
+			Observable<Message> observable = reactiveCamel.toObservable(recvEndpoint);
 
 			observable.filter(new Func1<Message, Boolean>() {
 
@@ -270,56 +311,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					System.out.println(" -> not ok");
 					return false;
 				}
-			}).subscribe(new Action1<Message>() {
-
-				@Override
-				public void call(Message _message) {
-					org.jivesoftware.smack.packet.Message message =  ((XmppMessage)_message).getXmppMessage();;
-					Map<String,Object>  sendMap = new HashMap();
-					Collection<String> propertyNames = message.getPropertyNames();
-					for( String name : propertyNames){
-						sendMap.put( name, message.getProperty(name));
-					}
-					String defaultSubject = message.getSubject();
-
-					List<String> subList = new ArrayList();
-					for (org.jivesoftware.smack.packet.Message.Subject subject : message.getSubjects()) {
-						String sub = subject.getSubject();
-						if(defaultSubject.equals(sub)) continue;
-						subList.add(sub);
-					}
-
-					sendMap.put("from", message.getFrom());
-					sendMap.put("to", message.getTo());
-					sendMap.put("packetId", message.getPacketID());
-					if( defaultSubject != null){
-						sendMap.put("subject", defaultSubject);
-					}
-					if(subList.size() >0){
-						sendMap.put("subjects", subList);
-					}
-					sendMap.put("thread", message.getThread());
-					sendMap.put("type", message.getType());
-					sendMap.put("language", message.getLanguage());
-					sendMap.put("body", message.getBody());
-
-					List<String> extensionList = new ArrayList();
-					for( org.jivesoftware.smack.packet.PacketExtension ep : message.getExtensions()){
-						if( ep instanceof org.jivesoftware.smackx.packet.ChatStateExtension){
-							sendMap.put("chatState", ep.getElementName());
-						}
-						if( ep instanceof MessageEvent){
-							MessageEvent me = (MessageEvent)ep;
-							sendMap.put("isComposing", me.isComposing());
-							sendMap.put("isOffline", me.isOffline());
-						}
-					}
-
-					String sendString = m_js.deepSerialize(sendMap);
-					System.out.println("\nXMPPMessage:"+sendString);
-					m_session.getRemote().sendStringByFuture(sendString);
-				}
-			});
+			}).subscribe(action);
 		}
 
 		@Override
@@ -327,12 +319,20 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			super.onWebSocketConnect(sess);
 			m_session = sess;
 			System.out.println("Socket Connected: " + sess);
-			Map<String,Object> headers = new HashMap();
-			headers.put(USERNAME,m_params.get("username"));
-			headers.put(PASSWORD,m_params.get("password"));
-			headers.put(TO,"dummy");
-			headers.put(COMMAND,COMMAND_OPEN);
-			m_outTemplate.sendBodyAndHeaders(sendEndpoint, null,headers);
+			Map<String,Object> headers = getHeaders("dummy", COMMAND_OPEN);
+			try{
+				m_outTemplate.sendBodyAndHeaders(sendEndpoint, null,headers);
+			}catch(Throwable e){
+				e.printStackTrace();
+				String msg = e.getMessage();
+				while (e.getCause() != null) {
+					e = e.getCause();
+					msg = e.getMessage();
+				}
+				System.out.println("Msg:"+msg);
+				CloseStatus cs = new CloseStatus(4000, msg);
+				m_session.close(cs);
+			}
 		}
 
 		@Override
@@ -343,10 +343,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			String participant = (String)map.get("participant");
 			System.out.println("FromSocket(" + hashCode() + ") message: " + map);
 			if( body != null){
-				Map<String,Object> headers = new HashMap();
-				headers.put(TO,participant);
-				headers.put(USERNAME,m_params.get("username"));
-				headers.put(PASSWORD,m_params.get("password"));
+				Map<String,Object> headers = getHeaders(participant, null);
 				m_outTemplate.sendBodyAndHeaders(sendEndpoint, body,headers);
 			}
 		}
@@ -355,6 +352,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketClose(int statusCode, String reason) {
 			super.onWebSocketClose(statusCode, reason);
 			System.out.println("Socket Closed: [" + statusCode + "] " + reason);
+			Map<String,Object> headers = getHeaders("dummy", COMMAND_CLOSE);
+			m_outTemplate.sendBodyAndHeaders(sendEndpoint, null,headers);
 		}
 
 		@Override
@@ -390,6 +389,17 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			Object value  = properties.get(name);
 			if( value == null) return _default;
 			return (String)value;
+		}
+		private Map<String,Object> getHeaders(String to, String cmd){
+			Map<String,Object> headers = new HashMap();
+			headers.put(USERNAME,m_params.get("username"));
+			headers.put(PASSWORD,m_params.get("password"));
+			headers.put(TO,to);
+			if( cmd!=null){
+				headers.put(COMMAND,cmd);
+			}
+System.out.println("Header:"+headers);
+			return headers;
 		}
 	}
 

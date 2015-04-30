@@ -44,6 +44,27 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		this.endpoint = endpoint;
 	}
 
+
+	private XmppConnectionContext  handleCommand(Exchange exchange, String command, String username, String password, String participant) throws Exception{
+		if (command == null) {
+			return endpoint.createConnectionContext(username, password, participant);
+		}
+		exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
+		if (command.equals(XmppConstants.COMMAND_OPEN)) {
+			return endpoint.createConnectionContext(username, password, participant);
+		}
+		if (command.equals(XmppConstants.COMMAND_CLOSE)) {
+			if( endpoint.hasConnectionContext(username)){
+				XmppConnectionContext cc = endpoint.createConnectionContext(username, password, participant);
+				if( cc.getConsumer() != null){
+					cc.getConsumer().doStop();
+				}
+				endpoint.removeConnectionContext(cc);	
+			}
+		}
+		return null;
+	}
+
 	public void process(Exchange exchange) {
 		XmppConnectionContext cc = null;
 		XMPPConnection connection = null;
@@ -52,17 +73,24 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
 		String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
 		String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
-		if (command != null && command.equals(XmppConstants.COMMAND_OPEN)) {
-			exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
-		}
+			System.out.println("command:"+command);
 		try {
-			cc = endpoint.createConnectionContext(username, password, participant);
+			cc = handleCommand(exchange, command, username,password, participant);
+			if( cc == null){
+				return;
+			}	
 			connection = cc.getConnection();
 			if (!connection.isConnected()) {
 				this.reconnect();
 			}
-		} catch (XMPPException e) {
-			throw new RuntimeException("Could not connect to XMPP server.", e);
+		} catch (Exception e) {
+			System.out.println("username:"+username);
+			System.out.println("password:"+password);
+			if( command == null){
+				throw new RuntimeException("XmppPrivateChatProducer.Could not connect to XMPP server.", e);
+			}else{
+				throw new RuntimeException("XmppPrivateChatProducer.Could not handle command:"+command, e);
+			}
 		}
 		String thread = "Chat:" + participant + ":" + username;
 		cc.setParticipant(participant);

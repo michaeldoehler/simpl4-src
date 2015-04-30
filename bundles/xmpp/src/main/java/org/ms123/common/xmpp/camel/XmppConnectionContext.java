@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class XmppConnectionContext {
 
 	private XMPPConnection m_connection;
-	private Consumer m_consumer;
+	private XmppConsumer m_consumer;
 	private String m_participant;
 	private String m_username;
 	private String m_nickname;
@@ -72,11 +72,11 @@ public class XmppConnectionContext {
 		return m_nickname;
 	}
 
-	public void setConsumer(Consumer consumer) {
+	public void setConsumer(XmppConsumer consumer) {
 		m_consumer = consumer;
 	}
 
-	public Consumer getConsumer() {
+	public XmppConsumer getConsumer() {
 		return m_consumer;
 	}
 

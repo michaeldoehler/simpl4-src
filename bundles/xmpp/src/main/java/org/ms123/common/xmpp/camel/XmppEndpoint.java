@@ -102,7 +102,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return null;
 	}
 
-	private Consumer createConsumer(XmppConnectionContext cc) throws Exception {
+	private XmppConsumer createConsumer(XmppConnectionContext cc) throws Exception {
 		XmppConsumer answer = new XmppConsumer(this, m_processor, cc);
 		configureConsumer(answer);
 		answer.doStart();
@@ -132,6 +132,10 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
 	public boolean isSingleton() {
 		return true;
+	}
+
+	public boolean hasConnectionContext(String username) {
+		return m_connectionContextMap.get(username) == null;
 	}
 
 	public synchronized XmppConnectionContext createConnectionContext(String username, String password, String participant) throws XMPPException {
@@ -208,6 +212,9 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return cc;
 	}
 
+	protected void removeConnectionContext(XmppConnectionContext cc){
+		m_connectionContextMap.remove(cc);
+	}
 	/*
      * If there is no "@" symbol in the room, find the chat service JID and
      * return fully qualified JID for the room as room@conference.server.domain
@@ -350,7 +357,8 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	protected void doStop() throws Exception {
 		for (Map.Entry<String, XmppConnectionContext> entry : m_connectionContextMap.entrySet()){
 			XmppConnectionContext cc = entry.getValue();
-      cc.getConnection().disconnect();
+      cc.getConsumer().doStop();
+      //cc.getConnection().disconnect();
 		}
 		m_connectionContextMap = new HashMap();
     binding = null;
