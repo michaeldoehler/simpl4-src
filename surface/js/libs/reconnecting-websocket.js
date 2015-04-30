@@ -243,11 +243,16 @@
             };
 
             ws.onclose = function(event) {
+								console.log("onclose:",event);
                 clearTimeout(timeout);
                 ws = null;
                 if (forcedClose) {
                     self.readyState = WebSocket.CLOSED;
-                    eventTarget.dispatchEvent(generateEvent('close'));
+                    var e = generateEvent('close');
+                    e.code = event.code;
+                    e.reason = event.reason;
+                    e.wasClean = event.wasClean;
+                    eventTarget.dispatchEvent(e);
                 } else {
                     self.readyState = WebSocket.CONNECTING;
                     var e = generateEvent('connecting');
@@ -259,7 +264,11 @@
                         if (self.debug || ReconnectingWebSocket.debugAll) {
                             console.debug('ReconnectingWebSocket', 'onclose', self.url);
                         }
-                        eventTarget.dispatchEvent(generateEvent('close'));
+												var e = generateEvent('close');
+												e.code = event.code;
+												e.reason = event.reason;
+												e.wasClean = event.wasClean;
+                        eventTarget.dispatchEvent(e);
                     }
 
                     var timeout = self.reconnectInterval * Math.pow(self.reconnectDecay, self.reconnectAttempts);
