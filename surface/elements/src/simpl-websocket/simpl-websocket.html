@@ -100,6 +100,7 @@
 					params[ "uuid" ] = uuid;
 					params[ "service" ] = "xmpp";
 
+console.log("params:",params);
 					var qs = $.param( params );
 
 					this.url = baseUrl + "/ws/xyz?" + qs;
@@ -113,8 +114,8 @@
 						} ).bind( this ), 5000 );
 					} ).bind( this ) );
 
-					var closingObserver = Rx.Observer.create( ( function() {
-						console.log( 'websocket is about to close' );
+					var closingObserver = Rx.Observer.create( ( function(x) {
+						console.log( 'websocket is about to close:',x );
 						this.connected = false;
 					} ).bind( this ) );
 
@@ -124,6 +125,10 @@
 					this.socket.subscribe(
 						function( e ) {
 							var data = e.data;
+							if(data === '__close') {
+								self.socket.onCompleted(); // closes with code 1000 and reason ""
+								return;
+							} 
 							if ( self.json || self.jsonReceive ) {
 								data = JSON.parse( data );
 							}
@@ -134,13 +139,17 @@
 							self.recvMessage = data;
 						},
 						function( e ) {
-							console.error( 'error: ', e );
+							//console.error( 'wserror: ', e );
+							console.error("Error:"+e.reason+"("+e.code+")");
 						},
 						function() {
 							console.info( 'websocket closed' );
 							self.connected = false;
 						}
 					);
+				},
+				closeConnection:function(){
+					this.socket.onNext('__close');
 				},
 				observableFromWebSocket: function( url, openObserver, closingObserver ) {
 					if ( !WebSocket ) {
@@ -150,6 +159,7 @@
 					var socket;
 
 					var socketClose = function( code, reason ) {
+						console.log("socketClose:"+code+"/"+reason+"/"+socket);
 						if ( socket ) {
 							if ( closingObserver ) {
 								closingObserver.onNext();
@@ -182,6 +192,7 @@
 						};
 						var closeHandler = function( e ) {
 							console.log( "do not close", e );
+							console.log( "code", e.code );
 							if ( e.code == null ) return;
 							if ( e.code !== 1000 || !e.wasClean ) {
 								return obs.onError( e );

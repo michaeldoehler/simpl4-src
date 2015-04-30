@@ -31,11 +31,14 @@
 			<input type="text" id="password" value="{{user.password}}" />
 			<button on-click="{{connect}}">Connect</button>
 			<input type="checkbox" checked={{connected}} disabled/>
+			<button on-click="{{disconnect}}">Disconnect</button>
 		</div>
 		<div>
 			Participant:
 			<select id="participant">
 				<option value="guest@simpl4.org">Guest</option>
+				<option value="msa@simpl4.org">msa</option>
+				<option value="msa2@simpl4.org">msa2</option>
 			</select>
 		</div>
 		<div>
@@ -99,12 +102,16 @@
 				var body = message.body;
 				if ( message.body ){
 					message.color = "green";
-					this.messages.push( messages );
+					this.messages.push( message );
 				}
 			},
 			connect: function() {
 				console.log( "connect" );
 				this.$.websocket.go( this.user.name, this.user.password );
+			},
+			disconnect: function() {
+				console.log( "disconnect" );
+				this.$.websocket.closeConnection( this.user.name, this.user.password );
 			},
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
