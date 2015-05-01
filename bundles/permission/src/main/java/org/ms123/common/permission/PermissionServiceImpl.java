@@ -205,7 +205,7 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 				while (pit.hasNext()) {
 					Map p = pit.next();
 					String permission = p.get("permission") + ":" + p.get("actions");
-					info("\tpermission:" + permission);
+					debug("\tpermission:" + permission);
 					sa.addObjectPermission(new WildcardPermission((String) p.get("permission"), (String) p.get("actions")));
 				}
 				sa.addObjectPermission(new WildcardPermission("*:entities:aid", "read"));
