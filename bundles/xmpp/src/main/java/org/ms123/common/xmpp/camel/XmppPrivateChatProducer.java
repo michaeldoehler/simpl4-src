@@ -30,7 +30,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.text.MessageFormat;
+import org.slf4j.helpers.MessageFormatter;
 
 /**
  * @version 
@@ -108,7 +108,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			message.setThread(thread);
 			message.setType(Message.Type.normal);
 			endpoint.getBinding().populateXmppMessage(message, exchange);
-			debug("Sending XMPP message to {} from {} : {}", new Object[] { participant, cc.getUsername(), message.getBody() });
+			debug("Sending XMPP message to {} from {} : {}", participant, cc.getUsername(), message.getBody() );
 			chat.sendMessage(message);
 		} catch (XMPPException xmppe) {
 			throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
@@ -149,12 +149,12 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 	}
 
 	protected void debug(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.debug(msg, args);
 	}
 
 	protected void info(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.info(msg, args);
 	}
 
@@ -163,5 +163,12 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		if (e != null)
 			e.printStackTrace();
 		LOG.warn(msg, e);
+	}
+	private Object[] varargsToArray(Object...args){
+	 Object[] ret = new Object[args.length];
+    for (int i = 0; i < args.length; i++) {
+      ret[i] = args[i];
+    }
+		return ret;
 	}
 }

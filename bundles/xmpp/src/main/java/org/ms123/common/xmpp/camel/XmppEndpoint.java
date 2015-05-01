@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.text.MessageFormat;
+import org.slf4j.helpers.MessageFormatter;
 
 /**
  * A XMPP Endpoint
@@ -366,18 +366,26 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	}
 
 	protected void debug(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.debug(msg, args);
 	}
 
 	protected void info(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.info(msg, args);
 	}
 
 	protected void warn(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.warn(msg, args);
+	}
+
+	private Object[] varargsToArray(Object... args) {
+		Object[] ret = new Object[args.length];
+		for (int i = 0; i < args.length; i++) {
+			ret[i] = args[i];
+		}
+		return ret;
 	}
 
 	protected void warn(String msg, Exception e) {

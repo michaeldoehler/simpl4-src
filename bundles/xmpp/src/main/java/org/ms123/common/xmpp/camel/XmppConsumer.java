@@ -42,7 +42,7 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.text.MessageFormat;
+import org.slf4j.helpers.MessageFormatter;
 
 /**
  * A {@link org.apache.camel.Consumer Consumer} which listens to XMPP packets
@@ -183,7 +183,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	}
 
 	public void processMessage(Chat chat, Message message) {
-		debug("Received XMPP message for {} from {} : {}", new Object[] { m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() });
+		debug("Received XMPP message for {} from {} : {}",  m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() );
 		Exchange exchange = endpoint.createExchange(message);
 		try {
 			getProcessor().process(exchange);
@@ -200,12 +200,12 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	}
 
 	protected void debug(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.debug(msg, args);
 	}
 
 	protected void info(String msg, Object... args) {
-		System.out.println(MessageFormat.format(msg, args));
+		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
 		LOG.info(msg, args);
 	}
 
@@ -214,5 +214,12 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 		if (e != null)
 			e.printStackTrace();
 		LOG.warn(msg, e);
+	}
+	private Object[] varargsToArray(Object...args){
+	 Object[] ret = new Object[args.length];
+    for (int i = 0; i < args.length; i++) {
+      ret[i] = args[i];
+    }
+		return ret;
 	}
 }
