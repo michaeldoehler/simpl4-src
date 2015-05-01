@@ -82,10 +82,10 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private String getUuidParameter(Map<String, List<String>> map) {
-		List<String> paramList = map.get("uuid");
+	private String getInstanceIdParameter(Map<String, List<String>> map) {
+		List<String> paramList = map.get("instanceId");
 		if (paramList == null || paramList.size() == 0) {
-			throw new RuntimeException("WebSocketCreator.Cannot get uuid parameter from querystring");
+			throw new RuntimeException("WebSocketCreator.Cannot get instanceId parameter from querystring");
 		}
 		return paramList.get(0);
 	}
@@ -107,11 +107,11 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	@Override
 	public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		try {
-			String uuid = getUuidParameter(req.getParameterMap());
-			Object socket = m_sockets.get(uuid);
+			String instanceId = getInstanceIdParameter(req.getParameterMap());
+			Object socket = m_sockets.get(instanceId);
 			if (socket == null) {
 				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())), req.getParameterMap());
-				m_sockets.put(uuid, socket);
+				m_sockets.put(instanceId, socket);
 				System.out.println("createWebSocket:" + socket);
 			}
 			return socket;

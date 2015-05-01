@@ -24,7 +24,7 @@
 
 
 		</style>
-		<simpl-websocket id="websocket" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}"  autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" instanceId="{{user.name}}" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}"  autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<div>
 			UserName:
 			<input type="text" id="userName" value="{{user.name}}" /> Password:
@@ -116,12 +116,12 @@
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
 				if ( this.connected ) {
-					this.sendMessage = {
+					/*this.sendMessage = {
 						event: "userChanged",
 						data: {
 							user: this.user
 						}
-					};
+					};*/
 				}
 			}
 		} );

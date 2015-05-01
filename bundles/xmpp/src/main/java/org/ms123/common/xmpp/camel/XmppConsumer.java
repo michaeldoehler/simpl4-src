@@ -43,6 +43,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import java.util.Collection;
 
 /**
  * A {@link org.apache.camel.Consumer Consumer} which listens to XMPP packets
@@ -73,14 +74,14 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 		chatManager = connection.getChatManager();
 		chatManager.addChatListener(this);
 		if (endpoint.getRoom() == null) {
-			privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
+			/*privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
 			if (privateChat != null) {
 				debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
 				privateChat.addMessageListener(this);
 			} else {
 				privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
 				debug("Opening private chat to " + privateChat.getParticipant());
-			}
+			}*/
 		} else {
 			// add the presence packet listener to the connection so we only get packets that concerns us
 			// we must add the listener before creating the muc
@@ -169,14 +170,15 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	}
 
 	public void chatCreated(Chat chat, boolean createdLocally) {
-		debug("Consumer.chatCreated:" + chat + "," + m_connectionContext.getUsername());
+		debug("Consumer.chatCreated:" + chat + "," + m_connectionContext.getUsername()+"/local:"+createdLocally);
 		if (!createdLocally) {
-			debug("Accepting incoming chat session from " + chat.getParticipant());
 			chat.addMessageListener(this);
+			debug("Accepting incoming chat session from " + chat.getParticipant());
 		}
 	}
 
 	public void processPacket(Packet packet) {
+		debug("Received XMPP packet:"+packet  );
 		if (packet instanceof Message) {
 			processMessage(null, (Message) packet);
 		}

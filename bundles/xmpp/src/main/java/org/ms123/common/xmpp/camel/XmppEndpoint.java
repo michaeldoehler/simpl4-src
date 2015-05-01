@@ -39,9 +39,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -64,7 +64,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	private boolean createAccount;
 	private String room;
 	private String serviceName;
-	private Map<String, XmppConnectionContext> m_connectionContextMap = new HashMap();
+	private Map<String, XmppConnectionContext> m_connectionContextMap = new ConcurrentHashMap();
 	private Processor m_processor;
 	private boolean testConnectionOnStartup = true;
 	private int connectionPollDelay = 10;
@@ -138,16 +138,14 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return m_connectionContextMap.get(username) != null;
 	}
 
-	public synchronized XmppConnectionContext createConnectionContext(String username, String password, String participant) throws XMPPException {
+	public synchronized XmppConnectionContext getOrCreateConnectionContext(String username, String password, String participant) throws XMPPException {
 		XmppConnectionContext connectionContext = m_connectionContextMap.get(username);
-		debug("XmppEndpoint.connectionContext:" + connectionContext + "/" + username);
+		debug("GetOrCreateConnectionContext:connectionContext:" + connectionContext + "/" + username);
 		XMPPConnection connection = null;
 		if (connectionContext != null) {
-			debug("XmppEndpoint.connection not null");
 			connection = connectionContext.getConnection();
 		}
 		if (connection != null && connection.isConnected()) {
-			debug("XmppEndpoint.connection is connected:" + connection);
 			return connectionContext;
 		}
 		if (connection == null) {
@@ -161,8 +159,8 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 				connection = new XMPPConnection(host);
 			}
 		}
-		debug("XmppEndpoint.connection created");
 		connection.connect();
+		debug("GetOrCreateConnectionContext:connection created and/or connected");
 		connection.addPacketListener(new XmppLogger("INBOUND"), new PacketFilter() {
 
 			public boolean accept(Packet packet) {
@@ -203,7 +201,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		cc.setParticipant(participant);
 		cc.setConnection(connection);
 		try {
-			System.out.println("Before createConsumer:" + cc);
 			cc.setConsumer(createConsumer(cc));
 		} catch (Exception e) {
 			throw new RuntimeException("XmppEndpoint:Could not create Consumer.", e);
@@ -214,7 +211,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
 	protected void removeConnectionContext(XmppConnectionContext cc) {
 		m_connectionContextMap.remove(cc.getUsername());
-		System.out.println("removeConnectionContext." + m_connectionContextMap);
+		debug("XmppEndpoint.removeConnectionContext." + m_connectionContextMap);
 	}
 
 	/*
@@ -361,7 +358,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 			XmppConnectionContext cc = entry.getValue();
 			cc.getConsumer().doStop();
 		}
-		m_connectionContextMap = new HashMap();
+		m_connectionContextMap = new ConcurrentHashMap();
 		binding = null;
 	}
 

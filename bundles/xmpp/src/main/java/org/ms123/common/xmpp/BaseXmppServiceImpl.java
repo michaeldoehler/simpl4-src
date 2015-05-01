@@ -175,6 +175,7 @@ System.out.println("isPersistent:"+isPersistent);
 		return roomSpec;
 	}
 	protected static void debug(String msg) {
+		System.err.println(msg);
 		m_logger.debug(msg);
 	}
 	protected static void info(String msg) {

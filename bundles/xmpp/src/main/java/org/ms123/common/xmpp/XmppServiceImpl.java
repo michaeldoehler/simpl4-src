@@ -281,7 +281,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 						}
 					}
 					String sendString = m_js.deepSerialize(sendMap);
-					System.out.println("\nXMPPMessage:" + sendString);
+					debug("\nToWebsocket ->\n" + sendString);
 					m_session.getRemote().sendStringByFuture(sendString);
 				}
 			};
@@ -295,12 +295,12 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					;
 					String to = message.getTo();
 					String username = m_params.get("username") + "@";
-					System.out.print("filter:" + username);
+					String msg = "filter:" + username;
 					if (to.startsWith(username)) {
-						System.out.println(" -> ok");
+						debug(msg + " -> ok");
 						return true;
 					}
-					System.out.println(" -> not ok");
+					debug(msg + " -> not ok");
 					return false;
 				}
 			}).subscribe(action);
@@ -310,7 +310,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
 			m_session = sess;
-			System.out.println("Socket Connected: " + sess);
+			debug("Socket Connected: \n" + m_js.deepSerialize(m_params));
 			Map<String, Object> headers = getHeaders("dummy", COMMAND_OPEN);
 			try {
 				m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, null, headers);
@@ -321,7 +321,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					e = e.getCause();
 					msg = e.getMessage();
 				}
-				System.out.println("Msg:" + msg);
+				debug("Msg:" + msg);
 				CloseStatus cs = new CloseStatus(4000, msg);
 				m_session.close(cs);
 			}
@@ -331,7 +331,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
 			Map<String, Object> map = (Map) m_ds.deserialize(message);
-			System.out.println("FromSocket(" + hashCode() + ") message: " + map);
+			debug("\nFromSocket(" + hashCode() + ") message: " + map);
 			String command = (String) map.get("command");
 			if (command != null && "close".equals(command)) {
 				CloseStatus cs = new CloseStatus(4001, "close on  client demand");
@@ -349,7 +349,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		@Override
 		public void onWebSocketClose(int statusCode, String reason) {
 			super.onWebSocketClose(statusCode, reason);
-			System.out.println("Socket Closed: [" + statusCode + "] " + reason);
+			debug("\nSocket Closed: [" + statusCode + "] " + reason);
 			Map<String, Object> headers = getHeaders("dummy", COMMAND_CLOSE);
 			m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, null, headers);
 		}
@@ -365,7 +365,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
 				outMap.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
 			}
-			System.out.println("convertMap:" + outMap);
 			return outMap;
 		}
 
