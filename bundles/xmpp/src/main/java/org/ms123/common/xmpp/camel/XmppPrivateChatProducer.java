@@ -1,18 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * This file is part of SIMPL4(http://simpl4.org).
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.ms123.common.xmpp.camel;
 
@@ -28,6 +30,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.text.MessageFormat;
 
 /**
  * @version 
@@ -44,8 +47,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		this.endpoint = endpoint;
 	}
 
-
-	private XmppConnectionContext  handleCommand(Exchange exchange, String command, String username, String password, String participant) throws Exception{
+	private XmppConnectionContext handleCommand(Exchange exchange, String command, String username, String password, String participant) throws Exception {
 		if (command == null) {
 			return endpoint.createConnectionContext(username, password, participant);
 		}
@@ -54,12 +56,13 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			return endpoint.createConnectionContext(username, password, participant);
 		}
 		if (command.equals(XmppConstants.COMMAND_CLOSE)) {
-			if( endpoint.hasConnectionContext(username)){
+			debug("COMMAND_CLOSE:" + endpoint.hasConnectionContext(username) + "/" + username);
+			if (endpoint.hasConnectionContext(username)) {
 				XmppConnectionContext cc = endpoint.createConnectionContext(username, password, participant);
-				if( cc.getConsumer() != null){
+				endpoint.removeConnectionContext(cc);
+				if (cc.getConsumer() != null) {
 					cc.getConsumer().doStop();
 				}
-				endpoint.removeConnectionContext(cc);	
 			}
 		}
 		return null;
@@ -73,26 +76,27 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
 		String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
 		String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
-			System.out.println("command:"+command);
+		debug("command:" + command + "/" + endpoint.hasConnectionContext(username));
 		try {
-			cc = handleCommand(exchange, command, username,password, participant);
-			if( cc == null){
+			cc = handleCommand(exchange, command, username, password, participant);
+			if (cc == null) {
 				return;
-			}	
+			}
 			connection = cc.getConnection();
 			if (!connection.isConnected()) {
 				this.reconnect();
 			}
 		} catch (Exception e) {
-			System.out.println("username:"+username);
-			System.out.println("password:"+password);
-			if( command == null){
+			debug("username:" + username);
+			debug("password:" + password);
+			if (command == null) {
 				throw new RuntimeException("XmppPrivateChatProducer.Could not connect to XMPP server.", e);
-			}else{
-				throw new RuntimeException("XmppPrivateChatProducer.Could not handle command:"+command, e);
+			} else {
+				throw new RuntimeException("XmppPrivateChatProducer.Could not handle command:" + command, e);
 			}
 		}
 		String thread = "Chat:" + participant + ":" + username;
+		debug("XmppPrivateChatProducer.Chat:" + participant + ":" + username + "/" + connection + "/" + connection.isConnected());
 		cc.setParticipant(participant);
 		cc.setUsername(username);
 		ChatManager chatManager = connection.getChatManager();
@@ -104,9 +108,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			message.setThread(thread);
 			message.setType(Message.Type.normal);
 			endpoint.getBinding().populateXmppMessage(message, exchange);
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Sending XMPP message to {} from {} : {}", new Object[] { participant, cc.getUsername(), message.getBody() });
-			}
+			debug("Sending XMPP message to {} from {} : {}", new Object[] { participant, cc.getUsername(), message.getBody() });
 			chat.sendMessage(message);
 		} catch (XMPPException xmppe) {
 			throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
@@ -120,21 +122,19 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			LOG.trace("Looking for existing chat instance with thread ID {}", chatid);
 		}
 		Chat chat = chatManager.getThreadChat(thread);
-		System.out.println("getThreadChat:" + chat);
+		debug("ThreadChat(" + thread + "):" + chat);
 		if (chat == null) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Creating new chat instance with thread ID {}", thread);
-			}
 			chat = chatManager.createChat(participant, thread, new MessageListener() {
 
 				public void processMessage(Chat chat, Message message) {
-					System.out.println("getThreadChat.processMessage:" + message);
+					debug("getThreadChat.processMessage:" + message);
 					// not here to do conversation
 					if (LOG.isDebugEnabled()) {
-						LOG.debug("Received and discarding message from {} : {}", participant, message.getBody());
+						debug("Received and discarding message from {} : {}", participant, message.getBody());
 					}
 				}
 			});
+			debug("CreateChat(" + thread + "):" + chat + "/" + participant);
 		}
 		return chat;
 	}
@@ -148,28 +148,20 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		}
 	}
 
-	@Override
-	protected void doStart() throws Exception {
-		/* if (connection == null) {
-            try {
-                connection = endpoint.createConnection();
-            } catch (XMPPException e) {
-                if (endpoint.isTestConnectionOnStartup()) {
-                    throw new RuntimeException("Could not establish connection to XMPP server:  " + endpoint.getConnectionDescription(), e);
-                } else {
-                    LOG.warn("Could not connect to XMPP server. {}  Producer will attempt lazy connection when needed.", XmppEndpoint.getXmppExceptionLogMessage(e));
-                }
-            }
-        }*/
-		super.doStart();
+	protected void debug(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.debug(msg, args);
 	}
 
-	@Override
-	protected void doStop() throws Exception {
-		/* if (connection != null && connection.isConnected()) {
-            connection.disconnect();
-        }
-        connection = null;*/
-		super.doStop();
+	protected void info(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.info(msg, args);
+	}
+
+	protected void warn(String msg, Exception e) {
+		System.out.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		LOG.warn(msg, e);
 	}
 }

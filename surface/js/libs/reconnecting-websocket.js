@@ -243,10 +243,11 @@
             };
 
             ws.onclose = function(event) {
-								console.log("onclose:",event);
+								console.log("ws.onclose:",event);
+								console.log("ws.onclose.forcedClose:",forcedClose);
                 clearTimeout(timeout);
                 ws = null;
-                if (forcedClose) {
+                if (forcedClose || event.code === 4001 || event.code === 4000) {
                     self.readyState = WebSocket.CLOSED;
                     var e = generateEvent('close');
                     e.code = event.code;
@@ -255,7 +256,7 @@
                     eventTarget.dispatchEvent(e);
                 } else {
                     self.readyState = WebSocket.CONNECTING;
-                    var e = generateEvent('connecting');
+                    /*var e = generateEvent('connecting');
                     e.code = event.code;
                     e.reason = event.reason;
                     e.wasClean = event.wasClean;
@@ -269,7 +270,7 @@
 												e.reason = event.reason;
 												e.wasClean = event.wasClean;
                         eventTarget.dispatchEvent(e);
-                    }
+                    }*/
 
                     var timeout = self.reconnectInterval * Math.pow(self.reconnectDecay, self.reconnectAttempts);
                     setTimeout(function() {
@@ -325,6 +326,7 @@
                 code = 1000;
             }
             forcedClose = true;
+console.log("close:forcedClose:"+forcedClose);
             if (ws) {
                 ws.close(code, reason);
             }

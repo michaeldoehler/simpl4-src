@@ -1,18 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * This file is part of SIMPL4(http://simpl4.org).
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.ms123.common.xmpp.camel;
 
@@ -42,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.text.MessageFormat;
 
 /**
  * A XMPP Endpoint
@@ -96,9 +99,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
 	public Consumer createConsumer(Processor processor) throws Exception {
 		m_processor = processor;
-		//XmppConsumer answer = new XmppConsumer(this, processor);
-		//configureConsumer(answer);
-		//return answer;
 		return null;
 	}
 
@@ -135,16 +135,19 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	}
 
 	public boolean hasConnectionContext(String username) {
-		return m_connectionContextMap.get(username) == null;
+		return m_connectionContextMap.get(username) != null;
 	}
 
 	public synchronized XmppConnectionContext createConnectionContext(String username, String password, String participant) throws XMPPException {
 		XmppConnectionContext connectionContext = m_connectionContextMap.get(username);
+		debug("XmppEndpoint.connectionContext:" + connectionContext + "/" + username);
 		XMPPConnection connection = null;
 		if (connectionContext != null) {
+			debug("XmppEndpoint.connection not null");
 			connection = connectionContext.getConnection();
 		}
 		if (connection != null && connection.isConnected()) {
+			debug("XmppEndpoint.connection is connected:" + connection);
 			return connectionContext;
 		}
 		if (connection == null) {
@@ -158,6 +161,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 				connection = new XMPPConnection(host);
 			}
 		}
+		debug("XmppEndpoint.connection created");
 		connection.connect();
 		connection.addPacketListener(new XmppLogger("INBOUND"), new PacketFilter() {
 
@@ -173,11 +177,9 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		});
 		if (!connection.isAuthenticated()) {
 			if (username != null) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Logging in to XMPP as user: {} on connection: {}", username, getConnectionMessage(connection));
-				}
+				debug("Logging in to XMPP as user: {} on connection: {}", username, getConnectionMessage(connection));
 				if (password == null) {
-					LOG.warn("No password configured for user: {} on connection: {}", username, getConnectionMessage(connection));
+					warn("No password configured for user: {} on connection: {}", username, getConnectionMessage(connection));
 				}
 				if (createAccount) {
 					AccountManager accountManager = new AccountManager(connection);
@@ -191,9 +193,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 					}
 				}
 			} else {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Logging in anonymously to XMPP on connection: {}", getConnectionMessage(connection));
-				}
+				debug("Logging in anonymously to XMPP on connection: {}", getConnectionMessage(connection));
 				connection.loginAnonymously();
 			}
 		}
@@ -212,9 +212,11 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return cc;
 	}
 
-	protected void removeConnectionContext(XmppConnectionContext cc){
-		m_connectionContextMap.remove(cc);
+	protected void removeConnectionContext(XmppConnectionContext cc) {
+		m_connectionContextMap.remove(cc.getUsername());
+		System.out.println("removeConnectionContext." + m_connectionContextMap);
 	}
+
 	/*
      * If there is no "@" symbol in the room, find the chat service JID and
      * return fully qualified JID for the room as room@conference.server.domain
@@ -229,7 +231,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 			throw new XMPPException("Cannot find Multi User Chat service on connection: " + getConnectionMessage(connection));
 		}
 		String chatServer = iterator.next();
-		LOG.debug("Detected chat server: {}", chatServer);
+		debug("Detected chat server: {}", chatServer);
 		return room + "@" + chatServer;
 	}
 
@@ -355,12 +357,33 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	// -------------------------------------------------------------------------
 	@Override
 	protected void doStop() throws Exception {
-		for (Map.Entry<String, XmppConnectionContext> entry : m_connectionContextMap.entrySet()){
+		for (Map.Entry<String, XmppConnectionContext> entry : m_connectionContextMap.entrySet()) {
 			XmppConnectionContext cc = entry.getValue();
-      cc.getConsumer().doStop();
-      //cc.getConnection().disconnect();
+			cc.getConsumer().doStop();
 		}
 		m_connectionContextMap = new HashMap();
-    binding = null;
+		binding = null;
+	}
+
+	protected void debug(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.debug(msg, args);
+	}
+
+	protected void info(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.info(msg, args);
+	}
+
+	protected void warn(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.warn(msg, args);
+	}
+
+	protected void warn(String msg, Exception e) {
+		System.out.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		LOG.warn(msg, e);
 	}
 }

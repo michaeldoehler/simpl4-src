@@ -1,18 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * This file is part of SIMPL4(http://simpl4.org).
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.ms123.common.xmpp.camel;
 
@@ -40,6 +42,7 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.text.MessageFormat;
 
 /**
  * A {@link org.apache.camel.Consumer Consumer} which listens to XMPP packets
@@ -67,30 +70,16 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	@Override
 	protected void doStart() throws Exception {
 		connection = m_connectionContext.getConnection();
-		/*if (endpoint.isTestConnectionOnStartup()) {
-					throw new RuntimeException("Could not connect to XMPP server.", e);
-				}  else {
-					LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
-					if (getExceptionHandler() != null) {
-						getExceptionHandler().handleException(XmppEndpoint.getXmppExceptionLogMessage(e), e);
-					}
-					scheduleDelayedStart();
-					return;
-				}*/
 		chatManager = connection.getChatManager();
 		chatManager.addChatListener(this);
 		if (endpoint.getRoom() == null) {
 			privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
 			if (privateChat != null) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
-				}
+				debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
 				privateChat.addMessageListener(this);
 			} else {
 				privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Opening private chat to " + privateChat.getParticipant());
-				}
+				debug("Opening private chat to " + privateChat.getParticipant());
 			}
 		} else {
 			// add the presence packet listener to the connection so we only get packets that concerns us
@@ -104,9 +93,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 			history.setMaxChars(0);
 			// we do not want any historical messages
 			muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
-			}
+			info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
 		}
 		this.startRobustConnectionMonitor();
 		super.doStart();
@@ -120,11 +107,11 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 				try {
 					doStart();
 				} catch (Exception e) {
-					LOG.warn("Ignoring an exception caught in the startup connection poller thread.", e);
+					warn("Ignoring an exception caught in the startup connection poller thread.", e);
 				}
 			}
 		};
-		LOG.info("Delaying XMPP consumer startup for endpoint {}. Trying again in {} seconds.", URISupport.sanitizeUri(endpoint.getEndpointUri()), endpoint.getConnectionPollDelay());
+		info("Delaying XMPP consumer startup for endpoint {}. Trying again in {} seconds.", URISupport.sanitizeUri(endpoint.getEndpointUri()), endpoint.getConnectionPollDelay());
 		getExecutor().schedule(startRunnable, endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
 	}
 
@@ -136,7 +123,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 				try {
 					checkConnection();
 				} catch (Exception e) {
-					LOG.warn("Ignoring an exception caught in the connection poller thread.", e);
+					warn("Ignoring an exception caught in the connection poller thread.", e);
 				}
 			}
 		};
@@ -146,11 +133,11 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 
 	private void checkConnection() throws Exception {
 		if (!connection.isConnected()) {
-			LOG.info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(connection));
+			info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(connection));
 			try {
 				connection.connect();
 			} catch (XMPPException e) {
-				LOG.warn(XmppEndpoint.getXmppExceptionLogMessage(e));
+				warn(XmppEndpoint.getXmppExceptionLogMessage(e), null);
 			}
 		}
 	}
@@ -165,30 +152,26 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	@Override
 	protected void doStop() throws Exception {
 		super.doStop();
-		// stop scheduler first
 		if (scheduledExecutor != null) {
 			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
 			scheduledExecutor = null;
 		}
 		if (muc != null) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Leaving room: {}", muc.getRoom());
-			}
+			info("Leaving room: {}", muc.getRoom());
 			muc.removeMessageListener(this);
 			muc.leave();
 			muc = null;
 		}
+		debug("Consumer.doStop.isConnected:" + connection.isConnected());
 		if (connection != null && connection.isConnected()) {
 			connection.disconnect();
 		}
 	}
 
 	public void chatCreated(Chat chat, boolean createdLocally) {
-		System.out.println("consumer.chatCreated:" + chat + "," + createdLocally);
+		debug("Consumer.chatCreated:" + chat + "," + m_connectionContext.getUsername());
 		if (!createdLocally) {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Accepting incoming chat session from " + chat.getParticipant());
-			}
+			debug("Accepting incoming chat session from " + chat.getParticipant());
 			chat.addMessageListener(this);
 		}
 	}
@@ -200,10 +183,7 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	}
 
 	public void processMessage(Chat chat, Message message) {
-		System.out.println("consumer.processMessage:" + chat + "," + message + "/" + getProcessor());
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Received XMPP message for {} from {} : {}", new Object[] { m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() });
-		}
+		debug("Received XMPP message for {} from {} : {}", new Object[] { m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() });
 		Exchange exchange = endpoint.createExchange(message);
 		try {
 			getProcessor().process(exchange);
@@ -217,5 +197,22 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 				muc.pollMessage();
 			}
 		}
+	}
+
+	protected void debug(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.debug(msg, args);
+	}
+
+	protected void info(String msg, Object... args) {
+		System.out.println(MessageFormat.format(msg, args));
+		LOG.info(msg, args);
+	}
+
+	protected void warn(String msg, Exception e) {
+		System.out.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		LOG.warn(msg, e);
 	}
 }
