@@ -17,6 +17,7 @@
     "paper-elements": "Polymer/paper-elements#~0.5.2",
     "polymer-fontawesome": "code-maverick/polymer-fontawesome#master",
     "PolymerLabs-flatiron-director": "PolymerLabs/flatiron-director",
+    "PolymerLabs-ui-collapsible": "PolymerLabs/polymer-ui-collapsible",
     "html5-paper-input": "cbalit/html5-paper-input",
     "imported-template": "Juicy/imported-template"
   }
