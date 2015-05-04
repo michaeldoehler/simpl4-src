@@ -125,6 +125,14 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return exchange;
 	}
 
+	public Exchange createExchange(Map<String,Object> body) {
+		org.apache.camel.Message message = new org.apache.camel.impl.DefaultMessage();
+		message.setBody(body);
+		Exchange exchange = new DefaultExchange(this, getExchangePattern());
+		exchange.setIn(message);
+		return exchange;
+	}
+
 	@Override
 	protected String createEndpointUri() {
 		return "xmpp://" + host + ":" + port + "?serviceName=" + serviceName;

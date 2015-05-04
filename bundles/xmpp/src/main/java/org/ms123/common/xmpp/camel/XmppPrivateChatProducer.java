@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @version 
@@ -48,7 +50,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		this.endpoint = endpoint;
 	}
 
-	private XmppConnectionContext handleCommand(Exchange exchange, String command, String username, String password, String participant) throws Exception {
+	private XmppConnectionContext handleCommand(Exchange exchange, String command, Map<String,Object> parameter, String username, String password, String participant) throws Exception {
 		if (command == null) {
 			return endpoint.getOrCreateConnectionContext(username, password, participant);
 		}
@@ -66,6 +68,15 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 				}
 			}
 		}
+		if (command.equals(XmppConstants.COMMAND_ADDUSER)) {
+			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, participant);
+			List<String> groupList = (List)parameter.get("groups");
+			String[] groups = null;
+			if( groupList!=null){
+				groups = groupList.toArray(new String[groupList.size()]);
+			}
+			cc.getConnection().getRoster().createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
+		}
 		return null;
 	}
 
@@ -77,11 +88,12 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
 		String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
 		String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
+		Map<String,Object> parameter = exchange.getIn().getHeader(XmppConstants.PARAMETER, Map.class);
 		if( command != null){
 			debug("Command:" + command + "/hasConnectionContext:" + endpoint.hasConnectionContext(username));
 		}
 		try {
-			cc = handleCommand(exchange, command, username, password, participant);
+			cc = handleCommand(exchange, command, parameter, username, password, participant);
 			if (cc == null) {
 				return;
 			}

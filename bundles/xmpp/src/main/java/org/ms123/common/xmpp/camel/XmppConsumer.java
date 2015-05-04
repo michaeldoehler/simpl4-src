@@ -24,6 +24,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.util.URISupport;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ChatManagerListener;
@@ -44,21 +47,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A {@link org.apache.camel.Consumer Consumer} which listens to XMPP packets
  *
  * @version 
  */
-public class XmppConsumer extends DefaultConsumer implements PacketListener, MessageListener, ChatManagerListener {
+public class XmppConsumer extends DefaultConsumer implements RosterListener, PacketListener, MessageListener, ChatManagerListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(XmppConsumer.class);
 
 	private final XmppEndpoint endpoint;
-	private MultiUserChat muc;
-	private Chat privateChat;
-	private ChatManager chatManager;
-	private XMPPConnection connection;
+	private MultiUserChat m_muc;
+	private XMPPConnection m_connection;
 	private ScheduledExecutorService scheduledExecutor;
 	private XmppConnectionContext m_connectionContext;
 
@@ -70,31 +75,36 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 
 	@Override
 	protected void doStart() throws Exception {
-		connection = m_connectionContext.getConnection();
-		chatManager = connection.getChatManager();
+		m_connection = m_connectionContext.getConnection();
+		ChatManager chatManager = m_connection.getChatManager();
 		chatManager.addChatListener(this);
 		if (endpoint.getRoom() == null) {
-			/*privateChat = chatManager.getThreadChat(m_connectionContext.getChatId());
-			if (privateChat != null) {
-				debug("Adding listener to existing chat opened to " + privateChat.getParticipant());
-				privateChat.addMessageListener(this);
-			} else {
-				privateChat = connection.getChatManager().createChat(m_connectionContext.getParticipant(), m_connectionContext.getChatId(), this);
-				debug("Opening private chat to " + privateChat.getParticipant());
-			}*/
-		} else {
+			Roster roster = m_connection.getRoster();
+			roster.addRosterListener( this);
+			Collection<RosterEntry> entries =  roster.getEntries();
+			List<Map<String,String>> retList = new ArrayList();
+			for( RosterEntry entry : entries){
+				Map<String,String> m = new HashMap();
+				m.put("username", entry.getUser());
+				retList.add(m);
+			}
+			Map<String,Object> body = new HashMap();
+			body.put("rosterEntries", retList);
+			debug("XmppConsumer.rosterEntries:"+body);
+			processMessage( body);
+		}else{
 			// add the presence packet listener to the connection so we only get packets that concerns us
 			// we must add the listener before creating the muc
 			final ToContainsFilter toFilter = new ToContainsFilter(m_connectionContext.getParticipant());
 			final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
-			connection.addPacketListener(this, packetFilter);
-			muc = new MultiUserChat(connection, endpoint.resolveRoom(connection));
-			muc.addMessageListener(this);
+			m_connection.addPacketListener(this, packetFilter);
+			m_muc = new MultiUserChat(m_connection, endpoint.resolveRoom(m_connection));
+			m_muc.addMessageListener(this);
 			DiscussionHistory history = new DiscussionHistory();
 			history.setMaxChars(0);
 			// we do not want any historical messages
-			muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-			info("Joined room: {} as: {}", muc.getRoom(), m_connectionContext.getNickname());
+			m_muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
+			info("Joined room: {} as: {}", m_muc.getRoom(), m_connectionContext.getNickname());
 		}
 		this.startRobustConnectionMonitor();
 		super.doStart();
@@ -133,10 +143,10 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 	}
 
 	private void checkConnection() throws Exception {
-		if (!connection.isConnected()) {
-			info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(connection));
+		if (!m_connection.isConnected()) {
+			info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(m_connection));
 			try {
-				connection.connect();
+				m_connection.connect();
 			} catch (XMPPException e) {
 				warn(XmppEndpoint.getXmppExceptionLogMessage(e), null);
 			}
@@ -157,15 +167,15 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
 			scheduledExecutor = null;
 		}
-		if (muc != null) {
-			info("Leaving room: {}", muc.getRoom());
-			muc.removeMessageListener(this);
-			muc.leave();
-			muc = null;
+		if (m_muc != null) {
+			info("Leaving room: {}", m_muc.getRoom());
+			m_muc.removeMessageListener(this);
+			m_muc.leave();
+			m_muc = null;
 		}
-		debug("Consumer.doStop.isConnected:" + connection.isConnected());
-		if (connection != null && connection.isConnected()) {
-			connection.disconnect();
+		debug("Consumer.doStop.isConnected:" + m_connection.isConnected());
+		if (m_connection != null && m_connection.isConnected()) {
+			m_connection.disconnect();
 		}
 	}
 
@@ -195,11 +205,36 @@ public class XmppConsumer extends DefaultConsumer implements PacketListener, Mes
 			// must remove message from muc to avoid messages stacking up and causing OutOfMemoryError
 			// pollMessage is a non blocking method
 			// (see http://issues.igniterealtime.org/browse/SMACK-129)
-			if (muc != null) {
-				muc.pollMessage();
+			if (m_muc != null) {
+				m_muc.pollMessage();
 			}
 		}
 	}
+
+	public void processMessage(Map<String,Object> body) {
+		Exchange exchange = endpoint.createExchange(body);
+		exchange.getIn().setHeader(XmppConstants.USERNAME, m_connectionContext.getUsername());
+		try {
+			getProcessor().process(exchange);
+		} catch (Exception e) {
+			exchange.setException(e);
+		}
+	}
+	/* RosterListener Start ================================ */
+
+	public void	entriesAdded(Collection<String> addresses){
+		debug("Roster.entriesAdded:"+addresses);
+	}
+	public void	entriesDeleted(Collection<String> addresses){
+		debug("Roster.entriesDeleted:"+addresses);
+	}
+	public void	entriesUpdated(Collection<String> addresses){
+		debug("Roster.entriesUpdated:"+addresses);
+	}
+	public void	presenceChanged(Presence presence){
+		debug("Roster.presenceChanged:"+presence);
+	}
+	/* RosterListener End ================================== */
 
 	protected void debug(String msg, Object... args) {
 		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());

@@ -33,6 +33,8 @@ public interface XmppConstants {
 	String PASSWORD = "CamelXmppPassword";
 	String NICKNAME = "CamelXmppNickname";
 	String COMMAND = "CamelXmppCommand";
+	String PARAMETER = "CamelXmppParameter";
 	String COMMAND_OPEN = "open";
 	String COMMAND_CLOSE = "close";
+	String COMMAND_ADDUSER = "addUser";
 }

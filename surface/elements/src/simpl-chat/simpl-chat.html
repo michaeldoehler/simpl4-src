@@ -30,6 +30,11 @@
 			paper-button {
 				max-width: 100px;
 			}
+			:host /deep/ xaction-button /deep/ .button-content {
+				width: 120px;
+				font-size: 12px;
+				padding: 0.5em 0.5em;
+			}
 			simpl-row {
 				margin-bottom: 12px;
 			}
@@ -95,6 +100,26 @@
 				height: 100%;
 				padding-bottom: 0px;
 			}
+			core-toolbar.core-narrow /deep/ #topBar.toolbar-tools {
+				align-items: baseline;
+			}
+			core-toolbar.core-narrow {
+				height: 38px;
+				background: #f6f6f6;
+			}
+			core-item {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			.dropdown.colored {
+				border-radius: 3px;
+				color: #000;
+				//border: 1px solid #0f9d58;
+				border: 1px solid #ccc;
+				//background-color: #b7e1cd;
+				background-color: #eee;
+			}
 
 		</style>
 
@@ -102,7 +127,7 @@
 		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" instanceId="{{user.name}}" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 			<simpl-row>
-				<template if="{{!connected}}">
+				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
 					{{'chat.login'|tr}}:
 					<input class="small-input" type="text" id="userName" value="{{user.name}}" /> {{'data.user.password'|tr}}:
 					<input class="small-input" type="text" id="password" value="{{user.password}}" />
@@ -110,18 +135,29 @@
 						<core-icon class="small" icon="communication:chat"></core-icon>{{'chat.connectButton'|tr}}</paper-button>
 				</template>
 			</simpl-row>
-			<template if="{{connected}}">
+			<template if="{{connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
 				<simpl-row>
-					<paper-button raised on-tap="{{disconnect}}" style="margin-right:25px;">
-						<core-icon class="small" icon="communication:clear-all"></core-icon>{{'chat.disconnectButton'|tr}}</paper-button>
-					{{'chat.state'|tr}}: <span style="color:red;">{{chatState}}</span>
+					<core-toolbar flex class="core-narrow">
+						<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
+						<core-menu-button>
+							<core-icon-button icon="menu"></core-icon-button>
+							<core-dropdown class="dropdown colored">
+								<core-menu>
+									<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
+									<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
+								</core-menu>
+							</core-dropdown>
+						</core-menu-button>
+
+						<span style="color:red;">{{chatState}}</span>
+					</core-toolbar>
 				</simpl-row>
 				<simpl-row>
 					{{'chat.participant'|tr}}:
 					<select id="participant">
-						<option value="guest@simpl4.org">Guest</option>
-						<option value="msa@simpl4.org">msa</option>
-						<option value="msa2@simpl4.org">msa2</option>
+						<template repeat="{{entry in rosterEntries}}">
+							<option value="{{entry.username}}">{{entry.username}}</option>
+						</template>
 					</select>
 				</simpl-row>
 				<simpl-row>
@@ -145,6 +181,17 @@
 					</template>
 				</div>
 			</template>
+
+			<template if="{{isAddUserFormActive}}">
+				<h2>{{'chat.new_contact_header1'|tr}}</h2>
+				<h4>{{'chat.new_contact_header2'|tr}}</h4>
+				<simpl-form id="addUserForm" namespace="firstapp" actionCallback="{{addUserCallback}}" formName="chat_add_user.form"></simpl-form>
+			</template>
+
+			<template if="{{isAddGroupFormActive}}">
+				<h2>{{'chat.new_group_header'|tr}}</h2>
+				<simpl-form id="addGroupForm" namespace="firstapp" actionCallback="{{addGroupCallback}}" formName="chat_add_group.form"></simpl-form>
+			</template>
 		</simpl-panel>
 	</template>
 	<script>
@@ -152,6 +199,8 @@
 			recvMessage: null,
 			sendMessage: null,
 			connected: false,
+			isAddUserFormActive: false,
+			isAddGroupFormActive: false,
 			autoConnect: true,
 			messages: [],
 			ready: function() {
@@ -160,6 +209,8 @@
 					password: "msa",
 					color: "#ff0000"
 				};
+				this.addUserCallback = this.addUser.bind( this );
+				this.addGroupCallback = this.addGroup.bind( this );
 			},
 			send: function() {
 				var messageInput = this.shadowRoot.querySelector( "#messageInput" );
@@ -186,6 +237,7 @@
 			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
+				console.log( "message", message );
 				var body = message.body;
 				var chatState = message.chatState;
 				if ( message.from ) {
@@ -197,6 +249,9 @@
 				}
 				if ( message.chatState ) {
 					this.chatState = chatState;
+				}
+				if ( message.rosterEntries ) {
+					this.rosterEntries = message.rosterEntries;
 				}
 				this.scrollToBottom();
 			},
@@ -211,10 +266,43 @@
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
 			},
+			addUser: function( e ) {
+				this.isAddUserFormActive = false;
+				var addUserForm = this.shadowRoot.querySelector( "#addUserForm" );
+				var formData = addUserForm.getData();
+				var message = {
+					command: "addUser",
+					parameter: {
+						username: formData.username,
+						nickname: formData.nickname
+					}
+				};
+				console.log( "sendMessage:", message );
+				this.sendMessage = message;
+			},
+			showAddUserForm: function() {
+				this.isAddUserFormActive = true;
+			},
+			addGroup: function( e ) {
+				this.isAddGroupFormActive = false;
+				var addGroupForm = this.shadowRoot.querySelector( "#addGroupForm" );
+				console.log( "addGroup:", addGroupForm.getData() );
+				var formData = addUserForm.getData();
+				var message = {
+					command: "addGroup",
+					parameter: {
+						username: formData.groupname,
+					}
+				};
+				console.log( "sendMessage:", message );
+				this.sendMessage = message;
+			},
+			showAddGroupForm: function() {
+				this.isAddGroupFormActive = true;
+			},
 			scrollToBottom: function() {
-				var self = this;
+				var messagesBox = this.shadowRoot.querySelector( "#messagesBox" );
 				setTimeout( function() {
-					var messagesBox = this.shadowRoot.querySelector( "#messagesBox" );
 					if ( messagesBox && messagesBox.scrollTop != undefined && messagesBox.scrollHeight != undefined ) {
 						messagesBox.scrollTop = messagesBox.scrollHeight;
 					}

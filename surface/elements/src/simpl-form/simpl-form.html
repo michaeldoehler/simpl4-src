@@ -18,6 +18,11 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<style>
+	html /deep/ xaction-button core-icon {
+		pointer-events:none;
+	}
+</style>
 <polymer-element name="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
 	<template>
 		<style>
@@ -519,6 +524,10 @@
 						if ( shape.childShapes.length == 1 ) {
 							shape.childShapes = [];
 						}
+						var label = shape.properties.label;
+						if( label && label.match(/^[@%]/)){
+							shape.properties.label = tr(label.substring(1));
+						}				
 					} else {
 						shape.properties.label = "";
 					}
@@ -585,6 +594,10 @@
 					if ( icon == null || icon == "" ) {
 						shape.properties.xf_iconname = ( action == "execute" ) ? "check" : "clear";
 					}
+					var label = shape.properties.xf_label;
+					if( label && label.match(/^[@%]/)){
+						shape.properties.xf_label = tr(label.substring(1));
+					}				
 
 				} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
 					shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
