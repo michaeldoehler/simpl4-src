@@ -78,6 +78,8 @@ import org.jivesoftware.smackx.packet.MessageEvent;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
 import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
+import static org.ms123.common.xmpp.camel.XmppConstants.RESOURCEID;
+import static org.ms123.common.xmpp.camel.XmppConstants.SESSIONID;
 import static org.ms123.common.xmpp.camel.XmppConstants.PARAMETER;
 import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND;
 import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND_OPEN;
@@ -287,7 +289,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					} else {
 						Map<String, Object> sendMap = camelMessage.getBody(Map.class);
 						String sendString = m_js.deepSerialize(sendMap);
-						debug("\nToWebsocket2 ->\n" + sendString);
+						debug("\nToWebsocket2("+ m_params.get("username") +") ->\n" + sendString);
 						m_session.getRemote().sendStringByFuture(sendString);
 					}
 				}
@@ -300,19 +302,24 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				public Boolean call(Message camelMessage) {
 					if (camelMessage instanceof XmppMessage) {
 						org.jivesoftware.smack.packet.Message message = ((XmppMessage) camelMessage).getXmppMessage();
+						String sessionId = (String) camelMessage.getHeader(SESSIONID);
 						String to = message.getTo();
 						String username = m_params.get("username") + "@";
 						String msg = "filter:" + username;
 						if (to.startsWith(username)) {
+							debug(msg + " -> ok");
 							return true;
 						}
+						debug(msg + " -> not ok");
 						return false;
 					} else {
-						String u = (String) camelMessage.getHeader(USERNAME);
-						String username = m_params.get("username");
-						if (u.startsWith(username)) {
+						String sessionId = (String) camelMessage.getHeader(SESSIONID);
+						debug("sessionId:"+sessionId+"|locSessionId:"+getSessionId());
+						if (getSessionId().equals(sessionId)) {
+							debug(sessionId + " -> ok");
 							return true;
 						}
+						debug(sessionId + " -> not ok");
 						return false;
 					}
 				}
@@ -404,6 +411,9 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				return _default;
 			return (String) value;
 		}
+		private String getSessionId() {
+			return m_params.get("username") + "/"+ m_params.get("resourceId");
+		}
 
 		private Map<String, Object> getHeaders(String to) {
 			return getHeaders(to, null, null);
@@ -417,6 +427,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			Map<String, Object> headers = new HashMap();
 			headers.put(USERNAME, m_params.get("username"));
 			headers.put(PASSWORD, m_params.get("password"));
+			headers.put(RESOURCEID, m_params.get("resourceId"));
 			if (to != null) {
 				headers.put(TO, to);
 			}

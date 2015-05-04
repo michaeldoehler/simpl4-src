@@ -81,17 +81,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		if (endpoint.getRoom() == null) {
 			Roster roster = m_connection.getRoster();
 			roster.addRosterListener( this);
-			Collection<RosterEntry> entries =  roster.getEntries();
-			List<Map<String,String>> retList = new ArrayList();
-			for( RosterEntry entry : entries){
-				Map<String,String> m = new HashMap();
-				m.put("username", entry.getUser());
-				retList.add(m);
-			}
-			Map<String,Object> body = new HashMap();
-			body.put("rosterEntries", retList);
-			debug("XmppConsumer.rosterEntries:"+body);
-			processMessage( body);
+			debug("addRosterListener("+m_connectionContext.getSessionId()+")");
 		}else{
 			// add the presence packet listener to the connection so we only get packets that concerns us
 			// we must add the listener before creating the muc
@@ -108,6 +98,9 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		}
 		this.startRobustConnectionMonitor();
 		super.doStart();
+		if (endpoint.getRoom() == null) {
+			sendRoster();
+		}
 	}
 
 	protected void scheduleDelayedStart() throws Exception {
@@ -173,14 +166,18 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 			m_muc.leave();
 			m_muc = null;
 		}
-		debug("Consumer.doStop.isConnected:" + m_connection.isConnected());
 		if (m_connection != null && m_connection.isConnected()) {
-			m_connection.disconnect();
+			try{
+				m_connection.disconnect();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
+		debug("Consumer.doStop.isConnected:" + m_connection.isConnected());
 	}
 
 	public void chatCreated(Chat chat, boolean createdLocally) {
-		debug("Consumer.chatCreated:" + chat + "," + m_connectionContext.getUsername()+"/local:"+createdLocally);
+		debug("Consumer.chatCreated:" + chat + "," + m_connectionContext.getSessionId()+"/local:"+createdLocally);
 		if (!createdLocally) {
 			chat.addMessageListener(this);
 			debug("Accepting incoming chat session from " + chat.getParticipant());
@@ -195,9 +192,10 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	}
 
 	public void processMessage(Chat chat, Message message) {
-		debug("Received XMPP message for {} from {} : {}",  m_connectionContext.getUsername(), m_connectionContext.getParticipant(), message.getBody() );
+		debug("Received XMPP message for {} from {} : {}",  m_connectionContext.getSessionId(), m_connectionContext.getParticipant(), message.getBody() );
 		Exchange exchange = endpoint.createExchange(message);
 		try {
+			exchange.getIn().setHeader(XmppConstants.SESSIONID, m_connectionContext.getSessionId());
 			getProcessor().process(exchange);
 		} catch (Exception e) {
 			exchange.setException(e);
@@ -212,8 +210,9 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	}
 
 	public void processMessage(Map<String,Object> body) {
+		debug("processMessage:"+body+" -> "+m_connectionContext.getSessionId());
 		Exchange exchange = endpoint.createExchange(body);
-		exchange.getIn().setHeader(XmppConstants.USERNAME, m_connectionContext.getUsername());
+		exchange.getIn().setHeader(XmppConstants.SESSIONID, m_connectionContext.getSessionId());
 		try {
 			getProcessor().process(exchange);
 		} catch (Exception e) {
@@ -221,18 +220,38 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		}
 	}
 	/* RosterListener Start ================================ */
-
+	private void sendRoster(){
+		Roster roster = m_connectionContext.getConnection().getRoster();
+		Collection<RosterEntry> entries =  roster.getEntries();
+		debug("Entries:"+entries);
+		debug("UEntries:"+roster.getUnfiledEntries());
+		List<Map<String,String>> retList = new ArrayList();
+		for( RosterEntry entry : entries){
+			Map<String,String> m = new HashMap();
+			m.put("username", entry.getUser());
+			retList.add(m);
+		}
+		Map<String,Object> body = new HashMap();
+		body.put("rosterEntries", retList);
+		processMessage( body);
+	}
 	public void	entriesAdded(Collection<String> addresses){
-		debug("Roster.entriesAdded:"+addresses);
+		debug("Roster.entriesAdded("+m_connectionContext.getSessionId()+"):"+addresses);
+		sendRoster();
 	}
 	public void	entriesDeleted(Collection<String> addresses){
-		debug("Roster.entriesDeleted:"+addresses);
+		debug("Roster.entriesDeleted("+m_connectionContext.getSessionId()+"):"+addresses);
+		sendRoster();
 	}
 	public void	entriesUpdated(Collection<String> addresses){
-		debug("Roster.entriesUpdated:"+addresses);
+		debug("Roster.entriesUpdated("+m_connectionContext.getSessionId()+"):"+addresses);
+		sendRoster();
 	}
 	public void	presenceChanged(Presence presence){
-		debug("Roster.presenceChanged:"+presence);
+		debug("Roster.presenceChanged("+m_connectionContext.getSessionId()+"):"+presence+"/"+presence.getType()+"/"+Presence.Mode.available);
+		if( Presence.Type.available.equals(presence.getType())){
+//			sendRoster();
+		}
 	}
 	/* RosterListener End ================================== */
 

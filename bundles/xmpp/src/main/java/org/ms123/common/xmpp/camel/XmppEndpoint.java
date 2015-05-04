@@ -59,7 +59,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	private XmppBinding binding;
 	private String host;
 	private int port;
-	private String resource = "Camel";
 	private boolean login = true;
 	private boolean createAccount;
 	private String room;
@@ -146,9 +145,10 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return m_connectionContextMap.get(username) != null;
 	}
 
-	public synchronized XmppConnectionContext getOrCreateConnectionContext(String username, String password, String participant) throws XMPPException {
-		XmppConnectionContext connectionContext = m_connectionContextMap.get(username);
-		debug("GetOrCreateConnectionContext:connectionContext:" + connectionContext + "/" + username);
+	public synchronized XmppConnectionContext getOrCreateConnectionContext(String username, String password, String resourceId, String participant) throws XMPPException {
+		String sessionId = username +"/"+resourceId;
+		XmppConnectionContext connectionContext = m_connectionContextMap.get(sessionId);
+		debug("GetOrCreateConnectionContext:connectionContext:" + connectionContext + "/" + sessionId);
 		XMPPConnection connection = null;
 		if (connectionContext != null) {
 			connection = connectionContext.getConnection();
@@ -192,8 +192,8 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 					accountManager.createAccount(username, password);
 				}
 				if (login) {
-					if (resource != null) {
-						connection.login(username, password, resource);
+					if (resourceId != null) {
+						connection.login(username, password, resourceId);
 					} else {
 						connection.login(username, password);
 					}
@@ -207,19 +207,20 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		cc.setUsername(username);
 		cc.setUsername(password);
 		cc.setParticipant(participant);
+		cc.setResourceId(resourceId);
 		cc.setConnection(connection);
 		try {
 			cc.setConsumer(createConsumer(cc));
 		} catch (Exception e) {
 			throw new RuntimeException("XmppEndpoint:Could not create Consumer.", e);
 		}
-		m_connectionContextMap.put(username, cc);
+		m_connectionContextMap.put(sessionId, cc);
 		return cc;
 	}
 
 	protected void removeConnectionContext(XmppConnectionContext cc) {
-		m_connectionContextMap.remove(cc.getUsername());
-		debug("XmppEndpoint.removeConnectionContext." + m_connectionContextMap);
+		m_connectionContextMap.remove(cc.getSessionId());
+		debug("XmppEndpoint.removeConnectionContext:" + m_connectionContextMap);
 	}
 
 	/*
@@ -292,14 +293,6 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 
 	public void setPort(int port) {
 		this.port = port;
-	}
-
-	public String getResource() {
-		return resource;
-	}
-
-	public void setResource(String resource) {
-		this.resource = resource;
 	}
 
 	public boolean isLogin() {

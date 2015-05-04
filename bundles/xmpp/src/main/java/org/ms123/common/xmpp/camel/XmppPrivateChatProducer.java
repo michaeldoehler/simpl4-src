@@ -50,18 +50,19 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		this.endpoint = endpoint;
 	}
 
-	private XmppConnectionContext handleCommand(Exchange exchange, String command, Map<String,Object> parameter, String username, String password, String participant) throws Exception {
+	private XmppConnectionContext handleCommand(Exchange exchange, String command, Map<String,Object> parameter, String username, String password, String resourceId, String participant) throws Exception {
 		if (command == null) {
-			return endpoint.getOrCreateConnectionContext(username, password, participant);
+			return endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 		}
 		exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
 		if (command.equals(XmppConstants.COMMAND_OPEN)) {
-			return endpoint.getOrCreateConnectionContext(username, password, participant);
+			return endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 		}
 		if (command.equals(XmppConstants.COMMAND_CLOSE)) {
-			debug("HandleCommand(close):" + endpoint.hasConnectionContext(username) + "/" + username);
-			if (endpoint.hasConnectionContext(username)) {
-				XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, participant);
+			String sessionId = username+"/"+resourceId;
+			debug("HandleCommand(close):" + endpoint.hasConnectionContext(sessionId)+ "-> " + sessionId);
+			if (endpoint.hasConnectionContext(sessionId)) {
+				XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 				endpoint.removeConnectionContext(cc);
 				if (cc.getConsumer() != null) {
 					cc.getConsumer().doStop();
@@ -69,7 +70,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			}
 		}
 		if (command.equals(XmppConstants.COMMAND_ADDUSER)) {
-			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, participant);
+			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 			List<String> groupList = (List)parameter.get("groups");
 			String[] groups = null;
 			if( groupList!=null){
@@ -84,16 +85,18 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		XmppConnectionContext cc = null;
 		XMPPConnection connection = null;
 		String username = exchange.getIn().getHeader(XmppConstants.USERNAME, String.class);
+		String resourceId = exchange.getIn().getHeader(XmppConstants.RESOURCEID, String.class);
 		String password = exchange.getIn().getHeader(XmppConstants.PASSWORD, String.class);
 		String nickname = exchange.getIn().getHeader(XmppConstants.NICKNAME, String.class);
 		String participant = exchange.getIn().getHeader(XmppConstants.TO, String.class);
 		String command = exchange.getIn().getHeader(XmppConstants.COMMAND, String.class);
 		Map<String,Object> parameter = exchange.getIn().getHeader(XmppConstants.PARAMETER, Map.class);
 		if( command != null){
-			debug("Command:" + command + "/hasConnectionContext:" + endpoint.hasConnectionContext(username));
+			String sessionId = username+"/"+resourceId;
+			debug("Command:" + command + "/hasConnectionContext:" + endpoint.hasConnectionContext(sessionId));
 		}
 		try {
-			cc = handleCommand(exchange, command, parameter, username, password, participant);
+			cc = handleCommand(exchange, command, parameter, username, password, resourceId, participant);
 			if (cc == null) {
 				return;
 			}

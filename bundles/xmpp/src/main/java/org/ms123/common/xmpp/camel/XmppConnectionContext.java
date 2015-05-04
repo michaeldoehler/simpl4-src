@@ -36,6 +36,7 @@ public class XmppConnectionContext {
 	private String m_participant;
 	private String m_username;
 	private String m_nickname;
+	private String m_resourceId;
 
 	public XmppConnectionContext() {
 	}
@@ -62,6 +63,18 @@ public class XmppConnectionContext {
 
 	public String getUsername() {
 		return m_username;
+	}
+
+	public String getSessionId() {
+		return m_username + "/"+ m_resourceId;
+	}
+
+	public void setResourceId(String resourceId) {
+		m_resourceId = resourceId;
+	}
+
+	public String getResourceId() {
+		return m_resourceId;
 	}
 
 	public void setNickname(String nickname) {

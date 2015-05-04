@@ -124,7 +124,7 @@
 		</style>
 
 
-		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" instanceId="{{user.name}}" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 			<simpl-row>
 				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
@@ -202,6 +202,7 @@
 			isAddUserFormActive: false,
 			isAddGroupFormActive: false,
 			autoConnect: true,
+			resourceId:null,
 			messages: [],
 			ready: function() {
 				this.user = {
@@ -209,6 +210,7 @@
 					password: "msa",
 					color: "#ff0000"
 				};
+				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
 				this.addGroupCallback = this.addGroup.bind( this );
 			},
@@ -252,12 +254,14 @@
 				}
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
+					console.log("rosterEntries:", this.rosterEntries);
 				}
 				this.scrollToBottom();
 			},
 			connect: function() {
-				console.log( "connect" );
-				this.$.websocket.go( this.user.name, this.user.password );
+				console.log( "connect.",this.resourceId );
+				this.rosterEntries = [];
+				this.$.websocket.go( this.user.name, this.user.password, this.resourceId );
 			},
 			disconnect: function() {
 				console.log( "disconnect" );

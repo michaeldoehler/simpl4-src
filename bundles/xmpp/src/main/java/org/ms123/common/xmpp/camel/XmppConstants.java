@@ -31,6 +31,8 @@ public interface XmppConstants {
 	String TO = "CamelXmppTo";
 	String USERNAME = "CamelXmppUsername";
 	String PASSWORD = "CamelXmppPassword";
+	String SESSIONID = "CamelXmppSessionId";
+	String RESOURCEID = "CamelXmppResourceId";
 	String NICKNAME = "CamelXmppNickname";
 	String COMMAND = "CamelXmppCommand";
 	String PARAMETER = "CamelXmppParameter";
