@@ -23,6 +23,7 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -35,11 +36,8 @@ import org.ms123.common.libhelper.Inflector;
 public class S4WebSocketCreator implements WebSocketCreator {
 
 	protected Inflector m_inflector = Inflector.getInstance();
-
 	private Map m_config = null;
-
-	private Map<String, Object> m_sockets = new HashMap();
-
+	private Map<String, Object> m_sockets = new ConcurrentHashMap();
 	private BundleContext m_bundleContext;
 
 	private String getServiceClassName(String serviceName) {
@@ -82,10 +80,10 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private String getInstanceIdParameter(Map<String, List<String>> map) {
-		List<String> paramList = map.get("instanceId");
+	private String getSessionIdParameter(Map<String, List<String>> map) {
+		List<String> paramList = map.get("sessionId");
 		if (paramList == null || paramList.size() == 0) {
-			throw new RuntimeException("WebSocketCreator.Cannot get instanceId parameter from querystring");
+			throw new RuntimeException("WebSocketCreator.Cannot get sessionId parameter from querystring");
 		}
 		return paramList.get(0);
 	}
@@ -105,13 +103,14 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	}
 
 	@Override
-	public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+	public synchronized Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		try {
-			String instanceId = getInstanceIdParameter(req.getParameterMap());
-			Object socket = m_sockets.get(instanceId);
+			String sessionId = getSessionIdParameter(req.getParameterMap());
+			System.out.println("createWebSocket:"+sessionId+"/"+m_sockets);
+			Object socket = m_sockets.get(sessionId);
 			if (socket == null) {
 				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())), req.getParameterMap());
-				m_sockets.put(instanceId, socket);
+				m_sockets.put(sessionId, socket);
 				System.out.println("createWebSocket:" + socket);
 			}
 			return socket;
