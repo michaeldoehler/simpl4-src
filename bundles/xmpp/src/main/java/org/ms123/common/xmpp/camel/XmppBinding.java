@@ -105,7 +105,6 @@ public class XmppBinding {
 		answer.put(XmppConstants.FROM, xmppMessage.getFrom());
 		answer.put(XmppConstants.PACKET_ID, xmppMessage.getPacketID());
 		answer.put(XmppConstants.TO, xmppMessage.getTo());
-		System.out.println("extractHeadersFromXmpp:" + answer + "/" + xmppMessage.hashCode());
 		return answer;
 	}
 }

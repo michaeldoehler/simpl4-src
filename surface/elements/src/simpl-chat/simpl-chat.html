@@ -161,7 +161,7 @@
 					</select>
 				</simpl-row>
 				<simpl-row>
-					<input-field flex type="text" name="" id="messageInput" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
+					<input-field flex type="text" name="" id="messageInput" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
 					<paper-button raised on-tap="{{send}}" disabled?="{{!connected}}" flex>
 						<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
 				</simpl-row>
@@ -202,7 +202,7 @@
 			isAddUserFormActive: false,
 			isAddGroupFormActive: false,
 			autoConnect: true,
-			resourceId:null,
+			resourceId: null,
 			messages: [],
 			ready: function() {
 				this.user = {
@@ -213,6 +213,12 @@
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
 				this.addGroupCallback = this.addGroup.bind( this );
+				window.addEventListener( 'unload', ( function( e ) {
+					if ( this.connected ) {
+						this.chatStateSend( "gone" );
+					}
+					done();
+				} ).bind( this ) );
 			},
 			send: function() {
 				var messageInput = this.shadowRoot.querySelector( "#messageInput" );
@@ -228,11 +234,9 @@
 					this.sendMessage = message;
 					messageInput.setValue( "" );
 				}
-				this.scrollToBottom();
 			},
-			onMessageKeydown: function( event ) {
-				console.log( "onMessageKeydown" );
-				if ( event.keyCode && event.keyCode == 13 ) this.send();
+			onMessageKeydown: function( e ) {
+				if ( e.keyCode && e.keyCode == 13 ) this.send();
 			},
 			sendMessageChanged: function() {
 				console.log( "sendMessageChanged changed" );
@@ -254,12 +258,11 @@
 				}
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
-					console.log("rosterEntries:", this.rosterEntries);
+					console.log( "rosterEntries:", this.rosterEntries );
 				}
-				this.scrollToBottom();
 			},
 			connect: function() {
-				console.log( "connect.",this.resourceId );
+				console.log( "connect.", this.resourceId );
 				this.rosterEntries = [];
 				this.$.websocket.go( this.user.name, this.user.password, this.resourceId );
 			},
@@ -269,11 +272,26 @@
 			},
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
+				this.isComposing = false;
+				setTimeout( ( function() {
+					if ( this.connected ) {
+						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput /deep/ #input" );
+						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
+						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
+					} else {
+						this.chatStateSend( "gone" );
+						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
+						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
+					}
+				} ).bind( this ), 100 );
 			},
 			addUser: function( e ) {
 				this.isAddUserFormActive = false;
 				var addUserForm = this.shadowRoot.querySelector( "#addUserForm" );
 				var formData = addUserForm.getData();
+				if ( this.isEmpty( formData.username ) ) {
+					return;
+				}
 				var message = {
 					command: "addUser",
 					parameter: {
@@ -292,6 +310,9 @@
 				var addGroupForm = this.shadowRoot.querySelector( "#addGroupForm" );
 				console.log( "addGroup:", addGroupForm.getData() );
 				var formData = addUserForm.getData();
+				if ( this.isEmpty( formData.groupname ) ) {
+					return;
+				}
 				var message = {
 					command: "addGroup",
 					parameter: {
@@ -304,13 +325,48 @@
 			showAddGroupForm: function() {
 				this.isAddGroupFormActive = true;
 			},
-			scrollToBottom: function() {
-				var messagesBox = this.shadowRoot.querySelector( "#messagesBox" );
-				setTimeout( function() {
-					if ( messagesBox && messagesBox.scrollTop != undefined && messagesBox.scrollHeight != undefined ) {
-						messagesBox.scrollTop = messagesBox.scrollHeight;
+			isEmpty: function( s ) {
+				if ( s == null || s == '' ) return true;
+				return false;
+			},
+			chatEventListener: function( e ) {
+				var type = e.type;
+				if ( type == 'keyup' && e.keyCode != 13 ) {
+					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
+						this.isComposing = true;
+						this.chatStateSend( 'composing' );
+					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
+						this.isComposing = false;
+						this.chatStateSend( 'active' );
 					}
-				}, 100 );
+				}
+				if ( type == 'focus' ) {
+					if ( !$( this.messageInputElement ).val() ) {
+						this.chatStateSend( 'active' );
+					} else {
+						this.chatStateSend( 'composing' );
+					}
+				}
+				if ( type == 'blur' ) {
+					if ( !$( this.messageInputElement ).val() ) {
+						this.chatStateSend( 'inactive' );
+
+					} else {
+						this.chatStateSend( 'paused' );
+					}
+				}
+			},
+			chatStateSend: function( state ) {
+				var participant = this.shadowRoot.querySelector( "#participant" );
+				var message = {
+					command: "chatState",
+					participant: $( participant ).val(),
+					parameter: {
+						state: state
+					}
+				};
+				console.log( "sendChatStateMessage:", message );
+				this.sendMessage = message;
 			}
 		} );
 

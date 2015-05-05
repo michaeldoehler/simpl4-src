@@ -28,6 +28,8 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.packet.ChatStateExtension;
+import org.jivesoftware.smackx.ChatState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -60,7 +62,6 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		}
 		if (command.equals(XmppConstants.COMMAND_CLOSE)) {
 			String sessionId = username+"/"+resourceId;
-			debug("HandleCommand(close):" + endpoint.hasConnectionContext(sessionId)+ "-> " + sessionId);
 			if (endpoint.hasConnectionContext(sessionId)) {
 				XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 				endpoint.removeConnectionContext(cc);
@@ -78,6 +79,17 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			}
 			cc.getConnection().getRoster().createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
 		}
+		if (command.equals(XmppConstants.COMMAND_CHATSTATE)) {
+			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
+			String state = (String)parameter.get("state");
+			Message message=new Message();
+			ChatStateExtension extension=new ChatStateExtension(ChatState.valueOf(state));
+			message.addExtension(extension);
+			ChatManager chatManager = cc.getConnection().getChatManager();
+			String thread = "Chat:" + participant + ":" + username;
+			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(),participant, thread);
+			chat.sendMessage(message);
+		}
 		return null;
 	}
 
@@ -93,7 +105,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 		Map<String,Object> parameter = exchange.getIn().getHeader(XmppConstants.PARAMETER, Map.class);
 		if( command != null){
 			String sessionId = username+"/"+resourceId;
-			debug("Command:" + command + "/hasConnectionContext:" + endpoint.hasConnectionContext(sessionId));
+			debug("Command(:" + command + "):hasConnectionContext("+sessionId+") -> " + endpoint.hasConnectionContext(sessionId));
 		}
 		try {
 			cc = handleCommand(exchange, command, parameter, username, password, resourceId, participant);
@@ -128,7 +140,7 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 			message.setThread(thread);
 			message.setType(Message.Type.normal);
 			endpoint.getBinding().populateXmppMessage(message, exchange);
-			debug("Sending XmppMessage from {} to {} : {}", cc.getUsername(), participant, message.getBody() );
+			debug("Sending XmppMessage from {} to {} : {}", cc.getSessionId(), participant, message.getBody() );
 			chat.sendMessage(message);
 		} catch (XMPPException xmppe) {
 			throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
@@ -138,10 +150,9 @@ public class XmppPrivateChatProducer extends DefaultProducer {
 	}
 
 	private synchronized Chat getOrCreateChat(ChatManager chatManager, XmppConsumer consumer, final String participant, String thread) {
-		debug("Looking chat instance with thread:"+ thread);
 		Chat chat = chatManager.getThreadChat(thread);
 		if (chat != null) {
-			debug("\tThreadChat:" + chat+"/msL:"+chat.getListeners());
+			debug("ThreadChat(" + chat+") found");
 		}else{ 
 			chat = chatManager.createChat(participant, thread, consumer );
 		}
