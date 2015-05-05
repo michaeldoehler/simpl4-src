@@ -124,7 +124,7 @@
 		</style>
 
 
-		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" sendMessage="{{sendMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 			<simpl-row>
 				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
@@ -139,6 +139,7 @@
 				<simpl-row>
 					<core-toolbar flex class="core-narrow">
 						<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
+						<core-icon-button icon="account-circle">{{user.name}}</core-icon-button>
 						<core-menu-button>
 							<core-icon-button icon="menu"></core-icon-button>
 							<core-dropdown class="dropdown colored">
@@ -162,7 +163,7 @@
 				</simpl-row>
 				<simpl-row>
 					<input-field flex type="text" name="" id="messageInput" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
-					<paper-button raised on-tap="{{send}}" disabled?="{{!connected}}" flex>
+					<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
 						<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
 				</simpl-row>
 				<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
@@ -197,13 +198,12 @@
 	<script>
 		Polymer( "simpl-chat", {
 			recvMessage: null,
-			sendMessage: null,
 			connected: false,
 			isAddUserFormActive: false,
 			isAddGroupFormActive: false,
 			autoConnect: true,
 			resourceId: null,
-			pausingTimeout:2500,
+			pausingTimeout: 2500,
 			messages: [],
 			ready: function() {
 				this.user = {
@@ -216,14 +216,18 @@
 				this.addGroupCallback = this.addGroup.bind( this );
 				window.addEventListener( 'unload', ( function( e ) {
 					if ( this.connected ) {
-						this.chatStateSend( "gone" );
+						this.sendChatState( "gone" );
 					}
 					done();
 				} ).bind( this ) );
 			},
-			send: function() {
+			sendMessageInput: function() {
 				var messageInput = this.shadowRoot.querySelector( "#messageInput" );
 				var participant = this.shadowRoot.querySelector( "#participant" );
+				if ( this.isEmpty( participant ) ) {
+					console.error( "no participant selected" );
+					return;
+				}
 				if ( messageInput.value != "" ) {
 					var message = {
 						body: messageInput.value,
@@ -232,17 +236,11 @@
 					};
 					console.log( "sendMessage:", message );
 					this.messages.unshift( message );
-					this.sendMessage = message;
+					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
-					this.chatStateSend("active");
-					this.isComposing=false;
+					this.sendChatState( "active" );
+					this.isComposing = false;
 				}
-			},
-			onMessageKeydown: function( e ) {
-				if ( e.keyCode && e.keyCode == 13 ) this.send();
-			},
-			sendMessageChanged: function() {
-				console.log( "sendMessageChanged changed" );
 			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
@@ -257,7 +255,7 @@
 					this.messages.unshift( message );
 				}
 				if ( message.chatState ) {
-					this.chatState = chatState;
+					this.chatState = tr( 'chat.state_' + chatState );
 				}
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
@@ -271,7 +269,10 @@
 			},
 			disconnect: function() {
 				console.log( "disconnect" );
-				this.$.websocket.closeConnection( this.user.name, this.user.password );
+				this.sendChatState( "gone" );
+				setTimeout( ( function() {
+					this.$.websocket.closeConnection( this.user.name, this.user.password );
+				} ).bind( this ), 300 );
 			},
 			connectedChanged: function() {
 				console.log( "chat:connected changed", this.connected );
@@ -282,12 +283,17 @@
 						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
 						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
 					} else {
-						this.chatStateSend( "gone" );
-						this.isComposing=false;
+						this.isComposing = false;
 						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
 						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
 					}
 				} ).bind( this ), 100 );
+			},
+			showAddUserForm: function() {
+				this.isAddUserFormActive = true;
+			},
+			showAddGroupForm: function() {
+				this.isAddGroupFormActive = true;
 			},
 			addUser: function( e ) {
 				this.isAddUserFormActive = false;
@@ -303,11 +309,7 @@
 						nickname: formData.nickname
 					}
 				};
-				console.log( "sendMessage:", message );
-				this.sendMessage = message;
-			},
-			showAddUserForm: function() {
-				this.isAddUserFormActive = true;
+				this.$.websocket.sendMessage( message );
 			},
 			addGroup: function( e ) {
 				this.isAddGroupFormActive = false;
@@ -323,59 +325,61 @@
 						username: formData.groupname,
 					}
 				};
-				console.log( "sendMessage:", message );
-				this.sendMessage = message;
+				this.$.websocket.sendMessage( message );
 			},
-			showAddGroupForm: function() {
-				this.isAddGroupFormActive = true;
-			},
-			isEmpty: function( s ) {
-				if ( s == null || s == '' ) return true;
-				return false;
+			onMessageKeydown: function( e ) {
+				if ( e.keyCode && e.keyCode == 13 ) this.sendMessageInput();
 			},
 			chatEventListener: function( e ) {
 				var type = e.type;
 				if ( type == 'keyup' && e.keyCode != 13 ) {
 					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
 						this.isComposing = true;
-						this.checkPausingTimeout = checkPausing = setTimeout( this.checkPausing.bind(this), this.pausingTimeout );
-						this.chatStateSend( 'composing' );
+						this.checkPausingTimeout = checkPausing = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
+						this.sendChatState( 'composing' );
 					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
 						this.isComposing = false;
-						this.chatStateSend( 'active' );
+						this.sendChatState( 'active' );
 					} else if ( $( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
-						clearTimeout(this.checkPausingTimeout);
-						this.checkPausingTimeout = setTimeout( this.checkPausing.bind(this), this.pausingTimeout );
+						clearTimeout( this.checkPausingTimeout );
+						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
 					}
 				}
 				if ( type == 'focus' ) {
 					if ( !$( this.messageInputElement ).val() ) {
-						this.chatStateSend( 'active' );
+						this.sendChatState( 'active' );
 					} else {
-						this.chatStateSend( 'composing' );
+						this.sendChatState( 'composing' );
 					}
 				}
 				if ( type == 'blur' ) {
-					this.chatStateSend( 'inactive' );
+					this.sendChatState( 'inactive' );
 				}
 			},
-			checkPausing: function(  ) {
-				if( this.isComposing){
-					this.chatStateSend("paused");
+			checkPausing: function() {
+				if ( this.isComposing ) {
+					this.sendChatState( "paused" );
 					this.isComposing = false;
 				}
 			},
-			chatStateSend: function( state ) {
-				var participant = this.shadowRoot.querySelector( "#participant" );
+			sendChatState: function( state ) {
+				var participant = $( this.shadowRoot.querySelector( "#participant" ) ).val();
+				if ( this.isEmpty( participant ) ) {
+					console.error( "no participant selected" );
+					return;
+				}
 				var message = {
 					command: "chatState",
-					participant: $( participant ).val(),
+					participant: participant,
 					parameter: {
 						state: state
 					}
 				};
-				console.log( "sendChatStateMessage:", message );
-				this.sendMessage = message;
+				this.$.websocket.sendMessage( message );
+			},
+			isEmpty: function( s ) {
+				if ( s == null || s == '' ) return true;
+				return false;
 			}
 		} );
 

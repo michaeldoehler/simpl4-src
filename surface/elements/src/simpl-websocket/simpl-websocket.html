@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected sendMessage recvMessage json jsonSend jsonReceive" constructor="SimplWebsocket">
+<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected recvMessage json jsonSend jsonReceive" constructor="SimplWebsocket">
 	<template>
 		<style>
 			:host {
@@ -53,8 +53,8 @@
 					};
 					this.send( message );
 				},
-				sendMessageChanged: function() {
-					this.send( this.sendMessage );
+				sendMessage: function(msg) {
+					this.send( msg );
 				},
 				close: function( reason ) {
 					if ( this.ws ) {
