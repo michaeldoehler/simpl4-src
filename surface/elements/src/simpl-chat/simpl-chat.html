@@ -203,6 +203,7 @@
 			isAddGroupFormActive: false,
 			autoConnect: true,
 			resourceId: null,
+			pausingTimeout:2500,
 			messages: [],
 			ready: function() {
 				this.user = {
@@ -233,6 +234,8 @@
 					this.messages.unshift( message );
 					this.sendMessage = message;
 					messageInput.setValue( "" );
+					this.chatStateSend("active");
+					this.isComposing=false;
 				}
 			},
 			onMessageKeydown: function( e ) {
@@ -280,6 +283,7 @@
 						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
 					} else {
 						this.chatStateSend( "gone" );
+						this.isComposing=false;
 						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
 						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
 					}
@@ -334,10 +338,14 @@
 				if ( type == 'keyup' && e.keyCode != 13 ) {
 					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
 						this.isComposing = true;
+						this.checkPausingTimeout = checkPausing = setTimeout( this.checkPausing.bind(this), this.pausingTimeout );
 						this.chatStateSend( 'composing' );
 					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
 						this.isComposing = false;
 						this.chatStateSend( 'active' );
+					} else if ( $( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
+						clearTimeout(this.checkPausingTimeout);
+						this.checkPausingTimeout = setTimeout( this.checkPausing.bind(this), this.pausingTimeout );
 					}
 				}
 				if ( type == 'focus' ) {
@@ -348,12 +356,13 @@
 					}
 				}
 				if ( type == 'blur' ) {
-					if ( !$( this.messageInputElement ).val() ) {
-						this.chatStateSend( 'inactive' );
-
-					} else {
-						this.chatStateSend( 'paused' );
-					}
+					this.chatStateSend( 'inactive' );
+				}
+			},
+			checkPausing: function(  ) {
+				if( this.isComposing){
+					this.chatStateSend("paused");
+					this.isComposing = false;
 				}
 			},
 			chatStateSend: function( state ) {
