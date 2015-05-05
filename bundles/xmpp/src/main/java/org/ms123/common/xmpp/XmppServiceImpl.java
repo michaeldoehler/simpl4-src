@@ -69,6 +69,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.ms123.common.xmpp.camel.XmppMessage;
 import rx.Observable;
+import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import org.apache.camel.rx.*;
@@ -220,6 +221,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		private CamelContext m_context;
 		private Session m_session;
 		private Endpoint m_sendEndpoint;
+		private Endpoint m_recvEndpoint;
+		private Subscription m_subscription;
 
 		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 			m_js.prettyPrint(true);
@@ -239,7 +242,10 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				throw new RuntimeException("XmppServiceImpl:Missing \"SendEndpoint\" in:" + namespace + "/" + routesName);
 			}
 			m_sendEndpoint = m_context.getEndpoint(sendEndpointUri);
-			Endpoint recvEndpoint = m_context.getEndpoint(recvEndpointUri);
+			m_recvEndpoint = m_context.getEndpoint(recvEndpointUri);
+		}
+
+		private void start() {
 			Action1 action = new Action1<Message>() {
 
 				@Override
@@ -289,14 +295,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					} else {
 						Map<String, Object> sendMap = camelMessage.getBody(Map.class);
 						String sendString = m_js.deepSerialize(sendMap);
-						debug("\nToWebsocket2("+ m_params.get("username") +") ->\n" + sendString);
+						debug("\nToWebsocket2(" + m_params.get("username") + ") ->\n" + sendString);
 						m_session.getRemote().sendStringByFuture(sendString);
 					}
 				}
 			};
 			ReactiveCamel reactiveCamel = new ReactiveCamel(m_context);
-			Observable<Message> observable = reactiveCamel.toObservable(recvEndpoint);
-			observable.filter(new Func1<Message, Boolean>() {
+			Observable<Message> observable = reactiveCamel.toObservable(m_recvEndpoint);
+			m_subscription = observable.filter(new Func1<Message, Boolean>() {
 
 				@Override
 				public Boolean call(Message camelMessage) {
@@ -306,15 +312,20 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 						debug(msg + " == " + getSessionId());
 						return true;
 					}
-					debug(msg + " <>  "+ getSessionId());
+					debug(msg + " <>  " + getSessionId());
 					return false;
 				}
 			}).subscribe(action);
 		}
 
+		private void stop(){
+			m_subscription.unsubscribe();
+		}
+
 		@Override
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
+			start();
 			m_session = sess;
 			debug("Socket Connected: \n" + m_js.deepSerialize(m_params));
 			Map<String, Object> headers = getHeaders("dummy", COMMAND_OPEN);
@@ -361,6 +372,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			debug("\nSocket Closed: [" + statusCode + "] " + reason);
 			Map<String, Object> headers = getHeaders("dummy", COMMAND_CLOSE);
 			m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, null, headers);
+			stop();
 		}
 
 		@Override
@@ -397,8 +409,9 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				return _default;
 			return (String) value;
 		}
+
 		private String getSessionId() {
-			return m_params.get("username") + "/"+ m_params.get("resourceId");
+			return m_params.get("username") + "/" + m_params.get("resourceId");
 		}
 
 		private Map<String, Object> getHeaders(String to) {
