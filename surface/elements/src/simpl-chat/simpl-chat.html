@@ -145,7 +145,7 @@
 							<core-dropdown class="dropdown colored">
 								<core-menu>
 									<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
-									<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
+									<!--core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item-->
 								</core-menu>
 							</core-dropdown>
 						</core-menu-button>
@@ -208,8 +208,7 @@
 			ready: function() {
 				this.user = {
 					name: "msa",
-					password: "msa",
-					color: "#ff0000"
+					password: "msa"
 				};
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
@@ -234,7 +233,7 @@
 						participant: $( participant ).val(),
 						from: this.user.name
 					};
-					console.log( "sendMessage:", message );
+					console.log( "<- sendMessage:", message );
 					this.messages.unshift( message );
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
@@ -244,7 +243,7 @@
 			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
-				console.log( "message", message );
+				console.log( "-> recvMessage", message );
 				var body = message.body;
 				var chatState = message.chatState;
 				if ( message.from ) {
@@ -259,23 +258,20 @@
 				}
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
-					console.log( "rosterEntries:", this.rosterEntries );
+					this.rosterEntries.sort( this.sortRosterEntries );
 				}
 			},
 			connect: function() {
-				console.log( "connect.", this.resourceId );
 				this.rosterEntries = [];
 				this.$.websocket.go( this.user.name, this.user.password, this.resourceId );
 			},
 			disconnect: function() {
-				console.log( "disconnect" );
 				this.sendChatState( "gone" );
 				setTimeout( ( function() {
 					this.$.websocket.closeConnection( this.user.name, this.user.password );
 				} ).bind( this ), 300 );
 			},
 			connectedChanged: function() {
-				console.log( "chat:connected changed", this.connected );
 				this.isComposing = false;
 				setTimeout( ( function() {
 					if ( this.connected ) {
@@ -335,7 +331,7 @@
 				if ( type == 'keyup' && e.keyCode != 13 ) {
 					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
 						this.isComposing = true;
-						this.checkPausingTimeout = checkPausing = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
+						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
 						this.sendChatState( 'composing' );
 					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
 						this.isComposing = false;
@@ -376,6 +372,15 @@
 					}
 				};
 				this.$.websocket.sendMessage( message );
+			},
+			sortRosterEntries: function compare( a, b ) {
+				if ( a.username < b.username ){
+					return -1;
+				}
+				if ( a.username > b.username ){
+					return 1;
+				}
+				return 0;
 			},
 			isEmpty: function( s ) {
 				if ( s == null || s == '' ) return true;
