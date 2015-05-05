@@ -300,28 +300,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 
 				@Override
 				public Boolean call(Message camelMessage) {
-					if (camelMessage instanceof XmppMessage) {
-						org.jivesoftware.smack.packet.Message message = ((XmppMessage) camelMessage).getXmppMessage();
-						String sessionId = (String) camelMessage.getHeader(SESSIONID);
-						String to = message.getTo();
-						String username = m_params.get("username") + "@";
-						String msg = "filter:" + username;
-						if (to.startsWith(username)) {
-							debug(msg + " -> ok");
-							return true;
-						}
-						debug(msg + " -> not ok");
-						return false;
-					} else {
-						String sessionId = (String) camelMessage.getHeader(SESSIONID);
-						debug("sessionId:"+sessionId+"|locSessionId:"+getSessionId());
-						if (getSessionId().equals(sessionId)) {
-							debug(sessionId + " -> ok");
-							return true;
-						}
-						debug(sessionId + " -> not ok");
-						return false;
+					String sessionId = (String) camelMessage.getHeader(SESSIONID);
+					String msg = "MessageFilter:" + sessionId;
+					if (getSessionId().equals(sessionId)) {
+						debug(msg + " == " + getSessionId());
+						return true;
 					}
+					debug(msg + " <>  "+ getSessionId());
+					return false;
 				}
 			}).subscribe(action);
 		}
