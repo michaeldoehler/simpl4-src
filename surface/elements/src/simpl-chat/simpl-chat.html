@@ -233,7 +233,6 @@
 						participant: $( participant ).val(),
 						from: this.user.name
 					};
-					console.log( "<- sendMessage:", message );
 					this.messages.unshift( message );
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );

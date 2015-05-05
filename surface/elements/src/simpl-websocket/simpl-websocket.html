@@ -41,7 +41,7 @@
 					if ( this.json || this.jsonSend ) {
 						data = JSON.stringify( data );
 					}
-					console.log( "socket:onNext:", data );
+					console.log( "<- sendMessage:", data );
 					this.socket.onNext( data );
 				},
 				sendPing: function() {
@@ -84,9 +84,8 @@
 
 					this.url = baseUrl + "/ws/xyz?" + qs;
 
-					console.info( 'params:' , params );
 					var open = Rx.Observer.create( ( function( e ) {
-						console.info( 'websocket open' );
+						console.info( '-> websocket open' );
 						this.connected = true;
 						setInterval( ( function() {
 							//this.sendPing();
@@ -109,7 +108,6 @@
 							self.fire( "message", {
 								data: data
 							} );
-							console.log( 'recv message: ', data );
 							self.recvMessage = data;
 						},
 						function( e ) {
