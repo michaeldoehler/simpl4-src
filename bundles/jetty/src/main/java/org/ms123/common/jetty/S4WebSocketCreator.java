@@ -80,14 +80,6 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private String getSessionIdParameter(Map<String, List<String>> map) {
-		List<String> paramList = map.get("sessionId");
-		if (paramList == null || paramList.size() == 0) {
-			throw new RuntimeException("WebSocketCreator.Cannot get sessionId parameter from querystring");
-		}
-		return paramList.get(0);
-	}
-
 	private String getServiceParameter(Map<String, List<String>> map) {
 		List<String> paramList = map.get("service");
 		if (paramList == null || paramList.size() == 0) {
@@ -105,14 +97,8 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	@Override
 	public synchronized Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		try {
-			String sessionId = getSessionIdParameter(req.getParameterMap());
-			System.out.println("createWebSocket:"+sessionId+"/"+m_sockets);
-			Object socket = m_sockets.get(sessionId);
-			if (socket == null) {
-				socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())), req.getParameterMap());
-				m_sockets.put(sessionId, socket);
-				System.out.println("createWebSocket:" + socket);
-			}
+			Object socket = getWebSocket(getServiceClassName(getServiceParameter(req.getParameterMap())), req.getParameterMap());
+			System.out.println("createWebSocket:" + socket);
 			return socket;
 		} catch (Exception e) {
 			e.printStackTrace();

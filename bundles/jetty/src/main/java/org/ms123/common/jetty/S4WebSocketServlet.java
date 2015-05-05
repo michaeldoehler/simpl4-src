@@ -32,8 +32,7 @@ public class S4WebSocketServlet extends WebSocketServlet {
 	}
 	@Override
 	public void configure(WebSocketServletFactory factory) {
-		factory.getPolicy().setIdleTimeout(300000);
-System.out.println("S4WebSocketServlet.configure");
+		factory.getPolicy().setIdleTimeout(600000);
 		factory.setCreator(new S4WebSocketCreator(m_config));
 	}
 }
