@@ -167,7 +167,6 @@
 					this.preventInvalidInput = true;
 				}
 				var showTime = this.type.match( /^datetime/ ) != null;
-				console.log( "input-field:" + this.label + "/" + this.type + "/showTime:" + showTime );
 				if ( this.type.match( /^date/ ) != null && !this.hasDate ) {
 					this.picker = new Pikaday( {
 						field: this.$.input,
