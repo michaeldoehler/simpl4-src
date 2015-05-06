@@ -174,7 +174,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	}
 
 	public void processMessage(Chat chat, Message message) {
-		debug("Received XMPP message for {} from {} : {}",  m_connectionContext.getSessionId(), m_connectionContext.getParticipant(), message.getBody() );
+		debug("Received XMPP message for session:{} to {}  from {} : {}",  m_connectionContext.getSessionId(),message.getTo() , message.getFrom(), message.getBody() );
 		Exchange exchange = endpoint.createExchange(message);
 		try {
 			exchange.getIn().setHeader(XmppConstants.SESSIONID, m_connectionContext.getSessionId());
