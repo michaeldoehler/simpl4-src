@@ -110,6 +110,11 @@ qx.Class.define("ms123.MainMenu", {
 			name: "Camel",
 			icon: "icon/22/actions/edit-copy.png"
 		};
+		this._me["form"] = {
+			clazz: ms123.shell.ProjectShell,
+			name: "Forms",
+			icon: "icon/22/actions/edit-copy.png"
+		};
 		this._me["bomviewer"] = {
 			clazz: ms123.bomviewer.BOMViewer,
 			name: "ms123.bomviewer.BOMViewer",
@@ -232,6 +237,7 @@ qx.Class.define("ms123.MainMenu", {
 			this._createExtraButton(extraButtons, this._me["manager"], globalDataStoreDesc);
 			this._createCompositeButton(extraButtons, this._me["user"], "user", globalMetaStoreDesc);
 			this._createProjectShellButton(extraButtons, this._me["camel"], globalMetaStoreDesc, ["camel"], "Camel", true);
+			this._createProjectShellButton(extraButtons, this._me["form"], globalMetaStoreDesc, ["forms"], "Forms", true);
 			this._createExtraButton(extraButtons, this._me["pe"],  globalMetaStoreDesc);
 			return extraButtons;
 		},
@@ -390,6 +396,7 @@ qx.Class.define("ms123.MainMenu", {
 				if (!ms123.config.ConfigManager.isRuntime()) {
 					menu.add(extraButtons[this._me["message"].name]);
 					menu.add(extraButtons[this._me["camel"].name]);
+					menu.add(extraButtons[this._me["form"].name]);
 					menu.add(extraButtons[this._me["pe"].name]);
 				}
 				menu.addSeparator();
