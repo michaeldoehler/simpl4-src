@@ -81,7 +81,6 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		if (endpoint.getRoom() == null) {
 			Roster roster = m_connection.getRoster();
 			roster.addRosterListener( this);
-			debug("addRosterListener("+m_connectionContext.getSessionId()+")");
 		}else{
 			// add the presence packet listener to the connection so we only get packets that concerns us
 			// we must add the listener before creating the muc
@@ -101,22 +100,6 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		if (endpoint.getRoom() == null) {
 			sendRoster();
 		}
-	}
-
-	protected void scheduleDelayedStart() throws Exception {
-		Runnable startRunnable = new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					doStart();
-				} catch (Exception e) {
-					warn("Ignoring an exception caught in the startup connection poller thread.", e);
-				}
-			}
-		};
-		info("Delaying XMPP consumer startup for endpoint {}. Trying again in {} seconds.", URISupport.sanitizeUri(endpoint.getEndpointUri()), endpoint.getConnectionPollDelay());
-		getExecutor().schedule(startRunnable, endpoint.getConnectionPollDelay(), TimeUnit.SECONDS);
 	}
 
 	private void startRobustConnectionMonitor() throws Exception {
@@ -155,7 +138,6 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 
 	@Override
 	protected void doStop() throws Exception {
-		super.doStop();
 		if (scheduledExecutor != null) {
 			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
 			scheduledExecutor = null;
