@@ -30,6 +30,9 @@
 			paper-button {
 				max-width: 100px;
 			}
+			simpl-form {
+				width: 100%;
+			}
 			:host /deep/ xaction-button /deep/ .button-content {
 				width: 120px;
 				font-size: 12px;
@@ -128,24 +131,20 @@
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 			<simpl-row>
 				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
-					{{'chat.login'|tr}}:
-					<input class="small-input" type="text" id="userName" value="{{user.name}}" /> {{'data.user.password'|tr}}:
-					<input class="small-input" type="text" id="password" value="{{user.password}}" />
-					<paper-button raised on-tap="{{connect}}" flex>
-						<core-icon class="small" icon="communication:chat"></core-icon>{{'chat.connectButton'|tr}}</paper-button>
+					<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
 				</template>
 			</simpl-row>
 			<template if="{{connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
 				<simpl-row>
 					<core-toolbar flex class="core-narrow">
 						<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
-						<core-icon-button icon="account-circle">{{user.name}}</core-icon-button>
+						<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
 						<core-menu-button>
 							<core-icon-button icon="menu"></core-icon-button>
 							<core-dropdown class="dropdown colored">
 								<core-menu>
 									<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
-									<!--core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item-->
+									<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
 								</core-menu>
 							</core-dropdown>
 						</core-menu-button>
@@ -170,10 +169,10 @@
 					<template repeat="{{message in messages}}">
 						<ol>
 							<li>
-								<template if="{{user.name == message.from}}">
+								<template if="{{loginData.username == message.from}}">
 									<div style="color:black;" class="name-column">{{ message.from }}</div>
 								</template>
-								<template if="{{user.name != message.from}}">
+								<template if="{{loginData.username != message.from}}">
 									<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
 								</template>
 								<div class="message-column">{{ message.body }} </div>
@@ -186,12 +185,12 @@
 			<template if="{{isAddUserFormActive}}">
 				<h2>{{'chat.new_contact_header1'|tr}}</h2>
 				<h4>{{'chat.new_contact_header2'|tr}}</h4>
-				<simpl-form id="addUserForm" namespace="firstapp" actionCallback="{{addUserCallback}}" formName="chat_add_user.form"></simpl-form>
+				<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
 			</template>
 
 			<template if="{{isAddGroupFormActive}}">
 				<h2>{{'chat.new_group_header'|tr}}</h2>
-				<simpl-form id="addGroupForm" namespace="firstapp" actionCallback="{{addGroupCallback}}" formName="chat_add_group.form"></simpl-form>
+				<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
 			</template>
 		</simpl-panel>
 	</template>
@@ -206,13 +205,11 @@
 			pausingTimeout: 2500,
 			messages: [],
 			ready: function() {
-				this.user = {
-					name: "msa",
-					password: "msa"
-				};
+				this.loginData={};
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
 				this.addGroupCallback = this.addGroup.bind( this );
+				this.loginCallback = this.login.bind( this );
 				window.addEventListener( 'unload', ( function( e ) {
 					if ( this.connected ) {
 						this.sendChatState( "gone" );
@@ -231,7 +228,7 @@
 					var message = {
 						body: messageInput.value,
 						participant: $( participant ).val(),
-						from: this.user.name
+						from: this.loginData.username
 					};
 					this.messages.unshift( message );
 					this.$.websocket.sendMessage( message );
@@ -260,14 +257,21 @@
 					this.rosterEntries.sort( this.sortRosterEntries );
 				}
 			},
-			connect: function() {
+			login: function( e ) {
+				var loginForm = this.shadowRoot.querySelector( "#loginForm" );
+				var formData = loginForm.getData();
+				console.log( "loginData:", formData );
+				if ( this.isEmpty( formData.username ) ) {
+					return;
+				}
+				this.loginData = formData;
 				this.rosterEntries = [];
-				this.$.websocket.go( this.user.name, this.user.password, this.resourceId );
+				this.$.websocket.go( formData.username, formData.password, this.resourceId );
 			},
 			disconnect: function() {
 				this.sendChatState( "gone" );
 				setTimeout( ( function() {
-					this.$.websocket.closeConnection( this.user.name, this.user.password );
+					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
 				} ).bind( this ), 300 );
 			},
 			connectedChanged: function() {
@@ -281,6 +285,8 @@
 						this.isComposing = false;
 						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
 						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
+						var loginForm = this.shadowRoot.querySelector( "#loginForm" );
+						loginForm.setData( this.loginData );
 					}
 				} ).bind( this ), 100 );
 			},
@@ -373,10 +379,10 @@
 				this.$.websocket.sendMessage( message );
 			},
 			sortRosterEntries: function compare( a, b ) {
-				if ( a.username < b.username ){
+				if ( a.username < b.username ) {
 					return -1;
 				}
-				if ( a.username > b.username ){
+				if ( a.username > b.username ) {
 					return 1;
 				}
 				return 0;
