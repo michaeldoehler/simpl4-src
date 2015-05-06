@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected recvMessage json jsonSend jsonReceive" constructor="SimplWebsocket">
+<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected recvMessage" constructor="SimplWebsocket">
 	<template>
 		<style>
 			:host {
@@ -30,23 +30,18 @@
 		( function() {
 			Polymer( "simpl-websocket", {
 				connected: false,
-				json: true,
-				jsonSend: false,
-				jsonReceive: false,
 
 				send: function( data ) {
 					if ( !this.connected ) {
 						throw new Error( "simpl-websocket.send(...): not connected." );
 					}
-					if ( this.json || this.jsonSend ) {
-						data = JSON.stringify( data );
-					}
+					data = JSON.stringify( data );
 					console.log( "<- sendMessage:", data );
 					this.socket.onNext( data );
 				},
 				sendPing: function() {
 					if ( !this.connected ) return;
-					console.debug( "Ping" );
+					console.debug( "-> Ping" );
 					var message = {
 						event: "ping",
 						data: {}
@@ -67,7 +62,6 @@
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
-					var uuid = user; //this.generateUUID();
 					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 					baseUrl = baseUrl.replace( "http", "ws" );
 					var params = {};
@@ -76,7 +70,6 @@
 					params[ "password" ] = pw;
 					params[ "routes" ] = this.routeSpec;
 					params[ "credentials" ] = credentials;
-					params[ "sessionId" ] = user+"/"+resourceId;
 					params[ "resourceId" ] = resourceId;
 					params[ "service" ] = this.service;
 
@@ -102,16 +95,13 @@
 					this.socket.subscribe(
 						function( e ) {
 							var data = e.data;
-							if ( self.json || self.jsonReceive ) {
-								data = JSON.parse( data );
-							}
+							data = JSON.parse( data );
 							self.fire( "message", {
 								data: data
 							} );
 							self.recvMessage = data;
 						},
 						function( e ) {
-							//console.error( 'wserror: ', e );
 							console.error("Error:"+e.reason+"("+e.code+")");
 						},
 						function() {
@@ -125,15 +115,6 @@
 						command: "close",
 					}; 
 					this.send(message);
-				},
-				generateUUID: function() {
-					var d = new Date().getTime();
-					var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function( c ) {
-						var r = ( d + Math.random() * 16 ) % 16 | 0;
-						d = Math.floor( d / 16 );
-						return ( c == 'x' ? r : ( r & 0x3 | 0x8 ) ).toString( 16 );
-					} );
-					return uuid;
 				}
 			} );
 		} )();

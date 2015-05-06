@@ -127,7 +127,7 @@
 		</style>
 
 
-		<simpl-websocket id="websocket" namespace="tutorials" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 			<simpl-row>
 				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
@@ -264,6 +264,10 @@
 				if ( this.isEmpty( formData.username ) ) {
 					return;
 				}
+				if( !this.isEmpty(formData.resource)) {
+					this.resourceId = formData.resource;
+				}
+
 				this.loginData = formData;
 				this.rosterEntries = [];
 				this.$.websocket.go( formData.username, formData.password, this.resourceId );

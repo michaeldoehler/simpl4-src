@@ -230,7 +230,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		sendRoster();
 	}
 	public void	presenceChanged(Presence presence){
-		debug("Roster.presenceChanged("+m_connectionContext.getSessionId()+"):"+presence+"/"+presence.getType()+"/"+Presence.Mode.available);
+		debug("Roster.presenceChanged(" + presence.getFrom()+" -> "+presence.getTo()+"):"+presence);
 		if( Presence.Type.available.equals(presence.getType())){
 //			sendRoster();
 		}
