@@ -600,7 +600,12 @@
 					}				
 
 				} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
-					shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
+					var lang = simpl4.util.BaseManager.getLanguage();
+					if(  shape.properties["xf_message_"+lang] ){
+						shape.properties.xf_message = this.expandString( shape.properties["xf_message_"+lang], this.variables );
+					}else{
+						shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
+					}
 				} else {
 					shape.properties.label = "";
 				}
