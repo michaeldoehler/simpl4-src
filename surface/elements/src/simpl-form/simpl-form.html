@@ -20,8 +20,9 @@
 -->
 <style>
 	html /deep/ xaction-button core-icon {
-		pointer-events:none;
+		pointer-events: none;
 	}
+
 </style>
 <polymer-element name="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
 	<template>
@@ -74,7 +75,7 @@
 				border: 1px solid #E0E0E0;
 				border-radius: 4px;
 				padding: 7px;
-				margin-top:5px;
+				margin-top: 5px;
 				background: white !important;
 			}
 
@@ -101,7 +102,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="simpl-baseform" attributes="actionCallback mode" vertical layout>
+<polymer-element name="simpl-baseform" attributes="actionCallback data mode" vertical layout>
 	<template>
 		<style>
 			:host {
@@ -363,14 +364,14 @@
 			created: function() {},
 			ready: function() {},
 			domReady: function() {
-				console.debug( "simpl-baseform.domReady:",this.namespace );
+				console.debug( "simpl-baseform.domReady:", this.namespace );
 			},
 			shapesChanged: function() {
 				console.debug( "simpl-baseform.shapesChanged" );
 				this.valueChanged();
 			},
 			validate: function( e ) {
-				var errorList=[];
+				var errorList = [];
 				var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field,dropdown-field" ), false );
 				Array.prototype.forEach.call( elements, function( elem ) {
 					elem.setInvalid( false );
@@ -402,7 +403,7 @@
 				var ret = [];
 				for ( var i = 0; i < nodeList.length; i++ ) {
 					var c = nodeList[ i ].getAttribute( "data-constraints" );
-					if ( all || (c != null && c.length > 0) ) {
+					if ( all || ( c != null && c.length > 0 ) ) {
 						ret.push( nodeList[ i ] );
 					}
 				}
@@ -436,8 +437,14 @@
 				var f = this.fieldsMap[ path ];
 				return f.label;
 			},
+			dataChanged: function() {
+				this.async( function() {
+					this.setData( this.data );
+				}, null, 10 );
+			},
 			setData: function( data ) {
 				this.fields.forEach( function( field ) {
+					if ( field.setValue == null ) return;
 					field.withoutCheck = true;
 					if ( field.setInvalid ) field.setInvalid( false );
 					field.setValue( data[ field.name ] || field.defaultValue || "" );
@@ -449,6 +456,7 @@
 			getData: function() {
 				var data = {};
 				this.fields.forEach( function( field ) {
+					if ( field.setValue == null ) return;
 					data[ field.name ] = field.getValue();
 				}, this );
 				return data;
@@ -525,11 +533,14 @@
 							shape.childShapes = [];
 						}
 						var label = shape.properties.label;
-						if( label && label.match(/^[@%]/)){
-							shape.properties.label = tr(label.substring(1));
-						}				
+						if ( label && label.match( /^[@%]/ ) ) {
+							shape.properties.label = tr( label.substring( 1 ) );
+						}
 					} else {
 						shape.properties.label = "";
+					}
+					if ( shape.properties.xf_default ) {
+						shape.properties.defaultValue = shape.properties.xf_default;
 					}
 					if ( shape.stencil.id.toLowerCase() == 'textarea' ) {
 						if ( shape.properties.xf_rows == null ) {
@@ -595,15 +606,15 @@
 						shape.properties.xf_iconname = ( action == "execute" ) ? "check" : "clear";
 					}
 					var label = shape.properties.xf_label;
-					if( label && label.match(/^[@%]/)){
-						shape.properties.xf_label = tr(label.substring(1));
-					}				
+					if ( label && label.match( /^[@%]/ ) ) {
+						shape.properties.xf_label = tr( label.substring( 1 ) );
+					}
 
 				} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
 					var lang = simpl4.util.BaseManager.getLanguage();
-					if(  shape.properties["xf_message_"+lang] ){
-						shape.properties.xf_message = this.expandString( shape.properties["xf_message_"+lang], this.variables );
-					}else{
+					if ( shape.properties[ "xf_message_" + lang ] ) {
+						shape.properties.xf_message = this.expandString( shape.properties[ "xf_message_" + lang ], this.variables );
+					} else {
 						shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
 					}
 				} else {
