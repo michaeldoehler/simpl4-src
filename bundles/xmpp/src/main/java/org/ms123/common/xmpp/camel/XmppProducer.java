@@ -110,8 +110,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		String roomname = exchange.getIn().getHeader(ROOM, String.class);
 		String command = exchange.getIn().getHeader(COMMAND, String.class);
 		Map<String,Object> parameter = exchange.getIn().getHeader(PARAMETER, Map.class);
-debug("process:"+roomname);
-		debugCommand( command, username,resourceId);
+		debugCommand( command, username,resourceId, roomname, participant);
 		try {
 			cc = handleCommand(exchange, command, parameter, username, password, resourceId, participant,roomname);
 			if (cc == null) {
@@ -210,10 +209,12 @@ debug("createMaybeMUC:"+roomname);
 			connection.connect();
 		}
 	}
-	private void debugCommand(String command, String username, String resourceId){
+	private void debugCommand(String command, String username, String resourceId,String roomname, String participant){
+		String sessionId = username+"/"+resourceId;
 		if( command != null){
-			String sessionId = username+"/"+resourceId;
 			debug("Command(:" + command + "):hasConnectionContext("+sessionId+") -> " + endpoint.hasConnectionContext(sessionId));
+		}else{
+			debug("Username(:" + username + "):hasConnectionContext("+sessionId+") -> " + endpoint.hasConnectionContext(sessionId)+"/roomname:"+roomname+"/participant:"+participant);
 		}
 	}
 

@@ -107,13 +107,16 @@
 				align-items: baseline;
 			}
 			core-toolbar.core-narrow {
-				height: 38px;
+				height: 90px;
 				background: #f6f6f6;
 			}
 			core-item {
 				overflow: hidden;
 				white-space: nowrap;
 				text-overflow: ellipsis;
+			}
+			paper-tab {
+				z-index: 100;
 			}
 			.dropdown.colored {
 				border-radius: 3px;
@@ -130,13 +133,13 @@
 		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
 
-			<core-animated-pages id="pages" selected="{{viewId}}" valueattr="viewid">
-				<section viewid="loginView">
+			<core-animated-pages id="pages" selected="{{viewId}}" valueattr="view-id">
+				<section view-id="loginView">
 					<simpl-row>
 						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
 					</simpl-row>
 				</section>
-				<section viewid="chatView">
+				<section view-id="chatView">
 					<simpl-row>
 						<core-toolbar flex class="core-narrow">
 							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
@@ -153,47 +156,64 @@
 							</core-menu-button>
 
 							<span style="color:#D50303;">{{chatState}}</span>
+							<div class="bottom fit" horizontal layout>
+								<paper-tabs selected="{{chatId}}" flex style="max-width:600px;" valueattr="chat-id" scrollable>
+									<template repeat="{{chat, i in chatList}}">
+										<paper-tab chat-id="{{chat.id}}">{{chat.id}}</paper-tab>
+									</template>
+								</paper-tabs>
+							</div>
 						</core-toolbar>
 					</simpl-row>
-					<simpl-row>
-						{{'chat.participant'|tr}}:
-						<select id="participant">
-							<template repeat="{{entry in rosterEntries}}">
-								<option value="{{entry.username}}">{{entry.username}}</option>
-							</template>
-						</select>
-					</simpl-row>
-					<simpl-row>
-						<input-field flex type="text" name="" id="messageInput" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
-						<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
-							<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
-					</simpl-row>
-					<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
-						<template repeat="{{message in messages}}">
-							<ol>
-								<li>
-									<template if="{{loginData.username == message.from}}">
-										<div style="color:black;" class="name-column">{{ message.from }}</div>
+
+
+					<core-pages selected="{{chatId}}" valueattr="chat-id">
+						<template repeat="{{chat, i in chatList}}">
+							<section chat-id="{{chat.id}}">
+								<template if="{{chat.muc == false}}">
+									<simpl-row>
+										{{'chat.participant'|tr}}:
+										<select id="{{'participant-'+chat.id}}">
+											<template repeat="{{entry in rosterEntries}}">
+												<option value="{{entry.username}}">{{entry.username}}</option>
+											</template>
+										</select>
+									</simpl-row>
+								</template>
+								<simpl-row>
+									<input-field flex type="text" name="" id="{{'messageInput-'+chat.id}}" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
+									<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
+										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
+								</simpl-row>
+								<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
+									<template repeat="{{message in chat.messages}}">
+										<ol>
+											<li>
+												<template if="{{loginData.username == message.from}}">
+													<div style="color:black;" class="name-column">{{ message.from }}</div>
+												</template>
+												<template if="{{loginData.username != message.from}}">
+													<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
+												</template>
+												<div class="message-column">{{ message.body }} </div>
+											</li>
+										</ol>
 									</template>
-									<template if="{{loginData.username != message.from}}">
-										<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
-									</template>
-									<div class="message-column">{{ message.body }} </div>
-								</li>
-							</ol>
+								</div>
+							</section>
 						</template>
-					</div>
+					</core-pages>
 				</section>
-				<section viewid="addUserView">
+				<section view-id="addUserView">
 					<h2>{{'chat.new_contact_header1'|tr}}</h2>
 					<h4>{{'chat.new_contact_header2'|tr}}</h4>
 					<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
 				</section>
-				<section viewid="addGroupView">
+				<section view-id="addGroupView">
 					<h2>{{'chat.new_group_header'|tr}}</h2>
 					<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
 				</section>
-				<section viewid="roomlistView">
+				<section view-id="roomlistView">
 					<simpl-form id="roomlistForm" namespace="global" actionCallback="{{joinRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
 				</section>
 			</core-animated-pages>
@@ -202,6 +222,7 @@
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
+			chatId: 'main',
 			viewId: "loginView",
 			recvMessage: null,
 			connected: false,
@@ -210,6 +231,14 @@
 			pausingTimeout: 2500,
 			messages: [],
 			ready: function() {
+				this.chatList = [];
+				var chat = {
+					id: 'main',
+					messages: [],
+					muc: false
+				};
+				this.addChat(chat);
+
 				this.loginData = {};
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
@@ -224,20 +253,25 @@
 				} ).bind( this ) );
 			},
 			sendMessageInput: function() {
-				var messageInput = this.shadowRoot.querySelector( "#messageInput" );
-				var participant = this.shadowRoot.querySelector( "#participant" );
-				if ( this.isEmpty( participant ) ) {
+				var chat = this.chatHash[ this.chatId ];
+				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				if ( this.isEmpty( participant) && chat.muc===false  ) {
 					console.error( "no participant selected" );
 					return;
 				}
 				if ( messageInput.value != "" ) {
 					var message = {
 						body: messageInput.value,
-						participant: $( participant ).val(),
-						room:"msroom",
 						from: this.loginData.username
 					};
-					this.messages.unshift( message );
+					if ( !this.isEmpty( participant ) ) {
+						message.participant= participant;
+					}
+					if ( chat.muc ) {
+						message.room= chat.id;
+					}
+					chat.messages.unshift( message );
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
 					this.sendChatState( "active" );
@@ -249,12 +283,19 @@
 				console.log( "-> recvMessage", message );
 				var body = message.body;
 				var chatState = message.chatState;
-				if ( message.from ) {
+				if ( message.from) {
 					message.from = message.from.split( "@" )[ 0 ];
+				}
+				var chat = null;
+				if ( message.type=="groupchat") {
+					message.from = message.from.split( "@" )[ 0 ];
+					chat = this.chatHash[ message.from ];
+				}else if( message.type == "chat" ){
+					chat = this.chatHash["main"];
 				}
 				if ( message.body ) {
 					message.color = "green";
-					this.messages.unshift( message );
+					chat.messages.unshift( message );
 				}
 				if ( message.chatState ) {
 					this.chatState = tr( 'chat.state_' + chatState );
@@ -335,7 +376,13 @@
 				var roomlistForm = this.shadowRoot.querySelector( "#roomlistForm" );
 				var formData = roomlistForm.getData();
 				console.log( "roomListData:", formData );
+				var chat = {};
+				chat.messages = [];
+				chat.muc = true;
+				chat.id=formData.room[0].name;
+				this.addChat(chat);
 				this.viewId = "chatView";
+				this.chatId=chat.id;
 			},
 			showAddUserForm: function() {
 				this.viewId = "addUserView";
@@ -411,9 +458,12 @@
 				}
 			},
 			sendChatState: function( state ) {
-				var participant = $( this.shadowRoot.querySelector( "#participant" ) ).val();
+				var chat = this.chatHash[ this.chatId ];
+				var participant = $( this.shadowRoot.querySelector( "#participant-"+chat.id ) ).val();
 				if ( this.isEmpty( participant ) ) {
-					console.error( "no participant selected" );
+					if( chat.muc === false){
+						console.error( "no participant selected" );
+					}
 					return;
 				}
 				var message = {
@@ -433,6 +483,17 @@
 					return 1;
 				}
 				return 0;
+			},
+			addChat:function(chat){
+				this.chatList.push( chat );
+				this.chatHash = this.toHash(this.chatList);
+			},
+			toHash:function(list){
+				var hash = {}
+				for ( var i = 0; i < list.length; i++ ) {
+					hash[ list[ i ].id ] = list[ i ];
+				}
+				return hash;
 			},
 			isEmpty: function( s ) {
 				if ( s == null || s == '' ) return true;
