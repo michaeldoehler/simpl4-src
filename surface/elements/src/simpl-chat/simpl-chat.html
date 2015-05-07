@@ -129,83 +129,84 @@
 
 		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
-			<simpl-row>
-				<template if="{{!connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
-					<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
-				</template>
-			</simpl-row>
-			<template if="{{connected && !(isAddUserFormActive||isAddGroupFormActive)}}">
-				<simpl-row>
-					<core-toolbar flex class="core-narrow">
-						<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
-						<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
-						<core-menu-button>
-							<core-icon-button icon="menu"></core-icon-button>
-							<core-dropdown class="dropdown colored">
-								<core-menu>
-									<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
-									<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
-								</core-menu>
-							</core-dropdown>
-						</core-menu-button>
 
-						<span style="color:red;">{{chatState}}</span>
-					</core-toolbar>
-				</simpl-row>
-				<simpl-row>
-					{{'chat.participant'|tr}}:
-					<select id="participant">
-						<template repeat="{{entry in rosterEntries}}">
-							<option value="{{entry.username}}">{{entry.username}}</option>
+			<core-animated-pages id="pages" selected="{{viewId}}" valueattr="viewid">
+				<section viewid="loginView">
+					<simpl-row>
+						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
+					</simpl-row>
+				</section>
+				<section viewid="chatView">
+					<simpl-row>
+						<core-toolbar flex class="core-narrow">
+							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
+							<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
+							<core-menu-button>
+								<core-icon-button icon="menu"></core-icon-button>
+								<core-dropdown class="dropdown colored">
+									<core-menu>
+										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
+										<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
+									</core-menu>
+								</core-dropdown>
+							</core-menu-button>
+
+							<span style="color:red;">{{chatState}}</span>
+						</core-toolbar>
+					</simpl-row>
+					<simpl-row>
+						{{'chat.participant'|tr}}:
+						<select id="participant">
+							<template repeat="{{entry in rosterEntries}}">
+								<option value="{{entry.username}}">{{entry.username}}</option>
+							</template>
+						</select>
+					</simpl-row>
+					<simpl-row>
+						<input-field flex type="text" name="" id="messageInput" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
+						<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
+							<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
+					</simpl-row>
+					<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
+						<template repeat="{{message in messages}}">
+							<ol>
+								<li>
+									<template if="{{loginData.username == message.from}}">
+										<div style="color:black;" class="name-column">{{ message.from }}</div>
+									</template>
+									<template if="{{loginData.username != message.from}}">
+										<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
+									</template>
+									<div class="message-column">{{ message.body }} </div>
+								</li>
+							</ol>
 						</template>
-					</select>
-				</simpl-row>
-				<simpl-row>
-					<input-field flex type="text" name="" id="messageInput" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
-					<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
-						<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
-				</simpl-row>
-				<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
-					<template repeat="{{message in messages}}">
-						<ol>
-							<li>
-								<template if="{{loginData.username == message.from}}">
-									<div style="color:black;" class="name-column">{{ message.from }}</div>
-								</template>
-								<template if="{{loginData.username != message.from}}">
-									<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
-								</template>
-								<div class="message-column">{{ message.body }} </div>
-							</li>
-						</ol>
-					</template>
-				</div>
-			</template>
+					</div>
+				</section>
+				<section viewid="addUserView">
+					<h2>{{'chat.new_contact_header1'|tr}}</h2>
+					<h4>{{'chat.new_contact_header2'|tr}}</h4>
+					<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
+				</section>
+				<section viewid="addGroupView">
+					<h2>{{'chat.new_group_header'|tr}}</h2>
+					<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
+				</section>
+			</core-animated-pages>
 
-			<template if="{{isAddUserFormActive}}">
-				<h2>{{'chat.new_contact_header1'|tr}}</h2>
-				<h4>{{'chat.new_contact_header2'|tr}}</h4>
-				<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
-			</template>
-
-			<template if="{{isAddGroupFormActive}}">
-				<h2>{{'chat.new_group_header'|tr}}</h2>
-				<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
-			</template>
 		</simpl-panel>
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
+			viewId: "loginView",
 			recvMessage: null,
 			connected: false,
-			isAddUserFormActive: false,
-			isAddGroupFormActive: false,
 			autoConnect: true,
 			resourceId: null,
 			pausingTimeout: 2500,
 			messages: [],
 			ready: function() {
-				this.loginData={};
+				this.loginData = {};
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
 				this.addGroupCallback = this.addGroup.bind( this );
@@ -264,7 +265,7 @@
 				if ( this.isEmpty( formData.username ) ) {
 					return;
 				}
-				if( !this.isEmpty(formData.resource)) {
+				if ( !this.isEmpty( formData.resource ) ) {
 					this.resourceId = formData.resource;
 				}
 
@@ -274,34 +275,34 @@
 			},
 			disconnect: function() {
 				this.sendChatState( "gone" );
-				setTimeout( ( function() {
+				this,async(  function() {
 					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
-				} ).bind( this ), 300 );
+				},null, 300 );
 			},
 			connectedChanged: function() {
 				this.isComposing = false;
-				setTimeout( ( function() {
+				this.async(  function() {
 					if ( this.connected ) {
 						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput /deep/ #input" );
 						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
 						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
+						this.viewId = "chatView";
 					} else {
 						this.isComposing = false;
 						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
 						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
-						var loginForm = this.shadowRoot.querySelector( "#loginForm" );
-						loginForm.setData( this.loginData );
+						this.viewId = "loginView";
 					}
-				} ).bind( this ), 100 );
+				}, null, 100 );
 			},
 			showAddUserForm: function() {
-				this.isAddUserFormActive = true;
+				this.viewId="addUserView";
 			},
 			showAddGroupForm: function() {
-				this.isAddGroupFormActive = true;
+				this.viewId="addGroupView";
 			},
 			addUser: function( e ) {
-				this.isAddUserFormActive = false;
+				this.viewId="chatView";
 				var addUserForm = this.shadowRoot.querySelector( "#addUserForm" );
 				var formData = addUserForm.getData();
 				if ( this.isEmpty( formData.username ) ) {
@@ -317,7 +318,7 @@
 				this.$.websocket.sendMessage( message );
 			},
 			addGroup: function( e ) {
-				this.isAddGroupFormActive = false;
+				this.viewId="chatView";
 				var addGroupForm = this.shadowRoot.querySelector( "#addGroupForm" );
 				console.log( "addGroup:", addGroupForm.getData() );
 				var formData = addUserForm.getData();
