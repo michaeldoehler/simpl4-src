@@ -81,19 +81,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	}
 
 	public Producer createProducer() throws Exception {
-		if (room != null) {
-			return createGroupChatProducer();
-		} else {
-			return createPrivateChatProducer();
-		}
-	}
-
-	public Producer createGroupChatProducer() throws Exception {
-		return new XmppGroupChatProducer(this);
-	}
-
-	public Producer createPrivateChatProducer() throws Exception {
-		return new XmppPrivateChatProducer(this);
+		return new XmppProducer(this);
 	}
 
 	public Consumer createConsumer(Processor processor) throws Exception {
@@ -227,7 +215,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
      * If there is no "@" symbol in the room, find the chat service JID and
      * return fully qualified JID for the room as room@conference.server.domain
      */
-	public String resolveRoom(XMPPConnection connection) throws XMPPException {
+	public String resolveRoom(XMPPConnection connection, String room) throws XMPPException {
 		ObjectHelper.notEmpty(room, "room");
 		if (room.indexOf('@', 0) != -1) {
 			return room;

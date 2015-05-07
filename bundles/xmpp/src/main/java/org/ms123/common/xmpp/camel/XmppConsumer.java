@@ -62,7 +62,6 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	private static final Logger LOG = LoggerFactory.getLogger(XmppConsumer.class);
 
 	private final XmppEndpoint endpoint;
-	private MultiUserChat m_muc;
 	private XMPPConnection m_connection;
 	private ScheduledExecutorService scheduledExecutor;
 	private XmppConnectionContext m_connectionContext;
@@ -78,28 +77,11 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		m_connection = m_connectionContext.getConnection();
 		ChatManager chatManager = m_connection.getChatManager();
 		chatManager.addChatListener(this);
-		if (endpoint.getRoom() == null) {
-			Roster roster = m_connection.getRoster();
-			roster.addRosterListener( this);
-		}else{
-			// add the presence packet listener to the connection so we only get packets that concerns us
-			// we must add the listener before creating the muc
-			final ToContainsFilter toFilter = new ToContainsFilter(m_connectionContext.getParticipant());
-			final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
-			m_connection.addPacketListener(this, packetFilter);
-			m_muc = new MultiUserChat(m_connection, endpoint.resolveRoom(m_connection));
-			m_muc.addMessageListener(this);
-			DiscussionHistory history = new DiscussionHistory();
-			history.setMaxChars(0);
-			// we do not want any historical messages
-			m_muc.join(m_connectionContext.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
-			info("Joined room: {} as: {}", m_muc.getRoom(), m_connectionContext.getNickname());
-		}
+		Roster roster = m_connection.getRoster();
+		roster.addRosterListener( this);
 		this.startRobustConnectionMonitor();
 		super.doStart();
-		if (endpoint.getRoom() == null) {
-			sendRoster();
-		}
+		sendRoster();
 	}
 
 	private void startRobustConnectionMonitor() throws Exception {
@@ -142,12 +124,13 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
 			scheduledExecutor = null;
 		}
-		if (m_muc != null) {
-			info("Leaving room: {}", m_muc.getRoom());
-			m_muc.removeMessageListener(this);
-			m_muc.leave();
-			m_muc = null;
+		Map<String,MultiUserChat> mucs = m_connectionContext.getMUCs();
+		for (MultiUserChat muc : mucs.values()) {
+			info("Leaving room: {}", muc.getRoom());
+			muc.removeMessageListener(this);
+			muc.leave();
 		}
+		mucs.clear();
 		if (m_connection != null && m_connection.isConnected()) {
 			try{
 				m_connection.disconnect();
@@ -182,11 +165,9 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		} catch (Exception e) {
 			exchange.setException(e);
 		} finally {
-			// must remove message from muc to avoid messages stacking up and causing OutOfMemoryError
-			// pollMessage is a non blocking method
-			// (see http://issues.igniterealtime.org/browse/SMACK-129)
-			if (m_muc != null) {
-				m_muc.pollMessage();
+			Map<String,MultiUserChat> mucs = m_connectionContext.getMUCs();
+			for (MultiUserChat muc : mucs.values()) {
+				muc.pollMessage();
 			}
 		}
 	}

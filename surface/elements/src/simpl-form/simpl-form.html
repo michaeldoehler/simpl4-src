@@ -255,7 +255,7 @@
 					</dropdown-field>
 				</template>
 				<template if="{{ id=='Tableselect' }}">
-					<tableselect-field flex name="{{xf_id}}" multiSelect?="{{xf_multiselection}}" required="{{xf_required}}" height="{{height}}" data="{{data}}" meta="{{meta}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
+					<tableselect-field flex name="{{xf_id}}" multiSelect?="{{xf_multiselection}}" required="{{xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints="{{regulaConstraints}}" enabled-expr="{{xf_enabled}}" readonly-expr="{{xf_readonly}}" invisible-expr="{{xf_invisible}}" exclude-expr="{{xf_exclude}}" defaultValue="{{defaultValue}}" label="{{label}}" raised>
 					</tableselect-field>
 				</template>
 				<template if="{{ id=='Textarea' }}">
@@ -450,6 +450,12 @@
 					field.setValue( data[ field.name ] || field.defaultValue || "" );
 				}, this );
 			},
+			setItems: function( items ) {
+				this.fields.forEach( function( field ) {
+					if ( field.setItems == null || items[field.name] == null) return;
+					field.setItems( items[ field.name ]);
+				}, this );
+			},
 			actionCallback: function() {
 				console.debug( "Data:", JSON.stringify( this.getData(), null, 2 ) );
 			},
@@ -573,11 +579,11 @@
 							};
 							var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
 							si.setVariable( "name", "" );
-							props.data = si.getItems();
+							props.items = si.getItems();
 						} else if ( inputListName ) {
-							props.data = this.variables[ inputListName ];
+							props.items = this.variables[ inputListName ];
 						}
-						if ( props.data == null ) props.data = [];
+						if ( props.items == null ) props.items = [];
 						var columns = props.xf_columns;
 						var fields = columns.items;
 						props.meta = [];

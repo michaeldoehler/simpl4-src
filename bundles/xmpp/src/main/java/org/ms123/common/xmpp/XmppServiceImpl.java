@@ -80,6 +80,7 @@ import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
 import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
 import static org.ms123.common.xmpp.camel.XmppConstants.RESOURCEID;
+import static org.ms123.common.xmpp.camel.XmppConstants.ROOM;
 import static org.ms123.common.xmpp.camel.XmppConstants.SESSIONID;
 import static org.ms123.common.xmpp.camel.XmppConstants.PARAMETER;
 import static org.ms123.common.xmpp.camel.XmppConstants.COMMAND;
@@ -328,7 +329,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			start();
 			m_session = sess;
 			debug("Socket Connected: \n" + m_js.deepSerialize(m_params));
-			Map<String, Object> headers = getHeaders("dummy", COMMAND_OPEN);
+			Map<String, Object> headers = getHeaders("dummy", null,COMMAND_OPEN);
 			try {
 				m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, null, headers);
 			} catch (Throwable e) {
@@ -356,11 +357,12 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				String body = (String) map.get("body");
 				command = (String) map.get("command");
 				String participant = (String) map.get("participant");
+				String room = (String) map.get("room");
 				if (body != null) {
-					Map<String, Object> headers = getHeaders(participant, null);
+					Map<String, Object> headers = getHeaders(participant, room,null);
 					m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
 				} else if (command != null) {
-					Map<String, Object> headers = getHeaders(participant, command, (Map) map.get("parameter"));
+					Map<String, Object> headers = getHeaders(participant, room,command, (Map) map.get("parameter"));
 					m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
 				}
 			}
@@ -370,7 +372,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketClose(int statusCode, String reason) {
 			super.onWebSocketClose(statusCode, reason);
 			debug("\nSocket Closed: [" + statusCode + "] " + reason);
-			Map<String, Object> headers = getHeaders("dummy", COMMAND_CLOSE);
+			Map<String, Object> headers = getHeaders("dummy", null,COMMAND_CLOSE);
 			m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, null, headers);
 			stop();
 		}
@@ -415,20 +417,23 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 
 		private Map<String, Object> getHeaders(String to) {
-			return getHeaders(to, null, null);
+			return getHeaders(to, null, null, null);
 		}
 
-		private Map<String, Object> getHeaders(String to, String cmd) {
-			return getHeaders(to, cmd, null);
+		private Map<String, Object> getHeaders(String to, String room, String cmd) {
+			return getHeaders(to, room, cmd, null);
 		}
 
-		private Map<String, Object> getHeaders(String to, String cmd, Map<String, Object> parameter) {
+		private Map<String, Object> getHeaders(String to, String room, String cmd, Map<String, Object> parameter) {
 			Map<String, Object> headers = new HashMap();
 			headers.put(USERNAME, m_params.get("username"));
 			headers.put(PASSWORD, m_params.get("password"));
 			headers.put(RESOURCEID, m_params.get("resourceId"));
 			if (to != null) {
 				headers.put(TO, to);
+			}
+			if (room != null) {
+				headers.put(ROOM, room);
 			}
 			if (cmd != null) {
 				headers.put(COMMAND, cmd);

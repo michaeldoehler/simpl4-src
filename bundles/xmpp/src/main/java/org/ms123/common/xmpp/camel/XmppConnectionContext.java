@@ -24,8 +24,10 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Consumer;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  */
@@ -37,6 +39,7 @@ public class XmppConnectionContext {
 	private String m_username;
 	private String m_nickname;
 	private String m_resourceId;
+	private Map<String, MultiUserChat> m_mucs = new ConcurrentHashMap();
 
 	public XmppConnectionContext() {
 	}
@@ -82,6 +85,9 @@ public class XmppConnectionContext {
 	}
 
 	public String getNickname() {
+		if( m_nickname == null){
+			return m_username;
+		}
 		return m_nickname;
 	}
 
@@ -91,6 +97,22 @@ public class XmppConnectionContext {
 
 	public XmppConsumer getConsumer() {
 		return m_consumer;
+	}
+
+	public void putMUC(String room, MultiUserChat muc) {
+		m_mucs.put(room,  muc);
+	}
+
+	public MultiUserChat getMUC(String room) {
+		return m_mucs.get(room);
+	}
+
+	public Map getMUCs(){
+		return m_mucs;
+	}
+
+	public String getFQRoomname(String roomname) {
+		return m_mucs.get(roomname) != null ? m_mucs.get(roomname).getRoom() : null;
 	}
 
 	public String getChatId() {

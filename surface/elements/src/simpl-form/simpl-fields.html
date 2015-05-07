@@ -702,7 +702,7 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="tableselect-field" attributes="multiSelect required meta data height" extends="form-field" kind="tableselect">
+<polymer-element name="tableselect-field" attributes="multiSelect required meta items height" extends="form-field" kind="tableselect">
 	<template>
 		<style>
 			.error {
@@ -788,7 +788,10 @@
 					scrollY: ( this.height - 40 ) + "px"
 				};
 				console.log( "dataTablesOptions:" + JSON.stringify( this.dataTablesOptions, null, 2 ) );
-				this.tableData = this.data;
+				this.tableData = this.items;
+			},
+			setItems:function(items){
+				this.tableData = items;
 			},
 			isRequired: function() {
 				var data = this.form.getData();

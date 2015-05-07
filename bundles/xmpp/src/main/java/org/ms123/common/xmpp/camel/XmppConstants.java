@@ -34,6 +34,7 @@ public interface XmppConstants {
 	String SESSIONID = "CamelXmppSessionId";
 	String RESOURCEID = "CamelXmppResourceId";
 	String NICKNAME = "CamelXmppNickname";
+	String ROOM = "CamelXmppRoom";
 	String COMMAND = "CamelXmppCommand";
 	String PARAMETER = "CamelXmppParameter";
 	String COMMAND_OPEN = "open";
