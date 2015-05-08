@@ -256,7 +256,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 						Map<String, Object> sendMap = new HashMap();
 						Collection<String> propertyNames = message.getPropertyNames();
 						for (String name : propertyNames) {
-							sendMap.put(name, message.getProperty(name));
+							//sendMap.put(name, message.getProperty(name));
 						}
 						String defaultSubject = message.getSubject();
 						List<String> subList = new ArrayList();
@@ -348,7 +348,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
 			Map<String, Object> map = (Map) m_ds.deserialize(message);
-			debug("\nFromSocket(" + hashCode() + ") message: " + map);
+			debug("\nFromWebsocketSocket(" + hashCode() + ") message: " + map);
 			String command = (String) map.get("command");
 			if (command != null && "close".equals(command)) {
 				CloseStatus cs = new CloseStatus(4001, "close on  client demand");

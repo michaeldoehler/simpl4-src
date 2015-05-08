@@ -155,7 +155,7 @@
 							<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
 							<core-menu-button>
 								<core-icon-button icon="menu"></core-icon-button>
-								<core-dropdown class="dropdown colored">
+								<core-dropdown class="dropdown colored" layered="true">
 									<core-menu>
 										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
 										<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
@@ -287,10 +287,21 @@
 					this.isComposing = false;
 				}
 			},
+			sendJoin: function(chat) {
+				if( chat == null){
+					chat = this.chatHash[ this.chatId ];
+				}
+				if( chat.muc === false) return;
+				var message = {
+					body: "",
+					from: this.loginData.username,
+					room: chat.id
+				}
+				this.$.websocket.sendMessage( message );
+			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
 				console.log( "-> recvMessage", message );
-				var body = message.body;
 				var chatState = message.chatState;
 				if ( message.from) {
 					message.from = message.from.split( "@" )[ 0 ];
@@ -302,12 +313,14 @@
 				}else if( message.type == "chat" ){
 					chat = this.chatHash["main"];
 				}
-				if ( message.body ) {
-					message.color = "green";
+				if ( !this.isEmpty(message.body) ) {
 					chat.messages.unshift( message );
 				}
 				if ( message.chatState ) {
 					this.chatState = tr( 'chat.state_' + chatState );
+				}
+				if( chat && chat.muc === true){
+					this.chatState = '';
 				}
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
@@ -327,13 +340,26 @@
 
 				this.loginData = formData;
 				this.rosterEntries = [];
-				this.$.websocket.go( formData.username, formData.password, this.resourceId );
+				this.$.websocket.go( formData.username, formData.password, this.resourceId, this.socketTimeoutCallback.bind(this) );
 			},
 			disconnect: function() {
 				this.sendChatState( "gone" );
 				this.async( function() {
 					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
 				}, null, 300 );
+			},
+			socketTimeoutCallback:function(){
+				console.log("socketTimeoutCallback:",this);
+
+				this.async( function() {
+					var chat = this.chatHash[ this.chatId ];
+					for( var i=0; i < this.chatList.length;i++){
+						var chat = this.chatList[i];
+						if( chat.muc){
+							this.sendJoin(chat);
+						}
+					}
+				}, null, 500 );
 			},
 			connectedChanged: function() {
 				this.isComposing = false;
@@ -392,6 +418,9 @@
 				this.addChat(chat);
 				this.viewId = "chatView";
 				this.chatId=chat.id;
+				this.async( function() {
+					this.sendJoin();
+				}, null, 300 );
 			},
 			showAddUserForm: function() {
 				this.viewId = "addUserView";
