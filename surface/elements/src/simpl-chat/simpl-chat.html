@@ -240,14 +240,7 @@
 			pausingTimeout: 2500,
 			messages: [],
 			ready: function() {
-				this.chatList = [];
-				var chat = {
-					id: 'main',
-					messages: [],
-					muc: false
-				};
-				this.addChat(chat);
-
+				this.resetChatList();
 				this.loginData = {};
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
@@ -265,7 +258,7 @@
 				var chat = this.chatHash[ this.chatId ];
 				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
-				if ( this.isEmpty( participant) && chat.muc===false  ) {
+				if ( this.isEmpty( participant ) && chat.muc === false ) {
 					console.error( "no participant selected" );
 					return;
 				}
@@ -275,10 +268,10 @@
 						from: this.loginData.username
 					};
 					if ( !this.isEmpty( participant ) ) {
-						message.participant= participant;
+						message.participant = participant;
 					}
 					if ( chat.muc ) {
-						message.room= chat.id;
+						message.room = chat.id;
 					}
 					chat.messages.unshift( message );
 					this.$.websocket.sendMessage( message );
@@ -287,11 +280,11 @@
 					this.isComposing = false;
 				}
 			},
-			sendJoin: function(chat) {
-				if( chat == null){
+			sendJoin: function( chat ) {
+				if ( chat == null ) {
 					chat = this.chatHash[ this.chatId ];
 				}
-				if( chat.muc === false) return;
+				if ( chat.muc === false ) return;
 				var message = {
 					body: "",
 					from: this.loginData.username,
@@ -303,23 +296,23 @@
 				var message = this.recvMessage;
 				console.log( "-> recvMessage", message );
 				var chatState = message.chatState;
-				if ( message.from) {
+				if ( message.from ) {
 					message.from = message.from.split( "@" )[ 0 ];
 				}
 				var chat = null;
-				if ( message.type=="groupchat") {
+				if ( message.type == "groupchat" ) {
 					message.from = message.from.split( "@" )[ 0 ];
 					chat = this.chatHash[ message.from ];
-				}else if( message.type == "chat" ){
-					chat = this.chatHash["main"];
+				} else if ( message.type == "chat" ) {
+					chat = this.chatHash[ "main" ];
 				}
-				if ( !this.isEmpty(message.body) ) {
+				if ( !this.isEmpty( message.body ) ) {
 					chat.messages.unshift( message );
 				}
 				if ( message.chatState ) {
 					this.chatState = tr( 'chat.state_' + chatState );
 				}
-				if( chat && chat.muc === true){
+				if ( chat && chat.muc === true ) {
 					this.chatState = '';
 				}
 				if ( message.rosterEntries ) {
@@ -340,7 +333,9 @@
 
 				this.loginData = formData;
 				this.rosterEntries = [];
-				this.$.websocket.go( formData.username, formData.password, this.resourceId, this.socketTimeoutCallback.bind(this) );
+				this.chatId = 'main';
+				this.resetChatList();
+				this.$.websocket.go( formData.username, formData.password, this.resourceId, this.socketTimeoutCallback.bind( this ) );
 			},
 			disconnect: function() {
 				this.sendChatState( "gone" );
@@ -348,15 +343,15 @@
 					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
 				}, null, 300 );
 			},
-			socketTimeoutCallback:function(){
-				console.log("socketTimeoutCallback:",this);
+			socketTimeoutCallback: function() {
+				console.log( "socketTimeoutCallback:", this );
 
 				this.async( function() {
 					var chat = this.chatHash[ this.chatId ];
-					for( var i=0; i < this.chatList.length;i++){
-						var chat = this.chatList[i];
-						if( chat.muc){
-							this.sendJoin(chat);
+					for ( var i = 0; i < this.chatList.length; i++ ) {
+						var chat = this.chatList[ i ];
+						if ( chat.muc ) {
+							this.sendJoin( chat );
 						}
 					}
 				}, null, 500 );
@@ -414,10 +409,10 @@
 				var chat = {};
 				chat.messages = [];
 				chat.muc = true;
-				chat.id=formData.room[0].name;
-				this.addChat(chat);
+				chat.id = formData.room[ 0 ].name;
+				this.addChat( chat );
 				this.viewId = "chatView";
-				this.chatId=chat.id;
+				this.chatId = chat.id;
 				this.async( function() {
 					this.sendJoin();
 				}, null, 300 );
@@ -497,9 +492,9 @@
 			},
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
-				var participant = $( this.shadowRoot.querySelector( "#participant-"+chat.id ) ).val();
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) ) {
-					if( chat.muc === false){
+					if ( chat.muc === false ) {
 						console.error( "no participant selected" );
 					}
 					return;
@@ -522,11 +517,20 @@
 				}
 				return 0;
 			},
-			addChat:function(chat){
-				this.chatList.push( chat );
-				this.chatHash = this.toHash(this.chatList);
+			resetChatList: function() {
+				this.chatList = [];
+				var chat = {
+					id: 'main',
+					messages: [],
+					muc: false
+				};
+				this.addChat( chat );
 			},
-			toHash:function(list){
+			addChat: function( chat ) {
+				this.chatList.push( chat );
+				this.chatHash = this.toHash( this.chatList );
+			},
+			toHash: function( list ) {
 				var hash = {}
 				for ( var i = 0; i < list.length; i++ ) {
 					hash[ list[ i ].id ] = list[ i ];

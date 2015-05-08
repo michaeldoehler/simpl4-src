@@ -36,11 +36,14 @@ import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.ChatState;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smackx.packet.DiscoverItems;
+import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smack.filter.ToContainsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -180,7 +183,6 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 	}
 
 	private synchronized void createMaybeMUC(XmppConnectionContext cc, String roomname) throws XMPPException {
-debug("createMaybeMUC:"+roomname);
 		if( roomname == null || cc.getMUC(roomname) != null){
 			return;
 		}
@@ -200,6 +202,18 @@ debug("createMaybeMUC:"+roomname);
 		history.setMaxChars(0); // we do not want any historical messages
 		muc.join(cc.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
 		info("Joined room: {} as: {}", fqRoomname, cc.getNickname());
+		try{
+		//	info("Joined room: {} members: {}", muc.getOccupants());
+		//	info("Joined room: {} members: {}", muc.getParticipants());
+			// Discover the list of items (i.e. occupants in this case) related to a room
+			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems("msroom@conference.simpl4.org");
+			debug("DiscoverItems:"+result);
+			for (Iterator items=result.getItems(); items.hasNext();) {
+				debug("\tMember:"+items.next());
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		cc.putMUC(roomname,muc);
 	}
 
