@@ -344,8 +344,6 @@
 				}, null, 300 );
 			},
 			socketTimeoutCallback: function() {
-				console.log( "socketTimeoutCallback:", this );
-
 				this.async( function() {
 					var chat = this.chatHash[ this.chatId ];
 					for ( var i = 0; i < this.chatList.length; i++ ) {
@@ -406,12 +404,22 @@
 				var roomlistForm = this.shadowRoot.querySelector( "#roomlistForm" );
 				var formData = roomlistForm.getData();
 				console.log( "roomListData:", formData );
+
+				this.viewId = "chatView";
+				if ( e.target.xaction == "cancel" ) {
+					 return;
+				}
+				if( formData.room == null){
+					 return;
+				}
 				var chat = {};
+				chat.id = formData.room[ 0 ].name;
+				if( this.chatHash[chat.id]){
+					return;
+				}
 				chat.messages = [];
 				chat.muc = true;
-				chat.id = formData.room[ 0 ].name;
 				this.addChat( chat );
-				this.viewId = "chatView";
 				this.chatId = chat.id;
 				this.async( function() {
 					this.sendJoin();
