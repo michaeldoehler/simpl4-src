@@ -128,7 +128,8 @@
             timeoutInterval: 2000,
 
             /** The maximum number of reconnection attempts to make. Unlimited if null. */
-            maxReconnectAttempts: null
+            maxReconnectAttempts: null,
+            timeoutCallback: null
         }
         if (!options) { options = {}; }
 
@@ -276,6 +277,9 @@
                     setTimeout(function() {
                         self.reconnectAttempts++;
                         self.open(true);
+												if( self.timeoutCallback){
+													 self.timeoutCallback();
+												}
                     }, timeout > self.maxReconnectInterval ? self.maxReconnectInterval : timeout);
                 }
             };

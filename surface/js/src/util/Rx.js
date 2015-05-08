@@ -19,7 +19,7 @@
 /**
  */
 can.Construct.extend( "simpl4.util.Rx", {
-	observableFromWebSocket: function( url, openObserver, closingObserver ) {
+	observableFromWebSocket: function( url, options, openObserver, closingObserver ) {
 		if ( !WebSocket ) {
 			throw new TypeError( 'WebSocket not implemented in your runtime.' );
 		}
@@ -42,10 +42,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 		};
 
 		var observable = new Rx.AnonymousObservable( function( obs ) {
-			socket = new ReconnectingWebSocket( url, null, {
-				debug: false,
-				reconnectInterval: 50
-			} );
+			socket = new ReconnectingWebSocket( url, null, options );
 
 			var openHandler = function( e ) {
 				openObserver.onNext( e );

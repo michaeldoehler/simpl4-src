@@ -58,7 +58,7 @@
 					}
 					this.connected = false;
 				},
-				go: function(user,pw,resourceId) {
+				go: function(user,pw,resourceId,timeoutCallback) {
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
@@ -77,7 +77,7 @@
 
 					this.url = baseUrl + "/ws/xyz?" + qs;
 
-					var open = Rx.Observer.create( ( function( e ) {
+					var openObserver = Rx.Observer.create( ( function( e ) {
 						console.info( '-> websocket open' );
 						this.connected = true;
 						setInterval( ( function() {
@@ -90,7 +90,12 @@
 						this.connected = false;
 					} ).bind( this ) );
 
-					this.socket = simpl4.util.Rx.observableFromWebSocket( this.url, open, closingObserver );
+					var options = {
+						timeoutCallback:timeoutCallback,
+						debug: false,
+						reconnectInterval: 50
+					}
+					this.socket = simpl4.util.Rx.observableFromWebSocket( this.url, options, openObserver, closingObserver );
 					var self = this;
 					this.socket.subscribe(
 						function( e ) {
