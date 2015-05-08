@@ -85,7 +85,7 @@
 				color: gray;
 			}
 			#messagesBox {
-				border: 0px solid lightgray;
+				border: 0px solid black;
 				overflow-y: auto;
 				min-height: 100px;
 				font-size: 12px;
@@ -148,7 +148,7 @@
 						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
 					</simpl-row>
 				</section>
-				<section view-id="chatView">
+				<section style="position:relative;" view-id="chatView">
 					<simpl-row>
 						<core-toolbar flex class="core-narrow">
 							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
@@ -176,9 +176,9 @@
 					</simpl-row>
 
 
-					<core-pages selected="{{chatId}}" valueattr="chat-id">
+					<core-animated-pages selected="{{chatId}}" valueattr="chat-id">
 						<template repeat="{{chat, i in chatList}}">
-							<section chat-id="{{chat.id}}">
+							<section style="position:relative;" chat-id="{{chat.id}}">
 								<template if="{{chat.muc == false}}">
 									<simpl-row>
 										{{'chat.participant'|tr}}:
@@ -211,7 +211,7 @@
 								</div>
 							</section>
 						</template>
-					</core-pages>
+					</core-animated-pages>
 				</section>
 				<section view-id="addUserView">
 					<h2>{{'chat.new_contact_header1'|tr}}</h2>
