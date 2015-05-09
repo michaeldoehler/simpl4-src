@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Consumer;
-import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class XmppConnectionContext {
 
-	private XMPPConnection m_connection;
+	private XMPPTCPConnection m_connection;
 	private XmppConsumer m_consumer;
 	private String m_participant;
 	private String m_username;
@@ -44,11 +44,11 @@ public class XmppConnectionContext {
 	public XmppConnectionContext() {
 	}
 
-	public void setConnection(XMPPConnection conn) {
+	public void setConnection(XMPPTCPConnection conn) {
 		m_connection = conn;
 	}
 
-	public XMPPConnection getConnection() {
+	public XMPPTCPConnection getConnection() {
 		return m_connection;
 	}
 

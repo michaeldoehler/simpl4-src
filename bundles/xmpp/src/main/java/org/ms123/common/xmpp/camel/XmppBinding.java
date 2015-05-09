@@ -68,7 +68,7 @@ public class XmppBinding {
 					message.setLanguage(language);
 				} else {
 					try {
-						message.setProperty(name, value);
+						//@@@MS message.setProperty(name, value);
 						LOG.trace("Added property name: {} value: {}", name, value.toString());
 					} catch (IllegalArgumentException iae) {
 						if (LOG.isDebugEnabled()) {
@@ -80,7 +80,7 @@ public class XmppBinding {
 		}
 		String id = exchange.getExchangeId();
 		if (id != null) {
-			message.setProperty("exchangeId", id);
+			//@@@MS message.setProperty("exchangeId", id);
 		}
 	}
 
@@ -93,12 +93,12 @@ public class XmppBinding {
 
 	public Map<String, Object> extractHeadersFromXmpp(Message xmppMessage, Exchange exchange) {
 		Map<String, Object> answer = new HashMap<String, Object>();
-		for (String name : xmppMessage.getPropertyNames()) {
+		/*@@@MS for (String name : xmppMessage.getPropertyNames()) {
 			Object value = xmppMessage.getProperty(name);
 			if (!headerFilterStrategy.applyFilterToExternalHeaders(name, value, exchange)) {
 				answer.put(name, value);
 			}
-		}
+		}*/
 		answer.put(XmppConstants.MESSAGE_TYPE, xmppMessage.getType());
 		answer.put(XmppConstants.SUBJECT, xmppMessage.getSubject());
 		answer.put(XmppConstants.THREAD_ID, xmppMessage.getThread());

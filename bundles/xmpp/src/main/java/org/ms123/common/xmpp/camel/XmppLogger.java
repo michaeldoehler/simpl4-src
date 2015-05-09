@@ -18,6 +18,7 @@ package org.ms123.common.xmpp.camel;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class XmppLogger implements PacketListener {
 		this.direction = direction;
 	}
 
-	public void processPacket(Packet packet) {
+	public void processPacket(Stanza packet) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("{} : {}", direction, packet.toXML());
 		}

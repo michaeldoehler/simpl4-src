@@ -22,23 +22,25 @@ import org.apache.camel.Exchange;
 import org.apache.camel.RuntimeExchangeException;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ObjectHelper;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.packet.ChatStateExtension;
-import org.jivesoftware.smackx.ChatState;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
+import org.jivesoftware.smackx.chatstates.ChatState;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smackx.packet.DiscoverItems;
-import org.jivesoftware.smackx.ServiceDiscoveryManager;
-import org.jivesoftware.smack.filter.ToContainsFilter;
+import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smack.filter.ToFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -86,7 +88,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			if( groupList!=null){
 				groups = groupList.toArray(new String[groupList.size()]);
 			}
-			cc.getConnection().getRoster().createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
+			Roster.getInstanceFor(cc.getConnection()).createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
 		}
 		if (command.equals(COMMAND_CHATSTATE)) {
 			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
@@ -94,7 +96,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			Message message=new Message();
 			ChatStateExtension extension=new ChatStateExtension(ChatState.valueOf(state));
 			message.addExtension(extension);
-			ChatManager chatManager = cc.getConnection().getChatManager();
+			ChatManager chatManager = ChatManager.getInstanceFor(cc.getConnection());
 			String thread = "Chat:" + participant + ":" + username;
 			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(),participant, thread);
 			chat.sendMessage(message);
@@ -104,7 +106,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 
 	public void process(Exchange exchange) {
 		XmppConnectionContext cc = null;
-		XMPPConnection connection = null;
+		XMPPTCPConnection connection = null;
 		String username = exchange.getIn().getHeader(USERNAME, String.class);
 		String resourceId = exchange.getIn().getHeader(RESOURCEID, String.class);
 		String password = exchange.getIn().getHeader(PASSWORD, String.class);
@@ -146,14 +148,14 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 				debug("Sending XMPP message toMUC({}): {}", cc.getFQRoomname(roomname), message.getBody());
 				cc.getMUC(roomname).sendMessage(message);
 				cc.getMUC(roomname).pollMessage();
-			} catch (XMPPException e) {
+			} catch (Exception e) {
 				throw new RuntimeExchangeException("Could not send XMPP message: " + message, exchange, e);
 			}
 		}else{
 			String thread = "Chat:" + participant + ":" + username;
 			cc.setParticipant(participant);
 			cc.setUsername(username);
-			ChatManager chatManager = connection.getChatManager();
+			ChatManager chatManager = ChatManager.getInstanceFor(connection);
 			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(),participant, thread);
 			Message message = null;
 			try {
@@ -164,8 +166,6 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 				endpoint.getBinding().populateXmppMessage(message, exchange);
 				debug("Sending XmppMessage from {} to {} : {}", cc.getSessionId(), participant, message.getBody() );
 				chat.sendMessage(message);
-			} catch (XMPPException xmppe) {
-				throw new RuntimeExchangeException("Could not send XMPP message: to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, xmppe);
 			} catch (Exception e) {
 				throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, e);
 			}
@@ -182,26 +182,26 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		return chat;
 	}
 
-	private synchronized void createMaybeMUC(XmppConnectionContext cc, String roomname) throws XMPPException {
+	private synchronized void createMaybeMUC(XmppConnectionContext cc, String roomname) throws Exception {
 		if( roomname == null || cc.getMUC(roomname) != null){
 			return;
 		}
-		XMPPConnection connection = cc.getConnection();
+		XMPPTCPConnection connection = cc.getConnection();
 
 		// add the presence packet listener to the connection so we only get packets that concerns us
 		// we must add the listener before creating the muc
-		final ToContainsFilter toFilter = new ToContainsFilter(cc.getParticipant());
+		final ToFilter toFilter = new ToFilter(cc.getParticipant());
 		final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
 		connection.addPacketListener(cc.getConsumer(), packetFilter);
 
 		String fqRoomname = endpoint.resolveRoom(connection,roomname);
-		MultiUserChat muc = new MultiUserChat(connection, fqRoomname);
+		MultiUserChat muc = MultiUserChatManager.getInstanceFor(connection).getMultiUserChat(fqRoomname);
 
 		muc.addMessageListener(cc.getConsumer());
 		muc.addParticipantListener(cc.getConsumer());
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxChars(0); // we do not want any historical messages
-		muc.join(cc.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
+		muc.join(cc.getNickname(), null, history, 5000L);
 		info("Joined room: {} as: {}", fqRoomname, cc.getNickname());
 		try{
 		//	info("Joined room: {} members: {}", muc.getOccupants());
@@ -209,8 +209,8 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			// Discover the list of items (i.e. occupants in this case) related to a room
 			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems(fqRoomname);
 			debug("DiscoverItems:"+result);
-			for (Iterator items=result.getItems(); items.hasNext();) {
-				debug("\tMember:"+items.next());
+			for (DiscoverItems.Item item : result.getItems()) {
+				debug("\tMember:"+item);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -218,7 +218,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		cc.putMUC(roomname,muc);
 	}
 
-	private synchronized void reconnect(XMPPConnection connection) throws XMPPException {
+	private synchronized void reconnect(XMPPTCPConnection connection) throws Exception {
 		if (!connection.isConnected()) {
 			debug("Reconnecting to: {}", XmppEndpoint.getConnectionMessage(connection));
 			connection.connect();

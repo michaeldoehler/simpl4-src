@@ -75,7 +75,7 @@ import rx.functions.Func1;
 import org.apache.camel.rx.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.camel.ProducerTemplate;
-import org.jivesoftware.smackx.packet.MessageEvent;
+import org.jivesoftware.smackx.xevent.packet.MessageEvent;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import static org.ms123.common.xmpp.camel.XmppConstants.USERNAME;
 import static org.ms123.common.xmpp.camel.XmppConstants.PASSWORD;
@@ -254,10 +254,10 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					if (camelMessage instanceof XmppMessage) {
 						org.jivesoftware.smack.packet.Message message = ((XmppMessage) camelMessage).getXmppMessage();
 						Map<String, Object> sendMap = new HashMap();
-						Collection<String> propertyNames = message.getPropertyNames();
+						/*Collection<String> propertyNames = message.getPropertyNames();
 						for (String name : propertyNames) {
 							//sendMap.put(name, message.getProperty(name));
-						}
+						}*/
 						String defaultSubject = message.getSubject();
 						List<String> subList = new ArrayList();
 						for (org.jivesoftware.smack.packet.Message.Subject subject : message.getSubjects()) {
@@ -280,8 +280,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 						sendMap.put("language", message.getLanguage());
 						sendMap.put("body", message.getBody());
 						List<String> extensionList = new ArrayList();
-						for (org.jivesoftware.smack.packet.PacketExtension ep : message.getExtensions()) {
-							if (ep instanceof org.jivesoftware.smackx.packet.ChatStateExtension) {
+						for (org.jivesoftware.smack.packet.ExtensionElement ep : message.getExtensions()) {
+							if (ep instanceof org.jivesoftware.smackx.chatstates.packet.ChatStateExtension) {
 								sendMap.put("chatState", ep.getElementName());
 							}
 							if (ep instanceof MessageEvent) {
@@ -339,6 +339,9 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					e = e.getCause();
 					msg = e.getMessage();
 				}
+				if( msg == null){
+					msg = e.toString();
+				}
 				CloseStatus cs = new CloseStatus(4000, msg);
 				m_session.close(cs);
 			}
@@ -348,23 +351,38 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketText(String message) {
 			super.onWebSocketText(message);
 			Map<String, Object> map = (Map) m_ds.deserialize(message);
-			debug("\nFromWebsocketSocket(" + hashCode() + ") message: " + map);
-			String command = (String) map.get("command");
-			if (command != null && "close".equals(command)) {
-				CloseStatus cs = new CloseStatus(4001, "close on  client demand");
-				m_session.close(cs);
-			} else {
-				String body = (String) map.get("body");
-				command = (String) map.get("command");
-				String participant = (String) map.get("participant");
-				String room = (String) map.get("room");
-				if (body != null) {
-					Map<String, Object> headers = getHeaders(participant, room,null);
-					m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
-				} else if (command != null) {
-					Map<String, Object> headers = getHeaders(participant, room,command, (Map) map.get("parameter"));
-					m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
+			try{
+				debug("\nFromWebsocketSocket(" + hashCode() + ") message: " + map);
+				String command = (String) map.get("command");
+				if (command != null && "close".equals(command)) {
+					CloseStatus cs = new CloseStatus(4001, "close on  client demand");
+					m_session.close(cs);
+				} else {
+					String body = (String) map.get("body");
+					command = (String) map.get("command");
+					String participant = (String) map.get("participant");
+					String room = (String) map.get("room");
+					if (body != null) {
+						Map<String, Object> headers = getHeaders(participant, room,null);
+						m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
+					} else if (command != null) {
+						Map<String, Object> headers = getHeaders(participant, room,command, (Map) map.get("parameter"));
+						m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, headers);
+					}
 				}
+			}catch(Throwable e){
+				e.printStackTrace();
+				String msg = e.getMessage();
+				while (e.getCause() != null) {
+					e = e.getCause();
+					msg = e.getMessage();
+				}
+				if( msg == null){
+					msg = e.toString();
+				}
+				map.put("errorMessage", msg);
+				String sendString = m_js.deepSerialize(map);
+				m_session.getRemote().sendStringByFuture(sendString);
 			}
 		}
 

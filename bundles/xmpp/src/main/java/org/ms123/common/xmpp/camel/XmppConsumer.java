@@ -24,22 +24,25 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.util.URISupport;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.RosterListener;
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.ChatManagerListener;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterListener;
+import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
+import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.PresenceListener;
 import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.filter.ToContainsFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -57,12 +60,12 @@ import java.util.ArrayList;
  *
  * @version 
  */
-public class XmppConsumer extends DefaultConsumer implements RosterListener, PacketListener, MessageListener, ChatManagerListener {
+public class XmppConsumer extends DefaultConsumer implements PresenceListener, RosterListener, PacketListener, MessageListener, ChatMessageListener, ChatManagerListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(XmppConsumer.class);
 
 	private final XmppEndpoint endpoint;
-	private XMPPConnection m_connection;
+	private XMPPTCPConnection m_connection;
 	private ScheduledExecutorService scheduledExecutor;
 	private XmppConnectionContext m_connectionContext;
 
@@ -75,13 +78,13 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	@Override
 	protected void doStart() throws Exception {
 		m_connection = m_connectionContext.getConnection();
-		ChatManager chatManager = m_connection.getChatManager();
+		ChatManager chatManager = ChatManager.getInstanceFor(m_connection);
 		chatManager.addChatListener(this);
-		Roster roster = m_connection.getRoster();
+		Roster roster = Roster.getInstanceFor(m_connection);
 		roster.addRosterListener( this);
 		this.startRobustConnectionMonitor();
 		super.doStart();
-		sendRoster();
+		//sendRoster();
 	}
 
 	private void startRobustConnectionMonitor() throws Exception {
@@ -105,7 +108,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 			info("Attempting to reconnect to: {}", XmppEndpoint.getConnectionMessage(m_connection));
 			try {
 				m_connection.connect();
-			} catch (XMPPException e) {
+			} catch (XMPPException.XMPPErrorException e) {
 				warn(XmppEndpoint.getXmppExceptionLogMessage(e), null);
 			}
 		}
@@ -150,14 +153,24 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		}
 	}
 
-	public void processPacket(Packet packet) {
+	public void processPacket(Stanza packet) {
 		debug("Received XMPP packet:"+packet  );
 		if (packet instanceof Message) {
-			processMessage(null, (Message) packet);
+			processMessage( (Message) packet);
 		}
 	}
 
-	public void processMessage(Chat chat, Message message) {
+	public void processPresence(Presence presence) {
+		debug("Received XMPP presence:"+presence  );
+		//if (presence instanceof Message) {
+		//	processMessage( (Message) packet);
+		//}
+	}
+	public void processMessage(Message message) {
+		processMessage(null,message);
+	}
+
+	public void processMessage(Chat chat,  Message message) {
 		debug("Received XMPP message for session:{} to {}  from {} : {}",  m_connectionContext.getSessionId(),message.getTo() , message.getFrom(), message.getBody() );
 		Exchange exchange = endpoint.createExchange(message);
 		try {
@@ -167,8 +180,12 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 			exchange.setException(e);
 		} finally {
 			Map<String,MultiUserChat> mucs = m_connectionContext.getMUCs();
-			for (MultiUserChat muc : mucs.values()) {
-				muc.pollMessage();
+			try{
+				for (MultiUserChat muc : mucs.values()) {
+					muc.pollMessage();
+				}
+			}catch(Exception e){
+				e.printStackTrace();
 			}
 		}
 	}
@@ -185,7 +202,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 	}
 	/* RosterListener Start ================================ */
 	private void sendRoster(){
-		Roster roster = m_connectionContext.getConnection().getRoster();
+		Roster roster = Roster.getInstanceFor(m_connectionContext.getConnection());
 		Collection<RosterEntry> entries =  roster.getEntries();
 		debug("Entries:"+entries);
 		debug("UEntries:"+roster.getUnfiledEntries());

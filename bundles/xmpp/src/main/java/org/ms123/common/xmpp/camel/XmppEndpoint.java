@@ -30,15 +30,18 @@ import org.apache.camel.impl.DefaultHeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.util.ObjectHelper;
-import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -133,11 +136,11 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return m_connectionContextMap.get(username) != null;
 	}
 
-	public synchronized XmppConnectionContext getOrCreateConnectionContext(String username, String password, String resourceId, String participant) throws XMPPException {
+	public synchronized XmppConnectionContext getOrCreateConnectionContext(String username, String password, String resourceId, String participant) throws Exception {
 		String sessionId = username +"/"+resourceId;
 		XmppConnectionContext connectionContext = m_connectionContextMap.get(sessionId);
-		debug("GetOrCreateConnectionContext:connectionContext:" + connectionContext + "/" + sessionId);
-		XMPPConnection connection = null;
+		debug("GetOrCreateConnectionContext:connectionContext:" + connectionContext + "/" + sessionId+"/"+getConnectionDescription()+"/"+username+"/"+password);
+		XMPPTCPConnection connection = null;
 		if (connectionContext != null) {
 			connection = connectionContext.getConnection();
 		}
@@ -147,25 +150,41 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		if (connection == null) {
 			if (port > 0) {
 				if (getServiceName() == null) {
-					connection = new XMPPConnection(new ConnectionConfiguration(host, port));
+					XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
+						.setHost(host) 
+						.setPort(port)
+						.setUsernameAndPassword(username, password)
+						.setCompressionEnabled(false).build();
+
+					connection = new XMPPTCPConnection(conf);
 				} else {
-					connection = new XMPPConnection(new ConnectionConfiguration(host, port, serviceName));
+					XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
+						.setHost(host) 
+						.setPort(port)
+						.setServiceName(serviceName)
+						.setUsernameAndPassword(username, password)
+						.setCompressionEnabled(false).build();
+					connection = new XMPPTCPConnection(conf);
 				}
 			} else {
-				connection = new XMPPConnection(host);
+					XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
+						.setHost(host) 
+						.setUsernameAndPassword(username, password)
+						.setCompressionEnabled(false).build();
+					connection = new XMPPTCPConnection(conf);
 			}
 		}
 		connection.connect();
 		debug("GetOrCreateConnectionContext:connection created and/or connected");
 		connection.addPacketListener(new XmppLogger("INBOUND"), new PacketFilter() {
 
-			public boolean accept(Packet packet) {
+			public boolean accept(Stanza packet) {
 				return true;
 			}
 		});
 		connection.addPacketSendingListener(new XmppLogger("OUTBOUND"), new PacketFilter() {
 
-			public boolean accept(Packet packet) {
+			public boolean accept(Stanza packet) {
 				return true;
 			}
 		});
@@ -176,7 +195,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 					warn("No password configured for user: {} on connection: {}", username, getConnectionMessage(connection));
 				}
 				if (createAccount) {
-					AccountManager accountManager = new AccountManager(connection);
+					AccountManager accountManager = AccountManager.getInstance(connection);
 					accountManager.createAccount(username, password);
 				}
 				if (login) {
@@ -215,14 +234,14 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
      * If there is no "@" symbol in the room, find the chat service JID and
      * return fully qualified JID for the room as room@conference.server.domain
      */
-	public String resolveRoom(XMPPConnection connection, String room) throws XMPPException {
+	public String resolveRoom(XMPPTCPConnection connection, String room) throws Exception {
 		ObjectHelper.notEmpty(room, "room");
 		if (room.indexOf('@', 0) != -1) {
 			return room;
 		}
-		Iterator<String> iterator = MultiUserChat.getServiceNames(connection).iterator();
+		Iterator<String> iterator = MultiUserChatManager.getInstanceFor(connection).getServiceNames().iterator();
 		if (!iterator.hasNext()) {
-			throw new XMPPException("Cannot find Multi User Chat service on connection: " + getConnectionMessage(connection));
+			throw new RuntimeException("Cannot find Multi User Chat service on connection: " + getConnectionMessage(connection));
 		}
 		String chatServer = iterator.next();
 		debug("Detected chat server: {}", chatServer);
@@ -233,20 +252,17 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 		return host + ":" + port + "/" + serviceName;
 	}
 
-	public static String getConnectionMessage(XMPPConnection connection) {
+	public static String getConnectionMessage(XMPPTCPConnection connection) {
 		return connection.getHost() + ":" + connection.getPort() + "/" + connection.getServiceName();
 	}
 
-	public static String getXmppExceptionLogMessage(XMPPException e) {
+	public static String getXmppExceptionLogMessage(XMPPException.XMPPErrorException e) {
 		XMPPError xmppError = e.getXMPPError();
-		Throwable t = e.getWrappedThrowable();
 		StringBuilder strBuff = new StringBuilder();
 		if (xmppError != null) {
-			strBuff.append("[ ").append(xmppError.getCode()).append(" ] ").append(xmppError.getCondition()).append(" : ").append(xmppError.getMessage());
+			strBuff.append("[ ").append(xmppError.getType()).append(" ] ").append(xmppError.getCondition()).append(" : ").append(xmppError.getConditionText());
 		}
-		if (t != null) {
-			strBuff.append(" ( ").append(e.getWrappedThrowable().getMessage()).append(" )");
-		}
+		strBuff.append(" ( ").append(e.getMessage()).append(" )");
 		return strBuff.toString();
 	}
 
