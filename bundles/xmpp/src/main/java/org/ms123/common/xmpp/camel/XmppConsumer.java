@@ -122,7 +122,7 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 	}
 
 	@Override
-	protected void doStop() throws Exception {
+	protected synchronized void doStop() throws Exception {
 		if (scheduledExecutor != null) {
 			getEndpoint().getCamelContext().getExecutorServiceManager().shutdownNow(scheduledExecutor);
 			scheduledExecutor = null;
@@ -130,9 +130,9 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 		Map<String,MultiUserChat> mucs = m_connectionContext.getMUCs();
 		for (MultiUserChat muc : mucs.values()) {
 			info("Leaving room: {}", muc.getRoom());
+			muc.leave();
 			muc.removeMessageListener(this);
 			muc.removeParticipantListener(this);
-			muc.leave();
 		}
 		mucs.clear();
 		if (m_connection != null && m_connection.isConnected()) {
@@ -153,6 +153,12 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 		}
 	}
 
+	private void sleep(Long time){
+		try{
+			Thread.sleep(time);
+		}catch(Exception e){
+		}
+	}
 	public void processPacket(Stanza packet) {
 		debug("Received XMPP packet:"+packet  );
 		if (packet instanceof Message) {
@@ -162,9 +168,14 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 
 	public void processPresence(Presence presence) {
 		debug("Received XMPP presence:"+presence  );
-		//if (presence instanceof Message) {
-		//	processMessage( (Message) packet);
-		//}
+		String fqFrom = presence.getFrom();
+		String from = fqFrom.split("@")[0];
+		debug("processPresence.from2:"+fqFrom+"/sess:"+m_connectionContext.getSessionId());
+		MultiUserChat muc = m_connectionContext.getMUC(from);
+		if( muc != null){
+			List<String>	occupants = muc.getOccupants();
+			sendPresence(fqFrom, occupants);
+		}
 	}
 	public void processMessage(Message message) {
 		processMessage(null,message);
@@ -216,6 +227,22 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 		body.put("rosterEntries", retList);
 		processMessage( body);
 	}
+
+	private List<String> removeRoom(List<String> in){
+		List<String> out = new ArrayList();
+		for( String one : in ){
+			out.add(one.split("/")[1]);
+		}
+		return out;
+	}
+
+	protected void sendPresence(String from, List<String> occupants){
+		Map<String,Object> body = new HashMap();
+		body.put("from", from);
+		body.put("presence", removeRoom(occupants));
+		processMessage( body);
+	}
+
 	public void	entriesAdded(Collection<String> addresses){
 		debug("Roster.entriesAdded("+m_connectionContext.getSessionId()+"):"+addresses);
 		sendRoster();

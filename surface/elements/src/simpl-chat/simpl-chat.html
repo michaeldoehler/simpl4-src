@@ -30,20 +30,18 @@
 			paper-button {
 				max-width: 100px;
 			}
-
 			paper-button.sendButton {
 				max-width: 80px;
 			}
 			paper-button.sendButton /deep/ .button-content {
 				justify-content: flex-start !important;
 			}
-			section.chatSection{
-				padding-left:3px;
+			section.chatSection {
+				padding-left: 3px;
 			}
 			input-field {
-				margin:0;
+				margin: 0;
 			}
-
 			simpl-form {
 				width: 100%;
 			}
@@ -65,8 +63,8 @@
 			}
 			simpl-panel /deep/ #panelContent {
 				min-height: 450px;
-				padding:0px 0px 0px 0px !important;
-				overflow-x:hidden !important;
+				padding: 0px 0px 0px 0px !important;
+				overflow-x: hidden !important;
 			}
 			.small-input {
 				padding: 3px;
@@ -80,13 +78,13 @@
 				padding: 2px;
 				font-size: 11px;
 				word-wrap: break-word;
-				color:#d50303;
+				color: #d50303;
 			}
 			.icon-column {
-				color:#4285F4;
+				color: #4285F4;
 			}
 			.name-column {
-				color:black;
+				color: black;
 				padding: 2px;
 				font-size: 10px;
 				font-weight: bold;
@@ -98,6 +96,12 @@
 				padding-top: 5px;
 				padding: 3px;
 				color: gray;
+			}
+			.presence {
+				color: #d50303;
+				padding: 5px;
+				font-size: 10px;
+				font-weight: bold;
 			}
 			.messageLine {
 				padding: 2px;
@@ -208,6 +212,16 @@
 									</simpl-row>
 								</template>
 								<simpl-row>
+								</simpl-row>
+								<template if="{{chat.muc}}">
+									<div style="flex-wrap:wrap;" layout horizontal>
+										<template repeat="{{user,i in chat.presence}}">
+											<paper-button class="userButton" raised on-tap="{{sendMessageInput}}">
+												<core-icon class="small" icon="account-box"></core-icon>{{user}}</paper-button>
+										</template>
+									</div>
+								</template>
+								<simpl-row>
 									<input-field flex type="text" name="" id="{{'messageInput-'+chat.id}}" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
 									<paper-button class="sendButton" raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
 										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
@@ -217,7 +231,7 @@
 										<ol>
 											<li>
 												<div class="messageLine" layout horizontal style="{{message.style}}">
-													<core-icon  class="icon-column small" icon="mail"></core-icon>
+													<core-icon class="icon-column small" icon="mail"></core-icon>
 													<div flex layout vertical>
 														<div layout horizontal>
 															<div class="timestamp-column">{{ message.time }}</div>
@@ -298,7 +312,7 @@
 						message.room = chat.id;
 					}
 					if ( chat.muc === false ) {
-						message.style="background:light-yellow;";
+						message.style = "background:light-yellow;";
 						message.time = this.getTime();
 						chat.messages.unshift( message );
 					}
@@ -317,11 +331,11 @@
 					message.from = message.from.split( "@" )[ 0 ];
 				}
 				var chat = null;
-				if ( message.errorMessage ){
-					this.showError( message.errorMessage);
-					console.error(message.errorMessage);
-					if( message.room){
-						this.removeChat(message.room);
+				if ( message.errorMessage ) {
+					this.showError( message.errorMessage );
+					console.error( message.errorMessage );
+					if ( message.room ) {
+						this.removeChat( message.room );
 					}
 					return;
 				}
@@ -333,7 +347,7 @@
 					chat = this.chatHash[ "main" ];
 				}
 				if ( !this.isEmpty( message.body ) ) {
-					message.style="background:#f8f8f8;";
+					message.style = "background:#f8f8f8;";
 					chat.messages.unshift( message );
 				}
 				if ( message.chatState ) {
@@ -345,6 +359,12 @@
 				if ( message.rosterEntries ) {
 					this.rosterEntries = message.rosterEntries;
 					this.rosterEntries.sort( this.sortRosterEntries );
+				}
+				if ( message.presence ) {
+					var chatId = message.from.split( "@" )[ 0 ];
+					var chat = this.chatHash[ chatId ];
+					chat.presence = message.presence;
+					console.log( "chat.presence:" + JSON.stringify( chat, null, 2 ) );
 				}
 			},
 			login: function( e ) {
@@ -571,7 +591,7 @@
 			getTime: function() {
 				//var format = simpl4.util.BaseManager.getDateFormat() + " HH:mm:ss";
 				var format = " HH:mm.ss";
-				return "["+moment().format( format )+"]";
+				return "[" + moment().format( format ) + "]";
 			},
 			resetChatList: function() {
 				this.chatList = [];
@@ -583,9 +603,9 @@
 				this.addChat( chat );
 			},
 			removeChat: function( name ) {
-				for(var i=0; i < this.chatList.length;i++){
-					if( name === this.chatList[i].id){
-						this.chatList.splice(i,1);
+				for ( var i = 0; i < this.chatList.length; i++ ) {
+					if ( name === this.chatList[ i ].id ) {
+						this.chatList.splice( i, 1 );
 						break;
 					}
 				}
@@ -593,6 +613,7 @@
 				this.chatId = "main";
 			},
 			addChat: function( chat ) {
+				chat.presence = [];
 				this.chatList.push( chat );
 				this.chatHash = this.toHash( this.chatList );
 			},
