@@ -33,6 +33,9 @@
 			paper-button.sendButton {
 				max-width: 80px;
 			}
+			paper-button.userButton {
+				min-width: 70px !important;
+			}
 			paper-button.sendButton /deep/ .button-content {
 				justify-content: flex-start !important;
 			}
@@ -106,8 +109,7 @@
 			.messageLine {
 				padding: 2px;
 			}
-			#messagesBox {
-				border: 0px solid black;
+			.messagesBox {
 				overflow-y: auto;
 				min-height: 100px;
 				font-size: 12px;
@@ -139,17 +141,17 @@
 			}
 			paper-tab {
 				z-index: 100;
-				border-radius: 6px;
+				border-radius: 4px;
 			}
 			paper-tabs::shadow #selectionBar {
-				background-color: black;
-				//background: #d50303;
+				//background-color: black;
+				background: #d50303;
 			}
 			paper-tabs paper-tab::shadow #ink {
 				opacity: .6;
 				color: #d50303;
 			}
-			.dropdown.colored {
+			.dropdown {
 				border-radius: 3px;
 				color: #000;
 				//border: 1px solid #0f9d58;
@@ -177,11 +179,12 @@
 							<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
 							<core-menu-button>
 								<core-icon-button icon="menu"></core-icon-button>
-								<core-dropdown class="dropdown colored" layered="true">
+								<core-dropdown class="dropdown" layered="true">
 									<core-menu>
 										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
 										<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
-										<core-item on-tap="{{showRoomList}}" icon="content-copy">{{'chat.roomlist'|tr}}</core-item>
+										<core-item on-tap="{{showJoinRoomForm}}" icon="content-copy">{{'chat.joinRoom'|tr}}</core-item>
+										<core-item on-tap="{{showLeaveRoomForm}}" icon="launch">{{'chat.leaveRoom'|tr}}</core-item>
 									</core-menu>
 								</core-dropdown>
 							</core-menu-button>
@@ -226,7 +229,7 @@
 									<paper-button class="sendButton" raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
 										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
 								</simpl-row>
-								<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
+								<div class="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
 									<template repeat="{{message in chat.messages}}">
 										<ol>
 											<li>
@@ -257,8 +260,11 @@
 					<h2>{{'chat.new_group_header'|tr}}</h2>
 					<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
 				</section>
-				<section view-id="roomlistView">
-					<simpl-form id="roomlistForm" namespace="global" actionCallback="{{joinRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
+				<section view-id="joinRoomView">
+					<simpl-form id="joinRoomForm" namespace="global" actionCallback="{{joinRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
+				</section>
+				<section view-id="leaveRoomView">
+					<simpl-form id="leaveRoomForm" namespace="global" actionCallback="{{leaveRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
 				</section>
 			</core-animated-pages>
 
@@ -285,6 +291,7 @@
 				this.addGroupCallback = this.addGroup.bind( this );
 				this.loginCallback = this.login.bind( this );
 				this.joinRoomCallback = this.joinRoom.bind( this );
+				this.leaveRoomCallback = this.leaveRoom.bind( this );
 				window.addEventListener( 'unload', ( function( e ) {
 					if ( this.connected ) {
 						this.sendChatState( "gone" );
@@ -363,8 +370,10 @@
 				if ( message.presence ) {
 					var chatId = message.from.split( "@" )[ 0 ];
 					var chat = this.chatHash[ chatId ];
-					chat.presence = message.presence;
-					console.log( "chat.presence:" + JSON.stringify( chat, null, 2 ) );
+					if( chat ){
+						chat.presence = message.presence;
+						console.log( "chat.presence:" + JSON.stringify( chat, null, 2 ) );
+					}
 				}
 			},
 			login: function( e ) {
@@ -417,8 +426,8 @@
 					}
 				}, null, 100 );
 			},
-			showRoomList: function() {
-				this.viewId = "roomlistView";
+			showJoinRoomForm: function() {
+				this.viewId = "joinRoomView";
 				var params = {
 					service: "xmpp",
 					method: "getRooms",
@@ -428,7 +437,7 @@
 					async: true,
 					context: this,
 					failed: function( e ) {
-						console.error( "showRoomList:", e );
+						console.error( "showJoinRoomForm:", e );
 					},
 					completed: function( roomList ) {
 						var rooms = [];
@@ -441,15 +450,15 @@
 						var items = {
 							room: rooms
 						};
-						var roomlistForm = this.shadowRoot.querySelector( "#roomlistForm" );
-						roomlistForm.setItems( items );
+						var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
+						joinRoomForm.setItems( items );
 					}
 				}
 				simpl4.util.Rpc.rpcAsync( params );
 			},
 			joinRoom: function( e ) {
-				var roomlistForm = this.shadowRoot.querySelector( "#roomlistForm" );
-				var formData = roomlistForm.getData();
+				var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
+				var formData = joinRoomForm.getData();
 				console.log( "roomListData:", formData );
 
 				this.viewId = "chatView";
@@ -461,6 +470,7 @@
 				}
 				var chat = {};
 				chat.id = formData.room[ 0 ].name;
+				chat.description = formData.room[ 0 ].description;
 				this.chatId = chat.id;
 				if ( this.chatHash[ chat.id ] ) {
 					return;
@@ -471,6 +481,49 @@
 				this.async( function() {
 					this.sendJoin();
 				}, null, 300 );
+			},
+			showLeaveRoomForm: function() {
+				this.viewId = "leaveRoomView";
+				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var items = [];
+				for ( var i = 0; i < this.chatList.length; i++ ) {
+					if ( this.chatList[ i ].muc ) {
+						var item = {
+							name: this.chatList[ i ].id,
+							description: this.chatList[ i ].description
+						}
+						items.push(item);
+					}
+				}
+				this.async( function() {
+					leaveRoomForm.setItems( {room:items} );
+					var actionButton = leaveRoomForm.querySelector("simpl-form /deep/ xaction-button");
+					actionButton.innerHTML='<core-icon icon="launch"></core-icon>' + tr('chat.leaveRoom');
+					console.log("actionButton:", actionButton);
+				}, null, 30 );
+			},
+			leaveRoom: function( e ) {
+				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var formData = leaveRoomForm.getData();
+				console.log( "leaveRoomData:", formData );
+				console.log( "xaction:", e.target.xaction );
+
+				this.viewId = "chatView";
+				if ( e.target.xaction == "cancel" ) {
+					return;
+				}
+				if ( formData.room == null ) {
+					return;
+				}
+				var chatId = formData.room[ 0 ].name;
+				var message = {
+					command: "leaveRoom",
+					parameter: {
+						room: chatId
+					}
+				};
+				this.$.websocket.sendMessage( message );
+				this.removeChat(chatId);
 			},
 			showAddUserForm: function() {
 				this.viewId = "addUserView";
@@ -505,7 +558,7 @@
 				var message = {
 					command: "addGroup",
 					parameter: {
-						username: formData.groupname,
+						groupname: formData.groupname,
 					}
 				};
 				this.$.websocket.sendMessage( message );

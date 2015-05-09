@@ -40,5 +40,6 @@ public interface XmppConstants {
 	String COMMAND_OPEN = "open";
 	String COMMAND_CLOSE = "close";
 	String COMMAND_ADDUSER = "addUser";
+	String COMMAND_LEAVEROOM = "leaveRoom";
 	String COMMAND_CHATSTATE = "chatState";
 }

@@ -90,6 +90,15 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			}
 			Roster.getInstanceFor(cc.getConnection()).createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
 		}
+		if (command.equals(COMMAND_LEAVEROOM)) {
+			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
+			String paramRoom = (String)parameter.get("room");
+			MultiUserChat muc = cc.getMUC(paramRoom);
+			muc.leave();
+			muc.removeMessageListener(cc.getConsumer());
+			muc.removeParticipantListener(cc.getConsumer());
+			cc.getMUCs().remove(paramRoom);
+		}
 		if (command.equals(COMMAND_CHATSTATE)) {
 			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 			String state = (String)parameter.get("state");
@@ -206,10 +215,12 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		try{
 		//	info("Joined room: {} members: {}", muc.getOccupants());
 		//	info("Joined room: {} members: {}", muc.getParticipants());
-			// Discover the list of items (i.e. occupants in this case) related to a room
+			// Discover the list of atems (i.e. occupants in this case) related to a room
+			debug("Step3");
 			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems(fqRoomname);
 			debug("DiscoverItems:"+result);
 			for (DiscoverItems.Item item : result.getItems()) {
+			debug("Step3");
 				//debug("\tMember:"+item);
 			}
 		}catch(Exception e){
