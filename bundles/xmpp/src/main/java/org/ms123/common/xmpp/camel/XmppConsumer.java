@@ -128,6 +128,7 @@ public class XmppConsumer extends DefaultConsumer implements RosterListener, Pac
 		for (MultiUserChat muc : mucs.values()) {
 			info("Leaving room: {}", muc.getRoom());
 			muc.removeMessageListener(this);
+			muc.removeParticipantListener(this);
 			muc.leave();
 		}
 		mucs.clear();

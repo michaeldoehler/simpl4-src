@@ -198,6 +198,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		MultiUserChat muc = new MultiUserChat(connection, fqRoomname);
 
 		muc.addMessageListener(cc.getConsumer());
+		muc.addParticipantListener(cc.getConsumer());
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxChars(0); // we do not want any historical messages
 		muc.join(cc.getNickname(), null, history, SmackConfiguration.getPacketReplyTimeout());
@@ -206,7 +207,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		//	info("Joined room: {} members: {}", muc.getOccupants());
 		//	info("Joined room: {} members: {}", muc.getParticipants());
 			// Discover the list of items (i.e. occupants in this case) related to a room
-			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems("msroom@conference.simpl4.org");
+			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems(fqRoomname);
 			debug("DiscoverItems:"+result);
 			for (Iterator items=result.getItems(); items.hasNext();) {
 				debug("\tMember:"+items.next());
