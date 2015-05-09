@@ -175,7 +175,7 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
   scan-bundle:file:$REPOSITORY/antlr-runtime-3.3.bar \
 	scan-bundle:file:$REPOSITORY/asm-all-5.0.3.jar \
-  scan-bundle:file:$REPOSITORY/aspectjrt-1.7.1.bar \
+  scan-bundle:file:$REPOSITORY/aspectjrt-1.8.5.bar \
 	scan-bundle:file:$REPOSITORY/biz.aQute.bndlib.jar \
   scan-bundle:file:$REPOSITORY/codemodel-2.4.bar \
 	scan-bundle:file:$REPOSITORY/commons-beanutils-1.8.4-SNAPSHOT.jar \
