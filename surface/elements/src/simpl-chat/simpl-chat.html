@@ -30,6 +30,20 @@
 			paper-button {
 				max-width: 100px;
 			}
+
+			paper-button.sendButton {
+				max-width: 80px;
+			}
+			paper-button.sendButton /deep/ .button-content {
+				justify-content: flex-start !important;
+			}
+			section.chatSection{
+				padding-left:3px;
+			}
+			input-field {
+				margin:0;
+			}
+
 			simpl-form {
 				width: 100%;
 			}
@@ -50,8 +64,9 @@
 				height: 24px;
 			}
 			simpl-panel /deep/ #panelContent {
-				min-height: 400px;
-				padding: 10px 5px 5px 5px !important;
+				min-height: 450px;
+				padding:0px 0px 0px 0px !important;
+				overflow-x:hidden !important;
 			}
 			.small-input {
 				padding: 3px;
@@ -61,28 +76,31 @@
 				border: 1px solid #CCC;
 				background-image: none;
 			}
-			.name-column {
-				float: left;
-				width: 25%;
-				padding: 2px;
-			}
 			.message-column {
-				float: left;
-				width: 60%;
 				padding: 2px;
+				font-size: 11px;
 				word-wrap: break-word;
+				color:#d50303;
+			}
+			.icon-column {
+				color:#4285F4;
+			}
+			.name-column {
+				color:black;
+				padding: 2px;
+				font-size: 10px;
+				font-weight: bold;
 			}
 			.timestamp-column {
-				float: left;
-				right: 0px;
-				margin-right: 0px;
-				text-align: center;
-				font-size: 8px;
+				font-size: 10px;
 				font-weight: lighter;
-				width: 15%;
-				padding: 2px;
-				background-color: #F2F2F2;
+				width: 65px;
+				padding-top: 5px;
+				padding: 3px;
 				color: gray;
+			}
+			.messageLine {
+				padding: 2px;
 			}
 			#messagesBox {
 				border: 0px solid black;
@@ -98,7 +116,7 @@
 			li {
 				float: left;
 				display: inline;
-				border-bottom: 1px solid #F2F2F2;
+				border-bottom: 1px solid #e2e2e2;
 				width: 100%;
 				height: 100%;
 				padding-bottom: 0px;
@@ -140,7 +158,7 @@
 
 
 		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
-		<simpl-panel bgcolor="black" heading="~ Simpl Chat" collapsable="true" collapsed="false">
+		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
 			<core-animated-pages id="pages" selected="{{viewId}}" valueattr="view-id">
 				<section view-id="loginView">
@@ -148,7 +166,7 @@
 						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
 					</simpl-row>
 				</section>
-				<section style="position:relative;" view-id="chatView">
+				<section class="mainSection" style="position:relative;" view-id="chatView">
 					<simpl-row>
 						<core-toolbar flex class="core-narrow">
 							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
@@ -178,7 +196,7 @@
 
 					<core-animated-pages selected="{{chatId}}" valueattr="chat-id">
 						<template repeat="{{chat, i in chatList}}">
-							<section style="position:relative;" chat-id="{{chat.id}}">
+							<section class="chatSection" style="position:relative;" chat-id="{{chat.id}}">
 								<template if="{{chat.muc == false}}">
 									<simpl-row>
 										{{'chat.participant'|tr}}:
@@ -191,20 +209,23 @@
 								</template>
 								<simpl-row>
 									<input-field flex type="text" name="" id="{{'messageInput-'+chat.id}}" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
-									<paper-button raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
+									<paper-button class="sendButton" raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
 										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
 								</simpl-row>
 								<div id="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
 									<template repeat="{{message in chat.messages}}">
 										<ol>
 											<li>
-												<template if="{{loginData.username == message.from}}">
-													<div style="color:black;" class="name-column">{{ message.from }}</div>
-												</template>
-												<template if="{{loginData.username != message.from}}">
-													<div style="color:#D50303;" class="name-column">{{ message.from }}</div>
-												</template>
-												<div class="message-column">{{ message.body }} </div>
+												<div class="messageLine" layout horizontal style="{{message.style}}">
+													<core-icon  class="icon-column small" icon="mail"></core-icon>
+													<div flex layout vertical>
+														<div layout horizontal>
+															<div class="timestamp-column">{{ message.time }}</div>
+															<div flex class="name-column">{{ message.from }}</div>
+														</div>
+														<div class="message-column">{{ message.body }} </div>
+													</div>
+												</div>
 											</li>
 										</ol>
 									</template>
@@ -228,6 +249,9 @@
 			</core-animated-pages>
 
 		</simpl-panel>
+		<paper-toast id="toast_error" duration="5000" text="" style="background:#d50303;padding-right:60px;" role="alert" class="capsule">
+			<div style="color:white;font-weight:bold;">{{errorMessage}}</div>
+		</paper-toast>
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
@@ -273,40 +297,43 @@
 					if ( chat.muc ) {
 						message.room = chat.id;
 					}
-					chat.messages.unshift( message );
+					if ( chat.muc === false ) {
+						message.style="background:light-yellow;";
+						message.time = this.getTime();
+						chat.messages.unshift( message );
+					}
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
 					this.sendChatState( "active" );
 					this.isComposing = false;
 				}
 			},
-			sendJoin: function( chat ) {
-				if ( chat == null ) {
-					chat = this.chatHash[ this.chatId ];
-				}
-				if ( chat.muc === false ) return;
-				var message = {
-					body: "",
-					from: this.loginData.username,
-					room: chat.id
-				}
-				this.$.websocket.sendMessage( message );
-			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
+				message.time = this.getTime();
 				console.log( "-> recvMessage", message );
 				var chatState = message.chatState;
-				if ( message.from ) {
+				if ( message.from && message.type === "chat" ) {
 					message.from = message.from.split( "@" )[ 0 ];
 				}
 				var chat = null;
+				if ( message.errorMessage ){
+					this.showError( message.errorMessage);
+					console.error(message.errorMessage);
+					if( message.room){
+						this.removeChat(message.room);
+					}
+					return;
+				}
 				if ( message.type == "groupchat" ) {
-					message.from = message.from.split( "@" )[ 0 ];
-					chat = this.chatHash[ message.from ];
+					var room = message.from.split( "@" )[ 0 ];
+					message.from = message.from.split( "/" )[ 1 ];
+					chat = this.chatHash[ room ];
 				} else if ( message.type == "chat" ) {
 					chat = this.chatHash[ "main" ];
 				}
 				if ( !this.isEmpty( message.body ) ) {
+					message.style="background:#f8f8f8;";
 					chat.messages.unshift( message );
 				}
 				if ( message.chatState ) {
@@ -407,20 +434,20 @@
 
 				this.viewId = "chatView";
 				if ( e.target.xaction == "cancel" ) {
-					 return;
+					return;
 				}
-				if( formData.room == null){
-					 return;
+				if ( formData.room == null ) {
+					return;
 				}
 				var chat = {};
 				chat.id = formData.room[ 0 ].name;
-				if( this.chatHash[chat.id]){
+				this.chatId = chat.id;
+				if ( this.chatHash[ chat.id ] ) {
 					return;
 				}
 				chat.messages = [];
 				chat.muc = true;
 				this.addChat( chat );
-				this.chatId = chat.id;
 				this.async( function() {
 					this.sendJoin();
 				}, null, 300 );
@@ -498,6 +525,18 @@
 					this.isComposing = false;
 				}
 			},
+			sendJoin: function( chat ) {
+				if ( chat == null ) {
+					chat = this.chatHash[ this.chatId ];
+				}
+				if ( chat.muc === false ) return;
+				var message = {
+					body: "",
+					from: this.loginData.username,
+					room: chat.id
+				}
+				this.$.websocket.sendMessage( message );
+			},
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
@@ -525,6 +564,15 @@
 				}
 				return 0;
 			},
+			showError: function( msg ) {
+				this.errorMessage = msg;
+				this.$.toast_error.show();
+			},
+			getTime: function() {
+				//var format = simpl4.util.BaseManager.getDateFormat() + " HH:mm:ss";
+				var format = " HH:mm.ss";
+				return "["+moment().format( format )+"]";
+			},
 			resetChatList: function() {
 				this.chatList = [];
 				var chat = {
@@ -533,6 +581,16 @@
 					muc: false
 				};
 				this.addChat( chat );
+			},
+			removeChat: function( name ) {
+				for(var i=0; i < this.chatList.length;i++){
+					if( name === this.chatList[i].id){
+						this.chatList.splice(i,1);
+						break;
+					}
+				}
+				this.chatHash = this.toHash( this.chatList );
+				this.chatId = "main";
 			},
 			addChat: function( chat ) {
 				this.chatList.push( chat );
