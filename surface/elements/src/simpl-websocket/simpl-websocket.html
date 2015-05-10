@@ -104,7 +104,9 @@
 							self.fire( "message", {
 								data: data
 							} );
-							self.recvMessage = data;
+							self.async( function() {
+								self.recvMessage = data;
+							}, null, 0 );
 						},
 						function( e ) {
 							console.error("Error:"+e.reason+"("+e.code+")");

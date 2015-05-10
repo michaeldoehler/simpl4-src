@@ -34,7 +34,13 @@
 				max-width: 80px;
 			}
 			paper-button.userButton {
-				min-width: 70px !important;
+				text-transform: none;
+				min-width: 60px !important;
+				max-width: 120px;
+			}
+			.userButtons core-icon.small {
+				color: #4285F4;
+				pointer-events: none;
 			}
 			paper-button.sendButton /deep/ .button-content {
 				justify-content: flex-start !important;
@@ -68,6 +74,10 @@
 				min-height: 450px;
 				padding: 0px 0px 0px 0px !important;
 				overflow-x: hidden !important;
+			}
+			polyfill-rule {
+				content: 'simpl-panel#mainPanel';
+				font-size:80%;
 			}
 			.small-input {
 				padding: 3px;
@@ -113,6 +123,16 @@
 				overflow-y: auto;
 				min-height: 100px;
 				font-size: 12px;
+			}
+			input.currentParticipant {
+				border: 0px;
+			}
+			.shadow {
+				display: inline-block;
+				background: white;
+				box-sizing: border-box;
+				padding-left: 3px;
+				height: 22px;
 			}
 			ol {
 				list-style: none;
@@ -166,7 +186,7 @@
 		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
-			<core-animated-pages id="pages" selected="{{viewId}}" valueattr="view-id">
+			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
 				<section view-id="loginView">
 					<simpl-row>
 						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
@@ -182,7 +202,7 @@
 								<core-dropdown class="dropdown" layered="true">
 									<core-menu>
 										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
-										<core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item>
+										<!--core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item-->
 										<core-item on-tap="{{showJoinRoomForm}}" icon="content-copy">{{'chat.joinRoom'|tr}}</core-item>
 										<core-item on-tap="{{showLeaveRoomForm}}" icon="launch">{{'chat.leaveRoom'|tr}}</core-item>
 									</core-menu>
@@ -201,22 +221,37 @@
 					</simpl-row>
 
 
-					<core-animated-pages selected="{{chatId}}" valueattr="chat-id">
+					<core-animated-pages id="chatPages" selected="{{chatId}}" transitions="slide-from-right" valueattr="chat-id">
 						<template repeat="{{chat, i in chatList}}">
 							<section class="chatSection" style="position:relative;" chat-id="{{chat.id}}">
-								<template if="{{chat.muc == false}}">
-									<simpl-row>
-										{{'chat.participant'|tr}}:
-										<select id="{{'participant-'+chat.id}}">
+								<template if="{{chat.type != 'groupchat'}}">
+									<div layout vertical>
+										<div class="userButtons" style="flex-wrap:wrap;" layout horizontal>
 											<template repeat="{{entry in rosterEntries}}">
-												<option value="{{entry.username}}">{{entry.username}}</option>
+												<paper-button class="userButton" data-username="[[entry.username]]" raised on-tap="{{setCurrentParticipant}}">
+													<core-icon class="small" icon="account-box"></core-icon>[[entry.username|cutDomain]]</paper-button>
 											</template>
-										</select>
-									</simpl-row>
+										</div>
+										<simpl-row>
+										</simpl-row>
+										<div style="padding-top:4px;">
+											<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">
+												{{'chat.participant'|tr}}:
+											</label>
+											<paper-shadow class="shadow" z="2">
+												<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
+											</paper-shadow>
+										</div>
+									</div>
 								</template>
 								<simpl-row>
 								</simpl-row>
-								<template if="{{chat.muc}}">
+								<template if="{{chat.type == 'groupchat'}}">
+											<label style="vertical-align:middle;color:#d50303;font-weight:bold;">
+												{{'chat.occupiants'|tr}}:
+											</label>
+								<simpl-row>
+								</simpl-row>
 									<div style="flex-wrap:wrap;" layout horizontal>
 										<template repeat="{{user,i in chat.presence}}">
 											<paper-button class="userButton" raised on-tap="{{sendMessageInput}}">
@@ -296,14 +331,13 @@
 					if ( this.connected ) {
 						this.sendChatState( "gone" );
 					}
-					done();
 				} ).bind( this ) );
 			},
 			sendMessageInput: function() {
 				var chat = this.chatHash[ this.chatId ];
 				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
-				if ( this.isEmpty( participant ) && chat.muc === false ) {
+				if ( this.isEmpty( participant ) && chat.type !== 'groupchat' ) {
 					console.error( "no participant selected" );
 					return;
 				}
@@ -315,10 +349,10 @@
 					if ( !this.isEmpty( participant ) ) {
 						message.participant = participant;
 					}
-					if ( chat.muc ) {
+					if ( chat.type === 'groupchat' ) {
 						message.room = chat.id;
 					}
-					if ( chat.muc === false ) {
+					if ( chat.type !== 'groupchat' ) {
 						message.style = "background:light-yellow;";
 						message.time = this.getTime();
 						chat.messages.unshift( message );
@@ -360,7 +394,7 @@
 				if ( message.chatState ) {
 					this.chatState = tr( 'chat.state_' + chatState );
 				}
-				if ( chat && chat.muc === true ) {
+				if ( chat && chat.type === 'groupchat' ) {
 					this.chatState = '';
 				}
 				if ( message.rosterEntries ) {
@@ -370,7 +404,7 @@
 				if ( message.presence ) {
 					var chatId = message.from.split( "@" )[ 0 ];
 					var chat = this.chatHash[ chatId ];
-					if( chat ){
+					if ( chat ) {
 						chat.presence = message.presence;
 						console.log( "chat.presence:" + JSON.stringify( chat, null, 2 ) );
 					}
@@ -404,7 +438,7 @@
 					var chat = this.chatHash[ this.chatId ];
 					for ( var i = 0; i < this.chatList.length; i++ ) {
 						var chat = this.chatList[ i ];
-						if ( chat.muc ) {
+						if ( chat.type === 'groupchat' ) {
 							this.sendJoin( chat );
 						}
 					}
@@ -471,14 +505,15 @@
 				var chat = {};
 				chat.id = formData.room[ 0 ].name;
 				chat.description = formData.room[ 0 ].description;
-				this.chatId = chat.id;
 				if ( this.chatHash[ chat.id ] ) {
+					this.chatId = chat.id;
 					return;
 				}
 				chat.messages = [];
-				chat.muc = true;
+				chat.type = 'groupchat',
 				this.addChat( chat );
 				this.async( function() {
+					this.chatId = chat.id;
 					this.sendJoin();
 				}, null, 300 );
 			},
@@ -487,19 +522,21 @@
 				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
 				var items = [];
 				for ( var i = 0; i < this.chatList.length; i++ ) {
-					if ( this.chatList[ i ].muc ) {
+					if ( this.chatList[ i ].type === 'groupchat' ) {
 						var item = {
 							name: this.chatList[ i ].id,
 							description: this.chatList[ i ].description
 						}
-						items.push(item);
+						items.push( item );
 					}
 				}
 				this.async( function() {
-					leaveRoomForm.setItems( {room:items} );
-					var actionButton = leaveRoomForm.querySelector("simpl-form /deep/ xaction-button");
-					actionButton.innerHTML='<core-icon icon="launch"></core-icon>' + tr('chat.leaveRoom');
-					console.log("actionButton:", actionButton);
+					leaveRoomForm.setItems( {
+						room: items
+					} );
+					var actionButton = leaveRoomForm.querySelector( "simpl-form /deep/ xaction-button" );
+					actionButton.innerHTML = '<core-icon icon="launch"></core-icon>' + tr( 'chat.leaveRoom' );
+					console.log( "actionButton:", actionButton );
 				}, null, 30 );
 			},
 			leaveRoom: function( e ) {
@@ -523,7 +560,7 @@
 					}
 				};
 				this.$.websocket.sendMessage( message );
-				this.removeChat(chatId);
+				this.removeChat( chatId );
 			},
 			showAddUserForm: function() {
 				this.viewId = "addUserView";
@@ -602,7 +639,7 @@
 				if ( chat == null ) {
 					chat = this.chatHash[ this.chatId ];
 				}
-				if ( chat.muc === false ) return;
+				if ( chat.type !== 'groupchat' ) return;
 				var message = {
 					body: "",
 					from: this.loginData.username,
@@ -614,7 +651,7 @@
 				var chat = this.chatHash[ this.chatId ];
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) ) {
-					if ( chat.muc === false ) {
+					if ( chat.type !== 'groupchat' ) {
 						console.error( "no participant selected" );
 					}
 					return;
@@ -646,12 +683,27 @@
 				var format = " HH:mm.ss";
 				return "[" + moment().format( format ) + "]";
 			},
+			chatIdChanged:function(){
+				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
+				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
+				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
+			},
+			cutDomain: function( name ) {
+				if ( name.indexOf( "@" ) == -1 ) return name;
+				return name.split( "@" )[ 0 ];
+			},
+			setCurrentParticipant: function( e ) {
+				console.log( "setCurrentParticipant:", e.target.dataset.username );
+				var chat = this.chatHash[ this.chatId ];
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
+				participant.val( e.target.dataset.username );
+			},
 			resetChatList: function() {
 				this.chatList = [];
 				var chat = {
 					id: 'main',
 					messages: [],
-					muc: false
+					type: 'mixedchat'
 				};
 				this.addChat( chat );
 			},
