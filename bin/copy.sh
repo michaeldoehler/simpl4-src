@@ -117,6 +117,7 @@ cp -r $SRCTOPDIR/etc/gittemplate $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/images $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/run.bat.tpl $SERVERDIRECTORY/
 cp    $SRCTOPDIR/etc/README-deployed.md $DESTDIRECTORY/README.md
+cp -r $SRCTOPDIR/etc/openfire $ETCDIRECTORY/
 
 
 cp $SRCTOPDIR/client/start.html $CLIENTDIRECTORY
