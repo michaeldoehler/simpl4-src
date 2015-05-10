@@ -110,6 +110,23 @@
 				padding: 3px;
 				color: gray;
 			}
+			polyfill-rule {
+				content: '.timestamp-column';
+				padding:0px !important;
+			}
+			polyfill-rule {
+				content: '.name-column';
+				padding:0px !important;
+			}
+			polyfill-rule {
+				content: '.message-column';
+				padding:0px !important;
+			}
+
+			polyfill-rule {
+				content: 'simpl-panel #panelId';
+    		margin-left: 0px;
+			}
 			.presence {
 				color: #d50303;
 				padding: 5px;
@@ -138,6 +155,10 @@
 				list-style: none;
 				margin: 0px;
 				padding: 0px;
+			}
+			polyfill-rule {
+				content: 'ol';
+				margin-left:0px !important;
 			}
 			li {
 				float: left;
@@ -338,6 +359,7 @@
 				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) && chat.type !== 'groupchat' ) {
+					this.showError( "no participant selected" );
 					console.error( "no participant selected" );
 					return;
 				}
@@ -448,7 +470,7 @@
 				this.isComposing = false;
 				this.async( function() {
 					if ( this.connected ) {
-						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput /deep/ #input" );
+						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
 						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
 						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
 						this.viewId = "chatView";
@@ -604,6 +626,10 @@
 				if ( e.keyCode && e.keyCode == 13 ) this.sendMessageInput();
 			},
 			chatEventListener: function( e ) {
+				var chat = this.chatHash[ this.chatId ];
+				if( chat.type === 'groupchat'){
+					return;
+				}
 				var type = e.type;
 				if ( type == 'keyup' && e.keyCode != 13 ) {
 					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
@@ -687,6 +713,7 @@
 				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
 				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
 				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
+				this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
 			},
 			cutDomain: function( name ) {
 				if ( name.indexOf( "@" ) == -1 ) return name;
