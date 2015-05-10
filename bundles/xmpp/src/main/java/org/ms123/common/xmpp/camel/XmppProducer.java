@@ -207,26 +207,13 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		MultiUserChat muc = MultiUserChatManager.getInstanceFor(connection).getMultiUserChat(fqRoomname);
 
 		muc.addMessageListener(cc.getConsumer());
+		muc.addParticipantListener(cc.getConsumer());
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxChars(0); // we do not want any historical messages
 		muc.join(cc.getNickname(), null, history, 5000L);
-		muc.addParticipantListener(cc.getConsumer());
 		info("Joined room: {} as: {}", fqRoomname, cc.getNickname());
-		try{
-		//	info("Joined room: {} members: {}", muc.getOccupants());
-		//	info("Joined room: {} members: {}", muc.getParticipants());
-			// Discover the list of atems (i.e. occupants in this case) related to a room
-			debug("Step3");
-			DiscoverItems result = ServiceDiscoveryManager.getInstanceFor(connection).discoverItems(fqRoomname);
-			debug("DiscoverItems:"+result);
-			for (DiscoverItems.Item item : result.getItems()) {
-			debug("Step3");
-				//debug("\tMember:"+item);
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
 		List<String>	occupants = muc.getOccupants();
+		debug("XmppProducer.muc:"+muc);
 		cc.getConsumer().sendPresence(fqRoomname,occupants);
 		cc.putMUC(roomname,muc);
 	}

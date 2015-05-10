@@ -167,10 +167,9 @@ public class XmppConsumer extends DefaultConsumer implements PresenceListener, R
 	}
 
 	public void processPresence(Presence presence) {
-		debug("Received XMPP presence:"+presence  );
 		String fqFrom = presence.getFrom();
 		String from = fqFrom.split("@")[0];
-		debug("processPresence.from2:"+fqFrom+"/sess:"+m_connectionContext.getSessionId());
+		debug("Received XMPP presence:"+fqFrom+"/sess:"+m_connectionContext.getSessionId());
 		MultiUserChat muc = m_connectionContext.getMUC(from);
 		if( muc != null){
 			List<String>	occupants = muc.getOccupants();
