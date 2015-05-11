@@ -110,6 +110,12 @@
 						},
 						function( e ) {
 							console.error("Error:"+e.reason+"("+e.code+")");
+							var message = {
+								errorMessage: e.reason
+							};
+							self.async( function() {
+								self.recvMessage = message;
+							}, null, 0 );
 						},
 						function() {
 							console.info( 'websocket closed' );

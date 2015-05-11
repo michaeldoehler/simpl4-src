@@ -396,8 +396,9 @@
 				}
 				var chat = null;
 				if ( message.errorMessage ) {
-					this.showError( message.errorMessage );
-					console.error( message.errorMessage );
+					var msg = message.errorMessage;
+					this.showError( this.mapSomeErrors(msg ));
+					console.error( msg );
 					if ( message.room ) {
 						this.removeChat( message.room );
 					}
@@ -800,6 +801,12 @@
 					hash[ list[ i ].id ] = list[ i ];
 				}
 				return hash;
+			},
+			mapSomeErrors:function(msg){
+				if( msg.indexOf("not-authorized") >0 ){
+					return tr("chat.not-authorized");
+				}
+				return msg;
 			},
 			isEmpty: function( s ) {
 				if ( s == null || s == '' ) return true;
