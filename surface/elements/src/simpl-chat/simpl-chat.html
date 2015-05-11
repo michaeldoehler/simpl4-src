@@ -62,6 +62,9 @@
 			simpl-row {
 				margin-bottom: 12px;
 			}
+			core-icon-button.small {
+				padding: 4px;
+			}
 			core-icon.small {
 				width: 16px;
 				height: 16px;
@@ -74,10 +77,6 @@
 				min-height: 450px;
 				padding: 0px 0px 0px 0px !important;
 				overflow-x: hidden !important;
-			}
-			polyfill-rule {
-				content: 'simpl-panel#mainPanel';
-				font-size:80%;
 			}
 			.small-input {
 				padding: 3px;
@@ -112,20 +111,19 @@
 			}
 			polyfill-rule {
 				content: '.timestamp-column';
-				padding:0px !important;
+				padding: 0px !important;
 			}
 			polyfill-rule {
 				content: '.name-column';
-				padding:0px !important;
+				padding: 0px !important;
 			}
 			polyfill-rule {
 				content: '.message-column';
-				padding:0px !important;
+				padding: 0px !important;
 			}
-
 			polyfill-rule {
 				content: 'simpl-panel #panelId';
-    		margin-left: 0px;
+				margin-left: 0px;
 			}
 			.presence {
 				color: #d50303;
@@ -144,12 +142,12 @@
 			input.currentParticipant {
 				border: 0px;
 			}
-			.shadow {
+			.shadowSendTo {
 				display: inline-block;
 				background: white;
 				box-sizing: border-box;
 				padding-left: 3px;
-				height: 22px;
+				height: 34px;
 			}
 			ol {
 				list-style: none;
@@ -158,7 +156,7 @@
 			}
 			polyfill-rule {
 				content: 'ol';
-				margin-left:0px !important;
+				margin-left: 0px !important;
 			}
 			li {
 				float: left;
@@ -230,7 +228,7 @@
 								</core-dropdown>
 							</core-menu-button>
 
-							<span style="color:#D50303;">{{chatState}}</span>
+							<span style="color:#D50303;">{{currentChat.chatState}}</span>
 							<div class="bottom fit" horizontal layout>
 								<paper-tabs selected="{{chatId}}" flex style="max-width:600px;" valueattr="chat-id" scrollable>
 									<template repeat="{{chat, i in chatList}}">
@@ -247,32 +245,35 @@
 							<section class="chatSection" style="position:relative;" chat-id="{{chat.id}}">
 								<template if="{{chat.type != 'groupchat'}}">
 									<div layout vertical>
-										<div class="userButtons" style="flex-wrap:wrap;" layout horizontal>
-											<template repeat="{{entry in rosterEntries}}">
-												<paper-button class="userButton" data-username="[[entry.username]]" raised on-tap="{{setCurrentParticipant}}">
-													<core-icon class="small" icon="account-box"></core-icon>[[entry.username|cutDomain]]</paper-button>
-											</template>
-										</div>
-										<simpl-row>
-										</simpl-row>
-										<div style="padding-top:4px;">
-											<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">
-												{{'chat.participant'|tr}}:
-											</label>
-											<paper-shadow class="shadow" z="2">
-												<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
-											</paper-shadow>
-										</div>
+										<template if="{{chat.type == 'mixedchat'}}">
+											<div class="userButtons" style="flex-wrap:wrap;" layout horizontal>
+												<template repeat="{{entry in rosterEntries}}">
+													<paper-button class="userButton" data-username="[[entry.username]]" raised on-tap="{{setCurrentParticipant}}">
+														<core-icon class="small" icon="account-box"></core-icon>[[entry.username|getNameFromJid]]</paper-button>
+												</template>
+											</div>
+											<simpl-row>
+											</simpl-row>
+											<div style="padding-top:-2px;">
+												<paper-shadow class="shadowSendTo" z="2">
+													<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">
+														{{'chat.participant'|tr}}:
+													</label>
+													<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
+													<core-icon-button class="small" disabled?="{{!isCurrentParticipant}}"  on-tap="{{openSingleChat}}" icon="check-box-outline-blank">[['chat.singleChat'|tr]]</core-icon-button>
+												</paper-shadow>
+											</div>
+										</template>
 									</div>
 								</template>
 								<simpl-row>
 								</simpl-row>
 								<template if="{{chat.type == 'groupchat'}}">
-											<label style="vertical-align:middle;color:#d50303;font-weight:bold;">
-												{{'chat.occupiants'|tr}}:
-											</label>
-								<simpl-row>
-								</simpl-row>
+									<label style="vertical-align:middle;color:#d50303;font-weight:bold;">
+										{{'chat.occupiants'|tr}}:
+									</label>
+									<simpl-row>
+									</simpl-row>
 									<div style="flex-wrap:wrap;" layout horizontal>
 										<template repeat="{{user,i in chat.presence}}">
 											<paper-button class="userButton" raised on-tap="{{sendMessageInput}}">
@@ -294,7 +295,7 @@
 													<div flex layout vertical>
 														<div layout horizontal>
 															<div class="timestamp-column">{{ message.time }}</div>
-															<div flex class="name-column">{{ message.from }}</div>
+															<div flex class="name-column">{{ message.from|getNameFromJid }}</div>
 														</div>
 														<div class="message-column">{{ message.body }} </div>
 													</div>
@@ -342,6 +343,7 @@
 			ready: function() {
 				this.resetChatList();
 				this.loginData = {};
+				this.isCurrentParticipant = false;
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
 				this.addGroupCallback = this.addGroup.bind( this );
@@ -357,8 +359,8 @@
 			sendMessageInput: function() {
 				var chat = this.chatHash[ this.chatId ];
 				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
-				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
-				if ( this.isEmpty( participant ) && chat.type !== 'groupchat' ) {
+				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				if ( this.isEmpty( participant ) && chat.type === 'mixedchat' ) {
 					this.showError( "no participant selected" );
 					console.error( "no participant selected" );
 					return;
@@ -389,9 +391,8 @@
 				var message = this.recvMessage;
 				message.time = this.getTime();
 				console.log( "-> recvMessage", message );
-				var chatState = message.chatState;
 				if ( message.from && message.type === "chat" ) {
-					message.from = message.from.split( "@" )[ 0 ];
+					//message.from = message.from.split( "@" )[ 0 ];
 				}
 				var chat = null;
 				if ( message.errorMessage ) {
@@ -403,28 +404,37 @@
 					return;
 				}
 				if ( message.type == "groupchat" ) {
-					var room = message.from.split( "@" )[ 0 ];
+					var room = this.getNameFromJid( message.from );
 					message.from = message.from.split( "/" )[ 1 ];
 					chat = this.chatHash[ room ];
 				} else if ( message.type == "chat" ) {
-					chat = this.chatHash[ "main" ];
+					chat = this.chatHash[ this.getNameFromJid( message.from ) ];
+					if ( !chat ) {
+						chat = this.chatHash[ "main" ];
+					}
 				}
 				if ( !this.isEmpty( message.body ) ) {
 					message.style = "background:#f8f8f8;";
 					chat.messages.unshift( message );
 				}
-				if ( message.chatState ) {
-					this.chatState = tr( 'chat.state_' + chatState );
+				if ( chat && message.chatState ) {
+					chat.chatState = tr( 'chat.state_' + message.chatState );
 				}
 				if ( chat && chat.type === 'groupchat' ) {
-					this.chatState = '';
+					chat.chatState = '';
+				}
+				if ( chat && chat.type === 'mixedchat' ) {
+					var participant = $( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val();
+					if( participant != this.getNameAndDomainFromJid(message.from)){
+						chat.chatState = '';
+					}
 				}
 				if ( message.rosterEntries ) {
-					this.rosterEntries = message.rosterEntries;
+					this.rosterEntries = this.filterSingleChat( message.rosterEntries );
 					this.rosterEntries.sort( this.sortRosterEntries );
 				}
 				if ( message.presence ) {
-					var chatId = message.from.split( "@" )[ 0 ];
+					var chatId = this.getNameFromJid( message.from );
 					var chat = this.chatHash[ chatId ];
 					if ( chat ) {
 						chat.presence = message.presence;
@@ -470,7 +480,7 @@
 				this.isComposing = false;
 				this.async( function() {
 					if ( this.connected ) {
-						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
+						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
 						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
 						this.viewId = "chatView";
@@ -532,12 +542,25 @@
 					return;
 				}
 				chat.messages = [];
-				chat.type = 'groupchat',
+				chat.type = 'groupchat';
 				this.addChat( chat );
 				this.async( function() {
 					this.chatId = chat.id;
 					this.sendJoin();
 				}, null, 300 );
+			},
+			openSingleChat: function() {
+				var participant = $( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val();
+				var chat = {};
+				chat.id = this.getNameFromJid( participant );
+				chat.messages = [];
+				chat.participant = participant;
+				chat.type = 'singlechat';
+				this.addChat( chat );
+				this.updateRoster();
+				$( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val(null);
+				this.isCurrentParticipant=false;
+				this.chatId = chat.id;
 			},
 			showLeaveRoomForm: function() {
 				this.viewId = "leaveRoomView";
@@ -627,7 +650,7 @@
 			},
 			chatEventListener: function( e ) {
 				var chat = this.chatHash[ this.chatId ];
-				if( chat.type === 'groupchat'){
+				if ( chat.type === 'groupchat' ) {
 					return;
 				}
 				var type = e.type;
@@ -675,9 +698,9 @@
 			},
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
-				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) ) {
-					if ( chat.type !== 'groupchat' ) {
+					if ( chat.type === 'mixedchat' ) {
 						console.error( "no participant selected" );
 					}
 					return;
@@ -709,21 +732,29 @@
 				var format = " HH:mm.ss";
 				return "[" + moment().format( format ) + "]";
 			},
-			chatIdChanged:function(){
+			chatIdChanged: function() {
 				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
 				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
 				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
-				this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-"+this.chatId+" /deep/ #input" );
+				this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+				this.currentChat = this.chatHash[this.chatId];
+				console.log("currentChat:",this.currentChat.chatState+" -> " + this.currentChat.id);
 			},
-			cutDomain: function( name ) {
+			getNameFromJid: function( name ) {
 				if ( name.indexOf( "@" ) == -1 ) return name;
 				return name.split( "@" )[ 0 ];
+			},
+			getNameAndDomainFromJid: function( name ) {
+				if ( name.indexOf( "/" ) == -1 ) return name;
+				return name.split( "/" )[ 0 ];
 			},
 			setCurrentParticipant: function( e ) {
 				console.log( "setCurrentParticipant:", e.target.dataset.username );
 				var chat = this.chatHash[ this.chatId ];
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
 				participant.val( e.target.dataset.username );
+				this.isCurrentParticipant = true;
+				chat.chatState='';
 			},
 			resetChatList: function() {
 				this.chatList = [];
@@ -732,7 +763,20 @@
 					messages: [],
 					type: 'mixedchat'
 				};
+				this.currentChat = chat;
 				this.addChat( chat );
+			},
+			filterSingleChat: function( roster ) {
+				var ret = [];
+				for ( var i = 0; i < roster.length; i++ ) {
+					if ( !this.chatHash[ this.getNameFromJid( roster[ i ].username ) ] ) {
+						ret.push( roster[ i ] );
+					}
+				}
+				return ret;
+			},
+			updateRoster: function() {
+				this.rosterEntries = this.filterSingleChat( this.rosterEntries );
 			},
 			removeChat: function( name ) {
 				for ( var i = 0; i < this.chatList.length; i++ ) {
@@ -746,6 +790,7 @@
 			},
 			addChat: function( chat ) {
 				chat.presence = [];
+				chat.chatState='';
 				this.chatList.push( chat );
 				this.chatHash = this.toHash( this.chatList );
 			},
