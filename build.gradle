@@ -224,6 +224,7 @@ task buildAll(type: Task) {
 }
 
 task deploy(type: Task) {
+	dependsOn(project(":surface/elements").buildAll)
 	doLast(){
 		def dest = new File(rootProject.property("deploy.directory")).getCanonicalPath().toString();
 		println("deploying to -> "+dest);
