@@ -384,7 +384,7 @@
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
 					this.sendChatState( "active" );
-					this.isComposing = false;
+					chat.isComposing = false;
 				}
 			},
 			recvMessageChanged: function() {
@@ -480,18 +480,31 @@
 				}, null, 500 );
 			},
 			connectedChanged: function() {
-				this.isComposing = false;
+				if ( this.connected ) {
+					this.viewId = "chatView";
+				} else {
+					this.viewId = "loginView";
+				}
+				if( this.connected ){
+					this.bindFocusListener(true);
+				}else{
+					for ( var i = 0; i < this.chatList.length; i++ ) {
+						var chat = this.chatList[ i ];
+						if ( chat.type !== 'groupchat' ) {
+							this.bindFocusListener(false);
+						}
+					}
+				}
+			},
+			bindFocusListener: function(bind) {
 				this.async( function() {
-					if ( this.connected ) {
-						this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
-						$( this.messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
-						$( this.messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
-						this.viewId = "chatView";
+					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					if ( bind ) {
+						$( messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
+						$( messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
 					} else {
-						this.isComposing = false;
-						$( this.messageInputElement ).off( 'focus', this.chatEventListener );
-						$( this.messageInputElement ).off( 'blur', this.chatEventListener );
-						this.viewId = "loginView";
+						$( messageInputElement ).off( 'focus', this.chatEventListener );
+						$( messageInputElement ).off( 'blur', this.chatEventListener );
 					}
 				}, null, 100 );
 			},
@@ -560,6 +573,7 @@
 				chat.participant = participant;
 				chat.type = 'singlechat';
 				this.addChat( chat );
+				this.bindFocusListener(true);
 				this.updateRoster();
 				$( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val(null);
 				this.isCurrentParticipant=false;
@@ -658,23 +672,25 @@
 				}
 				var type = e.type;
 				if ( type == 'keyup' && e.keyCode != 13 ) {
-					if ( $( this.messageInputElement ).val() && ( this.isComposing == false ) ) {
-						this.isComposing = true;
+					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					if ( $( messageInputElement ).val() && ( chat.isComposing == false ) ) {
+						chat.isComposing = true;
 						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
 						this.sendChatState( 'composing' );
-					} else if ( !$( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
-						this.isComposing = false;
+					} else if ( !$( messageInputElement ).val() && ( chat.isComposing == true ) ) {
+						chat.isComposing = false;
 						this.sendChatState( 'active' );
-					} else if ( $( this.messageInputElement ).val() && ( this.isComposing == true ) ) {
+					} else if ( $( messageInputElement ).val() && ( chat.isComposing == true ) ) {
 						clearTimeout( this.checkPausingTimeout );
 						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
 					}
 				}
 				if ( type == 'focus' ) {
-					if ( !$( this.messageInputElement ).val() ) {
+					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					if ( !$( messageInputElement ).val() ) {
 						this.sendChatState( 'active' );
 					} else {
-						this.sendChatState( 'composing' );
+						this.sendChatState( 'paused' );
 					}
 				}
 				if ( type == 'blur' ) {
@@ -682,9 +698,10 @@
 				}
 			},
 			checkPausing: function() {
-				if ( this.isComposing ) {
+				var chat = this.chatHash[ this.chatId ];
+				if ( chat.isComposing ) {
 					this.sendChatState( "paused" );
-					this.isComposing = false;
+					chat.isComposing = false;
 				}
 			},
 			sendJoin: function( chat ) {
@@ -702,6 +719,7 @@
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
 				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+console.log("sendChatState:"+participant);
 				if ( this.isEmpty( participant ) ) {
 					if ( chat.type === 'mixedchat' ) {
 						console.error( "no participant selected" );
@@ -739,7 +757,6 @@
 				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
 				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
 				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
-				this.messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 				this.currentChat = this.chatHash[this.chatId];
 				console.log("currentChat:",this.currentChat.chatState+" -> " + this.currentChat.id);
 			},
@@ -763,6 +780,7 @@
 				this.chatList = [];
 				var chat = {
 					id: 'main',
+					isComposing:false,
 					messages: [],
 					type: 'mixedchat'
 				};
@@ -793,6 +811,7 @@
 			},
 			addChat: function( chat ) {
 				chat.presence = [];
+				chat.isComposing=false;
 				chat.chatState='';
 				this.chatList.push( chat );
 				this.chatHash = this.toHash( this.chatList );
