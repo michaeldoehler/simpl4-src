@@ -19,7 +19,7 @@ package org.ms123.common.camel.components.direct;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultAsyncProducer;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * The direct producer.
@@ -36,7 +36,7 @@ public class DirectProducer extends DefaultAsyncProducer {
 	}
 
 	public void process(Exchange exchange) throws Exception {
-		List<DirectConsumer> consumers = endpoint.getConsumers();
+		Collection<DirectConsumer> consumers = endpoint.getConsumers();
 		if (consumers.size() == 0) {
 			throw new DirectConsumerNotAvailableException("No consumers available on endpoint: " + endpoint, exchange);
 		} else {
@@ -47,7 +47,7 @@ public class DirectProducer extends DefaultAsyncProducer {
 	}
 
 	public boolean process(Exchange exchange, AsyncCallback callback) {
-		List<DirectConsumer> consumers = endpoint.getConsumers();
+		Collection<DirectConsumer> consumers = endpoint.getConsumers();
 		if (consumers.size() == 0) {
 			// indicate its done synchronously
 			exchange.setException(new DirectConsumerNotAvailableException("No consumers available on endpoint: " + endpoint, exchange));

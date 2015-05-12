@@ -17,8 +17,11 @@
 package org.ms123.common.camel.components.direct;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 import java.util.ArrayList;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
@@ -38,7 +41,7 @@ import org.apache.camel.util.ObjectHelper;
 @UriEndpoint(scheme = "direct", consumerClass = DirectConsumer.class)
 public class DirectEndpoint extends DefaultEndpoint {
 
-	private volatile Map<String, List<DirectConsumer>> consumers;
+	private volatile Map<String, Collection<DirectConsumer>> consumers;
 
 	@UriParam
 	private boolean block;
@@ -47,14 +50,14 @@ public class DirectEndpoint extends DefaultEndpoint {
 	private long timeout = 30000L;
 
 	public DirectEndpoint() {
-		this.consumers = new HashMap<String, List<DirectConsumer>>();
+		this.consumers = new ConcurrentHashMap<String, Collection<DirectConsumer>>();
 	}
 
 	public DirectEndpoint(String endpointUri, Component component) {
-		this(endpointUri, component, new HashMap<String, List<DirectConsumer>>());
+		this(endpointUri, component, new HashMap<String, Collection<DirectConsumer>>());
 	}
 
-	public DirectEndpoint(String uri, Component component, Map<String, List<DirectConsumer>> consumers) {
+	public DirectEndpoint(String uri, Component component, Map<String, Collection<DirectConsumer>> consumers) {
 		super(uri, component);
 		this.consumers = consumers;
 	}
@@ -79,9 +82,9 @@ public class DirectEndpoint extends DefaultEndpoint {
 
 	public void addConsumer(DirectConsumer consumer) {
 		String key = consumer.getEndpoint().getKey();
-		List<DirectConsumer> consumerList = consumers.get(key);
+		Collection<DirectConsumer> consumerList = consumers.get(key);
 		if (consumerList == null) {
-			consumerList = new ArrayList<DirectConsumer>();
+			consumerList = new ConcurrentLinkedQueue<DirectConsumer>();
 			consumers.put(key, consumerList);
 		}
 		consumerList.add(consumer);
@@ -89,7 +92,7 @@ public class DirectEndpoint extends DefaultEndpoint {
 
 	public void removeConsumer(DirectConsumer consumer) {
 		String key = consumer.getEndpoint().getKey();
-		List<DirectConsumer> consumerList = consumers.get(key);
+		Collection<DirectConsumer> consumerList = consumers.get(key);
 		if (consumerList != null) {
 			consumerList.remove(consumer);
 		}
@@ -98,16 +101,16 @@ public class DirectEndpoint extends DefaultEndpoint {
 
 	public boolean hasConsumer(DirectConsumer consumer) {
 		String key = consumer.getEndpoint().getKey();
-		List<DirectConsumer> consumerList = consumers.get(key);
+		Collection<DirectConsumer> consumerList = consumers.get(key);
 		if (consumerList != null) {
 			return consumerList.contains(consumer);
 		}
 		return false;
 	}
 
-	public List<DirectConsumer> getConsumers() {
+	public Collection<DirectConsumer> getConsumers() {
 		String key = getKey();
-		List<DirectConsumer> consumerList = consumers.get(key);
+		Collection<DirectConsumer> consumerList = consumers.get(key);
 		return consumerList != null ? consumerList : new ArrayList<DirectConsumer>();
 	}
 

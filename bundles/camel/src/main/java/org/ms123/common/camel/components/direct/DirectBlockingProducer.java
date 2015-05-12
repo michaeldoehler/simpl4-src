@@ -22,7 +22,7 @@ import org.apache.camel.impl.DefaultAsyncProducer;
 import org.apache.camel.util.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
+import java.util.Collection;
 import java.util.ArrayList;
 
 /**
@@ -49,7 +49,7 @@ public class DirectBlockingProducer extends DefaultAsyncProducer {
 	}
 
 	public void process(Exchange exchange) throws Exception {
-		List<DirectConsumer> consumers = getConsumers(exchange);
+		Collection<DirectConsumer> consumers = getConsumers(exchange);
 		for (DirectConsumer consumer : consumers) {
 			consumer.getProcessor().process(exchange);
 		}
@@ -57,7 +57,7 @@ public class DirectBlockingProducer extends DefaultAsyncProducer {
 
 	public boolean process(Exchange exchange, AsyncCallback callback) {
 		try {
-			List<DirectConsumer> consumers = getConsumers(exchange);
+			Collection<DirectConsumer> consumers = getConsumers(exchange);
 			boolean answer = false;
 			for (DirectConsumer consumer : consumers) {
 				answer = consumer.getAsyncProcessor().process(exchange, callback);
@@ -70,8 +70,8 @@ public class DirectBlockingProducer extends DefaultAsyncProducer {
 		}
 	}
 
-	protected List<DirectConsumer> getConsumers(Exchange exchange) throws Exception {
-		List<DirectConsumer> answer = endpoint.getConsumers();
+	protected Collection<DirectConsumer> getConsumers(Exchange exchange) throws Exception {
+		Collection<DirectConsumer> answer = endpoint.getConsumers();
 		if (answer.size() == 0) {
 			// okay then await until we have a consumer or we timed out
 			answer = awaitConsumer();
@@ -82,8 +82,8 @@ public class DirectBlockingProducer extends DefaultAsyncProducer {
 		return answer;
 	}
 
-	private List<DirectConsumer> awaitConsumer() throws InterruptedException {
-		List<DirectConsumer> answer = new ArrayList();
+	private Collection<DirectConsumer> awaitConsumer() throws InterruptedException {
+		Collection<DirectConsumer> answer = new ArrayList();
 		StopWatch watch = new StopWatch();
 		boolean done = false;
 		while (!done) {

@@ -19,7 +19,7 @@ package org.ms123.common.camel.components.direct;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.util.ServiceHelper;
@@ -35,7 +35,7 @@ public class DirectComponent extends UriEndpointComponent {
 	// must keep a map of consumers on the component to ensure endpoints can lookup old consumers
 	// later in case the DirectEndpoint was re-created due the old was evicted from the endpoints LRUCache
 	// on DefaultCamelContext
-	private final Map<String, List<DirectConsumer>> consumers = new HashMap<String, List<DirectConsumer>>();
+	private final Map<String, Collection<DirectConsumer>> consumers = new HashMap<String, Collection<DirectConsumer>>();
 
 	private boolean block;
 
