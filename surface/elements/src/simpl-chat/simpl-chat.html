@@ -342,7 +342,6 @@
 			messages: [],
 			ready: function() {
 				this.resetChatList();
-				this.loginData = {};
 				this.isCurrentParticipant = false;
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
@@ -355,6 +354,7 @@
 						this.sendChatState( "gone" );
 					}
 				} ).bind( this ) );
+				this.loginData = {username:Simpl4.Cache.getItem( "chat.username" ), password:Simpl4.Cache.getItem( "chat.password" )};
 			},
 			sendMessageInput: function() {
 				var chat = this.chatHash[ this.chatId ];
@@ -455,6 +455,8 @@
 				}
 
 				this.loginData = formData;
+				Simpl4.Cache.setItem( "chat.username", this.loginData.username );
+				Simpl4.Cache.setItem( "chat.password", this.loginData.password );
 				this.rosterEntries = [];
 				this.chatId = 'main';
 				this.resetChatList();
