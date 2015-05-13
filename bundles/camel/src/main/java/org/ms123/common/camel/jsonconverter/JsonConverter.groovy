@@ -365,6 +365,12 @@ class DirectEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class EventBusEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class SedaEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);
