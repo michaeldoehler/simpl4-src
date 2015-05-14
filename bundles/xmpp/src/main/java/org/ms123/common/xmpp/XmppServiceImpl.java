@@ -57,7 +57,7 @@ import org.jivesoftware.openfire.muc.NotAllowedException;
 import flexjson.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.CloseStatus;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
 import java.util.Map;
 import org.ms123.common.camel.api.CamelService;
 import org.apache.camel.CamelContext;
@@ -208,11 +208,11 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
-	public WebSocketAdapter createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
+	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
 		return new WebSocket(config, parameterMap);
 	}
 
-	public class WebSocket extends WebSocketAdapter {
+	public class WebSocket extends BaseWebSocket {
 
 		private Map<String, Object> m_config = null;
 		private JSONDeserializer m_ds = new JSONDeserializer();

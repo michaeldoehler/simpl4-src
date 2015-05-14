@@ -21,8 +21,8 @@ package org.ms123.common.xmpp;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.List;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
 
 public interface XmppService {
-	public WebSocketAdapter createWebSocket(Map<String,Object> config,Map<String,List<String>> parameterMap);
+	public WebSocketListener createWebSocket(Map<String,Object> config,Map<String,List<String>> parameterMap);
 }
