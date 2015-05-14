@@ -39,7 +39,6 @@ import java.util.Map;
 public class EventBusConsumer extends DefaultConsumer implements EventHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EventBusConsumer.class);
-
 	private final EventBusEndpoint endpoint;
 	private ServiceRegistration m_register;
 
@@ -49,10 +48,10 @@ public class EventBusConsumer extends DefaultConsumer implements EventHandler {
 	}
 
 	public void handleEvent(Event event) {
-		debug("handleEvent.onEvent {}", event);
+		debug("HandleEvent.onEvent {}", event);
 		final boolean reply = false;
 		final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
-		exchange.setIn((Message)event.getProperty("msg"));
+		exchange.setIn((Message) event.getProperty("msg"));
 		try {
 			getAsyncProcessor().process(exchange, new AsyncCallback() {
 
@@ -61,7 +60,7 @@ public class EventBusConsumer extends DefaultConsumer implements EventHandler {
 				}
 			});
 		} catch (Exception e) {
-			getExceptionHandler().handleException("Error processing Vertx event: " + event, exchange, e);
+			getExceptionHandler().handleException("Error processing EventAdmin event: " + event, exchange, e);
 		}
 	}
 
@@ -90,11 +89,11 @@ public class EventBusConsumer extends DefaultConsumer implements EventHandler {
 		LOG.info(msg, args);
 	}
 
-	private Object[] varargsToArray(Object...args){
-	 Object[] ret = new Object[args.length];
-    for (int i = 0; i < args.length; i++) {
-      ret[i] = args[i];
-    }
+	private Object[] varargsToArray(Object... args) {
+		Object[] ret = new Object[args.length];
+		for (int i = 0; i < args.length; i++) {
+			ret[i] = args[i];
+		}
 		return ret;
 	}
 }

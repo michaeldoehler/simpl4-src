@@ -38,6 +38,7 @@ public class EventBusEndpoint extends DefaultEndpoint {
 	private String address;
 
 	private BundleContext m_bundleContext;
+
 	private EventAdmin m_eventAdmin;
 
 	public EventBusEndpoint(String uri, EventBusComponent component, String address) {

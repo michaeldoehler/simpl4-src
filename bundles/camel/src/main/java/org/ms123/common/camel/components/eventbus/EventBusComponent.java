@@ -35,7 +35,6 @@ public class EventBusComponent extends UriEndpointComponent implements EndpointC
 	private static final Logger LOG = LoggerFactory.getLogger(EventBusComponent.class);
 
 	private String host;
-
 	private int port;
 
 	public EventBusComponent() {
@@ -53,7 +52,6 @@ public class EventBusComponent extends UriEndpointComponent implements EndpointC
 	}
 
 	public List<String> completeEndpointPath(ComponentConfiguration componentConfiguration, String text) {
-		// TODO is there any way to find out the list of endpoint names in vertx?
 		return null;
 	}
 

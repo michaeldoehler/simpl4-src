@@ -53,10 +53,7 @@ public class EventBusProducer extends DefaultAsyncProducer {
 		Message msg = exchange.hasOut() ? exchange.getOut() : exchange.getIn();
 		Map properties = new HashMap();
 		properties.put("msg", msg);
-debug("EventBusProducer.process:"+address);
-debug("EventBusProducer.Headers:"+msg.getHeaders());
-debug("EventBusProducer.Body:"+msg.getBody());
-debug("EventBusProducer.process:"+properties);
+		debug("Producer.process:" + msg);
 		Event event = new Event("eventbus/" + address, properties);
 		getEndpoint().getEventAdmin().postEvent(event);
 		return true;
@@ -72,11 +69,11 @@ debug("EventBusProducer.process:"+properties);
 		LOG.info(msg, args);
 	}
 
-	private Object[] varargsToArray(Object...args){
-	 Object[] ret = new Object[args.length];
-    for (int i = 0; i < args.length; i++) {
-      ret[i] = args[i];
-    }
+	private Object[] varargsToArray(Object... args) {
+		Object[] ret = new Object[args.length];
+		for (int i = 0; i < args.length; i++) {
+			ret[i] = args[i];
+		}
 		return ret;
 	}
 }
