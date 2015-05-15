@@ -76,6 +76,7 @@ public class CamelContextBuilder {
 		sr.put("repo", new RepoComponent());
 		sr.put("xmpp", new org.ms123.common.xmpp.camel.XmppComponent());
 		sr.put("eventbus", new org.ms123.common.camel.components.eventbus.EventBusComponent());
+		sr.put("websocket", new org.ms123.common.camel.components.websocket.WebsocketComponent());
 		sr.put("direct", new DirectComponent());
 		sr.put("xdocreport", new XDocReportComponent());
 		sr.put("groovytemplate", new GroovyTemplateComponent());
