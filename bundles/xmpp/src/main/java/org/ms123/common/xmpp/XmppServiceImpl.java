@@ -208,7 +208,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		}
 	}
 
-	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
+	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 		return new WebSocket(config, parameterMap);
 	}
 
@@ -225,10 +225,10 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		private Endpoint m_recvEndpoint;
 		private Subscription m_subscription;
 
-		public WebSocket(Map<String, Object> config, Map<String, List<String>> parameterMap) {
+		public WebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_js.prettyPrint(true);
 			m_config = config;
-			m_params = convertMap(parameterMap);
+			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
 			m_context = m_camelService.getCamelContext(namespace, "default");
@@ -399,14 +399,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		public void onWebSocketError(Throwable cause) {
 			super.onWebSocketError(cause);
 			cause.printStackTrace(System.err);
-		}
-
-		private Map<String, String> convertMap(Map<String, List<String>> inMap) {
-			Map<String, String> outMap = new HashMap();
-			for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
-				outMap.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
-			}
-			return outMap;
 		}
 
 		protected Map getCamelShape(String ns, String name) {
