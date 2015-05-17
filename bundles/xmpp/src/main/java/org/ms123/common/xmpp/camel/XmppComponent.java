@@ -45,7 +45,7 @@ public class XmppComponent extends DefaultComponent implements org.apache.camel.
 	@Override
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		String cacheKey = extractCacheKeyFromUri(uri);
-		if (endpointCache.containsKey(cacheKey)) {
+		if (false/*endpointCache.containsKey(cacheKey)*/) {
 			LOG.debug("Using cached endpoint for URI {}", URISupport.sanitizeUri(uri));
 			return endpointCache.get(cacheKey);
 		}

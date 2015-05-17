@@ -129,7 +129,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
 	}
 
 	public boolean isSingleton() {
-		return true;
+		return false;
 	}
 
 	public boolean hasConnectionContext(String username) {
