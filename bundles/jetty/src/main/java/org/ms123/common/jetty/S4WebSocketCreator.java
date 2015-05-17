@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import org.ms123.common.libhelper.Inflector;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -57,7 +58,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		System.out.println("ServiceClassName:" + serviceClassName);
 		return serviceClassName;
 	}
-	private synchronized CamelContext getCamelContext(Map<String,List<String>> parameterMap) {
+	private synchronized CamelContext getCamelContext(Map<String,String> parameterMap) {
 		String namespace = getParameter("namespace", parameterMap);
 		CamelContext cc = m_camelContextMap.get(namespace);
 		if( cc != null) {
@@ -75,7 +76,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		cargs[0] = String.class;
 		cargs[1] = String.class;
 		try {
-			Method meth = service.getClass().getDeclaredMethod("getCamelContext", cargs);
+			Method meth = service.getClass().getMethod("getCamelContext", cargs);
 			Object[] args = new Object[2];
 			args[0] = namespace;
 			args[1] = "default";
@@ -88,7 +89,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private Object getCamelWebSocket(Map<String,List<String>> parameterMap) {
+	private Object getCamelWebSocket(Map<String,String> parameterMap) {
 		String uri = null;
 		String name = getParameter("name", parameterMap);
 		if( name.indexOf(":") != -1){
@@ -99,10 +100,12 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		CamelContext cc = getCamelContext(parameterMap);
 		Endpoint  ep   = cc.getEndpoint(uri);
 		System.out.println("S4WebSocketCreator.ep:"+ep);
-		Class[] cargs = new Class[0];
+		Class[] cargs = new Class[1];
+		cargs[0] = Map.class;
 		try {
 			Method meth = ep.getClass().getDeclaredMethod("createWebsocket", cargs);
-			Object[] args = new Object[0];
+			Object[] args = new Object[1];
+			args[0] = parameterMap;
 			Object ws  = meth.invoke(ep, args);
 			System.out.println("S4WebSocketCreator.ws:"+ws);
 			return ws;
@@ -112,7 +115,7 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private Object getWebSocket(String className, Map<String,List<String>> parameterMap) {
+	private Object getWebSocket(String className, Map<String,String> parameterMap) {
 		Object service = null;
 		ServiceReference sr = m_bundleContext.getServiceReference(className);
 		if (sr != null) {
@@ -136,13 +139,21 @@ public class S4WebSocketCreator implements WebSocketCreator {
 		}
 	}
 
-	private String getParameter(String paramName, Map<String, List<String>> map) {
-		List<String> paramList = map.get(paramName);
-		if (paramList == null || paramList.size() == 0) {
+	private String getParameter(String paramName, Map<String,String> map) {
+		String param = map.get(paramName);
+		if (param == null || param.length() == 0) {
 			System.out.println("WebSocketCreator.Cannot get \""+paramName+"\" parameter from querystring");
 			throw new RuntimeException("WebSocketCreator.Cannot get \""+paramName+"\" parameter from querystring");
 		}
-		return paramList.get(0);
+		return param;
+	}
+
+	private Map<String, String> convertMap(Map<String, List<String>> inMap) {
+		Map<String, String> outMap = new HashMap();
+		for (Map.Entry<String, List<String>> entry : inMap.entrySet()) {
+			outMap.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
+		}
+		return outMap;
 	}
 
 	public S4WebSocketCreator(Map config) {
@@ -154,11 +165,12 @@ public class S4WebSocketCreator implements WebSocketCreator {
 	public synchronized Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		try {
 			Object socket = null;
-			String serviceName = getParameter("service", req.getParameterMap());
+			Map<String,String> parameterMap = convertMap(req.getParameterMap());
+			String serviceName = getParameter("service", parameterMap);
 			if( "camel".equals(serviceName)){
-				socket = getCamelWebSocket(req.getParameterMap());
+				socket = getCamelWebSocket(parameterMap);
 			}else{
-				socket = getWebSocket(getServiceClassName(serviceName), req.getParameterMap());
+				socket = getWebSocket(getServiceClassName(serviceName), parameterMap);
 			}
 			System.out.println("createWebSocket:" + socket);
 			return socket;
