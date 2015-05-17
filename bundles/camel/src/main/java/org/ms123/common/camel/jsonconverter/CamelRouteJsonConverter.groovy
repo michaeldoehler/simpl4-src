@@ -127,6 +127,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_typesMap["endpoint"] = EndpointJsonConverter.class;
 		m_typesMap["fileendpoint"] = FileEndpointJsonConverter.class;
 		m_typesMap["directendpoint"] = DirectEndpointJsonConverter.class;
+		m_typesMap["websocketendpoint"] = WebsocketEndpointJsonConverter.class;
 		m_typesMap["eventbusendpoint"] = EventBusEndpointJsonConverter.class;
 		m_typesMap["sedaendpoint"] = SedaEndpointJsonConverter.class;
 		m_typesMap["vmendpoint"] = VMEndpointJsonConverter.class;
@@ -189,7 +190,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 				def uri = jsonConverter.constructUri(m_ctx);
 				def endpoint = cc.getEndpoint(uri);
 				println("endpoint:"+endpoint);
-				cc.addEndpoint( sharedRef, endpoint);
+				//cc.addEndpoint( sharedRef, endpoint);
 				sharedEndpointMap[sharedRef] = endpoint;
 			}
 		}

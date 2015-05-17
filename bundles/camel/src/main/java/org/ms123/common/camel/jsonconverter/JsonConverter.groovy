@@ -223,6 +223,12 @@ abstract class JsonConverterImpl implements JsonConverter{
 		}
 		return null;
 	}
+	def getOrigLinkRef() {
+		if( "origin".equals(shapeProperties.get("shared"))){
+			return shapeProperties.get("shareRef");
+		}
+		return null;
+	}
 
 	def prettyPrint(msg, obj){
 		def js = new JSONSerializer();
@@ -330,6 +336,9 @@ class OnCompletionJsonConverter extends JsonConverterImpl{
 class EndpointJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
 		def link = getSharedLinkRef();
+		if( link == null){
+			link = getOrigLinkRef();
+		}
 		def sharedEndpoint = null;
 		if( link != null){
 			sharedEndpoint = ctx.sharedEndpoints[link];
@@ -360,6 +369,12 @@ class FileEndpointJsonConverter extends EndpointJsonConverter{
 }
 
 class DirectEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
+class WebsocketEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);
 	}
