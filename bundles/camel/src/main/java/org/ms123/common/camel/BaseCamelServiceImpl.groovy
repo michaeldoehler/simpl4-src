@@ -300,6 +300,13 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected String createRouteId( String baseId, int index){
 		return baseId+"_"+index;
 	}
+	protected String getBaseRouteId( String routeId){
+		if( !routeId.matches('^.*_\\d{1,3}$')){
+			return routeId;
+		}
+		int ind = routeId.lastIndexOf("_");
+		return routeId.substring(0,ind);
+	}
 	protected synchronized void _createRoutesFromShape(){
 		List<Map> repos = m_gitService.getRepositories(new ArrayList(),false);
 		for(Map<String,String> repo : repos){
@@ -439,7 +446,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				info("Remove route:"+rid);
 				cce.context.stopRoute(rid);
 				cce.context.removeRoute(rid);
-				cce.routeEntryMap.remove(rid);
+				cce.routeEntryMap.remove(getBaseRouteId(rid));
 			}
 		}
 		info("-->Context("+contextKey+"):status:"+cce.context.getStatus());
