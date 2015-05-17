@@ -136,11 +136,10 @@ public class DefaultWebsocket implements WebSocketListener {
 	}
 
 	private void extractHeaders() {
-		for (Map.Entry<String, String> e : m_parameterMap.entrySet()) {
-			String key = e.getKey();
-			if (key.startsWith("Camel")) {
-				m_headers.put(key, e.getValue());
-			}
+		String headersString = m_parameterMap.get("camelHeaders");
+		Map<String,Object> headers = (Map)m_ds.deserialize(headersString);
+		for (Map.Entry<String, Object> e : headers.entrySet()) {
+			m_headers.put(e.getKey(), String.valueOf(e.getValue()));
 		}
 	}
 

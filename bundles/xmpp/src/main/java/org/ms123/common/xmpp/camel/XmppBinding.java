@@ -52,35 +52,10 @@ public class XmppBinding {
      * Populates the given XMPP message from the inbound exchange
      */
 	public void populateXmppMessage(Message message, Exchange exchange) {
-		message.setBody(exchange.getIn().getBody(String.class));
-		Set<Map.Entry<String, Object>> entries = exchange.getIn().getHeaders().entrySet();
-		for (Map.Entry<String, Object> entry : entries) {
-			String name = entry.getKey();
-			Object value = entry.getValue();
-			if (!headerFilterStrategy.applyFilterToCamelHeaders(name, value, exchange)) {
-				if ("subject".equalsIgnoreCase(name)) {
-					// special for subject
-					String subject = exchange.getContext().getTypeConverter().convertTo(String.class, value);
-					message.setSubject(subject);
-				} else if ("language".equalsIgnoreCase(name)) {
-					// special for language
-					String language = exchange.getContext().getTypeConverter().convertTo(String.class, value);
-					message.setLanguage(language);
-				} else {
-					try {
-						//@@@MS message.setProperty(name, value);
-						LOG.trace("Added property name: {} value: {}", name, value.toString());
-					} catch (IllegalArgumentException iae) {
-						if (LOG.isDebugEnabled()) {
-							LOG.debug("Cannot add property " + name + " to XMPP message due: ", iae);
-						}
-					}
-				}
-			}
-		}
-		String id = exchange.getExchangeId();
-		if (id != null) {
-			//@@@MS message.setProperty("exchangeId", id);
+		if( exchange.getIn().getBody() instanceof Map){
+			message.setBody((String)exchange.getIn().getBody(Map.class).get("body"));
+		}else{
+			message.setBody(exchange.getIn().getBody(String.class));
 		}
 	}
 
@@ -91,20 +66,4 @@ public class XmppBinding {
 		return message.getBody();
 	}
 
-	public Map<String, Object> extractHeadersFromXmpp(Message xmppMessage, Exchange exchange) {
-		Map<String, Object> answer = new HashMap<String, Object>();
-		/*@@@MS for (String name : xmppMessage.getPropertyNames()) {
-			Object value = xmppMessage.getProperty(name);
-			if (!headerFilterStrategy.applyFilterToExternalHeaders(name, value, exchange)) {
-				answer.put(name, value);
-			}
-		}*/
-		answer.put(XmppConstants.MESSAGE_TYPE, xmppMessage.getType());
-		answer.put(XmppConstants.SUBJECT, xmppMessage.getSubject());
-		answer.put(XmppConstants.THREAD_ID, xmppMessage.getThread());
-		answer.put(XmppConstants.FROM, xmppMessage.getFrom());
-		answer.put(XmppConstants.PACKET_ID, xmppMessage.getPacketID());
-		answer.put(XmppConstants.TO, xmppMessage.getTo());
-		return answer;
-	}
 }

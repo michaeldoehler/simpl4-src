@@ -76,11 +76,5 @@ public class XmppMessage extends DefaultMessage {
 
 	@Override
 	protected void populateInitialHeaders(Map<String, Object> map) {
-		if (xmppMessage != null) {
-			XmppBinding binding = ExchangeHelper.getBinding(getExchange(), XmppBinding.class);
-			if (binding != null) {
-				map.putAll(binding.extractHeadersFromXmpp(xmppMessage, getExchange()));
-			}
-		}
 	}
 }

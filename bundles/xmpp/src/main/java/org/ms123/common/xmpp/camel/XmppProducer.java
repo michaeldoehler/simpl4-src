@@ -63,7 +63,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		this.endpoint = endpoint;
 	}
 
-	private XmppConnectionContext handleCommand(Exchange exchange, String command, Map<String,Object> parameter, String username, String password, String resourceId, String participant,String room) throws Exception {
+	private XmppConnectionContext handleCommand(Exchange exchange, String command, Map<String, Object> parameter, String username, String password, String resourceId, String participant, String room) throws Exception {
 		if (command == null) {
 			return endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 		}
@@ -72,7 +72,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			return endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 		}
 		if (command.equals(COMMAND_CLOSE)) {
-			String sessionId = username+"/"+resourceId;
+			String sessionId = username + "/" + resourceId;
 			if (endpoint.hasConnectionContext(sessionId)) {
 				XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
 				endpoint.removeConnectionContext(cc);
@@ -83,16 +83,16 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		}
 		if (command.equals(COMMAND_ADDUSER)) {
 			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
-			List<String> groupList = (List)parameter.get("groups");
+			List<String> groupList = (List) parameter.get("groups");
 			String[] groups = null;
-			if( groupList!=null){
+			if (groupList != null) {
 				groups = groupList.toArray(new String[groupList.size()]);
 			}
-			Roster.getInstanceFor(cc.getConnection()).createEntry((String)parameter.get("username"), (String)parameter.get("nickname"),groups);
+			Roster.getInstanceFor(cc.getConnection()).createEntry((String) parameter.get("username"), (String) parameter.get("nickname"), groups);
 		}
 		if (command.equals(COMMAND_LEAVEROOM)) {
 			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
-			String paramRoom = (String)parameter.get("room");
+			String paramRoom = (String) parameter.get("room");
 			MultiUserChat muc = cc.getMUC(paramRoom);
 			muc.leave();
 			muc.removeMessageListener(cc.getConsumer());
@@ -101,13 +101,13 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		}
 		if (command.equals(COMMAND_CHATSTATE)) {
 			XmppConnectionContext cc = endpoint.getOrCreateConnectionContext(username, password, resourceId, participant);
-			String state = (String)parameter.get("state");
-			Message message=new Message();
-			ChatStateExtension extension=new ChatStateExtension(ChatState.valueOf(state));
+			String state = (String) parameter.get("state");
+			Message message = new Message();
+			ChatStateExtension extension = new ChatStateExtension(ChatState.valueOf(state));
 			message.addExtension(extension);
 			ChatManager chatManager = ChatManager.getInstanceFor(cc.getConnection());
 			String thread = "Chat:" + participant + ":" + username;
-			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(),participant, thread);
+			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(), participant, thread);
 			chat.sendMessage(message);
 		}
 		return null;
@@ -119,14 +119,15 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 		String username = exchange.getIn().getHeader(USERNAME, String.class);
 		String resourceId = exchange.getIn().getHeader(RESOURCEID, String.class);
 		String password = exchange.getIn().getHeader(PASSWORD, String.class);
-		String nickname = exchange.getIn().getHeader(NICKNAME, String.class);
-		String participant = exchange.getIn().getHeader(TO, String.class);
-		String roomname = exchange.getIn().getHeader(ROOM, String.class);
-		String command = exchange.getIn().getHeader(COMMAND, String.class);
-		Map<String,Object> parameter = exchange.getIn().getHeader(PARAMETER, Map.class);
-		debugCommand( command, username,resourceId, roomname, participant);
+		Map<String, Object> body = exchange.getIn().getBody(Map.class);
+		String nickname = (String) body.get(NICKNAME);
+		String participant = (String) body.get(PARTICIPANT);
+		String roomname = (String) body.get(ROOM);
+		String command = (String) body.get(COMMAND);
+		Map<String, Object> parameter = (Map) body.get(PARAMETER);
+		debugCommand(command, username, resourceId, roomname, participant);
 		try {
-			cc = handleCommand(exchange, command, parameter, username, password, resourceId, participant,roomname);
+			cc = handleCommand(exchange, command, parameter, username, password, resourceId, participant, roomname);
 			if (cc == null) {
 				return;
 			}
@@ -142,16 +143,13 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 				throw new RuntimeException("XmppProducer.Could not handle command:" + command, e);
 			}
 		}
-		if( "dummy".equals(participant)){
+		if ("dummy".equals(participant)) {
 			return;
 		}
-
-
-		if( roomname != null){
+		if (roomname != null) {
 			Message message = cc.getMUC(roomname).createMessage();
 			message.setTo(cc.getFQRoomname(roomname));
 			message.setFrom(cc.getUsername());
-
 			endpoint.getBinding().populateXmppMessage(message, exchange);
 			try {
 				debug("Sending XMPP message toMUC({}): {}", cc.getFQRoomname(roomname), message.getBody());
@@ -160,12 +158,12 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			} catch (Exception e) {
 				throw new RuntimeExchangeException("Could not send XMPP message: " + message, exchange, e);
 			}
-		}else{
+		} else {
 			String thread = "Chat:" + participant + ":" + username;
 			cc.setParticipant(participant);
 			cc.setUsername(username);
 			ChatManager chatManager = ChatManager.getInstanceFor(connection);
-			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(),participant, thread);
+			Chat chat = getOrCreateChat(chatManager, cc.getConsumer(), participant, thread);
 			Message message = null;
 			try {
 				message = new Message();
@@ -173,7 +171,7 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 				message.setThread(thread);
 				message.setType(Message.Type.normal);
 				endpoint.getBinding().populateXmppMessage(message, exchange);
-				debug("Sending XmppMessage from {} to {} : {}", cc.getSessionId(), participant, message.getBody() );
+				debug("Sending XmppMessage from {} to {} : {}", cc.getSessionId(), participant, message.getBody());
 				chat.sendMessage(message);
 			} catch (Exception e) {
 				throw new RuntimeExchangeException("Could not send XMPP message to " + participant + " from " + cc.getUsername() + " : " + message + " to: " + XmppEndpoint.getConnectionMessage(connection), exchange, e);
@@ -184,38 +182,36 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 	private synchronized Chat getOrCreateChat(ChatManager chatManager, XmppConsumer consumer, final String participant, String thread) {
 		Chat chat = chatManager.getThreadChat(thread);
 		if (chat != null) {
-			debug("ThreadChat(" + chat+") found");
-		}else{ 
-			chat = chatManager.createChat(participant, thread, consumer );
+			debug("ThreadChat(" + chat + ") found");
+		} else {
+			chat = chatManager.createChat(participant, thread, consumer);
 		}
 		return chat;
 	}
 
 	private synchronized void createMaybeMUC(XmppConnectionContext cc, String roomname) throws Exception {
-		if( roomname == null || cc.getMUC(roomname) != null){
+		if (roomname == null || cc.getMUC(roomname) != null) {
 			return;
 		}
 		XMPPTCPConnection connection = cc.getConnection();
-
 		// add the presence packet listener to the connection so we only get packets that concerns us
 		// we must add the listener before creating the muc
 		final ToFilter toFilter = new ToFilter(cc.getParticipant());
 		final AndFilter packetFilter = new AndFilter(new PacketTypeFilter(Presence.class), toFilter);
 		connection.addPacketListener(cc.getConsumer(), packetFilter);
-
-		String fqRoomname = endpoint.resolveRoom(connection,roomname);
+		String fqRoomname = endpoint.resolveRoom(connection, roomname);
 		MultiUserChat muc = MultiUserChatManager.getInstanceFor(connection).getMultiUserChat(fqRoomname);
-
 		muc.addMessageListener(cc.getConsumer());
 		muc.addParticipantListener(cc.getConsumer());
 		DiscussionHistory history = new DiscussionHistory();
-		history.setMaxChars(0); // we do not want any historical messages
+		history.setMaxChars(0);
+		// we do not want any historical messages
 		muc.join(cc.getNickname(), null, history, 5000L);
 		info("Joined room: {} as: {}", fqRoomname, cc.getNickname());
-		List<String>	occupants = muc.getOccupants();
-		debug("XmppProducer.muc:"+muc);
-		cc.getConsumer().sendPresence(fqRoomname,occupants);
-		cc.putMUC(roomname,muc);
+		List<String> occupants = muc.getOccupants();
+		debug("XmppProducer.muc:" + muc);
+		cc.getConsumer().sendPresence(fqRoomname, occupants);
+		cc.putMUC(roomname, muc);
 	}
 
 	private synchronized void reconnect(XMPPTCPConnection connection) throws Exception {
@@ -224,12 +220,13 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			connection.connect();
 		}
 	}
-	private void debugCommand(String command, String username, String resourceId,String roomname, String participant){
-		String sessionId = username+"/"+resourceId;
-		if( command != null){
-			debug("Command(:" + command + "):hasConnectionContext("+sessionId+") -> " + endpoint.hasConnectionContext(sessionId));
-		}else{
-			debug("Username(:" + username + "):hasConnectionContext("+sessionId+") -> " + endpoint.hasConnectionContext(sessionId)+"/roomname:"+roomname+"/participant:"+participant);
+
+	private void debugCommand(String command, String username, String resourceId, String roomname, String participant) {
+		String sessionId = username + "/" + resourceId;
+		if (command != null) {
+			debug("Command(:" + command + "):hasConnectionContext(" + sessionId + ") -> " + endpoint.hasConnectionContext(sessionId));
+		} else {
+			debug("Username(:" + username + "):hasConnectionContext(" + sessionId + ") -> " + endpoint.hasConnectionContext(sessionId) + "/roomname:" + roomname + "/participant:" + participant);
 		}
 	}
 
@@ -249,11 +246,12 @@ public class XmppProducer extends DefaultProducer implements XmppConstants {
 			e.printStackTrace();
 		LOG.warn(msg, e);
 	}
-	private Object[] varargsToArray(Object...args){
-	 Object[] ret = new Object[args.length];
-    for (int i = 0; i < args.length; i++) {
-      ret[i] = args[i];
-    }
+
+	private Object[] varargsToArray(Object... args) {
+		Object[] ret = new Object[args.length];
+		for (int i = 0; i < args.length; i++) {
+			ret[i] = args[i];
+		}
 		return ret;
 	}
 }

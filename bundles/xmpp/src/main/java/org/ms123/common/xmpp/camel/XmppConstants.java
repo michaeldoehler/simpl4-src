@@ -23,20 +23,15 @@ package org.ms123.common.xmpp.camel;
  */
 public interface XmppConstants {
 
-	String MESSAGE_TYPE = "CamelXmppMessageType";
-	String SUBJECT = "CamelXmppSubject";
-	String THREAD_ID = "CamelXmppThreadID";
-	String FROM = "CamelXmppFrom";
-	String PACKET_ID = "CamelXmppPacketID";
-	String TO = "CamelXmppTo";
-	String USERNAME = "CamelXmppUsername";
-	String PASSWORD = "CamelXmppPassword";
-	String SESSIONID = "CamelXmppSessionId";
-	String RESOURCEID = "CamelXmppResourceId";
-	String NICKNAME = "CamelXmppNickname";
-	String ROOM = "CamelXmppRoom";
-	String COMMAND = "CamelXmppCommand";
-	String PARAMETER = "CamelXmppParameter";
+	String SESSIONID = "xmppSessionId";
+	String USERNAME = "xmppUsername";
+	String PASSWORD = "xmppPassword";
+	String RESOURCEID = "xmppResourceId";
+	String PARTICIPANT = "participant";
+	String NICKNAME = "nickname";
+	String ROOM = "room";
+	String COMMAND = "command";
+	String PARAMETER = "parameter";
 	String COMMAND_OPEN = "open";
 	String COMMAND_CLOSE = "close";
 	String COMMAND_ADDUSER = "addUser";

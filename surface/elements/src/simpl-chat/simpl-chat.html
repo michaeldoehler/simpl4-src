@@ -202,7 +202,7 @@
 		</style>
 
 
-		<simpl-websocket id="websocket" namespace="global" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
 			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">

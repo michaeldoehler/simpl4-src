@@ -18,18 +18,20 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-websocket" attributes="namespace service routeSpec connected recvMessage" constructor="SimplWebsocket">
+<polymer-element name="simpl-websocket" attributes="namespace websocketName service routeSpec connected recvMessage" constructor="SimplWebsocket">
 	<template>
 		<style>
 			:host {
 				display: none;
 			}
+
 		</style>
 	</template>
 	<script type="text/javascript">
 		( function() {
 			Polymer( "simpl-websocket", {
 				connected: false,
+				camelWS: true,
 
 				send: function( data ) {
 					if ( !this.connected ) {
@@ -48,7 +50,7 @@
 					};
 					this.send( message );
 				},
-				sendMessage: function(msg) {
+				sendMessage: function( msg ) {
 					this.send( msg );
 				},
 				close: function( reason ) {
@@ -58,28 +60,32 @@
 					}
 					this.connected = false;
 				},
-				go: function(user,pw,resourceId,timeoutCallback) {
+				go: function( user, pw, resourceId, timeoutCallback ) {
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
 					var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 					baseUrl = baseUrl.replace( "http", "ws" );
 					var params = {};
-					params[ "namespace" ] = this.namespace;
-					params[ "username" ] = user;
-					params[ "password" ] = pw;
-					params[ "resourceId" ] = resourceId;
-						params[ "CamelXmppUsername" ] = user;
-						params[ "CamelXmppPassword" ] = pw;
-						params[ "CamelXmppResourceId" ] = resourceId;
-					params[ "routes" ] = this.routeSpec;
 					params[ "credentials" ] = credentials;
-					params[ "service" ] = this.service;
+					params[ "namespace" ] = this.namespace;
 
-					params[ "service" ] = "camel";
-					params[ "namespace" ] = "global";
-					params[ "connectionKey" ] = user+"/"+resourceId;
-					params[ "name" ] = "ws1";
+					if ( this.camelWS ) {
+						var headers = {};
+						headers[ "xmppUsername" ] = user;
+						headers[ "xmppPassword" ] = pw;
+						headers[ "xmppResourceId" ] = resourceId;
+						params[ "camelHeaders" ] = JSON.stringify(headers);
+						params[ "service" ] = "camel";
+						params[ "connectionKey" ] = user + "/" + resourceId;
+						params[ "name" ] = this.websocketName;
+					} else {
+						params[ "username" ] = user;
+						params[ "password" ] = pw;
+						params[ "resourceId" ] = resourceId;
+						params[ "service" ] = this.service;
+						params[ "routes" ] = this.routeSpec;
+					}
 
 					var qs = $.param( params );
 
@@ -89,24 +95,25 @@
 						console.info( '-> websocket open' );
 						this.connected = true;
 
-						var message = {};
-						message[ "command" ] = "open";
-						message[ "participant" ] = "dummy";
-						this.send( message );
-
+						if ( this.camelWS ) {
+							var message = {};
+							message[ "command" ] = "open";
+							message[ "participant" ] = "dummy";
+							this.send( message );
+						}
 
 						setInterval( ( function() {
 							//this.sendPing();
 						} ).bind( this ), 5000 );
 					} ).bind( this ) );
 
-					var closingObserver = Rx.Observer.create( ( function(x) {
-						console.log( 'websocket is about to close:',x );
+					var closingObserver = Rx.Observer.create( ( function( x ) {
+						console.log( 'websocket is about to close:', x );
 						this.connected = false;
 					} ).bind( this ) );
 
 					var options = {
-						timeoutCallback:timeoutCallback,
+						timeoutCallback: timeoutCallback,
 						debug: false,
 						reconnectInterval: 50
 					}
@@ -124,7 +131,7 @@
 							}, null, 0 );
 						},
 						function( e ) {
-							console.error("Error:"+e.reason+"("+e.code+")");
+							console.error( "Error:" + e.reason + "(" + e.code + ")" );
 							var message = {
 								errorMessage: e.reason
 							};
@@ -138,11 +145,11 @@
 						}
 					);
 				},
-				closeConnection:function(){
+				closeConnection: function() {
 					var message = {
 						command: "close",
-					}; 
-					this.send(message);
+					};
+					this.send( message );
 				}
 			} );
 		} )();
