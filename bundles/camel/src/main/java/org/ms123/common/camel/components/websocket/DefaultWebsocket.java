@@ -18,12 +18,15 @@ package org.ms123.common.camel.components.websocket;
 
 import java.io.Serializable;
 import java.util.UUID;
+import java.util.Map;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.apache.camel.Exchange;
+import flexjson.*;
 
 /**
  */
@@ -35,10 +38,15 @@ public class DefaultWebsocket implements WebSocketListener {
 	private final NodeSynchronization m_sync;
 	private String m_connectionKey;
 	private volatile Session m_session;
+	private Map<String,String> m_parameterMap;
+	private JSONDeserializer m_ds = new JSONDeserializer();
+	private JSONSerializer m_js = new JSONSerializer();
 
-	public DefaultWebsocket(NodeSynchronization sync, WebsocketConsumer consumer) {
+	public DefaultWebsocket(Map<String,String> parameterMap, NodeSynchronization sync, WebsocketConsumer consumer) {
+		this.m_parameterMap = parameterMap;
 		this.m_sync = sync;
 		this.m_consumer = consumer;
+		m_js.prettyPrint(true);
 	}
 
 	public RemoteEndpoint getRemote() {
@@ -75,7 +83,7 @@ public class DefaultWebsocket implements WebSocketListener {
 	public void onWebSocketConnect(Session sess) {
 		this.m_session = sess;
 		debug("onOpen {}", sess);
-		this.m_connectionKey = UUID.randomUUID().toString();
+		this.m_connectionKey = getConnectionKey();
 		m_sync.addSocket(this);
 	}
 
@@ -87,19 +95,45 @@ public class DefaultWebsocket implements WebSocketListener {
 	@Override
 	public void onWebSocketText(String message) {
 		debug("onMessage: {}", message);
+		Map<String,Object> headers = null;
+		Map<String,Object> properties = null;
+		Map<String,Object> map = null;
+		Object body = null;
+		Object o = null;
+		try{
+			o  = m_ds.deserialize(message);
+			if( o instanceof Map){
+				map = (Map)o;
+			}else{
+				body = o;	
+			}
+		}catch(Exception e){
+			body = o;	
+		}
+		if( map != null){
+			headers = (Map)map.get(WebsocketConstants.HEADERS);
+			properties = (Map)map.get(WebsocketConstants.PROPERTIES);
+			body = map.get(WebsocketConstants.BODY);
+			if(body==null && headers==null && properties==null){
+				body = map;
+			}
+		}
+
 		if (this.m_consumer != null) {
-			this.m_consumer.sendMessage(this.m_connectionKey, message);
+			this.m_consumer.sendMessage(getConnectionKey(), headers, properties, body);
 		} else {
 			debug("No consumer to handle message received: {}", message);
 		}
 	}
 
-	public void sendMessage(String message) {
+	public void sendMessage(Object _message) {
+		String message = m_js.deepSerialize(_message);
+		debug("-> Websocket:"+message);
 		m_session.getRemote().sendStringByFuture(message);
 	}
 
 	public String getConnectionKey() {
-		return m_connectionKey;
+			return m_parameterMap.get("connectionKey");
 	}
 
 	protected void debug(String msg, Object... args) {

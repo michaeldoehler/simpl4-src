@@ -66,8 +66,8 @@ public class WebsocketEndpoint extends DefaultEndpoint {
 		this.m_consumer = consumer;
 	}
 
-	public Object createWebsocket(){
-     return new DefaultWebsocket(m_sync, m_consumer);
+	public Object createWebsocket(Map<String,String> parameterMap){
+     return new DefaultWebsocket(parameterMap, m_sync, m_consumer);
 	}
 
 	public void connect(WebsocketProducer producer) throws Exception {

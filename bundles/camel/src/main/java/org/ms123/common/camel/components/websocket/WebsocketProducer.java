@@ -18,10 +18,12 @@ package org.ms123.common.camel.components.websocket;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
+import org.ms123.common.camel.components.ExchangeUtils;
 
 public class WebsocketProducer extends DefaultProducer {
 
@@ -41,9 +43,10 @@ public class WebsocketProducer extends DefaultProducer {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		Message in = exchange.getIn();
-		String message = in.getMandatoryBody(String.class);
+		Object message = ExchangeUtils.prepareVariables(exchange,true,true);
+		System.out.println("message:"+message);
 		if (isSendToAllSet(in)) {
-			sendToAll(store, message, exchange);
+			sendToAll(store, exchange, message);
 		} else {
 			// look for connection key and get Websocket
 			String connectionKey = in.getHeader(WebsocketConstants.CONNECTION_KEY, String.class);
@@ -75,7 +78,7 @@ public class WebsocketProducer extends DefaultProducer {
 		return value == null ? false : value;
 	}
 
-	void sendToAll(WebsocketStore store, String message, Exchange exchange) throws Exception {
+	void sendToAll(WebsocketStore store, Exchange exchange, Object message) throws Exception {
 		log.debug("Sending to all {}", message);
 		Collection<DefaultWebsocket> websockets = store.getAll();
 		Exception exception = null;
@@ -93,10 +96,9 @@ public class WebsocketProducer extends DefaultProducer {
 		}
 	}
 
-	void sendMessage(DefaultWebsocket websocket, String message) throws IOException {
+	void sendMessage(DefaultWebsocket websocket, Object message) throws IOException {
 		// in case there is web socket and socket connection is open - send message
 		if (websocket != null && websocket.isConnected()) {
-			log.trace("Sending to websocket {} -> {}", websocket.getConnectionKey(), message);
 			websocket.sendMessage(message);
 		}
 	}

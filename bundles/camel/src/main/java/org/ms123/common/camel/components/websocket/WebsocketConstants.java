@@ -20,9 +20,12 @@ public final class WebsocketConstants {
 
 	public static final String CONNECTION_KEY = "websocket.connectionKey";
 	public static final String SEND_TO_ALL = "websocket.sendToAll";
-	public static final String WS_PROTOCOL = "ws";
-	public static final String WSS_PROTOCOL = "wss";
 
+	public static final String HEADERS = "headers";
+	public static final String PROPERTIES = "properties";
+	public static final String BODY = "body";
+
+		
 	private WebsocketConstants() {
 	}
 

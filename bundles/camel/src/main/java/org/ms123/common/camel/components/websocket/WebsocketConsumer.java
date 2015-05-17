@@ -20,6 +20,8 @@ import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
+import java.util.Map;
+
 
 public class WebsocketConsumer extends DefaultConsumer {
 
@@ -42,11 +44,19 @@ public class WebsocketConsumer extends DefaultConsumer {
 		super.stop();
 	}
 
-	public void sendMessage(final String connectionKey, final String message) {
+	public void sendMessage(final String connectionKey, final Map<String,Object> headers, final Map<String,Object> properties, final Object body) {
 		final Exchange exchange = getEndpoint().createExchange();
 		// set header and body
+		if( headers != null){
+			exchange.getIn().getHeaders().putAll(headers);
+		}
+		if( properties != null){
+			exchange.getProperties().putAll(properties);
+		}
 		exchange.getIn().setHeader(WebsocketConstants.CONNECTION_KEY, connectionKey);
-		exchange.getIn().setBody(message);
+		if( body != null){
+			exchange.getIn().setBody(body);
+		}
 		// send exchange using the async routing engine
 		getAsyncProcessor().process(exchange, new AsyncCallback() {
 
