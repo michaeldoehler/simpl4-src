@@ -215,23 +215,14 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 	public class WebSocket extends BaseWebSocket {
 
 		private Map<String, Object> m_config = null;
-
 		private JSONDeserializer m_ds = new JSONDeserializer();
-
 		private JSONSerializer m_js = new JSONSerializer();
-
 		private Map<String, String> m_params;
-
 		private ProducerTemplate m_outTemplate;
-
 		private CamelContext m_context;
-
 		private Session m_session;
-
 		private Endpoint m_sendEndpoint;
-
 		private Endpoint m_recvEndpoint;
-
 		private Subscription m_subscription;
 
 		public WebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
@@ -263,16 +254,13 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 					if (camelMessage instanceof XmppMessage) {
 						org.jivesoftware.smack.packet.Message message = ((XmppMessage) camelMessage).getXmppMessage();
 						Map<String, Object> sendMap = new HashMap();
-						/*Collection<String> propertyNames = message.getPropertyNames();
-						for (String name : propertyNames) {
-							//sendMap.put(name, message.getProperty(name));
-						}*/
 						String defaultSubject = message.getSubject();
 						List<String> subList = new ArrayList();
 						for (org.jivesoftware.smack.packet.Message.Subject subject : message.getSubjects()) {
 							String sub = subject.getSubject();
-							if (defaultSubject.equals(sub))
+							if (defaultSubject.equals(sub)) {
 								continue;
+							}
 							subList.add(sub);
 						}
 						sendMap.put("from", message.getFrom());
@@ -292,11 +280,6 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 						for (org.jivesoftware.smack.packet.ExtensionElement ep : message.getExtensions()) {
 							if (ep instanceof org.jivesoftware.smackx.chatstates.packet.ChatStateExtension) {
 								sendMap.put("chatState", ep.getElementName());
-							}
-							if (ep instanceof MessageEvent) {
-								MessageEvent me = (MessageEvent) ep;
-								sendMap.put("isComposing", me.isComposing());
-								sendMap.put("isOffline", me.isOffline());
 							}
 						}
 						String sendString = m_js.deepSerialize(sendMap);
