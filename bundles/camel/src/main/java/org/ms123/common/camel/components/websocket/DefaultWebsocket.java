@@ -84,7 +84,7 @@ public class DefaultWebsocket implements WebSocketListener {
 		/*@@@MS*/
 		Map body = new HashMap();
 		body.put("command", "close");
-		this.m_consumer.sendMessage(getConnectionKey(), body, m_headers);
+		this.m_consumer.sendMessage(getConnectionKey(), body, m_headers,m_session);
 		m_sync.removeSocket(this);
 	}
 
@@ -120,7 +120,7 @@ public class DefaultWebsocket implements WebSocketListener {
 			body = message;
 		}
 		if (this.m_consumer != null) {
-			this.m_consumer.sendMessage(getConnectionKey(), body, m_headers);
+			this.m_consumer.sendMessage(getConnectionKey(), body, m_headers,m_session);
 		} else {
 			debug("No consumer to handle message received: {}", message);
 		}

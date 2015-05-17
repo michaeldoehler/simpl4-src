@@ -21,6 +21,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import java.util.Map;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.CloseStatus;
 
 public class WebsocketConsumer extends DefaultConsumer {
 
@@ -43,7 +45,7 @@ public class WebsocketConsumer extends DefaultConsumer {
 		super.stop();
 	}
 
-	public void sendMessage(final String connectionKey, final Object body, Map<String, String> headers) {
+	public void sendMessage(final String connectionKey, final Object body, Map<String, String> headers, final Session session) {
 		final Exchange exchange = getEndpoint().createExchange();
 		if (body != null) {
 			exchange.getIn().setBody(body);
@@ -58,6 +60,18 @@ public class WebsocketConsumer extends DefaultConsumer {
 			public void done(boolean doneSync) {
 				if (exchange.getException() != null) {
 					getExceptionHandler().handleException("Error processing exchange", exchange, exchange.getException());
+					Throwable e = exchange.getException();
+					e.printStackTrace();
+					String msg = e.getMessage();
+					while (e.getCause() != null) {
+						e = e.getCause();
+						msg = e.getMessage();
+					}
+					if (msg == null) {
+						msg = e.toString();
+					}
+					CloseStatus cs = new CloseStatus(4000, msg);
+					session.close(cs);
 				}
 			}
 		});
