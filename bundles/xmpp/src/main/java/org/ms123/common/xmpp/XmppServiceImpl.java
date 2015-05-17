@@ -318,27 +318,9 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 		@Override
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
-			start();
 			m_session = sess;
+			start();
 			debug("Socket Connected: \n" + m_js.deepSerialize(m_params));
-			Map<String, Object> body = new HashMap();
-			body.put(PARTICIPANT, "dummy");
-			body.put(COMMAND, COMMAND_OPEN);
-			try {
-				m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, body, getHeaders());
-			} catch (Throwable e) {
-				e.printStackTrace();
-				String msg = e.getMessage();
-				while (e.getCause() != null) {
-					e = e.getCause();
-					msg = e.getMessage();
-				}
-				if (msg == null) {
-					msg = e.toString();
-				}
-				CloseStatus cs = new CloseStatus(4000, msg);
-				m_session.close(cs);
-			}
 		}
 
 		@Override

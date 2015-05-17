@@ -471,6 +471,7 @@
 			socketTimeoutCallback: function() {
 				this.async( function() {
 					var chat = this.chatHash[ this.chatId ];
+					this.sendOpen();
 					for ( var i = 0; i < this.chatList.length; i++ ) {
 						var chat = this.chatList[ i ];
 						if ( chat.type === 'groupchat' ) {
@@ -482,6 +483,7 @@
 			connectedChanged: function() {
 				if ( this.connected ) {
 					this.viewId = "chatView";
+					this.sendOpen();
 				} else {
 					this.viewId = "loginView";
 				}
@@ -703,6 +705,12 @@
 					this.sendChatState( "paused" );
 					chat.isComposing = false;
 				}
+			},
+			sendOpen: function( chat ) {
+				var message = {};
+				message[ "command" ] = "open";
+				message[ "participant" ] = "dummy";
+				this.$.websocket.sendMessage( message );
 			},
 			sendJoin: function( chat ) {
 				if ( chat == null ) {
