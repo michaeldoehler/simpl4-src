@@ -28,9 +28,7 @@ import org.ms123.common.camel.components.ExchangeUtils;
 public class WebsocketProducer extends DefaultProducer {
 
 	private final WebsocketStore store;
-
 	private final Boolean sendToAll;
-
 	private final WebsocketEndpoint endpoint;
 
 	public WebsocketProducer(WebsocketEndpoint endpoint, WebsocketStore store) {
@@ -43,8 +41,8 @@ public class WebsocketProducer extends DefaultProducer {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		Message in = exchange.getIn();
-		Object message = ExchangeUtils.prepareVariables(exchange,true,true);
-		System.out.println("message:"+message);
+		String message = ExchangeUtils.prepareBody(exchange);
+		System.out.println("message:" + message);
 		if (isSendToAllSet(in)) {
 			sendToAll(store, exchange, message);
 		} else {
@@ -78,7 +76,7 @@ public class WebsocketProducer extends DefaultProducer {
 		return value == null ? false : value;
 	}
 
-	void sendToAll(WebsocketStore store, Exchange exchange, Object message) throws Exception {
+	void sendToAll(WebsocketStore store, Exchange exchange, String message) throws Exception {
 		log.debug("Sending to all {}", message);
 		Collection<DefaultWebsocket> websockets = store.getAll();
 		Exception exception = null;
@@ -96,7 +94,7 @@ public class WebsocketProducer extends DefaultProducer {
 		}
 	}
 
-	void sendMessage(DefaultWebsocket websocket, Object message) throws IOException {
+	void sendMessage(DefaultWebsocket websocket, String message) throws IOException {
 		// in case there is web socket and socket connection is open - send message
 		if (websocket != null && websocket.isConnected()) {
 			websocket.sendMessage(message);

@@ -1,27 +1,31 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * This file is part of SIMPL4(http://simpl4.org).
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.ms123.common.camel.components.websocket;
 
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.Map;
+import java.util.HashMap;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.api.CloseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -36,16 +40,17 @@ public class DefaultWebsocket implements WebSocketListener {
 
 	private final WebsocketConsumer m_consumer;
 	private final NodeSynchronization m_sync;
-	private String m_connectionKey;
 	private volatile Session m_session;
-	private Map<String,String> m_parameterMap;
+	private Map<String, String> m_parameterMap;
+	private Map<String, String> m_headers = new HashMap();
 	private JSONDeserializer m_ds = new JSONDeserializer();
 	private JSONSerializer m_js = new JSONSerializer();
 
-	public DefaultWebsocket(Map<String,String> parameterMap, NodeSynchronization sync, WebsocketConsumer consumer) {
+	public DefaultWebsocket(Map<String, String> parameterMap, NodeSynchronization sync, WebsocketConsumer consumer) {
 		this.m_parameterMap = parameterMap;
 		this.m_sync = sync;
 		this.m_consumer = consumer;
+		extractHeaders();
 		m_js.prettyPrint(true);
 	}
 
@@ -76,6 +81,10 @@ public class DefaultWebsocket implements WebSocketListener {
 	public void onWebSocketClose(int statusCode, String reason) {
 		this.m_session = null;
 		debug("onClose {} {}", statusCode, reason);
+		/*@@@MS*/
+		Map body = new HashMap();
+		body.put("command", "close");
+		this.m_consumer.sendMessage(getConnectionKey(), body, m_headers);
 		m_sync.removeSocket(this);
 	}
 
@@ -83,7 +92,6 @@ public class DefaultWebsocket implements WebSocketListener {
 	public void onWebSocketConnect(Session sess) {
 		this.m_session = sess;
 		debug("onOpen {}", sess);
-		this.m_connectionKey = getConnectionKey();
 		m_sync.addSocket(this);
 	}
 
@@ -95,45 +103,45 @@ public class DefaultWebsocket implements WebSocketListener {
 	@Override
 	public void onWebSocketText(String message) {
 		debug("onMessage: {}", message);
-		Map<String,Object> headers = null;
-		Map<String,Object> properties = null;
-		Map<String,Object> map = null;
+		debug("\theaders: {}", m_headers);
 		Object body = null;
-		Object o = null;
-		try{
-			o  = m_ds.deserialize(message);
-			if( o instanceof Map){
-				map = (Map)o;
-			}else{
-				body = o;	
+		try {
+			body = m_ds.deserialize(message);
+			if (body instanceof Map) {
+				/*@@@MS*/
+				String command = (String) ((Map) body).get("command");
+				if (command != null && "close".equals(command)) {
+					CloseStatus cs = new CloseStatus(4001, "close on  client demand");
+					m_session.close(cs);
+					return;
+				}
 			}
-		}catch(Exception e){
-			body = o;	
+		} catch (Exception e) {
+			body = message;
 		}
-		if( map != null){
-			headers = (Map)map.get(WebsocketConstants.HEADERS);
-			properties = (Map)map.get(WebsocketConstants.PROPERTIES);
-			body = map.get(WebsocketConstants.BODY);
-			if(body==null && headers==null && properties==null){
-				body = map;
-			}
-		}
-
 		if (this.m_consumer != null) {
-			this.m_consumer.sendMessage(getConnectionKey(), headers, properties, body);
+			this.m_consumer.sendMessage(getConnectionKey(), body, m_headers);
 		} else {
 			debug("No consumer to handle message received: {}", message);
 		}
 	}
 
-	public void sendMessage(Object _message) {
-		String message = m_js.deepSerialize(_message);
-		debug("-> Websocket:"+message);
+	public void sendMessage(String message) {
+		debug("-> Websocket:" + message);
 		m_session.getRemote().sendStringByFuture(message);
 	}
 
 	public String getConnectionKey() {
-			return m_parameterMap.get("connectionKey");
+		return m_parameterMap.get("connectionKey");
+	}
+
+	private void extractHeaders() {
+		for (Map.Entry<String, String> e : m_parameterMap.entrySet()) {
+			String key = e.getKey();
+			if (key.startsWith("Camel")) {
+				m_headers.put(key, e.getValue());
+			}
+		}
 	}
 
 	protected void debug(String msg, Object... args) {

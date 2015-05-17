@@ -401,6 +401,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			cause.printStackTrace(System.err);
 		}
 
+
 		protected Map getCamelShape(String ns, String name) {
 			Map shape = m_camelService.getShapeByRouteId(ns, name);
 			if (shape == null) {

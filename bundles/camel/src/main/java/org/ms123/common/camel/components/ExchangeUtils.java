@@ -21,12 +21,14 @@ package org.ms123.common.camel.components;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.Exchange;
+import flexjson.*;
 
 /**
  * 
  */
 public class ExchangeUtils {
 	public static final String CAMELBODY = "camelBody";
+	private static JSONSerializer m_js = new JSONSerializer();
 	protected static final String IGNORE_MESSAGE_PROPERTY = "CamelMessageHistory";
 
 	/**
@@ -70,20 +72,7 @@ public class ExchangeUtils {
 		}
 		return camelVarMap;
 	}
-	public static Object prepareVariables(Exchange exchange, boolean shouldCopyVariablesFromHeader, boolean shouldCopyVariablesFromProperties) {
-		Map<String, Object> camelVarMap = new HashMap();
-		Map<String, Object> camelPropertyMap = null;
-		if (shouldCopyVariablesFromProperties) {
-			camelPropertyMap = exchange.getProperties();
-			Map<String, Object> newCamelVarMap = new HashMap<String, Object>();
-			for (String s : camelPropertyMap.keySet()) {
-				if (IGNORE_MESSAGE_PROPERTY.equalsIgnoreCase(s) == false) {
-					newCamelVarMap.put(s, camelPropertyMap.get(s));
-				}
-			}
-			camelPropertyMap = newCamelVarMap;
-		} 
-
+	public static String prepareBody(Exchange exchange) {
 		Map<String,Object> camelBodyMap = new HashMap<String, Object>();
 		Object camelBody = null;
 		if (exchange.hasOut()){
@@ -91,38 +80,9 @@ public class ExchangeUtils {
 		}else{
 			camelBody = exchange.getIn().getBody();
 		}
-		if (camelBody instanceof Map<?, ?>) {
-			Map<?, ?> _camelBodyMap = (Map<?, ?>) camelBody;
-			for (@SuppressWarnings("rawtypes") Map.Entry e : _camelBodyMap.entrySet()) {
-				if (e.getKey() instanceof String) {
-					camelBodyMap.put((String) e.getKey(), e.getValue());
-				}
-			}
-			camelVarMap.put("body", camelBody);
-			camelBody = null;
-		} else {
-			if (!(camelBody instanceof String)) {
-				camelBody = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, camelBody);
-			}
-			camelVarMap.put("body", camelBody);
-		}
-
-		Map<String, Object> camelHeaderMap = null;
-		if (shouldCopyVariablesFromHeader) {
-			camelHeaderMap = new HashMap();
-			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
-				camelHeaderMap.put(header.getKey(), header.getValue());
-			}
-		}
-		if( camelPropertyMap != null){
-			camelVarMap.put("properties",camelPropertyMap);
-		}
-		if( camelHeaderMap != null){
-			camelVarMap.put("headers",camelHeaderMap);
-		}
-		if( camelPropertyMap==null && camelHeaderMap==null){
-			return camelBody != null ? camelBody : camelBodyMap;
-		}
-		return camelVarMap;
+		if (camelBody != null && !(camelBody instanceof String)) {
+			camelBody = m_js.deepSerialize(camelBody);
+		} 
+		return (String)camelBody;
 	}
 }

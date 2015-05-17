@@ -19,13 +19,15 @@ package org.ms123.common.camel.components.websocket;
 public final class WebsocketConstants {
 
 	public static final String CONNECTION_KEY = "websocket.connectionKey";
+
 	public static final String SEND_TO_ALL = "websocket.sendToAll";
 
 	public static final String HEADERS = "headers";
+
 	public static final String PROPERTIES = "properties";
+
 	public static final String BODY = "body";
 
-		
 	private WebsocketConstants() {
 	}
 

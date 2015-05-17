@@ -32,9 +32,7 @@ public class WebsocketEndpoint extends DefaultEndpoint {
 	private WebsocketStore m_memoryStore;
 	private WebsocketComponent m_component;
 	private WebsocketConsumer m_consumer;
-
 	private Boolean sendToAll;
-
 
 	public WebsocketEndpoint(WebsocketComponent component, String uri, String remaining, Map<String, Object> parameters) {
 		super(uri, component);
@@ -66,8 +64,8 @@ public class WebsocketEndpoint extends DefaultEndpoint {
 		this.m_consumer = consumer;
 	}
 
-	public Object createWebsocket(Map<String,String> parameterMap){
-     return new DefaultWebsocket(parameterMap, m_sync, m_consumer);
+	public Object createWebsocket(Map<String, String> parameterMap) {
+		return new DefaultWebsocket(parameterMap, m_sync, m_consumer);
 	}
 
 	public void connect(WebsocketProducer producer) throws Exception {

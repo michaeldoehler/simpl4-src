@@ -68,10 +68,18 @@
 					params[ "namespace" ] = this.namespace;
 					params[ "username" ] = user;
 					params[ "password" ] = pw;
+					params[ "resourceId" ] = resourceId;
+						params[ "CamelXmppUsername" ] = user;
+						params[ "CamelXmppPassword" ] = pw;
+						params[ "CamelXmppResourceId" ] = resourceId;
 					params[ "routes" ] = this.routeSpec;
 					params[ "credentials" ] = credentials;
-					params[ "resourceId" ] = resourceId;
 					params[ "service" ] = this.service;
+
+					params[ "service" ] = "camel";
+					params[ "namespace" ] = "global";
+					params[ "connectionKey" ] = user+"/"+resourceId;
+					params[ "name" ] = "ws1";
 
 					var qs = $.param( params );
 
@@ -80,6 +88,13 @@
 					var openObserver = Rx.Observer.create( ( function( e ) {
 						console.info( '-> websocket open' );
 						this.connected = true;
+
+						var message = {};
+						message[ "command" ] = "open";
+						message[ "participant" ] = "dummy";
+						this.send( message );
+
+
 						setInterval( ( function() {
 							//this.sendPing();
 						} ).bind( this ), 5000 );
