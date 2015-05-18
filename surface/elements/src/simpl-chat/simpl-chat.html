@@ -202,7 +202,7 @@
 		</style>
 
 		<!--service={xmpp|camel}-->
-		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="camel" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
 			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
@@ -332,7 +332,7 @@
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
-			camelWS: true,
+			camelWS: false,
 			chatId: 'main',
 			viewId: "loginView",
 			recvMessage: null,
@@ -400,11 +400,17 @@
 				}
 				var chat = null;
 				if ( message.errorMessage ) {
-					var msg = message.errorMessage;
-					this.showError( this.mapSomeErrors( msg ) );
-					console.error( msg );
-					if ( message.room ) {
-						this.removeChat( message.room );
+					var errorMessage = message.errorMessage;
+					var request = message.request;
+					if( request && request.command && request.command === 'open'){
+						this.async( function() {
+							this.connected=false;
+						}, null, 30 );
+					}
+					this.showError( this.mapSomeErrors( errorMessage ) );
+					console.error( errorMessage );
+					if ( request && request.room ) {
+						this.removeChat( request.room );
 					}
 					return;
 				}
@@ -858,6 +864,9 @@
 			mapSomeErrors: function( msg ) {
 				if ( msg.indexOf( "not-authorized" ) > 0 ) {
 					return tr( "chat.not-authorized" );
+				}
+				if ( msg.indexOf( "registration-required" ) > 0 ) {
+					return tr( "chat.registration-required" );
 				}
 				return msg;
 			},

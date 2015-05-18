@@ -21,12 +21,15 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import java.util.Map;
+import java.util.HashMap;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.CloseStatus;
+import flexjson.*;
 
 public class WebsocketConsumer extends DefaultConsumer {
 
 	private final WebsocketEndpoint endpoint;
+	private JSONSerializer m_js = new JSONSerializer();
 
 	public WebsocketConsumer(WebsocketEndpoint endpoint, Processor processor) {
 		super(endpoint, processor);
@@ -70,8 +73,11 @@ public class WebsocketConsumer extends DefaultConsumer {
 					if (msg == null) {
 						msg = e.toString();
 					}
-					CloseStatus cs = new CloseStatus(4000, msg);
-					session.close(cs);
+					Map map = new HashMap();
+					map.put("request", body);
+					map.put("errorMessage", msg);
+					String sendString = m_js.deepSerialize(map);
+					session.getRemote().sendStringByFuture(sendString);
 				}
 			}
 		});
