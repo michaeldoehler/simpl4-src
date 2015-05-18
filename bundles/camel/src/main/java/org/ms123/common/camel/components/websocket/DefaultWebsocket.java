@@ -43,6 +43,7 @@ public class DefaultWebsocket implements WebSocketListener {
 	private volatile Session m_session;
 	private Map<String, String> m_parameterMap;
 	private Map<String, String> m_headers = new HashMap();
+	private Map<String, String> m_closeCommandBody = new HashMap();
 	private JSONDeserializer m_ds = new JSONDeserializer();
 	private JSONSerializer m_js = new JSONSerializer();
 
@@ -51,6 +52,7 @@ public class DefaultWebsocket implements WebSocketListener {
 		this.m_sync = sync;
 		this.m_consumer = consumer;
 		extractHeaders();
+		extractCloseCommandBody();
 		m_js.prettyPrint(true);
 	}
 
@@ -81,10 +83,9 @@ public class DefaultWebsocket implements WebSocketListener {
 	public void onWebSocketClose(int statusCode, String reason) {
 		this.m_session = null;
 		debug("onClose {} {}", statusCode, reason);
-		/*@@@MS*/
-		Map body = new HashMap();
-		body.put("command", "close");
-		this.m_consumer.sendMessage(getConnectionKey(), body, m_headers,m_session);
+		if( m_closeCommandBody != null){
+			this.m_consumer.sendMessage(getConnectionKey(), m_closeCommandBody, m_headers,m_session);
+		}
 		m_sync.removeSocket(this);
 	}
 
@@ -107,15 +108,6 @@ public class DefaultWebsocket implements WebSocketListener {
 		Object body = null;
 		try {
 			body = m_ds.deserialize(message);
-			if (body instanceof Map) {
-				/*@@@MS*/
-				String command = (String) ((Map) body).get("command");
-				if (command != null && "close".equals(command)) {
-					CloseStatus cs = new CloseStatus(4001, "close on  client demand");
-					m_session.close(cs);
-					return;
-				}
-			}
 		} catch (Exception e) {
 			body = message;
 		}
@@ -137,9 +129,22 @@ public class DefaultWebsocket implements WebSocketListener {
 
 	private void extractHeaders() {
 		String headersString = m_parameterMap.get("camelHeaders");
-		Map<String,Object> headers = (Map)m_ds.deserialize(headersString);
-		for (Map.Entry<String, Object> e : headers.entrySet()) {
-			m_headers.put(e.getKey(), String.valueOf(e.getValue()));
+		if( headersString != null){
+			Map<String,Object> headers = (Map)m_ds.deserialize(headersString);
+			for (Map.Entry<String, Object> e : headers.entrySet()) {
+				m_headers.put(e.getKey(), String.valueOf(e.getValue()));
+			}
+		}
+	}
+
+	private void extractCloseCommandBody() {
+		String closeString = m_parameterMap.get("closeCommandBody");
+		if( closeString != null){
+			Map<String,Object> map = (Map)m_ds.deserialize(closeString);
+			m_closeCommandBody = new HashMap();
+			for (Map.Entry<String, Object> e : map.entrySet()) {
+				m_closeCommandBody.put(e.getKey(), String.valueOf(e.getValue()));
+			}
 		}
 	}
 

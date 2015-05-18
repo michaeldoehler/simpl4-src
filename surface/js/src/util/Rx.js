@@ -33,6 +33,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 					closingObserver.onNext();
 					closingObserver.onCompleted();
 				}
+				if( code == -1) return;
 				if ( !code ) {
 					socket.close();
 				} else {
@@ -58,9 +59,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 			var closeHandler = function( e ) {
 				console.log( "closeHandler.code", e.code );
 				if ( e.code == null ) return;
-				if ( e.code === 4001 ) {
-					obs.onCompleted();
-				} else if ( e.code !== 1000 || !e.wasClean ) {
+				if ( e.code !== 1000 || !e.wasClean ) {
 					return obs.onError( e );
 				} else {
 					obs.onCompleted();
@@ -73,7 +72,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 			socket.addEventListener( 'close', closeHandler, false );
 
 			return function() {
-				socketClose();
+				socketClose(-1);
 
 				socket.removeEventListener( 'message', messageHandler, false );
 				socket.removeEventListener( 'error', errHandler, false );

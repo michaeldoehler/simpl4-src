@@ -201,8 +201,8 @@
 
 		</style>
 
-
-		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<!--service={xmpp|camel}-->
+		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="camel" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
 			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
@@ -260,7 +260,7 @@
 														{{'chat.participant'|tr}}:
 													</label>
 													<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
-													<core-icon-button class="small" disabled?="{{!isCurrentParticipant}}"  on-tap="{{openSingleChat}}" icon="check-box-outline-blank">[['chat.singleChat'|tr]]</core-icon-button>
+													<core-icon-button class="small" disabled?="{{!isCurrentParticipant}}" on-tap="{{openSingleChat}}" icon="check-box-outline-blank">[['chat.singleChat'|tr]]</core-icon-button>
 												</paper-shadow>
 											</div>
 										</template>
@@ -332,6 +332,7 @@
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
+			camelWS: true,
 			chatId: 'main',
 			viewId: "loginView",
 			recvMessage: null,
@@ -354,7 +355,10 @@
 						this.sendChatState( "gone" );
 					}
 				} ).bind( this ) );
-				this.loginData = {username:Simpl4.Cache.getItem( "chat.username" ), password:Simpl4.Cache.getItem( "chat.password" )};
+				this.loginData = {
+					username: Simpl4.Cache.getItem( "chat.username" ),
+					password: Simpl4.Cache.getItem( "chat.password" )
+				};
 			},
 			sendMessageInput: function() {
 				var chat = this.chatHash[ this.chatId ];
@@ -397,7 +401,7 @@
 				var chat = null;
 				if ( message.errorMessage ) {
 					var msg = message.errorMessage;
-					this.showError( this.mapSomeErrors(msg ));
+					this.showError( this.mapSomeErrors( msg ) );
 					console.error( msg );
 					if ( message.room ) {
 						this.removeChat( message.room );
@@ -426,7 +430,7 @@
 				}
 				if ( chat && chat.type === 'mixedchat' ) {
 					var participant = $( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val();
-					if( participant != this.getNameAndDomainFromJid(message.from)){
+					if ( participant != this.getNameAndDomainFromJid( message.from ) ) {
 						chat.chatState = '';
 					}
 				}
@@ -460,12 +464,32 @@
 				this.rosterEntries = [];
 				this.chatId = 'main';
 				this.resetChatList();
-				this.$.websocket.go( formData.username, formData.password, this.resourceId, this.socketTimeoutCallback.bind( this ) );
+
+				var params = {};
+				if ( this.camelWS ) {
+					var headers = {
+						xmppUsername: formData.username,
+						xmppPassword: formData.password,
+						xmppResourceId: this.resourceId
+					};
+					var closeCommandBody = {
+						command: 'close'
+					};
+					params[ "camelHeaders" ] = JSON.stringify( headers );
+					params[ "closeCommandBody" ] = JSON.stringify( closeCommandBody );
+					params[ "connectionKey" ] = formData.username + "/" + this.resourceId;
+				} else {
+					params[ "username" ] = formData.username;
+					params[ "password" ] = formData.password;
+					params[ "resourceId" ] = this.resourceId;
+				}
+
+				this.$.websocket.openConnection( params, this.socketTimeoutCallback.bind( this ) );
 			},
 			disconnect: function() {
 				this.sendChatState( "gone" );
 				this.async( function() {
-					this.$.websocket.closeConnection( this.loginData.username, this.loginData.password );
+					this.$.websocket.closeConnection();
 				}, null, 300 );
 			},
 			socketTimeoutCallback: function() {
@@ -487,18 +511,18 @@
 				} else {
 					this.viewId = "loginView";
 				}
-				if( this.connected ){
-					this.bindFocusListener(true);
-				}else{
+				if ( this.connected ) {
+					this.bindFocusListener( true );
+				} else {
 					for ( var i = 0; i < this.chatList.length; i++ ) {
 						var chat = this.chatList[ i ];
 						if ( chat.type !== 'groupchat' ) {
-							this.bindFocusListener(false);
+							this.bindFocusListener( false );
 						}
 					}
 				}
 			},
-			bindFocusListener: function(bind) {
+			bindFocusListener: function( bind ) {
 				this.async( function() {
 					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 					if ( bind ) {
@@ -575,10 +599,10 @@
 				chat.participant = participant;
 				chat.type = 'singlechat';
 				this.addChat( chat );
-				this.bindFocusListener(true);
+				this.bindFocusListener( true );
 				this.updateRoster();
-				$( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val(null);
-				this.isCurrentParticipant=false;
+				$( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val( null );
+				this.isCurrentParticipant = false;
 				this.chatId = chat.id;
 			},
 			showLeaveRoomForm: function() {
@@ -727,7 +751,7 @@
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
 				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
-console.log("sendChatState:"+participant);
+				console.log( "sendChatState:" + participant );
 				if ( this.isEmpty( participant ) ) {
 					if ( chat.type === 'mixedchat' ) {
 						console.error( "no participant selected" );
@@ -765,8 +789,8 @@ console.log("sendChatState:"+participant);
 				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
 				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
 				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
-				this.currentChat = this.chatHash[this.chatId];
-				console.log("currentChat:",this.currentChat.chatState+" -> " + this.currentChat.id);
+				this.currentChat = this.chatHash[ this.chatId ];
+				console.log( "currentChat:", this.currentChat.chatState + " -> " + this.currentChat.id );
 			},
 			getNameFromJid: function( name ) {
 				if ( name.indexOf( "@" ) == -1 ) return name;
@@ -782,13 +806,13 @@ console.log("sendChatState:"+participant);
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
 				participant.val( e.target.dataset.username );
 				this.isCurrentParticipant = true;
-				chat.chatState='';
+				chat.chatState = '';
 			},
 			resetChatList: function() {
 				this.chatList = [];
 				var chat = {
 					id: 'main',
-					isComposing:false,
+					isComposing: false,
 					messages: [],
 					type: 'mixedchat'
 				};
@@ -819,8 +843,8 @@ console.log("sendChatState:"+participant);
 			},
 			addChat: function( chat ) {
 				chat.presence = [];
-				chat.isComposing=false;
-				chat.chatState='';
+				chat.isComposing = false;
+				chat.chatState = '';
 				this.chatList.push( chat );
 				this.chatHash = this.toHash( this.chatList );
 			},
@@ -831,9 +855,9 @@ console.log("sendChatState:"+participant);
 				}
 				return hash;
 			},
-			mapSomeErrors:function(msg){
-				if( msg.indexOf("not-authorized") >0 ){
-					return tr("chat.not-authorized");
+			mapSomeErrors: function( msg ) {
+				if ( msg.indexOf( "not-authorized" ) > 0 ) {
+					return tr( "chat.not-authorized" );
 				}
 				return msg;
 			},

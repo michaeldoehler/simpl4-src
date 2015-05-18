@@ -248,7 +248,7 @@
 								console.log("ws.onclose.forcedClose:",forcedClose);
                 clearTimeout(timeout);
                 ws = null;
-                if (forcedClose || event.code === 4001 || event.code === 4000) {
+                if (forcedClose || event.code === 4000 || event.code === 1006) {
                     self.readyState = WebSocket.CLOSED;
                     var e = generateEvent('close');
                     e.code = event.code;
@@ -257,22 +257,6 @@
                     eventTarget.dispatchEvent(e);
                 } else {
                     self.readyState = WebSocket.CONNECTING;
-                    /*var e = generateEvent('connecting');
-                    e.code = event.code;
-                    e.reason = event.reason;
-                    e.wasClean = event.wasClean;
-                    eventTarget.dispatchEvent(e);
-                    if (!reconnectAttempt && !timedOut) {
-                        if (self.debug || ReconnectingWebSocket.debugAll) {
-                            console.debug('ReconnectingWebSocket', 'onclose', self.url);
-                        }
-												var e = generateEvent('close');
-												e.code = event.code;
-												e.reason = event.reason;
-												e.wasClean = event.wasClean;
-                        eventTarget.dispatchEvent(e);
-                    }*/
-
                     var timeout = self.reconnectInterval * Math.pow(self.reconnectDecay, self.reconnectAttempts);
                     setTimeout(function() {
                         self.reconnectAttempts++;
@@ -330,7 +314,7 @@
                 code = 1000;
             }
             forcedClose = true;
-console.log("close:forcedClose:"+forcedClose);
+						console.log("close:forcedClose:"+forcedClose);
             if (ws) {
                 ws.close(code, reason);
             }

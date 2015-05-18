@@ -329,13 +329,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			Map<String, Object> map = (Map) m_ds.deserialize(message);
 			try {
 				debug("\nFromWebsocketSocket(" + hashCode() + ") message: " + map);
-				String command = (String) map.get("command");
-				if (command != null && "close".equals(command)) {
-					CloseStatus cs = new CloseStatus(4001, "close on  client demand");
-					m_session.close(cs);
-				} else {
-					m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, map, getHeaders());
-				}
+				m_outTemplate.sendBodyAndHeaders(m_sendEndpoint, map, getHeaders());
 			} catch (Throwable e) {
 				e.printStackTrace();
 				String msg = e.getMessage();
