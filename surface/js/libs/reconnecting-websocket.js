@@ -244,8 +244,7 @@
             };
 
             ws.onclose = function(event) {
-								console.log("ws.onclose:",event);
-								console.log("ws.onclose.forcedClose:",forcedClose);
+								console.log("-- ws.onclose:"+event.code+"/"+event.reason+"/forcedClose:"+forcedClose);
                 clearTimeout(timeout);
                 ws = null;
                 if (forcedClose || event.code === 4000 || event.code === 1006) {

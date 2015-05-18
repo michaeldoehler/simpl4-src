@@ -38,12 +38,12 @@
 				min-width: 60px !important;
 				max-width: 120px;
 			}
+			paper-button.sendButton /deep/ .button-content {
+				justify-content: flex-start !important;
+			}
 			.userButtons core-icon.small {
 				color: #4285F4;
 				pointer-events: none;
-			}
-			paper-button.sendButton /deep/ .button-content {
-				justify-content: flex-start !important;
 			}
 			section.chatSection {
 				padding-left: 3px;
@@ -183,7 +183,6 @@
 				border-radius: 4px;
 			}
 			paper-tabs::shadow #selectionBar {
-				//background-color: black;
 				background: #d50303;
 			}
 			paper-tabs paper-tab::shadow #ink {
@@ -193,16 +192,14 @@
 			.dropdown {
 				border-radius: 3px;
 				color: #000;
-				//border: 1px solid #0f9d58;
 				border: 1px solid #ccc;
-				//background-color: #b7e1cd;
 				background-color: #eee;
 			}
 
 		</style>
 
 		<!--service={xmpp|camel}-->
-		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="xmpp" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="camel" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
 		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
 			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
@@ -332,7 +329,7 @@
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
-			camelWS: false,
+			camelWS: true,
 			chatId: 'main',
 			viewId: "loginView",
 			recvMessage: null,
@@ -395,16 +392,14 @@
 				var message = this.recvMessage;
 				message.time = this.getTime();
 				console.log( "-> recvMessage", message );
-				if ( message.from && message.type === "chat" ) {
-					//message.from = message.from.split( "@" )[ 0 ];
-				}
+
 				var chat = null;
 				if ( message.errorMessage ) {
 					var errorMessage = message.errorMessage;
 					var request = message.request;
-					if( request && request.command && request.command === 'open'){
+					if ( request && request.command && request.command === 'open' ) {
 						this.async( function() {
-							this.connected=false;
+							this.connected = false;
 						}, null, 30 );
 					}
 					this.showError( this.mapSomeErrors( errorMessage ) );
@@ -456,7 +451,6 @@
 			login: function( e ) {
 				var loginForm = this.shadowRoot.querySelector( "#loginForm" );
 				var formData = loginForm.getData();
-				console.log( "loginData:", formData );
 				if ( this.isEmpty( formData.username ) ) {
 					return;
 				}
@@ -630,14 +624,11 @@
 					} );
 					var actionButton = leaveRoomForm.querySelector( "simpl-form /deep/ xaction-button" );
 					actionButton.innerHTML = '<core-icon icon="launch"></core-icon>' + tr( 'chat.leaveRoom' );
-					console.log( "actionButton:", actionButton );
 				}, null, 30 );
 			},
 			leaveRoom: function( e ) {
 				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
 				var formData = leaveRoomForm.getData();
-				console.log( "leaveRoomData:", formData );
-				console.log( "xaction:", e.target.xaction );
 
 				this.viewId = "chatView";
 				if ( e.target.xaction == "cancel" ) {
@@ -740,7 +731,9 @@
 				var message = {};
 				message[ "command" ] = "open";
 				message[ "participant" ] = "dummy";
-				this.$.websocket.sendMessage( message );
+				this.async( function() {
+					this.$.websocket.sendMessage( message );
+				}, null, 20 );
 			},
 			sendJoin: function( chat ) {
 				if ( chat == null ) {
@@ -757,7 +750,6 @@
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
 				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
-				console.log( "sendChatState:" + participant );
 				if ( this.isEmpty( participant ) ) {
 					if ( chat.type === 'mixedchat' ) {
 						console.error( "no participant selected" );
@@ -787,7 +779,6 @@
 				this.$.toast_error.show();
 			},
 			getTime: function() {
-				//var format = simpl4.util.BaseManager.getDateFormat() + " HH:mm:ss";
 				var format = " HH:mm.ss";
 				return "[" + moment().format( format ) + "]";
 			},
@@ -796,7 +787,6 @@
 				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
 				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
 				this.currentChat = this.chatHash[ this.chatId ];
-				console.log( "currentChat:", this.currentChat.chatState + " -> " + this.currentChat.id );
 			},
 			getNameFromJid: function( name ) {
 				if ( name.indexOf( "@" ) == -1 ) return name;
@@ -807,7 +797,6 @@
 				return name.split( "/" )[ 0 ];
 			},
 			setCurrentParticipant: function( e ) {
-				console.log( "setCurrentParticipant:", e.target.dataset.username );
 				var chat = this.chatHash[ this.chatId ];
 				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
 				participant.val( e.target.dataset.username );
