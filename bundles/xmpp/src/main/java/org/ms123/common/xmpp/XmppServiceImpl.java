@@ -340,9 +340,8 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 				if (msg == null) {
 					msg = e.toString();
 				}
-				map.put("errorMessage", msg);
-				String sendString = m_js.deepSerialize(map);
-				m_session.getRemote().sendStringByFuture(sendString);
+				CloseStatus cs = new CloseStatus(4000, msg);
+				m_session.close(cs);
 			}
 		}
 
