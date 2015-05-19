@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-chat">
+<polymer-element name="simpl-chat" attributes="globals demotext">
 	<template>
 		<style>
 			:host {
@@ -73,7 +73,7 @@
 				width: 24px;
 				height: 24px;
 			}
-			simpl-panel /deep/ #panelContent {
+			simpl-panel#mainPanel /deep/ #panelContent {
 				min-height: 450px;
 				padding: 0px 0px 0px 0px !important;
 				overflow-x: hidden !important;
@@ -198,10 +198,53 @@
 
 		</style>
 
+
+		<template if="{{demotext==true}}">
+			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="" collapsable="true" collapsed="false">
+				<template if="{{globals.lang=='de'}}">
+					<simpl-asciidoctor data="">
+[INFO]
+====
+Um ein Gegenstück zu haben, kann man sich mit einem gängigen XMPP-Client, wie pidgin, anmelden. +
+Es ist aber auch möglich sich in zwei Fenstern(Tabs) mit diesem Client  anzumelden.
+
+*Anmeldedaten:*
+
+. chat1/chat1
+. chat2/chat2
+
+Die Domain ist simpl4.org. +
+
+Simpl4 hat einen XMPP-Server(openfire) eingebaut, über den die Kommunikation läuft.
+====
+					</simpl-asciidoctor>
+				</template>
+
+				<template if="{{globals.lang=='en'}}">
+					<simpl-asciidoctor data="">
+[INFO]
+====
+In order to have a counterpart, you can log on with a standard XMPP client(eg. Pidgin). +
+But it is also possible to log on  in two windows(tabs) with this client.
+
+*Logindata:*
+
+. chat1/chat1
+. chat2/chat2
+
+The domain is simpl4.org. +
+
+Simpl4 has an builtin XMPP server(openfire), over which the communication takes place.
+====
+					</simpl-asciidoctor>
+				</template>
+			</simpl-panel>
+		</template>
+
 		<!--service={xmpp|camel}-->
 		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="camel" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
-		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 
+		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
 			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
 				<section view-id="loginView">
 					<simpl-row>
@@ -329,6 +372,7 @@
 	</template>
 	<script>
 		Polymer( "simpl-chat", {
+			demotext:false,
 			camelWS: true,
 			chatId: 'main',
 			viewId: "loginView",
