@@ -147,7 +147,6 @@
 				background: white;
 				box-sizing: border-box;
 				padding-left: 3px;
-				height: 34px;
 			}
 			ol {
 				list-style: none;
@@ -179,7 +178,7 @@
 				text-overflow: ellipsis;
 			}
 			paper-tab {
-				z-index: 100;
+				z-index: 11;
 				border-radius: 4px;
 			}
 			paper-tabs::shadow #selectionBar {
@@ -200,7 +199,7 @@
 
 
 		<template if="{{demotext==true}}">
-			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="" collapsable="true" collapsed="false">
+			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="{{'chat.usage'|tr}}" collapsable="true" collapsed="false">
 				<template if="{{globals.lang=='de'}}">
 					<simpl-asciidoctor data="">
 [INFO]
@@ -217,6 +216,9 @@ Die Domain ist simpl4.org. +
 
 Simpl4 hat einen XMPP-Server(openfire) eingebaut, über den die Kommunikation läuft.
 ====
+
+[NOTE]
+Verwenden Sie  den Hilfebutton für eine technische Übersicht.
 					</simpl-asciidoctor>
 				</template>
 
@@ -224,7 +226,7 @@ Simpl4 hat einen XMPP-Server(openfire) eingebaut, über den die Kommunikation l�
 					<simpl-asciidoctor data="">
 [INFO]
 ====
-In order to have a counterpart, you can log on with a standard XMPP client(eg. Pidgin). +
+In order to have a counterpart, you can use an standard XMPP client(eg. Pidgin). +
 But it is also possible to log on  in two windows(tabs) with this client.
 
 *Logindata:*
@@ -234,8 +236,11 @@ But it is also possible to log on  in two windows(tabs) with this client.
 
 The domain is simpl4.org. +
 
-Simpl4 has an builtin XMPP server(openfire), over which the communication takes place.
+Simpl4 has an built-in XMPP server(openfire), over which the communication takes place.
 ====
+
+[NOTE]
+Use the Help button for an technical overview.
 					</simpl-asciidoctor>
 				</template>
 			</simpl-panel>
