@@ -4,9 +4,6 @@
   "authors": [
     "ms <manfred@ms123.org>"
   ],
-  "moduleType": [
-    "es6"
-  ],
   "license": "MIT",
   "ignore": [
     "**/.*",
