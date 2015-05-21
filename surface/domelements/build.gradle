@@ -1,0 +1,20 @@
+defaultTasks "buildAll"
+
+
+task buildHtml (type:Exec) {
+	executable "/bin/sh"
+	args "-c", "make-all.sh"
+}
+
+task stage (type:Task) {
+	dependsOn buildHtml
+	doLast(){
+		ant.gzip( src:"domelements.html",destfile:"domelements.html.gz")
+		ant.copy( file:"domelements.html.gz", todir:"${surfaceBuild}",overwrite:"true")
+
+	}
+}
+
+task buildAll (type:Task) {
+	dependsOn stage
+}

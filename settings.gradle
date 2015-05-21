@@ -47,4 +47,5 @@ include 'bundles/rpc',
 	'surface',
 	'surface/js',
 	'surface/css',
-	'surface/elements'
+	'surface/elements',
+	'surface/domelements'

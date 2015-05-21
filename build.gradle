@@ -35,6 +35,7 @@ configure(subprojects -
 	project(":client") - 
 	project(':surface') -
 	project(':surface/elements') - 
+	project(':surface/domelements') - 
 	project(':surface/css') - 
 	project(':surface/js')){ s->
 	def rootDir = getRootProject().getRootDir().toString()
@@ -186,6 +187,11 @@ configure(project(":surface/elements")){
 	task projectClean (type:Task) { }
 }
 
+configure(project(":surface/domelements")){
+	task copyToRepo (type:Task) { }
+	task projectClean (type:Task) { }
+}
+
 configure(project(":surface/css")){
 	task copyToRepo (type:Task) { }
 	task projectClean (type:Task) { }
@@ -201,6 +207,7 @@ task buildAll(type: Task) {
 
 	evaluationDependsOnChildren()
 	project(':surface/elements').copyToRepo.dependsOn(project(":surface/elements").buildAll)
+	project(':surface/domelements').copyToRepo.dependsOn(project(":surface/domelements").buildAll)
 	project(':surface/js').copyToRepo.dependsOn(project(":surface/js").buildAll)
 	project(':surface/css').copyToRepo.dependsOn(project(":surface/css").buildAll)
 
@@ -225,6 +232,7 @@ task buildAll(type: Task) {
 
 task deploy(type: Task) {
 	dependsOn(project(":surface/elements").buildAll)
+	dependsOn(project(":surface/domelements").buildAll)
 	doLast(){
 		def dest = new File(rootProject.property("deploy.directory")).getCanonicalPath().toString();
 		println("deploying to -> "+dest);
