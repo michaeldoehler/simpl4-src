@@ -23,5 +23,5 @@ $ gradlew deploy
 ```
 ----
 
-####Congratulations,you  have succesfully compiled [*Website*](http://www.simpl4.org?lang=de) and [*Demos*](http://web.simpl4.org?lang=de)
+ [*Website*](http://www.simpl4.org/de) and [*Demos*](http://web.simpl4.org?lang=de)
 
