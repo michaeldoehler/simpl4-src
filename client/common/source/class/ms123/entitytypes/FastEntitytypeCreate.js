@@ -309,10 +309,13 @@ qx.Class.define("ms123.entitytypes.FastEntitytypeCreate", {
 			}
 			var efe = new ms123.entitytypes.EntitytypeFieldEdit(fmodel,param,this._facade,data);
 			efe.addListener("changeValue", function (e) {
-				var value = qx.lang.Json.stringify(e.getData(), null, 4);
-				console.log("Data:"+value);
-				var value = qx.lang.Json.stringify(data, null, 4);
-				console.log("DataOld:"+value);
+				this._etdata = this._getEntitytype(this._model.getId());
+				var value = qx.lang.Json.stringify(this._etdata, null, 4);
+				console.log(value);
+				if (this._etdata) {
+					this._clearTable();
+					this.__setRecords(this._etdata.fields);
+				}
 			}, this);
 			var win = this._createFieldEditWindow(data.name);
 			win.add(efe, {
