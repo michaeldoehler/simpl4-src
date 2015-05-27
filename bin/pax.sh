@@ -132,6 +132,12 @@ do
 	openfirebundles=${openfirebundles}"scan-bundle:file:$i "
 done
 
+jooqbundles=""
+for i in $REPOSITORY/jooq/*ar
+do
+	jooqbundles=${jooqbundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
@@ -163,6 +169,7 @@ ${nucleusbundles} \
 ${camelbundles} \
 ${paxbundles} \
 ${openfirebundles} \
+${jooqbundles} \
 ${localbundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
@@ -344,6 +351,8 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13-SNAPSHOT.jar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
+	scan-bundle:file:$REPOSITORY/schemacrawler-14.01.01.jar \
+	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \
 	scan-bundle:file:$REPOSITORY/jruby-complete-1.7.16.1.jar \
 	--executor=script \
