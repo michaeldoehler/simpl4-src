@@ -68,7 +68,7 @@
 					break;
 				}
 			}
-			if( simpl4.util.BaseManager.setBaseUrl() == null){
+			if( simpl4.util.BaseManager.getBaseUrl() == null){
 				var links = document.querySelectorAll( "head > link" );
 				for ( var i = 0; i < links.length; i++ ) {
 					var href = links[ i ].href;
