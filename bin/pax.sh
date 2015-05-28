@@ -99,6 +99,7 @@ vmOptions="\
  -Dkaraf.local.roles=admin,manager \
  -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory \
  -DopenfireHome=\$SIMPL4DIR/etc/openfire \
+ -Dactivemq.data=\$SIMPL4DIR/etc/activemq/data \
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
 
@@ -142,7 +143,8 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.2.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.3.jar \
+	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.cm-1.0.6.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx.api-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.aries.util-1.0.0.jar \
@@ -318,7 +320,6 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/stax2-api-3.1.1.jar \
 	scan-bundle:file:$REPOSITORY/avalon-framework-4.2.0.bar \
 	scan-bundle:file:$REPOSITORY/sweble-all.1.1.0.bar \
-	scan-bundle:file:$REPOSITORY/javax.el-3.0-b07.jar \
 	scan-bundle:file:$REPOSITORY/javassist-3.18.0-GA.jar \
 	scan-bundle:file:$REPOSITORY/UserAgentUtils-1.9-snapshot.bar \
 	scan-bundle:file:$REPOSITORY/commons-jxpath-1.3.jar \
@@ -353,6 +354,8 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
 	scan-bundle:file:$REPOSITORY/schemacrawler-14.01.01.jar \
 	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
+	scan-bundle:file:$REPOSITORY/management-api-1.1.bar \
+	scan-bundle:file:$REPOSITORY/activemq-osgi-5.11.1.jar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \
 	scan-bundle:file:$REPOSITORY/jruby-complete-1.7.16.1.jar \
 	--executor=script \

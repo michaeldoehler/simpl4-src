@@ -15,5 +15,5 @@ Require-Capability                      osgi.ee;filter:="(&(osgi.ee=JavaSE)(vers
 
 STARTBND
 
-bnd wrap -output ${NAME}-${VERSION}.bar -properties ${NAME}.bnd ${NAME}-${VERSION}.jar
+bnd wrap -o ${NAME}-${VERSION}.bar -p ${NAME}.bnd ${NAME}-${VERSION}.jar
 rm -f ${NAME}.bnd

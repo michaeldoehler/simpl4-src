@@ -10,4 +10,4 @@ Bundle-Version                          ${VERSION}
 Export-Package                          org.aspectj.lang*;version="${VERSION}",org.aspectj.runtime*;version="${VERSION}"
 STARTBND
 
-bnd wrap -output ${NAME}-${VERSION}.bar -properties ${NAME}.bnd ${NAME}-${VERSION}.jar
+bnd wrap -o ${NAME}-${VERSION}.bar -p ${NAME}.bnd ${NAME}-${VERSION}.jar

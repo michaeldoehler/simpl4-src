@@ -186,6 +186,12 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		webapp.setResourceBase(m_basedir + "/etc/openfire/web");
 		webapp.setContextPath("/openfire/");
 
+		webapp = new WebAppContext(contexts, m_basedir + "/etc/activemq/web", "/activemq/");
+		webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		webapp.setWelcomeFiles(new String[]{"index.jsp"});
+		webapp.setResourceBase(m_basedir + "/etc/activemq/web");
+		webapp.setContextPath("/activemq/");
+
 		LoginFilter loginFilter = new LoginFilter(m_permissionService);
 		FilterHolder loginFilterHolder = new FilterHolder(loginFilter);
 		loginFilterHolder.setName("LoginFilter");
