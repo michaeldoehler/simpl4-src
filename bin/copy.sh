@@ -113,6 +113,7 @@ cp    $SRCTOPDIR/etc/logo.ico $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logging.config.tpl $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/config $ETCDIRECTORY/
+cp -r $SRCTOPDIR/etc/config-templates $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/gittemplate $ETCDIRECTORY/
 cp -r $SRCTOPDIR/etc/images $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/run.bat.tpl $SERVERDIRECTORY/
