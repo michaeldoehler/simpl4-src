@@ -2,7 +2,7 @@ version='1.0.0'
 
 dependencies {
 	compile files("${repository}/commons-io-2.4.jar")
- 	compile files("${repository}/servlet-api-2.5.jar")
+ 	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/org.eclipse.jgit-2.1.0.201209190230-r.bar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.git-1.0.0.jar")

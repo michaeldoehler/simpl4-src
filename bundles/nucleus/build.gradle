@@ -22,7 +22,7 @@ dependencies {
 	compile files("${repository}/org.osgi.core-4.3.1.jar")
 	compile files("${repository}/pax-swissbox-extender-1.8.0.jar")
 	compile files("${repository}/pax-swissbox-lifecycle-1.8.0.jar")
- 	compile files("${repository}/servlet-api-2.5.jar")
+ 	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/postgresql-9.3-1101.jdbc4.bar")
  	compile files("${repository}/shiro-aspectj-1.2.0.jar")
  	compile files("${repository}/shiro-core-1.2.0.jar")

@@ -180,17 +180,17 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		m_basedir = new File(sh).getCanonicalFile().getParent();
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
 
-		WebAppContext webapp = new WebAppContext(contexts, m_basedir + "/etc/openfire/web", "/openfire/");
-		webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
-		webapp.setWelcomeFiles(new String[]{"index.jsp"});
-		webapp.setResourceBase(m_basedir + "/etc/openfire/web");
-		webapp.setContextPath("/openfire/");
+		WebAppContext webappOpenfire = new WebAppContext(contexts, m_basedir + "/etc/openfire/web", "/openfire/");
+		webappOpenfire.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		webappOpenfire.setWelcomeFiles(new String[]{"index.jsp"});
+		webappOpenfire.setResourceBase(m_basedir + "/etc/openfire/web");
+		webappOpenfire.setContextPath("/openfire/");
 
-		webapp = new WebAppContext(contexts, m_basedir + "/etc/activemq/web", "/activemq/");
-		webapp.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
-		webapp.setWelcomeFiles(new String[]{"index.jsp"});
-		webapp.setResourceBase(m_basedir + "/etc/activemq/web");
-		webapp.setContextPath("/activemq/");
+		WebAppContext webAppActivemq = new WebAppContext(contexts, m_basedir + "/etc/activemq/web", "/activemq/");
+		webAppActivemq.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		webAppActivemq.setWelcomeFiles(new String[]{"index.jsp"});
+		webAppActivemq.setResourceBase(m_basedir + "/etc/activemq/web");
+		webAppActivemq.setContextPath("/activemq/");
 
 		LoginFilter loginFilter = new LoginFilter(m_permissionService);
 		FilterHolder loginFilterHolder = new FilterHolder(loginFilter);
@@ -270,7 +270,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				}
 			}
 		}), "/*");
-		contexts.setHandlers(new Handler[] { context0, webapp });
+		contexts.setHandlers(new Handler[] { context0, webappOpenfire, webAppActivemq });
 		m_server.setHandler(contexts);
 		m_server.start();
 		info("initJetty.ok");

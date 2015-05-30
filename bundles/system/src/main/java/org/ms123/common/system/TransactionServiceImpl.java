@@ -23,6 +23,7 @@ import aQute.bnd.annotation.metatype.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Enumeration;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 import org.osgi.framework.BundleContext;
@@ -32,6 +33,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.ms123.common.system.tm.BitronixTransactionServiceImpl;
 import org.ms123.common.system.tm.JotmTransactionServiceImpl;
+import javax.naming.*;
+import bitronix.tm.TransactionManagerServices;
 
 /** TransactionService implementation
  */
@@ -47,7 +50,14 @@ public class TransactionServiceImpl implements TransactionService {
 		info("TransactionEventHandlerService.activate.props:" + props);
 		try {
 			m_ts = new BitronixTransactionServiceImpl();
-			//m_ts = new JotmTransactionServiceImpl();
+
+			Context ctx = new InitialContext();
+			Context javaCompCtx = ctx.createSubcontext("java:comp");	
+			javaCompCtx.bind("UserTransaction",m_ts.getTransactionManager() );
+			javaCompCtx.bind("TransactionSynchronizationRegistry",TransactionManagerServices.getTransactionSynchronizationRegistry() );
+
+			TransactionManager btm = (TransactionManager)ctx.lookup("java:comp/UserTransaction");
+			System.out.println("BTM_LOOKUP:"+btm);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

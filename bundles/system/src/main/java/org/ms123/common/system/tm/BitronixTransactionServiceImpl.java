@@ -31,6 +31,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.ms123.common.system.TransactionService;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
+import bitronix.tm.BitronixTransactionManager;
 import java.util.Hashtable;
 import javax.naming.*;
 
@@ -49,10 +50,7 @@ public class BitronixTransactionServiceImpl implements TransactionService{
 	public BitronixTransactionServiceImpl() throws Exception{
 		TransactionManagerServices.getConfiguration().setDefaultTransactionTimeout(36000);;
 		TransactionManagerServices.getConfiguration().setWarnAboutZeroResourceTransaction(false);
-		Hashtable env = new Hashtable();
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "org.ms123.common.system.jndi.InitialContextFactory");
-		Context ctx = new InitialContext(env);
-		m_btm = (BitronixTransactionManager)ctx.lookup("java:comp/UserTransaction");
+		m_btm = new BitronixTransactionManager();
 		m_jta = new JtaTransactionManager((UserTransaction)m_btm,(TransactionManager)m_btm);
 	}
 

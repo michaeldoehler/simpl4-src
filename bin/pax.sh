@@ -97,8 +97,15 @@ vmOptions="\
  -Dorg.ops4j.pax.logging.DefaultServiceLog.level=ERROR \
  -Ddrools.dialect.java.compiler=JANINO \
  -Dkaraf.local.roles=admin,manager \
- -Djava.naming.factory.initial=org.ms123.common.system.jndi.InitialContextFactory \
  -DopenfireHome=\$SIMPL4DIR/etc/openfire \
+ -Dkaraf.etc=\$SIMPL4DIR/etc/activemq/etc \
+ -Dwebconsole.type=properties \
+ -Dwebconsole.jms.url=tcp://localhost:61616 \
+ -Dwebconsole.jmx.url=service:jmx:rmi:///jndi/rmi://localhost:1098/jmxrmi \
+ -Dwebconsole.jmx.user=admin \
+ -Dwebconsole.jmx.password=admin \
+ -Dwebconsole.jms.user=admin \
+ -Dwebconsole.jms.password=admin \
  -Dactivemq.data=\$SIMPL4DIR/etc/activemq/data \
  -Dkaraf.shell.init.script=\$SIMPL4DIR/etc/shell.init.script \
 "
@@ -139,16 +146,34 @@ do
 	jooqbundles=${jooqbundles}"scan-bundle:file:$i "
 done
 
+ariesbundles=""
+for i in $REPOSITORY/aries/*jar
+do
+	ariesbundles=${ariesbundles}"scan-bundle:file:$i "
+done
+
+karafbundles=""
+for i in $REPOSITORY/karaf/*ar
+do
+	karafbundles=${karafbundles}"scan-bundle:file:$i "
+done
+
+springbundles=""
+for i in $REPOSITORY/spring/*ar
+do
+	springbundles=${springbundles}"scan-bundle:file:$i "
+done
+
+activemqbundles=""
+for i in $REPOSITORY/activemq/*ar
+do
+	activemqbundles=${activemqbundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.core-1.4.3.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.blueprint.cm-1.0.6.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx.api-1.0.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.jmx-1.0.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.util-1.0.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.aries.proxy-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.collections_3.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/commons-fileupload-1.2.2.jar \
 	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
@@ -173,6 +198,10 @@ ${paxbundles} \
 ${openfirebundles} \
 ${jooqbundles} \
 ${localbundles} \
+${ariesbundles} \
+${karafbundles} \
+${springbundles} \
+${activemqbundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
@@ -222,18 +251,8 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/object-traverser.bar \
   scan-bundle:file:$REPOSITORY/ops4j-base-lang-1.5.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.shell-1.4.3.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.boot-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.config-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jaas.modules-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.commands-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.config-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.table-3.0.2.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.console-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/jline-2.12.jar \
 	scan-bundle:file:$REPOSITORY/org.jledit.core_0.2.1.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.osgi-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.packages-2.4.0.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.shell.ssh-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/org.eclipse.jgit-2.1.0.201209190230-r.bar \
 	scan-bundle:file:$REPOSITORY/org.json_2.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth-1.0.0.jar \
@@ -324,9 +343,6 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/UserAgentUtils-1.9-snapshot.bar \
 	scan-bundle:file:$REPOSITORY/commons-jxpath-1.3.jar \
 	scan-bundle:file:$REPOSITORY/herold-6.1.0.bar  \
-	scan-bundle:file:$REPOSITORY/spring-beans-3.2.5.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-context-3.2.5.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-core-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.servicemix.bundles.commons-csv-1.0-r706899_5.jar \
 	scan-bundle:file:$REPOSITORY/xstream-1.4.7-ms.jar  \
 	scan-bundle:file:$REPOSITORY/xpp3-1.1.4c.bar \
@@ -339,15 +355,11 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/commons-lang3-3.3.2.jar \
 	scan-bundle:file:$REPOSITORY/concurrentlinkedhashmap-lru-1.4.jar  \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
-	scan-bundle:file:$REPOSITORY/spring-tx-3.2.5.RELEASE.jar \
-	scan-bundle:file:$REPOSITORY/spring-jdbc-3.2.5.RELEASE.jar \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
 	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.core-3.0.2.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.karaf.jndi.command-2.4.0.jar \
 	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
 	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13-SNAPSHOT.jar \
@@ -355,7 +367,6 @@ ${localbundles} \
 	scan-bundle:file:$REPOSITORY/schemacrawler-14.01.01.jar \
 	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
 	scan-bundle:file:$REPOSITORY/management-api-1.1.bar \
-	scan-bundle:file:$REPOSITORY/activemq-osgi-5.11.1.jar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \
 	scan-bundle:file:$REPOSITORY/jruby-complete-1.7.16.1.jar \
 	--executor=script \

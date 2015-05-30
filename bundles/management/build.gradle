@@ -11,6 +11,6 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
 	compile files("${repository}/org.osgi.compendium-4.3.1.jar")
 	compile files("${repository}/org.osgi.core-4.3.1.jar")
-	compile files("${repository}/servlet-api-2.5.jar")
+	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
 }
