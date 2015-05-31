@@ -177,6 +177,7 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.collections_3.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/commons-fileupload-1.2.2.jar \
 	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
+	scan-bundle:file:$REPOSITORY/commons-pool-1.6.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.commons.lang_2.5.jar \
 	scan-bundle:file:$REPOSITORY/derby-10.5.3.0_1.jar \
 	scan-bundle:file:$REPOSITORY/groovy-all-2.2.2-indy.jar \
