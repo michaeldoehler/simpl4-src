@@ -60,6 +60,8 @@ import rx.functions.Func1;
 public class WampServiceImpl extends BaseWampServiceImpl implements WampService {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampServiceImpl.class);
+	private JSONDeserializer m_ds = new JSONDeserializer();
+	private JSONSerializer m_js = new JSONSerializer();
 
 	public WampServiceImpl() {
 	}
@@ -70,28 +72,15 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	protected void deactivate() throws Exception {
 	}
 
-	@RequiresRoles("admin")
-	public void createRoom(
-			@PName("serviceName")      String serviceName, 
-			@PName("roomSpec")         Map<String, Object> roomSpec) throws RpcException {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "Exception create the room:" + e.getMessage());
-		}
-	}
-
 	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 		return new WebSocket(config, parameterMap);
 	}
 
 	public class WebSocket extends BaseWebSocket {
-
 		private Map<String, Object> m_config = null;
-		private JSONDeserializer m_ds = new JSONDeserializer();
-		private JSONSerializer m_js = new JSONSerializer();
 		private Map<String, String> m_params;
 		private Subscription m_subscription;
+		private WampRouterSession m_wampRouterSession;
 
 		public WebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_js.prettyPrint(true);
@@ -99,28 +88,29 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
-		}
-
-		private void stop() {
-			m_subscription.unsubscribe();
+			m_wampRouterSession = new WampRouterSession(WampServiceImpl.this, this);
 		}
 
 		@Override
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
+			m_wampRouterSession.wsConnect(sess);
 		}
 
 		@Override
 		public void onWebSocketText(String message) {
+			m_wampRouterSession.wsMessage(message);
 		}
 
 		@Override
 		public void onWebSocketClose(int statusCode, String reason) {
 			super.onWebSocketClose(statusCode, reason);
+			m_wampRouterSession.wsClose(statusCode, reason);
 		}
 
 		@Override
 		public void onWebSocketError(Throwable cause) {
+			m_wampRouterSession.wsError(cause);
 		}
 
 	}

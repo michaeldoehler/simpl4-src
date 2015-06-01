@@ -134,6 +134,12 @@ do
 	paxbundles=${paxbundles}"scan-bundle:file:$i "
 done
 
+jacksonbundles=""
+for i in $REPOSITORY/jackson/*[bj]ar
+do
+	jacksonbundles=${jacksonbundles}"scan-bundle:file:$i "
+done
+
 openfirebundles=""
 for i in $REPOSITORY/openfire/*ar
 do
@@ -196,6 +202,7 @@ ${activitibundles} \
 ${nucleusbundles} \
 ${camelbundles} \
 ${paxbundles} \
+${jacksonbundles} \
 ${openfirebundles} \
 ${jooqbundles} \
 ${localbundles} \
@@ -298,6 +305,7 @@ ${activemqbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.docbook-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.xmpp-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.wamp-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.8.0.jar \
@@ -357,7 +365,6 @@ ${activemqbundles} \
 	scan-bundle:file:$REPOSITORY/concurrentlinkedhashmap-lru-1.4.jar  \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
-	scan-bundle:file:$REPOSITORY/jackson-core-asl-1.9.12.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
 	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
@@ -369,6 +376,7 @@ ${activemqbundles} \
 	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
 	scan-bundle:file:$REPOSITORY/management-api-1.1.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \
+	scan-bundle:file:$REPOSITORY/EasyFlow-1.3.2.bar \
 	scan-bundle:file:$REPOSITORY/jruby-complete-1.7.16.1.jar \
 	--executor=script \
 	--workingDirectory=${SERVERDIR} \

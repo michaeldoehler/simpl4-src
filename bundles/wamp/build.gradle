@@ -13,7 +13,12 @@ dependencies {
 	compile files("${repository}/slf4j-api-1.6.1.jar")
   compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/rxjava-1.0.9.jar")
+	compile files("${repository}/EasyFlow-1.3.2.bar")
 	compile files("${repository}/commons-lang3-3.3.2.jar")
-  compile files('build/classes/main')
+	compile files("${repository}/jackson/jackson-core-2.5.3.jar")
+	compile files("${repository}/jackson/jackson-annotations-2.5.3.jar")
+	compile files("${repository}/jackson/jackson-databind-2.5.3.jar")
+	compile files("${repository}/jackson/jackson-dataformat-msgpack-0.7.0-p9.bar")
+	compile files('build/classes/main')
 }
 
