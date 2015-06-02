@@ -101,6 +101,10 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		public void onWebSocketText(String message) {
 			m_wampRouterSession.wsMessage(message);
 		}
+		@Override
+		public void onWebSocketBinary(byte[] payload, int offset, int len) {
+			m_wampRouterSession.wsBinaryMessage(payload, offset, len);
+		}
 
 		@Override
 		public void onWebSocketClose(int statusCode, String reason) {

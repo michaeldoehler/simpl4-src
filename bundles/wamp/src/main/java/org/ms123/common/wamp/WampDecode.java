@@ -18,8 +18,10 @@ package org.ms123.common.wamp;
 
 import java.util.List;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.wamp.WampMessages.WampMessage;
@@ -35,10 +37,36 @@ public class WampDecode {
 
 		ArrayNode arr = objectMapper.readValue(new ByteArrayInputStream(buffer), ArrayNode.class);
 
-		m_logger.debug("Deserialized Wamp Message:"+ arr.toString());
+		m_logger.debug("Deserialized Wamp Message:" + arr.toString());
 
 		WampMessage recvdMessage = WampMessage.fromObjectArray(arr);
 		return recvdMessage;
+	}
+
+	public static String encode(WampMessage msg) throws Exception {
+		return encode(msg, WampSerialization.getJson());
+	}
+
+	public static String encode(WampMessage msg, WampSerialization serialization) throws Exception {
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		ObjectMapper objectMapper = serialization.getObjectMapper();
+		try {
+			JsonNode node = msg.toObjectArray(objectMapper);
+			objectMapper.writeValue(outStream, node);
+
+			m_logger.debug("Serialized Wamp Message:" + objectMapper.writeValueAsString(node));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			outStream.close();
+			return null;
+		}
+
+		if (serialization.isText()) {
+		} else {
+		}
+		String s = outStream.toString("UTF-8");
+		return s;
 	}
 
 	protected static void debug(String msg) {
