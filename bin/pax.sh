@@ -93,12 +93,14 @@ vmOptions="\
  -Dkaraf.systemBundlesStartLevel=0 \
  -Dkaraf.startRemoteShell=false \
  -Dfelix.cm.dir=\$SIMPL4DIR/etc/config \
+ -Detc.dir=\$SIMPL4DIR/etc \
  -Dfelix.fileinstall.dir=\$SIMPL4DIR/gitrepos/.bundles \
  -Dorg.ops4j.pax.logging.DefaultServiceLog.level=ERROR \
  -Ddrools.dialect.java.compiler=JANINO \
  -Dkaraf.local.roles=admin,manager \
  -DopenfireHome=\$SIMPL4DIR/etc/openfire \
  -Dkaraf.etc=\$SIMPL4DIR/etc/activemq/etc \
+ -Dcassandra.boot_without_jna=true \
  -Dwebconsole.type=properties \
  -Dwebconsole.jms.url=tcp://localhost:61616 \
  -Dwebconsole.jmx.url=service:jmx:rmi:///jndi/rmi://localhost:1098/jmxrmi \
@@ -176,6 +178,12 @@ do
 	activemqbundles=${activemqbundles}"scan-bundle:file:$i "
 done
 
+cassandrabundles=""
+for i in $REPOSITORY/cassandra/*ar
+do
+	cassandrabundles=${cassandrabundles}"scan-bundle:file:$i "
+done
+
 $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
@@ -210,6 +218,7 @@ ${ariesbundles} \
 ${karafbundles} \
 ${springbundles} \
 ${activemqbundles} \
+${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jetty-bundle-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-spi-4.1.1.jar@3 \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
@@ -306,6 +315,7 @@ ${activemqbundles} \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.smtp-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.xmpp-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.wamp-1.0.0.jar \
+  scan-bundle:file:$BUNDLESBUILD/org.ms123.common.cassandra-1.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.sling.commons.compiler-2.0.2.jar \
 	scan-bundle:file:$REPOSITORY/ostermillerutils_1_07_00.jar \
   scan-bundle:file:$REPOSITORY/pax-swissbox-extender-1.8.0.jar \
@@ -370,7 +380,7 @@ ${activemqbundles} \
 	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
 	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
 	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
-	scan-bundle:file:$REPOSITORY/snakeyaml-1.13-SNAPSHOT.jar \
+	scan-bundle:file:$REPOSITORY/snakeyaml-1.13.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
 	scan-bundle:file:$REPOSITORY/schemacrawler-14.01.01.jar \
 	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
