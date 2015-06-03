@@ -49,8 +49,13 @@ import static org.ms123.common.wamp.WampRouterSession.Events.*;
 import static org.ms123.common.wamp.WampRouterSession.States.*;
 import org.ms123.common.wamp.WampMessages.WampMessage;
 import org.ms123.common.wamp.WampMessages.WelcomeMessage;
+import org.ms123.common.wamp.WampMessages.SubscribeMessage;
+import org.ms123.common.wamp.WampMessages.SubscribedMessage;
+import org.ms123.common.wamp.WampMessages.PublishMessage;
+import org.ms123.common.wamp.WampMessages.PublishedMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  *
@@ -70,10 +75,11 @@ class WampRouterSession {
 
 	private static class FlowContext extends StatefulContext {
 		long sessionId;
+		WampMessage last;
 	}
 
 	enum States implements StateEnum {
-		WEBSOCKET_CREATED, CONNECTED, SESSION_START, SESSION_IDLE, SUBSCRIBED, PUBLISHED, RESULT, REGISTERED, ERROR
+		WEBSOCKET_CREATED, CONNECTED, SESSION_START, SESSION_IDLE, SUBSCRIPING, PUBLISHING, EXECUTE_CALL, REGISTERING, ERROR
 	}
 
 	enum Events implements EventEnum {
@@ -94,26 +100,27 @@ class WampRouterSession {
 		}
 		m_flow = from(WEBSOCKET_CREATED).transit(
 				on(websocketConnection).to(CONNECTED).transit(
-						on(hello).to(SESSION_START).transit( on(sessionStarted).to(SESSION_IDLE).transit(
-								on(subscribe).to(SUBSCRIBED).transit(on(jobReady).to(SESSION_IDLE)),
-								on(publish).to(PUBLISHED).transit(on(jobReady).to(SESSION_IDLE)),
-								on(call).to(RESULT).transit(on(jobReady).to(SESSION_IDLE)),
-								on(register).to(REGISTERED).transit(on(jobReady).to(SESSION_IDLE)),
-								on(error).finish(ERROR)))));
+						on(hello).to(SESSION_START).transit(
+								on(sessionStarted).to(SESSION_IDLE).transit(
+										on(subscribe).to(SUBSCRIPING).transit(on(jobReady).to(SESSION_IDLE)),
+										on(publish).to(PUBLISHING).transit(on(jobReady).to(SESSION_IDLE)),
+										on(call).to(EXECUTE_CALL).transit(on(jobReady).to(SESSION_IDLE)),
+										on(register).to(REGISTERING).transit(on(jobReady).to(SESSION_IDLE)),
+										on(error).finish(ERROR)))));
 
 		m_flow.executor(new SyncExecutor())
 
 		.whenEnter(CONNECTED, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    CONNECTED");
+				debug("    CONNECTED");
 			}
 		})
 
 		.whenEnter(SESSION_START, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    SESSION_START");
+				debug("    SESSION_START");
 				long sessionId = IdGenerator.newRandomId(null);
 				ObjectNode welcomeDetails = m_objectMapper.createObjectNode();
 				welcomeDetails.put("agent", "simpl4-1.0");
@@ -121,38 +128,59 @@ class WampRouterSession {
 				ObjectNode roleNode = routerRoles.putObject("broker");
 				WelcomeMessage wm = new WampMessages.WelcomeMessage(sessionId, welcomeDetails);
 				String encodedMessage = WampDecode.encode(wm);
-				System.out.println("--> SendMessage(hello):" + encodedMessage);
+				debug("--> SendMessage(welcome):" + encodedMessage);
 				m_wsSession.getRemote().sendStringByFuture(encodedMessage);
 				m_context.safeTrigger(sessionStarted);
 			}
 		}).whenEnter(SESSION_IDLE, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    SESSION_IDLE");
-				m_context.safeTrigger(jobReady);
+				debug("    SESSION_IDLE");
+				//m_context.safeTrigger(jobReady);
 			}
-		}).whenEnter(SUBSCRIBED, new ContextHandler<FlowContext>() {
+		}).whenEnter(SUBSCRIPING, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    SUBSCRIBED");
+				SubscribeMessage sub = ((WampMessages.SubscribeMessage)context.last);
+				debug("    SUBSCRIPING");
+				SubscribedMessage subscribed = new SubscribedMessage(sub.requestId,123456789);
+				String encodedMessage = WampDecode.encode(subscribed);
+				debug("--> SendMessage(subscribed):" + encodedMessage);
+				m_wsSession.getRemote().sendString(encodedMessage);
+
 				m_context.safeTrigger(jobReady);
 			}
-		}).whenEnter(PUBLISHED, new ContextHandler<FlowContext>() {
+		}).whenEnter(PUBLISHING, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    PUBLISHED");
+				PublishMessage pub = ((WampMessages.PublishMessage)context.last);
+				debug("    PUBLISHING");
+				PublishedMessage published = new PublishedMessage(pub.requestId,1234567890);
+
+				boolean sendAcknowledge = false;
+				JsonNode ackOption = pub.options.get("acknowledge");
+				if (ackOption != null && ackOption.asBoolean() == true){
+						sendAcknowledge = true;
+				}
+				if( !sendAcknowledge){
+					return;
+				}
+				String encodedMessage = WampDecode.encode(published);
+				debug("--> SendMessage(published):" + encodedMessage);
+				m_wsSession.getRemote().sendString(encodedMessage);
+
 				m_context.safeTrigger(jobReady);
 			}
-		}).whenEnter(REGISTERED, new ContextHandler<FlowContext>() {
+		}).whenEnter(REGISTERING, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    REGISTERED");
+				debug("    REGISTERING");
 				m_context.safeTrigger(jobReady);
 			}
-		}).whenEnter(RESULT, new ContextHandler<FlowContext>() {
+		}).whenEnter(EXECUTE_CALL, new ContextHandler<FlowContext>() {
 			@Override
 			public void call(FlowContext context) throws Exception {
-				System.out.println("    RESULT");
+				debug("    EXECUTE_CALL");
 				m_context.safeTrigger(jobReady);
 			}
 		});
@@ -160,13 +188,13 @@ class WampRouterSession {
 
 	public void wsConnect(Session sess) {
 		m_wsSession = sess;
-		System.out.println("<-- SocketConnect");
+		debug("<-- SocketConnect");
 		m_context.safeTrigger(websocketConnection);
 	}
 
 	public void wsBinaryMessage(byte[] payload, int offset, int len) {
 		try {
-			System.out.println("BinMessage.recveived:" + payload);
+			debug("BinMessage.recveived:" + payload);
 			WampMessage msg = WampDecode.decode(payload);
 			debug("Message.recveived:" + msg);
 		} catch (Exception e) {
@@ -178,8 +206,9 @@ class WampRouterSession {
 	public void wsMessage(String message) {
 		try {
 			WampMessage msg = WampDecode.decode(message.getBytes());
+			m_context.last = msg;
 			EventEnum e = getMessageEnum(msg);
-			System.out.println("<-- ReceiveMessage(" + e + "):" + message);
+			debug("<-- ReceiveMessage(" + e + "):" + message);
 			m_context.safeTrigger(e);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -188,9 +217,12 @@ class WampRouterSession {
 	}
 
 	public void wsClose(int statusCode, String reason) {
+		debug("<-- SocketClose:"+statusCode+"/"+reason);
+		
 	}
 
 	public void wsError(Throwable cause) {
+		debug("<-- SocketError:"+cause);
 	}
 
 	private EventEnum getMessageEnum(Object o) {
@@ -202,12 +234,12 @@ class WampRouterSession {
 	}
 
 	protected static void debug(String msg) {
-		System.err.println(msg);
+		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 
 	protected static void info(String msg) {
-		System.err.println(msg);
+		System.out.println(msg);
 		m_logger.info(msg);
 	}
 
