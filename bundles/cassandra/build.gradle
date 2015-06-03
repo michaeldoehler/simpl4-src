@@ -1,0 +1,20 @@
+version='1.0.0'
+dependencies {
+  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+	compile files("${repository}/commons-io-2.4.jar")
+	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
+  compile files("${repository}/org.osgi.compendium-4.3.1.jar")
+  compile files("${repository}/org.osgi.core-4.3.1.jar")
+	compile files("${repository}/slf4j-api-1.6.1.jar")
+  compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
+  compile files("${repository}/flexjson-2.1.bar")
+	compile files("${repository}/commons-lang3-3.3.2.jar")
+	compile files("${repository}/cassandra/cassandra-all-2.1.5.bar")
+	compile files("${repository}/cassandra/cassandra-driver-core-2.1.6.jar")
+	compile files("${repository}/cassandra/hector-core-1.1-4.jar")
+	compile files('build/classes/main')
+}
+
