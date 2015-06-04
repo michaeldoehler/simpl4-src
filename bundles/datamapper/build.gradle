@@ -23,7 +23,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
   compile files("${repository}/flexjson-2.1.bar")
   compile files("${repository}/gson-2.2.4.jar")
-  compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
+  compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
 	compile files("${repository}/jta-1.1.jar")
   compile files("${repository}/milyn-smooks-all-1.5.jar")
 	compile files("${repository}/opencsv-2.3.bar")

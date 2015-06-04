@@ -3,7 +3,7 @@ dependencies {
   compile files("${repository}/activiti-5.16/activiti-engine-5.16.jar")
   compile files("${repository}/biz.aQute.bnd.jar")
   compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
-  compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
+  compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
 	compile files("${bundlesBuild}/org.ms123.common.data.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")

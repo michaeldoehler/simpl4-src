@@ -3,7 +3,7 @@ dependencies {
  	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
   compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
-	compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
+	compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
 	compile files("${repository}/json-lib-2.3-jdk15.jar")
 	compile files("${repository}/org.osgi.compendium-4.3.1.jar")
 	compile files("${repository}/org.osgi.core-4.3.1.jar")

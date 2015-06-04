@@ -119,7 +119,7 @@ do
 done
 
 nucleusbundles=""
-for i in $REPOSITORY/datanucleus-4.1/*ar
+for i in $REPOSITORY/datanucleus/*ar
 do
 	nucleusbundles=${nucleusbundles}"scan-bundle:file:$i "
 done

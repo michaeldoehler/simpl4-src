@@ -1,6 +1,6 @@
 version='1.0.0'
 dependencies {
-  compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
+  compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
 	compile files("${bundlesBuild}/org.ms123.common.data.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")

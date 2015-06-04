@@ -1,10 +1,11 @@
 version='1.0.0'
 
 dependencies {
-	compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
-  compile files("${repository}/datanucleus-4.1/datanucleus-api-jdo-4.1.0-release.jar")
-  compile files("${repository}/datanucleus-4.1/datanucleus-core-4.1.0-release.jar")
-  compile files("${repository}/datanucleus-4.1/datanucleus-rdbms-4.1.0-release.jar")
+	compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
+  compile files("${repository}/datanucleus/datanucleus-api-jdo-4.1.0-release.jar")
+  compile files("${repository}/datanucleus/datanucleus-core-4.1.0-release.jar")
+  compile files("${repository}/datanucleus/datanucleus-rdbms-4.1.0-release.jar")
+  compile files("${repository}/datanucleus/datanucleus-cassandra-4.1.0-release.jar")
 	compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/h2-1.3.170.jar")
 	compile files("${repository}/hsqldb.jar")
