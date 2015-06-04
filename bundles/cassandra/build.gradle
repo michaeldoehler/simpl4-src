@@ -12,7 +12,7 @@ dependencies {
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/commons-lang3-3.3.2.jar")
-	compile files("${repository}/cassandra/cassandra-all-2.1.5.bar")
+	compile files("${repository}/cassandra/apache-cassandra-2.1.5ms.jar")
 	compile files("${repository}/cassandra/cassandra-driver-core-2.1.6.jar")
 	compile files("${repository}/cassandra/hector-core-1.1-4.jar")
 	compile files('build/classes/main')

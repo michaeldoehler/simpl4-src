@@ -57,7 +57,6 @@ import org.ops4j.pax.swissbox.extender.*;
 @SuppressWarnings("unchecked")
 public class OsgiPluginRegistry implements PluginRegistry {
 
-	protected static final Localiser LOCALISER = Localiser.getInstance("org.datanucleus.Localisation", ClassConstants.NUCLEUS_CONTEXT_LOADER);
 
 	private static final String DATANUCLEUS_PKG = "org.datanucleus";
 
@@ -149,7 +148,7 @@ public class OsgiPluginRegistry implements PluginRegistry {
 			Extension extension = pluginExtensionIter.next();
 			ExtensionPoint exPoint = extensionPointsByUniqueId.get(extension.getExtensionPointId());
 			if (exPoint == null) {
-				NucleusLogger.GENERAL.warn(LOCALISER.msg("024002", extension.getExtensionPointId(), extension.getPlugin().getSymbolicName(), extension.getPlugin().getManifestLocation().toString()));
+				NucleusLogger.GENERAL.warn(Localiser.msg("024002", extension.getExtensionPointId(), extension.getPlugin().getSymbolicName(), extension.getPlugin().getManifestLocation().toString()));
 			} else {
 				extension.setExtensionPoint(exPoint);
 				exPoint.addExtension(extension);
@@ -194,7 +193,7 @@ public class OsgiPluginRegistry implements PluginRegistry {
 			ExtensionPoint exPoint = getExtensionPoint(extension.getExtensionPointId());
 			if (exPoint == null) {
 				if (extension.getPlugin() != null && extension.getPlugin().getSymbolicName() != null && extension.getPlugin().getSymbolicName().startsWith(DATANUCLEUS_PKG)) {
-					NucleusLogger.GENERAL.warn(LOCALISER.msg("024002", extension.getExtensionPointId(), extension.getPlugin().getSymbolicName(), extension.getPlugin().getManifestLocation().toString()));
+					NucleusLogger.GENERAL.warn(Localiser.msg("024002", extension.getExtensionPointId(), extension.getPlugin().getSymbolicName(), extension.getPlugin().getManifestLocation().toString()));
 				}
 			} else {
 				extension.setExtensionPoint(exPoint);
@@ -255,7 +254,7 @@ public class OsgiPluginRegistry implements PluginRegistry {
 		} else {
 			Bundle previousBundle = registeredPluginByPluginId.get(bundle.getSymbolicName());
 			if (bundle.getSymbolicName().startsWith(DATANUCLEUS_PKG) && !bundle.getManifestLocation().toExternalForm().equals(previousBundle.getManifestLocation().toExternalForm())) {
-				String msg = LOCALISER.msg("024009", bundle.getSymbolicName(), bundle.getManifestLocation(), previousBundle.getManifestLocation());
+				String msg = Localiser.msg("024009", bundle.getSymbolicName(), bundle.getManifestLocation(), previousBundle.getManifestLocation());
 				if (bundleCheckType.equalsIgnoreCase("EXCEPTION")) {
 					throw new NucleusException(msg);
 				} else if (bundleCheckType.equalsIgnoreCase("LOG")) {
@@ -293,14 +292,14 @@ public class OsgiPluginRegistry implements PluginRegistry {
 				Bundle requiredBundle = registeredPluginByPluginId.get(symbolicName);
 				if (requiredBundle == null) {
 					if (bd.getParameter("resolution") != null && bd.getParameter("resolution").equalsIgnoreCase("optional")) {
-						NucleusLogger.GENERAL.debug(LOCALISER.msg("024013", bundle.getSymbolicName(), symbolicName));
+						NucleusLogger.GENERAL.debug(Localiser.msg("024013", bundle.getSymbolicName(), symbolicName));
 					} else {
-						NucleusLogger.GENERAL.error(LOCALISER.msg("024014", bundle.getSymbolicName(), symbolicName));
+						NucleusLogger.GENERAL.error(Localiser.msg("024014", bundle.getSymbolicName(), symbolicName));
 					}
 				}
 				if (bd.getParameter("bundle-version") != null) {
 					if (requiredBundle != null && !isVersionInInterval(requiredBundle.getVersion(), bd.getParameter("bundle-version"))) {
-						NucleusLogger.GENERAL.error(LOCALISER.msg("024015", bundle.getSymbolicName(), symbolicName, bd.getParameter("bundle-version"), bundle.getVersion()));
+						NucleusLogger.GENERAL.error(Localiser.msg("024015", bundle.getSymbolicName(), symbolicName, bd.getParameter("bundle-version"), bundle.getVersion()));
 					}
 				}
 			}

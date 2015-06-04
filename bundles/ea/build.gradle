@@ -14,7 +14,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.setting.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.store-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
-  compile files("${repository}/datanucleus-3.3.6/jdo-api-3.1-rc1.jar")
+  compile files("${repository}/datanucleus-4.1/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
   compile files("${repository}/flexjson-2.1.bar")
 	compile files("${repository}/jta-1.1.jar")
 	compile files("${repository}/milyn-smooks-all-1.5.jar")

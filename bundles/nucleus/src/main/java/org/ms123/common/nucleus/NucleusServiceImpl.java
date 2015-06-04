@@ -351,7 +351,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 			SchemaTool schemaTool = new SchemaTool();	
 			JDOPersistenceManagerFactory pmf = (JDOPersistenceManagerFactory)pml.getPersistenceManagerFactory();
 			debug("_schemaOp.pmf:"+pmf+"/"+pml);
-			NucleusContext ctx = pmf.getNucleusContext();
+			PersistenceNucleusContext ctx = pmf.getNucleusContext();
 			SchemaAwareStoreManager ssm = (SchemaAwareStoreManager)ctx.getStoreManager();
 			if(op.equals("delete")){
 				Properties props = new Properties();
@@ -382,7 +382,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 					close( sdesc );
 				}
 			}else if( op.equals("validate")){
-				schemaTool.validateSchema(ssm,classes);	
+				schemaTool.validateSchemaForClasses(ssm,classes);	
 			}else if( op.equals("create")){
 				Properties props = new Properties();
 				File tempFile = null;
@@ -391,7 +391,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 					props.setProperty("ddlFilename", tempFile.toString());
 					props.setProperty("completeDdl", "true");
 				}
-				schemaTool.createSchema(ssm,classes);	
+				schemaTool.createSchemaForClasses(ssm,classes);	
 				if( dry ){
 					return readFileToString(tempFile);
 				}else{

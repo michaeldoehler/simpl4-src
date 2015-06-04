@@ -99,7 +99,7 @@ public class BeanReader implements JavaXMLReader, VisitorAppender {
 		System.out.println("parse:" + src);
 		m_contentHandler.startDocument();
 		ObjectGraphWalker walker = new ObjectGraphWalker();
-		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
+		ReflectionHelper.addSimpleType(org.datanucleus.store.types.wrappers.Date.class);
 		walker.setIgnoreNullValues(!m_withNullValues);
 		SmooksSojoWalkerInterceptor interceptor = new SmooksSojoWalkerInterceptor();
 		interceptor.setContentHandler(m_contentHandler);

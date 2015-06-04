@@ -55,12 +55,12 @@ public class PostgresqlPersistenceManagerLoader extends AbstractPersistenceManag
 		m_props.put("datanucleus.rdbms.dynamicSchemaUpdates ", "true");
 		m_props.put("datanucleus.storeManagerType", m_sdesc.getStore());
 		m_props.put("datanucleus.metadata.validate", "true");
-		m_props.put("datanucleus.autoCreateSchema", "true");
-		m_props.put("datanucleus.validateTables", "true");
+		m_props.put("datanucleus.schema.autoCreateAll", "true");
+		m_props.put("datanucleus.schema.validateTables", "true");
 		m_props.put("datanucleus.TransactionType", "JTA");
 		m_props.put("datanucleus.connection.resourceType", "JTA");
 		m_props.put("datanucleus.jtaLocator", m_transactionService.getJtaLocator());
-		m_props.put("datanucleus.validateConstraints", "false");
+		m_props.put("datanucleus.schema.validateConstraints", "false");
 		m_props.put("datanucleus.plugin.pluginRegistryClassName", "org.ms123.common.nucleus.OsgiPluginRegistry");
 	}
 

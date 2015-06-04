@@ -135,7 +135,7 @@ System.out.println("deleteSchema:"+classes+"/"+props);
 			FileSystemClassLoader filesystemCL = new FileSystemClassLoader(bundleDelegatingCL, locations);
 			Thread.currentThread().setContextClassLoader(filesystemCL);
 			try {
-				ssm.deleteSchema(classes,props);	
+				ssm.deleteSchemaForClasses(classes,props);	
 				//ssm.createSchema(classes,props);	
 			} catch (Throwable e) {
 				throw new RuntimeException("Cannot delete Schema", e);

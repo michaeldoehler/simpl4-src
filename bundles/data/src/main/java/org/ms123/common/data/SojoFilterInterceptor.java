@@ -90,7 +90,7 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		SojoFilterInterceptor interceptor = new SojoFilterInterceptor();
 		ObjectGraphWalker walker = new ObjectGraphWalker();
 		walker.setUseBeanMap(true);
-		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
+		ReflectionHelper.addSimpleType(org.datanucleus.store.types.wrappers.Date.class);
 		walker.setIgnoreNullValues(true);
 		interceptor.setFields(fieldList, aliasList);
 		interceptor.setSessionContext(sc);

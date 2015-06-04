@@ -23,6 +23,6 @@ dependencies {
  	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
  	compile files("${repository}/slf4j-api-1.6.1.jar")
   compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
-  compile files("${repository}/snakeyaml-1.13-SNAPSHOT.jar")
+  compile files("${repository}/snakeyaml-1.13.jar")
   compile files("${repository}/pax-web-jsp-4.1.1.jar")
 }

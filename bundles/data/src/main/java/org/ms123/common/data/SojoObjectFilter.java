@@ -87,7 +87,7 @@ public class SojoObjectFilter implements WalkerInterceptor {
 	public static Map getObjectGraph(Object o, SessionContext sc,boolean useBeanMap, int maxLevel) {
 		ObjectGraphWalker walker = new ObjectGraphWalker();
 		walker.setUseBeanMap(useBeanMap);
-		ReflectionHelper.addSimpleType(org.datanucleus.store.types.simple.Date.class);
+		ReflectionHelper.addSimpleType(org.datanucleus.store.types.wrappers.Date.class);
 		walker.setIgnoreNullValues(true);
 		SojoObjectFilter interceptor = new SojoObjectFilter();
 		interceptor.setUseBeanMap(useBeanMap);
