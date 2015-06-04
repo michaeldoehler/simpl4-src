@@ -78,11 +78,15 @@ public class QueryBuilder {
 		m_type = type;
 		m_params = params;
 		insertFilterParams(filters);
-		if (type.equals("pg")) {
-			m_mainSelectBuilder = new JPASelectBuilderPostgresql(this, sdesc, entityName, joinFields, filters, fieldSets);
-		}
-		if (type.equals("mvel")) {
-			m_mainSelectBuilder = new MVELSelectBuilder(this, sdesc, entityName, joinFields, filters, fieldSets);
+		if (sdesc.getStore().equals("cassandra")) {
+			m_mainSelectBuilder = new JPASelectBuilder(this, sdesc, entityName, joinFields, filters, fieldSets);
+		}else{
+			if (type.equals("pg")) {
+				m_mainSelectBuilder = new JPASelectBuilderPostgresql(this, sdesc, entityName, joinFields, filters, fieldSets);
+			}
+			if (type.equals("mvel")) {
+				m_mainSelectBuilder = new MVELSelectBuilder(this, sdesc, entityName, joinFields, filters, fieldSets);
+			}
 		}
 		if (m_mainSelectBuilder == null) {
 			throw new RuntimeException("QueryBuilder.no_builder_for:" + m_type);
