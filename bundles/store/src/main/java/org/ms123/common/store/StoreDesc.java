@@ -54,6 +54,8 @@ public class StoreDesc {
 
 	public static final String STORE_RDBMS = "rdbms";
 
+	public static final String STORE_CASSANDRA = "cassandra";
+
 	public static final String VENDOR_PG = "pg";
 
 	public static final String VENDOR_H2 = "h2";
