@@ -300,10 +300,14 @@ public class ClassGenServiceImpl implements ClassGenService {
 	}
 
 	private CtField createField(CtClass ctClass, String name, String typeName) throws Exception {
-		CtField f = new CtField(ctClass.getClassPool().get(typeName), name, ctClass);
-		System.out.println("\tcreateField:" + f + "/" + name + "/" + typeName);
+		final CtClass typeClass = ctClass.getClassPool().get(typeName);
+		CtField f = new CtField(typeClass, name, ctClass);
 		f.setModifiers(AccessFlag.PRIVATE);
-		ctClass.addField(f);
+		if( typeName.equals("java.util.Set")){
+			ctClass.addField(f, CtField.Initializer.byExpr("new java.util.HashSet()"));
+		}else{
+			ctClass.addField(f);
+		}
 		return f;
 	}
 
