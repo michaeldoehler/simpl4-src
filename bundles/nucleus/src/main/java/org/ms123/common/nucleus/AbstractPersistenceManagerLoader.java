@@ -71,6 +71,7 @@ public abstract class AbstractPersistenceManagerLoader {
 		setProperties();
 		setDataSources();
 		initFactory();
+		dbSpecific();
 	}
 
 	protected abstract void setProperties();
@@ -110,6 +111,9 @@ public abstract class AbstractPersistenceManagerLoader {
 		} finally {
 			Thread.currentThread().setContextClassLoader(previous);
 		}
+	}
+
+	public void dbSpecific(){
 	}
 
 	public JDOEnhancer getEnhancer() {

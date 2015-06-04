@@ -180,6 +180,9 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 			if (sdesc.getStore().equals(StoreDesc.STORE_FILE)) {
 				pml = new FilePersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
 			}
+			if (sdesc.getStore().equals(StoreDesc.STORE_CASSANDRA)) {
+				pml = new CassandraPersistenceManagerLoader(m_bc, sdesc, baseDirs, m_aidClassLoader,props, m_transactionService);
+			}
 			debug("createFactory.pml:" + pml);
 			if (pml == null)
 				throw new RuntimeException("NucleusServiceImpl.no_loader_for:" + sdesc + " found");
