@@ -5,8 +5,8 @@ dependencies {
 	compile files("${repository}/org.osgi.core-4.3.1.jar")
  	compile files("${repository}/flexjson-2.1.bar")
   compile files("${repository}/mvel2-2.1.RC1.jar")
-  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+  compile files("${repository}/commons/commons-beanutils-1.8.4-SNAPSHOT.jar")
 	compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
-  compile files("${repository}/commons-io-2.4.jar")
-	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
+  compile files("${repository}/commons/commons-io-2.4.jar")
+	compile files("${repository}/camel/camel-core-2.15.2.jar")
 }

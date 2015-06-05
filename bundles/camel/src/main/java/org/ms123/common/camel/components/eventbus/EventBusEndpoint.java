@@ -31,7 +31,7 @@ import org.osgi.service.event.EventAdmin;
 
 /**
  */
-@UriEndpoint(scheme = "eventbus", consumerClass = EventBusConsumer.class)
+@UriEndpoint(scheme = "eventbus", title = "Eventbus", syntax = "eventbus:topic", consumerClass = EventBusConsumer.class)
 public class EventBusEndpoint extends DefaultEndpoint {
 
 	@UriParam

@@ -125,9 +125,21 @@ do
 done
 
 camelbundles=""
-for i in $REPOSITORY/camel-2.14-ms/*jar
+for i in $REPOSITORY/camel/*jar
 do
 	camelbundles=${camelbundles}"scan-bundle:file:$i "
+done
+
+commonsbundles=""
+for i in $REPOSITORY/commons/*jar
+do
+	commonsbundles=${commonsbundles}"scan-bundle:file:$i "
+done
+
+xbeanbundles=""
+for i in $REPOSITORY/xbean/*jar
+do
+	xbeanbundles=${xbeanbundles}"scan-bundle:file:$i "
 done
 
 paxbundles=""
@@ -188,11 +200,6 @@ $SRCTOPDIR/bin/pax-run.sh \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.configadmin-1.8.0.jar \
 	scan-bundle:file:$REPOSITORY/org.osgi.compendium-5.0.0.jar \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.prefs-1.0.4.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.commons.collections_3.2.1.jar  \
-	scan-bundle:file:$REPOSITORY/commons-fileupload-1.2.2.jar \
-	scan-bundle:file:$REPOSITORY/commons-io-2.4.jar \
-	scan-bundle:file:$REPOSITORY/commons-pool-1.6.jar \
-	scan-bundle:file:$REPOSITORY/org.apache.commons.lang_2.5.jar \
 	scan-bundle:file:$REPOSITORY/derby-10.5.3.0_1.jar \
 	scan-bundle:file:$REPOSITORY/groovy-all-2.2.2-indy.jar \
 	scan-bundle:file:$REPOSITORY/mail-1.4.7.bar \
@@ -209,6 +216,8 @@ $SRCTOPDIR/bin/pax-run.sh \
 ${activitibundles} \
 ${nucleusbundles} \
 ${camelbundles} \
+${commonsbundles} \
+${xbeanbundles} \
 ${paxbundles} \
 ${jacksonbundles} \
 ${openfirebundles} \
@@ -224,8 +233,6 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
 	scan-bundle:file:$REPOSITORY/javax.servlet.jsp.jstl-1.2.4.bar \
 	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
-  scan-bundle:file:$REPOSITORY/xbean-bundleutils-4.2.jar \
-  scan-bundle:file:$REPOSITORY/xbean-finder-4.2.jar \
   scan-bundle:file:$REPOSITORY/ant-1.8.2.bar \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
   scan-bundle:file:$REPOSITORY/antlr-runtime-3.3.bar \
@@ -233,13 +240,6 @@ ${cassandrabundles} \
   scan-bundle:file:$REPOSITORY/aspectjrt-1.8.5.bar \
 	scan-bundle:file:$REPOSITORY/biz.aQute.bndlib.jar \
   scan-bundle:file:$REPOSITORY/codemodel-2.4.bar \
-	scan-bundle:file:$REPOSITORY/commons-beanutils-1.8.4-SNAPSHOT.jar \
-  scan-bundle:file:$REPOSITORY/commons-codec-1.9.jar \
-	scan-bundle:file:$REPOSITORY/commons-digester-1.8.bar \
-	scan-bundle:file:$REPOSITORY/commons-email-1.3.1.jar \
-	scan-bundle:file:$REPOSITORY/commons-validator-1.4.0.jar \
-  scan-bundle:file:$REPOSITORY/commons-exec-1.1.jar \
-  scan-bundle:file:$REPOSITORY/com.springsource.org.jaxen-1.1.1.jar \
   scan-bundle:file:$REPOSITORY/connector-api-1.5.bar \
 	scan-bundle:file:$REPOSITORY/DynamicJasper-3.1.8.bar \
 	scan-bundle:file:$REPOSITORY/ezmorph-1.0.6.jar \
@@ -360,24 +360,20 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/sweble-all.1.1.0.bar \
 	scan-bundle:file:$REPOSITORY/javassist-3.18.0-GA.jar \
 	scan-bundle:file:$REPOSITORY/UserAgentUtils-1.9-snapshot.bar \
-	scan-bundle:file:$REPOSITORY/commons-jxpath-1.3.jar \
 	scan-bundle:file:$REPOSITORY/herold-6.1.0.bar  \
-	scan-bundle:file:$REPOSITORY/org.apache.servicemix.bundles.commons-csv-1.0-r706899_5.jar \
-	scan-bundle:file:$REPOSITORY/xstream-1.4.7-ms.jar  \
+	scan-bundle:file:$REPOSITORY/xstream-1.4.7.bar  \
 	scan-bundle:file:$REPOSITORY/xpp3-1.1.4c.bar \
 	scan-bundle:file:$REPOSITORY/jettison-1.3.5.jar \
 	scan-bundle:file:$REPOSITORY/opencsv-2.3.bar \
-	scan-bundle:file:$REPOSITORY/gson-2.2.4.jar \
+	scan-bundle:file:$REPOSITORY/gson-2.3.1.jar \
 	scan-bundle:file:$REPOSITORY/xmlbeans-2.6ms.bar \
 	scan-bundle:file:$REPOSITORY/httpclient-osgi-4.3.1.jar \
 	scan-bundle:file:$REPOSITORY/httpcore-osgi-4.3.jar \
-	scan-bundle:file:$REPOSITORY/commons-lang3-3.3.2.jar \
 	scan-bundle:file:$REPOSITORY/concurrentlinkedhashmap-lru-1.4.jar  \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
 	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
-	scan-bundle:file:$REPOSITORY/xbean-naming-3.18.jar \
 	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
 	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13.bar \

@@ -280,7 +280,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv);
 		RoutesDefinition routesDef = c.getRoutesDefinition();
-						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(context,routesDef));
 		int i=1;
 		routes = new ArrayList();
 		def baseId = getId( shape);
@@ -362,7 +362,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeBaseId);
 					info("Add route:"+routeBaseId);
 					RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
-					System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+					System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context, routesDef));
 
 					int i=1;
 					int size = routesDef.getRoutes().size();
@@ -389,7 +389,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						re.md5 = md5;
 						re.shape = routeShape;
 						RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
-						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(routesDef));
+						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context,routesDef));
 
 						stopAndRemoveRoutesForShape(cce.context, routeBaseId);
 						int i=1;
@@ -466,7 +466,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
-						System.out.println("XrouteDef:"+ModelHelper.dumpModelAsXml(rd));
+						System.out.println("XrouteDef:"+ModelHelper.dumpModelAsXml(context,rd));
 		try{
 			context.addRouteDefinition(rd );
 			if( re != null){

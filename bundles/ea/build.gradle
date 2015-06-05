@@ -1,7 +1,7 @@
 version='1.0.0'
 dependencies {
-  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
-  compile files("${repository}/commons-io-2.4.jar")
+  compile files("${repository}/commons/commons-beanutils-1.8.4-SNAPSHOT.jar")
+  compile files("${repository}/commons/commons-io-2.4.jar")
 	compile files("${bundlesBuild}/org.ms123.common.data-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.data.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.entity.api-1.0.0.jar")
@@ -19,7 +19,7 @@ dependencies {
 	compile files("${repository}/jta-1.1.jar")
 	compile files("${repository}/milyn-smooks-all-1.5.jar")
 	compile files("${repository}/object-traverser.bar")
-	compile files("${repository}/org.apache.commons.lang_2.5.jar")
+	compile files("${repository}/commons/org.apache.commons.lang_2.5.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
   compile files("${repository}/ostermillerutils_1_07_00.jar")

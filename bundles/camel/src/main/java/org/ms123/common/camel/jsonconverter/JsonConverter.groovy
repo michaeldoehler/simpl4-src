@@ -113,8 +113,8 @@ abstract class JsonConverterImpl implements JsonConverter{
 			expr = new GroovyExpression(exprText);
 		}else if(language == "header"){
 			expr = new HeaderExpression(exprText);
-		}else if(language == "property"){
-			expr = new PropertyExpression(exprText);
+	//	}else if(language == "property"){
+	//		expr = new PropertyExpression(exprText);
 		}else if(language == "el"){
 			expr = new ELExpression(exprText);
 		}else if(language == "ognl"){
@@ -346,6 +346,7 @@ class EndpointJsonConverter extends JsonConverterImpl{
 		}
 		if( ctx.routesDefinition == null){
 			ctx.routesDefinition = new RoutesDefinition();
+			ctx.routesDefinition.setCamelContext( ctx.modelCamelContext);
 			def routeDefinition = ctx.routesDefinition.from(sharedEndpoint ? sharedEndpoint : constructUri(ctx));
 			setConstants(routeDefinition, rootProperties);
 			ctx.current = routeDefinition;

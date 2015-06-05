@@ -2,7 +2,7 @@ version='1.0.0'
 dependencies {
  	compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
-  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+  compile files("${repository}/commons/commons-beanutils-1.8.4-SNAPSHOT.jar")
 	compile files("${repository}/datanucleus/javax.jdo-3.2.0-m1-SNAPSHOT.jar")
 	compile files("${repository}/json-lib-2.3-jdk15.jar")
 	compile files("${repository}/org.osgi.compendium-4.3.1.jar")
@@ -11,7 +11,7 @@ dependencies {
 	compile files("${repository}/httpcore-osgi-4.3.jar")
 	compile files("${repository}/httpclient-osgi-4.3.1.jar")
  	compile files("${repository}/flexjson-2.1.bar")
-  compile files("${repository}/commons-io-2.4.jar")
+  compile files("${repository}/commons/commons-io-2.4.jar")
 	compile files("${repository}/hibernate-5.0.1.jar")
   compile files("${repository}/mvel2-2.1.RC1.jar")
 	compile files("${bundlesBuild}/org.ms123.common.data.api-1.0.0.jar")
@@ -20,5 +20,5 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.nucleus.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
 	compile files("${repository}/object-traverser.bar")
-	compile files("${repository}/camel-2.14-ms/camel-core-2.14-ms.jar")
+	compile files("${repository}/camel/camel-core-2.15.2.jar")
 }

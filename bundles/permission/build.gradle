@@ -1,7 +1,7 @@
 version='1.0.0'
 
 dependencies {
-  compile files("${repository}/commons-beanutils-1.8.4-SNAPSHOT.jar")
+  compile files("${repository}/commons/commons-beanutils-1.8.4-SNAPSHOT.jar")
 	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.git-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.libhelper-1.0.0.jar")

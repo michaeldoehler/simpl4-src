@@ -38,7 +38,7 @@ import org.apache.camel.util.ObjectHelper;
  *
  * @version 
  */
-@UriEndpoint(scheme = "direct", consumerClass = DirectConsumer.class)
+@UriEndpoint(scheme = "direct", title = "Direct", syntax = "direct:name", consumerClass = DirectConsumer.class)
 public class DirectEndpoint extends DefaultEndpoint {
 
 	private volatile Map<String, Collection<DirectConsumer>> consumers;
