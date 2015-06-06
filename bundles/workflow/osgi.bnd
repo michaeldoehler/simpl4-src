@@ -9,6 +9,5 @@ Bundle-Name: WorkflowService Bundle
 Bundle-SymbolicName:org.ms123.common.workflow
 DynamicImport-Package: *
 Bundle-ClassPath: .
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

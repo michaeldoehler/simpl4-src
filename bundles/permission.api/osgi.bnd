@@ -7,6 +7,5 @@ Bundle-Description: Permission Service Api
 Bundle-ManifestVersion: 2
 Bundle-Name: PermissionServiceApi Bundle
 Bundle-SymbolicName:org.ms123.common.permission.api
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

@@ -9,6 +9,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SmtpService Bundle
 Bundle-SymbolicName:org.ms123.common.smtp
 Bundle-ClassPath: .
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF,xml=src/main/resources/xml,xsl=src/main/resources/xsl
 Service-Component: *
 -metatype: *

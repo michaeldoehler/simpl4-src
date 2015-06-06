@@ -9,6 +9,5 @@ Bundle-Name: Rpc Bundle
 Bundle-SymbolicName:org.ms123.common.rpc
 Bundle-ClassPath: .
 DynamicImport-Package: *
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

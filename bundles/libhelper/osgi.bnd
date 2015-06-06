@@ -8,6 +8,5 @@ Bundle-Description: Libhelper
 Bundle-ManifestVersion: 2
 Bundle-Name: Libhelper Bundle
 Bundle-SymbolicName:org.ms123.common.libhelper
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

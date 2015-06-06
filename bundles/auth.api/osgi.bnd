@@ -7,6 +7,5 @@ Bundle-Description: Auth Service Api
 Bundle-ManifestVersion: 2
 Bundle-Name: AuthServiceApi Bundle
 Bundle-SymbolicName:org.ms123.common.auth.api
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

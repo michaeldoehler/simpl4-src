@@ -52,8 +52,8 @@ configure(subprojects -
 
 	defaultTasks "copyToRepo"
 
-	sourceCompatibility = '1.6'
-	targetCompatibility = '1.6'
+//	sourceCompatibility = '1.6'
+//	targetCompatibility = '1.6'
 
 	jar.enabled=false
 	test.enabled=false
@@ -62,8 +62,8 @@ configure(subprojects -
 		ajtools files("${rootDir}/repository/aspectjtools-1.8.5.jar")
 		vfs files("${rootDir}/repository/commons-vfs-1.0.jar")
 		vfs files("${rootDir}/repository/commons-logging-1.1.1.jar")
-		bnd files("${rootDir}/repository/biz.aQute.bnd.jar")
-		compile files("${rootDir}/repository/biz.aQute.bnd.jar")
+		bnd files("${rootDir}/repository/biz.aQute.bnd-3.0.0.jar")
+		compile files("${rootDir}/repository/biz.aQute.bnd-3.0.0.jar")
 		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar");
 		compile files("${rootDir}/repository/aspectjrt-1.8.5.jar")
 		compile files("${rootDir}/repository/shiro-aspectj-1.2.0.jar")

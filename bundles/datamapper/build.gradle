@@ -33,6 +33,6 @@ dependencies {
   compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/sojo-1.0.0.bar")
   compile files("${repository}/xmlbeans-all-2.6.bar")
-  compile files("${repository}/xstream-1.4.7.jar")
+  compile files("${repository}/xstream-1.4.7.bar")
   compile files('build/classes/main')
 }

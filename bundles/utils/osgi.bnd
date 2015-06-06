@@ -8,6 +8,5 @@ Bundle-Description: Utils
 Bundle-ManifestVersion: 2
 Bundle-Name: Utils Bundle
 Bundle-SymbolicName:org.ms123.common.utils
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

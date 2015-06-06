@@ -7,6 +7,5 @@ Bundle-Description: Management Service
 Bundle-ManifestVersion: 2
 Bundle-Name: ManagementService Bundle
 Bundle-SymbolicName:org.ms123.common.management
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

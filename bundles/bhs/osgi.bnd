@@ -7,6 +7,5 @@ Bundle-Description: Bhs Service
 Bundle-ManifestVersion: 2
 Bundle-Name: BhsService Bundle
 Bundle-SymbolicName:org.ms123.common.bhs
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Service-Component: *
 -metatype: *

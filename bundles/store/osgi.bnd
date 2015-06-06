@@ -7,7 +7,6 @@ Bundle-Description: Store Service
 Bundle-ManifestVersion: 2
 Bundle-Name: StoreService Bundle
 Bundle-SymbolicName:org.ms123.common.store
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 DynamicImport-Package:*
 Service-Component: *
 -metatype: *

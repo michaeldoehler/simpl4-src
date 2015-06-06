@@ -8,7 +8,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FormService Bundle
 Bundle-SymbolicName:org.ms123.common.form
 Bundle-ClassPath: .
-Include-Resource: OSGI-INF=src/main/resources/OSGI-INF 
 Include-Resource: =src/main/resources/messages
 Service-Component: *
 -metatype: *
