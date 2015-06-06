@@ -70,50 +70,51 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 	private JSONSerializer m_js = new JSONSerializer();
 	private Map<String, Session> m_sessionCache = new ConcurrentHashMap();
 
-
 	private static final String INTERNAL_CASSANDRA_KEYSPACE = "system";
 	private static final String INTERNAL_CASSANDRA_AUTH_KEYSPACE = "system_auth";
 	private static final String INTERNAL_CASSANDRA_TRACES_KEYSPACE = "system_traces";
 
-	private CassandraDaemon cassandraDaemon;
-
-	private String cassandraConfig;
+	private CassandraDaemon m_cassandraDaemon;
+	private String m_cassandraConfig;
 
 	public CassandraServiceImpl() {
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
-		cassandraConfig = new File(System.getProperty("etc.dir"), "cassandra.yaml").toString();
+		m_cassandraConfig = new File(System.getProperty("etc.dir"), "cassandra.yaml").toString();
 		start();
 	}
 
 	protected void deactivate() throws Exception {
+		info("deactivate:cassandra");
+		stop();
 	}
 
 	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 	}
 
 	public boolean isRunning() {
-		if (cassandraDaemon == null)
+		if (m_cassandraDaemon == null){
 			return false;
-		return (cassandraDaemon.nativeServer != null && cassandraDaemon.nativeServer.isRunning()) || (cassandraDaemon.thriftServer != null && cassandraDaemon.thriftServer.isRunning());
+		}
+		return (m_cassandraDaemon.nativeServer != null && m_cassandraDaemon.nativeServer.isRunning()) || (m_cassandraDaemon.thriftServer != null && m_cassandraDaemon.thriftServer.isRunning());
 	}
 
 	public void start() {
 		info("starting Cassandra in Embedded mode");
-		if (cassandraConfig != null) {
-			System.setProperty("cassandra.config", "file://" + cassandraConfig);
+		if (m_cassandraConfig != null) {
+			System.setProperty("cassandra.config", "file://" + m_cassandraConfig);
 		}
 		System.setProperty("cassandra-foreground", "false");
-		cassandraDaemon = new CassandraDaemon();
+		m_cassandraDaemon = new CassandraDaemon();
 		try {
 			info("initializing cassandra deamon");
-			cassandraDaemon.init(null);
+			m_cassandraDaemon.init(null);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		info("starting cassandra deamon");
-		cassandraDaemon.start();
+		m_cassandraDaemon.start();
 		info("cassandra up and runnign");
 	}
 
@@ -122,11 +123,11 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 		info("cleaning up the Schema keys");
 		Schema.instance.clear();
 		info("stopping cassandra");
-		cassandraDaemon.stop();
+		m_cassandraDaemon.stop();
 		info("destroying the cassandra deamon");
-		cassandraDaemon.destroy();
+		m_cassandraDaemon.destroy();
 		info("cassandra is removed");
-		cassandraDaemon = null;
+		m_cassandraDaemon = null;
 		info("removing MBean");
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		try {
@@ -137,44 +138,20 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 		}
 	}
 
-	public void cleanUp() {
-		if (isRunning()) {
-			//dropKeyspaces();
-		}
-	}
-
-	/*private void dropKeyspaces() {
-		String host = DatabaseDescriptor.getRpcAddress().getHostName();
-		int port = DatabaseDescriptor.getRpcPort();
-		debug("Cleaning cassandra keyspaces on " + host + ":" + port);
-		Cluster cluster = HFactory.getOrCreateCluster("TestCluster", new CassandraHostConfigurator(host + ":" + port));
-		List<KeyspaceDefinition> keyspaces = cluster.describeKeyspaces();
-		for (KeyspaceDefinition keyspaceDefinition : keyspaces) {
-			String keyspaceName = keyspaceDefinition.getName();
-			if (!INTERNAL_CASSANDRA_KEYSPACE.equals(keyspaceName) && !INTERNAL_CASSANDRA_AUTH_KEYSPACE.equals(keyspaceName) && !INTERNAL_CASSANDRA_TRACES_KEYSPACE.equals(keyspaceName)) {
-				cluster.dropKeyspace(keyspaceName);
-			}
-		}
-	}*/
-
-
-	public synchronized Session getSession(String keyspaceName){
+	public synchronized Session getSession(String keyspaceName) {
 		Session session = m_sessionCache.get(keyspaceName);
-		if( session != null){
-			if( !session.isClosed()){
+		if (session != null) {
+			if (!session.isClosed()) {
 				return session;
 			}
 		}
 		Cluster cluster = Cluster.builder().addContactPoint(DatabaseDescriptor.getListenAddress().getHostName()).withPort(DatabaseDescriptor.getNativeTransportPort()).build();
 		KeyspaceMetadata kmd = cluster.getMetadata().getKeyspace(keyspaceName);
-		if (kmd == null) { 
+		if (kmd == null) {
 			session = cluster.connect();
-			
-			String cql = "CREATE KEYSPACE " + keyspaceName
-			+ " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};";
+			String cql = "CREATE KEYSPACE " + keyspaceName + " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};";
 			info(cql + "\n");
 			session.execute(cql);
-			
 			cql = "USE " + keyspaceName + ";";
 			info(cql + "\n");
 			session.execute(cql);
@@ -184,6 +161,4 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 		m_sessionCache.put(keyspaceName, session);
 		return session;
 	}
-
-
 }

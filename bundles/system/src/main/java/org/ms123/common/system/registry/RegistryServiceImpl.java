@@ -23,11 +23,13 @@ import aQute.bnd.annotation.metatype.*;
 import com.datastax.driver.core.Session;
 import com.noorq.casser.core.Casser;
 import com.noorq.casser.core.CasserSession;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.ms123.common.cassandra.CassandraService;
 import org.ms123.common.git.GitService;
@@ -52,6 +54,7 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 
 	private CasserSession m_session;
 	private Registry registry;
+
 	public RegistryServiceImpl() {
 	}
 
@@ -68,6 +71,7 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 	public void update(Map<String, Object> props) {
 		info("RegistryServiceImpl.updated:" + props);
 	}
+
 	protected void deactivate() throws Exception {
 		info("RegistryServiceImpl.deactivate");
 	}
@@ -90,18 +94,17 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 	}
 
 	@RequiresRoles("admin")
-	public void  delete(
+		public void  delete(
 		@PName("key") String key ) throws RpcException {
 		if( m_session == null) initRegistry();
-		String value = m_session.select(registry::value).where(registry::key, eq(key)).sync().findFirst().get()._1;
 		m_session.delete().where(registry::key, eq(key)).sync();
 	}
 
-	private void  initRegistry() {
+	private void initRegistry() {
 		Session session = m_cassandraService.getSession("cassandra");
 		registry = Casser.dsl(Registry.class);
 		m_session = Casser.init(session).showCql().add(registry).autoCreateDrop().get();
-		info("registry:"+registry);
+		info("registry:" + registry);
 	}
 
 	@Reference(dynamic = true, optional = true)
@@ -110,3 +113,4 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 		this.m_cassandraService = cassandraService;
 	}
 }
+
