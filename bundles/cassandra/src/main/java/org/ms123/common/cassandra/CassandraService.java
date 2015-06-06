@@ -21,9 +21,11 @@ package org.ms123.common.cassandra;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.List;
+import com.datastax.driver.core.Session;
 
 public interface CassandraService {
 	public boolean isRunning();
 	public void start();
 	public void stop();
+	public Session getSession(String keyspaceName);
 }

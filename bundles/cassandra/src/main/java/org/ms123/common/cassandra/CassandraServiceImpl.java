@@ -22,23 +22,20 @@ import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.component.Reference;
 import aQute.bnd.annotation.metatype.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.KeyspaceMetadata;
+import com.datastax.driver.core.Session;
+import com.noorq.casser.core.Casser;
 import flexjson.*;
-import java.io.*;
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.*;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
-import javax.management.InstanceNotFoundException;
-import javax.management.MalformedObjectNameException;
-import javax.management.MBeanRegistrationException;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import me.prettyprint.cassandra.service.CassandraHostConfigurator;
-import me.prettyprint.hector.api.Cluster;
-import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
-import me.prettyprint.hector.api.factory.HFactory;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.service.CassandraDaemon;
@@ -57,7 +54,6 @@ import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
@@ -72,6 +68,8 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 
 	private JSONDeserializer m_ds = new JSONDeserializer();
 	private JSONSerializer m_js = new JSONSerializer();
+	private Map<String, Session> m_sessionCache = new ConcurrentHashMap();
+
 
 	private static final String INTERNAL_CASSANDRA_KEYSPACE = "system";
 	private static final String INTERNAL_CASSANDRA_AUTH_KEYSPACE = "system_auth";
@@ -134,30 +132,58 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 		try {
 			mbs.unregisterMBean(new ObjectName("org.apache.cassandra.db:type=DynamicEndpointSnitch"));
 		} catch (Exception e) {
-			//} catch (MBeanRegistrationException | InstanceNotFoundException | MalformedObjectNameException e) {
 			info("Couldn't remove MBean");
+			e.printStackTrace();
 		}
 	}
 
 	public void cleanUp() {
 		if (isRunning()) {
-			dropKeyspaces();
+			//dropKeyspaces();
 		}
 	}
 
-	private void dropKeyspaces() {
+	/*private void dropKeyspaces() {
 		String host = DatabaseDescriptor.getRpcAddress().getHostName();
 		int port = DatabaseDescriptor.getRpcPort();
 		debug("Cleaning cassandra keyspaces on " + host + ":" + port);
 		Cluster cluster = HFactory.getOrCreateCluster("TestCluster", new CassandraHostConfigurator(host + ":" + port));
-		/* get all keyspace */
 		List<KeyspaceDefinition> keyspaces = cluster.describeKeyspaces();
-		/* drop all keyspace except internal cassandra keyspace */
 		for (KeyspaceDefinition keyspaceDefinition : keyspaces) {
 			String keyspaceName = keyspaceDefinition.getName();
 			if (!INTERNAL_CASSANDRA_KEYSPACE.equals(keyspaceName) && !INTERNAL_CASSANDRA_AUTH_KEYSPACE.equals(keyspaceName) && !INTERNAL_CASSANDRA_TRACES_KEYSPACE.equals(keyspaceName)) {
 				cluster.dropKeyspace(keyspaceName);
 			}
 		}
+	}*/
+
+
+	public synchronized Session getSession(String keyspaceName){
+		Session session = m_sessionCache.get(keyspaceName);
+		if( session != null){
+			if( !session.isClosed()){
+				return session;
+			}
+		}
+		Cluster cluster = Cluster.builder().addContactPoint(DatabaseDescriptor.getListenAddress().getHostName()).withPort(DatabaseDescriptor.getNativeTransportPort()).build();
+		KeyspaceMetadata kmd = cluster.getMetadata().getKeyspace(keyspaceName);
+		if (kmd == null) { 
+			session = cluster.connect();
+			
+			String cql = "CREATE KEYSPACE " + keyspaceName
+			+ " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};";
+			info(cql + "\n");
+			session.execute(cql);
+			
+			cql = "USE " + keyspaceName + ";";
+			info(cql + "\n");
+			session.execute(cql);
+		} else {
+			session = cluster.connect(keyspaceName);
+		}
+		m_sessionCache.put(keyspaceName, session);
+		return session;
 	}
+
+
 }
