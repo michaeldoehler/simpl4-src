@@ -36,7 +36,7 @@ import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.hsqldb.jdbc.pool.JDBCXADataSource;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 
 /**
  */

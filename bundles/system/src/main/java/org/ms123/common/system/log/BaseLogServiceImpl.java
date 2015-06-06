@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.system;
+package org.ms123.common.system.log;
 
 import flexjson.*;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import javax.transaction.UserTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.camel.util.IntrospectionSupport;
-import static org.ms123.common.system.LogService.LOG_TIME;
+import static org.ms123.common.system.log.LogService.LOG_TIME;
 
 /**
  *

@@ -425,7 +425,7 @@ public class UtilsServiceImpl implements UtilsService {
 			@PName("params") @POptional Map params) throws RpcException {
 		try {
 			System.out.println("params:" + params);
-			String user = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			String user = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			return executeScript(scriptname, namespace, user, params);
 		} catch (Exception e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "UtilsServiceImpl.executeScript:", e);

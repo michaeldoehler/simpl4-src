@@ -124,7 +124,7 @@ public class TaskScriptExecutor extends TaskBaseExecutor implements JavaDelegate
 		UserTransaction tx = sc.getUserTransaction();
 		Object ret = null;
 		try {
-			log(tc, "transaction.status:" + tx.getStatus() + "/" + org.ms123.common.system.ThreadContext.getThreadContext());
+			log(tc, "transaction.status:" + tx.getStatus() + "/" + org.ms123.common.system.thread.ThreadContext.getThreadContext());
 			ret = dsl.eval(tc.getScript());
 			log(tc, "TaskScriptExecutor.gvars:" + m_js.deepSerialize(gvars));
 			tc.getExecution().setVariables(gvars);

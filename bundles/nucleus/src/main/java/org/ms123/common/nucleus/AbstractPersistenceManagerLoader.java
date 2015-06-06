@@ -36,7 +36,7 @@ import org.ms123.common.libhelper.ClassLoaderWrapper;
 import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import javax.jdo.spi.*;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 
 /**
  */

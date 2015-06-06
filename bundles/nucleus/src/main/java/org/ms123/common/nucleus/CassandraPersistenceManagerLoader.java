@@ -37,7 +37,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import org.datanucleus.PersistenceNucleusContext;

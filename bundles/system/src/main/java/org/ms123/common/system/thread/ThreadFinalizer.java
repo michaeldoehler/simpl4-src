@@ -16,24 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.system;
+package org.ms123.common.system.thread;
 
-import javax.transaction.UserTransaction;
-import javax.transaction.TransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
+public interface ThreadFinalizer {
 
-public interface TransactionService {
-
-	public UserTransaction getUserTransaction();
-
-	public TransactionManager getTransactionManager();
-
-	public PlatformTransactionManager getPlatformTransactionManager();
-
-	public String getJtaLocator();
-
-	public TransactionTemplate getTransactionTemplate();
-
-	public TransactionTemplate getTransactionTemplate(boolean propagation_requires_new);
+	public void finalize(Throwable t);
 }

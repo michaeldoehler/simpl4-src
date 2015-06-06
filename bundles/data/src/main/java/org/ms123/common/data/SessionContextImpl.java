@@ -632,8 +632,8 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 	public Object getProperty(String key){
 		return m_propertyMap.get(key);
 	}
-	private org.ms123.common.system.ThreadContext getThreadContext() {
-		return org.ms123.common.system.ThreadContext.getThreadContext();
+	private org.ms123.common.system.thread.ThreadContext getThreadContext() {
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext();
 	}
 	protected static void debug(String message) {
 		m_logger.debug(message);

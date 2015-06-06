@@ -233,7 +233,7 @@ public class DataServiceImpl implements DataService, JavaDelegate {
 			}
 			m_logger.info("format:" + format);
 			if (format != null && (format.equals("csv") || format.equals("pdf") || format.equals("xls") || format.equals("html"))) {
-				String user = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+				String user = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 				String tmpFile = createDownloadFile((List) ret.get("rows"), sdesc, entity, format, options, fields, aliases, user);
 				Map tmpRet = new HashMap();
 				tmpRet.put("tmpFile", tmpFile);

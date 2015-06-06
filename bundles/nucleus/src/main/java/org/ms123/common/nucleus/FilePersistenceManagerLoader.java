@@ -33,7 +33,7 @@ import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import javax.jdo.spi.*;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 
 /**
  */

@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 import org.ms123.common.permission.api.PermissionService;
 import static org.apache.commons.beanutils.PropertyUtils.getProperty;
 import static org.apache.commons.beanutils.PropertyUtils.setProperty;

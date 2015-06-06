@@ -39,10 +39,10 @@ import org.osgi.service.event.EventAdmin;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import flexjson.*;
-import static org.ms123.common.system.LogService.LOG_MSG;
-import static org.ms123.common.system.LogService.LOG_KEY;
-import static org.ms123.common.system.LogService.LOG_TYPE;
-import static org.ms123.common.system.LogService.LOG_HINT;
+import static org.ms123.common.system.log.LogService.LOG_MSG;
+import static org.ms123.common.system.log.LogService.LOG_KEY;
+import static org.ms123.common.system.log.LogService.LOG_TYPE;
+import static org.ms123.common.system.log.LogService.LOG_HINT;
 import static org.apache.camel.util.StringHelper.xmlEncode;
 import javax.xml.namespace.QName;
 

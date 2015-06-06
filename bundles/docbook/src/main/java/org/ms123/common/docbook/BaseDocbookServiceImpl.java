@@ -142,8 +142,8 @@ class BaseDocbookServiceImpl {
 		String json = m_gitService.searchContent(namespace, name, "sw.website");
 		WebsiteBuilder hb = new WebsiteBuilder(m_dataLayer, m_bc);
 		
-		String userAgent = org.ms123.common.system.ThreadContext.getThreadContext().getUserAgent().toString().toLowerCase();
-		String sua = org.ms123.common.system.ThreadContext.getThreadContext().getStringUserAgent().toLowerCase();
+		String userAgent = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserAgent().toString().toLowerCase();
+		String sua = org.ms123.common.system.thread.ThreadContext.getThreadContext().getStringUserAgent().toLowerCase();
 		System.out.println("userAgent:"+userAgent+"/sua:"+sua+"/uri:"+uri);
 		if( userAgent.indexOf("bot") != -1 
 				|| userAgent.indexOf("crawler") != -1

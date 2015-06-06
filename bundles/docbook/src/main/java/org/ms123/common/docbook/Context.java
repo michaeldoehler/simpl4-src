@@ -60,7 +60,7 @@ public	class Context {
 		this.namespace = namespace;
 		this.isStartpage = isStartpage;
 		this.pageName = pageName;
-		this.userAgent = org.ms123.common.system.ThreadContext.getThreadContext().getUserAgent();
+		this.userAgent = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserAgent();
 		System.out.println("UserAgent:" + userAgent);
 		Version browserVersion = userAgent.getBrowserVersion();
 		String browserName = userAgent.getBrowser().toString().toLowerCase();

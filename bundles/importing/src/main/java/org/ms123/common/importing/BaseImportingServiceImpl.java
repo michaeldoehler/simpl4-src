@@ -421,7 +421,7 @@ public class BaseImportingServiceImpl implements Constants {
 		}
 	}
 	protected String getUserName() {
-		return org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 	}
 	private CSVParse getCSVParser(InputStream is, Map options) {
 		char delimeter = ',';

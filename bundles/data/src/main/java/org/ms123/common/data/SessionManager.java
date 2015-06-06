@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
-public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
+public class SessionManager implements org.ms123.common.system.thread.ThreadFinalizer{
 
 	private NucleusService m_nucleusService;
 	private Map m_userProperties;
@@ -140,8 +140,8 @@ public class SessionManager implements org.ms123.common.system.ThreadFinalizer{
 	protected void  setPermittedFieldsMap(String entityName, Map<String,Object> map){
 		m_permittedFieldsMap.put(entityName,map);
 	}
-	private org.ms123.common.system.ThreadContext getThreadContext() {
-		return org.ms123.common.system.ThreadContext.getThreadContext();
+	private org.ms123.common.system.thread.ThreadContext getThreadContext() {
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext();
 	}
 	protected void info(String message) {
 		m_logger.info(message);

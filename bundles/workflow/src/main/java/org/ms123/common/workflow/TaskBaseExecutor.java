@@ -36,7 +36,7 @@ import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.docbook.DocbookService;
 import org.ms123.common.git.GitService;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.activiti.engine.RepositoryService;

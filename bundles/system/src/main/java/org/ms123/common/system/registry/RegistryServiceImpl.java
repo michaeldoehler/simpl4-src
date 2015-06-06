@@ -55,6 +55,8 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 	private CasserSession m_session;
 	private Registry registry;
 
+	private String GLOBAL_KEYSPACE = "global";
+
 	public RegistryServiceImpl() {
 	}
 
@@ -101,7 +103,7 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 	}
 
 	private void initRegistry() {
-		Session session = m_cassandraService.getSession("cassandra");
+		Session session = m_cassandraService.getSession(GLOBAL_KEYSPACE);
 		registry = Casser.dsl(Registry.class);
 		m_session = Casser.init(session).showCql().add(registry).autoCreateDrop().get();
 		info("registry:" + registry);

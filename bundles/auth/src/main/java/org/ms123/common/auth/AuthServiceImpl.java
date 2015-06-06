@@ -310,7 +310,7 @@ public class AuthServiceImpl implements org.ms123.common.auth.api.AuthService, C
 		try {
 			String userid=null;
 			try {
-				userid = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+				userid = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			} catch (Exception e) {
 				throw new RuntimeException("No userid");
 			}

@@ -37,7 +37,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Endpoint;
 import org.apache.camel.util.ExchangeHelper;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 import org.ms123.common.git.GitService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.store.StoreDesc;
@@ -191,8 +191,8 @@ abstract class BaseCallServiceImpl {
 		String id = ((String) properties.get(OVERRIDEID));
 		return id;
 	}
-	private org.ms123.common.system.ThreadContext getThreadContext() {
-		return org.ms123.common.system.ThreadContext.getThreadContext();
+	private org.ms123.common.system.thread.ThreadContext getThreadContext() {
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext();
 	}
 
 	protected String getNamespace(Object params) {

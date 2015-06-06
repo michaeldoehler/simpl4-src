@@ -38,7 +38,7 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import org.ms123.common.activiti.ActivitiService;
 import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 
 @SuppressWarnings("unchecked")
 public class SWMessageHandlerFactory implements MessageHandlerFactory {

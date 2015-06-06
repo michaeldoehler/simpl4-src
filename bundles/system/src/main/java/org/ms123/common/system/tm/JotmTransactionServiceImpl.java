@@ -28,7 +28,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.TransactionDefinition;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 
 /**
  *

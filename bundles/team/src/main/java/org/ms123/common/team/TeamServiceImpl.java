@@ -240,7 +240,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 			@PName(TEAM_ID)            String teamid, 
 			@PName("entityNameList")   List<String> entityNameList) throws RpcException {
 		try {
-			String user = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			String user = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			return teamUsage(namespace, teamid, entityNameList, user);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.teamUsage:", e);
@@ -252,7 +252,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 			@PName(StoreDesc.NAMESPACE) String namespace, 
 			@PName("entityName")   String entityName) throws RpcException {
 		try {
-			String user = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			String user = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			return expiredTeams(namespace, entityName, user);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "TeamService.expiredTeams:", e);
@@ -267,7 +267,7 @@ public class TeamServiceImpl extends BaseTeamServiceImpl implements org.ms123.co
 			StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 			SessionContext sessionContext = m_dataLayer.getSessionContext(sdesc);
 			if (!sessionContext.hasAdminRole() ) {
-				String user = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+				String user = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 				if( !userid.equals(user)){
 					throw new RuntimeException("no permittedUser");
 				}

@@ -41,7 +41,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 /**

@@ -84,7 +84,7 @@ public class StartProcessInstanceResource extends BaseResource {
 			} else {
 				variables = new HashMap();
 			}
-			uid = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			uid = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			getPE().getIdentityService().setAuthenticatedUserId(uid);
 			System.out.println("StartProcessInstanceResource:");
 			System.out.println("\tm_processDefinitionId:" + m_processDefinitionId);

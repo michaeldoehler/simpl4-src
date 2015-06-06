@@ -53,7 +53,7 @@ public class TaskOperationResource extends BaseResource {
 
 	public Map executeTaskOperation() {
 		if ("claim".equals(m_operation)) {
-			String userId = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			String userId = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			getPE().getTaskService().claim(m_taskId, userId);
 		} else if ("unclaim".equals(m_operation)) {
 			getPE().getTaskService().claim(m_taskId, null);
@@ -127,7 +127,7 @@ public class TaskOperationResource extends BaseResource {
 
 			getPE().getTaskService().complete(m_taskId, newVariables);
 		} else if ("assign".equals(m_operation)) {
-			String userId = org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+			String userId = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 			getPE().getTaskService().setAssignee(m_taskId, userId);
 		} else {
 			throw new RuntimeException("'" + m_operation + "' is not a valid operation");

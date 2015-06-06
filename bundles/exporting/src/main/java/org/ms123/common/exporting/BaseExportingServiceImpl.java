@@ -189,6 +189,6 @@ public class BaseExportingServiceImpl implements Constants {
 	}
 
 	protected String getUserName() {
-		return org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 	}
 }

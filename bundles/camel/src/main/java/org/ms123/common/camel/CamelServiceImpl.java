@@ -43,7 +43,7 @@ import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.camel.api.CamelService;
-import org.ms123.common.system.LogService;
+import org.ms123.common.system.log.LogService;
 import org.ms123.common.utils.Inflector;
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;

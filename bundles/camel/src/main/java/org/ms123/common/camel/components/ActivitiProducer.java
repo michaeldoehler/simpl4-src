@@ -30,7 +30,7 @@ import org.apache.camel.impl.DefaultProducer;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.workflow.api.WorkflowService;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 import java.util.Map;
 import java.util.HashMap;
 import flexjson.*;
@@ -38,10 +38,10 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import static org.ms123.common.system.LogService.LOG_MSG;
-import static org.ms123.common.system.LogService.LOG_KEY;
-import static org.ms123.common.system.LogService.LOG_TYPE;
-import static org.ms123.common.system.LogService.LOG_HINT;
+import static org.ms123.common.system.log.LogService.LOG_MSG;
+import static org.ms123.common.system.log.LogService.LOG_KEY;
+import static org.ms123.common.system.log.LogService.LOG_TYPE;
+import static org.ms123.common.system.log.LogService.LOG_HINT;
 
 @SuppressWarnings("unchecked")
 public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {

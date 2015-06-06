@@ -37,7 +37,7 @@ import org.ms123.common.git.GitService;
 import org.ms123.common.git.FileHolderApi;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.LogService;
+import org.ms123.common.system.log.LogService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
@@ -87,11 +87,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.camel.jsonconverter.CamelRouteJsonConverter;
 import static org.ms123.common.permission.api.PermissionService.PERMISSION_SERVICE;
-import static org.ms123.common.system.LogService.LOG_MSG;
-import static org.ms123.common.system.LogService.LOG_KEY;
-import static org.ms123.common.system.LogService.LOG_TYPE;
-import static org.ms123.common.system.LogService.LOG_HINT;
-import static org.ms123.common.system.LogService.LOG_TIME;
+import static org.ms123.common.system.log.LogService.LOG_MSG;
+import static org.ms123.common.system.log.LogService.LOG_KEY;
+import static org.ms123.common.system.log.LogService.LOG_TYPE;
+import static org.ms123.common.system.log.LogService.LOG_HINT;
+import static org.ms123.common.system.log.LogService.LOG_TIME;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 /**

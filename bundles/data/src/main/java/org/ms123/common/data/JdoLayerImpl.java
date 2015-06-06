@@ -82,7 +82,7 @@ import org.ms123.common.nucleus.api.NucleusService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.team.api.TeamService;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.libhelper.Inflector;
 import org.ms123.common.utils.IOUtils;

@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.sql.Timestamp;
 import com.Ostermiller.util.*;
 import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.system.ThreadContext;
+import org.ms123.common.system.thread.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

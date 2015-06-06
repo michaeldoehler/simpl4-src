@@ -95,6 +95,6 @@ class GitMetaDataImpl implements MetaData {
 	}
 
 	public String getUserName() {
-		return org.ms123.common.system.ThreadContext.getThreadContext().getUserName();
+		return org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
 	}
 }

@@ -32,7 +32,7 @@ import javax.jdo.Transaction;
 import org.datanucleus.store.rdbms.datasource.dbcp.managed.*;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.TransactionService;
+import org.ms123.common.system.tm.TransactionService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.postgresql.ds.PGPoolingDataSource;

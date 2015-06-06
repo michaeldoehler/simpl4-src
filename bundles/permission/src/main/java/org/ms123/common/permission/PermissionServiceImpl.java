@@ -93,7 +93,7 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 	}
 	public boolean loginInternal(String namespace, String username,String password) {
 		SimpleAccount sa = new SimpleAccount(username, password, namespace);
-		org.ms123.common.system.ThreadContext.loadThreadContext(namespace,username);	
+		org.ms123.common.system.thread.ThreadContext.loadThreadContext(namespace,username);	
 		sa.addRole("admin");
 		MyRealm realm = new MyRealm();
 		realm.add(sa);
@@ -132,9 +132,9 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 	}
 
 	public boolean login(String namespace, String username, String password) {
-		info("PermissionServiceImpl:login:" + username + "/" + password + "/namespace:" + namespace+"/RC:"+org.ms123.common.system.ThreadContext.getThreadContext());
-		if( org.ms123.common.system.ThreadContext.getThreadContext() == null ){
-			org.ms123.common.system.ThreadContext.loadThreadContext(namespace,username);	
+		info("PermissionServiceImpl:login:" + username + "/" + password + "/namespace:" + namespace+"/RC:"+org.ms123.common.system.thread.ThreadContext.getThreadContext());
+		if( org.ms123.common.system.thread.ThreadContext.getThreadContext() == null ){
+			org.ms123.common.system.thread.ThreadContext.loadThreadContext(namespace,username);	
 		}
 		Map userProps = null;
 		try {
