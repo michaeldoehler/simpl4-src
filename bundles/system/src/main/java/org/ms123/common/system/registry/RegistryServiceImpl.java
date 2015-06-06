@@ -37,6 +37,8 @@ import org.ms123.common.rpc.RpcException;
 import org.ms123.common.store.StoreDesc;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import static com.noorq.casser.core.Query.eq;
+
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
@@ -48,6 +50,8 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 @Component(enabled = true, configurationPolicy = ConfigurationPolicy.optional, immediate = true, properties = { "rpc.prefix=registry" })
 public class RegistryServiceImpl extends BaseRegistryServiceImpl implements RegistryService {
 
+	private CasserSession m_session;
+	private Registry registry;
 	public RegistryServiceImpl() {
 	}
 
@@ -64,40 +68,45 @@ public class RegistryServiceImpl extends BaseRegistryServiceImpl implements Regi
 	public void update(Map<String, Object> props) {
 		info("RegistryServiceImpl.updated:" + props);
 	}
-	public void unbind(Map<String, Object> props) {
-		info("RegistryServiceImpl.updated:" + props);
-	}
-
 	protected void deactivate() throws Exception {
 		info("RegistryServiceImpl.deactivate");
 	}
 
-	public void unbind() {
+	@RequiresRoles("admin")
+	public void  upsert(
+		@PName("key") String key, 
+		@PName("value") String value) throws RpcException {
+		if( m_session == null) initRegistry();
+		m_session.upsert() .value(registry::key, key) .value(registry::value, value) .sync();
 	}
 
 	@RequiresRoles("admin")
-	public void  createRegistry() throws RpcException {
-		try {
-			Registry registry = Casser.dsl(Registry.class);
-			Session session = m_cassandraService.getSession("cassandra");
-			CasserSession casserSession = Casser.init(session).showCql().add(registry).autoCreateDrop().get();
-			info("registry:"+registry);
-			casserSession.insert()
-				.value(registry::key, "testkey1")
-				.value(registry::value, "testvalue1")
-				.sync();
-		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "RegistryServiceImpl.registry:",e);
-		}
+	public String  get(
+		@PName("key") String key ) throws RpcException {
+		if( m_session == null) initRegistry();
+		String value = m_session.select(registry::value).where(registry::key, eq(key)).sync().findFirst().get()._1;
+		info("get.value("+key+"):"+value);
+		return value;
 	}
 
-	@Reference(dynamic = true, unbind="unbind", optional = true)
+	@RequiresRoles("admin")
+	public void  delete(
+		@PName("key") String key ) throws RpcException {
+		if( m_session == null) initRegistry();
+		String value = m_session.select(registry::value).where(registry::key, eq(key)).sync().findFirst().get()._1;
+		m_session.delete().where(registry::key, eq(key)).sync();
+	}
+
+	private void  initRegistry() {
+		Session session = m_cassandraService.getSession("cassandra");
+		registry = Casser.dsl(Registry.class);
+		m_session = Casser.init(session).showCql().add(registry).autoCreateDrop().get();
+		info("registry:"+registry);
+	}
+
+	@Reference(dynamic = true, optional = true)
 	public void setCassandraService(CassandraService cassandraService) {
 		System.out.println("RegistryServiceImpl.setCassandraService:" + cassandraService);
 		this.m_cassandraService = cassandraService;
-	}
-	@Reference(dynamic = true, unbind="unbind", optional = true)
-	public void setGitService(GitService gitService) {
-		System.out.println("RegistryServiceImpl.setGitService:" + gitService);
 	}
 }

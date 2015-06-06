@@ -22,4 +22,7 @@ import java.util.Map;
 import org.ms123.common.rpc.RpcException;
 
 public interface RegistryService {
+	public void  upsert(String key, String value) throws RpcException;
+	public String  get(String key) throws RpcException;
+	public void  delete(String key) throws RpcException;
 }

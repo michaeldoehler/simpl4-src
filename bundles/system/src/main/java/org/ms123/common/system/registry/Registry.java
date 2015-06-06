@@ -29,12 +29,8 @@ import com.noorq.casser.mapping.annotation.Index;
 public interface Registry {
 
 	@PartitionKey
-	UUID id();
-	
-	@Column(ordinal=0)
-	@Index
 	String key();
 	
-	@Column(ordinal=1)
+	@Column
 	String value();
 }
