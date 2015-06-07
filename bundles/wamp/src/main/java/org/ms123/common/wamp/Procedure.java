@@ -28,12 +28,14 @@ public class Procedure {
 
 		final String procName;
 		final WampServiceImpl.WebSocket provider;
+		final WampRouterSession.SessionContext context;
 		final long registrationId;
 		final List<Invocation> pendingCalls = new ArrayList<Invocation>();
 
-		public Procedure(String name, WampServiceImpl.WebSocket provider, long registrationId) {
+		public Procedure(String name, WampRouterSession.SessionContext context, long registrationId) {
 			this.procName = name;
-			this.provider = provider;
+			this.context = context;
+			this.provider = context.webSocket;
 			this.registrationId = registrationId;
 		}
 

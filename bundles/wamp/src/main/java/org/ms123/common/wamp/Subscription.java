@@ -28,14 +28,14 @@ public class Subscription {
 		final SubscriptionFlags flags;
 		final String components[]; // non-null only for wildcard type
 		final long subscriptionId;
-		final Set<WampServiceImpl.WebSocket> subscribers;
+		final Set<WampRouterSession.SessionContext> subscribers;
 
 		public Subscription(String topic, SubscriptionFlags flags, long subscriptionId) {
 			this.topic = topic;
 			this.flags = flags;
 			this.components = flags == SubscriptionFlags.Wildcard ? topic.split("\\.", -1) : null;
 			this.subscriptionId = subscriptionId;
-			this.subscribers = new HashSet<WampServiceImpl.WebSocket>();
+			this.subscribers = new HashSet<WampRouterSession.SessionContext>();
 		}
 
 }

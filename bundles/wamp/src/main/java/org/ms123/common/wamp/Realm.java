@@ -36,8 +36,7 @@ public class Realm {
 	final Map<String, Procedure> procedures = new HashMap<String, Procedure>();
 
 	// Fields that are used for implementing subscription functionality
-	final EnumMap<SubscriptionFlags, Map<String, Subscription>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, Map<String, Subscription>>(
-			SubscriptionFlags.class);
+	final EnumMap<SubscriptionFlags, Map<String, Subscription>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, Map<String, Subscription>>( SubscriptionFlags.class);
 	final Map<Long, Subscription> subscriptionsById = new HashMap<Long, Subscription>();
 	long lastUsedSubscriptionId = IdValidator.MIN_VALID_ID;
 
@@ -101,6 +100,7 @@ public class Realm {
 		if (removeFromList) {
 			m_contextList.remove(sessionContext);
 		}
+		System.out.println("Realm.Contextlist:"+m_contextList);
 	}
 }
 

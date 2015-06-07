@@ -33,7 +33,6 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.ms123.common.permission.api.PermissionException;
 import org.ms123.common.permission.api.PermissionService;
-import org.ms123.common.system.registry.RegistryService;
 import org.ms123.common.rpc.PDefaultBool;
 import org.ms123.common.rpc.PDefaultFloat;
 import org.ms123.common.rpc.PDefaultInt;
@@ -42,6 +41,8 @@ import org.ms123.common.rpc.PDefaultString;
 import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
+import org.ms123.common.system.registry.RegistryService;
+import org.ms123.common.wamp.WampMessages.GoodbyeMessage;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +78,17 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	}
 
 	protected void deactivate() throws Exception {
+		for( Realm realm : m_realms.values()){
+			info("deactivate:"+realm);
+			for (WampRouterSession.SessionContext context : realm.m_contextList) {
+				info("\t.context:"+context);
+				realm.removeSession(context, false);
+				String goodbye = WampDecode.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
+				info("\t.sendStringByFuture:"+goodbye);
+				context.webSocket.sendStringByFuture(goodbye);
+			}
+			realm.m_contextList.clear();
+		}
 	}
 
 	public RegistryService getRegistryService(){
