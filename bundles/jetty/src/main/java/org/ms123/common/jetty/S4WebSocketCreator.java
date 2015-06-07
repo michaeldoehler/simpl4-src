@@ -173,7 +173,12 @@ public class S4WebSocketCreator implements WebSocketCreator {
 				socket = getWebSocket(getServiceClassName(serviceName), parameterMap);
 			}
 			System.out.println("createWebSocket:" + socket);
-resp.setAcceptedSubProtocol("wamp.2.json");
+			List<String> subProtos = 			req.getSubProtocols();	
+			System.out.println("createWebSocket:subProtos" + subProtos);
+			System.out.println("createWebSocket:hasSubProtocol" + req.hasSubProtocol("wamp.2.json"));
+			if( req.hasSubProtocol("wamp.2.json") ){
+				resp.setAcceptedSubProtocol("wamp.2.json");
+			}
 			return socket;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -43,11 +43,11 @@ public class WampDecode {
 		return recvdMessage;
 	}
 
-	public static String encode(WampMessage msg) throws Exception {
+	public static String encode(WampMessage msg) {
 		return encode(msg, WampSerialization.getJson());
 	}
 
-	public static String encode(WampMessage msg, WampSerialization serialization) throws Exception {
+	public static String encode(WampMessage msg, WampSerialization serialization) {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		ObjectMapper objectMapper = serialization.getObjectMapper();
 		try {
@@ -58,15 +58,25 @@ public class WampDecode {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			outStream.close();
+			try{
+				outStream.close();
+			}catch(Exception ee){
+				ee.printStackTrace();
+			}
 			return null;
 		}
 
 		if (serialization.isText()) {
 		} else {
 		}
-		String s = outStream.toString("UTF-8");
-		return s;
+		try{
+			outStream.close();
+			String s = outStream.toString("UTF-8");
+			return s;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException("WampDecode.encode:", e);
+		}
 	}
 
 	protected static void debug(String msg) {

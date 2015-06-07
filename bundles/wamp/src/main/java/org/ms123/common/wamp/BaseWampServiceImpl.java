@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.io.OutputStream;
 import java.io.InputStream;
-import org.ms123.common.nucleus.api.NucleusService;
+import org.ms123.common.system.registry.RegistryService;
 import org.ms123.common.permission.api.PermissionService;
 import flexjson.*;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 class BaseWampServiceImpl {
 
 	protected PermissionService m_permissionService;
-	protected NucleusService m_nucleusService;
+	protected RegistryService m_registryService;
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 	protected JSONSerializer m_js = new JSONSerializer();
 

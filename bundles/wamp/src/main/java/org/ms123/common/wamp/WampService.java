@@ -22,7 +22,9 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.List;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.ms123.common.system.registry.RegistryService;
 
 public interface WampService {
 	public WebSocketListener createWebSocket(Map<String,Object> config,Map<String,String> parameterMap);
+	public RegistryService getRegistryService();
 }

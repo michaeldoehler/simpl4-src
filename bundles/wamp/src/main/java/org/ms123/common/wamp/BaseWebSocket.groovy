@@ -39,6 +39,14 @@ public class BaseWebSocket implements WebSocketListener {
 		return m_session;
 	}
 
+	public void sendStringByFuture(String msg) {
+		getSession().getRemote().sendStringByFuture(msg);
+	}
+
+	public void sendString(String msg) {
+		getSession().getRemote().sendString(msg);
+	}
+
 	public boolean isConnected() {
 		Session sess = this.m_session;
 		return (sess != null) && (sess.isOpen());

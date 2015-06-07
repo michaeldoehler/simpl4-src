@@ -18,14 +18,22 @@
  */
 package org.ms123.common.wamp;
 
-import aQute.bnd.annotation.component.Reference;
 import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.ConfigurationPolicy;
+import aQute.bnd.annotation.component.Reference;
 import aQute.bnd.annotation.metatype.*;
+import flexjson.*;
 import java.io.*;
 import java.util.*;
+import java.util.Map;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.eclipse.jetty.websocket.api.CloseStatus;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.ms123.common.permission.api.PermissionException;
+import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.system.registry.RegistryService;
 import org.ms123.common.rpc.PDefaultBool;
 import org.ms123.common.rpc.PDefaultFloat;
 import org.ms123.common.rpc.PDefaultInt;
@@ -34,24 +42,17 @@ import org.ms123.common.rpc.PDefaultString;
 import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
-import org.ms123.common.permission.api.PermissionException;
-import org.ms123.common.permission.api.PermissionService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.Observable;
+//import rx.Subscription;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
-import flexjson.*;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.CloseStatus;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import java.util.Map;
-import rx.Observable;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 /** WampService implementation
  */
@@ -62,14 +63,24 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampServiceImpl.class);
 	private JSONDeserializer m_ds = new JSONDeserializer();
 	private JSONSerializer m_js = new JSONSerializer();
+	private Map<String, Realm> m_realms;
 
 	public WampServiceImpl() {
+		m_realms = new HashMap();		
+		Set<WampRoles> roles = new HashSet();		
+		roles.add( WampRoles.Broker);
+		RealmConfig realmConfig = new RealmConfig(roles, false);
+		m_realms.put("realm1", new Realm( realmConfig));
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 	}
 
 	protected void deactivate() throws Exception {
+	}
+
+	public RegistryService getRegistryService(){
+		return m_registryService;
 	}
 
 	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
@@ -88,40 +99,40 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
-			m_wampRouterSession = new WampRouterSession(WampServiceImpl.this, this);
+			m_wampRouterSession = new WampRouterSession(WampServiceImpl.this, this, m_realms);
 		}
 
 		@Override
 		public void onWebSocketConnect(Session sess) {
 			super.onWebSocketConnect(sess);
-			m_wampRouterSession.wsConnect(sess);
+			m_wampRouterSession.onWebSocketConnect(sess);
 		}
 
 		@Override
 		public void onWebSocketText(String message) {
-			m_wampRouterSession.wsMessage(message);
+			m_wampRouterSession.onWebSocketText(message);
 		}
 		@Override
 		public void onWebSocketBinary(byte[] payload, int offset, int len) {
-			m_wampRouterSession.wsBinaryMessage(payload, offset, len);
+			m_wampRouterSession.onWebSocketBinary(payload, offset, len);
 		}
 
 		@Override
 		public void onWebSocketClose(int statusCode, String reason) {
 			super.onWebSocketClose(statusCode, reason);
-			m_wampRouterSession.wsClose(statusCode, reason);
+			m_wampRouterSession.onWebSocketClose(statusCode, reason);
 		}
 
 		@Override
 		public void onWebSocketError(Throwable cause) {
-			m_wampRouterSession.wsError(cause);
+			m_wampRouterSession.onWebSocketError(cause);
 		}
 
 	}
 
-	//@Reference(dynamic = true, optional = true)
-	//public void setCamelService(CamelService paramService) {
-		//this.m_camelService = paramService;
-		//info("WampServiceImpl.setCamelService:" + paramService);
-	//}
+	@Reference(dynamic = true, optional = true)
+	public void setRegistryService(RegistryService paramService) {
+		this.m_registryService = paramService;
+		info("WampServiceImpl.setRegistryService:" + paramService);
+	}
 }
