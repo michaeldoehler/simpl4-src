@@ -18,6 +18,9 @@
  */
 package org.ms123.common.wamp;
 
+import flexjson.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,11 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.io.OutputStream;
-import java.io.InputStream;
-import org.ms123.common.system.registry.RegistryService;
 import org.ms123.common.permission.api.PermissionService;
-import flexjson.*;
+import org.ms123.common.system.registry.RegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 class BaseWampServiceImpl {
 
-	protected PermissionService m_permissionService;
 	protected RegistryService m_registryService;
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 	protected JSONSerializer m_js = new JSONSerializer();

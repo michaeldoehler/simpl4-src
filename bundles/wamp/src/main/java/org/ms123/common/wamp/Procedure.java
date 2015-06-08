@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class Procedure {
 
 		final String procName;
-		final WampServiceImpl.WebSocket provider;
+		final BaseWebSocket provider;
 		final WampRouterSession.SessionContext context;
 		final long registrationId;
 		final List<Invocation> pendingCalls = new ArrayList<Invocation>();
@@ -35,7 +35,11 @@ public class Procedure {
 		public Procedure(String name, WampRouterSession.SessionContext context, long registrationId) {
 			this.procName = name;
 			this.context = context;
-			this.provider = context.webSocket;
+			if( this.context != null){
+				this.provider = this.context.webSocket;
+			}else{
+				this.provider = null;
+			}
 			this.registrationId = registrationId;
 		}
 

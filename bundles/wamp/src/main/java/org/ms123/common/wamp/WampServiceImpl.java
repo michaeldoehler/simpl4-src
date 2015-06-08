@@ -21,18 +21,21 @@ package org.ms123.common.wamp;
 import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.component.Reference;
-import aQute.bnd.annotation.metatype.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import flexjson.*;
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.eclipse.jetty.websocket.api.CloseStatus;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.ms123.common.permission.api.PermissionException;
-import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.rpc.PDefaultBool;
 import org.ms123.common.rpc.PDefaultFloat;
 import org.ms123.common.rpc.PDefaultInt;
@@ -43,13 +46,20 @@ import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
 import org.ms123.common.system.registry.RegistryService;
 import org.ms123.common.wamp.WampMessages.GoodbyeMessage;
+import org.ms123.common.wamp.WampMessages.HelloMessage;
+import org.ms123.common.wamp.WampMessages.InvocationMessage;
+import org.ms123.common.wamp.WampMessages.RegisteredMessage;
+import org.ms123.common.wamp.WampMessages.RegisterMessage;
+import org.ms123.common.wamp.WampMessages.WampMessage;
+import org.ms123.common.wamp.WampMessages.ResultMessage;
+import org.ms123.common.wamp.WampMessages.YieldMessage;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.Observable;
-//import rx.Subscription;
+import rx.Subscription;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
@@ -62,36 +72,90 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 public class WampServiceImpl extends BaseWampServiceImpl implements WampService {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampServiceImpl.class);
+
 	private JSONDeserializer m_ds = new JSONDeserializer();
 	private JSONSerializer m_js = new JSONSerializer();
+
 	private Map<String, Realm> m_realms;
+	private String DEFAULT_REALM = "realm1";
+
+	private List<String> m_registeredMethodList = new ArrayList();
+	private Map<Long, Procedure> m_registeredMethodMap = new HashMap();
+
+	private WampRouterSession m_localWampRouterSession;
+	private ObjectMapper m_objectMapper = new ObjectMapper();
 
 	public WampServiceImpl() {
-		m_realms = new HashMap();		
-		Set<WampRoles> roles = new HashSet();		
-		roles.add( WampRoles.Broker);
+		m_realms = new HashMap();
+		Set<WampRoles> roles = new HashSet();
+		roles.add(WampRoles.Broker);
 		RealmConfig realmConfig = new RealmConfig(roles, false);
-		m_realms.put("realm1", new Realm( realmConfig));
+		m_realms.put(DEFAULT_REALM, new Realm(realmConfig));
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 	}
 
 	protected void deactivate() throws Exception {
-		for( Realm realm : m_realms.values()){
-			info("deactivate:"+realm);
+		for (Realm realm : m_realms.values()) {
 			for (WampRouterSession.SessionContext context : realm.m_contextList) {
-				info("\t.context:"+context);
 				realm.removeSession(context, false);
 				String goodbye = WampDecode.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
-				info("\t.sendStringByFuture:"+goodbye);
 				context.webSocket.sendStringByFuture(goodbye);
 			}
 			realm.m_contextList.clear();
 		}
 	}
 
-	public RegistryService getRegistryService(){
+	public void registerMethods() throws RpcException {
+		List<String> methodList = new ArrayList();
+		methodList.add("service1.meth1");
+		if (m_localWampRouterSession == null) {
+			BaseWebSocket dummyWS = new BaseWebSocket() {
+
+				public void sendStringByFuture(String message) {
+					WampMessage msg = WampDecode.decode(message.getBytes());
+					info("Local.sendStringByFuture:" + msg);
+					if (msg instanceof RegisteredMessage) {
+						RegisteredMessage regMsg = (RegisteredMessage) msg;
+						Procedure proc = new Procedure(m_registeredMethodList.get((int) regMsg.requestId), null, regMsg.registrationId);
+						m_registeredMethodMap.put(regMsg.registrationId, proc);
+					} else if (msg instanceof InvocationMessage) {
+						InvocationMessage invMsg = (InvocationMessage) msg;
+						Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
+						info("Invocation:" + proc.procName + "/" + invMsg.arguments);
+						JsonNode result = handleInvocation(proc.procName,invMsg.arguments);
+						ArrayNode resultNode = m_objectMapper.createArrayNode();
+						resultNode.add(result);
+						String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
+						m_localWampRouterSession.onWebSocketText(yield);
+					}
+				}
+			};
+			m_localWampRouterSession = new WampRouterSession(this, dummyWS, m_realms);
+			m_localWampRouterSession.onWebSocketConnect(null);
+			m_localWampRouterSession.onWebSocketText(WampDecode.encode(new HelloMessage(DEFAULT_REALM, null)));
+		}
+		long i = m_registeredMethodList.size();;
+		for (String meth : methodList) {
+			if( m_registeredMethodList.contains(meth)){
+				continue;
+			}
+			m_registeredMethodList.add(meth);
+			String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
+			m_localWampRouterSession.onWebSocketText(register);
+		}
+	}
+
+	private JsonNode handleInvocation( String meth, ArrayNode arguments){
+		Map ret = new HashMap();
+		ret.put("res1", "TestInvocation");
+
+		JsonNode node = m_objectMapper.valueToTree(ret);
+		return node;
+	}
+
+	public RegistryService getRegistryService() {
 		return m_registryService;
 	}
 
@@ -100,6 +164,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	}
 
 	public class WebSocket extends BaseWebSocket {
+
 		private Map<String, Object> m_config = null;
 		private Map<String, String> m_params;
 		private Subscription m_subscription;
@@ -124,6 +189,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		public void onWebSocketText(String message) {
 			m_wampRouterSession.onWebSocketText(message);
 		}
+
 		@Override
 		public void onWebSocketBinary(byte[] payload, int offset, int len) {
 			m_wampRouterSession.onWebSocketBinary(payload, offset, len);
@@ -139,7 +205,6 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		public void onWebSocketError(Throwable cause) {
 			m_wampRouterSession.onWebSocketError(cause);
 		}
-
 	}
 
 	@Reference(dynamic = true, optional = true)

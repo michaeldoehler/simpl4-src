@@ -28,19 +28,23 @@ import org.ms123.common.wamp.WampMessages.WampMessage;
 
 public class WampDecode {
 
-	public static WampMessage decode(byte[] buffer) throws Exception {
+	public static WampMessage decode(byte[] buffer) {
 		return decode(buffer, WampSerialization.getJson());
 	}
 
-	public static WampMessage decode(byte[] buffer, WampSerialization serialization) throws Exception {
+	public static WampMessage decode(byte[] buffer, WampSerialization serialization) {
 		ObjectMapper objectMapper = serialization.getObjectMapper();
+		try{
+			ArrayNode arr = objectMapper.readValue(new ByteArrayInputStream(buffer), ArrayNode.class);
 
-		ArrayNode arr = objectMapper.readValue(new ByteArrayInputStream(buffer), ArrayNode.class);
+			m_logger.debug("Deserialized Wamp Message:" + arr.toString());
 
-		m_logger.debug("Deserialized Wamp Message:" + arr.toString());
-
-		WampMessage recvdMessage = WampMessage.fromObjectArray(arr);
-		return recvdMessage;
+			WampMessage recvdMessage = WampMessage.fromObjectArray(arr);
+			return recvdMessage;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException("WampDecode.decode:", e);
+		}
 	}
 
 	public static String encode(WampMessage msg) {

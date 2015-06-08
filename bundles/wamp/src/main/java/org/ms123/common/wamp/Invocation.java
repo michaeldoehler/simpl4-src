@@ -25,7 +25,7 @@ import java.util.Set;
 public class Invocation {
 		Procedure procedure;
 		long callRequestId;
-		WampServiceImpl.WebSocket caller;
+		BaseWebSocket caller;
 		long invocationRequestId;
 
 

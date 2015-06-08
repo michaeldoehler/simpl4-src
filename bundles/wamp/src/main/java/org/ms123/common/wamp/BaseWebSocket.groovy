@@ -28,14 +28,9 @@ import org.eclipse.jetty.websocket.api.WebSocketListener;
 @groovy.transform.TypeChecked
 public class BaseWebSocket implements WebSocketListener {
 
-	protected Session m_session;
+	private Session m_session;
 
-	public RemoteEndpoint getRemote() {
-		Session sess = this.m_session;
-		return sess == null ? null : m_session.getRemote();
-	}
-
-	public Session getSession() {
+	private Session getSession() {
 		return m_session;
 	}
 
