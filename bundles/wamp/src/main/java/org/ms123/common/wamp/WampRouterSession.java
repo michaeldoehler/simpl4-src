@@ -95,11 +95,11 @@ class WampRouterSession {
 	}
 
 	enum States implements StateEnum {
-		WEBSOCKET_CREATED, CONNECTED, SESSION_START, SESSION_IDLE, SUBSCRIPING, UNSUBSCRIPING, PUBLISHING, RESULT, EXECUTE_CALL, REGISTERING, UNREGISTERING, ERROR
+		WEBSOCKET_CREATED, CONNECTED, SESSION_START, SESSION_IDLE, SUBSCRIPING, UNSUBSCRIPING, PUBLISHING, RESULT, EXECUTE_CALL, REGISTERING, UNREGISTERING, ERROR,SEND_CALL_ERROR
 	}
 
 	enum Events implements EventEnum {
-		websocketConnection, sessionStarted, hello, register, unregister, subscribe, unsubscribe, publish, call, yield, error, jobReady
+		websocketConnection, sessionStarted, hello, register, unregister, subscribe, unsubscribe, publish, call, yield, error, invocationError, jobReady
 	}
 
 	protected WampRouterSession(WampService wampService, BaseWebSocket ws, Map<String, Realm> realms) {
@@ -121,6 +121,7 @@ class WampRouterSession {
 							on(unregister).to(UNREGISTERING).transit(on(jobReady).to(SESSION_IDLE)),
 							on(call).to(EXECUTE_CALL).transit(on(jobReady).to(SESSION_IDLE)),
 							on(yield).to(RESULT).transit(on(jobReady).to(SESSION_IDLE)),
+							on(invocationError).to(SEND_CALL_ERROR).transit(on(jobReady).to(SESSION_IDLE)),
 							on(publish).to(PUBLISHING).transit(on(jobReady).to(SESSION_IDLE)),
 							on(subscribe).to(SUBSCRIPING).transit(on(jobReady).to(SESSION_IDLE)),
 							on(unsubscribe).to(UNSUBSCRIPING).transit(on(jobReady).to(SESSION_IDLE)),
@@ -518,6 +519,28 @@ class WampRouterSession {
 				invoc.caller.sendStringByFuture(result);
 				context.safeTrigger(jobReady);
 			}
+		}).whenEnter(SEND_CALL_ERROR, new ContextHandler<SessionContext>() {
+			@Override
+			public void call(SessionContext context) throws Exception {
+				debug("    SEND_CALL_ERROR");
+				ErrorMessage errorMsg = (ErrorMessage) context.currentMsg;
+
+
+				Invocation invoc = context.pendingInvocations.get(errorMsg.requestId);
+				if (invoc == null) {
+					context.safeTrigger(jobReady);
+					return;
+				}
+				context.pendingInvocations.remove(errorMsg.requestId);
+				invoc.procedure.pendingCalls.remove(invoc);
+
+				errorMsg.requestType = CallMessage.ID;
+				errorMsg.requestId = invoc.callRequestId;
+				String error = WampDecode.encode(errorMsg);
+				debug("    SendError:" + error);
+				invoc.caller.sendStringByFuture(error);
+				context.safeTrigger(jobReady);
+			}
 		});
 		return flow;
 	}
@@ -542,9 +565,19 @@ class WampRouterSession {
 		try {
 			WampMessage msg = WampDecode.decode(message.getBytes());
 			m_context.currentMsg = msg;
-			EventEnum e = getMessageEnum(msg);
-			debug("<-- ReceiveMessage(" + e + "):" + message);
-			m_context.safeTrigger(e);
+			if( msg instanceof ErrorMessage){
+				ErrorMessage errMsg = (ErrorMessage)msg;
+				debug("<-- ReceiveMessage(error):" +errMsg+"/requestId:"+errMsg.requestId+"/requestType:"+errMsg.requestType);
+				if( errMsg.requestType == InvocationMessage.ID){
+					m_context.safeTrigger(invocationError);
+				}else{
+					m_context.safeTrigger(error);
+				}
+			}else{
+				EventEnum e = getMessageEnum(msg);
+				debug("<-- ReceiveMessage(" + e + "):" + message);
+				m_context.safeTrigger(e);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 

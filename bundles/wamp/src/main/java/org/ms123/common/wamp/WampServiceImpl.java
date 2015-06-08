@@ -24,6 +24,7 @@ import aQute.bnd.annotation.component.Reference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import flexjson.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ import org.ms123.common.wamp.WampMessages.RegisterMessage;
 import org.ms123.common.wamp.WampMessages.WampMessage;
 import org.ms123.common.wamp.WampMessages.ResultMessage;
 import org.ms123.common.wamp.WampMessages.YieldMessage;
+import org.ms123.common.wamp.WampMessages.ErrorMessage;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.Observable;
 import rx.Subscription;
+import org.ms123.common.rpc.JsonRpc;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
@@ -84,6 +87,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 
 	private WampRouterSession m_localWampRouterSession;
 	private ObjectMapper m_objectMapper = new ObjectMapper();
+	private JsonRpc m_jsonRpc;
 
 	public WampServiceImpl() {
 		m_realms = new HashMap();
@@ -94,6 +98,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
+		m_jsonRpc = new JsonRpc(bundleContext);
 	}
 
 	protected void deactivate() throws Exception {
@@ -107,11 +112,12 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void registerMethods() throws RpcException {
 		List<String> methodList = new ArrayList();
-		methodList.add("service1.meth1");
+		methodList.add("enumeration.get");
 		if (m_localWampRouterSession == null) {
-			BaseWebSocket dummyWS = new BaseWebSocket() {
+			BaseWebSocket dummyWebSocket = new BaseWebSocket() {
 
 				public void sendStringByFuture(String message) {
 					WampMessage msg = WampDecode.decode(message.getBytes());
@@ -123,36 +129,36 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 					} else if (msg instanceof InvocationMessage) {
 						InvocationMessage invMsg = (InvocationMessage) msg;
 						Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
-						info("Invocation:" + proc.procName + "/" + invMsg.arguments);
-						JsonNode result = handleInvocation(proc.procName,invMsg.arguments);
-						ArrayNode resultNode = m_objectMapper.createArrayNode();
-						resultNode.add(result);
-						String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
-						m_localWampRouterSession.onWebSocketText(yield);
+						info("Invocation:" + proc.procName + "/" + invMsg.arguments + "/" + invMsg.argumentsKw);
+
+						String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
+						Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
+						Object error = result.get("error");
+						if ( error != null ) {
+							String errMsg = WampDecode.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
+							m_localWampRouterSession.onWebSocketText(errMsg);
+						} else {
+							ArrayNode resultNode = m_objectMapper.createArrayNode();
+							resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
+							String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
+							m_localWampRouterSession.onWebSocketText(yield);
+						}
 					}
 				}
 			};
-			m_localWampRouterSession = new WampRouterSession(this, dummyWS, m_realms);
+			m_localWampRouterSession = new WampRouterSession(this, dummyWebSocket, m_realms);
 			m_localWampRouterSession.onWebSocketConnect(null);
 			m_localWampRouterSession.onWebSocketText(WampDecode.encode(new HelloMessage(DEFAULT_REALM, null)));
 		}
-		long i = m_registeredMethodList.size();;
+		long i = m_registeredMethodList.size();
 		for (String meth : methodList) {
-			if( m_registeredMethodList.contains(meth)){
+			if (m_registeredMethodList.contains(meth)) {
 				continue;
 			}
 			m_registeredMethodList.add(meth);
 			String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
 			m_localWampRouterSession.onWebSocketText(register);
 		}
-	}
-
-	private JsonNode handleInvocation( String meth, ArrayNode arguments){
-		Map ret = new HashMap();
-		ret.put("res1", "TestInvocation");
-
-		JsonNode node = m_objectMapper.valueToTree(ret);
-		return node;
 	}
 
 	public RegistryService getRegistryService() {

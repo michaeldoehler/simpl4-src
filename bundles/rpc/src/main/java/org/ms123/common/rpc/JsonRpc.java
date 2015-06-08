@@ -30,12 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.ms123.common.libhelper.Inflector;
 
 @SuppressWarnings("unchecked")
 public class JsonRpc {
 
+	protected Inflector m_inflector = Inflector.getInstance();
 	private flexjson.JSONSerializer m_js = new flexjson.JSONSerializer();
-
 	private flexjson.JSONDeserializer m_ds = new flexjson.JSONDeserializer();
 
 	/*
@@ -43,22 +44,14 @@ public class JsonRpc {
 	 */
 	// origin of error
 	public static final int ERROR_FROM_SERVER = 1;
-
 	public static final int ERROR_FROM_METHOD = 2;
-
 	public static final int METHOD_NOT_FOUND = 4;
-
 	public static final int PARAMETER_MISMATCH = 5;
-
 	public static final int PERMISSION_DENIED = 6;
-
 	public static final int INTERNAL_SERVER_ERROR = 500;
-
 	private JSONSerializer m_jsonSerializer = null;
-
 	private JavaSerializer m_javaSerializer = null;
 	private BundleContext m_bundleContext;
-
 	private RemoteCallUtils m_remoteCallUtils = null;
 	private CallService m_callService;
 
@@ -74,6 +67,33 @@ public class JsonRpc {
 		return handleRPC(obj, requestMap);
 	}
 
+	public Map<String,Object> handleRPC(String serviceAndMethod, String requestString) {
+		String serviceName = null;
+		String methodName = null;
+		String[] x = serviceAndMethod.split("\\.");
+		if (x.length > 0) {
+			serviceName = x[0];
+		}
+		if (x.length > 1) {
+			methodName = x[1];
+		}
+		Object service = getService(serviceName);
+		Map<String, Object> responseIntermediateObject;
+		final Map<String, Object> parameterMap = extractRequestMap(requestString);
+		
+		final Map<String, Object> requestMap = new HashMap();
+		requestMap.put("service", serviceName);
+		requestMap.put("method", methodName);
+		requestMap.put("params", parameterMap);
+		try {
+			final Object methodResult = executeRequest(service, requestMap);
+			responseIntermediateObject = buildResponse(requestMap, methodResult, null);
+		} catch (RpcException e) {
+			responseIntermediateObject = buildResponse(requestMap, e);
+		}
+		return responseIntermediateObject;
+	}
+
 	public String handleRPC(Object obj, Map<String, Object> requestMap) throws Exception {
 		Map<String, Object> responseIntermediateObject;
 		try {
@@ -85,7 +105,7 @@ public class JsonRpc {
 		return m_js.deepSerialize(responseIntermediateObject);
 	}
 
-	public Map<String, Object> extractRequestMap(final String requestString) throws Exception {
+	public Map<String, Object> extractRequestMap(final String requestString) {
 		Object requestIntermediateObject;
 		try {
 			debug("extractRequestMap:" + requestString);
@@ -101,7 +121,7 @@ public class JsonRpc {
 		final String serviceName = (String) requestIntermediateObject.get("service");
 		final String methodName = (String) requestIntermediateObject.get("method");
 		final Object methodParams = requestIntermediateObject.get("params");
-		if( CallService.CAMELSERVICENAME.equals(serviceName)){
+		if (CallService.CAMELSERVICENAME.equals(serviceName)) {
 			return getCallService().callCamel(methodName, methodParams, null, null);
 		}
 		return callProcedure(obj, serviceName, methodName, methodParams);
@@ -177,13 +197,38 @@ public class JsonRpc {
 		return m_js.deepSerialize(m_ds.deserialize(s));
 	}
 
-	private CallService getCallService(){
-		if( m_callService != null ) return m_callService;
-	  ServiceReference ref = m_bundleContext.getServiceReference(CallService.class.getName());	
-		if( ref != null){
+	private CallService getCallService() {
+		if (m_callService != null)
+			return m_callService;
+		ServiceReference ref = m_bundleContext.getServiceReference(CallService.class.getName());
+		if (ref != null) {
 			m_callService = (CallService) m_bundleContext.getService(ref);
 		}
 		return m_callService;
+	}
+
+	private Object getService(String serviceName) {
+		String serviceClassName = null;
+		int dot = serviceName.lastIndexOf(".");
+		if (dot != -1) {
+			String part1 = serviceName.substring(0, dot);
+			String part2 = serviceName.substring(dot + 1);
+			System.out.println("serviceName:" + serviceName);
+			serviceClassName = "org.ms123.common." + part1 + "." + m_inflector.upperCamelCase(part2, '-') + "Service";
+		} else {
+			String s = m_inflector.upperCamelCase(serviceName, '-');
+			serviceClassName = "org.ms123.common." + s.toLowerCase() + "." + s + "Service";
+		}
+		System.out.println("ServiceClassName:" + serviceClassName);
+		Object service = null;
+		ServiceReference sr = m_bundleContext.getServiceReference(serviceClassName);
+		if (sr != null) {
+			service = m_bundleContext.getService(sr);
+		}
+		if (service == null) {
+			throw new RuntimeException("JsonRpc.Cannot resolve service:" + serviceClassName);
+		}
+		return service;
 	}
 
 	private void debug(String msg) {
