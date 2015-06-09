@@ -65,7 +65,6 @@ class WampRouterSession {
 
 	private void handleMessage(SessionContext context, WampMessage msg) {
 		if (state == CONNECTED && msg instanceof HelloMessage) {
-			debug("    SESSION_START");
 			HelloMessage hello = ((HelloMessage) msg);
 			Realm realm = null;
 			String errorMsg = null;
@@ -439,6 +438,7 @@ class WampRouterSession {
 				if (skipPublisher)
 					continue;
 			}
+			debug("--> SendMessage(publish):" + ev);
 			receiver.webSocket.sendStringByFuture(ev);
 		}
 	}

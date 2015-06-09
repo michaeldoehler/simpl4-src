@@ -13,7 +13,7 @@ dependencies {
 	compile files("${repository}/jackson/jackson-core-2.5.3.jar")
 	compile files("${repository}/jackson/jackson-annotations-2.5.3.jar")
 	compile files("${repository}/jackson/jackson-databind-2.5.3.jar")
-	compile files("${repository}/jackson/jackson-dataformat-msgpack-0.7.0.bar")
+	compile files("${repository}/rxjava-1.0.9.jar")
 	compile files('build/classes/main')
 }
 

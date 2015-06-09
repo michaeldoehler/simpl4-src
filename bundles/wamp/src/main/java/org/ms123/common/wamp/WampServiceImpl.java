@@ -147,16 +147,38 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 	}
 
-	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
-		return new WampWebSocket(config, parameterMap);
+
+	private BaseWebSocket createClientWebSocket(Realm realm) {
+		return new WampClientWebSocket(realm);
 	}
 
-	public class WampWebSocket extends BaseWebSocket {
+	public class WampClientWebSocket extends BaseWebSocket {
+		private WampClientSession m_wampClientSession;
+
+		public WampClientWebSocket(Realm realm) {
+			m_wampClientSession = new WampClientSession(this, realm);
+		}
+
+		public void sendStringByFuture(String message) {
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.submit(() ->  {
+				m_wampClientSession.onWebSocketText(message);
+			});
+		}
+	}
+
+
+
+	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
+		return new WampRouterWebSocket(config, parameterMap);
+	}
+
+	public class WampRouterWebSocket extends BaseWebSocket {
 		private Map<String, Object> m_config = null;
 		private Map<String, String> m_params;
 		private WampRouterSession m_wampRouterSession;
 
-		public WampWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
+		public WampRouterWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_config = config;
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
