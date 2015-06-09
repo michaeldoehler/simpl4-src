@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import org.ms123.common.wamp.WampRouterSession.SessionContext;
 
 /**
  */
@@ -28,11 +29,11 @@ public class Procedure {
 
 		final String procName;
 		final BaseWebSocket provider;
-		final WampRouterSession.SessionContext context;
+		final SessionContext context;
 		final long registrationId;
 		final List<Invocation> pendingCalls = new ArrayList<Invocation>();
 
-		public Procedure(String name, WampRouterSession.SessionContext context, long registrationId) {
+		public Procedure(String name, SessionContext context, long registrationId) {
 			this.procName = name;
 			this.context = context;
 			if( this.context != null){

@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.wamp.WampMessages.WampMessage;
 
-public class WampDecode {
+public class WampCodec {
 
 	public static WampMessage decode(byte[] buffer) {
 		return decode(buffer, WampSerialization.getJson());
@@ -37,13 +37,13 @@ public class WampDecode {
 		try{
 			ArrayNode arr = objectMapper.readValue(new ByteArrayInputStream(buffer), ArrayNode.class);
 
-			m_logger.debug("Deserialized Wamp Message:" + arr.toString());
+			debug("Deserialized Wamp Message:" + arr.toString());
 
 			WampMessage recvdMessage = WampMessage.fromObjectArray(arr);
 			return recvdMessage;
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new RuntimeException("WampDecode.decode:", e);
+			throw new RuntimeException("WampCodec.decode:", e);
 		}
 	}
 
@@ -58,7 +58,7 @@ public class WampDecode {
 			JsonNode node = msg.toObjectArray(objectMapper);
 			objectMapper.writeValue(outStream, node);
 
-			m_logger.debug("Serialized Wamp Message:" + objectMapper.writeValueAsString(node));
+			debug("Serialized Wamp Message:" + objectMapper.writeValueAsString(node));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,16 +70,13 @@ public class WampDecode {
 			return null;
 		}
 
-		if (serialization.isText()) {
-		} else {
-		}
 		try{
 			outStream.close();
 			String s = outStream.toString("UTF-8");
 			return s;
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new RuntimeException("WampDecode.encode:", e);
+			throw new RuntimeException("WampCodec.encode:", e);
 		}
 	}
 
@@ -93,6 +90,6 @@ public class WampDecode {
 		m_logger.info(msg);
 	}
 
-	private static final Logger m_logger = LoggerFactory.getLogger(WampDecode.class);
+	private static final Logger m_logger = LoggerFactory.getLogger(WampCodec.class);
 }
 

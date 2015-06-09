@@ -26,44 +26,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jetty.websocket.api.Session;
-import org.ms123.common.system.registry.RegistryService;
-import org.ms123.common.wamp.WampMessages.AbortMessage;
-import org.ms123.common.wamp.WampMessages.CallMessage;
-import org.ms123.common.wamp.WampMessages.ErrorMessage;
-import org.ms123.common.wamp.WampMessages.EventMessage;
-import org.ms123.common.wamp.WampMessages.HelloMessage;
-import org.ms123.common.wamp.WampMessages.InvocationMessage;
-import org.ms123.common.wamp.WampMessages.PublishedMessage;
-import org.ms123.common.wamp.WampMessages.PublishMessage;
-import org.ms123.common.wamp.WampMessages.RegisteredMessage;
-import org.ms123.common.wamp.WampMessages.RegisterMessage;
-import org.ms123.common.wamp.WampMessages.ResultMessage;
-import org.ms123.common.wamp.WampMessages.SubscribedMessage;
-import org.ms123.common.wamp.WampMessages.SubscribeMessage;
-import org.ms123.common.wamp.WampMessages.UnregisteredMessage;
-import org.ms123.common.wamp.WampMessages.UnregisterMessage;
-import org.ms123.common.wamp.WampMessages.UnsubscribedMessage;
-import org.ms123.common.wamp.WampMessages.UnsubscribeMessage;
-import org.ms123.common.wamp.WampMessages.WampMessage;
-import org.ms123.common.wamp.WampMessages.WelcomeMessage;
-import org.ms123.common.wamp.WampMessages.YieldMessage;
-import org.ms123.common.wamp.WampServiceImpl.WebSocket;
+import org.ms123.common.wamp.BaseWebSocket;
+import org.ms123.common.wamp.WampMessages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.ms123.common.wamp.WampRouterSession.States.*;
+import static org.ms123.common.wamp.WampRouterSession.State.*;
 
 /**
  *
  */
 class WampRouterSession {
 
-	private WampService m_wampService;
-	private RegistryService m_registryService;
+	enum State {
+		DISCONNECTED, CONNECTED, SESSION
+	}
+
 	private ObjectMapper m_objectMapper = new ObjectMapper();
 	private SessionContext m_context = new SessionContext();
 	private Map<String, Realm> m_realms;
+	private State state = DISCONNECTED;
 
-	public static class SessionContext {
+	protected static class SessionContext {
 		long sessionId;
 		long lastUsedId = IdValidator.MIN_VALID_ID;
 		Realm realm;
@@ -74,17 +57,8 @@ class WampRouterSession {
 		BaseWebSocket webSocket;
 	}
 
-	public interface StateEnum {
-		String name();
-	}
 
-	enum States implements StateEnum {
-		DISCONNECTED, CONNECTED, SESSION
-	}
-	private StateEnum state = DISCONNECTED;
-
-	protected WampRouterSession(WampService wampService, BaseWebSocket ws, Map<String, Realm> realms) {
-		m_wampService = wampService;
+	protected WampRouterSession(BaseWebSocket ws, Map<String, Realm> realms) {
 		m_realms = realms;
 		m_context.webSocket = ws;
 	}
@@ -104,7 +78,7 @@ class WampRouterSession {
 				}
 			}
 			if (errorMsg != null) {
-				String abort = WampDecode.encode(new AbortMessage(null, errorMsg));
+				String abort = WampCodec.encode(new AbortMessage(null, errorMsg));
 				debug("--> SendMessage(abort):" + abort);
 				context.webSocket.sendStringByFuture(abort);
 				return;
@@ -117,7 +91,7 @@ class WampRouterSession {
 			welcomeDetails.put("agent", "simpl4-1.0");
 			ObjectNode routerRoles = welcomeDetails.putObject("roles");
 			ObjectNode roleNode = routerRoles.putObject("broker");
-			String wm = WampDecode.encode(new WampMessages.WelcomeMessage(sessionId, welcomeDetails));
+			String wm = WampCodec.encode(new WampMessages.WelcomeMessage(sessionId, welcomeDetails));
 			debug("--> SendMessage(welcome):" + wm);
 			context.webSocket.sendStringByFuture(wm);
 			state = SESSION;
@@ -149,7 +123,7 @@ class WampRouterSession {
 				err = ApplicationError.INVALID_ARGUMENT;
 			}
 			if (err != null) {
-				String errMsg = WampDecode.encode(new ErrorMessage(SubscribeMessage.ID, sub.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(SubscribeMessage.ID, sub.requestId, null, err, null, null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -169,7 +143,7 @@ class WampRouterSession {
 			if (subscription.subscribers.add(context)) {
 				context.subscriptionsById.put(subscription.subscriptionId, subscription);
 			}
-			String subscribed = WampDecode.encode(new SubscribedMessage(sub.requestId, subscription.subscriptionId));
+			String subscribed = WampCodec.encode(new SubscribedMessage(sub.requestId, subscription.subscriptionId));
 			debug("--> SendMessage(subscribed):" + subscribed);
 			context.webSocket.sendStringByFuture(subscribed);
 		}
@@ -190,7 +164,7 @@ class WampRouterSession {
 				}
 			}
 			if (err != null) {
-				String errMsg = WampDecode.encode(new ErrorMessage(UnsubscribeMessage.ID, unsub.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(UnsubscribeMessage.ID, unsub.requestId, null, err, null, null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -204,7 +178,7 @@ class WampRouterSession {
 				context.realm.subscriptionsByFlags.get(s.flags).remove(s.topic);
 				context.realm.subscriptionsById.remove(s.subscriptionId);
 			}
-			String unsubscribed = WampDecode.encode(new UnsubscribedMessage(unsub.requestId));
+			String unsubscribed = WampCodec.encode(new UnsubscribedMessage(unsub.requestId));
 			context.webSocket.sendStringByFuture(unsubscribed);
 		}
 		if (msg instanceof PublishMessage) {
@@ -224,7 +198,7 @@ class WampRouterSession {
 			}
 			if (err != null) {
 				if (sendAcknowledge) {
-					String errMsg = WampDecode.encode(new ErrorMessage(PublishMessage.ID, pub.requestId, null, err, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(PublishMessage.ID, pub.requestId, null, err, null, null));
 					context.webSocket.sendStringByFuture(errMsg);
 				}
 				return;
@@ -259,7 +233,7 @@ class WampRouterSession {
 				}
 			}
 			if (sendAcknowledge) {
-				String published = WampDecode.encode(new PublishedMessage(pub.requestId, publicationId));
+				String published = WampCodec.encode(new PublishedMessage(pub.requestId, publicationId));
 				debug("--> SendMessage(published):" + published);
 				context.webSocket.sendStringByFuture(published);
 			}
@@ -281,23 +255,22 @@ class WampRouterSession {
 					err = ApplicationError.PROCEDURE_ALREADY_EXISTS;
 			}
 			if (err != null) {
-				String errMsg = WampDecode.encode(new ErrorMessage(RegisterMessage.ID, reg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(RegisterMessage.ID, reg.requestId, null, err, null, null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
 			}
-			// Everything checked, we can register the caller as the procedure provider
 			long registrationId = IdGenerator.newLinearId(context.lastUsedId, context.providedProcedures);
 			context.lastUsedId = registrationId;
 			Procedure procInfo = new Procedure(reg.procedure, context, registrationId);
-			// Insert new procedure
+
 			context.realm.procedures.put(reg.procedure, procInfo);
 			if (context.providedProcedures == null) {
 				context.providedProcedures = new HashMap<Long, Procedure>();
 				context.pendingInvocations = new HashMap<Long, Invocation>();
 			}
 			context.providedProcedures.put(procInfo.registrationId, procInfo);
-			String response = WampDecode.encode(new RegisteredMessage(reg.requestId, procInfo.registrationId));
+			String response = WampCodec.encode(new RegisteredMessage(reg.requestId, procInfo.registrationId));
 			context.webSocket.sendStringByFuture(response);
 		}
 		if (msg instanceof UnregisterMessage) {
@@ -317,14 +290,14 @@ class WampRouterSession {
 				}
 			}
 			if (err != null) {
-				String errMsg = WampDecode.encode(new ErrorMessage(UnregisterMessage.ID, unreg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(UnregisterMessage.ID, unreg.requestId, null, err, null, null));
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
 			}
 			for (Invocation invoc : proc.pendingCalls) {
 				context.pendingInvocations.remove(invoc.invocationRequestId);
 				if (invoc.caller.isConnected()) {
-					String errMsg = WampDecode.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
 					context.webSocket.sendStringByFuture(errMsg);
 				}
 			}
@@ -335,7 +308,7 @@ class WampRouterSession {
 				context.providedProcedures = null;
 				context.pendingInvocations = null;
 			}
-			String unregister = WampDecode.encode(new UnregisteredMessage(unreg.requestId));
+			String unregister = WampCodec.encode(new UnregisteredMessage(unreg.requestId));
 			context.webSocket.sendStringByFuture(unregister);
 		}
 		if (msg instanceof CallMessage) {
@@ -355,7 +328,7 @@ class WampRouterSession {
 					err = ApplicationError.NO_SUCH_PROCEDURE;
 			}
 			if (err != null) {
-				String errMsg = WampDecode.encode(new ErrorMessage(CallMessage.ID, callMsg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, callMsg.requestId, null, err, null, null));
 				info("   ErrorMessage.Call:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -371,7 +344,7 @@ class WampRouterSession {
 			}
 			proc.context.pendingInvocations.put(invoc.invocationRequestId, invoc);
 			proc.pendingCalls.add(invoc);
-			String imsg = WampDecode.encode(new InvocationMessage(invoc.invocationRequestId, proc.registrationId, null, callMsg.arguments, callMsg.argumentsKw));
+			String imsg = WampCodec.encode(new InvocationMessage(invoc.invocationRequestId, proc.registrationId, null, callMsg.arguments, callMsg.argumentsKw));
 			debug("    InvocationMessage:" + imsg + "/ThreadId:" + Thread.currentThread().getId());
 			proc.provider.sendStringByFuture(imsg);
 		}
@@ -391,7 +364,7 @@ class WampRouterSession {
 			}
 			context.pendingInvocations.remove(yieldMsg.requestId);
 			invoc.procedure.pendingCalls.remove(invoc);
-			String result = WampDecode.encode(new ResultMessage(invoc.callRequestId, null, yieldMsg.arguments, yieldMsg.argumentsKw));
+			String result = WampCodec.encode(new ResultMessage(invoc.callRequestId, null, yieldMsg.arguments, yieldMsg.argumentsKw));
 			debug("    SendResult:" + result);
 			invoc.caller.sendStringByFuture(result);
 		}
@@ -406,7 +379,7 @@ class WampRouterSession {
 				invoc.procedure.pendingCalls.remove(invoc);
 				errorMsg.requestType = CallMessage.ID;
 				errorMsg.requestId = invoc.callRequestId;
-				String error = WampDecode.encode(errorMsg);
+				String error = WampCodec.encode(errorMsg);
 				debug("    SendError:" + error);
 				invoc.caller.sendStringByFuture(error);
 			} else {
@@ -424,7 +397,7 @@ class WampRouterSession {
 
 	public void onWebSocketText(String message) {
 		try {
-			WampMessage msg = WampDecode.decode(message.getBytes());
+			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
 				debug("<-- ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
@@ -453,7 +426,7 @@ class WampRouterSession {
 			details = m_objectMapper.createObjectNode();
 			details.put("topic", pub.topic);
 		}
-		String ev = WampDecode.encode(new EventMessage(subscription.subscriptionId, publicationId, details, pub.arguments, pub.argumentsKw));
+		String ev = WampCodec.encode(new EventMessage(subscription.subscriptionId, publicationId, details, pub.arguments, pub.argumentsKw));
 		for (SessionContext receiver : subscription.subscribers) {
 			if (receiver == publisher) {
 				boolean skipPublisher = true;

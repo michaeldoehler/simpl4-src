@@ -21,53 +21,28 @@ package org.ms123.common.wamp;
 import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.component.Reference;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import flexjson.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.eclipse.jetty.websocket.api.CloseStatus;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.ms123.common.rpc.PDefaultBool;
-import org.ms123.common.rpc.PDefaultFloat;
-import org.ms123.common.rpc.PDefaultInt;
-import org.ms123.common.rpc.PDefaultLong;
-import org.ms123.common.rpc.PDefaultString;
-import org.ms123.common.rpc.PName;
-import org.ms123.common.rpc.POptional;
+import org.ms123.common.rpc.JsonRpc;
 import org.ms123.common.rpc.RpcException;
-import org.ms123.common.system.registry.RegistryService;
-import org.ms123.common.wamp.WampMessages.GoodbyeMessage;
-import org.ms123.common.wamp.WampMessages.HelloMessage;
-import org.ms123.common.wamp.WampMessages.InvocationMessage;
-import org.ms123.common.wamp.WampMessages.RegisteredMessage;
-import org.ms123.common.wamp.WampMessages.RegisterMessage;
-import org.ms123.common.wamp.WampMessages.WampMessage;
-import org.ms123.common.wamp.WampMessages.ResultMessage;
-import org.ms123.common.wamp.WampMessages.WelcomeMessage;
-import org.ms123.common.wamp.WampMessages.YieldMessage;
-import org.ms123.common.wamp.WampMessages.ErrorMessage;
+import org.ms123.common.wamp.WampMessages.*;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.Observable;
-import rx.Subscription;
-import org.ms123.common.rpc.JsonRpc;
-import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -79,9 +54,6 @@ import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 public class WampServiceImpl extends BaseWampServiceImpl implements WampService {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampServiceImpl.class);
-
-	private JSONDeserializer m_ds = new JSONDeserializer();
-	private JSONSerializer m_js = new JSONSerializer();
 
 	private Map<String, Realm> m_realms;
 	private String DEFAULT_REALM = "realm1";
@@ -109,7 +81,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		for (Realm realm : m_realms.values()) {
 			for (WampRouterSession.SessionContext context : realm.m_contextList) {
 				realm.removeSession(context, false);
-				String goodbye = WampDecode.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
+				String goodbye = WampCodec.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
 				context.webSocket.sendStringByFuture(goodbye);
 			}
 			realm.m_contextList.clear();
@@ -126,7 +98,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 				public void sendStringByFuture(String message) {
 					ExecutorService executor = Executors.newSingleThreadExecutor();
 					executor.submit(() ->  {
-						WampMessage msg = WampDecode.decode(message.getBytes());
+						WampMessage msg = WampCodec.decode(message.getBytes());
 						info("Local.sendStringByFuture:" + msg);
 						if (msg instanceof RegisteredMessage) {
 							RegisteredMessage regMsg = (RegisteredMessage) msg;
@@ -142,26 +114,22 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 							String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
 							Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
 							Object error = result.get("error");
-							try{
-								Thread.sleep(10000);
-							}catch(Exception e){
-							}
 							if ( error != null ) {
-								String errMsg = WampDecode.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
+								String errMsg = WampCodec.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
 								m_localWampRouterSession.onWebSocketText(errMsg);
 							} else {
 								ArrayNode resultNode = m_objectMapper.createArrayNode();
 								resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
-								String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
+								String yield = WampCodec.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
 								m_localWampRouterSession.onWebSocketText(yield);
 							}
 						}
 					});
 				}
 			};
-			m_localWampRouterSession = new WampRouterSession(this, dummyWebSocket, m_realms);
+			m_localWampRouterSession = new WampRouterSession(dummyWebSocket, m_realms);
 			m_localWampRouterSession.onWebSocketConnect(null);
-			m_localWampRouterSession.onWebSocketText(WampDecode.encode(new HelloMessage(DEFAULT_REALM, null)));
+			m_localWampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(DEFAULT_REALM, null)));
 		}else{
 			doRegisterMethods(methodList);
 		}
@@ -174,33 +142,26 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 				continue;
 			}
 			m_registeredMethodList.add(meth);
-			String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
+			String register = WampCodec.encode(new RegisterMessage(i++, null, meth));
 			m_localWampRouterSession.onWebSocketText(register);
 		}
 	}
 
-	public RegistryService getRegistryService() {
-		return m_registryService;
-	}
-
 	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
-		return new WebSocket(config, parameterMap);
+		return new WampWebSocket(config, parameterMap);
 	}
 
-	public class WebSocket extends BaseWebSocket {
-
+	public class WampWebSocket extends BaseWebSocket {
 		private Map<String, Object> m_config = null;
 		private Map<String, String> m_params;
-		private Subscription m_subscription;
 		private WampRouterSession m_wampRouterSession;
 
-		public WebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
-			m_js.prettyPrint(true);
+		public WampWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_config = config;
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
-			m_wampRouterSession = new WampRouterSession(WampServiceImpl.this, this, m_realms);
+			m_wampRouterSession = new WampRouterSession(this, m_realms);
 		}
 
 		@Override
@@ -229,11 +190,5 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		public void onWebSocketError(Throwable cause) {
 			m_wampRouterSession.onWebSocketError(cause);
 		}
-	}
-
-	@Reference(dynamic = true, optional = true)
-	public void setRegistryService(RegistryService paramService) {
-		this.m_registryService = paramService;
-		info("WampServiceImpl.setRegistryService:" + paramService);
 	}
 }

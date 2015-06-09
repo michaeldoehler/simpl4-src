@@ -16,26 +16,25 @@
 
 package org.ms123.common.wamp;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.ms123.common.wamp.WampRouterSession.SessionContext;
 
 /**
- * Allows to configure realms that are exposed by routers
  */
 public class Subscription {
 		final String topic;
 		final SubscriptionFlags flags;
 		final String components[]; // non-null only for wildcard type
 		final long subscriptionId;
-		final Set<WampRouterSession.SessionContext> subscribers;
+		final Set<SessionContext> subscribers;
 
 		public Subscription(String topic, SubscriptionFlags flags, long subscriptionId) {
 			this.topic = topic;
 			this.flags = flags;
 			this.components = flags == SubscriptionFlags.Wildcard ? topic.split("\\.", -1) : null;
 			this.subscriptionId = subscriptionId;
-			this.subscribers = new HashSet<WampRouterSession.SessionContext>();
+			this.subscribers = new HashSet<SessionContext>();
 		}
 
 }

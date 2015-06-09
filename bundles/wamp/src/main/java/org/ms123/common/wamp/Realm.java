@@ -30,12 +30,10 @@ import org.ms123.common.wamp.WampMessages.CallMessage;
 /**
  */
 public class Realm {
-	/** Represents a realm that is exposed through the router */
 	final RealmConfig config;
 	final List<WampRouterSession.SessionContext> m_contextList = new ArrayList<WampRouterSession.SessionContext>();
 	final Map<String, Procedure> procedures = new HashMap<String, Procedure>();
 
-	// Fields that are used for implementing subscription functionality
 	final EnumMap<SubscriptionFlags, Map<String, Subscription>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, Map<String, Subscription>>( SubscriptionFlags.class);
 	final Map<Long, Subscription> subscriptionsById = new HashMap<Long, Subscription>();
 	long lastUsedSubscriptionId = IdValidator.MIN_VALID_ID;
@@ -59,11 +57,9 @@ public class Realm {
 			return;
 
 		if (sessionContext.subscriptionsById != null) {
-			// Remove the channels subscriptions from our subscription table
 			for (Subscription sub : sessionContext.subscriptionsById.values()) {
 				sub.subscribers.remove(sessionContext);
 				if (sub.subscribers.isEmpty()) {
-					// Subscription is no longer used by any client
 					subscriptionsByFlags.get(sub.flags).remove(sub.topic);
 					subscriptionsById.remove(sub.subscriptionId);
 				}
@@ -73,18 +69,16 @@ public class Realm {
 		}
 
 		if (sessionContext.providedProcedures != null) {
-			// Remove the clients procedures from our procedure table
 			for (Procedure proc : sessionContext.providedProcedures.values()) {
 				// Clear all pending invocations and thereby inform other clients 
 				// that the proc has gone away
 				for (Invocation invoc : proc.pendingCalls) {
 					//if (invoc.caller.state != RouterHandlerState.Open) //@@@MS
 					//	continue;
-					String errMsg = WampDecode.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
 					invoc.caller.sendStringByFuture(errMsg);
 				}
 				proc.pendingCalls.clear();
-				// Remove the procedure from the realm
 				procedures.remove(proc.procName);
 			}
 			sessionContext.providedProcedures = null;
