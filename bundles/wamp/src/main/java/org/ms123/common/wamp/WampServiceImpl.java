@@ -32,6 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.eclipse.jetty.websocket.api.CloseStatus;
@@ -53,6 +56,7 @@ import org.ms123.common.wamp.WampMessages.RegisteredMessage;
 import org.ms123.common.wamp.WampMessages.RegisterMessage;
 import org.ms123.common.wamp.WampMessages.WampMessage;
 import org.ms123.common.wamp.WampMessages.ResultMessage;
+import org.ms123.common.wamp.WampMessages.WelcomeMessage;
 import org.ms123.common.wamp.WampMessages.YieldMessage;
 import org.ms123.common.wamp.WampMessages.ErrorMessage;
 import org.osgi.framework.BundleContext;
@@ -85,6 +89,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	private List<String> m_registeredMethodList = new ArrayList();
 	private Map<Long, Procedure> m_registeredMethodMap = new HashMap();
 
+long m_counter=0;
 	private WampRouterSession m_localWampRouterSession;
 	private ObjectMapper m_objectMapper = new ObjectMapper();
 	private JsonRpc m_jsonRpc;
@@ -120,44 +125,55 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			BaseWebSocket dummyWebSocket = new BaseWebSocket() {
 
 				public void sendStringByFuture(String message) {
-					WampMessage msg = WampDecode.decode(message.getBytes());
-					info("Local.sendStringByFuture:" + msg);
-					if (msg instanceof RegisteredMessage) {
-						RegisteredMessage regMsg = (RegisteredMessage) msg;
-						Procedure proc = new Procedure(m_registeredMethodList.get((int) regMsg.requestId), null, regMsg.registrationId);
-						m_registeredMethodMap.put(regMsg.registrationId, proc);
-					} else if (msg instanceof InvocationMessage) {
-						InvocationMessage invMsg = (InvocationMessage) msg;
-						Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
-						info("Invocation:" + proc.procName + "/" + invMsg.arguments + "/" + invMsg.argumentsKw);
+					ExecutorService executor = Executors.newSingleThreadExecutor();
+					executor.submit(() ->  {
+						WampMessage msg = WampDecode.decode(message.getBytes());
+						info("Local.sendStringByFuture:" + msg);
+						if (msg instanceof RegisteredMessage) {
+							RegisteredMessage regMsg = (RegisteredMessage) msg;
+							Procedure proc = new Procedure(m_registeredMethodList.get((int) regMsg.requestId), null, regMsg.registrationId);
+							m_registeredMethodMap.put(regMsg.registrationId, proc);
+						} else if (msg instanceof WelcomeMessage) {
+							long i = m_registeredMethodList.size();
+							for (String meth : methodList) {
+								if (m_registeredMethodList.contains(meth)) {
+									continue;
+								}
+								m_registeredMethodList.add(meth);
+								String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
+								m_localWampRouterSession.onWebSocketText(register);
+							}
+						} else if (msg instanceof InvocationMessage) {
+							InvocationMessage invMsg = (InvocationMessage) msg;
+							Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
+							info("Invocation:" + proc.procName + "/" + invMsg.arguments + "/" + invMsg.argumentsKw+"/ThreadId"+ Thread.currentThread().getId());
 
-						String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
-						Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
-						Object error = result.get("error");
-						if ( error != null ) {
-							String errMsg = WampDecode.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
-							m_localWampRouterSession.onWebSocketText(errMsg);
-						} else {
-							ArrayNode resultNode = m_objectMapper.createArrayNode();
-							resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
-							String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
-							m_localWampRouterSession.onWebSocketText(yield);
+							String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
+							Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
+							Object error = result.get("error");
+							m_counter++;
+							try{
+								Thread.sleep((m_counter % 2)==0 ? 0: 0);
+							}catch(Exception e){
+							}
+							if ( error != null ) {
+								String errMsg = WampDecode.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
+								m_localWampRouterSession.onWebSocketText(errMsg);
+							} else {
+								ArrayNode resultNode = m_objectMapper.createArrayNode();
+								resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
+								String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
+
+								m_localWampRouterSession.onWebSocketText(yield);
+
+							}
 						}
-					}
+					});
 				}
 			};
 			m_localWampRouterSession = new WampRouterSession(this, dummyWebSocket, m_realms);
 			m_localWampRouterSession.onWebSocketConnect(null);
 			m_localWampRouterSession.onWebSocketText(WampDecode.encode(new HelloMessage(DEFAULT_REALM, null)));
-		}
-		long i = m_registeredMethodList.size();
-		for (String meth : methodList) {
-			if (m_registeredMethodList.contains(meth)) {
-				continue;
-			}
-			m_registeredMethodList.add(meth);
-			String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
-			m_localWampRouterSession.onWebSocketText(register);
 		}
 	}
 

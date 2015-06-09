@@ -24,6 +24,7 @@ import au.com.ds.ef.EventEnum;
 import au.com.ds.ef.StateEnum;
 import au.com.ds.ef.StatefulContext;
 import au.com.ds.ef.SyncExecutor;
+import au.com.ds.ef.AsyncExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -130,11 +131,11 @@ class WampRouterSession {
 		flow.executor(new SyncExecutor())
 
 			.whenEnter(CONNECTED, new ContextHandler<SessionContext>() {
-					@Override
-					public void call(SessionContext context) throws Exception {
+				@Override
+				public void call(SessionContext context) throws Exception {
 					debug("    CONNECTED");
-					}
-					})
+				}
+		 })
 
 		.whenEnter(SESSION_START, new ContextHandler<SessionContext>() {
 			@Override
@@ -463,12 +464,14 @@ class WampRouterSession {
 
 				Procedure proc = null;
 				if (err == null) {
+					info("Procedures:"+context.realm.procedures);
 					proc = context.realm.procedures.get(callMsg.procedure);
 					if (proc == null)
 						err = ApplicationError.NO_SUCH_PROCEDURE;
 				}
 				if (err != null) {
 					String errMsg = WampDecode.encode(new ErrorMessage(CallMessage.ID, callMsg.requestId, null, err, null, null));
+					info("   ErrorMessage.Call:" + errMsg);
 					context.webSocket.sendStringByFuture(errMsg);
 					context.safeTrigger(jobReady);
 					return;
@@ -488,7 +491,7 @@ class WampRouterSession {
 				proc.pendingCalls.add(invoc);
 
 				String imsg = WampDecode.encode(new InvocationMessage(invoc.invocationRequestId, proc.registrationId, null, callMsg.arguments, callMsg.argumentsKw));
-				debug("    InvocationMessage:" + imsg);
+				debug("    InvocationMessage:" + imsg+"/ThreadId:"+ Thread.currentThread().getId());
 				proc.provider.sendStringByFuture(imsg);
 				context.safeTrigger(jobReady);
 			}
@@ -524,7 +527,6 @@ class WampRouterSession {
 			public void call(SessionContext context) throws Exception {
 				debug("    SEND_CALL_ERROR");
 				ErrorMessage errorMsg = (ErrorMessage) context.currentMsg;
-
 
 				Invocation invoc = context.pendingInvocations.get(errorMsg.requestId);
 				if (invoc == null) {
