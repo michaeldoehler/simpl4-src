@@ -89,7 +89,6 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	private List<String> m_registeredMethodList = new ArrayList();
 	private Map<Long, Procedure> m_registeredMethodMap = new HashMap();
 
-long m_counter=0;
 	private WampRouterSession m_localWampRouterSession;
 	private ObjectMapper m_objectMapper = new ObjectMapper();
 	private JsonRpc m_jsonRpc;
@@ -134,15 +133,7 @@ long m_counter=0;
 							Procedure proc = new Procedure(m_registeredMethodList.get((int) regMsg.requestId), null, regMsg.registrationId);
 							m_registeredMethodMap.put(regMsg.registrationId, proc);
 						} else if (msg instanceof WelcomeMessage) {
-							long i = m_registeredMethodList.size();
-							for (String meth : methodList) {
-								if (m_registeredMethodList.contains(meth)) {
-									continue;
-								}
-								m_registeredMethodList.add(meth);
-								String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
-								m_localWampRouterSession.onWebSocketText(register);
-							}
+							doRegisterMethods(methodList);
 						} else if (msg instanceof InvocationMessage) {
 							InvocationMessage invMsg = (InvocationMessage) msg;
 							Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
@@ -151,9 +142,8 @@ long m_counter=0;
 							String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
 							Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
 							Object error = result.get("error");
-							m_counter++;
 							try{
-								Thread.sleep((m_counter % 2)==0 ? 0: 0);
+								Thread.sleep(10000);
 							}catch(Exception e){
 							}
 							if ( error != null ) {
@@ -163,9 +153,7 @@ long m_counter=0;
 								ArrayNode resultNode = m_objectMapper.createArrayNode();
 								resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
 								String yield = WampDecode.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
-
 								m_localWampRouterSession.onWebSocketText(yield);
-
 							}
 						}
 					});
@@ -174,6 +162,20 @@ long m_counter=0;
 			m_localWampRouterSession = new WampRouterSession(this, dummyWebSocket, m_realms);
 			m_localWampRouterSession.onWebSocketConnect(null);
 			m_localWampRouterSession.onWebSocketText(WampDecode.encode(new HelloMessage(DEFAULT_REALM, null)));
+		}else{
+			doRegisterMethods(methodList);
+		}
+	}
+
+	private void doRegisterMethods(List<String> methodList){
+		long i = m_registeredMethodList.size();
+		for (String meth : methodList) {
+			if (m_registeredMethodList.contains(meth)) {
+				continue;
+			}
+			m_registeredMethodList.add(meth);
+			String register = WampDecode.encode(new RegisterMessage(i++, null, meth));
+			m_localWampRouterSession.onWebSocketText(register);
 		}
 	}
 
