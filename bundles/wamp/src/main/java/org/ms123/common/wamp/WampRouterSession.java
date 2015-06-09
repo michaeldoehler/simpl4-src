@@ -91,7 +91,7 @@ class WampRouterSession {
 			ObjectNode routerRoles = welcomeDetails.putObject("roles");
 			ObjectNode roleNode = routerRoles.putObject("broker");
 			String wm = WampCodec.encode(new WampMessages.WelcomeMessage(sessionId, welcomeDetails));
-			debug("--> SendMessage(welcome):" + wm);
+			debug("--> SendMessage(welcome):" + wm+"/"+context.webSocket);
 			context.webSocket.sendStringByFuture(wm);
 			state = SESSION;
 		}
@@ -263,7 +263,9 @@ class WampRouterSession {
 			context.lastUsedId = registrationId;
 			Procedure procInfo = new Procedure(reg.procedure, context, registrationId);
 
+			info("RegisterMessage.realm:"+context.realm);
 			context.realm.procedures.put(reg.procedure, procInfo);
+			info("RegisterMessage.realm.providedProcedures:"+context.realm.procedures);
 			if (context.providedProcedures == null) {
 				context.providedProcedures = new HashMap<Long, Procedure>();
 				context.pendingInvocations = new HashMap<Long, Invocation>();
@@ -322,6 +324,7 @@ class WampRouterSession {
 			Procedure proc = null;
 			if (err == null) {
 				info("Procedures:" + context.realm.procedures);
+			info("call.realm:"+context.realm);
 				proc = context.realm.procedures.get(callMsg.procedure);
 				if (proc == null)
 					err = ApplicationError.NO_SUCH_PROCEDURE;

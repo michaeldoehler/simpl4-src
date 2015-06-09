@@ -43,9 +43,25 @@ import org.ms123.common.wamp.WampMessages.*;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ms123.common.rpc.PName;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import rx.exceptions.OnErrorThrowable;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.Observable;
+import rx.Observable.OnSubscribe;
+import rx.Observer;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
+import rx.subjects.AsyncSubject;
+import rx.subjects.BehaviorSubject;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.Subscriptions;
 
 /** WampService implementation
  */
@@ -147,23 +163,105 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 	}
 
+	@RequiresRoles("admin")
+	public void start() throws RpcException{
+		final WampClientSession client1 = createWampClientSession("realm1");
+		client1.statusChanged().subscribe(new Action1<WampClientSession.Status>() {
+			@Override
+			public void call(WampClientSession.Status t1) {
+					System.out.println("Session1 status changed to " + t1);
 
-	private BaseWebSocket createClientWebSocket(Realm realm) {
-		return new WampClientWebSocket(realm);
+					if (t1 == WampClientSession.Status.Connected) {
+							try {
+									Thread.sleep(100);
+							} catch (InterruptedException e) { }
+
+    					Subscription addProcSubscription;
+							addProcSubscription = client1.registerProcedure("com.myapp.add2").subscribe(new Action1<Request>() {
+									@Override
+									public void call(Request request) {
+											if (request.arguments() == null || request.arguments().size() != 2
+											 || !request.arguments().get(0).canConvertToLong()
+											 || !request.arguments().get(1).canConvertToLong())
+											{
+													try {
+															request.replyError(new ApplicationError(ApplicationError.INVALID_PARAMETER));
+													} catch (ApplicationError e) {
+															e.printStackTrace();
+													}
+											}
+											else {
+													long a = request.arguments().get(0).asLong();
+													long b = request.arguments().get(1).asLong();
+													request.reply(a + b);
+											}
+									}
+							});
+
+
+
+							/*Observable<Long> result1 = client1.call("com.myapp.add2", Long.class, 33, 66);
+							result1.subscribe(new Action1<Long>() {
+									@Override
+									public void call(Long t1) {
+											System.out.println("Completed add with result " + t1);
+									}
+							}, new Action1<Throwable>() {
+									@Override
+									public void call(Throwable t1) {
+											System.out.println("Completed add with error " + t1);
+									}
+							});*/
+							
+					}
+			}
+		}, new Action1<Throwable>() {
+				@Override
+				public void call(Throwable t) {
+						System.out.println("Session1 ended with error " + t);
+				}
+		}, new Action0() {
+				@Override
+				public void call() {
+						System.out.println("Session1 ended normally");
+				}
+		});
+
+		//client1.open();
+	}
+
+	@RequiresRoles("admin")
+	public WampClientSession createWampClientSession(@PName("realm") String  realm) throws RpcException{
+		WampClientWebSocket ws = new WampClientWebSocket();
+	  WampClientSession wcs = new WampClientSession(ws, realm, m_realms);
+		ws.setWampClientSession(wcs);
+		return wcs;
 	}
 
 	public class WampClientWebSocket extends BaseWebSocket {
 		private WampClientSession m_wampClientSession;
+		private WampRouterSession m_wampRouterSession;
 
-		public WampClientWebSocket(Realm realm) {
-			m_wampClientSession = new WampClientSession(this, realm);
+		public WampClientWebSocket() {
+		}
+
+		public void setWampClientSession(WampClientSession wcs){
+			m_wampClientSession=wcs;
+		}
+		public void setWampRouterSession(WampRouterSession wrs){
+			m_wampRouterSession=wrs;
 		}
 
 		public void sendStringByFuture(String message) {
+			info("WampClientWebSocket:"+message);
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.submit(() ->  {
 				m_wampClientSession.onWebSocketText(message);
 			});
+		}
+		@Override
+		public void onWebSocketText(String message) {
+			m_wampRouterSession.onWebSocketText(message);
 		}
 	}
 
