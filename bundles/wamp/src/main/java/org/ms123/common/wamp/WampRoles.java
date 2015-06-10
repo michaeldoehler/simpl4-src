@@ -21,8 +21,7 @@ package org.ms123.common.wamp;
  */
 public enum WampRoles {
 
-	Callee("callee"), Caller("caller"), Publisher("publisher"), Subscriber("subscriber"), Dealer("dealer"), Broker(
-			"broker");
+	Callee("callee"), Caller("caller"), Publisher("publisher"), Subscriber("subscriber"), Dealer("dealer"), Broker("broker");
 
 	private final String stringValue;
 

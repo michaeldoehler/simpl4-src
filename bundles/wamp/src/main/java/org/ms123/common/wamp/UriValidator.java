@@ -77,8 +77,7 @@ public abstract class UriValidator {
 	 * @param mayContainEmptyParts Whether the Uri may contain empty parts
 	 * @throws an ApplicationError if the Uri is not valid
 	 */
-	public static void validate(String uri, boolean useStrictValidation, boolean mayContainEmptyParts)
-			throws ApplicationError {
+	public static void validate(String uri, boolean useStrictValidation, boolean mayContainEmptyParts) throws ApplicationError {
 		boolean isValid = tryValidate(uri, useStrictValidation, mayContainEmptyParts);
 		if (!isValid)
 			throw new ApplicationError(ApplicationError.INVALID_URI);

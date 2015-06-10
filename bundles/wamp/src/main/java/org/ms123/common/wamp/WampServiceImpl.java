@@ -113,7 +113,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 
 				public void sendStringByFuture(String message) {
 					ExecutorService executor = Executors.newSingleThreadExecutor();
-					executor.submit(() ->  {
+					executor.submit(() -> {
 						WampMessage msg = WampCodec.decode(message.getBytes());
 						info("Local.sendStringByFuture:" + msg);
 						if (msg instanceof RegisteredMessage) {
@@ -125,17 +125,17 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 						} else if (msg instanceof InvocationMessage) {
 							InvocationMessage invMsg = (InvocationMessage) msg;
 							Procedure proc = m_registeredMethodMap.get(invMsg.registrationId);
-							info("Invocation:" + proc.procName + "/" + invMsg.arguments + "/" + invMsg.argumentsKw+"/ThreadId"+ Thread.currentThread().getId());
+							info("Invocation:" + proc.procName + "/" + invMsg.arguments + "/" + invMsg.argumentsKw + "/ThreadId" + Thread.currentThread().getId());
 
 							String paramString = invMsg.argumentsKw != null ? invMsg.argumentsKw.toString() : "";
-							Map<String,Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
+							Map<String, Object> result = m_jsonRpc.handleRPC(proc.procName, paramString);
 							Object error = result.get("error");
-							if ( error != null ) {
+							if (error != null) {
 								String errMsg = WampCodec.encode(new ErrorMessage(InvocationMessage.ID, invMsg.requestId, null, result.toString(), null, null));
 								m_localWampRouterSession.onWebSocketText(errMsg);
 							} else {
 								ArrayNode resultNode = m_objectMapper.createArrayNode();
-								resultNode.add( (JsonNode)m_objectMapper.valueToTree(result));
+								resultNode.add((JsonNode) m_objectMapper.valueToTree(result));
 								String yield = WampCodec.encode(new YieldMessage(invMsg.requestId, null, resultNode, null));
 								m_localWampRouterSession.onWebSocketText(yield);
 							}
@@ -146,7 +146,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			m_localWampRouterSession = new WampRouterSession(dummyWebSocket, m_realms);
 			m_localWampRouterSession.onWebSocketConnect(null);
 			m_localWampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(DEFAULT_REALM, null)));
-		}else{
+		} else {
 			doRegisterMethods(methodList);
 		}
 	}
@@ -164,51 +164,51 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	}
 
 	@RequiresRoles("admin")
-	public void start() throws RpcException{
+	public void start() throws RpcException {
 		final WampClientSession client1 = createWampClientSession("realm1");
 		client1.statusChanged().subscribe((t1) -> {
 			System.out.println("Session1 status changed to " + t1);
 			if (t1 == WampClientSession.Status.Connected) {
-					try {
-							Thread.sleep(100);
-					} catch (InterruptedException e) { }
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
 
-					Subscription addProcSubscription;
-					addProcSubscription = client1.registerProcedure("com.myapp.add2").subscribe((request) -> {
-							if (request.arguments() == null || request.arguments().size() != 2 || !request.arguments().get(0).canConvertToLong() || !request.arguments().get(1).canConvertToLong()) {
-									try {
-											request.replyError(new ApplicationError(ApplicationError.INVALID_PARAMETER));
-									} catch (ApplicationError e) {
-											e.printStackTrace();
-									}
-							} else {
-									long a = request.arguments().get(0).asLong();
-									long b = request.arguments().get(1).asLong();
-									request.reply(a + b);
-							}
-					});
+				Subscription addProcSubscription;
+				addProcSubscription = client1.registerProcedure("com.myapp.add2").subscribe((request) -> {
+					if (request.arguments() == null || request.arguments().size() != 2 || !request.arguments().get(0).canConvertToLong() || !request.arguments().get(1).canConvertToLong()) {
+						try {
+							request.replyError(new ApplicationError(ApplicationError.INVALID_PARAMETER));
+						} catch (ApplicationError e) {
+							e.printStackTrace();
+						}
+					} else {
+						long a = request.arguments().get(0).asLong();
+						long b = request.arguments().get(1).asLong();
+						request.reply(a + b);
+					}
+				});
 
+				//							 client1.registerProcedure("enumeration.get").subscribe();
 
-//							 client1.registerProcedure("enumeration.get").subscribe();
+				Observable<Long> result1 = client1.call("com.myapp.add2", Long.class, 33, 66);
+				result1.subscribe((t2) -> {
+					System.out.println("Completed add with result " + t2);
+				}, (t3) -> {
+					System.out.println("Completed add with error " + t3);
+				});
 
-					Observable<Long> result1 = client1.call("com.myapp.add2", Long.class, 33, 66);
-					result1.subscribe((t2) -> {
-							System.out.println("Completed add with result " + t2);
-					}, (t3) -> {
-							System.out.println("Completed add with error " + t3);
-					});
-					
 			}
 		}, new Action1<Throwable>() {
-				@Override
-				public void call(Throwable t) {
-						System.out.println("Session1 ended with error " + t);
-				}
+			@Override
+			public void call(Throwable t) {
+				System.out.println("Session1 ended with error " + t);
+			}
 		}, new Action0() {
-				@Override
-				public void call() {
-						System.out.println("Session1 ended normally");
-				}
+			@Override
+			public void call() {
+				System.out.println("Session1 ended normally");
+			}
 		});
 
 		//client1.open();
@@ -238,9 +238,9 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 
 		public void sendStringByFuture(String message) {
-			info("WampClientWebSocket:"+message);
+			info("WampClientWebSocket:" + message);
 			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.submit(() ->  {
+			executor.submit(() -> {
 				m_wampClientSession.onWebSocketText(message);
 			});
 		}

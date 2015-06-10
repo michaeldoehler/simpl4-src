@@ -137,8 +137,7 @@ class WampClientSession {
 	}
 
 	private HashMap<Long, RequestMapEntry> requestMap = new HashMap<>();
-	private EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<>(
-			SubscriptionFlags.class);
+	private EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<>(SubscriptionFlags.class);
 	private HashMap<Long, SubscriptionMapEntry> subscriptionsBySubscriptionId = new HashMap<>();
 	private HashMap<String, RegisteredProceduresMapEntry> registeredProceduresByUri = new HashMap<>();
 	private HashMap<Long, RegisteredProceduresMapEntry> registeredProceduresById = new HashMap<>();
@@ -179,17 +178,16 @@ class WampClientSession {
 
 	public Observable<Long> publish(final String topic, final PublishFlags flags, final ArrayNode arguments, final ObjectNode argumentsKw) {
 		final AsyncSubject<Long> resultSubject = AsyncSubject.create();
-		
+
 		try {
-				UriValidator.validate(topic, useStrictUriValidation);
+			UriValidator.validate(topic, useStrictUriValidation);
+		} catch (WampError e) {
+			resultSubject.onError(e);
+			return resultSubject;
 		}
-		catch (WampError e) {
-				resultSubject.onError(e);
-				return resultSubject;
-		}
-		 
+
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.submit(() ->  {
+		executor.submit(() -> {
 			if (status != Status.Connected) {
 				resultSubject.onError(new ApplicationError(ApplicationError.NOT_CONNECTED));
 				return;
@@ -212,84 +210,86 @@ class WampClientSession {
 	}
 
 	public Observable<Request> registerProcedure(final String topic) {
-			return Observable.create(new OnSubscribe<Request>() {
-					@Override
-					public void call(final Subscriber<? super Request> subscriber) {
-							try {
-									UriValidator.validate(topic, useStrictUriValidation);
-							}
-							catch (WampError e) {
-									subscriber.onError(e);
-									return;
-							}
+		return Observable.create(new OnSubscribe<Request>() {
+			@Override
+			public void call(final Subscriber<? super Request> subscriber) {
+				try {
+					UriValidator.validate(topic, useStrictUriValidation);
+				} catch (WampError e) {
+					subscriber.onError(e);
+					return;
+				}
 
-							ExecutorService executor = Executors.newSingleThreadExecutor();
-							executor.submit(() ->  {
-								// If the Subscriber unsubscribed in the meantime we return early
-								if (subscriber.isUnsubscribed()) return;
-								// Set subscription to completed if we are not connected
-								if (status != Status.Connected) {
-										subscriber.onCompleted();
-										return;
-								}
-
-								final RegisteredProceduresMapEntry entry = registeredProceduresByUri.get(topic);
-								// Check if we have already registered a function with the same name
-								if (entry != null) {
-										subscriber.onError( new ApplicationError(ApplicationError.PROCEDURE_ALREADY_EXISTS));
-										return;
-								}
-								
-								// Insert a new entry in the subscription map
-								final RegisteredProceduresMapEntry newEntry = new RegisteredProceduresMapEntry(subscriber, RegistrationState.Registering);
-								registeredProceduresByUri.put(topic, newEntry);
-
-								// Make the subscribe call
-								final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
-								lastRequestId = requestId;
-								final RegisterMessage msg = new RegisterMessage(requestId, null, topic);
-
-								final AsyncSubject<Long> registerFuture = AsyncSubject.create();
-								registerFuture
-								.observeOn(WampClientSession.this.scheduler)
-								.subscribe(new Action1<Long>() {
-										@Override
-										public void call(Long t1) {
-												// Check if we were unsubscribed (through transport close)
-												if (newEntry.state != RegistrationState.Registering) return;
-												// Registration at the broker was successful
-												newEntry.state = RegistrationState.Registered;
-												newEntry.registrationId = t1;
-												registeredProceduresById.put(t1, newEntry);
-												// Add the cancellation functionality to the subscriber
-												attachCancelRegistrationAction(subscriber, newEntry, topic);
-										}
-								}, new Action1<Throwable>() {
-										@Override
-										public void call(Throwable t1) {
-												// Error on registering
-												if (newEntry.state != RegistrationState.Registering) return;
-												// Remark: Actually noone can't unregister until this Future completes because
-												// the unregister functionality is only added in the success case
-												// However a transport close event could set us to Unregistered early
-												newEntry.state = RegistrationState.Unregistered;
-
-												boolean isClosed = false;
-												if (t1 instanceof ApplicationError && ((ApplicationError)t1).uri.equals(ApplicationError.TRANSPORT_CLOSED))
-														isClosed = true;
-												
-												if (isClosed) subscriber.onCompleted();
-												else subscriber.onError(t1);
-
-												registeredProceduresByUri.remove(topic);
-										}
-								});
-
-								requestMap.put(requestId, new RequestMapEntry(RegisterMessage.ID, registerFuture));
-                WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
-						});
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(() -> {
+					// If the Subscriber unsubscribed in the meantime we return early
+					if (subscriber.isUnsubscribed())
+						return;
+					// Set subscription to completed if we are not connected
+					if (status != Status.Connected) {
+						subscriber.onCompleted();
+						return;
 					}
-			});
+
+					final RegisteredProceduresMapEntry entry = registeredProceduresByUri.get(topic);
+					// Check if we have already registered a function with the same name
+					if (entry != null) {
+						subscriber.onError(new ApplicationError(ApplicationError.PROCEDURE_ALREADY_EXISTS));
+						return;
+					}
+
+					// Insert a new entry in the subscription map
+					final RegisteredProceduresMapEntry newEntry = new RegisteredProceduresMapEntry(subscriber, RegistrationState.Registering);
+					registeredProceduresByUri.put(topic, newEntry);
+
+					// Make the subscribe call
+					final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
+					lastRequestId = requestId;
+					final RegisterMessage msg = new RegisterMessage(requestId, null, topic);
+
+					final AsyncSubject<Long> registerFuture = AsyncSubject.create();
+					registerFuture.observeOn(WampClientSession.this.scheduler).subscribe(new Action1<Long>() {
+						@Override
+						public void call(Long t1) {
+							// Check if we were unsubscribed (through transport close)
+							if (newEntry.state != RegistrationState.Registering)
+								return;
+							// Registration at the broker was successful
+							newEntry.state = RegistrationState.Registered;
+							newEntry.registrationId = t1;
+							registeredProceduresById.put(t1, newEntry);
+							// Add the cancellation functionality to the subscriber
+							attachCancelRegistrationAction(subscriber, newEntry, topic);
+						}
+					}, new Action1<Throwable>() {
+						@Override
+						public void call(Throwable t1) {
+							// Error on registering
+							if (newEntry.state != RegistrationState.Registering)
+								return;
+							// Remark: Actually noone can't unregister until this Future completes because
+							// the unregister functionality is only added in the success case
+							// However a transport close event could set us to Unregistered early
+							newEntry.state = RegistrationState.Unregistered;
+
+							boolean isClosed = false;
+							if (t1 instanceof ApplicationError && ((ApplicationError) t1).uri.equals(ApplicationError.TRANSPORT_CLOSED))
+								isClosed = true;
+
+							if (isClosed)
+								subscriber.onCompleted();
+							else
+								subscriber.onError(t1);
+
+							registeredProceduresByUri.remove(topic);
+						}
+					});
+
+					requestMap.put(requestId, new RequestMapEntry(RegisterMessage.ID, registerFuture));
+					WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
+				});
+			}
+		});
 	}
 
 	/**
@@ -302,33 +302,34 @@ class WampClientSession {
 			@Override
 			public void call() {
 				ExecutorService executor = Executors.newSingleThreadExecutor();
-				executor.submit(() ->  {
-					if (mapEntry.state != RegistrationState.Registered) return;
-					
+				executor.submit(() -> {
+					if (mapEntry.state != RegistrationState.Registered)
+						return;
+
 					mapEntry.state = RegistrationState.Unregistering;
 					registeredProceduresByUri.remove(topic);
 					registeredProceduresById.remove(mapEntry.registrationId);
-					
+
 					// Make the unregister call
 					final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
 					lastRequestId = requestId;
 					final UnregisterMessage msg = new UnregisterMessage(requestId, mapEntry.registrationId);
-					
+
 					final AsyncSubject<Void> unregisterFuture = AsyncSubject.create();
-					unregisterFuture .observeOn(WampClientSession.this.scheduler).subscribe(new Action1<Void>() {
-							@Override
-							public void call(Void t1) {
-									// Unregistration at the broker was successful
-									mapEntry.state = RegistrationState.Unregistered;
-							}
+					unregisterFuture.observeOn(WampClientSession.this.scheduler).subscribe(new Action1<Void>() {
+						@Override
+						public void call(Void t1) {
+							// Unregistration at the broker was successful
+							mapEntry.state = RegistrationState.Unregistered;
+						}
 					}, new Action1<Throwable>() {
-							@Override
-							public void call(Throwable t1) {
-									// Error on unregister
-							}
+						@Override
+						public void call(Throwable t1) {
+							// Error on unregister
+						}
 					});
-					
-					requestMap.put(requestId, new RequestMapEntry( UnregisterMessage.ID, unregisterFuture));
+
+					requestMap.put(requestId, new RequestMapEntry(UnregisterMessage.ID, unregisterFuture));
 					WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
 				});
 			}
@@ -360,8 +361,8 @@ class WampClientSession {
 		}
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.submit(() ->  {
-			info("Call:"+status);
+		executor.submit(() -> {
+			info("Call:" + status);
 			if (status != Status.Connected) {
 				resultSubject.onError(new ApplicationError(ApplicationError.NOT_CONNECTED));
 				return;
@@ -468,8 +469,7 @@ class WampClientSession {
 				onProtocolError();
 			} else if (msg instanceof GoodbyeMessage) {
 				// Reply the goodbye
-				this.webSocket.onWebSocketText(WampCodec.encode(new GoodbyeMessage(null,
-						ApplicationError.GOODBYE_AND_OUT)));
+				this.webSocket.onWebSocketText(WampCodec.encode(new GoodbyeMessage(null, ApplicationError.GOODBYE_AND_OUT)));
 				// We could also use the reason from the msg, but this would be harder
 				// to determinate from a "real" error
 				onSessionError(new ApplicationError(ApplicationError.GOODBYE_AND_OUT));
@@ -491,11 +491,7 @@ class WampClientSession {
 				subject.onCompleted();
 			} else if (msg instanceof ErrorMessage) {
 				ErrorMessage r = (ErrorMessage) msg;
-				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID
-						|| r.requestType == WampMessages.UnsubscribeMessage.ID
-						|| r.requestType == WampMessages.PublishMessage.ID
-						|| r.requestType == WampMessages.RegisterMessage.ID
-						|| r.requestType == WampMessages.UnregisterMessage.ID) {
+				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID || r.requestType == WampMessages.UnsubscribeMessage.ID || r.requestType == WampMessages.PublishMessage.ID || r.requestType == WampMessages.RegisterMessage.ID || r.requestType == WampMessages.UnregisterMessage.ID) {
 					RequestMapEntry requestInfo = requestMap.get(r.requestId);
 					if (requestInfo == null)
 						return;
@@ -601,8 +597,7 @@ class WampClientSession {
 				RegisteredProceduresMapEntry entry = registeredProceduresById.get(m.registrationId);
 				if (entry == null || entry.state != RegistrationState.Registered) {
 					// Send an error that we are no longer registered
-					String errMsg = WampCodec.encode(new ErrorMessage(InvocationMessage.ID, m.requestId, null,
-							ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(InvocationMessage.ID, m.requestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
 					this.webSocket.onWebSocketText(errMsg);
 				} else {
 					// Send the request to the subscriber, which can then send responses
@@ -665,8 +660,7 @@ class WampClientSession {
 			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
-				debug("<-- CReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:"
-						+ errMsg.requestType);
+				debug("<-- CReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
 			} else {
 				debug("<-- CReceiveMessage(" + getMessageName(msg) + "):" + message);
 			}

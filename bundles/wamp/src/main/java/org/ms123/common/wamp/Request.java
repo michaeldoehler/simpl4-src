@@ -105,8 +105,7 @@ public class Request {
 
 		UriValidator.validate(errorUri, false);
 
-		final ErrorMessage msg = new ErrorMessage(WampMessages.InvocationMessage.ID, requestId, null, errorUri,
-				arguments, keywordArguments);
+		final ErrorMessage msg = new ErrorMessage(WampMessages.InvocationMessage.ID, requestId, null, errorUri, arguments, keywordArguments);
 
 		client.scheduler.createWorker().schedule(new Action0() {
 			@Override

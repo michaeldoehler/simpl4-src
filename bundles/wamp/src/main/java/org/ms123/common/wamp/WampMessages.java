@@ -257,8 +257,7 @@ public class WampMessages {
 		ArrayNode arguments;
 		ObjectNode argumentsKw;
 
-		public ErrorMessage(int requestType, long requestId, ObjectNode details, String error, ArrayNode arguments,
-				ObjectNode argumentsKw) {
+		public ErrorMessage(int requestType, long requestId, ObjectNode details, String error, ArrayNode arguments, ObjectNode argumentsKw) {
 			this.requestType = requestType;
 			this.requestId = requestId;
 			this.details = details;
@@ -289,9 +288,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 5 || messageNode.size() > 7 || !messageNode.get(1).canConvertToInt()
-						|| !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject()
-						|| !messageNode.get(4).isTextual())
+				if (messageNode.size() < 5 || messageNode.size() > 7 || !messageNode.get(1).canConvertToInt() || !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject() || !messageNode.get(4).isTextual())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				int requestType = messageNode.get(1).asInt();
@@ -331,8 +328,7 @@ public class WampMessages {
 		ArrayNode arguments;
 		ObjectNode argumentsKw;
 
-		public PublishMessage(long requestId, ObjectNode options, String topic, ArrayNode arguments,
-				ObjectNode argumentsKw) {
+		public PublishMessage(long requestId, ObjectNode options, String topic, ArrayNode arguments, ObjectNode argumentsKw) {
 			this.requestId = requestId;
 			this.options = options;
 			this.topic = topic;
@@ -361,8 +357,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
+				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -412,8 +407,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong())
+				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -455,8 +449,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 4 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject()
-						|| !messageNode.get(3).isTextual())
+				if (messageNode.size() != 4 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -493,8 +486,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong())
+				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -530,8 +522,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong())
+				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -590,8 +581,7 @@ public class WampMessages {
 		ArrayNode arguments;
 		ObjectNode argumentsKw;
 
-		public EventMessage(long subscriptionId, long publicationId, ObjectNode details, ArrayNode arguments,
-				ObjectNode argumentsKw) {
+		public EventMessage(long subscriptionId, long publicationId, ObjectNode details, ArrayNode arguments, ObjectNode argumentsKw) {
 			this.subscriptionId = subscriptionId;
 			this.publicationId = publicationId;
 			this.details = details;
@@ -620,8 +610,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject())
+				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long subscriptionId = messageNode.get(1).asLong();
@@ -660,8 +649,7 @@ public class WampMessages {
 		ArrayNode arguments;
 		ObjectNode argumentsKw;
 
-		public CallMessage(long requestId, ObjectNode options, String procedure, ArrayNode arguments,
-				ObjectNode argumentsKw) {
+		public CallMessage(long requestId, ObjectNode options, String procedure, ArrayNode arguments, ObjectNode argumentsKw) {
 			this.requestId = requestId;
 			this.options = options;
 			this.procedure = procedure;
@@ -690,8 +678,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
+				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -756,8 +743,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 3 || messageNode.size() > 5 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).isObject())
+				if (messageNode.size() < 3 || messageNode.size() > 5 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -812,8 +798,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 4 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject()
-						|| !messageNode.get(3).isTextual())
+				if (messageNode.size() != 4 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject() || !messageNode.get(3).isTextual())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -850,8 +835,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong())
+				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -888,8 +872,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong())
+				if (messageNode.size() != 3 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -947,8 +930,7 @@ public class WampMessages {
 		ArrayNode arguments;
 		ObjectNode argumentsKw;
 
-		public InvocationMessage(long requestId, long registrationId, ObjectNode details, ArrayNode arguments,
-				ObjectNode argumentsKw) {
+		public InvocationMessage(long requestId, long registrationId, ObjectNode details, ArrayNode arguments, ObjectNode argumentsKw) {
 			this.requestId = requestId;
 			this.registrationId = registrationId;
 			this.details = details;
@@ -977,8 +959,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject())
+				if (messageNode.size() < 4 || messageNode.size() > 6 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).canConvertToLong() || !messageNode.get(3).isObject())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
@@ -1043,8 +1024,7 @@ public class WampMessages {
 		static class Factory implements WampMessageFactory {
 			@Override
 			public WampMessage fromObjectArray(ArrayNode messageNode) throws WampError {
-				if (messageNode.size() < 3 || messageNode.size() > 5 || !messageNode.get(1).canConvertToLong()
-						|| !messageNode.get(2).isObject())
+				if (messageNode.size() < 3 || messageNode.size() > 5 || !messageNode.get(1).canConvertToLong() || !messageNode.get(2).isObject())
 					throw new WampError(ApplicationError.INVALID_MESSAGE);
 
 				long requestId = messageNode.get(1).asLong();
