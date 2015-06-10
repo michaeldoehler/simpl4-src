@@ -25,9 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,8 +34,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.eclipse.jetty.websocket.api.Session;
-import org.ms123.common.wamp.BaseWebSocket;
 import org.ms123.common.wamp.WampMessages.*;
+import org.ms123.common.wamp.WampServiceImpl.WampClientWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.exceptions.OnErrorThrowable;
@@ -54,65 +51,58 @@ import rx.subjects.AsyncSubject;
 import rx.subjects.BehaviorSubject;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
-import static org.ms123.common.wamp.WampClientSession.State.*;
 
 /**
  *
  */
 class WampClientSession {
 
-	enum State {
-
-		DISCONNECTED, CONNECTED, SESSION
-	}
-
 	/**
 	 * Possible states for a WAMP session between client and router
 	 */
-	public static enum Status {
-		/** The session is not connected */
-		Disconnected, /** The session is trying to connect to the router */
-		Connecting, /** The session is connected to the router */
+	protected static enum Status {
+		Disconnected, /** The session is not connected */
+		Connecting, /** The session is trying to connect to the router */
 		Connected
+		/** The session is connected to the router */
 	}
 
 	/** The current status */
-	Status status = Status.Disconnected;
+	private Status status = Status.Disconnected;
 
-	BehaviorSubject<Status> statusObservable = BehaviorSubject.create(Status.Disconnected);
+	private BehaviorSubject<Status> statusObservable = BehaviorSubject.create(Status.Disconnected);
 
 	private ObjectMapper m_objectMapper = new ObjectMapper();
-	private Realm m_realm;
-	private State state = DISCONNECTED;
-	ObjectNode welcomeDetails = null;
+	private ObjectNode welcomeDetails = null;
 
-	final boolean useStrictUriValidation = true;
-	long sessionId;
+	private final boolean useStrictUriValidation = true;
+	private long sessionId;
 
-	//    final WampRoles[] clientRoles;
-	WampRoles[] routerRoles;
+	private WampRoles[] routerRoles;
 
-	final ObjectMapper objectMapper = new ObjectMapper();
-	final Scheduler scheduler;
+	private final ObjectMapper objectMapper = new ObjectMapper();
+	protected final Scheduler scheduler;
 
-	/** Returns the name of the realm on the router */
-	final boolean closeClientOnErrors = false;
+	private final boolean closeClientOnErrors = false;
 
-	long lastRequestId = IdValidator.MIN_VALID_ID;
-	WampRouterSession m_wampRouterSession;
-	boolean isCompleted = false;
+	private long lastRequestId = IdValidator.MIN_VALID_ID;
+	private WampRouterSession m_wampRouterSession;
+	private boolean isCompleted = false;
 
-	enum PubSubState {
+	private enum PubSubState {
 		Subscribing, Subscribed, Unsubscribing, Unsubscribed
 	}
 
-	enum RegistrationState {
+	private enum RegistrationState {
 		Registering, Registered, Unregistering, Unregistered
 	}
 
-	static class RequestMapEntry {
+	private enum PublishFlags {
+		DontExcludeMe;
+	}
+
+	private static class RequestMapEntry {
 		public final int requestType;
 		public final AsyncSubject<?> resultSubject;
 
@@ -122,7 +112,7 @@ class WampClientSession {
 		}
 	}
 
-	static class SubscriptionMapEntry {
+	private static class SubscriptionMapEntry {
 
 		public PubSubState state;
 		public final SubscriptionFlags flags;
@@ -135,7 +125,7 @@ class WampClientSession {
 		}
 	}
 
-	static class RegisteredProceduresMapEntry {
+	private static class RegisteredProceduresMapEntry {
 		public RegistrationState state;
 		public long registrationId = 0;
 		public final Subscriber<? super Request> subscriber;
@@ -146,51 +136,81 @@ class WampClientSession {
 		}
 	}
 
-	HashMap<Long, RequestMapEntry> requestMap = new HashMap<Long, WampClientSession.RequestMapEntry>();
-	EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>>(
+	private HashMap<Long, RequestMapEntry> requestMap = new HashMap<>();
+	private EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<>(
 			SubscriptionFlags.class);
-	HashMap<Long, SubscriptionMapEntry> subscriptionsBySubscriptionId = new HashMap<Long, SubscriptionMapEntry>();
-	HashMap<String, RegisteredProceduresMapEntry> registeredProceduresByUri = new HashMap<String, RegisteredProceduresMapEntry>();
-	HashMap<Long, RegisteredProceduresMapEntry> registeredProceduresById = new HashMap<Long, RegisteredProceduresMapEntry>();
+	private HashMap<Long, SubscriptionMapEntry> subscriptionsBySubscriptionId = new HashMap<>();
+	private HashMap<String, RegisteredProceduresMapEntry> registeredProceduresByUri = new HashMap<>();
+	private HashMap<Long, RegisteredProceduresMapEntry> registeredProceduresById = new HashMap<>();
 
-	BaseWebSocket m_webSocket;
+	protected WampClientWebSocket webSocket;
 
-	protected WampClientSession(WampServiceImpl.WampClientWebSocket ws, String realmName, Map<String, Realm> m_realms) {
+	protected WampClientSession(WampClientWebSocket ws, String realmName, Map<String, Realm> realms) {
 		Set<WampRoles> roles = new HashSet<>();
 		roles.add(WampRoles.Caller);
 		roles.add(WampRoles.Callee);
 		roles.add(WampRoles.Publisher);
 		roles.add(WampRoles.Subscriber);
 		RealmConfig realmConfig = new RealmConfig(roles, false);
-		m_realm = new Realm(realmConfig);
-		m_webSocket = ws;
-		info("WampClientSession:" + ws);
+		this.webSocket = ws;
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		this.scheduler = Schedulers.from(executor);
-		m_wampRouterSession = new WampRouterSession(ws, m_realms);
+		m_wampRouterSession = new WampRouterSession(ws, realms);
 		ws.setWampRouterSession(m_wampRouterSession);
 		m_wampRouterSession.onWebSocketConnect(null);
 		m_wampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
 	}
 
-	/**
-	 * Registers a procedure at the router which will afterwards be available
-	 * for remote procedure calls from other clients.<br>
-	 * The actual registration will only happen after the user subscribes on
-	 * the returned Observable. This guarantees that no RPC requests get lost.
-	 * Incoming RPC requests will be pushed to the Subscriber via it's
-	 * onNext method. The Subscriber can send responses through the methods on
-	 * the {@link Request}.<br>
-	 * If the client no longer wants to provide the method it can call
-	 * unsubscribe() on the Subscription to unregister the procedure.<br>
-	 * If the connection closes onCompleted will be called.<br>
-	 * In case of errors during subscription onError will be called.
-	 * @param topic The name of the procedure which this client wants to
-	 * provide.<br>
-	 * Must be valid WAMP URI.
-	 * @return An observable that can be used to provide a procedure.
-	 */
+	public Observable<Long> publish(final String topic, Object... args) {
+		return publish(topic, buildArgumentsArray(args), null);
+	}
+
+	public Observable<Long> publish(final String topic, PubSubData event) {
+		if (event != null)
+			return publish(topic, event.arguments, event.keywordArguments);
+		else
+			return publish(topic, null, null);
+	}
+
+	public Observable<Long> publish(final String topic, final ArrayNode arguments, final ObjectNode argumentsKw) {
+		return publish(topic, null, arguments, argumentsKw);
+	}
+
+	public Observable<Long> publish(final String topic, final PublishFlags flags, final ArrayNode arguments, final ObjectNode argumentsKw) {
+		final AsyncSubject<Long> resultSubject = AsyncSubject.create();
+		
+		try {
+				UriValidator.validate(topic, useStrictUriValidation);
+		}
+		catch (WampError e) {
+				resultSubject.onError(e);
+				return resultSubject;
+		}
+		 
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(() ->  {
+			if (status != Status.Connected) {
+				resultSubject.onError(new ApplicationError(ApplicationError.NOT_CONNECTED));
+				return;
+			}
+
+			final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
+			lastRequestId = requestId;
+
+			ObjectNode options = null;
+			if (flags == PublishFlags.DontExcludeMe) {
+				options = objectMapper.createObjectNode();
+				options.put("exclude_me", false);
+			}
+			final WampMessages.PublishMessage msg = new WampMessages.PublishMessage(requestId, options, topic, arguments, argumentsKw);
+
+			requestMap.put(requestId, new RequestMapEntry(WampMessages.PublishMessage.ID, resultSubject));
+			WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
+		});
+		return resultSubject;
+	}
+
 	public Observable<Request> registerProcedure(final String topic) {
 			return Observable.create(new OnSubscribe<Request>() {
 					@Override
@@ -266,7 +286,7 @@ class WampClientSession {
 								});
 
 								requestMap.put(requestId, new RequestMapEntry(RegisterMessage.ID, registerFuture));
-                m_webSocket.onWebSocketText(WampCodec.encode(msg));
+                WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
 						});
 					}
 			});
@@ -309,7 +329,7 @@ class WampClientSession {
 					});
 					
 					requestMap.put(requestId, new RequestMapEntry( UnregisterMessage.ID, unregisterFuture));
-					m_webSocket.onWebSocketText(WampCodec.encode(msg));
+					WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
 				});
 			}
 		}));
@@ -352,7 +372,7 @@ class WampClientSession {
 			final CallMessage callMsg = new CallMessage(requestId, null, procedure, arguments, argumentsKw);
 
 			requestMap.put(requestId, new RequestMapEntry(CallMessage.ID, resultSubject));
-			m_webSocket.onWebSocketText(WampCodec.encode(callMsg));
+			this.webSocket.onWebSocketText(WampCodec.encode(callMsg));
 		});
 		return resultSubject;
 	}
@@ -448,7 +468,8 @@ class WampClientSession {
 				onProtocolError();
 			} else if (msg instanceof GoodbyeMessage) {
 				// Reply the goodbye
-				//@@@MS channel.writeAndFlush(new GoodbyeMessage(null, ApplicationError.GOODBYE_AND_OUT));
+				this.webSocket.onWebSocketText(WampCodec.encode(new GoodbyeMessage(null,
+						ApplicationError.GOODBYE_AND_OUT)));
 				// We could also use the reason from the msg, but this would be harder
 				// to determinate from a "real" error
 				onSessionError(new ApplicationError(ApplicationError.GOODBYE_AND_OUT));
@@ -580,7 +601,9 @@ class WampClientSession {
 				RegisteredProceduresMapEntry entry = registeredProceduresById.get(m.registrationId);
 				if (entry == null || entry.state != RegistrationState.Registered) {
 					// Send an error that we are no longer registered
-					//channel.writeAndFlush(new ErrorMessage(InvocationMessage.ID, m.requestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(InvocationMessage.ID, m.requestId, null,
+							ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					this.webSocket.onWebSocketText(errMsg);
 				} else {
 					// Send the request to the subscriber, which can then send responses
 					Request request = new Request(this, m.requestId, m.arguments, m.argumentsKw);
@@ -620,7 +643,7 @@ class WampClientSession {
 		return statusObservable;
 	}
 
-	ArrayNode buildArgumentsArray(Object... args) {
+	protected ArrayNode buildArgumentsArray(Object... args) {
 		if (args.length == 0)
 			return null;
 		// Build the arguments array and serialize the arguments
@@ -633,7 +656,7 @@ class WampClientSession {
 
 	public void onWebSocketConnect(Session sess) {
 		debug("<-- SocketConnect");
-		state = CONNECTED;
+		status = Status.Connecting;
 	}
 
 	public void onWebSocketText(String message) {
@@ -656,7 +679,7 @@ class WampClientSession {
 	public void onWebSocketClose(int statusCode, String reason) {
 		debug("<-- SocketClose:" + statusCode + "/" + reason);
 		//m_context.realm.removeSession(m_context, true);
-		state = DISCONNECTED;
+		status = Status.Disconnected;
 	}
 
 	public void onWebSocketError(Throwable cause) {

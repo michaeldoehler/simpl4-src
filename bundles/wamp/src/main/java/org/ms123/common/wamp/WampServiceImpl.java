@@ -192,10 +192,10 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 //							 client1.registerProcedure("enumeration.get").subscribe();
 
 					Observable<Long> result1 = client1.call("com.myapp.add2", Long.class, 33, 66);
-					result1.subscribe((Long t1) -> {
-							System.out.println("Completed add with result " + t1);
-					}, (t2) -> {
-							System.out.println("Completed add with error " + t2);
+					result1.subscribe((t2) -> {
+							System.out.println("Completed add with result " + t2);
+					}, (t3) -> {
+							System.out.println("Completed add with error " + t3);
 					});
 					
 			}

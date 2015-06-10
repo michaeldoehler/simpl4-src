@@ -112,7 +112,7 @@ public class Request {
 			@Override
 			public void call() {
 				//if (client.channel != channel) return;
-				client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
+				client.webSocket.onWebSocketText(WampCodec.encode(msg));
 			}
 		});
 	}
@@ -135,7 +135,7 @@ public class Request {
 			@Override
 			public void call() {
 				//if (client.channel != channel) return;
-				client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
+				client.webSocket.onWebSocketText(WampCodec.encode(msg));
 			}
 		});
 	}
