@@ -23,10 +23,10 @@ import java.util.Set;
 /**
  */
 public class Invocation {
-		Procedure procedure;
-		long callRequestId;
-		BaseWebSocket caller;
-		long invocationRequestId;
-
+	Procedure procedure;
+	long callRequestId;
+	BaseWebSocket caller;
+	long invocationRequestId;
 
 }
+

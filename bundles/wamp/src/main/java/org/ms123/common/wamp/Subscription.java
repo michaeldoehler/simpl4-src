@@ -23,18 +23,19 @@ import org.ms123.common.wamp.WampRouterSession.SessionContext;
 /**
  */
 public class Subscription {
-		final String topic;
-		final SubscriptionFlags flags;
-		final String components[]; // non-null only for wildcard type
-		final long subscriptionId;
-		final Set<SessionContext> subscribers;
+	final String topic;
+	final SubscriptionFlags flags;
+	final String components[]; // non-null only for wildcard type
+	final long subscriptionId;
+	final Set<SessionContext> subscribers;
 
-		public Subscription(String topic, SubscriptionFlags flags, long subscriptionId) {
-			this.topic = topic;
-			this.flags = flags;
-			this.components = flags == SubscriptionFlags.Wildcard ? topic.split("\\.", -1) : null;
-			this.subscriptionId = subscriptionId;
-			this.subscribers = new HashSet<SessionContext>();
-		}
+	public Subscription(String topic, SubscriptionFlags flags, long subscriptionId) {
+		this.topic = topic;
+		this.flags = flags;
+		this.components = flags == SubscriptionFlags.Wildcard ? topic.split("\\.", -1) : null;
+		this.subscriptionId = subscriptionId;
+		this.subscribers = new HashSet<SessionContext>();
+	}
 
 }
+

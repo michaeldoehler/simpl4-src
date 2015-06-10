@@ -69,8 +69,8 @@ class WampClientSession {
 	}
 
 	/**
-     * Possible states for a WAMP session between client and router
-     */
+	 * Possible states for a WAMP session between client and router
+	 */
 	public static enum Status {
 		/** The session is not connected */
 		Disconnected, /** The session is trying to connect to the router */
@@ -95,7 +95,7 @@ class WampClientSession {
 	WampRoles[] routerRoles;
 
 	final ObjectMapper objectMapper = new ObjectMapper();
-    final Scheduler scheduler;
+	final Scheduler scheduler;
 
 	/** Returns the name of the realm on the router */
 	final boolean closeClientOnErrors = false;
@@ -145,14 +145,17 @@ class WampClientSession {
 			this.state = state;
 		}
 	}
+
 	HashMap<Long, RequestMapEntry> requestMap = new HashMap<Long, WampClientSession.RequestMapEntry>();
-	EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>>(SubscriptionFlags.class);
+	EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, HashMap<String, SubscriptionMapEntry>>(
+			SubscriptionFlags.class);
 	HashMap<Long, SubscriptionMapEntry> subscriptionsBySubscriptionId = new HashMap<Long, SubscriptionMapEntry>();
 	HashMap<String, RegisteredProceduresMapEntry> registeredProceduresByUri = new HashMap<String, RegisteredProceduresMapEntry>();
 	HashMap<Long, RegisteredProceduresMapEntry> registeredProceduresById = new HashMap<Long, RegisteredProceduresMapEntry>();
 
 	BaseWebSocket m_webSocket;
-	protected WampClientSession(WampServiceImpl.WampClientWebSocket ws, String realmName, Map<String,Realm> m_realms) {
+
+	protected WampClientSession(WampServiceImpl.WampClientWebSocket ws, String realmName, Map<String, Realm> m_realms) {
 		Set<WampRoles> roles = new HashSet<>();
 		roles.add(WampRoles.Caller);
 		roles.add(WampRoles.Callee);
@@ -161,11 +164,11 @@ class WampClientSession {
 		RealmConfig realmConfig = new RealmConfig(roles, false);
 		m_realm = new Realm(realmConfig);
 		m_webSocket = ws;
-		info("WampClientSession:"+ws);
+		info("WampClientSession:" + ws);
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-    this.scheduler = Schedulers.from(executor);
-	  m_wampRouterSession = new WampRouterSession(ws, m_realms);
+		this.scheduler = Schedulers.from(executor);
+		m_wampRouterSession = new WampRouterSession(ws, m_realms);
 		ws.setWampRouterSession(m_wampRouterSession);
 		m_wampRouterSession.onWebSocketConnect(null);
 		m_wampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
@@ -269,11 +272,11 @@ class WampClientSession {
 			});
 	}
 
-    /**
-     * Add an action that is added to the subscriber which is executed
-     * if unsubscribe is called on a registered procedure.<br>
-     * This action will lead to unregistering a provided function at the dealer.
-     */
+	/**
+	 * Add an action that is added to the subscriber which is executed
+	 * if unsubscribe is called on a registered procedure.<br>
+	 * This action will lead to unregistering a provided function at the dealer.
+	 */
 	private void attachCancelRegistrationAction(final Subscriber<? super Request> subscriber, final RegisteredProceduresMapEntry mapEntry, final String topic) {
 		subscriber.add(Subscriptions.create(new Action0() {
 			@Override
@@ -311,6 +314,7 @@ class WampClientSession {
 			}
 		}));
 	}
+
 	/**
 	 * Performs a remote procedure call through the router.<br>
 	 * The function will return immediately, as the actual call will happen
@@ -374,30 +378,31 @@ class WampClientSession {
 	}
 
 	public <T> Observable<T> call(final String procedure, final Class<T> returnValueClass, Object... args) {
-			return call(procedure, buildArgumentsArray(args), null).map(new Func1<Reply,T>() {
-					@Override
-					public T call(Reply reply) {
-							if (returnValueClass == null || returnValueClass == Void.class) {
-									// We don't need a return value
-									return null;
-							}
-							
-							if (reply.arguments == null || reply.arguments.size() < 1)
-									throw OnErrorThrowable.from(new ApplicationError(ApplicationError.MISSING_RESULT));
-									
-							JsonNode resultNode = reply.arguments.get(0);
-							if (resultNode.isNull()) return null;
-							
-							T result;
-							try {
-									result = objectMapper.convertValue(resultNode, returnValueClass);
-							} catch (IllegalArgumentException e) {
-									// The returned exception is an aggregate one. That's not too nice :(
-									throw OnErrorThrowable.from(new ApplicationError(ApplicationError.INVALID_VALUE_TYPE));
-							}
-							return result;
-					}
-			});
+		return call(procedure, buildArgumentsArray(args), null).map(new Func1<Reply, T>() {
+			@Override
+			public T call(Reply reply) {
+				if (returnValueClass == null || returnValueClass == Void.class) {
+					// We don't need a return value
+					return null;
+				}
+
+				if (reply.arguments == null || reply.arguments.size() < 1)
+					throw OnErrorThrowable.from(new ApplicationError(ApplicationError.MISSING_RESULT));
+
+				JsonNode resultNode = reply.arguments.get(0);
+				if (resultNode.isNull())
+					return null;
+
+				T result;
+				try {
+					result = objectMapper.convertValue(resultNode, returnValueClass);
+				} catch (IllegalArgumentException e) {
+					// The returned exception is an aggregate one. That's not too nice :(
+					throw OnErrorThrowable.from(new ApplicationError(ApplicationError.INVALID_VALUE_TYPE));
+				}
+				return result;
+			}
+		});
 	}
 
 	private void handleMessage(WampMessage msg) {
@@ -428,7 +433,7 @@ class WampClientSession {
 					i++;
 				}
 				status = Status.Connected;
-				info("handleMessage:"+status);
+				info("handleMessage:" + status);
 				statusObservable.onNext(status);
 			} else if (msg instanceof AbortMessage) {
 				// The remote doesn't want us to connect :(
@@ -459,12 +464,17 @@ class WampClientSession {
 				}
 				requestMap.remove(r.requestId);
 				Reply reply = new Reply(r.arguments, r.argumentsKw);
-				@SuppressWarnings("unchecked") AsyncSubject<Reply> subject = (AsyncSubject<Reply>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Reply> subject = (AsyncSubject<Reply>) requestInfo.resultSubject;
 				subject.onNext(reply);
 				subject.onCompleted();
 			} else if (msg instanceof ErrorMessage) {
 				ErrorMessage r = (ErrorMessage) msg;
-				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID || r.requestType == WampMessages.UnsubscribeMessage.ID || r.requestType == WampMessages.PublishMessage.ID || r.requestType == WampMessages.RegisterMessage.ID || r.requestType == WampMessages.UnregisterMessage.ID) {
+				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID
+						|| r.requestType == WampMessages.UnsubscribeMessage.ID
+						|| r.requestType == WampMessages.PublishMessage.ID
+						|| r.requestType == WampMessages.RegisterMessage.ID
+						|| r.requestType == WampMessages.UnregisterMessage.ID) {
 					RequestMapEntry requestInfo = requestMap.get(r.requestId);
 					if (requestInfo == null)
 						return;
@@ -490,7 +500,8 @@ class WampClientSession {
 					return;
 				}
 				requestMap.remove(m.requestId);
-				@SuppressWarnings("unchecked") AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
 				subject.onNext(m.subscriptionId);
 				subject.onCompleted();
 			} else if (msg instanceof UnsubscribedMessage) {
@@ -504,7 +515,8 @@ class WampClientSession {
 					return;
 				}
 				requestMap.remove(m.requestId);
-				@SuppressWarnings("unchecked") AsyncSubject<Void> subject = (AsyncSubject<Void>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Void> subject = (AsyncSubject<Void>) requestInfo.resultSubject;
 				subject.onNext(null);
 				subject.onCompleted();
 			} else if (msg instanceof EventMessage) {
@@ -529,7 +541,8 @@ class WampClientSession {
 					return;
 				}
 				requestMap.remove(m.requestId);
-				@SuppressWarnings("unchecked") AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
 				subject.onNext(m.publicationId);
 				subject.onCompleted();
 			} else if (msg instanceof RegisteredMessage) {
@@ -543,7 +556,8 @@ class WampClientSession {
 					return;
 				}
 				requestMap.remove(m.requestId);
-				@SuppressWarnings("unchecked") AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Long> subject = (AsyncSubject<Long>) requestInfo.resultSubject;
 				subject.onNext(m.registrationId);
 				subject.onCompleted();
 			} else if (msg instanceof UnregisteredMessage) {
@@ -557,17 +571,17 @@ class WampClientSession {
 					return;
 				}
 				requestMap.remove(m.requestId);
-				@SuppressWarnings("unchecked") AsyncSubject<Void> subject = (AsyncSubject<Void>) requestInfo.resultSubject;
+				@SuppressWarnings("unchecked")
+				AsyncSubject<Void> subject = (AsyncSubject<Void>) requestInfo.resultSubject;
 				subject.onNext(null);
 				subject.onCompleted();
 			} else if (msg instanceof InvocationMessage) {
-				InvocationMessage m = (InvocationMessage)msg;
+				InvocationMessage m = (InvocationMessage) msg;
 				RegisteredProceduresMapEntry entry = registeredProceduresById.get(m.registrationId);
 				if (entry == null || entry.state != RegistrationState.Registered) {
 					// Send an error that we are no longer registered
 					//channel.writeAndFlush(new ErrorMessage(InvocationMessage.ID, m.requestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
-				}
-				else {
+				} else {
 					// Send the request to the subscriber, which can then send responses
 					Request request = new Request(this, m.requestId, m.arguments, m.argumentsKw);
 					entry.subscriber.onNext(request);
@@ -591,13 +605,13 @@ class WampClientSession {
 	}
 
 	private void completeStatus(Exception e) {
-		if (isCompleted){
+		if (isCompleted) {
 			return;
 		}
 		isCompleted = true;
-		if (e != null){
+		if (e != null) {
 			statusObservable.onError(e);
-		}else{
+		} else {
 			statusObservable.onCompleted();
 		}
 	}
@@ -607,7 +621,8 @@ class WampClientSession {
 	}
 
 	ArrayNode buildArgumentsArray(Object... args) {
-		if (args.length == 0) return null;
+		if (args.length == 0)
+			return null;
 		// Build the arguments array and serialize the arguments
 		final ArrayNode argArray = objectMapper.createArrayNode();
 		for (Object arg : args) {
@@ -622,12 +637,13 @@ class WampClientSession {
 	}
 
 	public void onWebSocketText(String message) {
-info("onWebSocketText:"+message);
+		info("onWebSocketText:" + message);
 		try {
 			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
-				debug("<-- CReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
+				debug("<-- CReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:"
+						+ errMsg.requestType);
 			} else {
 				debug("<-- CReceiveMessage(" + getMessageName(msg) + "):" + message);
 			}
@@ -667,3 +683,4 @@ info("onWebSocketText:"+message);
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampClientSession.class);
 }
+

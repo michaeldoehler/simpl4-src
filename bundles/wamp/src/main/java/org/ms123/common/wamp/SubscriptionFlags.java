@@ -17,7 +17,6 @@
 package org.ms123.common.wamp;
 
 public enum SubscriptionFlags {
-    Exact,
-    Prefix,
-    Wildcard;
+	Exact, Prefix, Wildcard;
 }
+

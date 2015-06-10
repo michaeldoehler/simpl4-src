@@ -21,25 +21,26 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class PubSubData {
 
-    final ObjectNode details;
-    final ArrayNode arguments;
-    final ObjectNode keywordArguments;
+	final ObjectNode details;
+	final ArrayNode arguments;
+	final ObjectNode keywordArguments;
 
-    public ObjectNode details() {
-        return details;
-    }
+	public ObjectNode details() {
+		return details;
+	}
 
-    public ArrayNode arguments() {
-        return arguments;
-    }
-    
-    public ObjectNode keywordArguments() {
-        return keywordArguments;
-    }
+	public ArrayNode arguments() {
+		return arguments;
+	}
 
-    public PubSubData(ObjectNode details, ArrayNode arguments, ObjectNode keywordArguments) {
-        this.details = details;
-        this.arguments = arguments;
-        this.keywordArguments = keywordArguments;
-    }
+	public ObjectNode keywordArguments() {
+		return keywordArguments;
+	}
+
+	public PubSubData(ObjectNode details, ArrayNode arguments, ObjectNode keywordArguments) {
+		this.details = details;
+		this.arguments = arguments;
+		this.keywordArguments = keywordArguments;
+	}
 }
+

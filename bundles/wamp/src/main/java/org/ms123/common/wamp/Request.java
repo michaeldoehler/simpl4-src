@@ -32,123 +32,128 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * order to send a positive or negative response back to the caller.
  */
 public class Request {
-    
-    final WampClientSession client;
-    final long requestId;
-    final ArrayNode arguments;
-    final ObjectNode keywordArguments;
-    
-    volatile int replySent = 0;
-    
-    private static final AtomicIntegerFieldUpdater<Request> replySentUpdater;
-    static {
-        replySentUpdater = AtomicIntegerFieldUpdater.newUpdater(Request.class, "replySent");
-    }
-    
-    public ArrayNode arguments() {
-        return arguments;
-    }
-    
-    public ObjectNode keywordArguments() {
-        return keywordArguments;
-    }
 
-    public Request(WampClientSession client, long requestId, ArrayNode arguments, ObjectNode keywordArguments) {
-        this.client = client;
-        this.requestId = requestId;
-        this.arguments = arguments;
-        this.keywordArguments = keywordArguments;
-    }
-    
-    /**
-     * Send an error message in response to the request.<br>
-     * If this is called more than once then the following invocations will
-     * have no effect. Respones will be only sent once.
-     * @param error The ApplicationError that shoul be serialized and sent
-     * as an exceptional response. Must not be null.
-     */
-    public void replyError(ApplicationError error) throws ApplicationError{
-        if (error == null || error.uri == null) throw new NullPointerException();
-        replyError(error.uri, error.args, error.kwArgs);
-    }
-    
-    /**
-     * Send an error message in response to the request.<br>
-     * This version of the function will use Jacksons object mapping
-     * capabilities to transform the argument objects in a JSON argument
-     * array which will be sent as the positional arguments of the call.
-     * If keyword arguments are needed then this function can not be used.<br>
-     * If this is called more than once then the following invocations will
-     * have no effect. Respones will be only sent once.
-     * @param errorUri The error message that should be sent. This must be a
-     * valid WAMP Uri.
-     * @param args The positional arguments to sent in the response
-     */
-    public void replyError(String errorUri, Object... args) throws ApplicationError{
-        replyError(errorUri, client.buildArgumentsArray(args), null);
-    }
-    
-    /**
-     * Send an error message in response to the request.<br>
-     * If this is called more than once then the following invocations will
-     * have no effect. Respones will be only sent once.
-     * @param errorUri The error message that should be sent. This must be a
-     * valid WAMP Uri.
-     * @param arguments The positional arguments to sent in the response
-     * @param keywordArguments The keyword arguments to sent in the response
-     */
-    public void replyError(String errorUri, ArrayNode arguments, ObjectNode keywordArguments) throws ApplicationError {
-        int replyWasSent = replySentUpdater.getAndSet(this, 1);
-        if (replyWasSent == 1) return;
-        
-        UriValidator.validate(errorUri, false);
-        
-        final ErrorMessage msg = new ErrorMessage(WampMessages.InvocationMessage.ID, requestId, null, errorUri, arguments, keywordArguments);
-         
-        client.scheduler.createWorker().schedule(new Action0() {
-            @Override
-            public void call() {
-                //if (client.channel != channel) return;
-                client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
-            }
-        });
-    }
-    
-    /**
-     * Send a normal response to the request.<br>
-     * If this is called more than once then the following invocations will
-     * have no effect. Respones will be only sent once.
-     * @param arguments The positional arguments to sent in the response
-     * @param keywordArguments The keyword arguments to sent in the response
-     */
-    public void reply(ArrayNode arguments, ObjectNode keywordArguments) {
-        int replyWasSent = replySentUpdater.getAndSet(this, 1);
-        if (replyWasSent == 1) return;
-        
-        final YieldMessage msg = new YieldMessage(requestId, null, arguments, keywordArguments);
-         
-        client.scheduler.createWorker().schedule(new Action0() {
-            @Override
-            public void call() {
-                //if (client.channel != channel) return;
-                client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
-            }
-        });
-    }
-    
-    /**
-     * Send a normal response to the request.<br>
-     * This version of the function will use Jacksons object mapping
-     * capabilities to transform the argument objects in a JSON argument
-     * array which will be sent as the positional arguments of the call.
-     * If keyword arguments are needed then this function can not be used.<br>
-     * If this is called more than once then the following invocations will
-     * have no effect. Respones will be only sent once.
-     * @param arguments The positional arguments to sent in the response
-     * @param keywordArguments The keyword arguments to sent in the response
-     */
-    public void reply(Object... args) {
-        reply(client.buildArgumentsArray(args), null);
-    }
+	final WampClientSession client;
+	final long requestId;
+	final ArrayNode arguments;
+	final ObjectNode keywordArguments;
+
+	volatile int replySent = 0;
+
+	private static final AtomicIntegerFieldUpdater<Request> replySentUpdater;
+	static {
+		replySentUpdater = AtomicIntegerFieldUpdater.newUpdater(Request.class, "replySent");
+	}
+
+	public ArrayNode arguments() {
+		return arguments;
+	}
+
+	public ObjectNode keywordArguments() {
+		return keywordArguments;
+	}
+
+	public Request(WampClientSession client, long requestId, ArrayNode arguments, ObjectNode keywordArguments) {
+		this.client = client;
+		this.requestId = requestId;
+		this.arguments = arguments;
+		this.keywordArguments = keywordArguments;
+	}
+
+	/**
+	 * Send an error message in response to the request.<br>
+	 * If this is called more than once then the following invocations will
+	 * have no effect. Respones will be only sent once.
+	 * @param error The ApplicationError that shoul be serialized and sent
+	 * as an exceptional response. Must not be null.
+	 */
+	public void replyError(ApplicationError error) throws ApplicationError {
+		if (error == null || error.uri == null)
+			throw new NullPointerException();
+		replyError(error.uri, error.args, error.kwArgs);
+	}
+
+	/**
+	 * Send an error message in response to the request.<br>
+	 * This version of the function will use Jacksons object mapping
+	 * capabilities to transform the argument objects in a JSON argument
+	 * array which will be sent as the positional arguments of the call.
+	 * If keyword arguments are needed then this function can not be used.<br>
+	 * If this is called more than once then the following invocations will
+	 * have no effect. Respones will be only sent once.
+	 * @param errorUri The error message that should be sent. This must be a
+	 * valid WAMP Uri.
+	 * @param args The positional arguments to sent in the response
+	 */
+	public void replyError(String errorUri, Object... args) throws ApplicationError {
+		replyError(errorUri, client.buildArgumentsArray(args), null);
+	}
+
+	/**
+	 * Send an error message in response to the request.<br>
+	 * If this is called more than once then the following invocations will
+	 * have no effect. Respones will be only sent once.
+	 * @param errorUri The error message that should be sent. This must be a
+	 * valid WAMP Uri.
+	 * @param arguments The positional arguments to sent in the response
+	 * @param keywordArguments The keyword arguments to sent in the response
+	 */
+	public void replyError(String errorUri, ArrayNode arguments, ObjectNode keywordArguments) throws ApplicationError {
+		int replyWasSent = replySentUpdater.getAndSet(this, 1);
+		if (replyWasSent == 1)
+			return;
+
+		UriValidator.validate(errorUri, false);
+
+		final ErrorMessage msg = new ErrorMessage(WampMessages.InvocationMessage.ID, requestId, null, errorUri,
+				arguments, keywordArguments);
+
+		client.scheduler.createWorker().schedule(new Action0() {
+			@Override
+			public void call() {
+				//if (client.channel != channel) return;
+				client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
+			}
+		});
+	}
+
+	/**
+	 * Send a normal response to the request.<br>
+	 * If this is called more than once then the following invocations will
+	 * have no effect. Respones will be only sent once.
+	 * @param arguments The positional arguments to sent in the response
+	 * @param keywordArguments The keyword arguments to sent in the response
+	 */
+	public void reply(ArrayNode arguments, ObjectNode keywordArguments) {
+		int replyWasSent = replySentUpdater.getAndSet(this, 1);
+		if (replyWasSent == 1)
+			return;
+
+		final YieldMessage msg = new YieldMessage(requestId, null, arguments, keywordArguments);
+
+		client.scheduler.createWorker().schedule(new Action0() {
+			@Override
+			public void call() {
+				//if (client.channel != channel) return;
+				client.m_webSocket.onWebSocketText(WampCodec.encode(msg));
+			}
+		});
+	}
+
+	/**
+	 * Send a normal response to the request.<br>
+	 * This version of the function will use Jacksons object mapping
+	 * capabilities to transform the argument objects in a JSON argument
+	 * array which will be sent as the positional arguments of the call.
+	 * If keyword arguments are needed then this function can not be used.<br>
+	 * If this is called more than once then the following invocations will
+	 * have no effect. Respones will be only sent once.
+	 * @param arguments The positional arguments to sent in the response
+	 * @param keywordArguments The keyword arguments to sent in the response
+	 */
+	public void reply(Object... args) {
+		reply(client.buildArgumentsArray(args), null);
+	}
 
 }
+

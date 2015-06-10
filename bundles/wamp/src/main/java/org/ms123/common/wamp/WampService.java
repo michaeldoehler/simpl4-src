@@ -24,5 +24,6 @@ import java.util.List;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 
 public interface WampService {
-	public WebSocketListener createWebSocket(Map<String,Object> config,Map<String,String> parameterMap);
+	public WebSocketListener createWebSocket(Map<String, Object> config, Map<String, String> parameterMap);
 }
+

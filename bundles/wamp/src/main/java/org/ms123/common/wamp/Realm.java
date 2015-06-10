@@ -34,7 +34,8 @@ public class Realm {
 	final List<WampRouterSession.SessionContext> m_contextList = new ArrayList<WampRouterSession.SessionContext>();
 	final Map<String, Procedure> procedures = new HashMap<String, Procedure>();
 
-	final EnumMap<SubscriptionFlags, Map<String, Subscription>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, Map<String, Subscription>>( SubscriptionFlags.class);
+	final EnumMap<SubscriptionFlags, Map<String, Subscription>> subscriptionsByFlags = new EnumMap<SubscriptionFlags, Map<String, Subscription>>(
+			SubscriptionFlags.class);
 	final Map<Long, Subscription> subscriptionsById = new HashMap<Long, Subscription>();
 	long lastUsedSubscriptionId = IdValidator.MIN_VALID_ID;
 
@@ -75,7 +76,8 @@ public class Realm {
 				for (Invocation invoc : proc.pendingCalls) {
 					//if (invoc.caller.state != RouterHandlerState.Open) //@@@MS
 					//	continue;
-					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null,
+							ApplicationError.NO_SUCH_PROCEDURE, null, null));
 					invoc.caller.sendStringByFuture(errMsg);
 				}
 				proc.pendingCalls.clear();
@@ -94,7 +96,7 @@ public class Realm {
 		if (removeFromList) {
 			m_contextList.remove(sessionContext);
 		}
-		System.out.println("Realm.Contextlist:"+m_contextList);
+		System.out.println("Realm.Contextlist:" + m_contextList);
 	}
 }
 

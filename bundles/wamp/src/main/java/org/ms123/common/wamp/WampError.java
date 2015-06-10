@@ -22,13 +22,14 @@ package org.ms123.common.wamp;
  */
 public class WampError extends Exception {
 
-    private static final long serialVersionUID = -6764352292811116268L;
+	private static final long serialVersionUID = -6764352292811116268L;
 
-    /**
-     * Creates a new WampError
-     * @param message The error message
-     */
-    public WampError(String message) {
-        super(message);
-    }
+	/**
+	 * Creates a new WampError
+	 * @param message The error message
+	 */
+	public WampError(String message) {
+		super(message);
+	}
 }
+

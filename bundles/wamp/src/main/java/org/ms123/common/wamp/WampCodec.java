@@ -34,14 +34,14 @@ public class WampCodec {
 
 	public static WampMessage decode(byte[] buffer, WampSerialization serialization) {
 		ObjectMapper objectMapper = serialization.getObjectMapper();
-		try{
+		try {
 			ArrayNode arr = objectMapper.readValue(new ByteArrayInputStream(buffer), ArrayNode.class);
 
 			debug("Deserialized Wamp Message:" + arr.toString());
 
 			WampMessage recvdMessage = WampMessage.fromObjectArray(arr);
 			return recvdMessage;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("WampCodec.decode:", e);
 		}
@@ -62,19 +62,19 @@ public class WampCodec {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			try{
+			try {
 				outStream.close();
-			}catch(Exception ee){
+			} catch (Exception ee) {
 				ee.printStackTrace();
 			}
 			return null;
 		}
 
-		try{
+		try {
 			outStream.close();
 			String s = outStream.toString("UTF-8");
 			return s;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("WampCodec.encode:", e);
 		}

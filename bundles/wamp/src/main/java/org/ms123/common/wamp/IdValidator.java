@@ -21,17 +21,19 @@ package org.ms123.common.wamp;
  * are valid.
  */
 public class IdValidator {
-    
-    public static final long MIN_VALID_ID = 0L;
-    public static final long MAX_VALID_ID = 9007199254740992L; // 2^53
-    
-    /**
-     * Returns true if an ID is a valid WAMP ID and
-     * false if not.
-     * @param id The ID to validate
-     */
-    public static boolean isValidId(long id) {
-        if (id >= MIN_VALID_ID && id <= MAX_VALID_ID) return true;
-        return false;
-    }
+
+	public static final long MIN_VALID_ID = 0L;
+	public static final long MAX_VALID_ID = 9007199254740992L; // 2^53
+
+	/**
+	 * Returns true if an ID is a valid WAMP ID and
+	 * false if not.
+	 * @param id The ID to validate
+	 */
+	public static boolean isValidId(long id) {
+		if (id >= MIN_VALID_ID && id <= MAX_VALID_ID)
+			return true;
+		return false;
+	}
 }
+

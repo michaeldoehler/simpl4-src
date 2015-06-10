@@ -57,7 +57,6 @@ class WampRouterSession {
 		BaseWebSocket webSocket;
 	}
 
-
 	protected WampRouterSession(BaseWebSocket ws, Map<String, Realm> realms) {
 		m_realms = realms;
 		m_context.webSocket = ws;
@@ -91,7 +90,7 @@ class WampRouterSession {
 			ObjectNode routerRoles = welcomeDetails.putObject("roles");
 			ObjectNode roleNode = routerRoles.putObject("broker");
 			String wm = WampCodec.encode(new WampMessages.WelcomeMessage(sessionId, welcomeDetails));
-			debug("--> SendMessage(welcome):" + wm+"/"+context.webSocket);
+			debug("--> SendMessage(welcome):" + wm + "/" + context.webSocket);
 			context.webSocket.sendStringByFuture(wm);
 			state = SESSION;
 		}
@@ -115,14 +114,16 @@ class WampRouterSession {
 					}
 				}
 			}
-			if (!UriValidator.tryValidate(sub.topic, context.realm.config.useStrictUriValidation, flags == SubscriptionFlags.Wildcard)) {
+			if (!UriValidator.tryValidate(sub.topic, context.realm.config.useStrictUriValidation,
+					flags == SubscriptionFlags.Wildcard)) {
 				err = ApplicationError.INVALID_URI;
 			}
 			if (err == null && !(IdValidator.isValidId(sub.requestId))) {
 				err = ApplicationError.INVALID_ARGUMENT;
 			}
 			if (err != null) {
-				String errMsg = WampCodec.encode(new ErrorMessage(SubscribeMessage.ID, sub.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(SubscribeMessage.ID, sub.requestId, null, err, null,
+						null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -133,7 +134,8 @@ class WampRouterSession {
 			Map<String, Subscription> subscriptionMap = context.realm.subscriptionsByFlags.get(flags);
 			Subscription subscription = subscriptionMap.get(sub.topic);
 			if (subscription == null) {
-				long subscriptionId = IdGenerator.newLinearId(context.realm.lastUsedSubscriptionId, context.realm.subscriptionsById);
+				long subscriptionId = IdGenerator.newLinearId(context.realm.lastUsedSubscriptionId,
+						context.realm.subscriptionsById);
 				context.realm.lastUsedSubscriptionId = subscriptionId;
 				subscription = new Subscription(sub.topic, flags, subscriptionId);
 				subscriptionMap.put(sub.topic, subscription);
@@ -163,7 +165,8 @@ class WampRouterSession {
 				}
 			}
 			if (err != null) {
-				String errMsg = WampCodec.encode(new ErrorMessage(UnsubscribeMessage.ID, unsub.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(UnsubscribeMessage.ID, unsub.requestId, null, err,
+						null, null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -197,30 +200,35 @@ class WampRouterSession {
 			}
 			if (err != null) {
 				if (sendAcknowledge) {
-					String errMsg = WampCodec.encode(new ErrorMessage(PublishMessage.ID, pub.requestId, null, err, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(PublishMessage.ID, pub.requestId, null, err,
+							null, null));
 					context.webSocket.sendStringByFuture(errMsg);
 				}
 				return;
 			}
 			long publicationId = IdGenerator.newRandomId(null);
 			// Store that somewhere?
-			Subscription exactSubscription = context.realm.subscriptionsByFlags.get(SubscriptionFlags.Exact).get(pub.topic);
+			Subscription exactSubscription = context.realm.subscriptionsByFlags.get(SubscriptionFlags.Exact).get(
+					pub.topic);
 			if (exactSubscription != null) {
 				publishEvent(context, pub, publicationId, exactSubscription);
 			}
-			Map<String, Subscription> prefixSubscriptionMap = context.realm.subscriptionsByFlags.get(SubscriptionFlags.Prefix);
+			Map<String, Subscription> prefixSubscriptionMap = context.realm.subscriptionsByFlags
+					.get(SubscriptionFlags.Prefix);
 			for (Subscription prefixSubscription : prefixSubscriptionMap.values()) {
 				if (pub.topic.startsWith(prefixSubscription.topic)) {
 					publishEvent(context, pub, publicationId, prefixSubscription);
 				}
 			}
-			Map<String, Subscription> wildcardSubscriptionMap = context.realm.subscriptionsByFlags.get(SubscriptionFlags.Wildcard);
+			Map<String, Subscription> wildcardSubscriptionMap = context.realm.subscriptionsByFlags
+					.get(SubscriptionFlags.Wildcard);
 			String[] components = pub.topic.split("\\.", -1);
 			for (Subscription wildcardSubscription : wildcardSubscriptionMap.values()) {
 				boolean matched = true;
 				if (components.length == wildcardSubscription.components.length) {
 					for (int i = 0; i < components.length; i++) {
-						if (wildcardSubscription.components[i].length() > 0 && !components[i].equals(wildcardSubscription.components[i])) {
+						if (wildcardSubscription.components[i].length() > 0
+								&& !components[i].equals(wildcardSubscription.components[i])) {
 							matched = false;
 							break;
 						}
@@ -254,7 +262,8 @@ class WampRouterSession {
 					err = ApplicationError.PROCEDURE_ALREADY_EXISTS;
 			}
 			if (err != null) {
-				String errMsg = WampCodec.encode(new ErrorMessage(RegisterMessage.ID, reg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(RegisterMessage.ID, reg.requestId, null, err, null,
+						null));
 				info("   ErrorMessage:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -263,9 +272,9 @@ class WampRouterSession {
 			context.lastUsedId = registrationId;
 			Procedure procInfo = new Procedure(reg.procedure, context, registrationId);
 
-			info("RegisterMessage.realm:"+context.realm);
+			info("RegisterMessage.realm:" + context.realm);
 			context.realm.procedures.put(reg.procedure, procInfo);
-			info("RegisterMessage.realm.providedProcedures:"+context.realm.procedures);
+			info("RegisterMessage.realm.providedProcedures:" + context.realm.procedures);
 			if (context.providedProcedures == null) {
 				context.providedProcedures = new HashMap<Long, Procedure>();
 				context.pendingInvocations = new HashMap<Long, Invocation>();
@@ -291,14 +300,16 @@ class WampRouterSession {
 				}
 			}
 			if (err != null) {
-				String errMsg = WampCodec.encode(new ErrorMessage(UnregisterMessage.ID, unreg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(UnregisterMessage.ID, unreg.requestId, null, err,
+						null, null));
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
 			}
 			for (Invocation invoc : proc.pendingCalls) {
 				context.pendingInvocations.remove(invoc.invocationRequestId);
 				if (invoc.caller.isConnected()) {
-					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null, ApplicationError.NO_SUCH_PROCEDURE, null, null));
+					String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, invoc.callRequestId, null,
+							ApplicationError.NO_SUCH_PROCEDURE, null, null));
 					context.webSocket.sendStringByFuture(errMsg);
 				}
 			}
@@ -324,13 +335,14 @@ class WampRouterSession {
 			Procedure proc = null;
 			if (err == null) {
 				info("Procedures:" + context.realm.procedures);
-			info("call.realm:"+context.realm);
+				info("call.realm:" + context.realm);
 				proc = context.realm.procedures.get(callMsg.procedure);
 				if (proc == null)
 					err = ApplicationError.NO_SUCH_PROCEDURE;
 			}
 			if (err != null) {
-				String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, callMsg.requestId, null, err, null, null));
+				String errMsg = WampCodec.encode(new ErrorMessage(CallMessage.ID, callMsg.requestId, null, err, null,
+						null));
 				info("   ErrorMessage.Call:" + errMsg);
 				context.webSocket.sendStringByFuture(errMsg);
 				return;
@@ -346,7 +358,8 @@ class WampRouterSession {
 			}
 			proc.context.pendingInvocations.put(invoc.invocationRequestId, invoc);
 			proc.pendingCalls.add(invoc);
-			String imsg = WampCodec.encode(new InvocationMessage(invoc.invocationRequestId, proc.registrationId, null, callMsg.arguments, callMsg.argumentsKw));
+			String imsg = WampCodec.encode(new InvocationMessage(invoc.invocationRequestId, proc.registrationId, null,
+					callMsg.arguments, callMsg.argumentsKw));
 			debug("    InvocationMessage:" + imsg + "/ThreadId:" + Thread.currentThread().getId());
 			proc.provider.sendStringByFuture(imsg);
 		}
@@ -366,7 +379,8 @@ class WampRouterSession {
 			}
 			context.pendingInvocations.remove(yieldMsg.requestId);
 			invoc.procedure.pendingCalls.remove(invoc);
-			String result = WampCodec.encode(new ResultMessage(invoc.callRequestId, null, yieldMsg.arguments, yieldMsg.argumentsKw));
+			String result = WampCodec.encode(new ResultMessage(invoc.callRequestId, null, yieldMsg.arguments,
+					yieldMsg.argumentsKw));
 			debug("    SendResult:" + result);
 			invoc.caller.sendStringByFuture(result);
 		}
@@ -402,7 +416,8 @@ class WampRouterSession {
 			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
-				debug("<-- ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
+				debug("<-- ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:"
+						+ errMsg.requestType);
 			} else {
 				debug("<-- ReceiveMessage(" + getMessageName(msg) + "):" + message);
 			}
@@ -422,13 +437,15 @@ class WampRouterSession {
 		debug("<-- SocketError:" + cause);
 	}
 
-	private void publishEvent(SessionContext publisher, PublishMessage pub, long publicationId, Subscription subscription) {
+	private void publishEvent(SessionContext publisher, PublishMessage pub, long publicationId,
+			Subscription subscription) {
 		ObjectNode details = null;
 		if (subscription.flags != SubscriptionFlags.Exact) {
 			details = m_objectMapper.createObjectNode();
 			details.put("topic", pub.topic);
 		}
-		String ev = WampCodec.encode(new EventMessage(subscription.subscriptionId, publicationId, details, pub.arguments, pub.argumentsKw));
+		String ev = WampCodec.encode(new EventMessage(subscription.subscriptionId, publicationId, details,
+				pub.arguments, pub.argumentsKw));
 		for (SessionContext receiver : subscription.subscribers) {
 			if (receiver == publisher) {
 				boolean skipPublisher = true;
@@ -466,3 +483,4 @@ class WampRouterSession {
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampRouterSession.class);
 }
+

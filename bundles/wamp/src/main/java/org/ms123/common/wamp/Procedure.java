@@ -27,21 +27,22 @@ import org.ms123.common.wamp.WampRouterSession.SessionContext;
  */
 public class Procedure {
 
-		final String procName;
-		final BaseWebSocket provider;
-		final SessionContext context;
-		final long registrationId;
-		final List<Invocation> pendingCalls = new ArrayList<Invocation>();
+	final String procName;
+	final BaseWebSocket provider;
+	final SessionContext context;
+	final long registrationId;
+	final List<Invocation> pendingCalls = new ArrayList<Invocation>();
 
-		public Procedure(String name, SessionContext context, long registrationId) {
-			this.procName = name;
-			this.context = context;
-			if( this.context != null){
-				this.provider = this.context.webSocket;
-			}else{
-				this.provider = null;
-			}
-			this.registrationId = registrationId;
+	public Procedure(String name, SessionContext context, long registrationId) {
+		this.procName = name;
+		this.context = context;
+		if (this.context != null) {
+			this.provider = this.context.webSocket;
+		} else {
+			this.provider = null;
 		}
+		this.registrationId = registrationId;
+	}
 
 }
+
