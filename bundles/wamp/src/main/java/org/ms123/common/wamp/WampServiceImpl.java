@@ -262,6 +262,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		private Map<String, String> m_params;
 		private WampRouterSession m_wampRouterSession;
 		private ThreadContext threadContext;
+		private  Map<Object, Object>  shiroResources;
 
 		public WampRouterWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_config = config;
@@ -271,6 +272,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			m_wampRouterSession = new WampRouterSession(this, m_realms);
 			debug("WampRouterWebSocket.currentThread:" + Thread.currentThread().getName());
 			this.threadContext = ThreadContext.getThreadContext();
+			shiroResources = org.apache.shiro.util.ThreadContext.getResources();
 		}
 
 		@Override
@@ -282,6 +284,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		@Override
 		public void onWebSocketText(String message) {
 			ThreadContext.loadThreadContext(this.threadContext);
+			org.apache.shiro.util.ThreadContext.setResources(shiroResources);
 			m_wampRouterSession.onWebSocketText(message);
 		}
 
