@@ -156,7 +156,7 @@ public class LoginFilter implements Filter {
 
 		info(pathInfo + ";" + credentials+"/ok:"+ok);
 		if (ok || checkCredentials(namespace, credentials, false)) {
-			info(">>>> OK");
+			info(">>>> OK,"+Thread.currentThread().getName());
 			RequestMapper rm = new RequestMapper(request);
 			ThreadContext.loadThreadContext(rm, response);
 			info(request.getPathInfo() + "|" + request.getMethod()+"|Uri:"+request.getRequestURI());
