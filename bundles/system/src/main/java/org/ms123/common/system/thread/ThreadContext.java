@@ -35,7 +35,7 @@ import eu.bitwalker.useragentutils.*;
 @SuppressWarnings("unchecked")
 public class ThreadContext {
 
-	private static ThreadLocal<ThreadContext> m_threadLocal = new ThreadLocal<ThreadContext>();
+	private static ThreadLocal<ThreadContext> m_threadLocal = new InheritableThreadLocal<ThreadContext>();
 
 	public static String SESSION_MANAGER = "sessionManager";
 
