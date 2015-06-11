@@ -336,6 +336,177 @@ class WampClientSession {
 		}));
 	}
 
+	public <T> Observable<T> makeSubscription(final String topic, final Class<T> eventClass) {
+		return makeSubscription(topic, SubscriptionFlags.Exact, eventClass);
+	}
+
+	public <T> Observable<T> makeSubscription(final String topic, SubscriptionFlags flags, final Class<T> eventClass) {
+		return makeSubscription(topic, flags).map(new Func1<PubSubData, T>() {
+			@Override
+			public T call(PubSubData ev) {
+				if (eventClass == null || eventClass == Void.class) {
+					// We don't need a value
+					return null;
+				}
+
+				if (ev.arguments == null || ev.arguments.size() < 1)
+					throw OnErrorThrowable.from(new ApplicationError(ApplicationError.MISSING_VALUE));
+
+				JsonNode eventNode = ev.arguments.get(0);
+				if (eventNode.isNull())
+					return null;
+
+				T eventValue;
+				try {
+					eventValue = objectMapper.convertValue(eventNode, eventClass);
+				} catch (IllegalArgumentException e) {
+					throw OnErrorThrowable.from(new ApplicationError(ApplicationError.INVALID_VALUE_TYPE));
+				}
+				return eventValue;
+			}
+		});
+	}
+
+	public Observable<PubSubData> makeSubscription(final String topic) {
+		return makeSubscription(topic, SubscriptionFlags.Exact);
+	}
+
+	public Observable<PubSubData> makeSubscription(final String topic, final SubscriptionFlags flags) {
+		return Observable.create(new OnSubscribe<PubSubData>() {
+			@Override
+			public void call(final Subscriber<? super PubSubData> subscriber) {
+				try {
+					UriValidator.validate(topic, useStrictUriValidation, flags == SubscriptionFlags.Wildcard);
+				} catch (WampError e) {
+					subscriber.onError(e);
+					return;
+				}
+
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(() -> {
+					if (subscriber.isUnsubscribed()){
+						return;
+					}
+					if (status != Status.Connected) {
+						subscriber.onCompleted();
+						return;
+					}
+
+					final SubscriptionMapEntry entry = subscriptionsByFlags.get(flags).get(topic);
+
+					if (entry != null) { // We are already subscribed at the dealer
+						entry.subscribers.add(subscriber);
+						if (entry.state == PubSubState.Subscribed) {
+							attachPubSubCancelationAction(subscriber, entry, topic);
+						}
+					} else { // need to subscribe
+						final SubscriptionMapEntry newEntry = new SubscriptionMapEntry(flags, PubSubState.Subscribing);
+						newEntry.subscribers.add(subscriber);
+						subscriptionsByFlags.get(flags).put(topic, newEntry);
+
+						final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
+						lastRequestId = requestId;
+
+						ObjectNode options = null;
+						if (flags != SubscriptionFlags.Exact) {
+							options = objectMapper.createObjectNode();
+							options.put("match", flags.name().toLowerCase());
+						}
+						final SubscribeMessage msg = new SubscribeMessage(requestId, options, topic);
+
+						final AsyncSubject<Long> subscribeFuture = AsyncSubject.create();
+						subscribeFuture.observeOn(WampClientSession.this.scheduler).subscribe(new Action1<Long>() {
+							@Override
+							public void call(Long t1) {
+								// Check if we were unsubscribed (through transport close)
+								if (newEntry.state != PubSubState.Subscribing){
+									return;
+								}
+								// Subscription at the broker was successful
+								newEntry.state = PubSubState.Subscribed;
+								newEntry.subscriptionId = t1;
+								subscriptionsBySubscriptionId.put(t1, newEntry);
+								// Add the cancellation functionality to all subscribers
+								// If one is already unsubscribed this will immediately call
+								// the cancellation function for this subscriber
+								for (Subscriber<? super PubSubData> s : newEntry.subscribers) {
+									attachPubSubCancelationAction(s, newEntry, topic);
+								}
+							}
+						}, new Action1<Throwable>() {
+							@Override
+							public void call(Throwable t1) {
+								// Error on subscription
+								if (newEntry.state != PubSubState.Subscribing)
+									return;
+								// Remark: Actually noone can't unsubscribe until this Future completes because
+								// the unsubscription functionality is only added in the success case
+								// However a transport close event could set us to Unsubscribed early
+								newEntry.state = PubSubState.Unsubscribed;
+
+								boolean isClosed = false;
+								if (t1 instanceof ApplicationError && ((ApplicationError) t1).uri.equals(ApplicationError.TRANSPORT_CLOSED))
+									isClosed = true;
+
+								for (Subscriber<? super PubSubData> s : newEntry.subscribers) {
+									if (isClosed)
+										s.onCompleted();
+									else
+										s.onError(t1);
+								}
+
+								newEntry.subscribers.clear();
+								subscriptionsByFlags.get(flags).remove(topic);
+							}
+						});
+
+						requestMap.put(requestId, new RequestMapEntry(SubscribeMessage.ID, subscribeFuture));
+						WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
+					}
+				});
+			}
+		});
+	}
+
+	private void attachPubSubCancelationAction(final Subscriber<? super PubSubData> subscriber, final SubscriptionMapEntry mapEntry, final String topic) {
+		subscriber.add(Subscriptions.create(new Action0() {
+			@Override
+			public void call() {
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(() -> {
+					mapEntry.subscribers.remove(subscriber);
+					if (mapEntry.state == PubSubState.Subscribed && mapEntry.subscribers.size() == 0) {
+						// We removed the last subscriber and can therefore unsubscribe from the dealer
+						mapEntry.state = PubSubState.Unsubscribing;
+						subscriptionsByFlags.get(mapEntry.flags).remove(topic);
+						subscriptionsBySubscriptionId.remove(mapEntry.subscriptionId);
+
+						final long requestId = IdGenerator.newLinearId(lastRequestId, requestMap);
+						lastRequestId = requestId;
+						final UnsubscribeMessage msg = new UnsubscribeMessage(requestId, mapEntry.subscriptionId);
+
+						final AsyncSubject<Void> unsubscribeFuture = AsyncSubject.create();
+						unsubscribeFuture.observeOn(WampClientSession.this.scheduler).subscribe(new Action1<Void>() {
+							@Override
+							public void call(Void t1) {
+								mapEntry.state = PubSubState.Unsubscribed;
+							}
+						}, new Action1<Throwable>() {
+							@Override
+							public void call(Throwable t1) {
+								// Error on unsubscription
+							}
+						});
+
+						requestMap.put(requestId, new RequestMapEntry(UnsubscribeMessage.ID, unsubscribeFuture));
+
+						WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
+					}
+				});
+			}
+		}));
+	}
+
 	/**
 	 * Performs a remote procedure call through the router.<br>
 	 * The function will return immediately, as the actual call will happen
@@ -378,23 +549,7 @@ class WampClientSession {
 		return resultSubject;
 	}
 
-	/**
-	 * Performs a remote procedure call through the router.<br>
-	 * The function will return immediately, as the actual call will happen
-	 * asynchronously.
-	 * @param procedure The name of the procedure to call. Must be a valid WAMP
-	 * Uri.
-	 * @param args The list of positional arguments for the remote procedure call.
-	 * These will be get serialized according to the Jackson library serializing
-	 * behavior.
-	 * @return An observable that provides a notification whether the call was
-	 * was successful and the return value. If the call is successful the
-	 * returned observable will be completed with a single value (the return value).
-	 * If the remote procedure call yields an error the observable will be completed
-	 * with an error.
-	 */
 	public Observable<Reply> call(final String procedure, Object... args) {
-		// Build the arguments array and serialize the arguments
 		return call(procedure, buildArgumentsArray(args), null);
 	}
 
@@ -428,12 +583,9 @@ class WampClientSession {
 
 	private void handleMessage(WampMessage msg) {
 		if (welcomeDetails == null) {
-			// We were not yet welcomed
 			if (msg instanceof WelcomeMessage) {
-				// Receive a welcome. Now the session is established!
 				welcomeDetails = ((WelcomeMessage) msg).details;
 				sessionId = ((WelcomeMessage) msg).sessionId;
-				// Extract the roles of the remote side
 				JsonNode roleNode = welcomeDetails.get("roles");
 				if (roleNode == null || !roleNode.isObject()) {
 					onProtocolError();
@@ -457,21 +609,16 @@ class WampClientSession {
 				info("handleMessage:" + status);
 				statusObservable.onNext(status);
 			} else if (msg instanceof AbortMessage) {
-				// The remote doesn't want us to connect :(
 				AbortMessage abort = (AbortMessage) msg;
 				onSessionError(new ApplicationError(abort.reason));
 			}
 		} else {
-			// We were already welcomed
 			if (msg instanceof WelcomeMessage) {
 				onProtocolError();
 			} else if (msg instanceof AbortMessage) {
 				onProtocolError();
 			} else if (msg instanceof GoodbyeMessage) {
-				// Reply the goodbye
 				this.webSocket.onWebSocketText(WampCodec.encode(new GoodbyeMessage(null, ApplicationError.GOODBYE_AND_OUT)));
-				// We could also use the reason from the msg, but this would be harder
-				// to determinate from a "real" error
 				onSessionError(new ApplicationError(ApplicationError.GOODBYE_AND_OUT));
 			} else if (msg instanceof ResultMessage) {
 				ResultMessage r = (ResultMessage) msg;
@@ -493,8 +640,9 @@ class WampClientSession {
 				ErrorMessage r = (ErrorMessage) msg;
 				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID || r.requestType == WampMessages.UnsubscribeMessage.ID || r.requestType == WampMessages.PublishMessage.ID || r.requestType == WampMessages.RegisterMessage.ID || r.requestType == WampMessages.UnregisterMessage.ID) {
 					RequestMapEntry requestInfo = requestMap.get(r.requestId);
-					if (requestInfo == null)
+					if (requestInfo == null){
 						return;
+					}
 					// Ignore the error
 					// Check whether the request type we sent equals the
 					// request type for the error we receive
