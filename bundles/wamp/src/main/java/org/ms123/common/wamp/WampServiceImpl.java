@@ -38,15 +38,12 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.ms123.common.rpc.JsonRpc;
+import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.RpcException;
 import org.ms123.common.wamp.WampMessages.*;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ms123.common.rpc.PName;
-import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
-import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
-import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -62,6 +59,10 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
+import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
+import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
+import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import org.ms123.common.system.thread.*;
 
 /** WampService implementation
  */
@@ -108,6 +109,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	public void registerMethods() throws RpcException {
 		List<String> methodList = new ArrayList();
 		methodList.add("enumeration.get");
+		methodList.add("data.query");
 		if (m_localWampRouterSession == null) {
 			BaseWebSocket dummyWebSocket = new BaseWebSocket() {
 
@@ -259,6 +261,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		private Map<String, Object> m_config = null;
 		private Map<String, String> m_params;
 		private WampRouterSession m_wampRouterSession;
+		private ThreadContext threadContext;
 
 		public WampRouterWebSocket(Map<String, Object> config, Map<String, String> parameterMap) {
 			m_config = config;
@@ -266,6 +269,8 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
 			m_wampRouterSession = new WampRouterSession(this, m_realms);
+			debug("WampRouterWebSocket.currentThread:" + Thread.currentThread().getName());
+			this.threadContext = ThreadContext.getThreadContext();
 		}
 
 		@Override
@@ -276,6 +281,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 
 		@Override
 		public void onWebSocketText(String message) {
+			ThreadContext.loadThreadContext(this.threadContext);
 			m_wampRouterSession.onWebSocketText(message);
 		}
 

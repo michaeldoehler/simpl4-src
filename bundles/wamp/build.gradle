@@ -5,6 +5,7 @@ dependencies {
 	compile files("${bundlesBuild}/org.ms123.common.permission.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.auth.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.rpc-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.system-1.0.0.jar")
   compile files("${repository}/org.osgi.compendium-4.3.1.jar")
   compile files("${repository}/org.osgi.core-4.3.1.jar")
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
@@ -14,6 +15,7 @@ dependencies {
 	compile files("${repository}/jackson/jackson-annotations-2.5.3.jar")
 	compile files("${repository}/jackson/jackson-databind-2.5.3.jar")
 	compile files("${repository}/rxjava-1.0.9.jar")
+  compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
 	compile files('build/classes/main')
 }
 
