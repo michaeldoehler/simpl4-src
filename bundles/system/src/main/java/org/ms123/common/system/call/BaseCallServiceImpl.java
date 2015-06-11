@@ -159,8 +159,9 @@ abstract class BaseCallServiceImpl {
 		public void run() {
 			try {
 				String ns = (String) propMap.get("namespace");
-				ThreadContext.loadThreadContext(ns, execUser);
+				ThreadContext.loadThreadContext(ns, execUser); //@@@MS Maybe can removed
 				m_permissionService.loginInternal(ns);
+				info("CallServiceImpl.ThreadContext:" + ThreadContext.getThreadContext());
 				Object answer = m_camelService.camelSend(ns, routeId, propMap);
 				info("CallServiceImpl.CamelSend.async.answer:" + answer);
 			} catch (Exception e) {
