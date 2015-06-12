@@ -24,6 +24,7 @@ public final class WampClientConstants {
 	public static final String MODE = "mode";
 	public static final String MODE_PUB = "pub";
 	public static final String MODE_RPC = "rpc";
+	public static final String PERMISSION_DENIED = "Permission denied";
 
 	private WampClientConstants() {
 	}

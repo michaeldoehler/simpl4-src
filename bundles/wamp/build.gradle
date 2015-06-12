@@ -18,6 +18,7 @@ dependencies {
 	compile files("${repository}/rxjava-1.0.9.jar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
   compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
+  compile files("${repository}/flexjson-2.1.bar")
 	compile files('build/classes/main')
 }
 

@@ -31,15 +31,23 @@ import org.osgi.service.event.EventAdmin;
 import org.ms123.common.wamp.WampService;
 import org.ms123.common.wamp.WampClientSession;
 import org.ms123.common.wamp.WampServiceImpl;
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
+import java.util.Map;
+import java.util.List;
+
 
 /**
  */
 @UriEndpoint(scheme = "wampclient", title = "WampClient", syntax = "wampclient:topic", consumerClass = WampClientConsumer.class)
 public class WampClientEndpoint extends DefaultEndpoint {
 
+
+	private JSONDeserializer ds = new JSONDeserializer();
 	// common options
 	@UriParam
 	private String mode;
+
 
 	// producer(publisher) options
 	//@UriParam(label = "producer")
@@ -48,7 +56,11 @@ public class WampClientEndpoint extends DefaultEndpoint {
 	// consumer(rpc) options
 	@UriParam
 	private String procedure;
-	//protected GenericFileConfiguration configuration;
+	private String startableGroups;
+	private String startableUsers;
+	private String rpcReturn;
+	private String rpcParameter;
+	private String rpcReturnHeaders;
 
 	private BundleContext m_bundleContext;
 	private WampService wampService;
@@ -93,12 +105,65 @@ public class WampClientEndpoint extends DefaultEndpoint {
 		this.procedure = procedure;
 	}
 
+	public String getStartableUsers() {
+		return this.startableUsers;
+	}
+
+	public void setStartableUsers(String s) {
+		this.startableUsers = s;
+	}
+
+	public String getStartableGroups() {
+		return this.startableGroups;
+	}
+
+	public void setStartableGroups(String s) {
+		this.startableGroups = s;
+	}
+
+	public String getRpcParameter() {
+		return this.rpcParameter;
+	}
+
+	public void setRpcParameter(String s) {
+		this.rpcParameter = s;
+	}
+
+	public String getRpcReturn() {
+		return this.rpcReturn;
+	}
+
+	public void setRpcReturn(String s) {
+		this.rpcReturn = s;
+	}
+
+	public String getRpcReturnHeaders() {
+		return this.rpcReturnHeaders;
+	}
+
+	public void setRpcReturnHeaders(String s) {
+		this.rpcReturnHeaders = s;
+	}
+
 	public String getMode() {
 		return mode;
 	}
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public List<String> getPermittedUsers() {
+		return (List<String>)ds.deserialize(this.startableUsers);
+	}
+	public List<String> getPermittedRoles() {
+		return (List<String>)ds.deserialize(this.startableGroups);
+	}
+	public List<Map> getParamList() {
+		return (List<Map>)ds.deserialize(this.rpcParameter);
+	}
+	public List<Map> getReturnHeaders() {
+		return (List<Map>)ds.deserialize(this.rpcReturnHeaders);
 	}
 }
 

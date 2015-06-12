@@ -369,6 +369,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					routesDef.getRoutes().each(){RouteDefinition routeDef->
 						String routeId = size == 1 ? routeBaseId : createRouteId(routeBaseId,i);
 						routeDef.routeId(routeId);
+						routeDef.setGroup(namespace);
 						routeDef.autoStartup( autoStart);
 						addRouteDefinition(cce.context, routeDef,re);
 						if( autoStart){
