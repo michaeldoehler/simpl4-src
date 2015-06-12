@@ -22,6 +22,7 @@ dependencies {
   compile files("${bundlesBuild}/org.ms123.common.system-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.utils-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.xmpp-1.0.0.jar")
+	compile files("${bundlesBuild}/org.ms123.common.wamp-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.workflow.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.camel.api-1.0.0.jar")
 	compile files("${bundlesBuild}/org.ms123.common.docbook-1.0.0.jar")

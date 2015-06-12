@@ -393,6 +393,12 @@ class SedaEndpointJsonConverter extends EndpointJsonConverter{
 	}
 }
 
+class WampEndpointJsonConverter extends EndpointJsonConverter{
+	void convertToCamel(ctx){
+		super.convertToCamel(ctx);
+	}
+}
+
 class VMEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(ctx){
 		super.convertToCamel(ctx);
