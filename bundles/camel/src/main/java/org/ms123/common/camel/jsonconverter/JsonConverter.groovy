@@ -38,6 +38,7 @@ import static org.apache.camel.util.ObjectHelper.isEmpty;
 import static org.apache.camel.util.ObjectHelper.isNotEmpty;
 import org.ms123.common.libhelper.Utils;
 import flexjson.*;
+import java.util.Collection;
 import javax.xml.namespace.QName;
 
 class JsonConverterVisitor {
@@ -71,6 +72,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	public def  branding;
 	def children = []
 	def engine = new SimpleTemplateEngine();
+	def serializer = new JSONSerializer();
 	void finishToCamel(ctx){}
 	def constructUri(ctx){
 		def uriValueMap = createMap(ctx,"urivalue_");
@@ -174,6 +176,9 @@ abstract class JsonConverterImpl implements JsonConverter{
 		def map=[:];
 		shapeProperties.each(){key,value->
 			if(key.startsWith(prefix)){
+				if( value instanceof Map || value instanceof Collection){
+					value = serializer.deepSerialize(value);
+				}
 				map[key.substring(prefix.length())] = value!=null ? ctx.buildEnvSubstitutor.replace(value.toString()) : "";
 			}
 		}	
