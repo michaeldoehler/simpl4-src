@@ -56,12 +56,12 @@ import rx.subscriptions.Subscriptions;
 /**
  *
  */
-class WampClientSession {
+public class WampClientSession {
 
 	/**
 	 * Possible states for a WAMP session between client and router
 	 */
-	protected static enum Status {
+	public static enum Status {
 		Disconnected, /** The session is not connected */
 		Connecting, /** The session is trying to connect to the router */
 		Connected
@@ -159,6 +159,9 @@ class WampClientSession {
 		ws.setWampRouterSession(m_wampRouterSession);
 		m_wampRouterSession.onWebSocketConnect(null);
 		m_wampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
+	}
+
+	public void close(){
 	}
 
 	public Observable<Long> publish(final String topic, Object... args) {

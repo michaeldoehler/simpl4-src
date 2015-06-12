@@ -72,8 +72,8 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 
 	private static final Logger m_logger = LoggerFactory.getLogger(WampServiceImpl.class);
 
-	private Map<String, Realm> m_realms;
-	private String DEFAULT_REALM = "realm1";
+	private static Map<String, Realm> m_realms;
+	private static String DEFAULT_REALM = "realm1";
 
 	private List<String> m_registeredMethodList = new ArrayList();
 	private Map<Long, Procedure> m_registeredMethodMap = new HashMap();
@@ -83,19 +83,16 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 	private JsonRpc m_jsonRpc;
 
 	public WampServiceImpl() {
-		m_realms = new HashMap();
-		Set<WampRoles> roles = new HashSet();
-		roles.add(WampRoles.Broker);
-		RealmConfig realmConfig = new RealmConfig(roles, false);
-		m_realms.put(DEFAULT_REALM, new Realm(realmConfig));
 	}
+
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
 		m_jsonRpc = new JsonRpc(bundleContext);
+		registerMethods();
 	}
 
 	protected void deactivate() throws Exception {
-		for (Realm realm : m_realms.values()) {
+		for (Realm realm : getRealms().values()) {
 			for (WampRouterSession.SessionContext context : realm.m_contextList) {
 				realm.removeSession(context, false);
 				String goodbye = WampCodec.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
@@ -105,8 +102,8 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 	}
 
-	@RequiresRoles("admin")
-	public void registerMethods() throws RpcException {
+	//@RequiresRoles("admin")
+	private void registerMethods() {
 		List<String> methodList = new ArrayList();
 		methodList.add("enumeration.get");
 		methodList.add("data.query");
@@ -145,7 +142,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 					});
 				}
 			};
-			m_localWampRouterSession = new WampRouterSession(dummyWebSocket, m_realms);
+			m_localWampRouterSession = new WampRouterSession(dummyWebSocket, getRealms());
 			m_localWampRouterSession.onWebSocketConnect(null);
 			m_localWampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(DEFAULT_REALM, null)));
 		} else {
@@ -176,8 +173,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 				} catch (InterruptedException e) {
 				}
 
-				Subscription addProcSubscription;
-				addProcSubscription = client1.registerProcedure("com.myapp.add2").subscribe((request) -> {
+				Subscription addProcSubscription= client1.registerProcedure("com.myapp.add2").subscribe((request) -> {
 					if (request.arguments() == null || request.arguments().size() != 2 || !request.arguments().get(0).canConvertToLong() || !request.arguments().get(1).canConvertToLong()) {
 						try {
 							request.replyError(new ApplicationError(ApplicationError.INVALID_PARAMETER));
@@ -201,30 +197,34 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 				});
 
 			}
-		}, new Action1<Throwable>() {
-			@Override
-			public void call(Throwable t) {
+		}, (t) ->  {
 				System.out.println("Session1 ended with error " + t);
-			}
-		}, new Action0() {
-			@Override
-			public void call() {
+		}, ()-> {
 				System.out.println("Session1 ended normally");
-			}
 		});
 
 		//client1.open();
 	}
+	private static Map<String, Realm> getRealms (){
+		if( m_realms == null){
+			m_realms = new HashMap();
+			Set<WampRoles> roles = new HashSet();
+			roles.add(WampRoles.Broker);
+			RealmConfig realmConfig = new RealmConfig(roles, false);
+			m_realms.put(DEFAULT_REALM, new Realm(realmConfig));
+		}
+		return m_realms;
+	}
 
-	@RequiresRoles("admin")
-	public WampClientSession createWampClientSession(@PName("realm") String realm) throws RpcException {
+	//@RequiresRoles("admin")
+	public static WampClientSession createWampClientSession(String realm) {
 		WampClientWebSocket ws = new WampClientWebSocket();
-		WampClientSession wcs = new WampClientSession(ws, realm, m_realms);
+		WampClientSession wcs = new WampClientSession(ws, realm, getRealms());
 		ws.setWampClientSession(wcs);
 		return wcs;
 	}
 
-	public class WampClientWebSocket extends BaseWebSocket {
+	public static class WampClientWebSocket extends BaseWebSocket {
 		private WampClientSession m_wampClientSession;
 		private WampRouterSession m_wampRouterSession;
 
@@ -269,7 +269,7 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
-			m_wampRouterSession = new WampRouterSession(this, m_realms);
+			m_wampRouterSession = new WampRouterSession(this, getRealms());
 			debug("WampRouterWebSocket.currentThread:" + Thread.currentThread().getName());
 			this.threadContext = ThreadContext.getThreadContext();
 			shiroResources = org.apache.shiro.util.ThreadContext.getResources();
