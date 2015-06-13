@@ -18,44 +18,28 @@
  */
 package org.ms123.common.wamp.camel;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.camel.AsyncCallback;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.Processor;
-import org.slf4j.helpers.MessageFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.Observable;
-import rx.Observable.OnSubscribe;
-import rx.Observer;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
-import rx.subjects.AsyncSubject;
-import rx.subjects.BehaviorSubject;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
-import org.ms123.common.wamp.WampClientSession;
+import org.apache.camel.util.ExchangeHelper;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.ms123.common.permission.api.PermissionService;
+import org.ms123.common.system.thread.ThreadContext;
 import org.ms123.common.wamp.ApplicationError;
 import org.ms123.common.wamp.Request;
-import org.apache.camel.AsyncCallback;
-import org.apache.camel.ExchangePattern;
-import org.ms123.common.system.thread.ThreadContext;
-import org.ms123.common.permission.api.PermissionService;
-import org.apache.camel.CamelContext;
+import org.ms123.common.wamp.WampClientSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Subscription;
 import static org.ms123.common.wamp.camel.WampClientConstants.*;
-import org.apache.commons.beanutils.ConvertUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WampClientConsumer extends DefaultConsumer {
 
@@ -84,10 +68,10 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	private void wampClientConnected() {
-		info("Consumer.register:" + endpoint.getProcedure()+"/"+this.hashCode());
+		info("Consumer.register:" + endpoint.getProcedure() + "/" + this.hashCode());
 		Subscription addProcSubscription = this.clientSession.registerProcedure(endpoint.getProcedure()).subscribe((request) -> {
 
-			info("Consumer.Procedure called:" + request+"/hashCode:"+this.hashCode());
+			info("Consumer.Procedure called:" + request + "/hashCode:" + this.hashCode());
 			final boolean reply = false;
 			final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
 			prepareExchange(exchange, request);
@@ -96,9 +80,11 @@ public class WampClientConsumer extends DefaultConsumer {
 
 					@Override
 					public void done(boolean doneSync) {
-						Object body = exchange.getOut().getBody();
-						info("Consumer.Body:" + body);
-						request.reply(body);
+						if( exchange.getException() != null){
+							request.reply(buildResponse(exchange.getException()));
+						}else{
+							request.reply(buildResponse(getResult(exchange)));
+						}
 					}
 				});
 			} catch (Exception e) {
@@ -161,15 +147,6 @@ public class WampClientConsumer extends DefaultConsumer {
 		debug("Consumer.prepare.headers:" + headers);
 		debug("Consumer.prepare.body:" + bodyObj);
 
-		String returnSpec = this.endpoint.getRpcReturn();
-		List<String> returnHeaderList = new ArrayList();
-		List<Map> rh = this.endpoint.getReturnHeaders();
-		if (rh != null) {
-			for (Map<String, String> m : rh) {
-				returnHeaderList.add(m.get("name"));
-			}
-		}
-		debug("Consumer.prepare.returnHeaderList:" + returnHeaderList);
 		exchange.getIn().setBody(bodyObj);
 		exchange.getIn().setHeaders(headers);
 		if (properties != null) {
@@ -177,6 +154,84 @@ public class WampClientConsumer extends DefaultConsumer {
 				exchange.setProperty(key, properties.get(key));
 			}
 		}
+	}
+
+	private Object getResult( Exchange exchange){
+		String returnSpec = this.endpoint.getRpcReturn();
+		List<String> returnHeaderList = this.endpoint.getReturnHeaderList();
+		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);
+		if( "body".equals(returnSpec)){
+			return ExchangeHelper.extractResultBody(exchange, null);
+		}else if( "headers".equals(returnSpec)){
+			Map<String, Object> camelVarMap = new HashMap();
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		}else if( "bodyAndHeaders".equals(returnSpec)){
+			Map<String, Object> camelVarMap = new HashMap();
+			if (camelBody instanceof Map<?, ?>) {
+				Map<?, ?> camelBodyMap = (Map<?, ?>) camelBody;
+				for (@SuppressWarnings("rawtypes") Map.Entry e : camelBodyMap.entrySet()) {
+					if (e.getKey() instanceof String) {
+						camelVarMap.put((String) e.getKey(), e.getValue());
+					}
+				}
+			} else {
+				camelVarMap.put("body", camelBody);
+			}
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		}
+		return null;
+	}
+
+	private Map<String, Object> buildResponse(final Object methodResult) {
+		Map<String, Object> response = new HashMap<String, Object>(3);
+		//response.put("id", request.get("id"));
+		response.put("error", null);
+		response.put("result", methodResult);
+		return response;
+	}
+
+	private Map<String, Object> buildResponse(final Exception exception) {
+		final Map<String, Object> response = new HashMap<String, Object>(3);
+		final Map<String, Object> error = new HashMap<String, Object>(6);
+		//error.put("origin", exception.getOrigin());
+		//error.put("code", exception.getErrorCode());
+		String cmessage = null;
+		Throwable cause = exception.getCause();
+		if (cause != null) {
+			while (cause.getCause() != null) {
+				cause = cause.getCause();
+			}
+			cmessage = cause.toString();
+			if (cmessage == null) {
+				cmessage = cause.toString();
+			}
+		}
+		error.put("message", constructMessage(exception.getMessage(), cmessage));
+		error.put("class", exception.getClass().getName());
+		//response.put("id", request.get("id"));
+		response.put("error", error);
+		response.put("result", null);
+		return response;
+	}
+
+	private String constructMessage(String m1, String m2) {
+		if (m2 == null) {
+			return m1;
+		}
+		if (m1 != null && !m1.endsWith(":")) {
+			return m1 + ":" + m2;
+		}
+		return m1 + m2;
 	}
 
 	protected String getUserName() {
@@ -249,7 +304,7 @@ public class WampClientConsumer extends DefaultConsumer {
 	protected void doStart() throws Exception {
 		super.doStart();
 		this.clientSession = endpoint.createWampClientSession("realm1");
-		info("-------Consumer.Start:" + this.clientSession);
+		info("======Consumer.Start:" + this.clientSession);
 		this.clientSession.statusChanged().subscribe((state) -> {
 			info("Consumer.ClientSession:status changed to " + state);
 			if (state == WampClientSession.Status.Connected) {
@@ -270,27 +325,19 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	protected void doStop() throws Exception {
-		debug("######Consumer.Stop:" + endpoint.getProcedure()+"/"+this.hashCode());
+		debug("######Consumer.Stop:" + endpoint.getProcedure() + "/" + this.hashCode());
 		this.clientSession.close();
 		super.doStop();
 	}
 
-	protected void debug(String msg, Object... args) {
-		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
-		LOG.debug(msg, args);
+	protected void debug(String msg) {
+		System.err.println(msg);
+		LOG.debug(msg);
 	}
 
-	protected void info(String msg, Object... args) {
-		System.out.println(MessageFormatter.arrayFormat(msg, varargsToArray(args)).getMessage());
-		LOG.info(msg, args);
-	}
-
-	private Object[] varargsToArray(Object... args) {
-		Object[] ret = new Object[args.length];
-		for (int i = 0; i < args.length; i++) {
-			ret[i] = args[i];
-		}
-		return ret;
+	protected void info(String msg) {
+		System.err.println(msg);
+		LOG.info(msg);
 	}
 }
 

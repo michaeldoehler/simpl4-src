@@ -172,6 +172,18 @@ public class WampClientEndpoint extends DefaultEndpoint {
 		Map  res =  (Map)ds.deserialize(this.rpcReturnHeaders);
 		return (List<Map>)res.get("items");
 	}
+
+	public List<String> getReturnHeaderList(){
+		List<String> returnHeaderList = new ArrayList();
+		List<Map> rh = this.getReturnHeaders();
+		if (rh != null) {
+			for (Map<String, String> m : rh) {
+				returnHeaderList.add(m.get("name"));
+			}
+		}
+		return returnHeaderList;
+	}
+
 	protected List<String> getStringList(String s) {
 		if( s==null) return new ArrayList<String>();
 		return Arrays.asList(s.split(","));
