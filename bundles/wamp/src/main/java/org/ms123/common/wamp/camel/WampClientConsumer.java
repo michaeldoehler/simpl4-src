@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import rx.Subscription;
 import static org.ms123.common.wamp.camel.WampClientConstants.*;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class WampClientConsumer extends DefaultConsumer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WampClientConsumer.class);
@@ -80,9 +81,9 @@ public class WampClientConsumer extends DefaultConsumer {
 
 					@Override
 					public void done(boolean doneSync) {
-						if( exchange.getException() != null){
+						if (exchange.getException() != null) {
 							request.reply(buildResponse(exchange.getException()));
-						}else{
+						} else {
 							request.reply(buildResponse(getResult(exchange)));
 						}
 					}
@@ -156,25 +157,26 @@ public class WampClientConsumer extends DefaultConsumer {
 		}
 	}
 
-	private Object getResult( Exchange exchange){
+	private Object getResult(Exchange exchange) {
 		String returnSpec = this.endpoint.getRpcReturn();
 		List<String> returnHeaderList = this.endpoint.getReturnHeaderList();
 		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);
-		if( "body".equals(returnSpec)){
+		if ("body".equals(returnSpec)) {
 			return ExchangeHelper.extractResultBody(exchange, null);
-		}else if( "headers".equals(returnSpec)){
+		} else if ("headers".equals(returnSpec)) {
 			Map<String, Object> camelVarMap = new HashMap();
 			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
-				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+				if (returnHeaderList.size() == 0 || returnHeaderList.contains(header.getKey())) {
 					camelVarMap.put(header.getKey(), header.getValue());
 				}
 			}
 			return camelVarMap;
-		}else if( "bodyAndHeaders".equals(returnSpec)){
+		} else if ("bodyAndHeaders".equals(returnSpec)) {
 			Map<String, Object> camelVarMap = new HashMap();
 			if (camelBody instanceof Map<?, ?>) {
 				Map<?, ?> camelBodyMap = (Map<?, ?>) camelBody;
-				for (@SuppressWarnings("rawtypes") Map.Entry e : camelBodyMap.entrySet()) {
+				for (@SuppressWarnings("rawtypes")
+				Map.Entry e : camelBodyMap.entrySet()) {
 					if (e.getKey() instanceof String) {
 						camelVarMap.put((String) e.getKey(), e.getValue());
 					}
@@ -183,7 +185,7 @@ public class WampClientConsumer extends DefaultConsumer {
 				camelVarMap.put("body", camelBody);
 			}
 			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
-				if( returnHeaderList.size()==0 || returnHeaderList.contains( header.getKey())){
+				if (returnHeaderList.size() == 0 || returnHeaderList.contains(header.getKey())) {
 					camelVarMap.put(header.getKey(), header.getValue());
 				}
 			}

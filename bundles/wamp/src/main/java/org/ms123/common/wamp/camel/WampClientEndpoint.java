@@ -41,6 +41,7 @@ import java.util.Arrays;
 
 /**
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 @UriEndpoint(scheme = "wampclient", title = "WampClient", syntax = "wampclient:topic", consumerClass = WampClientConsumer.class)
 public class WampClientEndpoint extends DefaultEndpoint {
 
