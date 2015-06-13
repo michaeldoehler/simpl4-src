@@ -35,6 +35,8 @@ import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -81,6 +83,7 @@ public class WampClientEndpoint extends DefaultEndpoint {
 
 	public Consumer createConsumer(Processor processor) throws Exception {
 		WampClientConsumer consumer = new WampClientConsumer(this, processor);
+		System.out.println("createConsumer");
 		configureConsumer(consumer);
 		return consumer;
 	}
@@ -154,16 +157,25 @@ public class WampClientEndpoint extends DefaultEndpoint {
 	}
 
 	public List<String> getPermittedUsers() {
-		return (List<String>)ds.deserialize(this.startableUsers);
+		return getStringList(this.startableUsers);
 	}
 	public List<String> getPermittedRoles() {
-		return (List<String>)ds.deserialize(this.startableGroups);
+		return getStringList(this.startableGroups);
 	}
 	public List<Map> getParamList() {
-		return (List<Map>)ds.deserialize(this.rpcParameter);
+		if( this.rpcParameter==null) return new ArrayList<Map>();
+		Map  res =  (Map)ds.deserialize(this.rpcParameter);
+		return (List<Map>)res.get("items");
 	}
 	public List<Map> getReturnHeaders() {
-		return (List<Map>)ds.deserialize(this.rpcReturnHeaders);
+		if( this.rpcReturnHeaders==null) return new ArrayList<Map>();
+		Map  res =  (Map)ds.deserialize(this.rpcReturnHeaders);
+		return (List<Map>)res.get("items");
 	}
+	protected List<String> getStringList(String s) {
+		if( s==null) return new ArrayList<String>();
+		return Arrays.asList(s.split(","));
+	}
+
 }
 

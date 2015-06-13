@@ -152,16 +152,37 @@ public class WampClientSession {
 		roles.add(WampRoles.Subscriber);
 		RealmConfig realmConfig = new RealmConfig(roles, false);
 		this.webSocket = ws;
-
+info("Consumer.step1");
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		this.scheduler = Schedulers.from(executor);
 		m_wampRouterSession = new WampRouterSession(ws, realms);
 		ws.setWampRouterSession(m_wampRouterSession);
 		m_wampRouterSession.onWebSocketConnect(null);
 		m_wampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
+//info("Consumer.step2");
 	}
 
-	public void close(){
+	public void close() {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(() -> {
+			if (!isCompleted) {
+				if (this.status == Status.Connected) {
+					// Send goodbye to the remote
+					GoodbyeMessage msg = new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN);
+					WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
+				}
+
+				if (this.status != Status.Disconnected) {
+					// Close the connection (or connection attempt)
+					closeCurrentTransport();
+					statusObservable.onNext(this.status);
+				}
+
+				// Normal close without an error
+				completeStatus(null);
+			}
+
+		});
 	}
 
 	public Observable<Long> publish(final String topic, Object... args) {
@@ -191,7 +212,7 @@ public class WampClientSession {
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(() -> {
-			if (status != Status.Connected) {
+			if (this.status != Status.Connected) {
 				resultSubject.onError(new ApplicationError(ApplicationError.NOT_CONNECTED));
 				return;
 			}
@@ -387,7 +408,7 @@ public class WampClientSession {
 
 				ExecutorService executor = Executors.newSingleThreadExecutor();
 				executor.submit(() -> {
-					if (subscriber.isUnsubscribed()){
+					if (subscriber.isUnsubscribed()) {
 						return;
 					}
 					if (status != Status.Connected) {
@@ -422,7 +443,7 @@ public class WampClientSession {
 							@Override
 							public void call(Long t1) {
 								// Check if we were unsubscribed (through transport close)
-								if (newEntry.state != PubSubState.Subscribing){
+								if (newEntry.state != PubSubState.Subscribing) {
 									return;
 								}
 								// Subscription at the broker was successful
@@ -536,8 +557,7 @@ public class WampClientSession {
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(() -> {
-			info("Call:" + status);
-			if (status != Status.Connected) {
+			if (this.status != Status.Connected) {
 				resultSubject.onError(new ApplicationError(ApplicationError.NOT_CONNECTED));
 				return;
 			}
@@ -608,9 +628,9 @@ public class WampClientSession {
 					routerRoles[i] = r;
 					i++;
 				}
-				status = Status.Connected;
-				info("handleMessage:" + status);
-				statusObservable.onNext(status);
+				this.status = Status.Connected;
+				info("handleMessage:" + this.status);
+				statusObservable.onNext(this.status);
 			} else if (msg instanceof AbortMessage) {
 				AbortMessage abort = (AbortMessage) msg;
 				onSessionError(new ApplicationError(abort.reason));
@@ -643,7 +663,7 @@ public class WampClientSession {
 				ErrorMessage r = (ErrorMessage) msg;
 				if (r.requestType == WampMessages.CallMessage.ID || r.requestType == WampMessages.SubscribeMessage.ID || r.requestType == WampMessages.UnsubscribeMessage.ID || r.requestType == WampMessages.PublishMessage.ID || r.requestType == WampMessages.RegisterMessage.ID || r.requestType == WampMessages.UnregisterMessage.ID) {
 					RequestMapEntry requestInfo = requestMap.get(r.requestId);
-					if (requestInfo == null){
+					if (requestInfo == null) {
 						return;
 					}
 					// Ignore the error
@@ -766,8 +786,8 @@ public class WampClientSession {
 
 	private void onSessionError(ApplicationError error) {
 		// We move from connected to disconnected
-		//closeCurrentTransport();
-		statusObservable.onNext(status);
+		closeCurrentTransport();
+		statusObservable.onNext(this.status);
 		if (closeClientOnErrors) {
 			completeStatus(error);
 		}
@@ -800,20 +820,71 @@ public class WampClientSession {
 		return argArray;
 	}
 
+	private void clearPendingRequests(Throwable e) {
+		for (Entry<Long, RequestMapEntry> entry : requestMap.entrySet()) {
+			entry.getValue().resultSubject.onError(e);
+		}
+		requestMap.clear();
+	}
+
+	private void clearAllSubscriptions(Throwable e) {
+		for (HashMap<String, SubscriptionMapEntry> subscriptionByUri : subscriptionsByFlags.values()) {
+			for (Entry<String, SubscriptionMapEntry> entry : subscriptionByUri.entrySet()) {
+				for (Subscriber<? super PubSubData> s : entry.getValue().subscribers) {
+					if (e == null)
+						s.onCompleted();
+					else
+						s.onError(e);
+				}
+				entry.getValue().state = PubSubState.Unsubscribed;
+			}
+			subscriptionByUri.clear();
+		}
+		subscriptionsBySubscriptionId.clear();
+	}
+
+	private void clearAllRegisteredProcedures(Throwable e) {
+		for (Entry<String, RegisteredProceduresMapEntry> entry : registeredProceduresByUri.entrySet()) {
+			if (e == null)
+				entry.getValue().subscriber.onCompleted();
+			else
+				entry.getValue().subscriber.onError(e);
+			entry.getValue().state = RegistrationState.Unregistered;
+		}
+		registeredProceduresByUri.clear();
+		registeredProceduresById.clear();
+	}
+
+	private void closeCurrentTransport() {
+		if (this.status == Status.Disconnected){
+			return;
+		}
+
+		this.welcomeDetails = null;
+		this.sessionId = 0;
+
+		WampClientSession.this.webSocket.onWebSocketClose(-1, "");
+		this.status = Status.Disconnected;
+
+		clearPendingRequests(new ApplicationError(ApplicationError.TRANSPORT_CLOSED));
+		clearAllSubscriptions(null);
+		clearAllRegisteredProcedures(null);
+	}
+
 	public void onWebSocketConnect(Session sess) {
-		debug("<-- SocketConnect");
-		status = Status.Connecting;
+		debug("<-- Client.SocketConnect");
+		this.status = Status.Connecting;
 	}
 
 	public void onWebSocketText(String message) {
-		info("onWebSocketText:" + message);
+		info("Client.onWebSocketText:" + message);
 		try {
 			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
-				debug("<-- CReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
+				debug("<-- Client.ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
 			} else {
-				debug("<-- CReceiveMessage(" + getMessageName(msg) + "):" + message);
+				debug("<-- Client.ReceiveMessage(" + getMessageName(msg) + "):" + message);
 			}
 			handleMessage(msg);
 		} catch (Exception e) {
@@ -824,7 +895,7 @@ public class WampClientSession {
 	public void onWebSocketClose(int statusCode, String reason) {
 		debug("<-- SocketClose:" + statusCode + "/" + reason);
 		//m_context.realm.removeSession(m_context, true);
-		status = Status.Disconnected;
+		this.status = Status.Disconnected;
 	}
 
 	public void onWebSocketError(Throwable cause) {

@@ -84,45 +84,27 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	private void wampClientConnected() {
-		info("register:" + endpoint.getProcedure());
+		info("Consumer.register:" + endpoint.getProcedure());
 		Subscription addProcSubscription = this.clientSession.registerProcedure(endpoint.getProcedure()).subscribe((request) -> {
 
-			info("Request:" + request);
+			info("Consumer.Procedure called:" + request);
 			final boolean reply = false;
 			final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
 			prepareExchange(exchange, request);
-			exchange.getIn().setBody("Hello from Endpoint");
 			try {
 				getAsyncProcessor().process(exchange, new AsyncCallback() {
 
 					@Override
 					public void done(boolean doneSync) {
-						info("Body:" + exchange.getOut().getBody());
-						request.reply(exchange.getOut().getBody());
+						Object body = exchange.getOut().getBody();
+						info("Consumer.Body:" + body);
+						request.reply(body);
 					}
 				});
 			} catch (Exception e) {
-				getExceptionHandler().handleException("Error processing Wamp event: " + exchange, e);
+				e.printStackTrace();
+
 			}
-
-			/*if (request.arguments() == null || request.arguments().size() != 2 || !request.arguments().get(0).canConvertToLong() || !request.arguments().get(1).canConvertToLong()) {
-				try {
-					request.replyError(new ApplicationError(ApplicationError.INVALID_PARAMETER));
-				} catch (ApplicationError e) {
-					e.printStackTrace();
-				}
-			} else {
-				long a = request.arguments().get(0).asLong();
-				long b = request.arguments().get(1).asLong();
-				request.reply(a + b);
-			}*/
-		});
-
-		Observable<Long> result1 = this.clientSession.call("com.myapp.add2", Long.class, 33, 66);
-		result1.subscribe((t2) -> {
-			System.out.println("Completed add with result " + t2);
-		}, (t3) -> {
-			System.out.println("Completed add with error " + t3);
 		});
 	}
 
@@ -135,10 +117,10 @@ public class WampClientConsumer extends DefaultConsumer {
 		List<String> permittedUserList = this.endpoint.getPermittedUsers();
 		String userName = getUserName();
 		List<String> userRoleList = getUserRoles(userName);
-		debug("userName:" + userName);
-		debug("userRoleList:" + userRoleList);
-		debug("permittedRoleList:" + permittedRoleList);
-		debug("permittedUserList:" + permittedUserList);
+		debug("Consumer.prepare.userName:" + userName);
+		debug("Consumer.prepare.userRoleList:" + userRoleList);
+		debug("Consumer.prepare.permittedRoleList:" + permittedRoleList);
+		debug("Consumer.prepare.permittedUserList:" + permittedUserList);
 		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
 			throw new RuntimeException(PERMISSION_DENIED + ":User(" + userName + ") has no permission");
 		}
@@ -173,10 +155,11 @@ public class WampClientConsumer extends DefaultConsumer {
 			}
 		}
 		//properties.put("__logExceptionsOnly", getBoolean(shape, "logExceptionsOnly", false));
-		debug("methodParams:" + methodParams);
-		debug("paramList:" + paramList);
-		debug("properties:" + properties);
-		debug("headers:" + headers);
+		debug("Consumer.prepare.methodParams:" + methodParams);
+		debug("Consumer.prepare.paramList:" + paramList);
+		debug("Consumer.prepare.properties:" + properties);
+		debug("Consumer.prepare.headers:" + headers);
+		debug("Consumer.prepare.body:" + bodyObj);
 
 		String returnSpec = this.endpoint.getRpcReturn();
 		List<String> returnHeaderList = new ArrayList();
@@ -184,6 +167,14 @@ public class WampClientConsumer extends DefaultConsumer {
 		if (rh != null) {
 			for (Map<String, String> m : rh) {
 				returnHeaderList.add(m.get("name"));
+			}
+		}
+		debug("Consumer.prepare.returnHeaderList:" + returnHeaderList);
+		exchange.getIn().setBody(bodyObj);
+		exchange.getIn().setHeaders(headers);
+		if (properties != null) {
+			for (String key : properties.keySet()) {
+				exchange.setProperty(key, properties.get(key));
 			}
 		}
 	}
@@ -194,12 +185,10 @@ public class WampClientConsumer extends DefaultConsumer {
 
 	protected boolean isPermitted(String userName, List<String> userRoleList, List<String> permittedUserList, List<String> permittedRoleList) {
 		if (permittedUserList.contains(userName)) {
-			info("userName(" + userName + " is allowed:" + permittedUserList);
 			return true;
 		}
 		for (String userRole : userRoleList) {
 			if (permittedRoleList.contains(userRole)) {
-				info("userRole(" + userRole + " is allowed:" + permittedRoleList);
 				return true;
 			}
 		}
@@ -222,13 +211,13 @@ public class WampClientConsumer extends DefaultConsumer {
 			value = def;
 		}
 		if (value == null && optional == false) {
-			throw new RuntimeException("CamelRouteService:Missing parameter:" + name);
+			throw new RuntimeException("WampClientConsumer:Missing parameter:" + name);
 		}
 		if (value == null) {
 			return null;
 		}
 		if (!type.isAssignableFrom(value.getClass())) {
-			throw new RuntimeException("CamelRouteService:parameter(" + name + ") wrong type:" + value.getClass() + " needed:" + type);
+			throw new RuntimeException("WampClientConsumer:parameter(" + name + ") wrong type:" + value.getClass() + " needed:" + type);
 		}
 		return value;
 	}
@@ -259,8 +248,9 @@ public class WampClientConsumer extends DefaultConsumer {
 
 	protected void doStart() throws Exception {
 		this.clientSession = endpoint.createWampClientSession("realm1");
+		info("-------Consumer.Start:" + this.clientSession);
 		this.clientSession.statusChanged().subscribe((state) -> {
-			info("ClientSession:status changed to " + state);
+			info("Consumer.ClientSession:status changed to " + state);
 			if (state == WampClientSession.Status.Connected) {
 				try {
 					Thread.sleep(100);
@@ -270,23 +260,23 @@ public class WampClientConsumer extends DefaultConsumer {
 			}
 			if (state == WampClientSession.Status.Disconnected) {
 				try {
-					this.doStop();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+					//this.doStop();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-		}, (t) -> {
-			debug("ClientSession ended with error " + t);
-		}, () -> {
-			debug("clientSession ended normally");
-		});
+		}
+	}, (t) -> {
+		debug("Consumer.ClientSession ended with error " + t);
+		t.printStackTrace();
+	}, () -> {
+		debug("Consumer.ClientSession ended normally");
+	}	);
 		super.doStart();
 	}
 
 	protected void doStop() throws Exception {
-		debug("Stopping WampClientConsumer " + endpoint.getProcedure());
+		debug("######Consumer.Stop:" + endpoint.getProcedure());
 		this.clientSession.close();
-		this.clientSession = null;
 		super.doStop();
 	}
 
