@@ -84,10 +84,10 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	private void wampClientConnected() {
-		info("Consumer.register:" + endpoint.getProcedure());
+		info("Consumer.register:" + endpoint.getProcedure()+"/"+this.hashCode());
 		Subscription addProcSubscription = this.clientSession.registerProcedure(endpoint.getProcedure()).subscribe((request) -> {
 
-			info("Consumer.Procedure called:" + request);
+			info("Consumer.Procedure called:" + request+"/hashCode:"+this.hashCode());
 			final boolean reply = false;
 			final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
 			prepareExchange(exchange, request);
@@ -247,6 +247,7 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	protected void doStart() throws Exception {
+		super.doStart();
 		this.clientSession = endpoint.createWampClientSession("realm1");
 		info("-------Consumer.Start:" + this.clientSession);
 		this.clientSession.statusChanged().subscribe((state) -> {
@@ -259,23 +260,17 @@ public class WampClientConsumer extends DefaultConsumer {
 				wampClientConnected();
 			}
 			if (state == WampClientSession.Status.Disconnected) {
-				try {
-					//this.doStop();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
 			}
-		}
-	}, (t) -> {
-		debug("Consumer.ClientSession ended with error " + t);
-		t.printStackTrace();
-	}, () -> {
-		debug("Consumer.ClientSession ended normally");
-	}	);
-		super.doStart();
+		}, (t) -> {
+			debug("Consumer.ClientSession ended with error " + t);
+			t.printStackTrace();
+		}, () -> {
+			debug("Consumer.ClientSession ended normally");
+		});
 	}
 
 	protected void doStop() throws Exception {
-		debug("######Consumer.Stop:" + endpoint.getProcedure());
+		debug("######Consumer.Stop:" + endpoint.getProcedure()+"/"+this.hashCode());
 		this.clientSession.close();
 		super.doStop();
 	}

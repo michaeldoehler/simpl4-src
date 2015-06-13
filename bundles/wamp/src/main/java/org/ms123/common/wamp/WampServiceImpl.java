@@ -216,7 +216,6 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		return m_realms;
 	}
 
-	//@RequiresRoles("admin")
 	public static WampClientSession createWampClientSession(String realm) {
 		WampClientWebSocket ws = new WampClientWebSocket();
 		WampClientSession wcs = new WampClientSession(ws, realm, getRealms());
@@ -240,11 +239,16 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 
 		public void sendStringByFuture(String message) {
-			info("WampClientWebSocket:" + message);
+			info("WampClientWebSocket.sendStringByFuture:" + message);
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.submit(() -> {
 				m_wampClientSession.onWebSocketText(message);
 			});
+		}
+		@Override
+		public void onWebSocketConnect(Session sess) {
+			info("WampClientWebSocket.onWebSocketConnect");
+			m_wampRouterSession.onWebSocketConnect(sess);
 		}
 
 		@Override
@@ -253,7 +257,11 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 		}
 		@Override
 		public void onWebSocketClose(int status, String reason) {
-			m_wampRouterSession.onWebSocketClose(status,reason);
+			info("WampClientWebSocket.onWebSocketClose");
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.submit(() -> {
+				m_wampRouterSession.onWebSocketClose(status,reason);
+			});
 		}
 	}
 

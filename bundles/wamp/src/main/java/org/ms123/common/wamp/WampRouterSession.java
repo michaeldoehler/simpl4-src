@@ -389,7 +389,7 @@ class WampRouterSession {
 	}
 
 	public void onWebSocketConnect(Session sess) {
-		debug("<-- SocketConnect");
+		debug("<-- WampRouterSession.SocketConnect");
 		state = CONNECTED;
 	}
 

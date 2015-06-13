@@ -71,7 +71,7 @@ public class WampClientSession {
 	/** The current status */
 	private Status status = Status.Disconnected;
 
-	private BehaviorSubject<Status> statusObservable = BehaviorSubject.create(Status.Disconnected);
+	private BehaviorSubject<Status> statusObservable = BehaviorSubject.create();
 
 	private ObjectMapper m_objectMapper = new ObjectMapper();
 	private ObjectNode welcomeDetails = null;
@@ -152,14 +152,15 @@ public class WampClientSession {
 		roles.add(WampRoles.Subscriber);
 		RealmConfig realmConfig = new RealmConfig(roles, false);
 		this.webSocket = ws;
-info("Consumer.step1");
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		this.scheduler = Schedulers.from(executor);
 		m_wampRouterSession = new WampRouterSession(ws, realms);
 		ws.setWampRouterSession(m_wampRouterSession);
-		m_wampRouterSession.onWebSocketConnect(null);
-		m_wampRouterSession.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
-//info("Consumer.step2");
+		executor = Executors.newSingleThreadExecutor();
+		executor.submit(() -> {
+			ws.onWebSocketConnect(null);
+			ws.onWebSocketText(WampCodec.encode(new HelloMessage(realmName, null)));
+		});
 	}
 
 	public void close() {
@@ -856,7 +857,7 @@ info("Consumer.step1");
 	}
 
 	private void closeCurrentTransport() {
-		if (this.status == Status.Disconnected){
+		if (this.status == Status.Disconnected) {
 			return;
 		}
 
@@ -872,19 +873,19 @@ info("Consumer.step1");
 	}
 
 	public void onWebSocketConnect(Session sess) {
-		debug("<-- Client.SocketConnect");
+		debug("<-- WampClientSession.SocketConnect");
 		this.status = Status.Connecting;
 	}
 
 	public void onWebSocketText(String message) {
-		info("Client.onWebSocketText:" + message);
+		info("WampClientSession.onWebSocketText:" + message);
 		try {
 			WampMessage msg = WampCodec.decode(message.getBytes());
 			if (msg instanceof ErrorMessage) {
 				ErrorMessage errMsg = (ErrorMessage) msg;
-				debug("<-- Client.ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
+				debug("<-- WampClientSession.ReceiveMessage(error):" + errMsg.error + "/requestId:" + errMsg.requestId + "/requestType:" + errMsg.requestType);
 			} else {
-				debug("<-- Client.ReceiveMessage(" + getMessageName(msg) + "):" + message);
+				debug("<-- WampClientSession.ReceiveMessage(" + getMessageName(msg) + "):" + message);
 			}
 			handleMessage(msg);
 		} catch (Exception e) {
