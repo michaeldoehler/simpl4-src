@@ -94,6 +94,7 @@ cp $SRCTOPDIR/bin/sw $BINDIRECTORY
 cp $SRCTOPDIR/bin/generate.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/setup.bat $BINDIRECTORY
+cp $SRCTOPDIR/bin/jooq-codegen.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/bash.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/py.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/start.sh $BINDIRECTORY
@@ -109,6 +110,7 @@ cp $SRCTOPDIR/bin/uninstallservice.bat $BINDIRECTORY
 cp    $SRCTOPDIR/etc/shell.init.script $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/users-init-script.sql $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/branding.example $ETCDIRECTORY/
+cp    $SRCTOPDIR/etc/jooq-codegen.xml.example  $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logo.ico $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/logback.xml.tpl $ETCDIRECTORY/
 cp    $SRCTOPDIR/etc/cassandra.yaml $ETCDIRECTORY/
