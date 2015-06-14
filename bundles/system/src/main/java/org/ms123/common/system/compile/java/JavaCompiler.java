@@ -18,14 +18,18 @@ import org.osgi.framework.Bundle;
 public class JavaCompiler {
 	static javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
 
-	public static Class<?> compile(String className, String sourceCodeInText) throws Exception {
+	public static Class<?> compile(Bundle bundle, String className, String sourceCodeInText) throws Exception {
 		SourceCode sourceCode = new SourceCode(className, sourceCodeInText);
 		CompiledCode compiledCode = new CompiledCode(className);
 		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceCode);
 		DynamicClassLoader cl = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), compiledCode, cl);
-		javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
+
+ // the OSGi aware file manager
+    BundleJavaManager bundleFileManager = new BundleJavaManager( bundle, fileManager, null);
+
+		javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, bundleFileManager, diagnostics, null, null, compilationUnits);
 		fileManager.close();
 		if (task.call()) {
 			return cl.loadClass(className);
