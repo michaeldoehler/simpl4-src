@@ -14,7 +14,7 @@ dependencies {
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/flexjson-2.1.bar")
   compile files("${repository}/jsch-0.1.44-1.bar")
-  compile files("${repository}/postgresql-9.3-1101.jdbc4.bar")
+  compile files("${repository}/jdbc/postgresql-9.3-1101.jdbc4.bar")
 	compile files("${repository}/slf4j-api-1.6.1.jar")
 	compile files("${repository}/redmine-java-api-1.23.jar")
 }

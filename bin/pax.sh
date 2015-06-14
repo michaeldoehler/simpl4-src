@@ -142,10 +142,10 @@ do
 	xbeanbundles=${xbeanbundles}"scan-bundle:file:$i "
 done
 
-paxbundles=""
-for i in $REPOSITORY/pax-jdbc-0.50/*jar
+jdbcbundles=""
+for i in $REPOSITORY/jdbc/*[bj]ar
 do
-	paxbundles=${paxbundles}"scan-bundle:file:$i "
+	jdbcbundles=${jdbcbundles}"scan-bundle:file:$i "
 done
 
 jacksonbundles=""
@@ -218,7 +218,7 @@ ${nucleusbundles} \
 ${camelbundles} \
 ${commonsbundles} \
 ${xbeanbundles} \
-${paxbundles} \
+${jdbcbundles} \
 ${jacksonbundles} \
 ${openfirebundles} \
 ${jooqbundles} \
@@ -326,7 +326,6 @@ ${cassandrabundles} \
   scan-bundle:file:$REPOSITORY/commons.compiler-2.6.1.jar \
   scan-bundle:file:$REPOSITORY/phonet4j-1.0.2.bar \
 	scan-bundle:file:$REPOSITORY/poi-3.8beta4-all.bar \
-	scan-bundle:file:$REPOSITORY/postgresql-9.3-1101.jdbc4.bar  \
   scan-bundle:file:$REPOSITORY/rngom-20100718.bar \
 	scan-bundle:file:$REPOSITORY/scala-library.bar \
   scan-bundle:file:$REPOSITORY/secondstring-20140225.bar \
@@ -379,7 +378,6 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-1.5.2.bar \
 	scan-bundle:file:$REPOSITORY/schemacrawler-14.01.01.jar \
-	scan-bundle:file:$REPOSITORY/ojdbc6.bar \
 	scan-bundle:file:$REPOSITORY/management-api-1.1.bar \
 	scan-bundle:file:$REPOSITORY/asciidoctorj-groovy-dsl.bar \
 	scan-bundle:file:$REPOSITORY/EasyFlow-1.3.2.bar \
