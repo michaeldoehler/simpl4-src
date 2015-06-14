@@ -121,6 +121,7 @@ public class GitServiceImpl implements GitService {
 	List<String> m_rawList = new ArrayList<String>() {
 		{
 			add("sw.groovy");
+			add("sw.java");
 			add("image/svg+xml");
 			add("text/html");
 			add("text/xml");
@@ -1158,6 +1159,8 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			return "application/vnd.oasis.opendocument.text";
 		}else if( file.toString().endsWith(".groovy")){
 			return "sw.groovy";
+		}else if( file.toString().endsWith(".java")){
+			return "sw.java";
 		}
 		RandomAccessFile r = null;
 		try {

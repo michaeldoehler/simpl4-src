@@ -92,6 +92,9 @@ qx.Class.define("ms123.shell.views.NewFile", {
 			if( nt.match("^"+ms123.shell.Config.GROOVY_FT)){
 				return this._handleGroovy(name,nt);
 			}
+			if( nt.match("^"+ms123.shell.Config.JAVA_FT)){
+				return this._handleGroovy(name,nt);
+			}
 			return {
 				name:name,
 				nt:nt,
@@ -119,7 +122,11 @@ qx.Class.define("ms123.shell.views.NewFile", {
 		_handleGroovy:function(name, nt){
 			var content = null;
 			var maintype = nt.split("/")[0].toLowerCase();
-			var subtype = nt.split("/")[1].toLowerCase();
+			var subtype = null;
+			try{
+				subtype = nt.split("/")[1].toLowerCase();
+			}catch(e){
+			}
 			var className = this._getClassName(name,maintype);
 			if( subtype == "bean"){
 				content = this._getBean(className);

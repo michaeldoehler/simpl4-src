@@ -20,6 +20,7 @@ package org.ms123.common.camel;
 
 public interface Constants {
 	public final String GROOVY_TYPE = "sw.groovy";
+	public final String JAVA_TYPE = "sw.java";
 	public final String DIRECTORY_TYPE = "sw.directory";
 	public final String CAMEL_CONTEXT = "context";
 	public final String CAMEL_DSL_MD5 = "dsl_md5";

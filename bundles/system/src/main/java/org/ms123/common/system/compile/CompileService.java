@@ -25,4 +25,8 @@ public interface CompileService {
 	public  void	compileGroovy(String namespace,String path,String code);
 	public void compileGroovyAll();
 	public List<Map> compileGroovyNamespace(String namespace);
+
+	public  void	compileJava(String namespace,String path,String code);
+	public void compileJavaAll();
+	public List<Map> compileJavaNamespace(String namespace);
 }

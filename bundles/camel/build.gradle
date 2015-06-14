@@ -40,5 +40,6 @@ dependencies {
 	compile files("${repository}/xdocreport-1.0.5.jar")
 	compile files("${repository}/UserAgentUtils-1.9-snapshot.bar")
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
+	compile files("${repository}/phidias-0.3.5.jar")
   compile files('build/classes/main')
 }

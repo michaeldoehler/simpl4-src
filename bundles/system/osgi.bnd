@@ -1,5 +1,5 @@
 version=1.0.0
-Export-Package org.ms123.common.system, org.ms123.common.system.tm, org.ms123.common.system.thread, org.ms123.common.system.jndi, org.ms123.common.system.log, org.ms123.common.system.call,org.ms123.common.system.compile,org.ms123.common.system.registry
+Export-Package org.ms123.common.system, org.ms123.common.system.tm, org.ms123.common.system.thread, org.ms123.common.system.jndi, org.ms123.common.system.log, org.ms123.common.system.call, org.ms123.common.system.compile, org.ms123.common.system.compile.java, org.ms123.common.system.registry
 Import-Package *,bitronix.tm.jndi,com.noorq.casser.core.reflect,com.noorq.casser.mapping
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.

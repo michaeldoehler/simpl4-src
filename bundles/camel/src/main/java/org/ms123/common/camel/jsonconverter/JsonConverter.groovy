@@ -209,9 +209,22 @@ abstract class JsonConverterImpl implements JsonConverter{
 		return optionsMap;
 	}
 
-	def createProcessor(processMethodStr) {
+	def createProcessorGroovy(processMethodStr) {
 		def code = buildScript(processMethodStr);
-		System.out.println("Processor.Code:" + code);
+		System.out.println("Processor.Code.groovy:" + code);
+		try {
+			def gs = new GroovyShell();
+			def clazz  = (Class) gs.evaluate(code);
+			return clazz.newInstance();
+		} catch (Throwable e) {
+			String msg = Utils.formatGroovyException(e,code);
+			throw new RuntimeException(msg);
+		}
+	}
+
+	def createProcessorJava(processMethodStr) {
+		def code = buildScript(processMethodStr);
+		System.out.println("Processor.Code.java:" + code);
 		try {
 			def gs = new GroovyShell();
 			def clazz  = (Class) gs.evaluate(code);
@@ -242,28 +255,28 @@ abstract class JsonConverterImpl implements JsonConverter{
 	}
 
 	def buildScript(processMethodStr) {
-		def script = "import org.apache.camel.*\n";
-		script += "import org.apache.camel.impl.*\n";
-		script += "import org.apache.camel.builder.*\n";
-		script += "import org.apache.camel.model.dataformat.*\n";
-		script += "import org.ms123.common.data.api.SessionContext\n";
-		script += "import org.ms123.common.data.api.DataLayer\n";
-		script += "import org.ms123.common.git.GitService\n";
-		script += "import org.ms123.common.auth.api.AuthService\n";
-		script += "import org.ms123.common.nucleus.api.NucleusService\n";
-		script += "import org.ms123.common.store.StoreDesc\n";
-		script += "import org.ms123.common.permission.api.PermissionService\n";
-		script += "import org.ms123.common.team.api.TeamService\n";
-		script += "import org.ms123.common.system.thread.ThreadContext\n";
-		script += "import org.ms123.common.permission.api.PermissionException\n";
-		script += "import org.ms123.common.libhelper.Inflector\n";
-		script += "import java.util.*\n";
-		script += "import flexjson.JSONSerializer\n";
-		script += "import flexjson.JSONDeserializer\n";
-		script += "class MyProcessor implements Processor{\n";
+		def script = "import org.apache.camel.*\n;";
+		script += "import org.apache.camel.impl.*\n;";
+		script += "import org.apache.camel.builder.*\n;";
+		script += "import org.apache.camel.model.dataformat.*\n;";
+		script += "import org.ms123.common.data.api.SessionContext\n;";
+		script += "import org.ms123.common.data.api.DataLayer\n;";
+		script += "import org.ms123.common.git.GitService\n;";
+		script += "import org.ms123.common.auth.api.AuthService\n;";
+		script += "import org.ms123.common.nucleus.api.NucleusService\n;";
+		script += "import org.ms123.common.store.StoreDesc\n;";
+		script += "import org.ms123.common.permission.api.PermissionService\n;";
+		script += "import org.ms123.common.team.api.TeamService\n;";
+		script += "import org.ms123.common.system.thread.ThreadContext\n;";
+		script += "import org.ms123.common.permission.api.PermissionException\n;";
+		script += "import org.ms123.common.libhelper.Inflector\n;";
+		script += "import java.util.*\n;";
+		script += "import flexjson.JSONSerializer\n;";
+		script += "import flexjson.JSONDeserializer\n;";
+		script += "class MyProcessor implements Processor{\n;";
 		script += processMethodStr;
-		script += "}\n";
-		script += "return MyProcessor.class\n";
+		script += "}\n;";
+		script += "return MyProcessor.class\n;";
 		return script;
 	}
 
@@ -652,6 +665,7 @@ class SetPropertyJsonConverter extends JsonConverterImpl{
 class ProcessorJsonConverter extends JsonConverterImpl{
 	void convertToCamel(ctx){
 		def code = shapeProperties.code;
+		def codeLanguage = shapeProperties.codeLanguage;
 		def isEndpoint = shapeProperties.isEndpoint;
 		def ref = shapeProperties.ref;
 		if( isNotEmpty(ref)){
@@ -661,7 +675,12 @@ class ProcessorJsonConverter extends JsonConverterImpl{
 				ctx.current = ctx.current.processRef(ref);
 			}
 		}else if( code != null && code.length()> 10){
-			def processor = createProcessor(code);
+			def processor=null;
+			if( "java".equals(codeLanguage)){
+				processor = createProcessorJava(code);
+			}else{
+				processor = createProcessorGroovy(code);
+			}
 			println("processor:"+processor);
 			ctx.current = ctx.current.process(processor);
 		}

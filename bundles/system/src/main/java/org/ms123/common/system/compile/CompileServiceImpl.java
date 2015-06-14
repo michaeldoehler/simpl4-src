@@ -71,7 +71,17 @@ public class CompileServiceImpl extends BaseCompileServiceImpl implements Compil
 		try {
 			_compileGroovyAll();
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CompileServiceImpl.compile:",e);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CompileServiceImpl.groovycompile:",e);
+		}
+	}
+
+	@RequiresRoles("admin")
+	public void  compileJavaAll(
+		 ) throws RpcException {
+		try {
+			_compileJavaAll();
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CompileServiceImpl.javacompile:",e);
 		}
 	}
 

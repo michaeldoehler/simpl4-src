@@ -53,6 +53,8 @@ qx.Class.define("ms123.shell.FileType", {
 					return "resource/ms123/stencil.png";
 				}else if (type == ms123.shell.Config.GROOVY_FT) {
 					return "resource/ms123/groovy.png";
+				}else if (type == ms123.shell.Config.JAVA_FT) {
+					return "resource/ms123/java.png";
 				}else if (type == ms123.shell.Config.DATAMAPPER_FT) {
 					return "resource/ms123/datamapper.png";
 				}else if (type == "image/svg+xml") {
@@ -78,7 +80,7 @@ qx.Class.define("ms123.shell.FileType", {
 			return "resource/ms123/file.png";
 		},
 		getAllEditables:function(){
-				return  ["sw.rule","sw.process","sw.filter", "sw.form", "sw.website", "sw.webpage", "sw.camel", "sw.stencil", "sw.groovy", "sw.datamapper", "sw.document"];
+				return  ["sw.rule","sw.process","sw.filter", "sw.form", "sw.website", "sw.webpage", "sw.camel", "sw.stencil", "sw.groovy", "sw.java", "sw.datamapper", "sw.document"];
 		},
 		getAllJsonEditables:function(){
 				return  ["sw.rule","sw.process","sw.filter", "sw.form","sw.website", "sw.camel",  "sw.stencil", "sw.datamapper", "sw.document"];
@@ -113,6 +115,7 @@ qx.Class.define("ms123.shell.FileType", {
 			iconMap[ms123.shell.Config.CAMEL_FT]= "resource/ms123/camel.png";
 			iconMap[ms123.shell.Config.STENCIL_FT]= "resource/ms123/stencil.png";
 			iconMap[ms123.shell.Config.GROOVY_FT]= "resource/ms123/groovy.png";
+			iconMap[ms123.shell.Config.JAVA_FT]= "resource/ms123/java.png";
 			iconMap[ms123.shell.Config.DATAMAPPER_FT]= "resource/ms123/datamapper.png";
 			iconMap[ms123.shell.Config.RULE_FT] = ms123.shell.FileType._getIconUrl("bpmn/activity/list/type.business.rule.png");
 			iconMap[ms123.shell.Config.FORM_FT] = ms123.shell.FileType._getIconUrl("bpmn/activity/list/type.user.png");
@@ -131,6 +134,9 @@ qx.Class.define("ms123.shell.FileType", {
 				{ label: qx.locale.Manager.tr("Groovy"),   value: ms123.shell.Config.GROOVY_FT},
 				{ label: qx.locale.Manager.tr("Groovy/Bean"),   value: ms123.shell.Config.GROOVY_FT+"/Bean"},
 				{ label: qx.locale.Manager.tr("Groovy/Processor"),   value: ms123.shell.Config.GROOVY_FT+"/Processor"},
+				{ label: qx.locale.Manager.tr("Java"),   value: ms123.shell.Config.JAVA_FT},
+				{ label: qx.locale.Manager.tr("Java/Bean"),   value: ms123.shell.Config.JAVA_FT+"/Bean"},
+				{ label: qx.locale.Manager.tr("Java/Processor"),   value: ms123.shell.Config.JAVA_FT+"/Processor"},
 				{ label: qx.locale.Manager.tr("shell.nt_datamapper"),   value: ms123.shell.Config.DATAMAPPER_FT},
 				{ label: qx.locale.Manager.tr("shell.nt_website"),   value: ms123.shell.Config.WEBSITE_FT},
 				{ label: qx.locale.Manager.tr("shell.nt_webpage"),   value: ms123.shell.Config.WEBPAGE_FT},

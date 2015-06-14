@@ -43,6 +43,7 @@ import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.utils.Inflector;
 import org.ms123.common.libhelper.Utils;
+import org.ms123.common.system.compile.java.JavaCompiler;
 
 import org.osgi.framework.BundleContext;
 
@@ -93,6 +94,7 @@ import static org.ms123.common.system.log.LogService.LOG_TYPE;
 import static org.ms123.common.system.log.LogService.LOG_HINT;
 import static org.ms123.common.system.log.LogService.LOG_TIME;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  *
@@ -546,6 +548,18 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		} catch (Throwable e) {
 			String msg = Utils.formatGroovyException(e,code);
 			throw new RuntimeException(msg);
+		}
+		newGroovyClassLoader();
+	}
+
+	protected void	_compileJava(String namespace,String path,String code){
+		String destDir = System.getProperty("workspace")+"/"+ "java"+"/"+namespace;
+		String srcDir = System.getProperty("git.repos")+"/"+namespace;
+		try{
+			JavaCompiler.compile(m_bundleContext.getBundle(), FilenameUtils.getBaseName(path), code,new File(destDir));
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		}
 		newGroovyClassLoader();
 	}

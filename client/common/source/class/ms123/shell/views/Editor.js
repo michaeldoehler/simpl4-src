@@ -53,6 +53,8 @@ qx.Class.define("ms123.shell.views.Editor", {
 			widget = this._handleWebpage(model);
 		}else if( model.getType() == ms123.shell.Config.GROOVY_FT ){
 			widget = this._handleGroovy(model);
+		}else if( model.getType() == ms123.shell.Config.JAVA_FT ){
+			widget = this._handleJava(model);
 		}else if( model.getType() == ms123.shell.Config.RULE_FT ){
 			widget = this._handleRule(model);
 		}else{
@@ -134,6 +136,21 @@ qx.Class.define("ms123.shell.views.Editor", {
 			ge.addListener("save", function(e){
 				var content = e.getData();
 				this._saveGroovy( model, type.substring(3), content);
+			}, this);
+			return ge;
+		},
+		_handleJava:function(model){
+			var type = model.getType();
+			var config = {};
+			config.storeDesc = this.facade.storeDesc;
+			config.facade = this.facade;
+			config.mode="text/x-java";
+			var content = this._getContentRaw(model.getPath());
+			var ge = new ms123.shell.views.TextEditor(config,content);
+			this._realEditor = ge;
+			ge.addListener("save", function(e){
+				var content = e.getData();
+				this._saveJava( model, type.substring(3), content);
 			}, this);
 			return ge;
 		},
@@ -306,9 +323,13 @@ qx.Class.define("ms123.shell.views.Editor", {
 		_saveGroovy: function (model, what, content) {
 			this._saveCamel(model,what,content);
 		},
+		_saveJava: function (model, what, content) {
+			this._saveCamel(model,what,content);
+		},
 		_saveCamel: function (model, what, content) {
 			var methods = {
 				"camel":"saveRouteShape",
+				"java":"saveJava",
 				"groovy":"saveGroovyScript"
 			}
 			var path = model.getPath();
