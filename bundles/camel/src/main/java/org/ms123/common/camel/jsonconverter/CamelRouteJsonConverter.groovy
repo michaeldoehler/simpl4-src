@@ -43,6 +43,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.model.language.ConstantExpression;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.osgi.framework.BundleContext;
 
 /**
  */
@@ -52,7 +53,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 	def m_typesMap = [:];
 	def m_shapeMap = [:];
 	def m_sharedEndpointMap = [:];
-	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv) {
+	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv,BundleContext bundleContext) {
 		m_path = path;
 		m_ctx = new JsonConverterContext();
 		m_ctx.modelCamelContext = camelContext;
@@ -67,7 +68,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 			if( converter == null){
 				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
 			}
-			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding);
+			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding,bundleContext:bundleContext);
 			createConverterGraph(startJsonConverter, startShape);
 			m_ctx.routeStart=true;
 			new JsonConverterVisitor(m_ctx:m_ctx).visit(startJsonConverter);

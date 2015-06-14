@@ -42,8 +42,10 @@ public class GroovyRegistry implements Registry {
 
 	public GroovyRegistry(ClassLoader parent, BundleContext bc, String namespace) {
 		String basedir = System.getProperty("workspace") + "/" + "groovy" + "/" + namespace;
-		m_locations = new File[1];
+		String basedir2 = System.getProperty("workspace") + "/" + "java" + "/" + namespace;
+		m_locations = new File[2];
 		m_locations[0] = new File(basedir);
+		m_locations[1] = new File(basedir2);
 		m_fsClassLoader = new FileSystemClassLoader(parent, m_locations);
 		m_bundleContect=bc;
 	}

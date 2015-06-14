@@ -40,6 +40,8 @@ import org.ms123.common.libhelper.Utils;
 import flexjson.*;
 import java.util.Collection;
 import javax.xml.namespace.QName;
+import org.ms123.common.system.compile.java.JavaCompiler;
+import org.osgi.framework.BundleContext;
 
 class JsonConverterVisitor {
 	def m_ctx;
@@ -70,6 +72,7 @@ abstract class JsonConverterImpl implements JsonConverter{
 	public def  shapeProperties;
 	public def  resourceId;
 	public def  branding;
+	public def  bundleContext;;
 	def children = []
 	def engine = new SimpleTemplateEngine();
 	def serializer = new JSONSerializer();
@@ -226,12 +229,10 @@ abstract class JsonConverterImpl implements JsonConverter{
 		def code = buildScript(processMethodStr);
 		System.out.println("Processor.Code.java:" + code);
 		try {
-			def gs = new GroovyShell();
-			def clazz  = (Class) gs.evaluate(code);
+			def clazz = JavaCompiler.compile(bundleContext.getBundle(), "MyProcessor", code);
 			return clazz.newInstance();
 		} catch (Throwable e) {
-			String msg = Utils.formatGroovyException(e,code);
-			throw new RuntimeException(msg);
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 

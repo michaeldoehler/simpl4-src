@@ -280,7 +280,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			throw new RuntimeException("User(" + userName + ") has no permission execute route:"+namespace+"/"+name);
 		}
 
-		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv);
+		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv, m_bundleContext);
 		RoutesDefinition routesDef = c.getRoutesDefinition();
 						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(context,routesDef));
 		int i=1;
@@ -319,7 +319,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 
 	private RoutesDefinition createRoutesDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
-		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null);
+		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null,m_bundleContext);
 		return c.getRoutesDefinition();
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){
