@@ -266,7 +266,9 @@ qx.Class.define("ms123.oryx.core.Shape", {
 									case ms123.oryx.Config.TYPE_STRING:
 										var label = this._labels[refId];
 										if (label) {
-											label.text(prop);
+											if( prop != null && prop != ""){
+												label.text(prop);
+											}
 										}
 										break;
 									case ms123.oryx.Config.TYPE_TEXT:
