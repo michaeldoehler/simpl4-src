@@ -18,13 +18,19 @@ import org.osgi.framework.Bundle;
 public class JavaCompiler {
 	static javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
 
+
+	private static String workspace   = System.getProperty("workspace");
+	private static File[] locations = {
+		new File(workspace, "jooq/build"),
+		new File("locatation2")
+	};
 	public static Class<?> compile(Bundle bundle, String className, String sourceCodeInText) throws Exception {
 		SourceCode sourceCode = new SourceCode(className, sourceCodeInText);
 		CompiledCode compiledCode = new CompiledCode(className);
 		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceCode);
 		DynamicClassLoader cl = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), compiledCode, cl);
+		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), locations, compiledCode, cl);
 
  // the OSGi aware file manager
     BundleJavaManager bundleFileManager = new BundleJavaManager( bundle, fileManager, null);
@@ -52,7 +58,7 @@ public class JavaCompiler {
 		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceCode);
 		DynamicClassLoader cl = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), compiledCode, cl);
+		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), locations, compiledCode, cl);
 
  // the OSGi aware file manager
     BundleJavaManager bundleFileManager = new BundleJavaManager( bundle, fileManager, null);
