@@ -118,7 +118,9 @@ qx.Class.define("ms123.codemirror.CodeMirror", {
 			var container = this.__textarea.getTextArea().getDomElement();
 			this.__codemirror = CodeMirror.fromTextArea(container, {
 				lineNumbers: true,
-				smartIndent: false,
+				//smartIndent: false,
+				matchBrackets: true,
+        showCursorWhenSelecting: true,
 				mode: this.__mode,
         //extraKeys: {"Ctrl-Space": "autocomplete"},
 				vimMode:ms123.config.ConfigManager.isVimMode(),
