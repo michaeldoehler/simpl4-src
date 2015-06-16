@@ -116,13 +116,15 @@ qx.Class.define("ms123.codemirror.CodeMirror", {
         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
       }
 			var container = this.__textarea.getTextArea().getDomElement();
+			CodeMirror.commands.autocomplete = function(cm) {
+        cm.showHint({hint: CodeMirror.hint.anyword});
+      };
 			this.__codemirror = CodeMirror.fromTextArea(container, {
 				lineNumbers: true,
 				//smartIndent: false,
 				matchBrackets: true,
-        showCursorWhenSelecting: true,
 				mode: this.__mode,
-        //extraKeys: {"Ctrl-Space": "autocomplete"},
+        extraKeys: {"Ctrl-Space": "autocomplete"},
 				vimMode:ms123.config.ConfigManager.isVimMode(),
    			showCursorWhenSelecting: true
 			});
