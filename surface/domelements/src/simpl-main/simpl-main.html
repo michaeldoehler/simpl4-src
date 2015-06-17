@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<polymer-element name="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoLink logoBackground">
+<dom-module id="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoLink logoBackground">
 	<template>
 		<core-style ref="main"></core-style>
 
@@ -304,7 +304,7 @@
 						ready: function() {}
 					} );
 					var encapsulateElementWrapper = document.createElement( 'div' );
-					var elementDecl = '<polymer-element name="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></polymer-element>';
+					var elementDecl = '<dom-module id="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></dom-module>';
 					encapsulateElementWrapper.innerHTML = elementDecl;
 					document.body.appendChild( encapsulateElementWrapper );
 
@@ -415,4 +415,4 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>

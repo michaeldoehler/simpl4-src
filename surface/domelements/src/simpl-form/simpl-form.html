@@ -24,7 +24,7 @@
 	}
 
 </style>
-<polymer-element name="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
+<dom-module id="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
 	<template>
 		<style>
 			:host /deep/ .button-content {
@@ -37,9 +37,9 @@
 		</style>
 		<shadow></shadow>
 	</template>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="simpl-header" noscript>
+<dom-module id="simpl-header" noscript>
 	<template>
 		<style>
 			:host {
@@ -50,9 +50,9 @@
 		</style>
 		<content></content>
 	</template>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="simpl-header2" noscript>
+<dom-module id="simpl-header2" noscript>
 	<template>
 		<style>
 			:host {
@@ -63,11 +63,11 @@
 		</style>
 		<content></content>
 	</template>
-</polymer-element>
+</dom-module>
 
 
 
-<polymer-element name="simpl-group" vertical flex layout noscript>
+<dom-module id="simpl-group" vertical flex layout noscript>
 	<template>
 		<style>
 			:host {
@@ -82,9 +82,9 @@
 		</style>
 		<content></content>
 	</template>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="simpl-row" horizontal layout center wrap novanish noscript>
+<dom-module id="simpl-row" horizontal layout center wrap novanish noscript>
 	<template>
 		<style>
 			html /deep/ [novanish] {
@@ -100,9 +100,9 @@
 		</style>
 		<content></content>
 	</template>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="simpl-baseform" attributes="actionCallback data mode" vertical layout>
+<dom-module id="simpl-baseform" attributes="actionCallback data mode" vertical layout>
 	<template>
 		<style>
 			:host {
@@ -470,10 +470,10 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
 
-<polymer-element name="simpl-form" extends="simpl-baseform" attributes="namespace formName variables" constructor="SimplForm" vertical layout>
+<dom-module id="simpl-form" extends="simpl-baseform" attributes="namespace formName variables" constructor="SimplForm" vertical layout>
 	<template>
 		<shadow></shadow>
 	</template>
@@ -727,4 +727,4 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>

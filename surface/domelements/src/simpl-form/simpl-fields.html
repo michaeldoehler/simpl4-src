@@ -34,7 +34,7 @@
 
 </script>
 
-<polymer-element name="form-field" attributes="label compact name value meta defaultValue editValue" field>
+<dom-module id="form-field" attributes="label compact name value meta defaultValue editValue" field>
 	<template>
 		<style shim-shadowdom>
 			:host {
@@ -95,9 +95,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="html-echo" extends="form-field" kind="alert" attributes="html">
+<dom-module id="html-echo" extends="form-field" kind="alert" attributes="html">
 	<script>
 		Polymer( 'html-echo', {
 			htmlChanged: function() {
@@ -106,10 +106,10 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
 <!--PAPERFIELDS-->
-<polymer-element name="input-field" extends="form-field" attributes="preventInvalidInput floatingLabel min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
+<dom-module id="input-field" extends="form-field" attributes="preventInvalidInput floatingLabel min max maxlength pattern step readonly disabled autofocus type label name" kind="input" layout horizontal center>
 	<template>
 		<paper-input-decorator flex id="decorator" label="{{label}}" invisible?="{{invisible}}" floatingLabel?="{{floatingLabel}}" value="{{value}}" readonly?="{{readonly}}" disabled?="{{disabled}}">
 			<input is="core-input" id="input" value="{{editValue}}" min="{{min}}" max="{{max}}" step="{{step}}" maxlength={{maxlength}} pattern="{{pattern}}" committedValue="{{committedValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly?={{readonly}} preventInvalidInput?={{preventInvalidInput}} disabled?={{disabled}}>
@@ -353,9 +353,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
+<dom-module id="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
 	<template>
 		<style>
 			:host {
@@ -418,9 +418,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="checkbox-field" extends="form-field" kind="checkbox">
+<dom-module id="checkbox-field" extends="form-field" kind="checkbox">
 	<template>
 		<style>
 			:host {
@@ -483,10 +483,10 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
 
-<polymer-element name="toggle-field" extends="form-field" kind="toggle" noscript>
+<dom-module id="toggle-field" extends="form-field" kind="toggle" noscript>
 	<template>
 		<style>
 			.floated-label {
@@ -512,10 +512,10 @@
 		</div>
 		<paper-toggle-button checked="{{value}}"></paper-toggle-button>
 	</template>
-</polymer-element>
+</dom-module>
 
 
-<polymer-element name="slider-field" extends="form-field" kind="slider" attributes="minLabel maxLabel" noscript>
+<dom-module id="slider-field" extends="form-field" kind="slider" attributes="minLabel maxLabel" noscript>
 	<template>
 		<style>
 			.floated-label {
@@ -548,10 +548,10 @@
 			{{maxLabel}}
 		</div>
 	</template>
-</polymer-element>
+</dom-module>
 
 
-<polymer-element name="radio-field" extends="form-field" kind="radio-group" noscript>
+<dom-module id="radio-field" extends="form-field" kind="radio-group" noscript>
 	<template>
 		<style>
 			.floated-label {
@@ -579,10 +579,10 @@
 			<content></content>
 		</paper-radio-group>
 	</template>
-</polymer-element>
+</dom-module>
 
 
-<polymer-element name="dropdown-field" extends="form-field" kind="dropdown">
+<dom-module id="dropdown-field" extends="form-field" kind="dropdown">
 	<template>
 		<style>
 			:host {
@@ -700,9 +700,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="tableselect-field" attributes="multiSelect required meta items height" extends="form-field" kind="tableselect">
+<dom-module id="tableselect-field" attributes="multiSelect required meta items height" extends="form-field" kind="tableselect">
 	<template>
 		<style>
 			.error {
@@ -804,9 +804,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="related-field" extends="form-field" kind="related" attributes="namespace entity floatingLabel readonly disabled autofocus label name" layout horizontal center>
+<dom-module id="related-field" extends="form-field" kind="related" attributes="namespace entity floatingLabel readonly disabled autofocus label name" layout horizontal center>
 	<template>
 		<style>
 			:host /deep/ #relatedDialog {
@@ -944,9 +944,9 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="db-selector-field" extends="related-field" kind="db-selector" attributes="namespace entity fieldlist readonly disabled autofocus label name" layout horizontal center>
+<dom-module id="db-selector-field" extends="related-field" kind="db-selector" attributes="namespace entity fieldlist readonly disabled autofocus label name" layout horizontal center>
 	<template>
 		<shadow></shadow>
 	</template>
@@ -1044,11 +1044,11 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
 
 
 //@@@ More as Example for polyfields
-<polymer-element name="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
+<dom-module id="ssn-field" extends="form-field" kind="ssn" layout horizontal center on-keypress="{{keyPress}}">
 	<template>
 		<style>
 			paper-input {
@@ -1090,4 +1090,4 @@
 		} );
 
 	</script>
-</polymer-element>
+</dom-module>
