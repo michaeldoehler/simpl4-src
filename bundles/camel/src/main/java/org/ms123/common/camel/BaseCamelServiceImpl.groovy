@@ -532,12 +532,13 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	protected void	_compileGroovyScripts(String namespace,String path,String code){
+		String jooqDir = System.getProperty("workspace") + "/" + "jooq/build";
 		String destDir = System.getProperty("workspace")+"/"+ "groovy"+"/"+namespace;
 		String srcDir = System.getProperty("git.repos")+"/"+namespace;
 		CompilerConfiguration.DEFAULT.getOptimizationOptions().put("indy", false);
 		CompilerConfiguration config = new CompilerConfiguration();
 		config.getOptimizationOptions().put("indy", false);
-
+		config.setClasspath( jooqDir );
 		config.setTargetDirectory( destDir);
 		FileSystemCompiler fsc = new FileSystemCompiler(config);
 
