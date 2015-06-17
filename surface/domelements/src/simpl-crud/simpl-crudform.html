@@ -1,0 +1,16 @@
+<polymer-element name="simpl-crudform" extends="simpl-baseform" attributes="spec" vertical layout>
+	<template>
+   <shadow></shadow>
+	</template>
+	<script>
+		Polymer( 'simpl-crudform', {
+			specChanged: function(e) {
+				this.fields = [];
+				this.fieldsMap = {};
+				console.log( "crudform.specChanged" );
+				this.shapes =  this.spec;
+			}
+		} );
+	</script>
+</polymer-element>
+

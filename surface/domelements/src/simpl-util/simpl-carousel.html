@@ -1,0 +1,95 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-carousel" attributes="items">
+	<template>
+		<link rel="stylesheet" href="carousel.css" />
+
+		<div style="padding-bottom:20px;" layout vertical center end-justified id="prev" on-click="{{prev}}">
+			<core-icon icon="chevron-left"></core-icon>
+		</div>
+
+		<core-animated-pages id="carousel" transitions="slide-from-right">
+			<template repeat="{{item,i in items}}">
+				<section style="overflow:hidden;position:relative;">
+					<div slide-from-right>
+						<content select="*[data-index='{{i}}']"></content>
+					</div>
+				</section>
+			</template>
+		</core-animated-pages>
+
+		<div style="padding-bottom:20px;" layout vertical center end-justified id="next" on-click="{{next}}">
+			<core-icon icon="chevron-right"></core-icon>
+		</div>
+
+	</template>
+
+	<script>
+		( function() {
+			Polymer( {
+				carousel:null,
+				get pageWidth() {
+					return this.getBoundingClientRect().width;
+				},
+				publish: {
+					threshold: 0.20,
+				},
+				attached: function() {
+					this.carousel = this.$.carousel;
+					PolymerGestures.addEventListener( this, "trackend", function( event ) {
+						var userIsSwipingLeftwards = ( event.dx < 0 );
+						var userIsSwipingRightwards = ( event.dx > 0 );
+
+						var thresholdWasCrossed = ( Math.abs( event.dx ) / this.pageWidth ) > this.threshold;
+
+						if ( thresholdWasCrossed ) {
+							if ( userIsSwipingRightwards ) {
+								this.prev();
+							}
+							if ( userIsSwipingLeftwards ) {
+								this.next();
+							}
+						}
+					} );
+				},
+				detached: function() {
+					this.carousel = null;
+				},
+				next: function() {
+					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
+					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
+					this.carousel.selected = ( this.carousel.items.length === this.carousel.selected + 1 ) ? 0 : this.carousel.selected + 1;
+				},
+				prev: function() {
+					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
+					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
+					this.carousel.selected = ( this.carousel.selected === 0 ) ? this.carousel.items.length - 1 : this.carousel.selected - 1;
+				},
+				get selected() {
+					if ( this.carousel == null ) return;
+					return this.carousel.selected;
+				}
+			} );
+		} )();
+
+	</script>
+
+</polymer-element>

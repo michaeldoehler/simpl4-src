@@ -1,0 +1,144 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<link rel="import" href="import-js.html">
+<polymer-element name="simpl-mmenu" attributes="globals classes background name searchfield slidingSubmenus pages" flex relative>
+	<template>
+		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
+		<core-style ref="mmenu"></core-style>
+		<style>
+			:host /deep/ .mm-search input {
+				border-radius: 6px;
+			}
+			:host /deep/ .mm-search {
+				padding-top: 15px;
+				padding-left: 1px;
+				padding-right: 1px;
+			}
+			:host(.mm-background) .mm-menu {
+				background: {{backgroundColor}};
+			}
+
+		</style>
+		<nav class="nav" id="mainmenu">
+			<ul>
+				<template repeat="{{node in nodes  }}" id="t">
+					<template if="{{ node.disabled!==true}}">
+						<template if="{{ node.children==null || node.children.length==0 }}">
+							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+								<a style="cursor:pointer;">
+									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
+							</li>
+						</template>
+						<template if="{{ node.children && node.children.length>0 }}">
+							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
+								<span>
+									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</span>
+								<ul>
+									<template ref="t" repeat="{{node,level in node.children}}"></template>
+								</ul>
+							</li>
+						</template>
+					</template>
+				</template>
+			</ul>
+		</nav>
+		<content></content>
+	</template>
+	<script>
+		Polymer( 'simpl-mmenu', {
+			level: -1,
+			classes: "mm-white mm-zoom-panels",
+			backgroundColor: "invalid",
+			attached: function() {
+				console.log( "attached" );
+			},
+			domReady: function() {
+				//this.async('createMenu');
+				this.createMenu();
+			},
+			createMenu: function() {
+				console.log( "Menu.domReady" );
+				var menu = $( this.$.mainmenu ).mmenu( {
+					slidingSubmenus: this.slidingSubmenus == "true",
+					searchfield: this.searchfield != "false",
+					body: $( this.$.mainmenu ),
+					classes: this.classes,
+					offCanvas: false
+
+				} );
+
+				var b = this.background;
+				if ( b && b.length >= 0 ) {
+					this.backgroundColor = b;
+					$(this.$.mainmenu).css("backgroundColor", b);
+					menu.addClass( "mm-background" );
+					$( this ).addClass( "mm-background" );
+				}
+			},
+			ready: function() {
+				this.nodes = jQuery.ajax( {
+					url: this.name + ".yaml",
+					async: false,
+					dataType: "json"
+				} ).responseText;
+				try {
+					this.nodes = JSON.parse( this.nodes );
+				} catch ( e ) {
+					alert( "Error.Read Menu:" + e );
+					console.error( "Error.Read Menu:", e );
+					return;
+				}
+				this.pages = [];
+				this._traverse( this.nodes );
+				//console.log("Pages:"+JSON.stringify(this.nodes,null,2));
+			},
+			_traverse: function( nodes ) {
+				for ( var i = 0; i < nodes.length; i++ ) {
+					var node = nodes[ i ];
+					if ( node.name ) {
+						node.name = tr( node.name );
+					}
+
+					if ( node.hash == null ) {
+						if ( node.name ) {
+							var lc = node.name.toLowerCase();
+							node.hash = lc.replace( /[^a-z0-9_.]/g, "" );
+						} else {
+							alert( "Warning.menu:name and hash are empty" );
+						}
+					}
+					if ( node.url && node.url.indexOf( "%l" ) != -1 ) {
+						node.url = node.url.replace( "%l", this.globals.lang );
+					}
+					if ( node.disabled !== true ) {
+						if ( node.children && node.children.length > 0 ) {
+							this.pages.push( node );
+							this._traverse( node.children );
+						} else {
+							this.pages.push( node );
+						}
+					}
+				}
+			}
+		} );
+
+	</script>
+</polymer-element>

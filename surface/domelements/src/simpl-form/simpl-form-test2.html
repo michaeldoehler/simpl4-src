@@ -1,0 +1,210 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<style>
+	html /deep/ simpl-form-test2 {
+		padding-top: 8px;
+	}
+</style>
+
+<polymer-element name="simpl-form-test2" attributes="dump" constructor="SimplForm" vertical layout>
+	<template>
+		<link rel="stylesheet" type="text/css" href="grids.css">
+		<link rel="stylesheet" type="text/css" href="grids-responsive.css">
+		<style>
+			body,
+			button,
+			pre,
+			input {
+				font-family: sans-serif;
+			}
+			[column] {
+				min-width: 320px;
+				max-width: 700px;
+				margin: 0 auto;
+			}
+			#form {
+				background-color: white;
+			}
+			[segment] > segment {
+				margin-left: 0;
+			}
+			segment {
+				margin-top: 8px !important;
+				margin-bottom: 8px !important;
+			}
+			ssn-field {
+				min-width: 220px;
+			}
+			simpl-group {
+				background: white;
+			}
+			paper-item {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				font-size: 12px;
+			}
+		</style>
+		<div segment id="form">
+
+			<h2>Form-factor</h2>
+
+			<simpl-group>
+				<simpl-row if="row" class="pure-g">
+					<div class="pure-control-group">
+						<input-field type="number" min=0 step=0.01 id="OrderName" name="OrderName" value="{{item.orderId}}" editValue="{{orderId}}"></input-field>
+					</div>
+				</simpl-row>
+				<simpl-row>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN1" value="{{item.ssn}}"></ssn-field>
+					</div>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
+					</div>
+				</simpl-row>
+				<simpl-row>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSNAAAAAAA" value="{{item.ssn}}"></ssn-field>
+					</div>
+					<div class="pure-control-group pure-u-1 pure-u-md-11-24">
+						<ssn-field name="SSN" value="{{item.ssn}}"></ssn-field>
+					</div>
+				</simpl-row>
+			</simpl-group>
+
+			<simpl-group>
+				<simpl-row>
+					<div class="pure-control-group">
+						<input-field type="datetime" id="FlanFlavor" step=60 name="FlanFlavor" value="{{item.flavor}}" editValue="{{flavor}}"></input-field>
+					</div>
+					<slider-field flex three name="viscosity" label="Viscosity" minLabel="Poor" maxLabel="Good" value="{{item.quality}}"></slider-field>
+				</simpl-row>
+
+				<simpl-row>
+					<toggle-field name="t1" label="Whip Cream" value="{{item.whipCream}}"></toggle-field>
+					<checkbox-field name="c1" label="Egg Cream" value="{{item.eggCream}}"></checkbox-field>
+					<toggle-field name="t2" label="Heavy Cream" value="{{item.heavyCream}}"></toggle-field>
+					<checkbox-field name="c2" label="Sweet Cream" value="{{item.sweetCream}}"></checkbox-field>
+				</simpl-row>
+			</simpl-group>
+
+			<simpl-group>
+				<simpl-row>
+					<radio-field flex name="shape" label="Shape" value="{{item.shape}}">
+						<paper-radio-button name="s1" label="Square" active></paper-radio-button>
+						<paper-radio-button name="s1" label="Circle"></paper-radio-button>
+						<paper-radio-button name="s1" label="Tubular"></paper-radio-button>
+						<paper-radio-button name="s1" label="Mobius"></paper-radio-button>
+					</radio-field>
+				</simpl-row>
+
+				<simpl-row>
+					<dropdown-field one-column name="extraLayer" label="Extra Layers ({{item.layers || 0}})" value="{{item.layers}}">
+						<paper-item name="n1">Single Layer</paper-item>
+						<paper-item name="n2">One Extra Layer</paper-item>
+						<paper-item name="n3">Two Extra Layers</paper-item>
+						<paper-item name="n4">Three Extra Layers</paper-item>
+					</dropdown-field>
+				</simpl-row>
+			</simpl-group>
+
+			<div>
+				<button on-tap="{{submit}}">Submit</button>
+			</div>
+
+		</div>
+
+		<segment>
+			Your form data:
+			<pre><code id="data"></code></pre>
+		</segment>
+	</template>
+	<script>
+		Polymer( 'simpl-form-test2', {
+			item: {
+				shape: 0
+			},
+			submit: function( e ) {
+				var cvList = regula.validate( {} );
+				console.log( "cvList:", cvList );
+				console.log( "value:", this.$.FlanFlavor.value );
+				var data = this.dump();
+				var jsonData = JSON.stringify( data, null, 2 );
+				console.log( "Values:" + jsonData );
+				this.$.data.textContent = jsonData;
+			},
+			domReady: function() {
+				regula.bind( {
+					element: this.$.OrderName,
+					constraints: [ {
+						constraintType: regula.Constraint.Min,
+						params: {
+							value: "18",
+							message: "You must be at least 18 years old to vote",
+							groups: [ 'MyGroup' ]
+						}
+					} ]
+				} );
+				regula.bind( {
+					element: this.$.FlanFlavor,
+					constraints: [ {
+						constraintType: regula.Constraint.Future,
+						params: {
+							format: regula.DateFormat.YMD,
+							date: "2015/2/1",
+							groups: [ 'MyGroup' ]
+						}
+					} ]
+				} );
+				return;
+				this.allFields = this.$.form.querySelectorAll( 'input-field' );
+				this.allFieldsMap = {};
+				for ( var i = 0; i < this.allFields.length; i++ ) {
+					this.allFieldsMap[ this.allFields[ i ].id ] = this.allFields[ i ];
+				}
+			},
+			eventDelegates: {
+				'add-form-field': 'addField',
+				'remove-form-field': 'removeField'
+			},
+			created: function() {
+				this.fields = [];
+			},
+			addField: function( e ) {
+				this.fields.push( e.detail );
+			},
+			removeField: function( e ) {
+				var i = this.fields.indexOf( e.detail );
+				if ( i >= 0 ) {
+					this.fields.splice( i, 1 );
+				}
+			},
+			dump: function() {
+				var data = {};
+				this.fields.forEach( function( f ) {
+					data[ f.name ] = f.value;
+				}, this );
+				return data;
+			}
+		} );
+	</script>
+</polymer-element>

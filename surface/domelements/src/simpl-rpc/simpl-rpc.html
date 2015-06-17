@@ -1,0 +1,207 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<!--
+/**
+ * json-rpc can be used to perform XMLHttpRequests.
+ *
+ * Example:
+ *
+ *     <simpl-rpc auto url="http://gdata.youtube.com/feeds/api/videos/" 
+ *         params='{"alt":"json", "q":"chrome"}'
+ *         handleAs="json"
+ *         on-response="{{handleResponse}}">
+ *     </simpl-rpc>
+ *
+ * @class json-rpc
+ */
+/**
+ * Fired when a response is received.
+ * @event response
+ */
+/**
+ * Fired when an error is received.
+ * @event error
+ */
+/**
+ * Fired whenever a response or an error is received.
+ * @event complete
+ */
+-->
+<polymer-element name="simpl-rpc" attributes="url auto service method params response headers">
+	<script>
+		Polymer( 'simpl-rpc', {
+			/**
+			 * The URL target of the request.
+			 *
+			 * @attribute url
+			 * @type string
+			 * @default ''
+			 */
+			url: '/rpc/xyz',
+			/**
+			 * If true, automatically performs an Ajax request when either url or params has changed.
+			 *
+			 * @attribute auto
+			 * @type boolean
+			 * @default false
+			 */
+			auto: true,
+			/**
+			 * The JSON-RPC method to call
+			 *
+			 * @attribute method
+			 * @type string
+			 * @default ''
+			 */
+			method: '',
+			/**
+			 * Optional parameters for the JSON-RPC method
+			 *
+			 * @attribute params
+			 * @type string (JSON)
+			 * @default ''
+			 */
+			params: '',
+			/**
+			 * Returns the response object.
+			 *
+			 * @attribute response
+			 * @type Object
+			 * @default null
+			 */
+			response: null,
+			/**
+			 * HTTP request headers to send.
+			 *
+			 * Example:
+			 *
+			 *     <simpl-rpc-ajax auto 
+			 *         headers='{"X-Requested-With": "XMLHttpRequest"}'
+			 *         handleAs="json"
+			 *         on-response="{{handleResponse}}">
+			 *     </simpl-rpc>
+			 *
+			 * @attribute headers
+			 * @type Object
+			 * @default null
+			 */
+			request_id: 1,
+			headers: null,
+			ready: function() {
+				console.log( "Ready:" )
+				this.xhr = document.createElement( 'core-xhr' );
+				console.log( "xhr:", this.xhr )
+			},
+			receive: function( response, xhr ) {
+				if ( this.isSuccess( xhr ) ) {
+					this.processResponse( xhr );
+				} else {
+					this.error( xhr );
+				}
+				this.complete( xhr );
+			},
+			isSuccess: function( xhr ) {
+				var status = xhr.status || 0;
+				return !status || ( status >= 200 && status < 300 );
+			},
+			processResponse: function( xhr ) {
+				var response = this.evalResponse( xhr );
+				this.response = response;
+				this.fire( 'response', {
+					response: response,
+					xhr: xhr
+				} );
+			},
+			error: function( xhr ) {
+				var response = xhr.status + ': ' + xhr.responseText;
+				this.fire( 'error', {
+					response: response,
+					xhr: xhr
+				} );
+			},
+			complete: function( xhr ) {
+				this.fire( 'complete', {
+					response: xhr.status,
+					xhr: xhr
+				} );
+			},
+			evalResponse: function( xhr ) {
+				var r = xhr.responseText;
+				try {
+					var response = JSON.parse( r );
+					// TODO: Add error checking
+					return response.result;
+				} catch ( x ) {
+					return r;
+				}
+			},
+			getId: function() {
+				return this.request_id++;
+			},
+			urlChanged: function() {
+				this.autoGo();
+			},
+			paramsChanged: function() {
+				this.autoGo();
+			},
+			autoChanged: function() {
+				this.autoGo();
+			},
+			autoGo: function() {
+				if ( this.auto ) {
+					this.goJob = this.job( this.goJob, this.go, 0 );
+				}
+			},
+			/**
+			 * Performs an Ajax request to the url specified.
+			 *
+			 * @method go
+			 */
+			go: function() {
+				var args = this.xhrArgs || {};
+				args.headers = this.headers || {};
+				if ( args.headers && typeof( args.headers ) == 'string' ) {
+					args.headers = JSON5.parse( args.headers );
+				}
+				args.headers[ 'Content-Type' ] = 'application/json';
+				var username = simpl4.util.Rpc._getUserName();
+				var password = simpl4.util.Rpc._getPassword();
+				args.headers[ 'Authorization' ] = 'Basic ' + simpl4.util.Base64.encode( username + ":" + password );
+				args.callback = this.receive.bind( this );
+				args.url = this.url;
+				args.method = 'POST';
+				var body = {
+					jsonrpc: '2.0',
+					method: this.method,
+					service: this.service,
+					id: this.getId()
+				};
+				if ( this.params ) {
+					body.params = JSON5.parse( this.params );
+				}
+				args.body = JSON.stringify( body, null, 2 );
+				console.log( "xhr2:", args.body )
+				return this.xhr.request( args );
+			}
+		} );
+
+	</script>
+</polymer-element>

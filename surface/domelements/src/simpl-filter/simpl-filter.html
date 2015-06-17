@@ -1,0 +1,312 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<link rel="import" href="import-js.html">
+<polymer-element name="simpl-filter" attributes="namespace entity filter">
+
+	<template>
+		<style>
+			dd {
+				margin-left: 0px;
+			}
+			paper-button.blue-ripple {
+				//color: #4B575C;
+			}
+			.btn-primary {
+				color: #FFF;
+				background-color: #8A8B8C !important;
+				border-color: #8A8B8C !important;
+			}
+			.btn-primary:hover,
+			.btn-primary:focus,
+			.btn-primary.focus,
+			.btn-primary:active,
+			.btn-primary.active,
+			.open > .dropdown-toggle.btn-primary {
+				color: #FFF;
+				background-color: #4B575C !important;
+				border-color: #4B575C !important;
+			}
+			.btn-success {
+				color: #FFF;
+				background-color: #4B575C !important;
+				border-color: #4B575C !important;
+			}
+			:host /deep/ .core-tooltip {
+				color: #000;
+				background-color: rgba(255, 255, 255, 0.9);
+				border: 1px solid black;
+				padding: 4px;
+			}
+			:host /deep/ #builder_group_0 {
+				border: 2px #eaeaea solid;
+				border-radius: 5px;
+			}
+			:host /deep/ .#builder {
+				background: white;
+			}
+			:host /deep/ .query-builder {
+				margin-bottom: 10px;
+				background: white;
+			}
+			:host /deep/ #builder .rule-container {
+				background: white;
+			}
+			:host /deep/ #builder .rules-group-container {
+				background: white;
+			}
+			:host /deep/ #builder [invisible] {
+				display: none;
+			}
+			:host /deep/ #builder li.rule-container[simpleSearch]:not(:first-child) {
+				display: none;
+			}
+			:host /deep/ #builder .rule-container[simpleSearch]::before,
+			:host /deep/ #builder .rule-container[simpleSearch]::after {
+				border: 0px;
+			}
+			:host /deep/ #builder .rules-group-container[simpleSearch] {
+				padding: 0;
+			}
+			:host /deep/ #builder ul>.rules-group-container[simpleSearch] {
+				display: none;
+			}
+			:host /deep/ paper-dropdown-menu#paperDropdownMenu {
+				background: white;
+				top: 2px;
+				border-radius: 3px;
+			}
+			:host /deep/ core-icon#arrow {
+				color: black;
+			}
+			:host /deep/ #builder li.has-error {
+				border-color: white;
+			}
+			polyfill-rule {
+				content: '#shadowId';
+				margin: 3px;
+			}
+
+		</style>
+		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
+		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
+		<paper-shadow id="shadowId" z="3">
+			<div layout horizontal>
+				<div style="text-align:left;">
+					<core-tooltip label="{{'button.save-search'|tr}}" on-tap="{{saveSearch}}" position="center">
+						<core-icon-button icon="file-upload"></core-icon-button>
+					</core-tooltip>
+					<core-tooltip label="{{'button.load-search'|tr}}" on-tap="{{loadSearch}}" position="center">
+						<core-icon-button icon="file-download"></core-icon-button>
+					</core-tooltip>
+					<core-tooltip label="{{searchTooltip}}" xn-tap="{{toggleSearchMode}}" position="center">
+						<core-icon-button on-tap="{{toggleSearchMode}}" icon="{{searchModeIcon}}"></core-icon-button>
+					</core-tooltip>
+				</div>
+				<div flex style="text-align:right;">
+					<paper-button raised class="blue-ripple" on-tap="{{search}}" flex>
+						<core-icon icon="search"></core-icon>{{'searchfilter.searchbutton'|tr}}</paper-button>
+				</div>
+			</div>
+			<div id="builder"></div>
+			<content></content>
+		</paper-shadow>
+	</template>
+
+	<script>
+		Polymer( 'simpl-filter', {
+			entity: null,
+			namespace: null,
+			searchMode: "simple",
+			searchModeIcon: "expand-more",
+			domReady: function() {
+				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
+					namespace: this.namespace
+				} );
+				$( this.$.builder ).queryBuilder( {
+					icons: {
+						add_group: 'fa fa-plus-circle',
+						add_rule: 'fa fa-plus',
+						remove_group: 'fa fa-minus',
+						remove_rule: 'fa fa-minus',
+						error: 'fa fa-bug',
+						sort: 'fa fa-arrows-v'
+					},
+					sortable: false,
+					//plugins: ["sortable"],
+					display_errors: true,
+
+					filters: filters,
+					lang: this.getLang()
+				} );
+
+				$( this.$.builder ).queryBuilder( 'setRules', {
+					condition: 'AND',
+					rules: [ {
+						id: filters[ 0 ].id,
+						operator: filters[ 0 ].operators[ 0 ],
+						value: ''
+					} ]
+				} );
+				this.toggleSearchMode();
+			},
+			renameOne: function( from, to, model ) {
+				model[ to ] = model[ from ];
+				delete model[ from ];
+			},
+			deleteOne: function( from, model ) {
+				delete model[ from ];
+			},
+			connectorToLowerCase: function( model ) {
+				if ( model.connector === undefined ) {
+					return;
+				}
+				model.connector = model.connector.toLowerCase();
+			},
+			opToSimpl4: function( model ) {
+				if ( model.op === undefined ) {
+					return;
+				}
+				model.op = simpl4.util.SearchFilter.mapOpToSimpl4( model.op );
+			},
+			renameToSimpl4: function( model ) {
+				this.renameOne( "condition", "connector", model );
+				this.connectorToLowerCase( model );
+				this.renameOne( "value", "data", model );
+				this.renameOne( "operator", "op", model );
+				this.deleteOne( "input", model );
+				this.deleteOne( "type", model );
+				this.deleteOne( "id", model );
+				this.opToSimpl4( model );
+				var children = model.rules || [];
+				model.children = children;
+				delete model.rules;
+				if ( children.length > 0 ) {
+					for ( var i = 0; i < children.length; i++ ) {
+						this.renameToSimpl4( children[ i ] );
+					}
+				}
+				return model;
+			},
+			renameFromSimpl4: function( model, meta ) {
+				this.renameOne( "connector", "condition", model );
+				this.renameOne( "data", "value", model );
+				this.renameOne( "op", "operator", model );
+				model.input = meta.edittype;
+				model.type = meta.datetype;
+				model.id = model.field;
+				var rules = model.children || [];
+				model.rules = rules;
+				delete model.children;
+				if ( rules.length > 0 ) {
+					for ( var i = 0; i < rules.length; i++ ) {
+						this.renameFromSimpl4( rules[ i ], meta );
+					}
+				}
+				return model;
+			},
+			getRules: function() {
+				return this.renameToSimpl4( $( this.$.builder ).queryBuilder( 'getRules' ) );
+			},
+			setRules: function( rules ) {
+				$( this.$.builder ).queryBuilder( 'setRules', rules );
+			},
+			reset: function( e ) {
+				$( this.$.builder ).queryBuilder( 'reset' );
+			},
+			loadSearch: function( e ) {},
+			saveSearch: function( e ) {},
+			toggleSearchMode: function() {
+				this.setSearchMode( this.searchMode );
+				this.searchMode = this.searchMode == 'complex' ? "simple" : "complex";
+				this.searchTooltip = this.searchMode == "complex" ? tr( "button.complex-search" ) : tr( "button.simple-search" );
+			},
+			setSearchMode: function( mode ) {
+				if ( mode == "complex" ) {
+					this.searchModeIcon = "expand-less";
+					this.shadowRoot.querySelector( ".rules-group-header" ).removeAttribute( "invisible" );
+					this.shadowRoot.querySelector( ".rule-header" ).removeAttribute( "invisible" );
+					$( this.shadowRoot.querySelectorAll( ".rule-container" ) ).removeAttr( "simpleSearch" );
+					$( this.shadowRoot.querySelectorAll( ".rules-group-container" ) ).removeAttr( "simpleSearch" );
+				} else {
+					this.searchModeIcon = "expand-more";
+					this.shadowRoot.querySelector( ".rules-group-header" ).setAttribute( "invisible", "" );
+					this.shadowRoot.querySelector( ".rule-header" ).setAttribute( "invisible", "" );
+					$( this.shadowRoot.querySelectorAll( ".rule-container" ) ).attr( "simpleSearch", "" );
+					$( this.shadowRoot.querySelectorAll( ".rules-group-container" ) ).attr( "simpleSearch", "" );
+				}
+			},
+			search: function( e ) {
+				var event = {
+					name: "filter-changed",
+					data: {
+						entity: this.entity,
+						filter: this.getRules()
+					}
+				}
+				var rules = this.getRules();
+				rules.entity = this.entity;
+				console.log( "Filter.namespace:", this.namespace );
+				rules.namespace = this.namespace;
+				this.filter = rules;
+				console.debug( "submit" + JSON.stringify( this.filter, null, 2 ) );
+				//this.asyncFire( 'core-signal', event );
+				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
+				//this.$.data.textContent = jsonData;
+			},
+			getLang: function() {
+				return {
+					"add_rule": tr( "querybuilder.add_rule" ),
+					"add_group": tr( "querybuilder.add_group" ),
+					"delete_rule": tr( "querybuilder.delete_rule" ),
+					"delete_group": tr( "querybuilder.delete_group" ),
+
+					"condition_and": tr( "querybuilder.condition_and" ),
+					"condition_or": tr( "querybuilder.condition_or" ),
+
+					"filter_select_placeholder": tr( "querybuilder.filter_select_placeholder" ),
+
+					"operators": {
+						"equal": tr( "querybuilder.equal" ),
+						"not_equal": tr( "querybuilder.not_equal" ),
+						"in": tr( "querybuilder.in" ),
+						"not_in": tr( "querybuilder.not_in" ),
+						"less": tr( "querybuilder.less" ),
+						"less_or_equal": tr( "querybuilder.less_or_equal" ),
+						"greater": tr( "querybuilder.greater" ),
+						"greater_or_equal": tr( "querybuilder.greater_or_equal" ),
+						"begins_with": tr( "querybuilder.begins_with" ),
+						"not_begins_with": tr( "querybuilder.not_begins_with" ),
+						"contains": tr( "querybuilder.contains" ),
+						"not_contains": tr( "querybuilder.not_contains" ),
+						"ends_with": tr( "querybuilder.ends_with" ),
+						"not_ends_with": tr( "querybuilder.not_ends_with" ),
+						"is_empty": tr( "querybuilder.is_empty" ),
+						"is_not_empty": tr( "querybuilder.is_not_empty" ),
+						"is_null": tr( "querybuilder.is_null" ),
+						"is_not_null": tr( "querybuilder.is_not_null" )
+					}
+				}
+			}
+		} );
+
+	</script>
+
+</polymer-element>

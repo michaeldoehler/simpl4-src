@@ -1,0 +1,43 @@
+<polymer-element name="tree-icon" attributes="icon">
+<script>
+(function() {
+  
+  // mono-state
+  var meta;
+  
+  Polymer('tree-icon', {
+    icon: '',
+    defaultIconset: 'icons',
+
+    ready: function() {
+      if (!meta) {
+        meta = document.createElement('core-iconset');
+      }
+
+      this.setIcon(this.icon);
+    },
+
+    getIconset: function(name) {
+      return meta.byId(name || this.defaultIconset);
+    },
+
+    setIcon: function(_icon) {
+      var parts = String(_icon).split(':');
+      var icon = parts.pop();
+      if (icon) {
+        var set = this.getIconset(parts.pop());
+        if (set) {
+          this._icon = set.applyIcon(this, icon);
+          if (this._icon) {
+            this._icon.setAttribute('fit', '');
+          }
+        }
+      }
+    }
+
+  });
+  
+})();
+</script>
+
+</polymer-element>

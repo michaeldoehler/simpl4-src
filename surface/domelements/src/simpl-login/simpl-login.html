@@ -1,0 +1,108 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<polymer-element name="simpl-login" attributes="heading namespace identification">
+
+	<template>
+		<link rel="stylesheet" href="simpl-login.css" />
+		<h2>{{heading}}</h2>
+		<content select="[top]"></content>
+		<content select="[identifierHeading]"></content>
+		<paper-input id="identifierInput" value="{{identifier}}" label="{{identification}}" floatingLabel></paper-input>
+		<content select="[passwordHeading]"></content>
+		<paper-input id="passwordInput" value="{{password}}" label="Password" type="password" floatingLabel></paper-input>
+		<paper-button id="submitbutton" raised on-click="{{validate}}">{{submit}}</paper-button>
+		<content select="[bottom]"></content>
+		<paper-toast id="toast_error" text="" style="background:red;padding-right:60px;" role="alert" class="capsule">
+			<div style="color:black;font-weight:bold;">{{message}}</div>
+		</paper-toast>
+		<paper-toast id="toast_ok" text="" style="background:gray;padding-right:60px;" role="alert" class="capsule">
+			<div style="">{{message}}</div>
+		</paper-toast>
+	</template>
+
+	<script>
+		Polymer( 'simpl-login', {
+			heading: 'Login',
+			submit: 'Login',
+			identification: 'Username',
+			identifier: "",
+			password: "",
+
+			validate: function() {
+				this.$.identifierInput.invalid = !!!this.identifier;
+				this.$.passwordInput.invalid = !!!this.password;
+				if ( !this.password || !this.password ) return this.shake();
+
+				var namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
+				var ret = jQuery.ajax( {
+					url: "/sw/" + namespace + "/checkcredentials/",
+					async: false,
+					data: "credentials=" + this.identifier + ":" + this.password,
+					method: "POST",
+				} );
+				if ( ret.status == 200 ) {
+					simpl4.util.BaseManager.setUser( this.identifier );
+					simpl4.util.BaseManager.setPassword( this.password );
+					this.showOk( tr( "login.ok" ) );
+					setTimeout( ( function() {
+						this.fireLoginOk();
+						this.$.passwordInput.value = "";
+					} ).bind( this ), 3000 );
+				} else {
+					this.showError( tr( "login.error" ) );
+					this.shake();
+				}
+
+			},
+			showError: function( msg ) {
+				this.message = msg;
+				this.$.toast_error.show();
+			},
+			showOk: function( msg ) {
+				this.message = msg;
+				this.$.toast_ok.show();
+			},
+
+			shake: function() {
+				var animation = new Animation( this, [ {
+					transform: "translateX(-10px)"
+				}, {
+					transform: "translateX(10px)"
+				} ], {
+					direction: "alternate",
+					duration: 50,
+					iterations: 3
+				} );
+				document.timeline.play( animation );
+			},
+
+			fireLoginOk: function() {
+				this.fire( 'login-ok', {
+					identifier: this.identifier,
+					password: this.password
+				} );
+			}
+
+		} );
+
+	</script>
+
+</polymer-element>
