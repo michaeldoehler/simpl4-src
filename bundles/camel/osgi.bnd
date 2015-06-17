@@ -7,5 +7,6 @@ Bundle-Description: Camel Service
 Bundle-ManifestVersion: 2
 Bundle-Name: CamelService Bundle
 Bundle-SymbolicName:org.ms123.common.camel
+DynamicImport-Package: *
 Service-Component: *
 -metatype: *
