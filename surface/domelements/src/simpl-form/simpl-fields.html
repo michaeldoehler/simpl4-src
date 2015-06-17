@@ -99,7 +99,7 @@
 
 <dom-module id="html-echo" extends="form-field" kind="alert" attributes="html">
 	<script>
-		Polymer( 'html-echo', {
+		Polymer({ is:'html-echo',
 			htmlChanged: function() {
 				this.innerHTML = this.html;
 			}
@@ -951,7 +951,7 @@
 		<shadow></shadow>
 	</template>
 	<script>
-		Polymer( 'db-selector-field', {
+		Polymer({ is:'db-selector-field',
 			selectAction: function( e ) {
 				var data = e.detail.data;
 				this.$.relatedDialog.close();

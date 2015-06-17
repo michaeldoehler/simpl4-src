@@ -118,7 +118,7 @@
 			window.channel = postal.channel();
 
 
-			Polymer( 'simpl-globals', {
+			Polymer({ is:'simpl-globals',
 				created: function() {
 					this.getProperties();
 					this.config = config;
