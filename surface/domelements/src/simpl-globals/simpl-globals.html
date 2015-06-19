@@ -107,22 +107,43 @@
 			window.simpl4FormManager = simpl4.util.FormManager;
 			window.simpl4MessageManager = simpl4.util.MessageManager;
 			window.simpl4EntityManager = simpl4.util.EntityManager;
-
+console.log("GLOBAS");
 
 			simpl4MessageManager.installBaseMessages();
 			window.tr = simpl4MessageManager.tr;
-			PolymerExpressions.prototype.tr = function( input ) {
-				return simpl4MessageManager.tr( input );
-			};
+
+			TrBehavior = {
+      	tr: function() {
+					return simpl4MessageManager.tr( input );
+      	},
+    	};
 
 			window.channel = postal.channel();
 
 
-			Polymer({ is:'simpl-globals',
+			Polymer({ 
+				is:'simpl-globals',
+				properties: {
+					namespace: {
+						type: String,
+						value: "xxx"
+					},
+					globals: {
+						type: Object,
+						notify: true,
+						value: function(){
+							console.log("INI");
+							return {lang:"de"};
+						}
+					}
+				},
 				created: function() {
-					this.getProperties();
+					//this.getProperties();
 					this.config = config;
-					console.debug( "Globals.Ready:" + tr( 'data.customer.cid' ) );
+					console.debug( "Globals.created:" + tr( 'data.customer.cid' ) );
+				},
+				ready: function() {
+					console.debug( "Globals.Ready:" ,this.globals );
 				},
 				namespaceChanged: function() {
 					simpl4MessageManager.installMessages( this.namespace );
@@ -131,26 +152,21 @@
 					return this.getFromCache( this.$.axActions, 'baasicActions', 'accessAction' );
 				},
 				getProperties: function() {
+					var ret = null;
 					jQuery.ajax( {
 						url: "properties.yaml",
 						async: false,
 						dataType: "json"
 					} ).done( ( function( data ) {
-						try {
-							this.globals = data;
-							this.globals.lang = simpl4MessageManager.getLanguage();
-							console.log( "properties:" + JSON.stringify( this.globals, null, 2 ) );
-						} catch ( e ) {
-							alert( "Error.Read properties:" + e );
-							console.error( "Error.Read properties:", e );
-							this.globals = {};
-							this.globals.lang = simpl4MessageManager.getLanguage();
+						data.lang = simpl4MessageManager.getLanguage();
+						window.globals = data;
+						if ( data.mainNamespace ) {
+							simpl4.util.BaseManager.setNamespace( data.mainNamespace );
 						}
-						window.globals = this.globals;
-						if ( this.globals.mainNamespace ) {
-							simpl4.util.BaseManager.setNamespace( this.globals.mainNamespace );
-						}
+						ret = data;
 					} ).bind( this ) );
+					console.log("return:",ret);
+					return ret;
 				},
 				getFromCache: function( ajax, cacheKey, collectionKey ) {
 					var _this = this;

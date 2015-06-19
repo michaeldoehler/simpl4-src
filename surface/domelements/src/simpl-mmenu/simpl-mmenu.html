@@ -20,34 +20,39 @@
 -->
 <link rel="import" href="import-js.html">
 <dom-module id="simpl-mmenu" attributes="globals classes background name searchfield slidingSubmenus pages" flex relative>
-	<template>
-		<link rel="stylesheet" type="text/css" href="simpl-mmenu.css" />
-		<core-style ref="mmenu"></core-style>
+		<link rel="import" type="css" href="simpl-mmenu.css" />
+		<!--core-style ref="mmenu"></core-style-->
 		<style>
-			:host /deep/ .mm-search input {
+			:host .mm-search input {
 				border-radius: 6px;
 			}
-			:host /deep/ .mm-search {
+			:host .mm-search {
 				padding-top: 15px;
 				padding-left: 1px;
 				padding-right: 1px;
 			}
 			:host(.mm-background) .mm-menu {
-				background: {{backgroundColor}};
+				background: {
+					{
+						backgroundColor
+					}
+				}
+				;
 			}
 
 		</style>
-		<nav class="nav" id="mainmenu">
+	<template>
+		<!--nav class="nav" id="mainmenu">
 			<ul>
-				<template repeat="{{node in nodes  }}" id="t">
-					<template if="{{ node.disabled!==true}}">
-						<template if="{{ node.children==null || node.children.length==0 }}">
+				<template is="dom-repeat" items="{{node in nodes  }}" id="t">
+					<template is="dom-if" if="{{ !isNodeDisabled(node) }}">
+						<template is="dom-if" if="{{ !hasNodeChildren(node) }}">
 							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
 								<a style="cursor:pointer;">
 									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
 							</li>
 						</template>
-						<template if="{{ node.children && node.children.length>0 }}">
+						<template is="dom-if" if="{{ hasNodeChildren(node) }}">
 							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
 								<span>
 									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</span>
@@ -59,24 +64,37 @@
 					</template>
 				</template>
 			</ul>
-		</nav>
+		</nav-->
 		<content></content>
 	</template>
 	<script>
-		Polymer({ is:'simpl-mmenu',
+		Polymer( {
+			is: 'simpl-mmenu',
+			properties: {
+				name: {
+					type: String,
+					value: ""
+				},
+				globals: Object
+			},
+			observers: [
+				'globalsChanged(globals.*)'
+			],
 			level: -1,
 			classes: "mm-white mm-zoom-panels",
 			backgroundColor: "invalid",
 			attached: function() {
 				console.log( "attached" );
 			},
-			domReady: function() {
-				//this.async('createMenu');
-				this.createMenu();
+			globalsChanged: function() {
+				console.log( "mmenu.globalsChanged:", this.globals );
+				this._getMenuYaml();
+				this._createTree();
+				this._createMenu()
 			},
-			createMenu: function() {
-				console.log( "Menu.domReady" );
-				var menu = $( this.$.mainmenu ).mmenu( {
+			_createMenu: function() {
+				console.log( "mmenu.createMenu.globals:", this.globals );
+				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
 					body: $( this.$.mainmenu ),
@@ -88,12 +106,77 @@
 				var b = this.background;
 				if ( b && b.length >= 0 ) {
 					this.backgroundColor = b;
-					$(this.$.mainmenu).css("backgroundColor", b);
+					$( this.$.mainmenu ).css( "backgroundColor", b );
 					menu.addClass( "mm-background" );
 					$( this ).addClass( "mm-background" );
 				}
 			},
-			ready: function() {
+			_createTree: function() {
+				var nav = document.createElement( 'nav' );
+				this._mainmenu = nav;
+				var ul = document.createElement( 'ul' );
+				Polymer.dom( this.root ).appendChild( nav )
+				Polymer.dom( nav ).appendChild( ul )
+				Polymer.dom( nav ).setAttribute( "id", "mainmenu" );
+				Polymer.dom( nav ).classList.add( 'nav' )
+
+				this._createNodeList( ul, this.nodes, true );
+			},
+			_createNodeList: function( ul, nodes, firstLevel ) {
+				for ( var i = 0; i < nodes.length; i++ ) {
+					var node = nodes[ i ];
+					if ( this._isNodeDisabled( node ) ) {
+						continue;
+					}
+					if ( !this._hasNodeChildren( node ) ) {
+						this._createLeaf( ul, node, firstLevel );
+					} else {
+						var ul2 = this._createNode( ul, node, firstLevel );
+						this._createNodeList( ul2, node.children, false );
+					}
+				}
+			},
+			_createNode: function( parent, node, firstLevel ) {
+				var fontAwesome = document.createElement( 'font-awesome' );
+				var li = document.createElement( 'li' );
+				var ul = document.createElement( 'ul' );
+				var span = document.createElement( 'span' );
+				Polymer.dom( parent ).appendChild( li )
+				Polymer.dom( li ).appendChild( span )
+				Polymer.dom( li ).appendChild( ul )
+				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
+				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
+				Polymer.dom( span ).textContent = node.name;
+				Polymer.dom( span ).appendChild( fontAwesome );
+				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
+				if ( firstLevel ) {
+					Polymer.dom( li ).classList.add( 'firstLevel' )
+				}
+				return ul;
+			},
+			_createLeaf: function( parent, node, firstLevel ) {
+				var fontAwesome = document.createElement( 'font-awesome' );
+				var li = document.createElement( 'li' );
+				var a = document.createElement( 'a' );
+				Polymer.dom( parent ).appendChild( li )
+				Polymer.dom( li ).appendChild( a )
+				Polymer.dom( a ).appendChild( fontAwesome );
+				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
+				Polymer.dom( a ).textContent = node.name;
+				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
+				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
+				if ( firstLevel ) {
+					Polymer.dom( li ).classList.add( 'firstLevel' )
+				}
+			},
+			_isNodeDisabled: function( node ) {
+				return node.disabled === true;
+			},
+			_hasNodeChildren: function( node ) {
+				return node.children && node.children.length > 0;
+			},
+			_getMenuYaml: function() {
+				console.log( "Menu.domReady:", this.globals );
 				this.nodes = jQuery.ajax( {
 					url: this.name + ".yaml",
 					async: false,

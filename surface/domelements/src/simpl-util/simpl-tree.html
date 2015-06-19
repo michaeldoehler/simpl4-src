@@ -19,7 +19,6 @@
  */
 -->
 <dom-module id="simpl-tree" attributes="selectedItem selected data idProp childrenProp nameProp">
-	<template>
 		<style>
 			div[idvalue] {
 				cursor: pointer;
@@ -58,6 +57,7 @@
 			}
 
 		</style>
+	<template>
 		<div id="main" unresolved="">
 			<template id="tree_template" bind="{{data as d}}">
 				<div layout horizontal idvalue="{{d[idProp]}}" class="{{ d.children && d.children.length > 0 ? 'parent' : ''}} collapsed" on-click="{{selectItem}}">
