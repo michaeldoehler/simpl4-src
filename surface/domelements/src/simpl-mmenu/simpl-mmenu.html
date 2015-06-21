@@ -176,7 +176,7 @@
 				}
 			},
 			_getMenuYaml: function() {
-				console.log( "Menu._getMenuYaml:", this.globals );
+				console.log( "Menu._getMenuYaml:", this.name );
 				this.nodes = jQuery.ajax( {
 					url: this.name + ".yaml",
 					async: false,
@@ -189,8 +189,9 @@
 					console.error( "Error.Read Menu:", e );
 					return;
 				}
-				this.pages = [];
+				this._pages = [];
 				this._traverse( this.nodes );
+				this.pages = this._pages;
 				//console.log("Pages:"+JSON.stringify(this.nodes,null,2));
 			},
 			_traverse: function( nodes ) {
@@ -213,10 +214,10 @@
 					}
 					if ( node.disabled !== true ) {
 						if ( node.children && node.children.length > 0 ) {
-							this.pages.push( node );
+							this._pages.push( node );
 							this._traverse( node.children );
 						} else {
-							this.pages.push( node );
+							this._pages.push( node );
 						}
 					}
 				}

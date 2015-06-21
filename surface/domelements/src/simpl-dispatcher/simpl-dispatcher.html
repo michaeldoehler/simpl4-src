@@ -34,8 +34,14 @@
 	<script>
 		Polymer( {
 			is: 'simpl-dispatcher',
+			properties: {
+				selectedModel: {
+					type: Object,
+					notify: true
+				}
+			},
 			ready: function() {
-				console.log("dispatcher.Ready:" + this.selected);
+				console.log( "dispatcher.Ready:" + this.selected );
 				if ( this.selected ) {
 					var node = this.getNodeByHash( this.selected );
 					if ( node ) {
@@ -56,14 +62,14 @@
 			},
 			_attached: function() {
 				console.log( "dispatcher._attached:" + this.selected );
-				this.mainMenuElement = Polymer.dom( document.querySelectorAll( "simpl-mmenu" )[ 0 ].root );
+				this.mainMenuElement = Polymer.dom( document.querySelectorAll( this.shadowRoot ? "html /deep/ simpl-mmenu" : "simpl-mmenu" )[ 0 ].root );
 				var aList = this.mainMenuElement.querySelectorAll( "a" );
 				console.log( "a-lIst:", aList );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
-						//Polymer.addEventListener( a, "tap", this.activateListener.bind( this ) );
-						a.addEventListener( "tap", this.activateListener.bind( this ) );
+						//a.addEventListener( "tap", this.activateListener.bind( this ) );
+						$( a ).tap( this.activateListener.bind( this ), false );
 					}
 				}
 				if ( this.selected ) {

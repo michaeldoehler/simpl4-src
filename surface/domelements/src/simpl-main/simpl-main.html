@@ -19,102 +19,102 @@
  */
 -->
 <dom-module id="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoLink logoBackground">
-	<template>
-		<core-style ref="main"></core-style>
-
-		<style>
-			core-animated-pages > * {
-				font-size: inherit;
-				overflow-y: auto;
-				border-radius: 5px;
-				background-color: white;
-			}
+	<style>
+		core-animated-pages > * {
+			font-size: inherit;
+			overflow-y: auto;
+			border-radius: 5px;
+			background-color: white;
+		}
+		core-animated-pages {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		@media all and (max-width: 480px) {
 			core-animated-pages {
 				width: 100%;
 				height: 100%;
-				overflow: hidden;
 			}
-			@media all and (max-width: 480px) {
-				core-animated-pages {
-					width: 100%;
-					height: 100%;
-				}
+		}
+		section.main {
+			padding: 6px;
+			width: 100%;
+			height: 100%;
+		}
+		section> div {
+			width: 100%;
+			height: 100%;
+		}
+		@media all and (max-width: 480px) {
+			html /deep/ #loginDialog {
+				top: 10vh;
+				left: 0vw;
 			}
-			section.main {
-				padding: 6px;
-				width: 100%;
-				height: 100%;
+		}
+		[drawer] {
+			box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+		}
+		[main] {
+			height: 100%;
+		}
+		#drawerPanel:not([narrow]) #menuButton {
+			display: none;
+		}
+		:host /deep/ paper-button {
+			min-width: 3em !important;
+		}
+		:host /deep/ div.button-content {
+			overflow: hidden;
+			font-size: 10px;
+		}
+		:host /deep/ select {
+			padding: 3px;
+			margin: 2px;
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 3px;
+			-webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+			-moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+			box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+			background: #ffffff;
+			color: #888;
+			border: none;
+			outline: none;
+			display: inline-block;
+			//-webkit-appearance: none;
+			//-moz-appearance: none;
+			//appearance: none;
+			cursor: pointer;
+		}
+		#headlineId {
+			font-size: 18px;
+		}
+		@media screen and (max-width: 767px) {
+			:host /deep/ #helpDialog /deep/ #scroller {
+				padding: 10px 10px 10px 10px;
+				margin-left: 0px;
+				margin-right: 0px;
+				margin-bottom: 10px;
 			}
-			section> div {
-				width: 100%;
-				height: 100%;
-			}
-			@media all and (max-width: 480px) {
-				html /deep/ #loginDialog {
-					top: 10vh;
-					left: 0vw;
-				}
-			}
-			[drawer] {
-				box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
-			}
-			[main] {
-				height: 100%;
-			}
-			#drawerPanel:not([narrow]) #menuButton {
-				display: none;
-			}
-			:host /deep/ paper-button {
-				min-width: 3em !important;
-			}
-			:host /deep/ div.button-content {
-				overflow: hidden;
-				font-size: 10px;
-			}
-			:host /deep/ select {
-				padding: 3px;
-				margin: 2px;
-				-webkit-border-radius: 4px;
-				-moz-border-radius: 4px;
-				border-radius: 3px;
-				-webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-				-moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-				box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-				background: #ffffff;
-				color: #888;
-				border: none;
-				outline: none;
-				display: inline-block;
-				//-webkit-appearance: none;
-				//-moz-appearance: none;
-				//appearance: none;
-				cursor: pointer;
+			:host /deep/ #helpDialog {
+				margin-left: 0px;
+				margin-right: 0px;
+				margin-top: 85px;
 			}
 			#headlineId {
-				font-size: 18px;
+				font-size: 14px;
+				margin-left: 0px;
+				margin-right: 0px;
 			}
-			@media screen and (max-width: 767px) {
-				:host /deep/ #helpDialog /deep/ #scroller {
-					padding: 10px 10px 10px 10px;
-					margin-left: 0px;
-					margin-right: 0px;
-					margin-bottom: 10px;
-				}
-				:host /deep/ #helpDialog {
-					margin-left: 0px;
-					margin-right: 0px;
-					margin-top: 85px;
-				}
-				#headlineId {
-					font-size: 14px;
-					margin-left: 0px;
-					margin-right: 0px;
-				}
-			}
+		}
 
-		</style>
+	</style>
+	<template>
+		<core-style ref="main"></core-style>
+
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
-		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
+		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" selected-model="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
 
 		<!-- Route controller. -->
 		<flatiron-director route="{{route}}" autoHash></flatiron-director>
@@ -123,7 +123,7 @@
 		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
 
 		<!-- Dynamic content controller -->
-		<core-ajax id="ajax" url="{{selectedModel.node.url}}" handleAs="document" on-core-response="{{onResponse}}"></core-ajax>
+		<iron-ajax id="ajax" url="{{selectedModel.node.url}}" handle-as="document" on-response="onResponse"></iron-ajax>
 
 		<paper-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
 			<div vertical layout drawer>
@@ -133,7 +133,7 @@
 							<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
 						</a>
 					</div>
-					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="false" pages="{{ pages }}" flex/>
+					<simpl-mmenu name="menu2" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
 
@@ -153,11 +153,11 @@
 				</paper-toolbar>
 
 				<div class="content" style="xeight:100%">
-					<iron-pages style="position:relative;" id="pages" selected="{{route}}" valueattr="hash" transitions="slide-from-right">
-						<template repeat="{{page, i in pages}}">
-							<section class="main" style="position:relative;" wrap?="{{page.wrap}}" hash="{{page.hash}}">
+					<iron-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" transitions="slide-from-right">
+						<template is="dom-repeat" items="{{pages}}">
+							<section class="main" style="position:relative;" wrap$="{{item.hash}}" hash$={{item.hash}}>
 								<div slide-from-right style="height:100%">
-									<div style="max-width:100%;">{{'tr.loading'|tr}} {{page.name}}</div>
+									<div style="max-width:100%;">{{item.name}}</div>
 								</div>
 							</section>
 						</template>
@@ -166,6 +166,10 @@
 			</paper-scroll-header-panel>
 
 		</paper-drawer-panel>
+		<!--dom-module id="encapsulate-element0">
+			<template>
+			</template>
+		</dom-module-->
 
 		<!--paper-dialog layered="false" id="helpDialog">
 			<template is="imported-template" content="{{selectedModel.node.help|substituteLang}}"></template>
@@ -175,17 +179,43 @@
 		</paper-dialog-->
 	</template>
 	<script>
-		Polymer({ is:'simpl-main',
+		Polymer( {
+			is: 'simpl-main',
 			DEFAULT_ROUTE: '0',
 			logoBackground: 'white',
 			logoLink: '',
 			toolbarBackground: null,
 			logo: 'logo.svg',
 			loginMessage: "Login",
-			domReady: function() {
-				this.helpMessage=tr("button.help");
+			properties: {
+				globals: Object,
+				selectedModel: Object,
+				pages: {
+					type: Array
+				}
+			},
+			observers: [
+				'pagesChanged(pages)',
+				'routeChanged(route)',
+				'selectedModelChanged(selectedModel)',
+				'globalsChanged(globals.*)'
+			],
+			pagesChanged: function() {
+				console.log( "Pages:", this.pages );
+			},
+			selectedModelChanged: function() {
+				console.log( "->selectedModelChanged:", this.selectedModel );
+			},
+			attached: function() {
+				this.async( function() {
+					this._attached();
+				} );
+			},
+			_attached: function() {
+				this.helpMessage = tr( "button.help" );
 				this.drawerPanel = this.$.drawerPanel;
 				this.ajax = this.$.ajax;
+				console.log( "AJAX:" + this.ajax );
 				this.corePages = this.$.pages;
 				this.keys = this.$.keys;
 				this.cache = {};
@@ -224,9 +254,9 @@
 				try {
 					if ( window._paq ) {
 						var action = this.route == "0" ? "main" : this.route;
-						if( this.lastAction != action){
+						if ( this.lastAction != action ) {
 							console.log( "trackEvent,webclient:" + action )
-							_paq.push( [ 'trackEvent', "webclient", action+ "/"+globals.lang ] )
+								//@@@MS							_paq.push( [ 'trackEvent', "webclient", action+ "/"+globals.lang ] )
 						}
 						this.lastAction = action;
 					}
@@ -259,18 +289,19 @@
 				}
 			},
 			menuItemSelected: function( e, detail, sender ) {
-				console.log("menuItemSelected:",e);
-				console.log("menuItemSelected:",detail);
+				console.log( "menuItemSelected:", e );
 				if ( detail.isSelected && detail.model.node && detail.model.node.url ) {
 					this.async( function() {
 						if ( !this.cache[ this.ajax.url ] ) {
-							this.ajax.go();
+							console.log( "menuItemSelected.generateRequest.url:", this.ajax.url );
+							this.ajax.generateRequest();
 						}
 						this.drawerPanel.closeDrawer();
 					} );
 				}
 			},
 			onResponse: function( e, detail, sender ) {
+				console.log( "onResponse" );
 				var body = detail.response.body;
 				var head = detail.response.head;
 				var sheets = head.querySelectorAll( 'link[rel=stylesheet]' );
@@ -279,7 +310,8 @@
 					( i < l ) && ( sheet = sheets[ i ] ); i++ ) {
 					sheetsHTML += sheet.outerHTML + "\n";
 				}
-
+				console.log( "Body;", body );
+				console.log( "sheetsHTML;", sheetsHTML );
 				//console.error( "Route:" + this.route + "/", this.corePages.selectedItem );
 				// Fix up image paths to not be local.
 				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
@@ -290,33 +322,40 @@
 				this.cache[ this.ajax.url ] = html;
 
 				var insertPoint = this.corePages.selectedItem.firstElementChild;
+				console.log( "selectedItem:", this.corePages.selectedItem );
+				console.log( "insertPoint:", insertPoint );
 				if ( this.corePages.selectedItem.getAttribute( "wrap" ) == null ) {
-					this.injectBoundHTML( html, insertPoint );
-					Polymer.whenReady( ( function() {
-						if ( !window.ShadowDOMPolyfill ) {
-							console.log( "Ready" );
-							this.convertSheetsToStyles( insertPoint );
-						}
-					} ).bind( this ) );
+					insertPoint.innerHTML = html;
 				} else {
 					var encapsulateElementName = 'encapsulate-element' + this.route;
-					Polymer( encapsulateElementName, {
-						ready: function() {}
-					} );
-					var encapsulateElementWrapper = document.createElement( 'div' );
-					var elementDecl = '<dom-module id="' + encapsulateElementName + '" attributes="globals"><template>' + html + '</template></dom-module>';
-					encapsulateElementWrapper.innerHTML = elementDecl;
-					document.body.appendChild( encapsulateElementWrapper );
+					this._createDomModule( encapsulateElementName );
 
-					var start = new Date().getTime();
-					this.whenElementsReady( ( function() {
-						console.log( "Elements.Ready:" + ( new Date().getTime() - start ) );
-						var html = '<' + encapsulateElementName + ' id="' + encapsulateElementName + '" globals="{{globals}}"></' + encapsulateElementName + '>';
-						this.injectBoundHTML( html, insertPoint );
-						this.evalScripts( encapsulateElementName );
-					} ).bind( this ) );
+					Polymer( {
+						is: encapsulateElementName,
+						ready: function() {
+							console.log( "encapsulateElement ready:" );
+							var span = document.createElement( 'span' );
+							Polymer.dom( this.root ).appendChild( span )
+							Polymer.dom( span ).innerHTML = html;
+						}
+					} );
+					var enElement = document.createElement( encapsulateElementName );
+					insertPoint.appendChild( enElement );
 				}
 			},
+			_createDomModule: function( name ) {
+				var domBind = document.createElement( 'template', 'dom-bind' );
+				var doc = domBind.content.ownerDocument;
+
+				var domModule = doc.createElement( 'dom-module' );
+				domModule.setAttribute( "id", name );
+				domBind.content.appendChild( domModule )
+
+				var template = document.createElement( 'template' );
+				domModule.appendChild( template )
+				document.body.appendChild( domBind );
+			},
+
 			evalScripts: function( id ) {
 				if ( !window.ShadowDOMPolyfill ) {
 					return
@@ -326,23 +365,6 @@
 				for ( var i = 0; i < scripts.length; i++ ) {
 					eval( scripts[ i ].text );
 				}
-			},
-			whenElementsReady: function( done ) {
-				Polymer.whenReady( function() {
-					console.log( "Polymer.Ready" );
-
-					function waitForElements() {
-						var elementsNotReady = Polymer.waitingFor();
-						console.log( "ElementsNotReady:", elementsNotReady.length );
-						if ( elementsNotReady.length == 0 ) {
-							done();
-							return;
-						}
-						console.log( "NewRound" );
-						setTimeout( waitForElements, 20 );
-					}
-					waitForElements();
-				} );
 			},
 			convertSheetsToStyles: function( root ) {
 				var SHEET_SELECTOR = 'link[rel=stylesheet]';
@@ -389,9 +411,9 @@
 				return url;
 			},
 			showHelp: function( e ) {
-				if ( window._paq && !this.$.helpDialog.opened) {
+				if ( window._paq && !this.$.helpDialog.opened ) {
 					var action = this.route == "0" ? "main" : this.route;
-					_paq.push( [ 'trackEvent', "webclient", action+"_help" ] )
+					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
 				this.$.helpDialog.toggle();
 			},
