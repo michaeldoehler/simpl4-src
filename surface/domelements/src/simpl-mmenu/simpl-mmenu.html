@@ -20,62 +20,36 @@
 -->
 <link rel="import" href="import-js.html">
 <dom-module id="simpl-mmenu" attributes="globals classes background name searchfield slidingSubmenus pages" flex relative>
-		<link rel="import" type="css" href="simpl-mmenu.css" />
-		<!--core-style ref="mmenu"></core-style-->
-		<style>
-			:host .mm-search input {
-				border-radius: 6px;
-			}
-			:host .mm-search {
-				padding-top: 15px;
-				padding-left: 1px;
-				padding-right: 1px;
-			}
-			:host(.mm-background) .mm-menu {
-				background: {
-					{
-						backgroundColor
-					}
-				}
-				;
-			}
+	<link rel="import" type="css" href="simpl-mmenu.css" />
+	<!--core-style ref="mmenu"></core-style-->
+	<style>
+		:host .mm-search input {
+			border-radius: 6px;
+		}
+		:host .mm-search {
+			padding-top: 15px;
+			padding-left: 1px;
+			padding-right: 1px;
+		}
 
-		</style>
+	</style>
 	<template>
-		<!--nav class="nav" id="mainmenu">
-			<ul>
-				<template is="dom-repeat" items="{{node in nodes  }}" id="t">
-					<template is="dom-if" if="{{ !isNodeDisabled(node) }}">
-						<template is="dom-if" if="{{ !hasNodeChildren(node) }}">
-							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-								<a style="cursor:pointer;">
-									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</a>
-							</li>
-						</template>
-						<template is="dom-if" if="{{ hasNodeChildren(node) }}">
-							<li style="list-style:none;" class="{{ level==-1 ? 'firstLevel' : ''}}" id="X{{node.hash}}">
-								<span>
-									<font-awesome icon="{{node.icon}}"></font-awesome>{{node.name|tr}}</span>
-								<ul>
-									<template ref="t" repeat="{{node,level in node.children}}"></template>
-								</ul>
-							</li>
-						</template>
-					</template>
-				</template>
-			</ul>
-		</nav-->
 		<content></content>
 	</template>
 	<script>
 		Polymer( {
 			is: 'simpl-mmenu',
 			properties: {
-				name: {
-					type: String,
-					value: ""
-				},
-				globals: Object
+				name: String,
+				globals: Object,
+				classes: String,
+				slidingSubmenus: String,
+				background: String,
+				searchfield: String,
+				pages: {
+					type: Array,
+					notify: true
+				}
 			},
 			observers: [
 				'globalsChanged(globals.*)'
@@ -84,32 +58,38 @@
 			classes: "mm-white mm-zoom-panels",
 			backgroundColor: "invalid",
 			attached: function() {
-				console.log( "attached" );
+				console.log( "mmenu.attached" );
 			},
 			globalsChanged: function() {
 				console.log( "mmenu.globalsChanged:", this.globals );
 				this._getMenuYaml();
 				this._createTree();
 				this._createMenu()
+				this._setStyleScope( this._mainmenu );
 			},
 			_createMenu: function() {
-				console.log( "mmenu.createMenu.globals:", this.globals );
+				console.log( "mmenu.createMenu.globals:", this.classes );
 				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
-					body: $( this.$.mainmenu ),
+					body: $( this._mainmenu ),
 					classes: this.classes,
 					offCanvas: false
 
 				} );
 
 				var b = this.background;
+				console.log( "b:" + b );
 				if ( b && b.length >= 0 ) {
 					this.backgroundColor = b;
-					$( this.$.mainmenu ).css( "backgroundColor", b );
+					$( this._mainmenu ).css( "backgroundColor", b );
 					menu.addClass( "mm-background" );
 					$( this ).addClass( "mm-background" );
 				}
+				setTimeout( ( function() {
+					//Polymer.StyleTransformer.dom(this._mainmenu, "simpl-mmenu", true);
+				} ).bind( this ), 5000 );
+				this.async( function() {} );
 			},
 			_createTree: function() {
 				var nav = document.createElement( 'nav' );
@@ -141,14 +121,15 @@
 				var li = document.createElement( 'li' );
 				var ul = document.createElement( 'ul' );
 				var span = document.createElement( 'span' );
+				var t = document.createTextNode( node.name );
 				Polymer.dom( parent ).appendChild( li )
 				Polymer.dom( li ).appendChild( span )
 				Polymer.dom( li ).appendChild( ul )
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
-				Polymer.dom( span ).textContent = node.name;
 				Polymer.dom( span ).appendChild( fontAwesome );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
+				Polymer.dom( span ).appendChild( t );
 				if ( firstLevel ) {
 					Polymer.dom( li ).classList.add( 'firstLevel' )
 				}
@@ -158,16 +139,19 @@
 				var fontAwesome = document.createElement( 'font-awesome' );
 				var li = document.createElement( 'li' );
 				var a = document.createElement( 'a' );
+				var t = document.createTextNode( node.name );
 				Polymer.dom( parent ).appendChild( li )
 				Polymer.dom( li ).appendChild( a )
 				Polymer.dom( a ).appendChild( fontAwesome );
+				Polymer.dom( a ).setAttribute( "style", 'cursor:pointer' );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
-				Polymer.dom( a ).textContent = node.name;
+				Polymer.dom( a ).appendChild( t );
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
 				if ( firstLevel ) {
 					Polymer.dom( li ).classList.add( 'firstLevel' )
 				}
+				a.node = node;
 			},
 			_isNodeDisabled: function( node ) {
 				return node.disabled === true;
@@ -175,8 +159,24 @@
 			_hasNodeChildren: function( node ) {
 				return node.children && node.children.length > 0;
 			},
+			_setStyleScope: function( main_el ) {
+				this._domVisitor( main_el, function( el ) {
+					if ( !$( el ).hasClass( "style-scope" ) && el.nodeType == 1 ) {
+						el.classList.add( 'style-scope' )
+						el.classList.add( 'simpl-mmenu' )
+					}
+				} );
+			},
+			_domVisitor: function( el, f ) {
+				if ( el ) {
+					f( el );
+					for ( var i = 0; i < el.childNodes.length; i++ ) {
+						this._domVisitor( el.childNodes[ i ], f );
+					}
+				}
+			},
 			_getMenuYaml: function() {
-				console.log( "Menu.domReady:", this.globals );
+				console.log( "Menu._getMenuYaml:", this.globals );
 				this.nodes = jQuery.ajax( {
 					url: this.name + ".yaml",
 					async: false,

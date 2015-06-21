@@ -114,7 +114,7 @@
 
 		</style>
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
-		<simpl-dispatcher on-mmenu-selected="{{menuItemSelected}}" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
+		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" selectedModel="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
 
 		<!-- Route controller. -->
 		<flatiron-director route="{{route}}" autoHash></flatiron-director>
@@ -133,7 +133,7 @@
 							<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
 						</a>
 					</div>
-					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" slidingSubmenus="false" searchfield="true" pages="{{ pages }}" flex/>
+					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="false" pages="{{ pages }}" flex/>
 				</nav>
 			</div>
 
@@ -259,6 +259,8 @@
 				}
 			},
 			menuItemSelected: function( e, detail, sender ) {
+				console.log("menuItemSelected:",e);
+				console.log("menuItemSelected:",detail);
 				if ( detail.isSelected && detail.model.node && detail.model.node.url ) {
 					this.async( function() {
 						if ( !this.cache[ this.ajax.url ] ) {

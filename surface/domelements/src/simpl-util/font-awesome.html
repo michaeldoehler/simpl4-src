@@ -1,9 +1,37 @@
-<link rel="stylesheet" href="font-awesome.css">
+		<!--span class="fa fa-{{icon}} {{animation ? 'fa-' + animation : ''}} {{size ? 'fa-' + size : ''}} {{rotate ? 'fa-rotate-' + rotate : ''}} {{flip ? 'fa-flip-' + flip : ''}} {{inverse ? 'fa-inverse' : ''}} {{stack ? 'fa-stack-' + stack : ''}} {{pull-left ? 'pull-left' : ''}} {{border ? 'fa-border' : ''}}"></span-->
 
-<dom-module id="font-awesome" attributes="icon animation size rotate flip inverse stack pull-left border" noscript>
+<style>
+@font-face {
+  font-family: 'FontAwesome';
+  src:  url('/sw/surface/fontawesome-webfont.woff?v=4.3.0') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+</style>
+
+<dom-module id="font-awesome" attributes="size">
+<link rel="import" type="css" href="font-awesome.css">
 	<template>
-		<span class="fa fa-{{icon}} {{animation ? 'fa-' + animation : ''}} {{size ? 'fa-' + size : ''}} {{rotate ? 'fa-rotate-' + rotate : ''}} {{flip ? 'fa-flip-' + flip : ''}} {{inverse ? 'fa-inverse' : ''}} {{stack ? 'fa-stack-' + stack : ''}} {{pull-left ? 'pull-left' : ''}} {{border ? 'fa-border' : ''}}"></span>
+		<span id="fontId" class=""></span>
 	</template>
+	<script>
+		Polymer( {
+			is: 'font-awesome',
+			properties: {
+				icon: {
+					type: String
+				}
+			},
+			observers: [
+				'iconChanged(icon)'
+			],
+			iconChanged:function(){
+				Polymer.dom( this.$.fontId ).classList.add( 'fa' );
+				Polymer.dom( this.$.fontId ).classList.add( 'fa-'+this.icon );
+			}
+		} );
+
+	</script>
 </dom-module>
 
 

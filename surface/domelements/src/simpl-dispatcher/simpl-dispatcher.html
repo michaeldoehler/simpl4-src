@@ -19,21 +19,23 @@
  */
 -->
 <dom-module id="simpl-dispatcher" attributes="selected selectedModel pages" flex relative>
-		<style shim-shadowdom>
-			div {
-				width: 100%;
-				height: 100%;
-				display: block;
-			}
-		</style>
+	<style shim-shadowdom>
+		div {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+
+	</style>
 	<template>
 		<div id="main" />
 		<content></content>
 	</template>
 	<script>
-		Polymer({ is:'simpl-dispatcher',
+		Polymer( {
+			is: 'simpl-dispatcher',
 			ready: function() {
-				//				console.log("dispatcher.Ready:" + this.selected);
+				console.log("dispatcher.Ready:" + this.selected);
 				if ( this.selected ) {
 					var node = this.getNodeByHash( this.selected );
 					if ( node ) {
@@ -47,16 +49,23 @@
 					}
 				}
 			},
-			domReady: function() {
-				console.log( "dispatcher.DomReady:" + this.selected );
-				var aList = document.querySelectorAll( "html /deep/ simpl-mmenu" )[ 0 ].shadowRoot.querySelectorAll( "a" );
+			attached: function() {
+				this.async( function() {
+					this._attached();
+				} );
+			},
+			_attached: function() {
+				console.log( "dispatcher._attached:" + this.selected );
+				this.mainMenuElement = Polymer.dom( document.querySelectorAll( "simpl-mmenu" )[ 0 ].root );
+				var aList = this.mainMenuElement.querySelectorAll( "a" );
+				console.log( "a-lIst:", aList );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
-						Polymer.addEventListener( a, "tap", this.activateListener.bind( this ) );
+						//Polymer.addEventListener( a, "tap", this.activateListener.bind( this ) );
+						a.addEventListener( "tap", this.activateListener.bind( this ) );
 					}
 				}
-				this.mainMenuElement = document.querySelectorAll( "html /deep/ simpl-mmenu" )[ 0 ].shadowRoot;
 				if ( this.selected ) {
 					var self = this;
 					setTimeout( function() {
@@ -65,11 +74,12 @@
 				}
 			},
 			activateListener: function( e ) {
-				console.log( "Dispatcher.activateListener" );
 				if ( e.target[ "className" ] == "mm-subopen" ) {
 					return;
 				}
-				var model = e.target.templateInstance.model;
+				var model = {};
+				model.node = e.target.node;
+				console.log( "activateListener.model:", model.node );
 				if ( !model.node ) return;
 				var node = model.node;
 				if ( this.selectedModel ) {
@@ -122,5 +132,6 @@
 				this.openMenuByHash( this.mainMenuElement, this.selected );
 			}
 		} );
+
 	</script>
 </dom-module>
