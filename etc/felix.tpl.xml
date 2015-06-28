@@ -35,7 +35,8 @@
 		org.w3c.dom.smil,
 		org.w3c.dom.svg,
 		org.w3c.dom.css,
-		org.w3c.dom.xpath
+		org.w3c.dom.xpath,
+		jdk.nashorn.api.scripting
   </packages>
 
   <profile name="minimal" default="true"/>

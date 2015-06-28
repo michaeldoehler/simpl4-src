@@ -1,6 +1,6 @@
 version=1.0.0
 Export-Package org.ms123.common.utils,org.ms123.common.utils.annotations
-Import-Package *,org.codehaus.groovy.jsr223,org.activiti.engine.impl.scripting,org.jruby.embed.jsr223
+Import-Package *,org.codehaus.groovy.jsr223,org.activiti.engine.impl.scripting,org.jruby.embed.jsr223,jdk.nashorn.api.scripting
 Private-Package: org.ms123.common.utils*
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.

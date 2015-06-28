@@ -245,6 +245,7 @@ public class OSGiScriptEngineManager extends ScriptEngineManager {
 				}
 			}
 		}
+		factoryCandidates.add("jdk.nashorn.api.scripting.NashornScriptEngineFactory");
 		return factoryCandidates;
 	}
 }
