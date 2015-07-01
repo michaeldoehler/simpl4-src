@@ -1,0 +1,19 @@
+<script>
+	Polymer( {
+		is: 'simpl-import',
+		properties: {
+			content: {
+				observer: 'contentChanged',
+				type: String
+			}
+		},
+		contentChanged: function( name, oldVal, newVal ) {
+			this.importHref( this.content, function( e ) {
+				console.log( "Import:", e.target.import );
+				Polymer.dom( this.root ).appendChild( e.target.import.body );
+			}, function( e ) {
+			} );
+		}
+
+	} );
+</script>

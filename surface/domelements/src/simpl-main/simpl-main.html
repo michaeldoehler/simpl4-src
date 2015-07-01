@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-main" attributes="mmenuClasses toolbarBackground mmenuBackground logo logoLink logoBackground">
+<dom-module id="simpl-main">
 	<style>
 		core-animated-pages > * {
 			font-size: inherit;
@@ -38,13 +38,16 @@
 			}
 		}
 		section.main {
-			padding: 6px;
+		//	padding: 6px;
 			width: 100%;
 			height: 100%;
 		}
 		section> div {
 			width: 100%;
 			height: 100%;
+		}
+		simpl-mmenu {
+			position:relative;
 		}
 		@media all and (max-width: 480px) {
 			html /deep/ #loginDialog {
@@ -114,10 +117,10 @@
 		<core-style ref="main"></core-style>
 
 		<simpl-globals globals="{{globals}}" id="globals"></simpl-globals>
-		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" selected-model="{{selectedModel}}" pages="{{ pages }}"></simpl-dispatcher>
+		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" selected-model="{{selectedModel}}" pages="{{pages}}"></simpl-dispatcher>
 
 		<!-- Route controller. -->
-		<flatiron-director route="{{route}}" autoHash></flatiron-director>
+		<flatiron-director route="{{route}}" auto-hash></flatiron-director>
 
 		<!-- Keyboard nav controller. -->
 		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
@@ -125,22 +128,22 @@
 		<!-- Dynamic content controller -->
 		<iron-ajax id="ajax" url="{{selectedModel.node.url}}" handle-as="document" on-response="onResponse"></iron-ajax>
 
-		<paper-drawer-panel id="drawerPanel" drawerWidth="230px" rightDrawer="false" responsiveWidth="700px" disableSwipe="false">
-			<div vertical layout drawer>
-				<nav id="nav" layout vertical fit>
+		<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
+			<div class="vertical layout" drawer>
+				<nav id="nav" class="layout vertical fit">
 					<div>
-						<a href="{{logoLink|substituteLang}}" target="_blank">
+						<a href="[[logoLinkLang]]" target="_blank">
 							<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
 						</a>
 					</div>
-					<simpl-mmenu name="menu2" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{ pages }}" flex/>
+					<simpl-mmenu name="menu" globals="{{globals}}" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{ pages }}" class="flex"/>
 				</nav>
 			</div>
 
-			<paper-scroll-header-panel main xondenses>
+			<paper-scroll-header-panel main xondenses class="flex">
 				<paper-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
 					<paper-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></paper-icon-button>
-					<h2 id="headlineId" flex>{{selectedModel.node.name}}</h2>
+					<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
 					<template if="{{selectedModel.node.help!=null}}">
 						<core-tooltip label="{{helpMessage}}" position="left">
 							<paper-icon-button on-click="{{showHelp}}" icon="help"></paper-icon-button>
@@ -152,7 +155,7 @@
 					</core-tooltip>
 				</paper-toolbar>
 
-				<div class="content" style="xeight:100%">
+				<div class="content" style="height:100%">
 					<iron-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" transitions="slide-from-right">
 						<template is="dom-repeat" items="{{pages}}">
 							<section class="main" style="position:relative;" wrap$="{{item.hash}}" hash$={{item.hash}}>
@@ -166,10 +169,6 @@
 			</paper-scroll-header-panel>
 
 		</paper-drawer-panel>
-		<!--dom-module id="encapsulate-element0">
-			<template>
-			</template>
-		</dom-module-->
 
 		<!--paper-dialog layered="false" id="helpDialog">
 			<template is="imported-template" content="{{selectedModel.node.help|substituteLang}}"></template>
@@ -182,14 +181,40 @@
 		Polymer( {
 			is: 'simpl-main',
 			DEFAULT_ROUTE: '0',
-			logoBackground: 'white',
-			logoLink: '',
 			toolbarBackground: null,
-			logo: 'logo.svg',
-			loginMessage: "Login",
 			properties: {
 				globals: Object,
 				selectedModel: Object,
+				logoLinkLang: {
+					computed: "substituteLang(logoLink,globals)"
+				},
+				logoLink: {
+					type: String
+				},
+				toolbarBackground: {
+					value:null,
+					type: String
+				},
+				loginMessage: {
+					value:'Login',
+					type: String
+				},
+				mmenuBackground: {
+					value:null,
+					type: String
+				},
+				mmenuClasses: {
+					value:null,
+					type: String
+				},
+				logoBackground: {
+					value:null,
+					type: String
+				},
+				logo: {
+					value:'logo.svg',
+					type: String
+				},
 				pages: {
 					type: Array
 				}
@@ -197,8 +222,7 @@
 			observers: [
 				'pagesChanged(pages)',
 				'routeChanged(route)',
-				'selectedModelChanged(selectedModel)',
-				'globalsChanged(globals.*)'
+				'selectedModelChanged(selectedModel)'
 			],
 			pagesChanged: function() {
 				console.log( "Pages:", this.pages );
@@ -305,6 +329,8 @@
 				var body = detail.response.body;
 				var head = detail.response.head;
 				var sheets = head.querySelectorAll( 'link[rel=stylesheet]' );
+				console.log( "detail;",detail );
+				console.log( "detail.response;",detail.response );
 				var sheetsHTML = "\n";
 				for ( var i = 0, l = sheets.length, sheet;
 					( i < l ) && ( sheet = sheets[ i ] ); i++ ) {
@@ -324,8 +350,11 @@
 				var insertPoint = this.corePages.selectedItem.firstElementChild;
 				console.log( "selectedItem:", this.corePages.selectedItem );
 				console.log( "insertPoint:", insertPoint );
-				if ( this.corePages.selectedItem.getAttribute( "wrap" ) == null ) {
+				console.log( "wrap:",  (this.corePages.selectedItem.getAttribute( "wrap" )==null) );
+				if ( this.corePages.selectedItem.getAttribute( "wrap" ) !== true ) {
 					insertPoint.innerHTML = html;
+					this.convertSheetsToStyles( insertPoint );
+					this.evalScripts( insertPoint );
 				} else {
 					var encapsulateElementName = 'encapsulate-element' + this.route;
 					this._createDomModule( encapsulateElementName );
@@ -333,10 +362,28 @@
 					Polymer( {
 						is: encapsulateElementName,
 						ready: function() {
-							console.log( "encapsulateElement ready:" );
-							var span = document.createElement( 'span' );
-							Polymer.dom( this.root ).appendChild( span )
-							Polymer.dom( span ).innerHTML = html;
+							console.log( "encapsulateElement ready1:" );
+							var rootElement = document.createElement( 'div' );
+							var style = document.createElement( 'style' );
+							//Polymer.dom(style).innerHTML = ".sect2\n{ background:green;\n}\n";
+							var css = ".style-scope .encapsulate-element0 .sect2\n{ background:green;\n}\n";
+							Polymer.dom(style).textContent = css;
+//							Polymer.dom(rootElement).appendChild( style )
+							var link = document.createElement( 'link' );
+							link.rel="stylesheet";
+							link.type="text/css";
+							link.href="colony.css";
+							Polymer.dom(rootElement).appendChild( link )
+
+
+							var cssText = Polymer.StyleExtends.transform(style);
+							console.log("cssText:",cssText);
+
+							Polymer.dom( this.root ).appendChild( rootElement )
+							var content = document.createElement( 'span' );
+							Polymer.dom(rootElement).appendChild( content )
+							content.innerHTML = html;
+							Polymer.Base.scopeSubtree(content);
 						}
 					} );
 					var enElement = document.createElement( encapsulateElementName );
@@ -351,17 +398,18 @@
 				domModule.setAttribute( "id", name );
 				domBind.content.appendChild( domModule )
 
+				//var style = doc.createElement( 'style' );
+				//Polymer.dom(style).innerHTML=".sect2\n{ background:green;\n}\n";
+				//domModule.appendChild( style )
+
 				var template = document.createElement( 'template' );
 				domModule.appendChild( template )
 				document.body.appendChild( domBind );
 			},
 
-			evalScripts: function( id ) {
-				if ( !window.ShadowDOMPolyfill ) {
-					return
-				}
-				var e = this.shadowRoot.querySelector( "#" + id );
-				var scripts = e.shadowRoot.querySelectorAll( "script" );
+			evalScripts: function( root ) {
+				var SCRIPT_SELECTOR = 'script';
+				var scripts = root.querySelectorAll( SCRIPT_SELECTOR );
 				for ( var i = 0; i < scripts.length; i++ ) {
 					eval( scripts[ i ].text );
 				}
@@ -396,7 +444,12 @@
 				style.textContent = cssText;
 				return style;
 			},
+			getLogoLink:function(){
+				console.log("logoLink2:",this.logoLink);
+				return this.substituteLang(this.logoLink);
+			},
 			substituteLang: function( url ) {
+				console.log("substituteLang:",this.globals);
 				if ( url == null || url == '' ) return;
 				if ( url.indexOf( "%l" ) != -1 ) {
 					url = url.replace( "%l", this.globals.lang );
