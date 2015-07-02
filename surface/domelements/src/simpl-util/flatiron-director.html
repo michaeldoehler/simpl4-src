@@ -1,0 +1,57 @@
+<!--
+Copyright 2013 The Polymer Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<script src="director.js"></script>
+
+<dom-module id="flatiron-director" hidden>
+	<script>
+		( function() {
+			var private_router;
+			Polymer( {
+				is: 'flatiron-director',
+				properties: {
+					autoHash: {
+						value: false,
+						type: Boolean
+					},
+					route: {
+						value:function(){
+							return {id:'0'};
+						},
+						notify:true,
+						type: Object
+					}
+				},
+			observers: [
+				'routeChanged(route.*)'
+			],
+				ready: function() {
+					console.log("flatiron.ready:",this.route);
+					this.router.on( /(.*)/, function( route ) {
+						this.route.id = route;
+					}.bind( this ) );
+					var r = this.router.getRoute();
+					this.route.id = r && r != ""  ? r.join( this.router.delimiter ) : '0';
+				},
+				routeChanged: function() {
+					console.log("flatiron.routeChanged:",this.route);
+					console.log("flatiron.autoHash:",this.autoHash);
+					if ( this.autoHash ) {
+						window.location.hash = this.route.id;
+					}
+					this.fire( 'director-route', this.route );
+				},
+				get router() {
+					if ( !private_router ) {
+						private_router = new Router();
+						private_router.init();
+					}
+					return private_router;
+				}
+			} );
+		} )();
+
+	</script>
+</dom-module>
