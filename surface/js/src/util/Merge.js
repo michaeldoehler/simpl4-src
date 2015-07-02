@@ -18,7 +18,7 @@
  */
 /**
  */
-can.Construct.extend( "simpl4.util.Merge", {
+clazz.construct.extend( "simpl4.util.Merge", {
 	deepmerge: function( target, src ) {
 		var array = Array.isArray( src );
 		var dst = array && [] || {};

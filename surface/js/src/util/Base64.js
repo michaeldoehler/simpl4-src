@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend( "simpl4.util.Base64", {
+clazz.construct.extend( "simpl4.util.Base64", {
 
 	// private property
 	_keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",

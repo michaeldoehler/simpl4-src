@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend( "simpl4.util.SelectableItems",{
+clazz.construct.extend( "simpl4.util.SelectableItems", {
 	/******************************************************************************
 	 Static
 	 ******************************************************************************/
-	}, {
+}, {
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
@@ -129,7 +129,7 @@ can.Construct.extend( "simpl4.util.SelectableItems",{
 				}
 			} catch ( e ) {
 				console.error( "SelectableItems.Could not parse:" + this._url + ":" + e );
-				console.error(e.stack);
+				console.error( e.stack );
 			}
 		} else {
 			var values = this._url.split( ";" );
@@ -293,8 +293,8 @@ can.Construct.extend( "simpl4.util.SelectableItems",{
 		}
 	},
 
-	getStoreId:function(){
-		return this.namespace+"_data";
+	getStoreId: function() {
+		return this.namespace + "_data";
 	},
 	toString: function() {
 		return "SelectableItems:" + this._url;

@@ -16,46 +16,46 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend("simpl4.util.BaseManager", {
-	namespace:null,
-	language:null,
-	user:null,
-	password:null,
-	baseurl:'',
-	setBaseUrl:function(baseUrl){
+clazz.construct.extend( "simpl4.util.BaseManager", {
+	namespace: null,
+	language: null,
+	user: null,
+	password: null,
+	baseurl: '',
+	setBaseUrl: function( baseUrl ) {
 		simpl4.util.BaseManager.baseurl = baseUrl;
 	},
-	getBaseUrl:function(){
+	getBaseUrl: function() {
 		return simpl4.util.BaseManager.baseurl;
 	},
-	setNamespace:function(namespace){
+	setNamespace: function( namespace ) {
 		simpl4.util.BaseManager.namespace = namespace;
 	},
-	getNamespace:function(){
+	getNamespace: function() {
 		return simpl4.util.BaseManager.namespace;
 	},
-	getStoreId:function(){
-		return simpl4.util.BaseManager.namespace+"_data";
+	getStoreId: function() {
+		return simpl4.util.BaseManager.namespace + "_data";
 	},
-	setLanguage:function(language){
+	setLanguage: function( language ) {
 		simpl4.util.BaseManager.language = language;
 	},
-	getLanguage:function(language){
+	getLanguage: function( language ) {
 		return simpl4.util.BaseManager.language;
 	},
-	setUser:function(user){
+	setUser: function( user ) {
 		simpl4.util.BaseManager.user = user;
 	},
-	getUser:function(user){
+	getUser: function( user ) {
 		return simpl4.util.BaseManager.user;
 	},
-	setPassword:function(password){
+	setPassword: function( password ) {
 		simpl4.util.BaseManager.password = password;
 	},
-	getPassword:function(password){
+	getPassword: function( password ) {
 		return simpl4.util.BaseManager.password;
 	},
-	getDateFormat:function(){
+	getDateFormat: function() {
 		return simpl4.util.BaseManager.getLanguage() === 'de' ? 'DD.MM.YYYY' : 'MM/DD/YYYY';
 	}
-}, {});
+}, {} );

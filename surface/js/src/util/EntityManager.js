@@ -93,13 +93,13 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 		return access;
 	},
 
-	hasEntityUpdatePermission: function (entity,namespace) {
-		var access = this.getEntityAccess(entity,namespace);
-console.log("access:",access);
+	hasEntityUpdatePermission: function( entity, namespace ) {
+		var access = this.getEntityAccess( entity, namespace );
+		console.log( "access:", access );
 		var user = this.getUser();
-console.log("user:",user);
-		if (user.admin) return true;
-		if (access["update"] === undefined || access["update"] == "all" || access["update"] == "owner") return true;
+		console.log( "user:", user );
+		if ( user.admin ) return true;
+		if ( access[ "update" ] === undefined || access[ "update" ] == "all" || access[ "update" ] == "owner" ) return true;
 		return false;
 	},
 	getEntities: function() {

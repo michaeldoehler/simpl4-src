@@ -18,7 +18,7 @@
  */
 /**
  */
-can.Construct.extend( "simpl4.util.Inflector", {
+clazz.construct.extend( "simpl4.util.Inflector", {
 	getEntityName: function( name ) {
 		return this.singularize( name ).toLowerCase();
 	},

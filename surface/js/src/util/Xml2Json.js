@@ -18,7 +18,7 @@
  */
 /**
  */
-can.Construct.extend( "simpl4.util.Xml2Json", {
+clazz.construct.extend( "simpl4.util.Xml2Json", {
 		NODE_TYPES: {
 			Element: 1,
 			Attribute: 2,

@@ -16,48 +16,48 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-simpl4.util.BaseManager.extend("simpl4.util.MessageManager", {
-	namespaceMap:null,
+simpl4.util.BaseManager.extend( "simpl4.util.MessageManager", {
+	namespaceMap: null,
 	transMap: null,
-	getMessages: function(namespace) {
-		var failed = function(details) {
-			console.error("GetMessages("+namespace+") failed" + ":" + details.message);
+	getMessages: function( namespace ) {
+		var failed = function( details ) {
+			console.error( "GetMessages(" + namespace + ") failed" + ":" + details.message );
 		};
 
 		try {
-			var ret = simpl4.util.Rpc.rpcSync("message:getMessages", {
+			var ret = simpl4.util.Rpc.rpcSync( "message:getMessages", {
 				namespace: namespace,
 				lang: simpl4.util.BaseManager.getLanguage()
-			});
+			} );
 			return ret;
-		} catch (e) {
-			failed(e);
+		} catch ( e ) {
+			failed( e );
 			return [];
 		}
 	},
-	toMap: function(rows) {
+	toMap: function( rows ) {
 		var transMap = simpl4.util.MessageManager.transMap;
 		var count = rows.length;
-		for (var i = 0; i < count; i++) {
-			var row = rows[i];
-			transMap[row.msgid] = row.msgstr;
+		for ( var i = 0; i < count; i++ ) {
+			var row = rows[ i ];
+			transMap[ row.msgid ] = row.msgstr;
 		}
 	},
-	installMessages: function(namespace) {
-		if( this.namespaceMap[namespace] == null){
-			var rows = this.getMessages(namespace);
-			this.toMap(rows);
-			this.namespaceMap[namespace] = true;
+	installMessages: function( namespace ) {
+		if ( this.namespaceMap[ namespace ] == null ) {
+			var rows = this.getMessages( namespace );
+			this.toMap( rows );
+			this.namespaceMap[ namespace ] = true;
 		}
 	},
 	installBaseMessages: function() {
-		this.namespaceMap={};
+		this.namespaceMap = {};
 		this.transMap = {};
-		this.installMessages("global");
-		this.installMessages(simpl4.util.BaseManager.getNamespace());
+		this.installMessages( "global" );
+		this.installMessages( simpl4.util.BaseManager.getNamespace() );
 	},
-	tr:function(id){
-		var t = simpl4.util.MessageManager.transMap[id];
-		return t == null ?  id :t;
+	tr: function( id ) {
+		var t = simpl4.util.MessageManager.transMap[ id ];
+		return t == null ? id : t;
 	}
-}, {});
+}, {} );

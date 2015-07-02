@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend( "simpl4.util.CrudForm", {
+clazz.construct.extend( "simpl4.util.CrudForm", {
 	/******************************************************************************
 	 Static
 	 ******************************************************************************/
@@ -55,46 +55,46 @@ can.Construct.extend( "simpl4.util.CrudForm", {
 				row.childShapes.push( this.getFieldShape( f ) );
 			}, this );
 		}, this );
-		var h1 = "data."+entityname+"."+tabView.childShapes[0].xf_id;
-		if( tabView.childShapes.length==1 && h1 == tr(h1)){
-			this._form = tabView.childShapes[0];
-			this._form.id="Form";
-		}else{
+		var h1 = "data." + entityname + "." + tabView.childShapes[ 0 ].xf_id;
+		if ( tabView.childShapes.length == 1 && h1 == tr( h1 ) ) {
+			this._form = tabView.childShapes[ 0 ];
+			this._form.id = "Form";
+		} else {
 			this._form = tabView;
 		}
 	},
 	getFieldShape: function( f ) {
 		var shape = {};
 		shape.id = "Input";
-		if( f.edittype=="select"){
-			shape.id= "Enumselect";
+		if ( f.edittype == "select" ) {
+			shape.id = "Enumselect";
 			shape.items = f.selectable_items.getItems();
 		}
-		if( f.edittype=="textarea"){
-			shape.id= "Textarea";
+		if ( f.edittype == "textarea" ) {
+			shape.id = "Textarea";
 			shape.xf_rows = f.editoptions_rows;
 		}
 		shape.xf_id = f.name;
-		shape.xf_type = this.convertFieldType(f);
+		shape.xf_type = this.convertFieldType( f );
 		shape.label = tr( "data." + this.entityname + "." + f.name );
 		if ( f.constraints ) {
 			var c = JSON.parse( f.constraints );
 			shape.regulaConstraints = simpl4.util.FormManager.constructRegulaConstraints( c );
 		}
 
-		if ( f.datatype && ( f.datatype.match(/^relatedto/)) ) {
-			var s= f.datatype.split("/");
-			shape.id="RelatedTo";
-			shape.xf_type=s[2];
-			shape.xf_namespace=this.namespace;
+		if ( f.datatype && ( f.datatype.match( /^relatedto/ ) ) ) {
+			var s = f.datatype.split( "/" );
+			shape.id = "RelatedTo";
+			shape.xf_type = s[ 2 ];
+			shape.xf_namespace = this.namespace;
 		}
 
-    shape.xf_enabled = f.form_enabled_expr;
-    shape.defaultValue = f.default_value !== '' ? f.default_value : null;
+		shape.xf_enabled = f.form_enabled_expr;
+		shape.defaultValue = f.default_value !== '' ? f.default_value : null;
 		return shape;
 	},
 	convertFieldType: function( f ) {
-		var retType="text";
+		var retType = "text";
 		if ( f.datatype && f.datatype == 'date' ) {
 			retType = f.edittype == "text" ? "date" : f.edittype;
 		} else if ( f.datatype && ( f.datatype == 'decimal' || f.datatype == 'double' ) ) {

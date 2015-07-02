@@ -18,7 +18,7 @@
  */
 /**
  */
-can.Construct.extend( "simpl4.util.Rx", {
+clazz.construct.extend( "simpl4.util.Rx", {
 	observableFromWebSocket: function( url, options, openObserver, closingObserver ) {
 		if ( !WebSocket ) {
 			throw new TypeError( 'WebSocket not implemented in your runtime.' );
@@ -33,7 +33,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 					closingObserver.onNext();
 					closingObserver.onCompleted();
 				}
-				if( code == -1) return;
+				if ( code == -1 ) return;
 				if ( !code ) {
 					socket.close();
 				} else {
@@ -72,7 +72,7 @@ can.Construct.extend( "simpl4.util.Rx", {
 			socket.addEventListener( 'close', closeHandler, false );
 
 			return function() {
-				socketClose(-1);
+				socketClose( -1 );
 
 				socket.removeEventListener( 'message', messageHandler, false );
 				socket.removeEventListener( 'error', errHandler, false );

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-can.Construct.extend( "simpl4.util.SearchFilter", {
+clazz.construct.extend( "simpl4.util.SearchFilter", {
 	createSearchFilter: function( entityname ) {
 		var args = Args( [ {
 			entityname: Args.STRING | Args.Required
@@ -59,7 +59,9 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 		var f2 = this._getSearchFilterFields( args.namespace, args.entityname );
 		var fields = f1.concat( f2 );
 
-		var moduleList = simpl4.util.EntityManager.getEntity( args.entityname,{namespace:args.namespace} );
+		var moduleList = simpl4.util.EntityManager.getEntity( args.entityname, {
+			namespace: args.namespace
+		} );
 		if ( moduleList && moduleList.childs != null ) {
 			for ( var j = 0; j < moduleList.childs.length; j++ ) {
 				var child = moduleList.childs[ j ];
@@ -129,7 +131,9 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			odata = JSON.parse( odata );
 		} catch ( e ) {}
 		try {
-			var list = simpl4.util.EntityManager.getFieldsetsForEntity( entityname,{namespace:namespace} );
+			var list = simpl4.util.EntityManager.getFieldsetsForEntity( entityname, {
+				namespace: namespace
+			} );
 			var fields = [];
 			for ( var i = 0; i < list.length; i++ ) {
 				var o = list[ i ];
@@ -141,7 +145,7 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 
 				field.text = tr( o.fsname );
 				field.itemval = o.fsname;
-				field.type="string";
+				field.type = "string";
 				fields.push( field );
 				field.input = simpl4.util.FormManager.handleQueryBuilderSearchInput.bind( simpl4.util.FormManager );
 				var sopt = o.search_options; //eval(o.sopt);
@@ -173,7 +177,9 @@ can.Construct.extend( "simpl4.util.SearchFilter", {
 			odata = JSON.parse( odata );
 		} catch ( e ) {}
 
-		var model = simpl4.util.EntityManager.getEntityViewFields( entityname, "search", {namespace:namespace} );
+		var model = simpl4.util.EntityManager.getEntityViewFields( entityname, "search", {
+			namespace: namespace
+		} );
 		if ( model == undefined ) return [];
 		var category = "data";
 

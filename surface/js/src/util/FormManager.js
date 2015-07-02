@@ -16,48 +16,55 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
+simpl4.util.BaseManager.extend( "simpl4.util.FormManager", {
 	selectableItemsCache: {},
 	crudFormCache: {},
-	getForm: function(name,namespace) {
-		var failed = function(details) {
-			alert("GetForm failed" + ":" + details.message);
+	getForm: function( name, namespace ) {
+		var failed = function( details ) {
+			alert( "GetForm failed" + ":" + details.message );
 		};
 
 		try {
-			var ret = simpl4.util.Rpc.rpcSync("git:searchContent", {
+			var ret = simpl4.util.Rpc.rpcSync( "git:searchContent", {
 				reponame: namespace || simpl4.util.BaseManager.getNamespace(),
 				name: name,
-				type:"sw.form"
-			});
+				type: "sw.form"
+			} );
 			return ret;
-		} catch (e) {
-			failed(e);
+		} catch ( e ) {
+			failed( e );
 			return [];
 		}
 	},
-	getCrudForm: function(entityname,namespace) {
-		var cf =  this.crudFormCache[namespace+"/"+entityname];
-		if( cf == null){
-			var props = simpl4.util.EntityManager.getEntityViewProperties(entityname,"main-form", {namespace:namespace});
-			var fields = simpl4.util.EntityManager.getEntityViewFields(entityname,"main-form",true, {namespace:namespace});
-			var _cf = new simpl4.util.CrudForm(namespace, entityname, fields,props);
+	getCrudForm: function( entityname, namespace ) {
+		var cf = this.crudFormCache[ namespace + "/" + entityname ];
+		if ( cf == null ) {
+			var props = simpl4.util.EntityManager.getEntityViewProperties( entityname, "main-form", {
+				namespace: namespace
+			} );
+			var fields = simpl4.util.EntityManager.getEntityViewFields( entityname, "main-form", true, {
+				namespace: namespace
+			} );
+			var _cf = new simpl4.util.CrudForm( namespace, entityname, fields, props );
 			cf = _cf.getSpec();
-			this.crudFormCache[namespace+"/"+entityname]=cf;
+			this.crudFormCache[ namespace + "/" + entityname ] = cf;
 		}
 		return cf;
-			
+
 	},
-	createSelectableItems:function(namespace,formName,fieldName,url){
+	createSelectableItems: function( namespace, formName, fieldName, url ) {
 		namespace = namespace || simpl4.util.BaseManager.getNamespace();
-		var si = new simpl4.util.SelectableItems( {namespace:namespace,url:url } );
-		this.selectableItemsCache[namespace+"/"+formName+"/"+fieldName] = si;
+		var si = new simpl4.util.SelectableItems( {
+			namespace: namespace,
+			url: url
+		} );
+		this.selectableItemsCache[ namespace + "/" + formName + "/" + fieldName ] = si;
 		return si;
 	},
-	getSelectableItems:function(namespace,formName,fieldName,url){
-		var si =  this.selectableItemsCache[namespace+"/"+formName+"/"+fieldName];
-		if( si == null && url != null){
-			si = this.createSelectableItems(namespace,formName,fieldName,url);
+	getSelectableItems: function( namespace, formName, fieldName, url ) {
+		var si = this.selectableItemsCache[ namespace + "/" + formName + "/" + fieldName ];
+		if ( si == null && url != null ) {
+			si = this.createSelectableItems( namespace, formName, fieldName, url );
 		}
 		return si;
 	},
@@ -65,38 +72,38 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		var regulaConstraints = null;
 		if ( filter.constraints ) {
 			var c = JSON.parse( filter.constraints );
-			regulaConstraints = "data-constraints='" + this.constructRegulaConstraints( c )+"'";
+			regulaConstraints = "data-constraints='" + this.constructRegulaConstraints( c ) + "'";
 		}
-		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues!=null );
-		if( filter.dataValues ){
+		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues != null );
+		if ( filter.dataValues ) {
 			rule.find( ".rule-value-container" ).
-				append( '<dropdown-field ' + attributes +  ' name="' + rule.selector.substring( 1 ) + '_value_0" >'+this.getSelectables(filter.dataValues)+'</dropdown-field>' );
-		}else{
+			append( '<dropdown-field ' + attributes + ' name="' + rule.selector.substring( 1 ) + '_value_0" >' + this.getSelectables( filter.dataValues ) + '</dropdown-field>' );
+		} else {
 			rule.find( ".rule-value-container" ).
-				append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
+			append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
 		}
 	},
-	getSelectables:function(selectables){
+	getSelectables: function( selectables ) {
 		var elements = "";
-		for(var i=0; i< selectables.length;i++){
-			var sel = selectables[i];
-			 elements+='<paper-item name="'+sel.value+'">'+sel.label+'</paper-item>';
+		for ( var i = 0; i < selectables.length; i++ ) {
+			var sel = selectables[ i ];
+			elements += '<paper-item name="' + sel.value + '">' + sel.label + '</paper-item>';
 		}
 		return elements;
 	},
 	constructRegulaConstraints: function( c ) {
 		var ret = '';
-		var b="";
+		var b = "";
 		c.forEach( function( x ) {
 			var params = this._constraintParams[ x.annotation ];
-			ret += b+ '@' + x.annotation;
-			ret += '(message="' + this.getMessage(x) + '"';
+			ret += b + '@' + x.annotation;
+			ret += '(message="' + this.getMessage( x ) + '"';
 			if ( params ) {
 				if ( params.length > 0 ) {
 					var key = params[ 0 ];
-					var val = key=='format' ? '"YMD"' : x.parameter1;
-					if( key == "regex" ){
-						val = "/"+val+"/";
+					var val = key == 'format' ? '"YMD"' : x.parameter1;
+					if ( key == "regex" ) {
+						val = "/" + val + "/";
 					}
 					ret += ',' + key + '=' + val;
 				}
@@ -107,23 +114,23 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 				}
 			}
 			ret += ')';
-			b=' ';
+			b = ' ';
 		}, this );
 		return ret;
 	},
-	getMessage:function(x){
-		if( x.message && x.message.length>0){
-			if( x.message.match(/^[%@]/)){
-				return tr(x.message.substring(1));
-			}else{
+	getMessage: function( x ) {
+		if ( x.message && x.message.length > 0 ) {
+			if ( x.message.match( /^[%@]/ ) ) {
+				return tr( x.message.substring( 1 ) );
+			} else {
 				return x.message;
 			}
 		}
-		return tr("validation." + x.annotation);
+		return tr( "validation." + x.annotation );
 	},
 	constructAttributes: function( xtype, label, c, dropdown ) {
-		var map={};
-		if( c == null) c = [];
+		var map = {};
+		if ( c == null ) c = [];
 		map.type = "text";
 		if ( xtype === "date" ) {
 			map.type = "date";
@@ -134,47 +141,47 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		if ( xtype === "double" ) {
 			map.type = "number";
 		}
-		map.style="min-width:60px;"
-		if( dropdown){
-			map.style+="display:inline-block;"
+		map.style = "min-width:60px;"
+		if ( dropdown ) {
+			map.style += "display:inline-block;"
 		}
-		map.label=label;
-		map.floatingLabel=false;
-		map.compact=true;
-		if( map.type == 'number'){
-			map.step='1';
-			map.preventInvalidInput=true;
+		map.label = label;
+		map.floatingLabel = false;
+		map.compact = true;
+		if ( map.type == 'number' ) {
+			map.step = '1';
+			map.preventInvalidInput = true;
 		}
-		if( map.type == 'double'){
-			map.preventInvalidInput=true;
-			map.step='any';
+		if ( map.type == 'double' ) {
+			map.preventInvalidInput = true;
+			map.step = 'any';
 		}
 		c.forEach( function( x ) {
 			var a = x.annotation;
-			if( a == 'Min' || a == 'Max' || a == 'Pattern'){
-				map[a] = x.parameter1;
+			if ( a == 'Min' || a == 'Max' || a == 'Pattern' ) {
+				map[ a ] = x.parameter1;
 			}
-			if( a == 'Digits'){
-				var f = parseInt(x.parameter2);
-				map.step= Math.pow(10,-f)+'';
+			if ( a == 'Digits' ) {
+				var f = parseInt( x.parameter2 );
+				map.step = Math.pow( 10, -f ) + '';
 			}
-			if( a == 'Email'){
-				map.type= 'email';
+			if ( a == 'Email' ) {
+				map.type = 'email';
 			}
-			if( a == 'Url'){
-				map.type= 'url';
+			if ( a == 'Url' ) {
+				map.type = 'url';
 			}
 		} );
 		var b = '';
 		var ret = '';
 		Object.keys( map ).forEach( function( key ) {
-			if( map[key] === true){
-				ret+= b+ key;
-			}else{
-				ret+= b+ key+'='+map[key];
+			if ( map[ key ] === true ) {
+				ret += b + key;
+			} else {
+				ret += b + key + '=' + map[ key ];
 			}
-			b=' ';
-		});
+			b = ' ';
+		} );
 		return ret;
 	},
 	_constraintParams: {
@@ -188,4 +195,4 @@ simpl4.util.BaseManager.extend("simpl4.util.FormManager", {
 		Future: [ "format" ],
 		Step: [ "min", "max", "value" ]
 	}
-}, {});
+}, {} );
