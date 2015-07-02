@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-dispatcher" attributes="selected selectedModel pages" flex relative>
+<dom-module id="simpl-dispatcher" flex relative>
 	<style shim-shadowdom>
 		div {
 			width: 100%;
@@ -35,12 +35,13 @@
 		Polymer( {
 			is: 'simpl-dispatcher',
 			properties: {
-				selectedModel: {
-					type: Object,
-					notify: true
+				selected: {
+					observer: "selectedChanged",
+					type: String
 				}
 			},
 			ready: function() {
+				this.pages = simpl4PageRegistry.getPages();
 				console.log( "dispatcher.Ready:" + this.selected );
 				if ( this.selected ) {
 					var node = this.getNodeByHash( this.selected );
@@ -64,11 +65,9 @@
 				console.log( "dispatcher._attached:" + this.selected );
 				this.mainMenuElement = Polymer.dom( document.querySelectorAll( this.shadowRoot ? "html /deep/ simpl-mmenu" : "simpl-mmenu" )[ 0 ].root );
 				var aList = this.mainMenuElement.querySelectorAll( "a" );
-				console.log( "a-lIst:", aList );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
-						//a.addEventListener( "tap", this.activateListener.bind( this ) );
 						$( a ).tap( this.activateListener.bind( this ), false );
 					}
 				}

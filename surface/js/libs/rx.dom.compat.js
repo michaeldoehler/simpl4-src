@@ -104,7 +104,11 @@
   function createListener (element, name, handler) {
     // Standards compliant
     if (element.addEventListener) {
-      element.addEventListener(name, handler, false);
+			if( name == "tap"){
+				$( element ).tap( handler, false );
+			}else{
+      	element.addEventListener(name, handler, false);
+			}
       return disposableCreate(function () {
         element.removeEventListener(name, handler, false);
       });
@@ -131,6 +135,7 @@
 
     // Asume NodeList
     if (Object.prototype.toString.call(el) === '[object NodeList]') {
+
       for (var i = 0, len = el.length; i < len; i++) {
         disposables.add(createEventListener(el.item(i), eventName, handler));
       }
@@ -160,7 +165,6 @@
         eventName, 
         function handler (e) { 
           var results = e;
-
           if (selector) {
             try {
               results = selector(arguments);

@@ -41,18 +41,12 @@
 			is: 'simpl-mmenu',
 			properties: {
 				name: String,
-				globals: Object,
 				classes: String,
 				slidingSubmenus: String,
 				background: String,
-				searchfield: String,
-				pages: {
-					type: Array,
-					notify: true
-				}
+				searchfield: String
 			},
 			observers: [
-				'globalsChanged(globals.*)'
 			],
 			level: -1,
 			classes: "mm-white mm-zoom-panels",
@@ -60,15 +54,15 @@
 			attached: function() {
 				console.log( "mmenu.attached" );
 			},
-			globalsChanged: function() {
-				console.log( "mmenu.globalsChanged:", this.globals );
+			ready: function() {
+				console.log( "mmenu.globalsChanged:", simpl4Globals.getAll() );
 				this._getMenuYaml();
 				this._createTree();
 				this._createMenu()
 				this._setStyleScope( this._mainmenu );
 			},
 			_createMenu: function() {
-				console.log( "mmenu.createMenu.globals:", this.classes );
+				console.log( "mmenu.createMenu.classes:", this.classes );
 				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
@@ -191,7 +185,8 @@
 				}
 				this._pages = [];
 				this._traverse( this.nodes );
-				this.pages = this._pages;
+				//this.pages = this._pages;
+				simpl4PageRegistry.addPages(this._pages);
 				//console.log("Pages:"+JSON.stringify(this.nodes,null,2));
 			},
 			_traverse: function( nodes ) {
@@ -210,7 +205,7 @@
 						}
 					}
 					if ( node.url && node.url.indexOf( "%l" ) != -1 ) {
-						node.url = node.url.replace( "%l", this.globals.lang );
+						node.url = node.url.replace( "%l", simpl4Globals.get("lang") );
 					}
 					if ( node.disabled !== true ) {
 						if ( node.children && node.children.length > 0 ) {

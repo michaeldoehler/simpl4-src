@@ -20,8 +20,8 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 	entityCache: {},
 	fieldCache: {},
 	clearCache: function() {
-		simpl4.config.EntityManager.fieldCache = {};
-		simpl4.config.EntityManager.entityCache = {};
+		simpl4.util.EntityManager.fieldCache = {};
+		simpl4.util.EntityManager.entityCache = {};
 	},
 	getFields: function( entity, withAutoGen, withRelations, filter, mapping ) {
 		var args = Args( [ {

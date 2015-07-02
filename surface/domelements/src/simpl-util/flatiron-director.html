@@ -17,29 +17,26 @@ license that can be found in the LICENSE file.
 						type: Boolean
 					},
 					route: {
-						value:function(){
-							return {id:'0'};
-						},
-						notify:true,
-						type: Object
+						value: '0',
+						notify: true,
+						type: String
 					}
 				},
-			observers: [
-				'routeChanged(route.*)'
-			],
+				observers: [
+					'routeChanged(route)'
+				],
 				ready: function() {
-					console.log("flatiron.ready:",this.route);
+					console.log( "flatiron.ready:", this.route );
 					this.router.on( /(.*)/, function( route ) {
-						this.route.id = route;
+						this.route = route;
 					}.bind( this ) );
 					var r = this.router.getRoute();
-					this.route.id = r && r != ""  ? r.join( this.router.delimiter ) : '0';
+					this.route = r && r != "" ? r.join( this.router.delimiter ) : '0';
 				},
 				routeChanged: function() {
-					console.log("flatiron.routeChanged:",this.route);
-					console.log("flatiron.autoHash:",this.autoHash);
+					console.log( "flatiron.routeChanged:", this.route );
 					if ( this.autoHash ) {
-						window.location.hash = this.route.id;
+						window.location.hash = this.route;
 					}
 					this.fire( 'director-route', this.route );
 				},

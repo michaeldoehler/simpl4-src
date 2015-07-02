@@ -21,17 +21,10 @@
 
 <link rel="import" href="utils-import.html">
 <dom-module id="simpl-globals" attributes="globals namespace" hidden>
-	<template>
-		<simpl-rpc id="sForm" service="git" method="searchContent" handleas="json"></simpl-rpc>
-	</template>
 	<script>
 		( function() {
 			/**
 			 */
-			var config = {
-				cacheExpiration: 7200
-			};
-
 			if ( window.console.debug == null ) {
 				window.console.debug = window.console.log;
 			}
@@ -95,8 +88,10 @@
 			var lang = Simpl4.Cache.getItem( "lang" );
 			if ( qlang ) {
 				simpl4.util.BaseManager.setLanguage( qlang );
+				simpl4.util.Globals.set( "lang", qlang );
 			} else {
 				simpl4.util.BaseManager.setLanguage( lang ? lang : "en" );
+				simpl4.util.Globals.set( "lang", lang ? lang : "en" );
 			}
 
 			simpl4.util.BaseManager.setUser( "guest" );
@@ -107,7 +102,9 @@
 			window.simpl4FormManager = simpl4.util.FormManager;
 			window.simpl4MessageManager = simpl4.util.MessageManager;
 			window.simpl4EntityManager = simpl4.util.EntityManager;
-console.log("GLOBAS");
+			window.simpl4PageRegistry = simpl4.util.PageRegistry;
+			window.simpl4Globals = simpl4.util.Globals;
+console.log("GLOBAS", simpl4Globals.getAll());
 
 			simpl4MessageManager.installBaseMessages();
 			window.tr = simpl4MessageManager.tr;
@@ -127,29 +124,13 @@ console.log("GLOBAS");
 					namespace: {
 						type: String,
 						value: "xxx"
-					},
-					globals: {
-						type: Object,
-						notify: true,
-						value: function(){
-							console.log("INI");
-							return {lang:"de"};
-						}
 					}
 				},
 				created: function() {
-					//this.getProperties();
-					this.config = config;
-					console.debug( "Globals.created:" + tr( 'data.customer.cid' ) );
-				},
-				ready: function() {
-					console.debug( "Globals.Ready:" ,this.globals );
+					console.debug( "simpl-globals.create:" + tr( 'data.customer.cid' ) );
 				},
 				namespaceChanged: function() {
 					simpl4MessageManager.installMessages( this.namespace );
-				},
-				get actions() { //Only for info
-					return this.getFromCache( this.$.axActions, 'baasicActions', 'accessAction' );
 				},
 				getProperties: function() {
 					var ret = null;
@@ -167,34 +148,6 @@ console.log("GLOBAS");
 					} ).bind( this ) );
 					console.log("return:",ret);
 					return ret;
-				},
-				getFromCache: function( ajax, cacheKey, collectionKey ) {
-					var _this = this;
-					return new Promise( function( resolve, reject ) {
-						if ( !Simpl4.Cache.getItem( cacheKey ) ) {
-							ajax.request().then( function( response ) {
-								Simpl4.Cache.setItem( cacheKey, response.response, {
-									expirationAbsolute: new Date( new Date().getTime() + ( _this.config.cacheExpiration * 1000 ) ),
-									expirationSliding: null,
-									priority: Cache.Priority.HIGH,
-									callback: null
-								} );
-								resolve( {
-									data: response.response
-								} );
-							}, function( error ) {
-								console.error( "Error1:", error.response );
-								reject( {
-									error: error.response
-								} );
-							}.bind( _this ) );
-						} else {
-							console.debug( "FromCache" );
-							resolve( {
-								data: Simpl4.Cache.getItem( cacheKey )
-							} );
-						}
-					} );
 				}
 			} );
 		} )();
