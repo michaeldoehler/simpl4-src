@@ -117,54 +117,55 @@
 		<core-style ref="main"></core-style>
 
 		<simpl-globals></simpl-globals>
-		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}"></simpl-dispatcher>
 
 		<flatiron-director route="{{route}}" auto-hash></flatiron-director>
 
 		<!-- Keyboard nav controller. -->
 		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
 
-		<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
-			<div class="vertical layout" drawer>
-				<nav id="nav" class="layout vertical fit">
-					<div>
-						<a href="[[logoLinkLang]]" target="_blank">
-							<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
-						</a>
-					</div>
-					<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{getPages()}}" class="flex" />
-				</nav>
-			</div>
-
-			<paper-scroll-header-panel main xondenses class="flex">
-				<paper-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
-					<paper-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></paper-icon-button>
-					<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
-					<template if="{{selectedModel.node.help!=null}}">
-						<core-tooltip label="{{helpMessage}}" position="left">
-							<paper-icon-button on-click="{{showHelp}}" icon="help"></paper-icon-button>
-						</core-tooltip>
-					</template>
-					<paper-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></paper-icon-button>
-					<core-tooltip label="{{loginMessage}}" position="left">
-						<paper-icon-button on-click="{{login}}" icon="system-update-tv"></paper-icon-button>
-					</core-tooltip>
-				</paper-toolbar>
-
-				<div class="content" style="height:100%">
-					<iron-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" transitions="slide-from-right">
-						<template is="dom-repeat" items="{{getPages()}}">
-							<section class="main" style="position:relative;"  hash$={{item.hash}}>
-								<div slide-from-right style="height:100%">
-									<div style="max-width:100%;">{{item.name}}</div>
-								</div>
-							</section>
-						</template>
-					</iron-pages>
+		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
+			<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
+				<div class="vertical layout" drawer>
+					<nav id="nav" class="layout vertical fit">
+						<div>
+							<a href="[[logoLinkLang]]" target="_blank">
+								<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+							</a>
+						</div>
+						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{getPages()}}" class="flex" />
+					</nav>
 				</div>
-			</paper-scroll-header-panel>
 
-		</paper-drawer-panel>
+				<paper-scroll-header-panel main xondenses class="flex">
+					<paper-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
+						<paper-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></paper-icon-button>
+						<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
+						<template if="{{selectedModel.node.help!=null}}">
+							<core-tooltip label="{{helpMessage}}" position="left">
+								<paper-icon-button on-click="{{showHelp}}" icon="help"></paper-icon-button>
+							</core-tooltip>
+						</template>
+						<paper-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></paper-icon-button>
+						<core-tooltip label="{{loginMessage}}" position="left">
+							<paper-icon-button on-click="{{login}}" icon="system-update-tv"></paper-icon-button>
+						</core-tooltip>
+					</paper-toolbar>
+
+					<div class="content" style="height:100%">
+						<iron-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" transitions="slide-from-right">
+							<template is="dom-repeat" items="{{getPages()}}">
+								<section class="main" style="position:relative;" hash$={{item.hash}}>
+									<div slide-from-right style="height:100%">
+										<div style="max-width:100%;">{{item.name}}</div>
+									</div>
+								</section>
+							</template>
+						</iron-pages>
+					</div>
+				</paper-scroll-header-panel>
+
+			</paper-drawer-panel>
+		</simpl-dispatcher>
 
 		<!--paper-dialog layered="false" id="helpDialog">
 			<template is="imported-template" content="{{selectedModel.node.help|substituteLang}}"></template>
@@ -176,7 +177,9 @@
 	<script>
 		Polymer( {
 			is: 'simpl-main',
-			cache:function(){return {};},
+			cache: function() {
+				return {};
+			},
 			toolbarBackground: null,
 			properties: {
 				globals: Object,
@@ -241,7 +244,7 @@
 				}
 
 				console.log( "location:" + window.location );
-				console.log( "init.route:" +this.route );
+				console.log( "init.route:" + this.route );
 				this.toolboxClass = "";
 			},
 			routeChanged: function() {
@@ -254,8 +257,8 @@
 					this.route = route;
 				}
 				console.log( "routeChanged2:" + this.route );
-				$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
-				$( this.$.pages.querySelector( "section.core-selected" ) ).css( "display", "none" );
+				//$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
+				//$( this.$.pages.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 				channel.publish( "route.changed", {
 					route: this.route
 				} );
@@ -304,7 +307,9 @@
 				} catch ( e ) {}
 				if ( e.detail.isSelected && url ) {
 					this.selectedModel = e.detail.model;
-					if ( this.cache[ url ] !== true) {
+					this.route = e.detail.model.node.hash;
+					if ( this.cache[ url ] !== true ) {
+						console.log( "Loading:", e.detail.model.node.url );
 						this.importHref( e.detail.model.node.url, this.onResponse.bind( this ) );
 					}
 				}
@@ -314,7 +319,7 @@
 				var _import = e.target.import;
 				var body = _import.body;
 				var head = _import.head;
-				console.log( "onResponse", _import );
+				console.log( "onResponse", e );
 
 				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
 					img.setAttribute( 'src', img.src );
@@ -324,10 +329,44 @@
 
 				var insertPoint = this.corePages.selectedItem.firstElementChild;
 				console.log( "insertPoint:", insertPoint );
-				Polymer.dom( insertPoint ).appendChild( head );
-				Polymer.dom( insertPoint ).appendChild( body );
-				this.convertSheetsToStyles( insertPoint );
-				this.evalScripts( insertPoint );
+				while ( insertPoint.firstChild ) {
+					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
+				}
+				if ( head.firstElementChild ) {
+					console.log( "simpl-main.head.firstElementChild", head.firstElementChild );
+					if ( head.firstElementChild ) {
+						try {
+							console.log( "Globals:", this.globals );
+							head.firstElementChild.set( "globals", this.globals );
+							var self = this;
+							head.firstElementChild.set( "eval", function( p1 ) {
+								return self._maskedEval( p1, this.globals );
+							} );
+							head.firstElementChild.set( "tr", function( p1 ) {
+								return tr( p1 );
+							} );
+						} catch ( e ) {
+							console.log( "simpl-main.template.set:", e.stack );
+						}
+					}
+					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
+				}
+				if ( body.firstElementChild ) {
+					console.log( "simpl-main.body.firstElementChild", body.firstElementChild );
+					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
+				}
+				this.async( function() {
+					this.convertSheetsToStyles( insertPoint );
+					//this.evalScripts( insertPoint );
+				},10 );
+			},
+			_maskedEval: function( scr, env, def ) {
+				try {
+					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+				} catch ( e ) {
+					console.error( "simpl-main.eval.error:" + e );
+				}
+				return def;
 			},
 			evalScripts: function( root ) {
 				var SCRIPT_SELECTOR = 'script';
@@ -338,18 +377,18 @@
 			},
 			convertSheetsToStyles: function( root ) {
 				var SHEET_SELECTOR = 'link[rel=stylesheet]';
-				var s$ = root.querySelectorAll( SHEET_SELECTOR );
-				for ( var i = 0, l = s$.length, s, c;
-					( i < l ) && ( s = s$[ i ] ); i++ ) {
-					c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ),
-						this.ownerDocument );
+				var sheets = root.querySelectorAll( SHEET_SELECTOR );
+				console.log("sheets:",sheets);
+				for ( var i = 0, l = sheets.length, s, c;
+					( i < l ) && ( s = sheets[ i ] ); i++ ) {
+					c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ), this.ownerDocument );
 					this.copySheetAttributes( c, s );
 					s.parentNode.replaceChild( c, s );
 				}
 			},
 			copySheetAttributes: function( style, link ) {
-				for ( var i = 0, a$ = link.attributes, l = a$.length, a;
-					( a = a$[ i ] ) && i < l; i++ ) {
+				for ( var i = 0, attr = link.attributes, l = attr.length, a;
+					( a = attr[ i ] ) && i < l; i++ ) {
 					if ( a.name !== 'rel' && a.name !== 'href' ) {
 						style.setAttribute( a.name, a.value );
 					}

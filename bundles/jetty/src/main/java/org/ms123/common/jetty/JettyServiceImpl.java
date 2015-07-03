@@ -810,7 +810,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 					Writer w  = response.getWriter();
 					String t = request.getParameter("t");
 					if( t!= null){
-						w.write("<template bind>");
+						w.write("<template is=\"dom-bind\" bind>");
 					}
 					m_docbookService.adocToHtml(asset, w );
 					if( t!= null){

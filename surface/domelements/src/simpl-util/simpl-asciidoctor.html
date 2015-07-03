@@ -30,8 +30,15 @@
 	<script>
 		Polymer( {
 			is:"simpl-asciidoctor",
+			properties: {
+				data: {
+					observer: 'dataChanged',
+					type: String
+				}
+			},
 			dataChanged: function( filter ) {
 				var template = this.textContent;
+				console.log("textContent:",this.textContent);
 				var data = null;
 				if ( typeof this.data == "object" && !Array.isArray( this.data ) ) {
 					data = this.data;
@@ -40,12 +47,13 @@
 						data: this.data
 					};
 				}
-
+console.log("Data:",data);
 				var html = simpl4.util.Rpc.rpcSync( "camelRoute:asciidoctor", {
 					namespace: "global",
 					data: data,
 					template: template
 				} );
+				//console.log("Html.",html);
 				this.$.asciidoctorId.innerHTML = html;
 			}
 		} );

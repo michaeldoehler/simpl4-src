@@ -17,7 +17,6 @@ license that can be found in the LICENSE file.
 						type: Boolean
 					},
 					route: {
-						value: '0',
 						notify: true,
 						type: String
 					}
@@ -26,7 +25,7 @@ license that can be found in the LICENSE file.
 					'routeChanged(route)'
 				],
 				ready: function() {
-					console.log( "flatiron.ready:", this.route );
+					console.log( "flatiron-route.ready:", this.route );
 					this.router.on( /(.*)/, function( route ) {
 						this.route = route;
 					}.bind( this ) );

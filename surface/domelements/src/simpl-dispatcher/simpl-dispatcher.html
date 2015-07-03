@@ -111,7 +111,7 @@
 			openMenuByHash: function( mainelem, hash ) {
 				console.log( "openMenuByHash:" + hash );
 				if ( mainelem == null ) return;
-				var li = $( mainelem.querySelector( '#X' + hash ) );
+				var li = $( mainelem.querySelector( '#x' + hash ) );
 				var pli = li.parents( "li" );
 				pli.each( function() {
 					if ( !$( this ).hasClass( "mm-opened" ) ) {
