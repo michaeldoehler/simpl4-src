@@ -9,13 +9,35 @@
 		},
 		contentChanged: function( name, oldVal, newVal ) {
 			this.importHref( this.content, function( e ) {
-				console.log( "Import.url:",name );
-				if( e.target.import.body ){
+				if ( e.target.import.body ) {
+					var page = simpl4PageRegistry.getActivePage();
+					console.log( "simpl-import.url:"+ name +"/"+page.scope);
 					Polymer.dom( this.root ).appendChild( e.target.import.body );
+					this._setStyleScope(this.root, page.scope);
 				}
-			}, function( e ) {
-			} );
+			}, function( e ) {} );
+		},
+		_setStyleScope: function( main_el, scope ) {
+			if ( !scope ) {
+				return;
+			}
+			this.async( function() {
+				this._domVisitor( main_el, function( el ) {
+					if ( !$( el ).hasClass( scope ) && el.nodeType == 1 ) {
+						el.classList.add( scope )
+					}
+				} );
+			}, 0 );
+		},
+		_domVisitor: function( el, f ) {
+			if ( el ) {
+				f( el );
+				for ( var i = 0; i < el.childNodes.length; i++ ) {
+					this._domVisitor( el.childNodes[ i ], f );
+				}
+			}
 		}
 
 	} );
+
 </script>

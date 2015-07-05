@@ -19,6 +19,7 @@
 clazz.construct.extend( "simpl4.util.PageRegistry", {
 	pageCache: {},
 	observable: null,
+	activePage:null,
 	clearCache: function() {
 		simpl4.util.PageRegistry.pageCache = {};
 	},
@@ -42,6 +43,12 @@ clazz.construct.extend( "simpl4.util.PageRegistry", {
 		}
 		console.log( "getPages:", ret );
 		return ret;
+	},
+	setActivePage:function(ap){
+		this.activePage=ap;
+	},
+	getActivePage:function(){
+		return this.activePage;
 	},
 	registerListener: function() {
 		var aList = document.querySelectorAll( 'html /deep/ a' )

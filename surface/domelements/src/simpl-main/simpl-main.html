@@ -333,10 +333,8 @@
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
 				}
 				if ( head.firstElementChild ) {
-					console.log( "simpl-main.head.firstElementChild", head.firstElementChild );
 					if ( head.firstElementChild ) {
 						try {
-							console.log( "Globals:", this.globals );
 							head.firstElementChild.set( "globals", this.globals );
 							var self = this;
 							head.firstElementChild.set( "eval", function( p1 ) {
@@ -355,10 +353,13 @@
 					console.log( "simpl-main.body.firstElementChild", body.firstElementChild );
 					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
+				
 				this.async( function() {
 					this.convertSheetsToStyles( insertPoint );
+					var scope = this.selectedModel.node.scope;
+					this._setStyleScope( insertPoint, scope);
 					//this.evalScripts( insertPoint );
-				},10 );
+				}, 2 );
 			},
 			_maskedEval: function( scr, env, def ) {
 				try {
@@ -367,6 +368,26 @@
 					console.error( "simpl-main.eval.error:" + e );
 				}
 				return def;
+			},
+			_setStyleScope: function( main_el, scope ) {
+				if( !scope) {
+					return;
+				}
+				this.async( function() {
+					this._domVisitor( main_el, function( el ) {
+						if ( !$( el ).hasClass( scope ) && el.nodeType == 1 ) {
+							el.classList.add( scope )
+						}
+					} );
+				}, 0 );
+			},
+			_domVisitor: function( el, f ) {
+				if ( el ) {
+					f( el );
+					for ( var i = 0; i < el.childNodes.length; i++ ) {
+						this._domVisitor( el.childNodes[ i ], f );
+					}
+				}
 			},
 			evalScripts: function( root ) {
 				var SCRIPT_SELECTOR = 'script';
@@ -378,12 +399,54 @@
 			convertSheetsToStyles: function( root ) {
 				var SHEET_SELECTOR = 'link[rel=stylesheet]';
 				var sheets = root.querySelectorAll( SHEET_SELECTOR );
-				console.log("sheets:",sheets);
+				console.log( "sheets:", sheets );
 				for ( var i = 0, l = sheets.length, s, c;
 					( i < l ) && ( s = sheets[ i ] ); i++ ) {
+					var href = this.hrefForSheet( s, this.ownerDocument.baseURI );
 					c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ), this.ownerDocument );
-					this.copySheetAttributes( c, s );
-					s.parentNode.replaceChild( c, s );
+					this.importHref( href, this._onCssResponse.bind( this ) );
+					//this.copySheetAttributes( c, s );
+					//s.parentNode.replaceChild( c, s );
+					s.parentNode.removeChild( s );
+				}
+			},
+			_onCssResponse: function( e ) {
+				var _import = e.target.import;
+				var css =  _import.body.innerText;
+				var scope = this.selectedModel.node.scope;
+				if( scope ){
+					//console.log( "css:", css );
+					var ast = mensch.parse( css );
+					this._visitCssRules( ast.stylesheet.rules, this._visitCssNode.bind( this ), scope );
+					css = mensch.stringify(ast);
+				}
+				var	c = this.createStyleElement( css, this.ownerDocument );
+				document.head.appendChild( c );
+			},
+			_visitCssNode: function( node, scope ) {
+				if ( node.type == "rule" ) {
+					this._visitCssRule( node, scope );
+				} else if ( node.type == "media" ) {
+					if ( node.rules ) {
+						this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
+					}
+				}
+			},
+			_visitCssRules: function( items, fn, scope ) {
+				return items.reduce( function( results, item ) {
+					if ( item.type !== 'comment' ) {
+						fn( item, scope );
+					}
+				}, [] );
+			},
+			_visitCssRule: function( node, scope ) {
+				if ( node.selectors ) {
+					for ( var i = 0; i < node.selectors.length; i++ ) {
+						node.selectors[ i ] = node.selectors[i]+"."+scope;
+					}
+				}
+				if ( node.rules ) {
+					this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
 				}
 			},
 			copySheetAttributes: function( style, link ) {
@@ -397,6 +460,10 @@
 			importRuleForSheet: function( sheet, baseUrl ) {
 				var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
 				return '@import \'' + href + '\';';
+			},
+			hrefForSheet: function( sheet, baseUrl ) {
+				var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
+				return href;
 			},
 			createStyleElement: function( cssText, scope ) {
 				scope = scope || document;

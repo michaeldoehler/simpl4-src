@@ -49,6 +49,7 @@
 						this.selectedModel = {
 							node: node
 						};
+						simpl4PageRegistry.setActivePage(node);
 						this.fire( "mmenu-selected", {
 							isSelected: true,
 							model: this.selectedModel
@@ -94,6 +95,7 @@
 					} );
 				}
 				this.selectedModel = model;
+				simpl4PageRegistry.setActivePage(model.node);
 				this.fire( "mmenu-selected", {
 					isSelected: true,
 					model: this.selectedModel
@@ -128,6 +130,7 @@
 						this.selectedModel = {
 							node: node
 						};
+						simpl4PageRegistry.setActivePage(node);
 						this.fire( "mmenu-selected", {
 							isSelected: true,
 							model: this.selectedModel
