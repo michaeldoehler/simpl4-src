@@ -37,6 +37,7 @@
 
 
     var QueryBuilder = function($el, options) {
+console.log("QueryBuilder.construct");
         this.$el = $el;
         this.init(options);
     };
@@ -216,6 +217,7 @@
      */
     QueryBuilder.prototype.init = function(options) {
         // PROPERTIES
+console.log("QueryBuilder.init");
         this.settings = $.extendext(true, 'replace', {}, QueryBuilder.DEFAULTS, options);
         this.status = {
             group_id: 0,
@@ -1295,26 +1297,26 @@
      */
     QueryBuilder.prototype.getGroupTemplate = function(group_id, level) {
         var h = '\
-<dl id="'+ group_id +'" class="rules-group-container"> \
-  <dt class="rules-group-header"> \
-    <div class="btn-group pull-right group-actions"> \
-      <button type="button" class="btn btn-xs btn-success" data-add="rule"> \
-        <i class="' + this.icons.add_rule + '"></i> '+ this.lang.add_rule +' \
+<dl id="'+ group_id +'" class="style-scope simpl-filter rules-group-container"> \
+  <dt class="style-scope simpl-filter rules-group-header"> \
+    <div class="style-scope simpl-filter btn-group pull-right group-actions"> \
+      <button type="button" class="style-scope simpl-filter btn btn-xs btn-success" data-add="rule"> \
+        <i class="style-scope simpl-filter ' + this.icons.add_rule + '"></i> '+ this.lang.add_rule +' \
       </button> \
-      '+ (this.settings.allow_groups===-1 || this.settings.allow_groups>=level ? '<button type="button" class="btn btn-xs btn-success" data-add="group"> \
-        <i class="' + this.icons.add_group + '"></i> '+ this.lang.add_group +' \
+      '+ (this.settings.allow_groups===-1 || this.settings.allow_groups>=level ? '<button type="button" class="style-scope simpl-filter btn btn-xs btn-success" data-add="group"> \
+        <i class="style-scope simpl-filter ' + this.icons.add_group + '"></i> '+ this.lang.add_group +' \
       </button>' : '') +' \
-      '+ (level>1 ? '<button type="button" class="btn btn-xs btn-danger" data-delete="group"> \
+      '+ (level>1 ? '<button type="button" class="style-scope simpl-filter btn btn-xs btn-danger" data-delete="group"> \
         <i class="' + this.icons.remove_group + '"></i> '+ this.lang.delete_group +' \
       </button>' : '') +' \
     </div> \
-    <div class="btn-group group-conditions"> \
+    <div class="style-scope simpl-filter btn-group group-conditions"> \
       '+ this.getGroupConditions(group_id) +' \
     </div> \
-    '+ (this.settings.display_errors ? '<div class="error-container" data-toggle="tooltip" data-placement="right"><i class="' + this.icons.error + '"></i></div>' : '') +'\
+    '+ (this.settings.display_errors ? '<div class="style-scope simpl-filter error-container" data-toggle="tooltip" data-placement="right"><i class="style-scope simpl-filter ' + this.icons.error + '"></i></div>' : '') +'\
   </dt> \
-  <dd class=rules-group-body> \
-    <ul class=rules-list></ul> \
+  <dd class="style-scope simpl-filter rules-group-body"> \
+    <ul class="style-scope simpl-filter rules-list"></ul> \
   </dd> \
 </dl>';
 
@@ -1350,18 +1352,18 @@
      */
     QueryBuilder.prototype.getRuleTemplate = function(rule_id) {
         var h = '\
-<li id="'+ rule_id +'" class="rule-container"> \
-  <div class="rule-header"> \
-    <div class="btn-group pull-right rule-actions"> \
-      <button type="button" class="btn btn-xs btn-danger" data-delete="rule"> \
-        <i class="' + this.icons.remove_rule + '"></i> '+ this.lang.delete_rule +' \
+<li id="'+ rule_id +'" class="style-scope simpl-filter rule-container"> \
+  <div class="style-scope simpl-filter rule-header"> \
+    <div class="style-scope simpl-filter btn-group pull-right rule-actions"> \
+      <button type="button" class="style-scope simpl-filter btn btn-xs btn-danger" data-delete="rule"> \
+        <i class="style-scope simpl-filter ' + this.icons.remove_rule + '"></i> '+ this.lang.delete_rule +' \
       </button> \
     </div> \
   </div> \
-  '+ (this.settings.display_errors ? '<div class="error-container"><i class="' + this.icons.error + '"></i></div>' : '') +'\
-  <div class="rule-filter-container"></div> \
-  <div class="rule-operator-container"></div> \
-  <div class="rule-value-container"></div> \
+  '+ (this.settings.display_errors ? '<div class="style-scope simpl-filter error-container"><i class="' + this.icons.error + '"></i></div>' : '') +'\
+  <div class="style-scope simpl-filter rule-filter-container"></div> \
+  <div class="style-scope simpl-filter rule-operator-container"></div> \
+  <div class="style-scope simpl-filter rule-value-container"></div> \
 </li>';
 
         return this.change('getRuleTemplate', h);

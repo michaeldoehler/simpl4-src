@@ -18,8 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-crud" attributes="namespace entity" flex relative>
-	<template>
+<dom-module id="simpl-crud" flex relative>
 		<style>
 			:host {
 				min-height: 400px;
@@ -42,16 +41,17 @@
 			}
 
 		</style>
-		<core-animated-pages selected="{{pageSelected}}">
-			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;">
+	<template>
+		<iron-pages selected="{{pageSelected}}" attr-for-selected="num" >
+			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
-				<template if="{{filter}}">
+				<template is="dom-if" items="{{filter}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
 						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 			</section>
-			<section style="padding:0px;position:relative;overflow-x:hidden;" unresolved>
+			<section style="padding:0px;position:relative;overflow-x:hidden;"  num="1" unresolved>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
 					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
@@ -76,7 +76,7 @@
 						<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
 				</paper-action-dialog>
 			</section>
-			<section style="padding:0px;position:relative;overflow-x:hidden;" unresolved>
+			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
 				<div layout horizontal style="margin-top:5px;margin-bottom:10px;text-align:left;">
 					<paper-button raised on-tap="{{cancelAction}}" flex>
 						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>
@@ -94,15 +94,25 @@
 						<core-icon icon="arrow-back"></core-icon>{{'datatables.sPrevious'|tr}}</paper-button>
 				</div>
 			</section>
-		</core-animated-pages>
+		</iron-pages>
 	</template>
 	<script>
 		Polymer({ is:'simpl-crud',
+			properties: {
+				namespace: {
+					type: String
+				},
+				entity: {
+					type: String
+				}
+			},
 			pageSelected: 0,
 			panelBackgroundColor: '#000',
 			buttonList: 'add,edit,copy,detail',
 			buttonListDetail: 'add,edit,copy',
-			domReady: function() {
+			attached: function() {
+				console.log("Crud.Entity:",this.entity);
+				console.log("Crud.namespace:",this.namespace);
 				//var ea = simpl4.util.EntityManager.getEntityAccess( this.namespace ||  simpl4.util.BaseManager.getNamespace());
 				//console.log("loggin-ok:"+JSON.stringify(ea,null,2));
 				if ( this.namespace && this.namespace != simpl4.util.BaseManager.getNamespace() ) {
@@ -111,6 +121,8 @@
 				this.mainEntityName = this.entity;
 				this.panelHeaderCrudTable = tr( "data." + this.mainEntityName + "_list" );
 				this.pageStack = new Array();
+				this.pageSelected=0;
+				console.log("pageSelected:"+this.pageSelected);
 			},
 			setFormSpec: function( namespace, entity ) {
 				if ( namespace === this.prevNamespace && entity === this.prevEntityName ) return;

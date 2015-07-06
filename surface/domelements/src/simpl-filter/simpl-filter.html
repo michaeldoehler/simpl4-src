@@ -20,126 +20,146 @@
 -->
 <link rel="import" href="import-js.html">
 <dom-module id="simpl-filter" attributes="namespace entity filter">
-		<style>
-			dd {
-				margin-left: 0px;
-			}
-			paper-button.blue-ripple {
-				//color: #4B575C;
-			}
-			.btn-primary {
-				color: #FFF;
-				background-color: #8A8B8C !important;
-				border-color: #8A8B8C !important;
-			}
-			.btn-primary:hover,
-			.btn-primary:focus,
-			.btn-primary.focus,
-			.btn-primary:active,
-			.btn-primary.active,
-			.open > .dropdown-toggle.btn-primary {
-				color: #FFF;
-				background-color: #4B575C !important;
-				border-color: #4B575C !important;
-			}
-			.btn-success {
-				color: #FFF;
-				background-color: #4B575C !important;
-				border-color: #4B575C !important;
-			}
-			:host /deep/ .core-tooltip {
-				color: #000;
-				background-color: rgba(255, 255, 255, 0.9);
-				border: 1px solid black;
-				padding: 4px;
-			}
-			:host /deep/ #builder_group_0 {
-				border: 2px #eaeaea solid;
-				border-radius: 5px;
-			}
-			:host /deep/ .#builder {
-				background: white;
-			}
-			:host /deep/ .query-builder {
-				margin-bottom: 10px;
-				background: white;
-			}
-			:host /deep/ #builder .rule-container {
-				background: white;
-			}
-			:host /deep/ #builder .rules-group-container {
-				background: white;
-			}
-			:host /deep/ #builder [invisible] {
-				display: none;
-			}
-			:host /deep/ #builder li.rule-container[simpleSearch]:not(:first-child) {
-				display: none;
-			}
-			:host /deep/ #builder .rule-container[simpleSearch]::before,
-			:host /deep/ #builder .rule-container[simpleSearch]::after {
-				border: 0px;
-			}
-			:host /deep/ #builder .rules-group-container[simpleSearch] {
-				padding: 0;
-			}
-			:host /deep/ #builder ul>.rules-group-container[simpleSearch] {
-				display: none;
-			}
-			:host /deep/ paper-dropdown-menu#paperDropdownMenu {
-				background: white;
-				top: 2px;
-				border-radius: 3px;
-			}
-			:host /deep/ core-icon#arrow {
-				color: black;
-			}
-			:host /deep/ #builder li.has-error {
-				border-color: white;
-			}
-			polyfill-rule {
-				content: '#shadowId';
-				margin: 3px;
-			}
+	<link rel="import" type="css" href="bootstrap-btn.css">
+	<link rel="import" type="css" href="query-builder.css">
+	<style>
+		dd {
+			margin-left: 0px;
+		}
+		paper-button.blue-ripple {
+			//color: #4B575C;
+		}
+		.btn-primary {
+			color: #FFF;
+			background-color: #8A8B8C !important;
+			border-color: #8A8B8C !important;
+		}
+		.btn-primary:hover,
+		.btn-primary:focus,
+		.btn-primary.focus,
+		.btn-primary:active,
+		.btn-primary.active,
+		.open > .dropdown-toggle.btn-primary {
+			color: #FFF;
+			background-color: #4B575C !important;
+			border-color: #4B575C !important;
+		}
+		.btn-success {
+			color: #FFF;
+			background-color: #4B575C !important;
+			border-color: #4B575C !important;
+		}
+		:host /deep/ .core-tooltip {
+			color: #000;
+			background-color: rgba(255, 255, 255, 0.9);
+			border: 1px solid black;
+			padding: 4px;
+		}
+		:host /deep/ #builder_group_0 {
+			border: 2px #eaeaea solid;
+			border-radius: 5px;
+		}
+		:host /deep/ .#builder {
+			background: white;
+		}
+		:host /deep/ .query-builder {
+			margin-bottom: 10px;
+			background: white;
+		}
+		:host /deep/ #builder .rule-container {
+			background: white;
+		}
+		:host /deep/ #builder .rules-group-container {
+			background: white;
+		}
+		:host /deep/ #builder [invisible] {
+			display: none;
+		}
+		:host /deep/ #builder li.rule-container[simpleSearch]:not(:first-child) {
+			display: none;
+		}
+		:host /deep/ #builder .rule-container[simpleSearch]::before,
+		:host /deep/ #builder .rule-container[simpleSearch]::after {
+			border: 0px;
+		}
+		:host /deep/ #builder .rules-group-container[simpleSearch] {
+			padding: 0;
+		}
+		:host /deep/ #builder ul>.rules-group-container[simpleSearch] {
+			display: none;
+		}
+		:host /deep/ paper-dropdown-menu#paperDropdownMenu {
+			background: white;
+			top: 2px;
+			border-radius: 3px;
+		}
+		:host /deep/ core-icon#arrow {
+			color: black;
+		}
+		:host /deep/ #builder li.has-error {
+			border-color: white;
+		}
+		polyfill-rule {
+			content: '#shadowId';
+			margin: 3px;
+		}
 
-		</style>
+	</style>
 
-		<link rel="stylesheet" href="bootstrap-btn.css" shim-shadowdom>
-		<link rel="stylesheet" href="query-builder.css" shim-shadowdom>
 	<template>
-		<paper-shadow id="shadowId" z="3">
+		<paper-material id="shadowId" elevation="3">
 			<div layout horizontal>
 				<div style="text-align:left;">
-					<core-tooltip label="{{'button.save-search'|tr}}" on-tap="{{saveSearch}}" position="center">
-						<core-icon-button icon="file-upload"></core-icon-button>
+					<core-tooltip label="{{'button.save-search'|tr}}" on-tap="saveSearch" position="center">
+						<paper-icon-button icon="file-upload">
+							</core-icon-button>
 					</core-tooltip>
-					<core-tooltip label="{{'button.load-search'|tr}}" on-tap="{{loadSearch}}" position="center">
-						<core-icon-button icon="file-download"></core-icon-button>
+					<core-tooltip label="{{'button.load-search'|tr}}" on-tap="loadSearch" position="center">
+						<paper-icon-button icon="file-download">
+							</core-icon-button>
 					</core-tooltip>
-					<core-tooltip label="{{searchTooltip}}" xn-tap="{{toggleSearchMode}}" position="center">
-						<core-icon-button on-tap="{{toggleSearchMode}}" icon="{{searchModeIcon}}"></core-icon-button>
+					<core-tooltip label="{{searchTooltip}}" xn-tap="toggleSearchMode" position="center">
+						<paper-icon-button on-tap="toggleSearchMode" icon="{{getSearchModeIcon()}}">
+							</core-icon-button>
 					</core-tooltip>
 				</div>
 				<div flex style="text-align:right;">
-					<paper-button raised class="blue-ripple" on-tap="{{search}}" flex>
+					<paper-button raised class="blue-ripple" on-tap="search" flex>
 						<core-icon icon="search"></core-icon>{{'searchfilter.searchbutton'|tr}}</paper-button>
 				</div>
 			</div>
 			<div id="builder"></div>
 			<content></content>
-		</paper-shadow>
+		</paper-material>
 	</template>
 
 	<script>
-		Polymer({ is:'simpl-filter',
-			entity: null,
-			namespace: null,
+		Polymer( {
+			is: 'simpl-filter',
 			searchMode: "simple",
+			isBuilderInitialized: false,
 			searchModeIcon: "expand-more",
-			domReady: function() {
+			properties: {
+				namespace: {
+					type: String
+				},
+				entity: {
+					type: String
+				},
+				filter: {
+					type: String
+				}
+			},
+			getSearchModeIcon: function() {
+				return this.searchModeIcon;
+			},
+			attached: function() {
+				console.debug( "Filter.Entity:", this.entity );
+				console.debug( "Filter.namespace:", this.namespace );
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
 				} );
+				console.debug( "Builder;", this.builder );
 				$( this.$.builder ).queryBuilder( {
 					icons: {
 						add_group: 'fa fa-plus-circle',
@@ -165,7 +185,11 @@
 						value: ''
 					} ]
 				} );
-				this.toggleSearchMode();
+				this.isBuilderInitialized = true;
+				this.async( function() {
+					this._setStyleScope( this.$.builder );
+					this.toggleSearchMode();
+				} );
 			},
 			renameOne: function( from, to, model ) {
 				model[ to ] = model[ from ];
@@ -239,18 +263,20 @@
 				this.searchTooltip = this.searchMode == "complex" ? tr( "button.complex-search" ) : tr( "button.simple-search" );
 			},
 			setSearchMode: function( mode ) {
+				console.log( "setSearchMode:", this.isBuilderInitialized );
+				if ( this.isBuilderInitialized == false ) return;
 				if ( mode == "complex" ) {
 					this.searchModeIcon = "expand-less";
-					this.shadowRoot.querySelector( ".rules-group-header" ).removeAttribute( "invisible" );
-					this.shadowRoot.querySelector( ".rule-header" ).removeAttribute( "invisible" );
-					$( this.shadowRoot.querySelectorAll( ".rule-container" ) ).removeAttr( "simpleSearch" );
-					$( this.shadowRoot.querySelectorAll( ".rules-group-container" ) ).removeAttr( "simpleSearch" );
+					Polymer.dom( this.root ).querySelector( ".rules-group-header" ).removeAttribute( "invisible" );
+					Polymer.dom( this.root ).querySelector( ".rule-header" ).removeAttribute( "invisible" );
+					$( Polymer.dom( this.root ).querySelectorAll( ".rule-container" ) ).removeAttr( "simpleSearch" );
+					$( Polymer.dom( this.root ).querySelectorAll( ".rules-group-container" ) ).removeAttr( "simpleSearch" );
 				} else {
 					this.searchModeIcon = "expand-more";
-					this.shadowRoot.querySelector( ".rules-group-header" ).setAttribute( "invisible", "" );
-					this.shadowRoot.querySelector( ".rule-header" ).setAttribute( "invisible", "" );
-					$( this.shadowRoot.querySelectorAll( ".rule-container" ) ).attr( "simpleSearch", "" );
-					$( this.shadowRoot.querySelectorAll( ".rules-group-container" ) ).attr( "simpleSearch", "" );
+					Polymer.dom( this.root ).querySelector( ".rules-group-header" ).setAttribute( "invisible", "" );
+					Polymer.dom( this.root ).querySelector( ".rule-header" ).setAttribute( "invisible", "" );
+					$( Polymer.dom( this.root ).querySelectorAll( ".rule-container" ) ).attr( "simpleSearch", "" );
+					$( Polymer.dom( this.root ).querySelectorAll( ".rules-group-container" ) ).attr( "simpleSearch", "" );
 				}
 			},
 			search: function( e ) {
@@ -270,6 +296,22 @@
 				//this.asyncFire( 'core-signal', event );
 				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
 				//this.$.data.textContent = jsonData;
+			},
+			_setStyleScope: function( main_el ) {
+				this._domVisitor( main_el, function( el ) {
+					if ( !$( el ).hasClass( "style-scope" ) && el.nodeType == 1 ) {
+						el.classList.add( 'style-scope' )
+						el.classList.add( 'simpl-filter' )
+					}
+				} );
+			},
+			_domVisitor: function( el, f ) {
+				if ( el ) {
+					f( el );
+					for ( var i = 0; i < el.childNodes.length; i++ ) {
+						this._domVisitor( el.childNodes[ i ], f );
+					}
+				}
 			},
 			getLang: function() {
 				return {

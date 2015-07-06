@@ -26,10 +26,12 @@
 		Polymer( {
 			is: 'simpl-executefilter',
 			properties: {
-				pageSize: {
+				pagesize: {
+					type:Number,
 					value: 100
 				},
 				offset: {
+					type:Number,
 					value: 0
 				},
 				params: {
@@ -79,10 +81,12 @@
 				console.debug( "execute.namespace:", this.namespace );
 				var namespace = this.namespace || "firstapp"; //globals.mainNamespace;
 				console.debug( "execute:", this.params );
+				console.debug( "pagesize:", this.pagesize );
+				console.debug( "offset:", this.offset );
 				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
 					storeId: namespace + "_data",
 					withMeta: withMeta,
-					pageSize: this.pageSize,
+					pageSize: this.pagesize,
 					offset: this.offset,
 					params: params,
 					name: this.name
