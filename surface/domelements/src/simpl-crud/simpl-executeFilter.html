@@ -18,33 +18,54 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-executeFilter" attributes="pageSize offset namespace name params meta data" flex relative>
+<dom-module id="simpl-executefilter" flex relative>
 	<template>
 		<content></content>
 	</template>
 	<script>
-		Polymer({ is:'simpl-executeFilter',
-			pageSize:100,
-			offset:0,
-			namespace:null,
-			created: function() {
-				this.params = {};
-				var observer = new ObjectObserver( this.params );
-				observer.open( function( added, removed, changed, getOldValueFn ) {
-					Object.keys( added ).forEach( function( property ) {
-						console.log( "added:" + property + "=" + added[ property ] );
-					} );
-					Object.keys( removed ).forEach( function( property ) {
-						console.log( "removed:" + property );
-					} );
-					Object.keys( changed ).forEach( function( property ) {
-						console.log( "changed:" + property + "=" + changed[ property ] );
-					} );
-					this.execute(false);
-				}, this );
+		Polymer( {
+			is: 'simpl-executefilter',
+			properties: {
+				pageSize: {
+					value: 100
+				},
+				offset: {
+					value: 0
+				},
+				params: {
+					type: Object,
+					notify: true
+				},
+				meta: {
+					type: Object
+				},
+				data: {
+					type: Object,
+					notify: true
+				},
+				name: {
+					value: null,
+					observer: "nameChanged",
+					type: String
+				},
+				namespace: {
+					value: null,
+					type: String
+				}
+			},
+			observers: [
+				'paramsChanged(params.*)'
+			],
+			ready: function() {
+				this.set( "params", {} );
+				console.log( "executefilter.attached:", this.get( 'params' ) );
+			},
+			paramsChanged: function() {
+				console.log( "executefilter.paramsChanged:", this.params );
+				this.execute( false );
 			},
 			nameChanged: function() {
-				this.execute(true);
+				this.execute( true );
 			},
 			parseParams: function( o ) {
 				if ( o == null ) return;
@@ -53,24 +74,26 @@
 				}
 				return o;
 			},
-			execute: function(withMeta) {
-				var params = this.parseParams(this.params);
-				var namespace = this.namespace || globals.mainNamespace;
-				console.debug( "execute:",this.params );
+			execute: function( withMeta ) {
+				var params = this.parseParams( this.params );
+				console.debug( "execute.namespace:", this.namespace );
+				var namespace = this.namespace || "firstapp"; //globals.mainNamespace;
+				console.debug( "execute:", this.params );
 				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
-					storeId: namespace+"_data",
+					storeId: namespace + "_data",
 					withMeta: withMeta,
 					pageSize: this.pageSize,
 					offset: this.offset,
 					params: params,
 					name: this.name
 				} );
-				if( withMeta){
+				if ( withMeta ) {
 					this.meta = map.meta;
-					console.log("Meta:",this.meta);
+					console.log( "Meta:", this.meta );
 				}
 				this.data = map.rows;
 			}
 		} );
+
 	</script>
 </dom-module>
