@@ -174,15 +174,24 @@ simpl4.util.BaseManager.extend( "simpl4.util.FormManager", {
 		} );
 		var b = '';
 		var ret = '';
-		Object.keys( map ).forEach( function( key ) {
+		Object.keys( map ).forEach( (function( key ) {
 			if ( map[ key ] === true ) {
-				ret += b + key;
+				ret += b + this.toDash(key);
 			} else {
-				ret += b + key + '=' + map[ key ];
+				ret += b + this.toDash(key) + '=' + map[ key ];
 			}
 			b = ' ';
-		} );
+		}).bind(this) );
+console.log("Ret:",ret);
 		return ret;
+	},
+	toDash:function(camel){
+	 if( Polymer.whenReady) return camel; //@@@MS Polymer pre 0.5
+	 var dash = camel.replace( /([a-z][A-Z])/g, function( g ) {
+			return g[ 0 ] + '-' + g[ 1 ].toLowerCase();
+		} );
+		console.log("camel:"+camel+" -> " + dash);
+		return dash;
 	},
 	_constraintParams: {
 		Max: [ "value" ],
