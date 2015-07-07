@@ -18,55 +18,70 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-crudtable" extends="simpl-datatables" attributes="buttons namespace meta filter" flex relative>
-	<template>
-		<style>
-			paper-button.ripple {
-				float: left;
-				position: relative;
-			}
-			paper-button {
-				font-size: 10px;
-			}
-			:host /deep/ td.phone {
-				padding:0px !important;
-			}
-			:host /deep/ a {
-				color: #888;
-				text-decoration: initial;
-				font-weight: 400;
-				padding: 4px !important;
-				font-size:11px;
-				min-width:70px;
-			}
-			:host /deep/ div.phone{
-  box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
-display:inline;
-max-width:70px;
-			}
+<dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
+	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
+	<style>
+		paper-button.ripple {
+			float: left;
+			position: relative;
+		}
+		paper-button {
+			font-size: 10px;
+		}
+		:host /deep/ td.phone {
+			padding: 0px !important;
+		}
+		:host /deep/ a {
+			color: #888;
+			text-decoration: initial;
+			font-weight: 400;
+			padding: 4px !important;
+			font-size: 11px;
+			min-width: 70px;
+		}
+		:host /deep/ div.phone {
+			box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
+			display: inline;
+			max-width: 70px;
+		}
 
-		</style>
-		<template if="{{dataSet}}">
+	</style>
+	<template>
+		<template is="dom-if" if="{{dataSet}}">
 			<div layout horizontal style="margin-bottom:10px;">
-				<template repeat="{{b in buttonList}}">
-					<paper-button raised name="{{b.name}}" class="ripple" on-tap="{{onTap}}" disabled?="{{b.disabled}}" flex>
-						<core-icon name="{{b.name}}" icon="{{b.icon}}"></core-icon>{{b.text}}</paper-button>
+				<template is="dom-repeat" items="{{buttonList}}">
+					<paper-button raised name="{{item.name}}" class="ripple" on-tap="{{onTap}}" disabled$="{{item.disabled}}" flex>
+						<iron-icon name="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 				</template>
 			</div>
 		</template>
 		<shadow></shadow>
 	</template>
 	<script>
-		Polymer({ is:'simpl-crudtable',
+		Polymer( {
+			is: 'simpl-crudtable',
+			behaviors: [
+				DataTablesBehavior
+			],
+			properties: {
+				buttons: {
+					type: Object
+				},
+				filter: {
+					type: Object,
+				}
+			},
+			observers: [
+				'filterChanged(filter.*)',
+				'buttonshanged(buttons.*)'
+			],
 			dtMeta: null,
 			created: function() {
 				console.debug( "crudtable.created" );
 			},
 			ready: function() {
+				this.filter={};
 				console.debug( "crudtable.ready:" + this.namespace );
-			},
-			domReady: function() {
-				console.debug( "crudtable.domReady" );
 			},
 			addAction: function() {
 				this.fire( "add-action", {
@@ -144,6 +159,7 @@ max-width:70px;
 					this.buttonDef[ "detail" ].disabled = this.selection == null;
 			},
 			buttonsChanged: function() {
+console.log("buttonsChanged");
 				var buttons = {
 					add: {
 						action: this.addAction,
@@ -198,6 +214,7 @@ max-width:70px;
 				this.buttonList = bList;
 			},
 			filterChanged: function( e ) {
+console.log("filterChanged:",this.filter);
 				this.entity = this.filter.entity;
 				this.namespace = this.filter.namespace || simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
@@ -251,7 +268,7 @@ max-width:70px;
 					var col = {
 						title: f.title || tr( 'data.' + this.entity + '.' + f.name ),
 						data: dtName,
-						class:f.tags,
+						class: f.tags,
 						mRender: this.renderColumn
 					}
 					ret.push( col );

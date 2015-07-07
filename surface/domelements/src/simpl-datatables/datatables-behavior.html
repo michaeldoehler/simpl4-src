@@ -1,0 +1,229 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<script>
+	DataTablesBehavior = {
+		properties: {
+			multiSelect: {
+				type: Boolean,
+				value: false
+			},
+			selection: {
+				type: Array,
+				notify: true
+			},
+			meta: {
+				observer: "metaChanged",
+				type: Object
+			},
+			data: {
+				observer: "dataChanged",
+				type: Object
+			},
+			options: {
+				type: String
+			},
+			namespace: {
+				value: null,
+				type: String
+			}
+		},
+
+		ready: function() {},
+		createTable: function( dtMeta, dataSet, options ) {
+			this.dataSet = dataSet;
+			console.log( "dataTables.options:", this.options );
+			if ( options ) {
+				options = this.parseOptions( options );
+			} else if ( this.options ) {
+				options = this.parseOptions( this.options );
+			} else {
+				options = {};
+			}
+			if ( this.dtTable ) {
+				this.dtTable.destroy( false );
+			}
+			var self = this;
+			var dtMainElem = $( this.$.dataTablesId );
+			if ( this.dtTable == null ) {
+				dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
+					new jQuery.fn.dataTable.Responsive( settings );
+				} );
+			}
+			if ( dataSet && dataSet.length < 10 ) {
+				options.dom = "t";
+			}
+			this.dtTable = dtMainElem.DataTable( jQuery.extend( {
+				language: this.getLang(),
+				paging: true,
+				pagingType: "two_button",
+				bSort: false,
+				bFilter: true,
+				bDestroy: true,
+				bLengthChange: true,
+				stateSave: false,
+				_columnDefs: [ {
+					className: 'control',
+					orderable: false,
+					targets: 0
+				} ],
+				responsive: {
+					details: {
+						type: 'inline'
+					}
+				},
+				data: dataSet,
+				columns: dtMeta
+			}, options ) );
+			$( this.$.dtId.querySelectorAll( "table.dataTables" ) ).attr( "id", "dataTablesId" );
+			this.createRowListener();
+		},
+		createRowListener: function() {
+			var self = this;
+			var rows = this.dtTable.rows().nodes();
+			for ( var i = 0; i < rows.length; i++ ) {
+				$( rows[ i ] ).tap( ( function( e ) {
+					self.currentRowIndex = e.currentTarget._DT_RowIndex;
+					if ( self.multiSelect ) {
+						self.tapActionMulti( e, this, false );
+					} else {
+						self.tapActionSingle( e, this, false );
+					}
+				}, false ) );
+			}
+		},
+		tapActionSingle: function( e, t, double ) {
+			if ( $( t ).hasClass( 'selected' ) ) {
+				return;
+			}
+			this.unselectAll();
+			$( t ).addClass( 'selected' );
+			var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
+			this.fire( "rows-selected", {
+				rows: sel
+			} );
+			this.selection = sel;
+		},
+		tapActionMulti: function( e, t, double ) {
+			$( t ).toggleClass( 'selected' );
+			var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
+			this.fire( "rows-selected", {
+				rows: sel
+			} );
+			this.selection = sel;
+		},
+		q: function( sel ) {
+			return $( this.$.dataTablesId.querySelectorAll( sel ) );
+		},
+		getSelection: function() {
+			return this.selection;
+		},
+		unselectAll: function() {
+			this.q( 'tr.selected' ).removeClass( 'selected' );
+		},
+		copySelection: function( sel ) {
+			var raw = [];
+			for ( var i = 0; i < sel.length; i++ ) {
+				raw.push( sel[ i ] );
+			}
+			return raw;
+		},
+		_metaChanged: function() {},
+		dataChanged: function() {
+			if ( this.meta == null ) {
+				this.preparedMeta = this.prepareMetaFromData( this.data );
+			} else {
+				this.preparedMeta = this.prepareMeta( this.meta );
+			}
+			this.createTable( this.preparedMeta, this.data, this.options );
+		},
+		prepareMeta: function( meta ) {
+			var fields = meta.fields;
+			if ( fields == null ) return meta;
+			var aliases = meta.aliases;
+			var ret = [];
+			fields.forEach( function( field, i ) {
+				var alias = aliases[ i ];
+				var title = field;
+				if ( alias && alias.match( /^[@%]/ ) ) {
+					title = tr( alias.substring( 1 ) );
+				}
+				var col = {
+					title: title,
+					data: field
+				}
+				ret.push( col );
+			}, this );
+			return ret;
+		},
+		prepareMetaFromData: function( data ) {
+			if ( data == null ) return;
+			if ( !Array.isArray( data ) ) {
+				data = data.result;
+			}
+			if ( data.length == 0 ) {
+				return;
+			}
+			var ret = [];
+			var keys = Object.keys( data[ 0 ] );
+			keys.forEach( function( key ) {
+				var col = {
+					title: key,
+					data: key
+				}
+				ret.push( col );
+			}, this );
+			return ret;
+		},
+		parseOptions: function( o ) {
+			if ( o == null ) return;
+			if ( typeof o == 'string' ) {
+				o = JSON5.parse( o );
+			}
+			return o;
+		},
+		getLang: function() {
+			return {
+				"sEmptyTable": tr( "datatables.sEmptyTable" ),
+				"sInfo": tr( "datatables.sInfo" ),
+				"sInfoEmpty": tr( "datatables.sInfoEmpty" ),
+				"sInfoFiltered": tr( "datatables.sInfoFiltered" ),
+				"sInfoPostFix": tr( "datatables.sInfoPostFix" ),
+				"sInfoThousands": tr( "datatables.sInfoThousands" ),
+				"sLengthMenu": tr( "datatables.sLengthMenu" ),
+				"sLoadingRecords": tr( "datatables.sLoadingRecords" ),
+				"sProcessing": tr( "datatables.sProcessing" ),
+				"sSearch": tr( "datatables.sSearch" ),
+				"sZeroRecords": tr( "datatables.sZeroRecords" ),
+				"oPaginate": {
+					"sFirst": tr( "datatables.sFirst" ),
+					"sPrevious": tr( "datatables.sPrevious" ),
+					"sNext": tr( "datatables.sNext" ),
+					"sLast": tr( "datatables.sLast" )
+				},
+				"oAria": {
+					"sSortAscending": tr( "datatables.sSortAscending" ),
+					"sSortDescending": tr( "datatables.sSortDescending" )
+				}
+			}
+		}
+	}
+
+</script>

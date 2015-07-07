@@ -148,6 +148,8 @@
 					type: String
 				},
 				filter: {
+					value:null,
+					notify:true,
 					type: String
 				}
 			},
@@ -293,7 +295,7 @@ console.log("search:",this.getRules());
 				rules.entity = this.entity;
 				console.log( "Filter.namespace:", this.namespace );
 				rules.namespace = this.namespace;
-				this.filter = rules;
+				this.set('filter',  rules);
 				console.debug( "submit" + JSON.stringify( this.filter, null, 2 ) );
 				//this.asyncFire( 'core-signal', event );
 				//var jsonData = JSON.stringify( this.getRules(), null, 2 )

@@ -45,14 +45,14 @@
 		<iron-pages selected="{{pageSelected}}" attr-for-selected="num" >
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
-				<template is="dom-if" items="{{filter}}">
-					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable="true" collapsed="false">
+				<template is="dom-if" if="{{filter}}">
+					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable>
 						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;"  num="1" unresolved>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" collapsable="false" collapsed="false">
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" >
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
 					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
 							<paper-button id="prevButton" invisible?="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}" flex>
