@@ -182,7 +182,6 @@ simpl4.util.BaseManager.extend( "simpl4.util.FormManager", {
 			}
 			b = ' ';
 		}).bind(this) );
-console.log("Ret:",ret);
 		return ret;
 	},
 	toDash:function(camel){
@@ -190,7 +189,6 @@ console.log("Ret:",ret);
 	 var dash = camel.replace( /([a-z][A-Z])/g, function( g ) {
 			return g[ 0 ] + '-' + g[ 1 ].toLowerCase();
 		} );
-		console.log("camel:"+camel+" -> " + dash);
 		return dash;
 	},
 	_constraintParams: {

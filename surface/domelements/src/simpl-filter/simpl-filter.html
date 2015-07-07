@@ -110,11 +110,11 @@
 		<paper-material id="shadowId" elevation="3">
 			<div layout horizontal>
 				<div style="text-align:left;">
-					<core-tooltip label="{{'button.save-search'|tr}}" on-tap="saveSearch" position="center">
+					<core-tooltip label="{{tr('button.save-search')}}" on-tap="saveSearch" position="center">
 						<paper-icon-button icon="file-upload">
 							</core-icon-button>
 					</core-tooltip>
-					<core-tooltip label="{{'button.load-search'|tr}}" on-tap="loadSearch" position="center">
+					<core-tooltip label="{{tr('button.load-search')}}" on-tap="loadSearch" position="center">
 						<paper-icon-button icon="file-download">
 							</core-icon-button>
 					</core-tooltip>
@@ -125,7 +125,7 @@
 				</div>
 				<div flex style="text-align:right;">
 					<paper-button raised class="blue-ripple" on-tap="search" flex>
-						<core-icon icon="search"></core-icon>{{'searchfilter.searchbutton'|tr}}</paper-button>
+						<iron-icon icon="search"></iron-icon>{{tr('searchfilter.searchbutton')}}</paper-button>
 				</div>
 			</div>
 			<div id="builder"></div>
@@ -136,6 +136,7 @@
 	<script>
 		Polymer( {
 			is: 'simpl-filter',
+			behaviors: [TranslationsBehavior],
 			searchMode: "simple",
 			isBuilderInitialized: false,
 			searchModeIcon: "expand-more",
@@ -280,6 +281,7 @@
 				}
 			},
 			search: function( e ) {
+console.log("search:",this.getRules());
 				var event = {
 					name: "filter-changed",
 					data: {
