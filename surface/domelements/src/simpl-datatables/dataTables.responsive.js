@@ -563,6 +563,7 @@ console.log("haveHidden:"+haveHidden);
 
 		var widthAvailable = dt.table().container().offsetWidth;
 		console.log("widthAvailable:"+widthAvailable);
+		console.trace();
 		//Width is 0, when table not visible
 		if( widthAvailable==0) return;
 

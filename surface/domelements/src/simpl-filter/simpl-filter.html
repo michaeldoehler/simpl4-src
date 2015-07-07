@@ -108,7 +108,7 @@
 
 	<template>
 		<paper-material id="shadowId" elevation="3">
-			<div layout horizontal>
+			<div class="layout horizontal">
 				<div style="text-align:left;">
 					<core-tooltip label="{{tr('button.save-search')}}" on-tap="saveSearch" position="center">
 						<paper-icon-button icon="file-upload">
@@ -123,8 +123,8 @@
 							</core-icon-button>
 					</core-tooltip>
 				</div>
-				<div flex style="text-align:right;">
-					<paper-button raised class="blue-ripple" on-tap="search" flex>
+				<div class="flex" style="text-align:right;">
+					<paper-button raised class="flex blue-ripple" on-tap="search">
 						<iron-icon icon="search"></iron-icon>{{tr('searchfilter.searchbutton')}}</paper-button>
 				</div>
 			</div>
@@ -283,7 +283,6 @@
 				}
 			},
 			search: function( e ) {
-console.log("search:",this.getRules());
 				var event = {
 					name: "filter-changed",
 					data: {
@@ -296,10 +295,6 @@ console.log("search:",this.getRules());
 				console.log( "Filter.namespace:", this.namespace );
 				rules.namespace = this.namespace;
 				this.set('filter',  rules);
-				console.debug( "submit" + JSON.stringify( this.filter, null, 2 ) );
-				//this.asyncFire( 'core-signal', event );
-				//var jsonData = JSON.stringify( this.getRules(), null, 2 )
-				//this.$.data.textContent = jsonData;
 			},
 			_setStyleScope: function( main_el ) {
 				this._domVisitor( main_el, function( el ) {

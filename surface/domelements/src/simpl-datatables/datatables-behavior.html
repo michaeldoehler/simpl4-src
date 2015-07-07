@@ -50,6 +50,8 @@
 		createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;
 			console.log( "dataTables.options:", this.options );
+			console.log( "dataTables.dataSet:", this.dataSet );
+			console.log( "dataTables.meta:", dtMeta );
 			if ( options ) {
 				options = this.parseOptions( options );
 			} else if ( this.options ) {
@@ -64,7 +66,10 @@
 			var dtMainElem = $( this.$.dataTablesId );
 			if ( this.dtTable == null ) {
 				dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
-					new jQuery.fn.dataTable.Responsive( settings );
+					self.async( function() {
+						new jQuery.fn.dataTable.Responsive( settings );
+						self.setStyleScope( self.$.dtId, "style-scope", "simpl-crudtable" ); //@@@MS !!!
+					}, 10 );
 				} );
 			}
 			if ( dataSet && dataSet.length < 10 ) {
@@ -92,7 +97,7 @@
 				data: dataSet,
 				columns: dtMeta
 			}, options ) );
-			$( this.$.dtId.querySelectorAll( "table.dataTables" ) ).attr( "id", "dataTablesId" );
+			$( this.root.querySelectorAll( "table.dataTables" ) ).attr( "id", "dataTablesId" );
 			this.createRowListener();
 		},
 		createRowListener: function() {

@@ -19,6 +19,8 @@
  */
 -->
 <dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
+	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css" />
+	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css" />
 	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
 	<style>
 		paper-button.ripple {
@@ -46,26 +48,28 @@
 		}
 
 	</style>
+	<!--template is="dom-if" if="{{dataSet}}"-->
 	<template>
-		<template is="dom-if" if="{{dataSet}}">
-			<div layout horizontal style="margin-bottom:10px;">
-				<template is="dom-repeat" items="{{buttonList}}">
-					<paper-button raised name="{{item.name}}" class="ripple" on-tap="{{onTap}}" disabled$="{{item.disabled}}" flex>
-						<iron-icon name="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
-				</template>
-			</div>
-		</template>
-		<shadow></shadow>
+		<div class="layout horizontal" style="margin-bottom:10px;">
+			<template is="dom-repeat" items="{{buttonList}}">
+				<paper-button raised name="{{item.name}}" class="ripple flex" on-tap="{{onTap}}" disabled$="{{item.disabled}}">
+					<iron-icon name="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
+			</template>
+		</div>
+		<div id="dtId" style="overflow:hidden;">
+			<table id="dataTablesId" class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
+		</div>
 	</template>
 	<script>
 		Polymer( {
 			is: 'simpl-crudtable',
 			behaviors: [
-				DataTablesBehavior
+				DataTablesBehavior,
+				StyleScopeBehavior
 			],
 			properties: {
 				buttons: {
-					type: Object
+					type: String
 				},
 				filter: {
 					type: Object,
@@ -73,14 +77,13 @@
 			},
 			observers: [
 				'filterChanged(filter.*)',
-				'buttonshanged(buttons.*)'
+				'buttonsChanged(buttons)'
 			],
-			dtMeta: null,
 			created: function() {
 				console.debug( "crudtable.created" );
 			},
 			ready: function() {
-				this.filter={};
+				this.dtMeta= null;
 				console.debug( "crudtable.ready:" + this.namespace );
 			},
 			addAction: function() {
@@ -159,7 +162,7 @@
 					this.buttonDef[ "detail" ].disabled = this.selection == null;
 			},
 			buttonsChanged: function() {
-console.log("buttonsChanged");
+				console.log( "buttonsChanged" );
 				var buttons = {
 					add: {
 						action: this.addAction,
@@ -212,9 +215,10 @@ console.log("buttonsChanged");
 					bList.push( b );
 				} ).bind( this ) );
 				this.buttonList = bList;
+console.log("buttonList:",this.buttonList);
 			},
-			filterChanged: function( e ) {
-console.log("filterChanged:",this.filter);
+			filterChanged: function( o, n ) {
+				console.log( "filterChanged:", this.filter );
 				this.entity = this.filter.entity;
 				this.namespace = this.filter.namespace || simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
@@ -306,6 +310,7 @@ console.log("filterChanged:",this.filter);
 				this.filterChanged();
 			},
 			getData: function( filter ) {
+				console.log( "Filter:", this.filter );
 				this.selection = null;
 				var props = simpl4.util.EntityManager.getEntityViewProperties( filter.entity, "main-grid", {
 					namespace: this.namespace

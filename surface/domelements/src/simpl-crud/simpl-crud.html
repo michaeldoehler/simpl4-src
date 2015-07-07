@@ -19,30 +19,30 @@
  */
 -->
 <dom-module id="simpl-crud" flex relative>
-		<style>
-			:host {
-				min-height: 400px;
-				display: inherit;
-			}
-			simpl-panel /deep/ #content {
-				padding-top: 10px;
-				padding-bottom: 10px;
-				padding-left: 3px;
-				padding-right: 3px;
-				//border-color: lightgray !important;
-			}
-			simpl-panel,
-			simpl-panel /deep/ #heading {
-				border-top-left-radius: 4px;
-				border-top-right-radius: 4px;
-			}
-			paper-button[invisible]{
-				display:none;
-			}
+	<style>
+		:host {
+			min-height: 400px;
+			display: inherit;
+		}
+		simpl-panel /deep/ #content {
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 3px;
+			padding-right: 3px;
+			//border-color: lightgray !important;
+		}
+		simpl-panel,
+		simpl-panel /deep/ #heading {
+			border-top-left-radius: 4px;
+			border-top-right-radius: 4px;
+		}
+		paper-button[invisible] {
+			display: none;
+		}
 
-		</style>
+	</style>
 	<template>
-		<iron-pages selected="{{pageSelected}}" attr-for-selected="num" >
+		<iron-pages selected="{{pageSelected}}" attr-for-selected="num">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
 				<template is="dom-if" if="{{filter}}">
@@ -51,20 +51,20 @@
 					</simpl-panel>
 				</template>
 			</section>
-			<section style="padding:0px;position:relative;overflow-x:hidden;"  num="1" unresolved>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}" >
+			<section style="padding:0px;position:relative;overflow-x:hidden;" num="1" unresolved>
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
-					<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
-							<paper-button id="prevButton" invisible?="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}" flex>
-								<core-icon icon="image:navigate-before"></core-icon>
-							</paper-button>
-							<paper-button id="nextButton" invisible?="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{nextAction}}" flex>
-								<core-icon icon="image:navigate-next"></core-icon>
-							</paper-button>
+					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
+						<paper-button class="flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}">
+							<core-icon icon="image:navigate-before"></core-icon>
+						</paper-button>
+						<paper-button class="flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{nextAction}}">
+							<core-icon icon="image:navigate-next"></core-icon>
+						</paper-button>
 
-						<paper-button raised on-tap="{{saveAction}}" flex>
+						<paper-button class="flex" raised on-tap="{{saveAction}}">
 							<core-icon icon="save"></core-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button raised on-tap="{{cancelAction}}" flex>
+						<paper-button class="flex" raised on-tap="{{cancelAction}}">
 							<core-icon icon="cancel"></core-icon>{{tr('tasks.form.cancel')}}</paper-button>
 					</div>
 				</simpl-panel>
@@ -77,43 +77,58 @@
 				</paper-action-dialog>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
-				<div layout horizontal style="margin-top:5px;margin-bottom:10px;text-align:left;">
-					<paper-button raised on-tap="{{cancelAction}}" flex>
+				<div class="layout horizontal" style="margin-top:5px;margin-bottom:10px;text-align:left;">
+					<paper-button class="flex" raised on-tap="{{cancelAction}}">
 						<core-icon icon="arrow-back"></core-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="false">
 					<simpl-details id="detailid" namespace="{{namespace}}" entity="{{mainEntityName}}"></simpl-details>
 				</simpl-panel>
-				<template if="{{entityChildList}}" repeat="{{filter in entityChildList}}">
-					<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{filter}}" heading="{{filter.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
-						<simpl-crudtable id="{{filter.id}}" buttons="{{filter.buttonListDetail}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
-					</simpl-panel>
+				<template is="dom-if" if="{{entityChildList}}">
+					<template is="dom-repeat" items="{{entityChildList}}">
+						<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
+							<simpl-crudtable id="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
+						</simpl-panel>
+					</template>
 				</template>
-				<div layout horizontal style="margin-top:20px;margin-bottom:4px;text-align:left;">
-					<paper-button raised on-tap="{{cancelAction}}" flex>
+				<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
+					<paper-button class="flex" raised on-tap="{{cancelAction}}" x>
 						<core-icon icon="arrow-back"></core-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 			</section>
 		</iron-pages>
 	</template>
 	<script>
-		Polymer({ is:'simpl-crud',
-			behaviors: [TranslationsBehavior],
+		Polymer( {
+			is: 'simpl-crud',
+			behaviors: [ TranslationsBehavior ],
 			properties: {
 				namespace: {
 					type: String
 				},
 				entity: {
 					type: String
+				},
+				buttonList:{
+					type:String,
+					value:'add,edit,copy,detail'
+				},
+				buttonListDetail:{
+					type:String,
+					value:'add,edit,copy'
+				},
+				panelBackgroundColor:{
+					type:String,
+					value:'#000'
+				},
+				pageSelected:{
+					type:Number,
+					value:0
 				}
 			},
-			pageSelected: 0,
-			panelBackgroundColor: '#000',
-			buttonList: 'add,edit,copy,detail',
-			buttonListDetail: 'add,edit,copy',
 			attached: function() {
-				console.log("Crud.Entity:",this.entity);
-				console.log("Crud.namespace:",this.namespace);
+				console.log( "Crud.Entity:", this.entity );
+				console.log( "Crud.namespace:", this.namespace );
 				//var ea = simpl4.util.EntityManager.getEntityAccess( this.namespace ||  simpl4.util.BaseManager.getNamespace());
 				//console.log("loggin-ok:"+JSON.stringify(ea,null,2));
 				if ( this.namespace && this.namespace != simpl4.util.BaseManager.getNamespace() ) {
@@ -122,8 +137,8 @@
 				this.mainEntityName = this.entity;
 				this.panelHeaderCrudTable = tr( "data." + this.mainEntityName + "_list" );
 				this.pageStack = new Array();
-				this.pageSelected=0;
-				console.log("pageSelected:"+this.pageSelected);
+				this.pageSelected = 0;
+				console.log( "pageSelected:" + this.pageSelected );
 			},
 			setFormSpec: function( namespace, entity ) {
 				if ( namespace === this.prevNamespace && entity === this.prevEntityName ) return;
@@ -145,10 +160,10 @@
 				var prevPage = this.pageStack.pop();
 				console.log( "CancelAction:" + prevPage );
 				this.pageSelected = prevPage;
-				if( this.needRefresh){
-					this.needRefresh=false;
+				if ( this.needRefresh ) {
+					this.needRefresh = false;
 					setTimeout( ( function() {
-							this.currentTable.refresh();
+						this.currentTable.refresh();
 					} ).bind( this ), 100 );
 				}
 			},
@@ -174,7 +189,7 @@
 			prevAction: function( e ) {
 				if ( this.currentRowIndex > 0 ) {
 					this.currentRowIndex--;
-					this.currentRowData=this.getData(this.currentDataSet[this.currentRowIndex]);
+					this.currentRowData = this.getData( this.currentDataSet[ this.currentRowIndex ] );
 					this.$.formid.setData( this.currentRowData );
 				}
 				this.handlePrevNextButtons();
@@ -182,7 +197,7 @@
 			nextAction: function( e ) {
 				if ( this.currentRowIndex < ( this.currentDataSet.length - 1 ) ) {
 					this.currentRowIndex++;
-					this.currentRowData=this.getData(this.currentDataSet[this.currentRowIndex]);
+					this.currentRowData = this.getData( this.currentDataSet[ this.currentRowIndex ] );
 					this.$.formid.setData( this.currentRowData );
 				}
 				this.handlePrevNextButtons();
@@ -256,6 +271,7 @@
 					entityChildList.push( cn );
 				}
 				this.entityChildList = entityChildList;
+				console.log( "entityChildList:", this.entityChildList );
 				this.pageStack.push( this.pageSelected );
 				this.pageSelected = 2;
 			},
@@ -327,13 +343,13 @@
 							}
 							this.shadowRoot.querySelector( "#toast" ).show();
 
-							this.needRefresh=true;
+							this.needRefresh = true;
 							//setTimeout( ( function() {
-								//var pageSelected = this.pageStack.pop();
-								//this.pageSelected = ( pageSelected == null ) ? 0 : pageSelected;
-								//setTimeout( ( function() {
-								//	this.currentTable.refresh();
-								//} ).bind( this ), 100 );
+							//var pageSelected = this.pageStack.pop();
+							//this.pageSelected = ( pageSelected == null ) ? 0 : pageSelected;
+							//setTimeout( ( function() {
+							//	this.currentTable.refresh();
+							//} ).bind( this ), 100 );
 							//} ).bind( this ), 3000 );
 						}
 					} catch ( e ) {
