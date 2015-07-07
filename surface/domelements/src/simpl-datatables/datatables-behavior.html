@@ -49,9 +49,6 @@
 		ready: function() {},
 		createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;
-			console.log( "dataTables.options:", this.options );
-			console.log( "dataTables.dataSet:", this.dataSet );
-			console.log( "dataTables.meta:", dtMeta );
 			if ( options ) {
 				options = this.parseOptions( options );
 			} else if ( this.options ) {
@@ -65,12 +62,12 @@
 			var self = this;
 			var dtMainElem = $( this.$.dataTablesId );
 			if ( this.dtTable == null ) {
-				dtMainElem.on( 'init.dt.dtr', function( e, settings, json ) {
-					self.async( function() {
+				dtMainElem.on( 'init.dt.dtr', (function( e, settings, json ) {
+					this.async( function() {
 						new jQuery.fn.dataTable.Responsive( settings );
-						self.setStyleScope( self.$.dtId, "style-scope", "simpl-crudtable" ); //@@@MS !!!
+						this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() ); //@@@MS !!!
 					}, 10 );
-				} );
+				} ).bind(this));
 			}
 			if ( dataSet && dataSet.length < 10 ) {
 				options.dom = "t";
