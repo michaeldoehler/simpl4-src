@@ -47,13 +47,13 @@
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
 				<template is="dom-if" if="{{filter}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable>
-						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}" filter="{{filter}}"></simpl-crudtable>
+						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</template>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="1" unresolved>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
-					<simpl-crudform id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-crudform>
+					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
 						<paper-button class="flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}">
 							<core-icon icon="image:navigate-before"></core-icon>
@@ -375,17 +375,7 @@
 				return def;
 			},
 			whenElementsReady: function( done ) {
-				Polymer.whenReady( function() {
-					function waitForElements() {
-						var elementsNotReady = Polymer.waitingFor();
-						if ( elementsNotReady.length == 0 ) {
-							done();
-							return;
-						}
-						setTimeout( waitForElements, 20 );
-					}
-					waitForElements();
-				} );
+			 done();
 			},
 			alert: function( message ) {
 				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;

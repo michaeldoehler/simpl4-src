@@ -46,15 +46,15 @@
 		},
 
 		attached: function() {
-			if ( this.attributes.getNamedItem( "exclude-expr" ) ) { //Fire only if from form , not from dialog
+console.log("FIRE",this);
+			if ( this.getAttribute( "exclude-expr" ) ) { //Fire only if from form , not from dialog
+console.log("FIRE2",this);
 				this.fire( 'add-form-field', this );
 			}
+			this.isDomReady = true;
 		},
 		detached: function() {
 			this.fire( 'remove-form-field', this );
-		},
-		attached: function() {
-			this.isDomReady = true;
 		},
 		setForm: function( form ) {
 			this.form = form;

@@ -1,0 +1,454 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<script>
+	FormBehavior = {
+		eventDelegates: {
+			'value-changed': 'valueChanged',
+			'add-form-field': 'addField',
+			'remove-form-field': 'removeField'
+		},
+		valueChanged: function( e ) {
+			//console.debug( "valueChanged:", e );
+			var map = {};
+			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
+				var f = this.fields[ i ];
+				map[ f.name ] = f.value;
+			}
+			map[ "isEdit" ] = this.mode == "edit";
+			//console.log( "Map:" + JSON.stringify( map, null, 2 ) );
+
+			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
+				var f = this.fields[ i ];
+				var enabledExpr = f.getAttribute( "enabled-expr" );
+				var readonlyExpr = f.getAttribute( "readonly-expr" );
+				//console.log( "Name:" + f.name + "|enabled-expr:" + enabledExpr + "|readonlyExpr:" + readonlyExpr + "|" );
+				if ( this.isNotEmpty( readonlyExpr ) ) {
+					var e = this._maskedEval( readonlyExpr, map );
+					if ( e ) {
+						f.setAttribute( "disabled", "" );
+					} else {
+						f.removeAttribute( "disabled" );
+					}
+				} else if ( this.isNotEmpty( enabledExpr ) ) {
+					var e = this._maskedEval( enabledExpr, map );
+					if ( e ) {
+						f.removeAttribute( "disabled" );
+					} else {
+						f.setAttribute( "disabled", "" );
+					}
+				}
+				var excludeExpr = f.getAttribute( "exclude-expr" );
+				//console.log( "Name:" + f.name + "|excludeExpr:" + excludeExpr + "|" );
+				if ( this.isNotEmpty( excludeExpr ) ) {
+					var e = this._maskedEval( excludeExpr, map );
+					if ( e ) {
+						f.setAttribute( "exclude", "" );
+					} else {
+						f.removeAttribute( "exclude" );
+					}
+					console.log( "exclude:" + e );
+				}
+				var invisibleExpr = f.getAttribute( "invisible-expr" );
+				//console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
+				if ( this.isNotEmpty( invisibleExpr ) ) {
+					var e = this._maskedEval( invisibleExpr, map );
+					if ( e ) {
+						f.setAttribute( "invisible", "" );
+					} else {
+						f.removeAttribute( "invisible" );
+					}
+					console.log( "invisible:" + e );
+				}
+			}
+		},
+		isNotEmpty: function( s ) {
+			if ( s == null || s.length == 0 ) {
+				return false;
+			}
+			return true;
+		},
+		submit: function( e ) {
+			var data = {};
+			this.fields.forEach( function( f ) {
+				data[ f.name ] = f.value;
+			}, this );
+			var jsonData = JSON.stringify( data, null, 2 );
+			console.log( "Values:" + jsonData );
+		},
+		created: function() {},
+		ready: function() {},
+		domReady: function() {
+			console.debug( "simpl-baseform.domReady:", this.namespace );
+		},
+		shapesChanged: function() {
+			console.debug( "simpl-baseform.shapesChanged" );
+			this.valueChanged();
+		},
+		validate: function( e ) {
+			var errorList = [];
+			var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "input-field,checkbox-field,dropdown-field" ), false );
+			Array.prototype.forEach.call( elements, function( elem ) {
+				elem.setInvalid( false );
+			} );
+			if ( elements.length > 0 ) {
+				regula.bind( {
+					elements: elements
+				} );
+				errorList = regula.validate( {
+					elements: elements
+				} );
+				errorList.forEach( function( err ) {
+					err.failingElements.forEach( function( elem ) {
+						elem.setInvalid( true );
+						elem.setErrorMessage( err.message );
+					} );
+				} );
+			}
+			var elements = this.filterToArray( this.$.formdiv.querySelectorAll( "tableselect-field" ), true );
+			for ( var i = 0; i < elements.length; i++ ) {
+				elements[ i ].checkConstraints();
+				if ( elements[ i ].isInvalid ) {
+					errorList.push( "Error" );
+				}
+			}
+			return errorList.length == 0;
+		},
+		filterToArray: function( nodeList, all ) {
+			var ret = [];
+			for ( var i = 0; i < nodeList.length; i++ ) {
+				var c = nodeList[ i ].getAttribute( "data-constraints" );
+				if ( all || ( c != null && c.length > 0 ) ) {
+					ret.push( nodeList[ i ] );
+				}
+			}
+			return ret;
+		},
+		_maskedEval: function( scr, env, def ) {
+			try {
+				return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
+			} catch ( e ) {
+				console.log( "Form._maskedEval:" + scr );
+				console.error( "error:" + e );
+			}
+			return def;
+		},
+		addField: function( e ) {
+console.debug("addField");
+			this.fields.push( e.detail );
+			this.fieldsMap[ e.detail.name ] = e.detail;
+			e.detail.setForm( this );
+		},
+		removeField: function( e ) {
+			var i = this.fields.indexOf( e.detail );
+			if ( i >= 0 ) {
+				this.fields.splice( i, 1 );
+			}
+		},
+		getField: function( path ) {
+			var f = this.fieldsMap[ path ];
+			return f;
+		},
+		getLabel: function( path ) {
+			var f = this.fieldsMap[ path ];
+			return f.label;
+		},
+		dataChanged: function() {
+			this.async( function() {
+				this.setData( this.data );
+			}, null, 10 );
+		},
+		setData: function( data ) {
+			this.fields.forEach( function( field ) {
+				if ( field.setValue == null ) return;
+				field.withoutCheck = true;
+				if ( field.setInvalid ) field.setInvalid( false );
+				field.setValue( data[ field.name ] || field.defaultValue || "" );
+			}, this );
+		},
+		getData: function() {
+			var data = {};
+			this.fields.forEach( function( field ) {
+				if ( field.setValue == null ) return;
+				data[ field.name ] = field.getValue();
+			}, this );
+			return data;
+		},
+		setItems: function( items ) {
+			this.fields.forEach( function( field ) {
+				if ( field.setItems == null || items[ field.name ] == null ) return;
+				field.setItems( items[ field.name ] );
+			}, this );
+		},
+		actionCallback: function() {
+			console.debug( "Data:", JSON.stringify( this.getData(), null, 2 ) );
+		},
+
+		formNameChanged: function() {
+			this.fields = [];
+			this.fieldsMap = {};
+			console.log( "formNameChanged:", this.formName + "/" + this.namespace );
+			var form = simpl4FormManager.getForm( this.formName, this.namespace );
+			this.defaultButtons = form.properties.xf_default_buttons;
+			this.shapes = this.prepareShape( form ).childShapes;
+		},
+		/*----------------------------------*/
+		specChanged: function(e) {
+			this.fields = [];
+			this.fieldsMap = {};
+			console.log( "crudform.specChanged" );
+			this.shapes =  this.spec;
+		},
+		prepareShape: function( shape ) {
+			shape = this.cleanShape( shape );
+
+			if ( shape.id == 'Input' ) {
+				shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + shape.xf_type ] );
+			}
+
+			shape.childShapes = _.sortBy( shape.childShapes, function( element ) {
+				return element.bounds.upperLeft.y * 10000 + element.bounds.upperLeft.x;
+			} );
+			var childShapes = shape.childShapes;
+			shape.childShapes = [];
+			var row = null;
+			for ( var i = 0; i < childShapes.length; i++ ) {
+				if ( shape.id == 'Tabview' ) {
+					shape.childShapes.push( this.prepareShape( childShapes[ i ] ) );
+				} else {
+					if ( i == 0 || ( i > 0 && this.isLineBreak( childShapes[ i - 1 ], childShapes[ i ] ) ) ) {
+						row = {
+							id: 'Row',
+							childShapes: []
+						};
+						shape.childShapes.push( row );
+					}
+					row.childShapes.push( this.prepareShape( childShapes[ i ] ) );
+				}
+			}
+			return shape;
+		},
+		cleanShape: function( shape ) {
+			if ( shape.stencil.id.toLowerCase() == "input" ||
+				shape.stencil.id.toLowerCase() == 'textarea' ||
+				shape.stencil.id.toLowerCase() == 'relatedto' ||
+				shape.stencil.id.toLowerCase() == 'moduleselector' ||
+				shape.stencil.id.toLowerCase() == 'enumselect' ||
+				shape.stencil.id.toLowerCase() == 'tableselect' ||
+				shape.stencil.id.toLowerCase() == 'group'
+			) {
+				var labelChild = this.getLabelShape( shape.childShapes );
+				if ( labelChild != null ) {
+					shape.properties.label = labelChild.properties.xf_text;
+					if ( ( shape.properties.xf_id == null || shape.properties.xf_id == "" ) && shape.properties.label ) {
+						shape.properties.xf_id = shape.properties.label.toLowerCase().replace( /\s/g, '' );
+					}
+					if ( shape.childShapes.length == 1 ) {
+						shape.childShapes = [];
+					}
+					var label = shape.properties.label;
+					if ( label && label.match( /^[@%]/ ) ) {
+						shape.properties.label = tr( label.substring( 1 ) );
+					}
+				} else {
+					shape.properties.label = "";
+				}
+				if ( shape.properties.xf_default ) {
+					shape.properties.defaultValue = shape.properties.xf_default;
+				}
+				if ( shape.stencil.id.toLowerCase() == 'textarea' ) {
+					if ( shape.properties.xf_rows == null ) {
+						shape.properties.xf_rows = 3;
+					}
+				}
+				if ( shape.stencil.id.toLowerCase() == 'moduleselector' ) {
+					shape.properties.xf_namespace = this.namespace;
+				}
+				if ( shape.stencil.id.toLowerCase() == 'enumselect' ) {
+					var props = shape.properties;
+					var enumembed = props.xf_enumembed;
+					var si;
+					if ( enumembed && enumembed.totalCount > 0 ) {
+						si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, enumembed );
+					} else {
+						si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
+					}
+					props.items = si.getItems();
+				}
+				if ( shape.stencil.id.toLowerCase() == 'tableselect' ) {
+					var props = shape.properties;
+					var xf_id = props.xf_id;
+					var filter = props.xf_filter;
+					var inputListName = props.xf_inputlistname;
+					if ( filter ) {
+						var filterDesc = {
+							"enumDescription": "sw.filter:" + filter,
+							items: []
+						};
+						var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
+						si.setVariable( "name", "" );
+						props.items = si.getItems();
+					} else if ( inputListName ) {
+						props.items = this.variables[ inputListName ];
+					}
+					if ( props.items == null ) props.items = [];
+					var columns = props.xf_columns;
+					var fields = columns.items;
+					props.meta = [];
+					fields.forEach( function( field, i ) {
+						var title = field.display;
+						var alias = field.display;
+						if ( alias && alias.match( /^[@%]/ ) ) {
+							title = tr( alias.substring( 1 ) );
+						}
+						if ( title == null ) {
+							title = xf_id + "." + field.colname;
+						}
+						var col = {
+							title: title,
+							data: field.colname
+						}
+						props.meta.push( col );
+					}, this );
+					var bounds = shape.bounds;
+					props.height = bounds.lowerRight.y - bounds.upperLeft.y;
+				}
+			} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
+				var icon = shape.properties.xf_iconname;
+				var action = shape.properties.xf_action;
+				if ( icon == null || icon == "" ) {
+					shape.properties.xf_iconname = ( action == "execute" ) ? "check" : "clear";
+				}
+				var label = shape.properties.xf_label;
+				if ( label && label.match( /^[@%]/ ) ) {
+					shape.properties.xf_label = tr( label.substring( 1 ) );
+				}
+
+			} else if ( shape.stencil.id.toLowerCase() == "alert" ) {
+				var lang = simpl4.util.BaseManager.getLanguage();
+				if ( shape.properties[ "xf_message_" + lang ] ) {
+					shape.properties.xf_message = this.expandString( shape.properties[ "xf_message_" + lang ], this.variables );
+				} else {
+					shape.properties.xf_message = this.expandString( shape.properties.xf_message, this.variables );
+				}
+			} else {
+				shape.properties.label = "";
+			}
+			return _.extend( shape.properties, shape.stencil, {
+				childShapes: shape.childShapes
+			} );
+		},
+		getLabelShape: function( childs ) {
+			for ( var i = 0; i < childs.length; i++ ) {
+				if ( childs[ i ].stencil.id.toLowerCase() == 'label' ) {
+					return childs[ i ];
+				}
+			}
+			return null;
+		},
+		isLineBreak: function( child, next ) {
+			var UL = child.bounds.upperLeft;
+			var lineBreak = false;
+			var nextUL = next.bounds.upperLeft;
+			if ( UL.y != nextUL.y ) {
+				lineBreak = true;
+			}
+			return lineBreak;
+		},
+		constructRegulaConstraints: function( constraints ) {
+			if ( constraints == null || constraints.length == 0 ) return "";
+			constraints = JSON.parse( constraints );
+			var ret = "";
+			var b = "";
+			var keys = Object.keys( constraints );
+			var self = this;
+			keys.forEach( function( key ) {
+				var values = constraints[ key ];
+				if ( values[ 0 ] === true ) {
+					ret += b + '@' + self.mapKeys( key );
+					var params = self.constraintParams[ key ];
+
+					ret += '(message="' + tr( "validation." + self.mapKeys( key ) ) + '"';
+					if ( params && params.length > 0 ) {
+						var pkey = params[ 0 ];
+						var val = pkey == 'format' ? '"YMD"' : values[ 1 ];
+						ret += ',' + pkey + '=' + val;
+						if ( params.length > 1 ) {
+							var pkey = params[ 1 ];
+							var val = values[ 2 ];
+							ret += ',' + pkey + '=' + val;
+						}
+					}
+					ret += ')';
+					b = ' ';
+				}
+			}, this );
+			return ret;
+		},
+		mapKeys: function( key ) {
+			if ( key == "NotNull" ) return "NotEmpty";
+			return key;
+		},
+		constraintParams: {
+			Max: [ "value" ],
+			Min: [ "value" ],
+			Range: [ "min", "max" ],
+			Pattern: [ "regex" ],
+			Length: [ "min", "max" ],
+			Digits: [ "integer", "fraction" ],
+			Past: [ "format" ],
+			Future: [ "format" ],
+			Step: [ "min", "max", "value" ]
+		},
+		expandString: function( str, binding ) {
+			if ( str == null || str.length == 0 ) return "";
+			var countRepl = 0;
+			var countPlainStr = 0;
+			var replacement = null;
+			var newString = "";
+			var openBrackets = 0;
+			var first = 0;
+			for ( var i = 0; i < str.length; i++ ) {
+				if ( i < str.length - 2 && str.substring( i, i + 2 ) == "${" ) {
+					if ( openBrackets == 0 ) {
+						first = i + 2;
+					}
+					openBrackets++;
+				} else if ( str.charAt( i ) == '}' && openBrackets > 0 ) {
+					openBrackets -= 1;
+					if ( openBrackets == 0 ) {
+						countRepl++;
+						replacement = this._maskedEval( str.substring( first, i ), binding );
+						newString += replacement;
+					}
+				} else if ( openBrackets == 0 ) {
+					newString += str.charAt( i );
+					countPlainStr++;
+				}
+			}
+			if ( countRepl == 1 && countPlainStr == 0 ) {
+				return replacement;
+			} else {
+				return newString;
+			}
+		}
+	}
+
+</script>

@@ -16,6 +16,7 @@
     "polymer": "Polymer/polymer#^0.9.0",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "neon-animation": "PolymerElements/neon-animation"
+    "neon-animation": "PolymerElements/neon-animation",
+    "grapp-template-ref": "grappendorf/grapp-template-ref"
   }
 }
