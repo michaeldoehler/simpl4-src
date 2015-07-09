@@ -55,45 +55,45 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-						<paper-button class="flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{prevAction}}">
-							<core-icon icon="image:navigate-before"></core-icon>
+						<paper-button class="flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
+							<iron-icon icon="image:navigate-before"></iron-icon>
 						</paper-button>
-						<paper-button class="flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="{{nextAction}}">
-							<core-icon icon="image:navigate-next"></core-icon>
+						<paper-button class="flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
+							<iron-icon icon="image:navigate-next"></iron-icon>
 						</paper-button>
 
-						<paper-button class="flex" raised on-tap="{{saveAction}}">
-							<core-icon icon="save"></core-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button class="flex" raised on-tap="{{cancelAction}}">
-							<core-icon icon="cancel"></core-icon>{{tr('tasks.form.cancel')}}</paper-button>
+						<paper-button class="flex" raised on-tap="saveAction">
+							<iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
+						<paper-button class="flex" raised on-tap="cancelAction">
+							<iron-icon icon="cancel"></iron-icon>{{tr('tasks.form.cancel')}}</paper-button>
 					</div>
 				</simpl-panel>
 				<paper-toast id="toast" duration=3000 class="capsule" text="{{toast_message}}" style="padding-right: 60px;"></paper-toast>
-				<paper-action-dialog id="error" class="scrolling">
-					<core-icon class="error-big" icon="error"></core-icon>
+				<paper-dialog id="error" class="scrolling"> <!--action-dialog-->
+					<iron-icon class="error-big" icon="error"></iron-icon>
 					<p></p>
 					<paper-button raised affirmative autofocus>
-						<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
-				</paper-action-dialog>
+						<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+				</paper-dialog>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
 				<div class="layout horizontal" style="margin-top:5px;margin-bottom:10px;text-align:left;">
 					<paper-button class="flex" raised on-tap="{{cancelAction}}">
-						<core-icon icon="arrow-back"></core-icon>{{tr('datatables.sPrevious')}}</paper-button>
+						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable="true" collapsed="false">
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable>
 					<simpl-details id="detailid" namespace="{{namespace}}" entity="{{mainEntityName}}"></simpl-details>
 				</simpl-panel>
 				<template is="dom-if" if="{{entityChildList}}">
 					<template is="dom-repeat" items="{{entityChildList}}">
-						<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="{{openAction}}" collapsable="true" collapsed="true">
-							<simpl-crudtable id="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="{{addAction}}" on-copy-action="{{copyAction}}" on-detail-action="{{detailAction}}" on-edit-action="{{editAction}}"></simpl-crudtable>
+						<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="openAction" collapsable="true" collapsed="true">
+							<simpl-crudtable id="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
 						</simpl-panel>
 					</template>
 				</template>
 				<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
 					<paper-button class="flex" raised on-tap="{{cancelAction}}" x>
-						<core-icon icon="arrow-back"></core-icon>{{tr('datatables.sPrevious')}}</paper-button>
+						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 			</section>
 		</iron-pages>
@@ -206,7 +206,7 @@
 				var detail = e.detail;
 				this.mode = 'edit';
 				this.pageStack.push( this.pageSelected );
-				console.log( "editAction:", this );
+				console.log( "editAction:", detail );
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;

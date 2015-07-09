@@ -51,7 +51,7 @@
 	<!--template is="dom-if" if="{{dataSet}}"-->
 	<template>
 		<div class="layout horizontal" style="margin-bottom:10px;">
-			<template is="dom-repeat" items="{{buttonList}}">
+			<template is="dom-repeat"  items="{{buttonList}}">
 				<paper-button raised name$="{{item.name}}" class="ripple flex" on-tap="onTap" disabled$="{{item.disabled}}">
 					<iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 			</template>
@@ -77,7 +77,8 @@
 			},
 			observers: [
 				'filterChanged(filter.*)',
-				'buttonsChanged(buttons)'
+				'buttonsChanged(buttons)',
+				'selectionChanged(selection)'
 			],
 			created: function() {
 				console.debug( "crudtable.created" );
@@ -155,11 +156,15 @@
 				this.buttonDef[ name ].action.call( this );
 			},
 			selectionChanged: function() {
+				if( this.buttonDef == null) return;
 				this.buttonDef[ "edit" ].disabled =
 					this.buttonDef[ "copy" ].disabled =
 					this.buttonDef[ "show" ].disabled =
 					this.buttonDef[ "select" ].disabled =
 					this.buttonDef[ "detail" ].disabled = this.selection == null;
+					for( var i=0; i< this.buttonList.length; i++){
+						this.set("buttonList."+i+".disabled",  this.selection==null);
+					}
 			},
 			buttonsChanged: function() {
 				console.log( "buttonsChanged" );
@@ -219,6 +224,7 @@ console.log("buttonList:",this.buttonList);
 			},
 			filterChanged: function( o, n ) {
 				console.log( "filterChanged:", this.filter );
+				if( !this.filter) return;
 				this.entity = this.filter.entity;
 				this.namespace = this.filter.namespace || simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {

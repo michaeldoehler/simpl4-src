@@ -21,6 +21,18 @@
 <script>
 	FieldBehavior = {
 		properties: {
+			readonly: {
+				value: false,
+				type: Boolean
+			},
+			autofocus: {
+				value: true,
+				type: Boolean
+			},
+			disabled: {
+				value: false,
+				type: Boolean
+			},
 			label: {
 				value: null,
 				type: String
@@ -46,9 +58,8 @@
 		},
 
 		attached: function() {
-console.log("FIRE",this);
-			if ( this.getAttribute( "exclude-expr" ) ) { //Fire only if from form , not from dialog
-console.log("FIRE2",this);
+			if ( this.getAttribute( "name" ) ) { //Fire only if from form , not from dialog
+				console.log( "Field.Fire", this );
 				this.fire( 'add-form-field', this );
 			}
 			this.isDomReady = true;
@@ -61,6 +72,23 @@ console.log("FIRE2",this);
 		},
 		getValue: function() {
 			return this.value;
+		},
+		_focusBlurHandler: function( event ) {
+			console.log( "_focusBlurHandler4" );
+			var target = event.path ? event.path[ 0 ] : event.target;
+			if ( target === this ) {
+				var focused = event.type === 'focus';
+				this._setFocused( focused );
+			} else if ( !this.shadowRoot ) {
+				//@@@MS event.stopPropagation();
+				this.fire( event.type, {
+					sourceEvent: event
+				}, {
+					node: this,
+					bubbles: event.bubbles,
+					cancelable: event.cancelable
+				} );
+			}
 		},
 		checkConstraints: function() {
 			var c = this.getAttribute( "data-constraints" );
@@ -189,6 +217,10 @@ console.log("FIRE2",this);
 					value: "true",
 					type: String
 				},
+				text: {
+					value: "text",
+					type: String
+				},
 				step: {
 					type: String
 				},
@@ -202,7 +234,6 @@ console.log("FIRE2",this);
 					type: String
 				}
 			},
-			type: "text",
 			hasDate: Modernizr.inputtypes.date,
 			observers: [
 				'editValueChanged(editValue)',
@@ -256,9 +287,9 @@ console.log("FIRE2",this);
 				}
 				if ( this.type.match( /^date/ ) && this.hasDate ) {
 					this.$.decorator.labelVisible = true;
-					var ldiv = this.$.decorator.querySelector( "paper-input-decorator /deep/ .floated-label" );
-					ldiv.removeAttribute( "invisible" );
-					ldiv.style.fontSize = "0.90em";
+					//var ldiv = this.$.decorator.querySelector( "paper-input-decorator /deep/ .floated-label" );
+					//ldiv.removeAttribute( "invisible" );
+					//ldiv.style.fontSize = "0.90em";
 				}
 				if ( this.compact ) {
 					console.log( "Add compact" );
@@ -309,6 +340,7 @@ console.log("FIRE2",this);
 			committedValueChanged: function() { //@@@MS ???
 			},
 			editValueChanged: function() {
+				this.$.input.focus();
 				console.log( "editValueChanged:", this.editValue );
 				console.log( "type:", this.type );
 				if ( this.type == null ) return;
@@ -402,11 +434,11 @@ console.log("FIRE2",this);
 				return iso;
 			},
 			setErrorMessage: function( message ) {
-				this.errorMessage=message;
+				this.errorMessage = message;
 			},
 			setInvalid: function( b ) {
 				if ( this.decorator == null ) return;
-				this.invalid=b;
+				this.invalid = b;
 			},
 			setCustomValidity: function( message ) {
 				//Dummy,regula want access this
@@ -875,12 +907,13 @@ console.log("FIRE2",this);
 	</script>
 </dom-module>
 
-<dom-module id="related-field" extends="form-field" kind="related" attributes="namespace entity floatingLabel readonly disabled autofocus label name" layout horizontal center>
+<dom-module id="related-field">
 	<style>
 		:host /deep/ #relatedDialog {
 			top: 5vh;
 			min-width: 70%;
 			max-width: 70%;
+			border-radius:4px;
 		}
 		@media screen and (max-width: 767px) {
 			:host /deep/ #relatedDialog {
@@ -889,8 +922,14 @@ console.log("FIRE2",this);
 				margin: 0px;
 			}
 		}
-		:host /deep/ #relatedDialog /deep/ #scroller {
-			padding: 10px 10px 0 10px;
+		:host /deep/ paper-dialog > *:last-child {
+			margin-bottom: 4px;
+		}
+		:host /deep/ paper-dialog > *:first-child {
+			margin-top: 14px;
+		}
+		:host /deep/ paper-dialog#relatedDialog {
+			padding: 0px 0px 0 0px;
 		}
 		:host /deep/ .button-content {
 			padding: 0.2em 0.27em;
@@ -898,49 +937,70 @@ console.log("FIRE2",this);
 		paper-button {
 			min-width: 0px;
 		}
+		:host /deep/ #scrollable {
+			max-height: inherit !important;
+  		padding: 0 10px;
+		}
 
 	</style>
 	<template>
 
-		<paper-input-decorator flex id="decorator" label="{{label}}" invisible?="{{invisible}}" floatingLabel?="{{floatingLabel}}" value="{{value}}" readonly disabled?="{{disabled}}">
-			<input is="core-input" id="input" value="{{editValue}}" on-change="{{changeAction}}" autofocus?={{autofocus}} readonly disabled?={{disabled}}>
-		</paper-input-decorator>
-		<paper-button on-tap="{{actionCallback}}" class="button" raised>
-			<core-icon icon="launch"></core-icon>
-		</paper-button>
-		<template if="{{meta==null}}">
-			<paper-button on-tap="{{clearCallback}}" class="button" raised>
-				<core-icon icon="clear"></core-icon>
+		<div class="layout horizontal center">
+			<paper-input-container class="flex" id="decorator" label="{{label}}" floatingLabel?="{{floatingLabel}}" value="{{value}}" readonly disabled$="{{disabled}}">
+				<input is="iron-input" id="input" value="{{editValue}}" on-change="changeAction" readonly disabled$={{disabled}}>
+			</paper-input-container>
+			<paper-button on-tap="actionCallback" class="button" raised>
+				<iron-icon icon="launch"></iron-icon>
 			</paper-button>
-		</template>
-		<paper-action-dialog backdrop layered="true" id="relatedDialog" class="scrolling">
-			<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
-			<div style="height:20px;"></div>
-			<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="false" collapsed="false">
-				<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="{{selectAction}}" on-cancel-action="{{cancelAction}}" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
-			</simpl-panel>
-		</paper-action-dialog>
+			<template is="dom-if" if="{{isMetaNull()}}">
+				<paper-button on-tap="clearCallback" class="button" raised>
+					<iron-icon icon="clear"></iron-icon>
+				</paper-button>
+			</template>
+		</div>
+
+		<paper-dialog id="relatedDialog" with-backdrop="">
+			<paper-dialog-scrollable>
+				<div class="lyaout vertical flex">
+					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
+					<div style="height:20px;"></div>
+					<template is="dom-if" if="{{isFilter(filter)}}">
+						<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="">
+							<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
+						</simpl-panel>
+					</template>
+				</div>
+			</paper-dialog-scrollable>
+			<!--div class="buttons">
+				<paper-button dialog-dismiss="">Cancel</paper-button>
+				<paper-button dialog-confirm="">Accept</paper-button>
+			</div-->
+		</paper-dialog>
+
 	</template>
 	<script>
 		Polymer( {
 			is: "related-field",
 			behaviors: [ FieldBehavior ],
 			properties: {
-				autofocus: {
-					value: false,
-					reflect: true
+				namespace: {
+					type: String
 				},
-				readonly: {
-					value: false,
-					reflect: true
+				entity: {
+					type: String
 				},
-				disabled: {
-					value: false,
-					reflect: true
+				entity: {
+					type: String
 				}
 			},
-			floatingLabel: true,
 			id: null,
+			isMetaNull: function() {
+				return this.meta == null;
+			},
+			isFilter: function( filter ) {
+				console.log( "isFilter:", ( this.filter != null ) );
+				return this.filter != null;
+			},
 			ready: function() {
 				this.props = simpl4.util.EntityManager.getPropertiesForEntity( this.entity, {
 					namespace: this.namespace
@@ -948,6 +1008,7 @@ console.log("FIRE2",this);
 				console.log( "props:", this.props );
 			},
 			actionCallback: function() {
+				console.log( "actionCallback" );
 				this.$.relatedDialog.open();
 				this.setDimensions();
 			},

@@ -1,74 +1,66 @@
 /*!
- *  Font Awesome 4.3.0 by @davegandy - http://fontawesome.io - @fontawesome
+ *  Font Awesome 4.1.0 by @davegandy - http://fontawesome.io - @fontawesome
  *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
  */
 /* FONT PATH
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src:  url('/sw/surface/fontawesome-webfont.woff?v=4.3.0') format('woff');
+  src: url('../fonts/fontawesome-webfont.eot?v=4.1.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.1.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.1.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.1.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
 .fa {
   display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transform: translate(0, 0);
-}
-html /deep/ .fa {
-  display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transform: translate(0, 0);
 }
 /* makes the font 33% larger relative to the icon container */
-html /deep/ .fa-lg {
+.fa-lg {
   font-size: 1.33333333em;
   line-height: 0.75em;
   vertical-align: -15%;
 }
-html /deep/ .fa-2x {
+.fa-2x {
   font-size: 2em;
 }
-html /deep/ .fa-3x {
+.fa-3x {
   font-size: 3em;
 }
-html /deep/ .fa-4x {
+.fa-4x {
   font-size: 4em;
 }
-html /deep/ .fa-5x {
+.fa-5x {
   font-size: 5em;
 }
-html /deep/ .fa-fw {
+.fa-fw {
   width: 1.28571429em;
   text-align: center;
 }
-html /deep/ .fa-ul {
+.fa-ul {
   padding-left: 0;
   margin-left: 2.14285714em;
   list-style-type: none;
 }
-html /deep/ .fa-ul > li {
+.fa-ul > li {
   position: relative;
 }
-html /deep/ .fa-li {
+.fa-li {
   position: absolute;
   left: -2.14285714em;
   width: 2.14285714em;
   top: 0.14285714em;
   text-align: center;
 }
-html /deep/ .fa-li.fa-lg {
+.fa-li.fa-lg {
   left: -1.85714286em;
 }
-html /deep/ .fa-border {
+.fa-border {
   padding: .2em .25em .15em;
   border: solid 0.08em #eeeeee;
   border-radius: .1em;
@@ -79,21 +71,43 @@ html /deep/ .fa-border {
 .pull-left {
   float: left;
 }
-html /deep/ .fa.pull-left {
+.fa.pull-left {
   margin-right: .3em;
 }
-html /deep/ .fa.pull-right {
+.fa.pull-right {
   margin-left: .3em;
 }
-html /deep/ .fa-spin {
-  -webkit-animation: fa-spin 2s infinite linear;
-  animation: fa-spin 2s infinite linear;
+.fa-spin {
+  -webkit-animation: spin 2s infinite linear;
+  -moz-animation: spin 2s infinite linear;
+  -o-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
 }
-html /deep/ .fa-pulse {
-  -webkit-animation: fa-spin 1s infinite steps(8);
-  animation: fa-spin 1s infinite steps(8);
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  100% {
+    -moz-transform: rotate(359deg);
+  }
 }
-@-webkit-keyframes fa-spin {
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@-o-keyframes spin {
+  0% {
+    -o-transform: rotate(0deg);
+  }
+  100% {
+    -o-transform: rotate(359deg);
+  }
+}
+@keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
@@ -103,54 +117,47 @@ html /deep/ .fa-pulse {
     transform: rotate(359deg);
   }
 }
-@keyframes fa-spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
-}
-html /deep/ .fa-rotate-90 {
+.fa-rotate-90 {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
   -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
   transform: rotate(90deg);
 }
-html /deep/ .fa-rotate-180 {
+.fa-rotate-180 {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
   -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
   transform: rotate(180deg);
 }
-html /deep/ .fa-rotate-270 {
+.fa-rotate-270 {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   -webkit-transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
   -ms-transform: rotate(270deg);
+  -o-transform: rotate(270deg);
   transform: rotate(270deg);
 }
-html /deep/ .fa-flip-horizontal {
+.fa-flip-horizontal {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
   -webkit-transform: scale(-1, 1);
+  -moz-transform: scale(-1, 1);
   -ms-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
   transform: scale(-1, 1);
 }
-html /deep/ .fa-flip-vertical {
+.fa-flip-vertical {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
   -webkit-transform: scale(1, -1);
+  -moz-transform: scale(1, -1);
   -ms-transform: scale(1, -1);
+  -o-transform: scale(1, -1);
   transform: scale(1, -1);
 }
-:root .fa-rotate-90,
-:root .fa-rotate-180,
-:root .fa-rotate-270,
-:root .fa-flip-horizontal,
-:root .fa-flip-vertical {
-  filter: none;
-}
-html /deep/ .fa-stack {
+.fa-stack {
   position: relative;
   display: inline-block;
   width: 2em;
@@ -158,1652 +165,1402 @@ html /deep/ .fa-stack {
   line-height: 2em;
   vertical-align: middle;
 }
-html /deep/ .fa-stack-1x,
-html /deep/ .fa-stack-2x {
+.fa-stack-1x,
+.fa-stack-2x {
   position: absolute;
   left: 0;
   width: 100%;
   text-align: center;
 }
-html /deep/ .fa-stack-1x {
+.fa-stack-1x {
   line-height: inherit;
 }
-html /deep/ .fa-stack-2x {
+.fa-stack-2x {
   font-size: 2em;
 }
-html /deep/ .fa-inverse {
+.fa-inverse {
   color: #ffffff;
 }
 /* Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
    readers do not read off random characters that represent icons */
-html /deep/ .fa-glass:before {
+.fa-glass:before {
   content: "\f000";
 }
-html /deep/ .fa-music:before {
+.fa-music:before {
   content: "\f001";
 }
-html /deep/ .fa-search:before {
+.fa-search:before {
   content: "\f002";
 }
-html /deep/ .fa-envelope-o:before {
+.fa-envelope-o:before {
   content: "\f003";
 }
-html /deep/ .fa-heart:before {
+.fa-heart:before {
   content: "\f004";
 }
-html /deep/ .fa-star:before {
+.fa-star:before {
   content: "\f005";
 }
-html /deep/ .fa-star-o:before {
+.fa-star-o:before {
   content: "\f006";
 }
-html /deep/ .fa-user:before {
+.fa-user:before {
   content: "\f007";
 }
-html /deep/ .fa-film:before {
+.fa-film:before {
   content: "\f008";
 }
-html /deep/ .fa-th-large:before {
+.fa-th-large:before {
   content: "\f009";
 }
-html /deep/ .fa-th:before {
+.fa-th:before {
   content: "\f00a";
 }
-html /deep/ .fa-th-list:before {
+.fa-th-list:before {
   content: "\f00b";
 }
-html /deep/ .fa-check:before {
+.fa-check:before {
   content: "\f00c";
 }
-html /deep/ .fa-remove:before,
-html /deep/ .fa-close:before,
-html /deep/ .fa-times:before {
+.fa-times:before {
   content: "\f00d";
 }
-html /deep/ .fa-search-plus:before {
+.fa-search-plus:before {
   content: "\f00e";
 }
-html /deep/ .fa-search-minus:before {
+.fa-search-minus:before {
   content: "\f010";
 }
-html /deep/ .fa-power-off:before {
+.fa-power-off:before {
   content: "\f011";
 }
-html /deep/ .fa-signal:before {
+.fa-signal:before {
   content: "\f012";
 }
-html /deep/ .fa-gear:before,
-html /deep/ .fa-cog:before {
+.fa-gear:before,
+.fa-cog:before {
   content: "\f013";
 }
-html /deep/ .fa-trash-o:before {
+.fa-trash-o:before {
   content: "\f014";
 }
-html /deep/ .fa-home:before {
+.fa-home:before {
   content: "\f015";
 }
-html /deep/ .fa-file-o:before {
+.fa-file-o:before {
   content: "\f016";
 }
-html /deep/ .fa-clock-o:before {
+.fa-clock-o:before {
   content: "\f017";
 }
-html /deep/ .fa-road:before {
+.fa-road:before {
   content: "\f018";
 }
-html /deep/ .fa-download:before {
+.fa-download:before {
   content: "\f019";
 }
-html /deep/ .fa-arrow-circle-o-down:before {
+.fa-arrow-circle-o-down:before {
   content: "\f01a";
 }
-html /deep/ .fa-arrow-circle-o-up:before {
+.fa-arrow-circle-o-up:before {
   content: "\f01b";
 }
-html /deep/ .fa-inbox:before {
+.fa-inbox:before {
   content: "\f01c";
 }
-html /deep/ .fa-play-circle-o:before {
+.fa-play-circle-o:before {
   content: "\f01d";
 }
-html /deep/ .fa-rotate-right:before,
-html /deep/ .fa-repeat:before {
+.fa-rotate-right:before,
+.fa-repeat:before {
   content: "\f01e";
 }
-html /deep/ .fa-refresh:before {
+.fa-refresh:before {
   content: "\f021";
 }
-html /deep/ .fa-list-alt:before {
+.fa-list-alt:before {
   content: "\f022";
 }
-html /deep/ .fa-lock:before {
+.fa-lock:before {
   content: "\f023";
 }
-html /deep/ .fa-flag:before {
+.fa-flag:before {
   content: "\f024";
 }
-html /deep/ .fa-headphones:before {
+.fa-headphones:before {
   content: "\f025";
 }
-html /deep/ .fa-volume-off:before {
+.fa-volume-off:before {
   content: "\f026";
 }
-html /deep/ .fa-volume-down:before {
+.fa-volume-down:before {
   content: "\f027";
 }
-html /deep/ .fa-volume-up:before {
+.fa-volume-up:before {
   content: "\f028";
 }
-html /deep/ .fa-qrcode:before {
+.fa-qrcode:before {
   content: "\f029";
 }
-html /deep/ .fa-barcode:before {
+.fa-barcode:before {
   content: "\f02a";
 }
-html /deep/ .fa-tag:before {
+.fa-tag:before {
   content: "\f02b";
 }
-html /deep/ .fa-tags:before {
+.fa-tags:before {
   content: "\f02c";
 }
-html /deep/ .fa-book:before {
+.fa-book:before {
   content: "\f02d";
 }
-html /deep/ .fa-bookmark:before {
+.fa-bookmark:before {
   content: "\f02e";
 }
-html /deep/ .fa-print:before {
+.fa-print:before {
   content: "\f02f";
 }
-html /deep/ .fa-camera:before {
+.fa-camera:before {
   content: "\f030";
 }
-html /deep/ .fa-font:before {
+.fa-font:before {
   content: "\f031";
 }
-html /deep/ .fa-bold:before {
+.fa-bold:before {
   content: "\f032";
 }
-html /deep/ .fa-italic:before {
+.fa-italic:before {
   content: "\f033";
 }
-html /deep/ .fa-text-height:before {
+.fa-text-height:before {
   content: "\f034";
 }
-html /deep/ .fa-text-width:before {
+.fa-text-width:before {
   content: "\f035";
 }
-html /deep/ .fa-align-left:before {
+.fa-align-left:before {
   content: "\f036";
 }
-html /deep/ .fa-align-center:before {
+.fa-align-center:before {
   content: "\f037";
 }
-html /deep/ .fa-align-right:before {
+.fa-align-right:before {
   content: "\f038";
 }
-html /deep/ .fa-align-justify:before {
+.fa-align-justify:before {
   content: "\f039";
 }
-html /deep/ .fa-list:before {
+.fa-list:before {
   content: "\f03a";
 }
-html /deep/ .fa-dedent:before,
-html /deep/ .fa-outdent:before {
+.fa-dedent:before,
+.fa-outdent:before {
   content: "\f03b";
 }
-html /deep/ .fa-indent:before {
+.fa-indent:before {
   content: "\f03c";
 }
-html /deep/ .fa-video-camera:before {
+.fa-video-camera:before {
   content: "\f03d";
 }
-html /deep/ .fa-photo:before,
-html /deep/ .fa-image:before,
-html /deep/ .fa-picture-o:before {
+.fa-photo:before,
+.fa-image:before,
+.fa-picture-o:before {
   content: "\f03e";
 }
-html /deep/ .fa-pencil:before {
+.fa-pencil:before {
   content: "\f040";
 }
-html /deep/ .fa-map-marker:before {
+.fa-map-marker:before {
   content: "\f041";
 }
-html /deep/ .fa-adjust:before {
+.fa-adjust:before {
   content: "\f042";
 }
-html /deep/ .fa-tint:before {
+.fa-tint:before {
   content: "\f043";
 }
-html /deep/ .fa-edit:before,
-html /deep/ .fa-pencil-square-o:before {
+.fa-edit:before,
+.fa-pencil-square-o:before {
   content: "\f044";
 }
-html /deep/ .fa-share-square-o:before {
+.fa-share-square-o:before {
   content: "\f045";
 }
-html /deep/ .fa-check-square-o:before {
+.fa-check-square-o:before {
   content: "\f046";
 }
-html /deep/ .fa-arrows:before {
+.fa-arrows:before {
   content: "\f047";
 }
-html /deep/ .fa-step-backward:before {
+.fa-step-backward:before {
   content: "\f048";
 }
-html /deep/ .fa-fast-backward:before {
+.fa-fast-backward:before {
   content: "\f049";
 }
-html /deep/ .fa-backward:before {
+.fa-backward:before {
   content: "\f04a";
 }
-html /deep/ .fa-play:before {
+.fa-play:before {
   content: "\f04b";
 }
-html /deep/ .fa-pause:before {
+.fa-pause:before {
   content: "\f04c";
 }
-html /deep/ .fa-stop:before {
+.fa-stop:before {
   content: "\f04d";
 }
-html /deep/ .fa-forward:before {
+.fa-forward:before {
   content: "\f04e";
 }
-html /deep/ .fa-fast-forward:before {
+.fa-fast-forward:before {
   content: "\f050";
 }
-html /deep/ .fa-step-forward:before {
+.fa-step-forward:before {
   content: "\f051";
 }
-html /deep/ .fa-eject:before {
+.fa-eject:before {
   content: "\f052";
 }
-html /deep/ .fa-chevron-left:before {
+.fa-chevron-left:before {
   content: "\f053";
 }
-html /deep/ .fa-chevron-right:before {
+.fa-chevron-right:before {
   content: "\f054";
 }
-html /deep/ .fa-plus-circle:before {
+.fa-plus-circle:before {
   content: "\f055";
 }
-html /deep/ .fa-minus-circle:before {
+.fa-minus-circle:before {
   content: "\f056";
 }
-html /deep/ .fa-times-circle:before {
+.fa-times-circle:before {
   content: "\f057";
 }
-html /deep/ .fa-check-circle:before {
+.fa-check-circle:before {
   content: "\f058";
 }
-html /deep/ .fa-question-circle:before {
+.fa-question-circle:before {
   content: "\f059";
 }
-html /deep/ .fa-info-circle:before {
+.fa-info-circle:before {
   content: "\f05a";
 }
-html /deep/ .fa-crosshairs:before {
+.fa-crosshairs:before {
   content: "\f05b";
 }
-html /deep/ .fa-times-circle-o:before {
+.fa-times-circle-o:before {
   content: "\f05c";
 }
-html /deep/ .fa-check-circle-o:before {
+.fa-check-circle-o:before {
   content: "\f05d";
 }
-html /deep/ .fa-ban:before {
+.fa-ban:before {
   content: "\f05e";
 }
-html /deep/ .fa-arrow-left:before {
+.fa-arrow-left:before {
   content: "\f060";
 }
-html /deep/ .fa-arrow-right:before {
+.fa-arrow-right:before {
   content: "\f061";
 }
-html /deep/ .fa-arrow-up:before {
+.fa-arrow-up:before {
   content: "\f062";
 }
-html /deep/ .fa-arrow-down:before {
+.fa-arrow-down:before {
   content: "\f063";
 }
-html /deep/ .fa-mail-forward:before,
-html /deep/ .fa-share:before {
+.fa-mail-forward:before,
+.fa-share:before {
   content: "\f064";
 }
-html /deep/ .fa-expand:before {
+.fa-expand:before {
   content: "\f065";
 }
-html /deep/ .fa-compress:before {
+.fa-compress:before {
   content: "\f066";
 }
-html /deep/ .fa-plus:before {
+.fa-plus:before {
   content: "\f067";
 }
-html /deep/ .fa-minus:before {
+.fa-minus:before {
   content: "\f068";
 }
-html /deep/ .fa-asterisk:before {
+.fa-asterisk:before {
   content: "\f069";
 }
-html /deep/ .fa-exclamation-circle:before {
+.fa-exclamation-circle:before {
   content: "\f06a";
 }
-html /deep/ .fa-gift:before {
+.fa-gift:before {
   content: "\f06b";
 }
-html /deep/ .fa-leaf:before {
+.fa-leaf:before {
   content: "\f06c";
 }
-html /deep/ .fa-fire:before {
+.fa-fire:before {
   content: "\f06d";
 }
-html /deep/ .fa-eye:before {
+.fa-eye:before {
   content: "\f06e";
 }
-html /deep/ .fa-eye-slash:before {
+.fa-eye-slash:before {
   content: "\f070";
 }
-html /deep/ .fa-warning:before,
-html /deep/ .fa-exclamation-triangle:before {
+.fa-warning:before,
+.fa-exclamation-triangle:before {
   content: "\f071";
 }
-html /deep/ .fa-plane:before {
+.fa-plane:before {
   content: "\f072";
 }
-html /deep/ .fa-calendar:before {
+.fa-calendar:before {
   content: "\f073";
 }
-html /deep/ .fa-random:before {
+.fa-random:before {
   content: "\f074";
 }
-html /deep/ .fa-comment:before {
+.fa-comment:before {
   content: "\f075";
 }
-html /deep/ .fa-magnet:before {
+.fa-magnet:before {
   content: "\f076";
 }
-html /deep/ .fa-chevron-up:before {
+.fa-chevron-up:before {
   content: "\f077";
 }
-html /deep/ .fa-chevron-down:before {
+.fa-chevron-down:before {
   content: "\f078";
 }
-html /deep/ .fa-retweet:before {
+.fa-retweet:before {
   content: "\f079";
 }
-html /deep/ .fa-shopping-cart:before {
+.fa-shopping-cart:before {
   content: "\f07a";
 }
-html /deep/ .fa-folder:before {
+.fa-folder:before {
   content: "\f07b";
 }
-html /deep/ .fa-folder-open:before {
+.fa-folder-open:before {
   content: "\f07c";
 }
-html /deep/ .fa-arrows-v:before {
+.fa-arrows-v:before {
   content: "\f07d";
 }
-html /deep/ .fa-arrows-h:before {
+.fa-arrows-h:before {
   content: "\f07e";
 }
-html /deep/ .fa-bar-chart-o:before,
-html /deep/ .fa-bar-chart:before {
+.fa-bar-chart-o:before {
   content: "\f080";
 }
-html /deep/ .fa-twitter-square:before {
+.fa-twitter-square:before {
   content: "\f081";
 }
-html /deep/ .fa-facebook-square:before {
+.fa-facebook-square:before {
   content: "\f082";
 }
-html /deep/ .fa-camera-retro:before {
+.fa-camera-retro:before {
   content: "\f083";
 }
-html /deep/ .fa-key:before {
+.fa-key:before {
   content: "\f084";
 }
-html /deep/ .fa-gears:before,
-html /deep/ .fa-cogs:before {
+.fa-gears:before,
+.fa-cogs:before {
   content: "\f085";
 }
-html /deep/ .fa-comments:before {
+.fa-comments:before {
   content: "\f086";
 }
-html /deep/ .fa-thumbs-o-up:before {
+.fa-thumbs-o-up:before {
   content: "\f087";
 }
-html /deep/ .fa-thumbs-o-down:before {
+.fa-thumbs-o-down:before {
   content: "\f088";
 }
-html /deep/ .fa-star-half:before {
+.fa-star-half:before {
   content: "\f089";
 }
-html /deep/ .fa-heart-o:before {
+.fa-heart-o:before {
   content: "\f08a";
 }
-html /deep/ .fa-sign-out:before {
+.fa-sign-out:before {
   content: "\f08b";
 }
-html /deep/ .fa-linkedin-square:before {
+.fa-linkedin-square:before {
   content: "\f08c";
 }
-html /deep/ .fa-thumb-tack:before {
+.fa-thumb-tack:before {
   content: "\f08d";
 }
-html /deep/ .fa-external-link:before {
+.fa-external-link:before {
   content: "\f08e";
 }
-html /deep/ .fa-sign-in:before {
+.fa-sign-in:before {
   content: "\f090";
 }
-html /deep/ .fa-trophy:before {
+.fa-trophy:before {
   content: "\f091";
 }
-html /deep/ .fa-github-square:before {
+.fa-github-square:before {
   content: "\f092";
 }
-html /deep/ .fa-upload:before {
+.fa-upload:before {
   content: "\f093";
 }
-html /deep/ .fa-lemon-o:before {
+.fa-lemon-o:before {
   content: "\f094";
 }
-html /deep/ .fa-phone:before {
+.fa-phone:before {
   content: "\f095";
 }
-html /deep/ .fa-square-o:before {
+.fa-square-o:before {
   content: "\f096";
 }
-html /deep/ .fa-bookmark-o:before {
+.fa-bookmark-o:before {
   content: "\f097";
 }
-html /deep/ .fa-phone-square:before {
+.fa-phone-square:before {
   content: "\f098";
 }
-html /deep/ .fa-twitter:before {
+.fa-twitter:before {
   content: "\f099";
 }
-html /deep/ .fa-facebook-f:before,
-html /deep/ .fa-facebook:before {
+.fa-facebook:before {
   content: "\f09a";
 }
-html /deep/ .fa-github:before {
+.fa-github:before {
   content: "\f09b";
 }
-html /deep/ .fa-unlock:before {
+.fa-unlock:before {
   content: "\f09c";
 }
-html /deep/ .fa-credit-card:before {
+.fa-credit-card:before {
   content: "\f09d";
 }
-html /deep/ .fa-rss:before {
+.fa-rss:before {
   content: "\f09e";
 }
-html /deep/ .fa-hdd-o:before {
+.fa-hdd-o:before {
   content: "\f0a0";
 }
-html /deep/ .fa-bullhorn:before {
+.fa-bullhorn:before {
   content: "\f0a1";
 }
-html /deep/ .fa-bell:before {
+.fa-bell:before {
   content: "\f0f3";
 }
-html /deep/ .fa-certificate:before {
+.fa-certificate:before {
   content: "\f0a3";
 }
-html /deep/ .fa-hand-o-right:before {
+.fa-hand-o-right:before {
   content: "\f0a4";
 }
-html /deep/ .fa-hand-o-left:before {
+.fa-hand-o-left:before {
   content: "\f0a5";
 }
-html /deep/ .fa-hand-o-up:before {
+.fa-hand-o-up:before {
   content: "\f0a6";
 }
-html /deep/ .fa-hand-o-down:before {
+.fa-hand-o-down:before {
   content: "\f0a7";
 }
-html /deep/ .fa-arrow-circle-left:before {
+.fa-arrow-circle-left:before {
   content: "\f0a8";
 }
-html /deep/ .fa-arrow-circle-right:before {
+.fa-arrow-circle-right:before {
   content: "\f0a9";
 }
-html /deep/ .fa-arrow-circle-up:before {
+.fa-arrow-circle-up:before {
   content: "\f0aa";
 }
-html /deep/ .fa-arrow-circle-down:before {
+.fa-arrow-circle-down:before {
   content: "\f0ab";
 }
-html /deep/ .fa-globe:before {
+.fa-globe:before {
   content: "\f0ac";
 }
-html /deep/ .fa-wrench:before {
+.fa-wrench:before {
   content: "\f0ad";
 }
-html /deep/ .fa-tasks:before {
+.fa-tasks:before {
   content: "\f0ae";
 }
-html /deep/ .fa-filter:before {
+.fa-filter:before {
   content: "\f0b0";
 }
-html /deep/ .fa-briefcase:before {
+.fa-briefcase:before {
   content: "\f0b1";
 }
-html /deep/ .fa-arrows-alt:before {
+.fa-arrows-alt:before {
   content: "\f0b2";
 }
-html /deep/ .fa-group:before,
-html /deep/ .fa-users:before {
+.fa-group:before,
+.fa-users:before {
   content: "\f0c0";
 }
-html /deep/ .fa-chain:before,
-html /deep/ .fa-link:before {
+.fa-chain:before,
+.fa-link:before {
   content: "\f0c1";
 }
-html /deep/ .fa-cloud:before {
+.fa-cloud:before {
   content: "\f0c2";
 }
-html /deep/ .fa-flask:before {
+.fa-flask:before {
   content: "\f0c3";
 }
-html /deep/ .fa-cut:before,
-html /deep/ .fa-scissors:before {
+.fa-cut:before,
+.fa-scissors:before {
   content: "\f0c4";
 }
-html /deep/ .fa-copy:before,
-html /deep/ .fa-files-o:before {
+.fa-copy:before,
+.fa-files-o:before {
   content: "\f0c5";
 }
-html /deep/ .fa-paperclip:before {
+.fa-paperclip:before {
   content: "\f0c6";
 }
-html /deep/ .fa-save:before,
-html /deep/ .fa-floppy-o:before {
+.fa-save:before,
+.fa-floppy-o:before {
   content: "\f0c7";
 }
-html /deep/ .fa-square:before {
+.fa-square:before {
   content: "\f0c8";
 }
-html /deep/ .fa-navicon:before,
-html /deep/ .fa-reorder:before,
-html /deep/ .fa-bars:before {
+.fa-navicon:before,
+.fa-reorder:before,
+.fa-bars:before {
   content: "\f0c9";
 }
-html /deep/ .fa-list-ul:before {
+.fa-list-ul:before {
   content: "\f0ca";
 }
-html /deep/ .fa-list-ol:before {
+.fa-list-ol:before {
   content: "\f0cb";
 }
-html /deep/ .fa-strikethrough:before {
+.fa-strikethrough:before {
   content: "\f0cc";
 }
-html /deep/ .fa-underline:before {
+.fa-underline:before {
   content: "\f0cd";
 }
-html /deep/ .fa-table:before {
+.fa-table:before {
   content: "\f0ce";
 }
-html /deep/ .fa-magic:before {
+.fa-magic:before {
   content: "\f0d0";
 }
-html /deep/ .fa-truck:before {
+.fa-truck:before {
   content: "\f0d1";
 }
-html /deep/ .fa-pinterest:before {
+.fa-pinterest:before {
   content: "\f0d2";
 }
-html /deep/ .fa-pinterest-square:before {
+.fa-pinterest-square:before {
   content: "\f0d3";
 }
-html /deep/ .fa-google-plus-square:before {
+.fa-google-plus-square:before {
   content: "\f0d4";
 }
-html /deep/ .fa-google-plus:before {
+.fa-google-plus:before {
   content: "\f0d5";
 }
-html /deep/ .fa-money:before {
+.fa-money:before {
   content: "\f0d6";
 }
-html /deep/ .fa-caret-down:before {
+.fa-caret-down:before {
   content: "\f0d7";
 }
-html /deep/ .fa-caret-up:before {
+.fa-caret-up:before {
   content: "\f0d8";
 }
-html /deep/ .fa-caret-left:before {
+.fa-caret-left:before {
   content: "\f0d9";
 }
-html /deep/ .fa-caret-right:before {
+.fa-caret-right:before {
   content: "\f0da";
 }
-html /deep/ .fa-columns:before {
+.fa-columns:before {
   content: "\f0db";
 }
-html /deep/ .fa-unsorted:before,
-html /deep/ .fa-sort:before {
+.fa-unsorted:before,
+.fa-sort:before {
   content: "\f0dc";
 }
-html /deep/ .fa-sort-down:before,
-html /deep/ .fa-sort-desc:before {
+.fa-sort-down:before,
+.fa-sort-desc:before {
   content: "\f0dd";
 }
-html /deep/ .fa-sort-up:before,
-html /deep/ .fa-sort-asc:before {
+.fa-sort-up:before,
+.fa-sort-asc:before {
   content: "\f0de";
 }
-html /deep/ .fa-envelope:before {
+.fa-envelope:before {
   content: "\f0e0";
 }
-html /deep/ .fa-linkedin:before {
+.fa-linkedin:before {
   content: "\f0e1";
 }
-html /deep/ .fa-rotate-left:before,
-html /deep/ .fa-undo:before {
+.fa-rotate-left:before,
+.fa-undo:before {
   content: "\f0e2";
 }
-html /deep/ .fa-legal:before,
-html /deep/ .fa-gavel:before {
+.fa-legal:before,
+.fa-gavel:before {
   content: "\f0e3";
 }
-html /deep/ .fa-dashboard:before,
-html /deep/ .fa-tachometer:before {
+.fa-dashboard:before,
+.fa-tachometer:before {
   content: "\f0e4";
 }
-html /deep/ .fa-comment-o:before {
+.fa-comment-o:before {
   content: "\f0e5";
 }
-html /deep/ .fa-comments-o:before {
+.fa-comments-o:before {
   content: "\f0e6";
 }
-html /deep/ .fa-flash:before,
-html /deep/ .fa-bolt:before {
+.fa-flash:before,
+.fa-bolt:before {
   content: "\f0e7";
 }
-html /deep/ .fa-sitemap:before {
+.fa-sitemap:before {
   content: "\f0e8";
 }
-html /deep/ .fa-umbrella:before {
+.fa-umbrella:before {
   content: "\f0e9";
 }
-html /deep/ .fa-paste:before,
-html /deep/ .fa-clipboard:before {
+.fa-paste:before,
+.fa-clipboard:before {
   content: "\f0ea";
 }
-html /deep/ .fa-lightbulb-o:before {
+.fa-lightbulb-o:before {
   content: "\f0eb";
 }
-html /deep/ .fa-exchange:before {
+.fa-exchange:before {
   content: "\f0ec";
 }
-html /deep/ .fa-cloud-download:before {
+.fa-cloud-download:before {
   content: "\f0ed";
 }
-html /deep/ .fa-cloud-upload:before {
+.fa-cloud-upload:before {
   content: "\f0ee";
 }
-html /deep/ .fa-user-md:before {
+.fa-user-md:before {
   content: "\f0f0";
 }
-html /deep/ .fa-stethoscope:before {
+.fa-stethoscope:before {
   content: "\f0f1";
 }
-html /deep/ .fa-suitcase:before {
+.fa-suitcase:before {
   content: "\f0f2";
 }
-html /deep/ .fa-bell-o:before {
+.fa-bell-o:before {
   content: "\f0a2";
 }
-html /deep/ .fa-coffee:before {
+.fa-coffee:before {
   content: "\f0f4";
 }
-html /deep/ .fa-cutlery:before {
+.fa-cutlery:before {
   content: "\f0f5";
 }
-html /deep/ .fa-file-text-o:before {
+.fa-file-text-o:before {
   content: "\f0f6";
 }
-html /deep/ .fa-building-o:before {
+.fa-building-o:before {
   content: "\f0f7";
 }
-html /deep/ .fa-hospital-o:before {
+.fa-hospital-o:before {
   content: "\f0f8";
 }
-html /deep/ .fa-ambulance:before {
+.fa-ambulance:before {
   content: "\f0f9";
 }
-html /deep/ .fa-medkit:before {
+.fa-medkit:before {
   content: "\f0fa";
 }
-html /deep/ .fa-fighter-jet:before {
+.fa-fighter-jet:before {
   content: "\f0fb";
 }
-html /deep/ .fa-beer:before {
+.fa-beer:before {
   content: "\f0fc";
 }
-html /deep/ .fa-h-square:before {
+.fa-h-square:before {
   content: "\f0fd";
 }
-html /deep/ .fa-plus-square:before {
+.fa-plus-square:before {
   content: "\f0fe";
 }
-html /deep/ .fa-angle-double-left:before {
+.fa-angle-double-left:before {
   content: "\f100";
 }
-html /deep/ .fa-angle-double-right:before {
+.fa-angle-double-right:before {
   content: "\f101";
 }
-html /deep/ .fa-angle-double-up:before {
+.fa-angle-double-up:before {
   content: "\f102";
 }
-html /deep/ .fa-angle-double-down:before {
+.fa-angle-double-down:before {
   content: "\f103";
 }
-html /deep/ .fa-angle-left:before {
+.fa-angle-left:before {
   content: "\f104";
 }
-html /deep/ .fa-angle-right:before {
+.fa-angle-right:before {
   content: "\f105";
 }
-html /deep/ .fa-angle-up:before {
+.fa-angle-up:before {
   content: "\f106";
 }
-html /deep/ .fa-angle-down:before {
+.fa-angle-down:before {
   content: "\f107";
 }
-html /deep/ .fa-desktop:before {
+.fa-desktop:before {
   content: "\f108";
 }
-html /deep/ .fa-laptop:before {
+.fa-laptop:before {
   content: "\f109";
 }
-html /deep/ .fa-tablet:before {
+.fa-tablet:before {
   content: "\f10a";
 }
-html /deep/ .fa-mobile-phone:before,
-html /deep/ .fa-mobile:before {
+.fa-mobile-phone:before,
+.fa-mobile:before {
   content: "\f10b";
 }
-html /deep/ .fa-circle-o:before {
+.fa-circle-o:before {
   content: "\f10c";
 }
-html /deep/ .fa-quote-left:before {
+.fa-quote-left:before {
   content: "\f10d";
 }
-html /deep/ .fa-quote-right:before {
+.fa-quote-right:before {
   content: "\f10e";
 }
-html /deep/ .fa-spinner:before {
+.fa-spinner:before {
   content: "\f110";
 }
-html /deep/ .fa-circle:before {
+.fa-circle:before {
   content: "\f111";
 }
-html /deep/ .fa-mail-reply:before,
-html /deep/ .fa-reply:before {
+.fa-mail-reply:before,
+.fa-reply:before {
   content: "\f112";
 }
-html /deep/ .fa-github-alt:before {
+.fa-github-alt:before {
   content: "\f113";
 }
-html /deep/ .fa-folder-o:before {
+.fa-folder-o:before {
   content: "\f114";
 }
-html /deep/ .fa-folder-open-o:before {
+.fa-folder-open-o:before {
   content: "\f115";
 }
-html /deep/ .fa-smile-o:before {
+.fa-smile-o:before {
   content: "\f118";
 }
-html /deep/ .fa-frown-o:before {
+.fa-frown-o:before {
   content: "\f119";
 }
-html /deep/ .fa-meh-o:before {
+.fa-meh-o:before {
   content: "\f11a";
 }
-html /deep/ .fa-gamepad:before {
+.fa-gamepad:before {
   content: "\f11b";
 }
-html /deep/ .fa-keyboard-o:before {
+.fa-keyboard-o:before {
   content: "\f11c";
 }
-html /deep/ .fa-flag-o:before {
+.fa-flag-o:before {
   content: "\f11d";
 }
-html /deep/ .fa-flag-checkered:before {
+.fa-flag-checkered:before {
   content: "\f11e";
 }
-html /deep/ .fa-terminal:before {
+.fa-terminal:before {
   content: "\f120";
 }
-html /deep/ .fa-code:before {
+.fa-code:before {
   content: "\f121";
 }
-html /deep/ .fa-mail-reply-all:before,
-html /deep/ .fa-reply-all:before {
+.fa-mail-reply-all:before,
+.fa-reply-all:before {
   content: "\f122";
 }
-html /deep/ .fa-star-half-empty:before,
-html /deep/ .fa-star-half-full:before,
-html /deep/ .fa-star-half-o:before {
+.fa-star-half-empty:before,
+.fa-star-half-full:before,
+.fa-star-half-o:before {
   content: "\f123";
 }
-html /deep/ .fa-location-arrow:before {
+.fa-location-arrow:before {
   content: "\f124";
 }
-html /deep/ .fa-crop:before {
+.fa-crop:before {
   content: "\f125";
 }
-html /deep/ .fa-code-fork:before {
+.fa-code-fork:before {
   content: "\f126";
 }
-html /deep/ .fa-unlink:before,
-html /deep/ .fa-chain-broken:before {
+.fa-unlink:before,
+.fa-chain-broken:before {
   content: "\f127";
 }
-html /deep/ .fa-question:before {
+.fa-question:before {
   content: "\f128";
 }
-html /deep/ .fa-info:before {
+.fa-info:before {
   content: "\f129";
 }
-html /deep/ .fa-exclamation:before {
+.fa-exclamation:before {
   content: "\f12a";
 }
-html /deep/ .fa-superscript:before {
+.fa-superscript:before {
   content: "\f12b";
 }
-html /deep/ .fa-subscript:before {
+.fa-subscript:before {
   content: "\f12c";
 }
-html /deep/ .fa-eraser:before {
+.fa-eraser:before {
   content: "\f12d";
 }
-html /deep/ .fa-puzzle-piece:before {
+.fa-puzzle-piece:before {
   content: "\f12e";
 }
-html /deep/ .fa-microphone:before {
+.fa-microphone:before {
   content: "\f130";
 }
-html /deep/ .fa-microphone-slash:before {
+.fa-microphone-slash:before {
   content: "\f131";
 }
-html /deep/ .fa-shield:before {
+.fa-shield:before {
   content: "\f132";
 }
-html /deep/ .fa-calendar-o:before {
+.fa-calendar-o:before {
   content: "\f133";
 }
-html /deep/ .fa-fire-extinguisher:before {
+.fa-fire-extinguisher:before {
   content: "\f134";
 }
-html /deep/ .fa-rocket:before {
+.fa-rocket:before {
   content: "\f135";
 }
-html /deep/ .fa-maxcdn:before {
+.fa-maxcdn:before {
   content: "\f136";
 }
-html /deep/ .fa-chevron-circle-left:before {
+.fa-chevron-circle-left:before {
   content: "\f137";
 }
-html /deep/ .fa-chevron-circle-right:before {
+.fa-chevron-circle-right:before {
   content: "\f138";
 }
-html /deep/ .fa-chevron-circle-up:before {
+.fa-chevron-circle-up:before {
   content: "\f139";
 }
-html /deep/ .fa-chevron-circle-down:before {
+.fa-chevron-circle-down:before {
   content: "\f13a";
 }
-html /deep/ .fa-html5:before {
+.fa-html5:before {
   content: "\f13b";
 }
-html /deep/ .fa-css3:before {
+.fa-css3:before {
   content: "\f13c";
 }
-html /deep/ .fa-anchor:before {
+.fa-anchor:before {
   content: "\f13d";
 }
-html /deep/ .fa-unlock-alt:before {
+.fa-unlock-alt:before {
   content: "\f13e";
 }
-html /deep/ .fa-bullseye:before {
+.fa-bullseye:before {
   content: "\f140";
 }
-html /deep/ .fa-ellipsis-h:before {
+.fa-ellipsis-h:before {
   content: "\f141";
 }
-html /deep/ .fa-ellipsis-v:before {
+.fa-ellipsis-v:before {
   content: "\f142";
 }
-html /deep/ .fa-rss-square:before {
+.fa-rss-square:before {
   content: "\f143";
 }
-html /deep/ .fa-play-circle:before {
+.fa-play-circle:before {
   content: "\f144";
 }
-html /deep/ .fa-ticket:before {
+.fa-ticket:before {
   content: "\f145";
 }
-html /deep/ .fa-minus-square:before {
+.fa-minus-square:before {
   content: "\f146";
 }
-html /deep/ .fa-minus-square-o:before {
+.fa-minus-square-o:before {
   content: "\f147";
 }
-html /deep/ .fa-level-up:before {
+.fa-level-up:before {
   content: "\f148";
 }
-html /deep/ .fa-level-down:before {
+.fa-level-down:before {
   content: "\f149";
 }
-html /deep/ .fa-check-square:before {
+.fa-check-square:before {
   content: "\f14a";
 }
-html /deep/ .fa-pencil-square:before {
+.fa-pencil-square:before {
   content: "\f14b";
 }
-html /deep/ .fa-external-link-square:before {
+.fa-external-link-square:before {
   content: "\f14c";
 }
-html /deep/ .fa-share-square:before {
+.fa-share-square:before {
   content: "\f14d";
 }
-html /deep/ .fa-compass:before {
+.fa-compass:before {
   content: "\f14e";
 }
-html /deep/ .fa-toggle-down:before,
-html /deep/ .fa-caret-square-o-down:before {
+.fa-toggle-down:before,
+.fa-caret-square-o-down:before {
   content: "\f150";
 }
-html /deep/ .fa-toggle-up:before,
-html /deep/ .fa-caret-square-o-up:before {
+.fa-toggle-up:before,
+.fa-caret-square-o-up:before {
   content: "\f151";
 }
-html /deep/ .fa-toggle-right:before,
-html /deep/ .fa-caret-square-o-right:before {
+.fa-toggle-right:before,
+.fa-caret-square-o-right:before {
   content: "\f152";
 }
-html /deep/ .fa-euro:before,
-html /deep/ .fa-eur:before {
+.fa-euro:before,
+.fa-eur:before {
   content: "\f153";
 }
-html /deep/ .fa-gbp:before {
+.fa-gbp:before {
   content: "\f154";
 }
-html /deep/ .fa-dollar:before,
-html /deep/ .fa-usd:before {
+.fa-dollar:before,
+.fa-usd:before {
   content: "\f155";
 }
-html /deep/ .fa-rupee:before,
-html /deep/ .fa-inr:before {
+.fa-rupee:before,
+.fa-inr:before {
   content: "\f156";
 }
-html /deep/ .fa-cny:before,
-html /deep/ .fa-rmb:before,
-html /deep/ .fa-yen:before,
-html /deep/ .fa-jpy:before {
+.fa-cny:before,
+.fa-rmb:before,
+.fa-yen:before,
+.fa-jpy:before {
   content: "\f157";
 }
-html /deep/ .fa-ruble:before,
-html /deep/ .fa-rouble:before,
-html /deep/ .fa-rub:before {
+.fa-ruble:before,
+.fa-rouble:before,
+.fa-rub:before {
   content: "\f158";
 }
-html /deep/ .fa-won:before,
-html /deep/ .fa-krw:before {
+.fa-won:before,
+.fa-krw:before {
   content: "\f159";
 }
-html /deep/ .fa-bitcoin:before,
-html /deep/ .fa-btc:before {
+.fa-bitcoin:before,
+.fa-btc:before {
   content: "\f15a";
 }
-html /deep/ .fa-file:before {
+.fa-file:before {
   content: "\f15b";
 }
-html /deep/ .fa-file-text:before {
+.fa-file-text:before {
   content: "\f15c";
 }
-html /deep/ .fa-sort-alpha-asc:before {
+.fa-sort-alpha-asc:before {
   content: "\f15d";
 }
-html /deep/ .fa-sort-alpha-desc:before {
+.fa-sort-alpha-desc:before {
   content: "\f15e";
 }
-html /deep/ .fa-sort-amount-asc:before {
+.fa-sort-amount-asc:before {
   content: "\f160";
 }
-html /deep/ .fa-sort-amount-desc:before {
+.fa-sort-amount-desc:before {
   content: "\f161";
 }
-html /deep/ .fa-sort-numeric-asc:before {
+.fa-sort-numeric-asc:before {
   content: "\f162";
 }
-html /deep/ .fa-sort-numeric-desc:before {
+.fa-sort-numeric-desc:before {
   content: "\f163";
 }
-html /deep/ .fa-thumbs-up:before {
+.fa-thumbs-up:before {
   content: "\f164";
 }
-html /deep/ .fa-thumbs-down:before {
+.fa-thumbs-down:before {
   content: "\f165";
 }
-html /deep/ .fa-youtube-square:before {
+.fa-youtube-square:before {
   content: "\f166";
 }
-html /deep/ .fa-youtube:before {
+.fa-youtube:before {
   content: "\f167";
 }
-html /deep/ .fa-xing:before {
+.fa-xing:before {
   content: "\f168";
 }
-html /deep/ .fa-xing-square:before {
+.fa-xing-square:before {
   content: "\f169";
 }
-html /deep/ .fa-youtube-play:before {
+.fa-youtube-play:before {
   content: "\f16a";
 }
-html /deep/ .fa-dropbox:before {
+.fa-dropbox:before {
   content: "\f16b";
 }
-html /deep/ .fa-stack-overflow:before {
+.fa-stack-overflow:before {
   content: "\f16c";
 }
-html /deep/ .fa-instagram:before {
+.fa-instagram:before {
   content: "\f16d";
 }
-html /deep/ .fa-flickr:before {
+.fa-flickr:before {
   content: "\f16e";
 }
-html /deep/ .fa-adn:before {
+.fa-adn:before {
   content: "\f170";
 }
-html /deep/ .fa-bitbucket:before {
+.fa-bitbucket:before {
   content: "\f171";
 }
-html /deep/ .fa-bitbucket-square:before {
+.fa-bitbucket-square:before {
   content: "\f172";
 }
-html /deep/ .fa-tumblr:before {
+.fa-tumblr:before {
   content: "\f173";
 }
-html /deep/ .fa-tumblr-square:before {
+.fa-tumblr-square:before {
   content: "\f174";
 }
-html /deep/ .fa-long-arrow-down:before {
+.fa-long-arrow-down:before {
   content: "\f175";
 }
-html /deep/ .fa-long-arrow-up:before {
+.fa-long-arrow-up:before {
   content: "\f176";
 }
-html /deep/ .fa-long-arrow-left:before {
+.fa-long-arrow-left:before {
   content: "\f177";
 }
-html /deep/ .fa-long-arrow-right:before {
+.fa-long-arrow-right:before {
   content: "\f178";
 }
-html /deep/ .fa-apple:before {
+.fa-apple:before {
   content: "\f179";
 }
-html /deep/ .fa-windows:before {
+.fa-windows:before {
   content: "\f17a";
 }
-html /deep/ .fa-android:before {
+.fa-android:before {
   content: "\f17b";
 }
-html /deep/ .fa-linux:before {
+.fa-linux:before {
   content: "\f17c";
 }
-html /deep/ .fa-dribbble:before {
+.fa-dribbble:before {
   content: "\f17d";
 }
-html /deep/ .fa-skype:before {
+.fa-skype:before {
   content: "\f17e";
 }
-html /deep/ .fa-foursquare:before {
+.fa-foursquare:before {
   content: "\f180";
 }
-html /deep/ .fa-trello:before {
+.fa-trello:before {
   content: "\f181";
 }
-html /deep/ .fa-female:before {
+.fa-female:before {
   content: "\f182";
 }
-html /deep/ .fa-male:before {
+.fa-male:before {
   content: "\f183";
 }
-html /deep/ .fa-gittip:before,
-html /deep/ .fa-gratipay:before {
+.fa-gittip:before {
   content: "\f184";
 }
-html /deep/ .fa-sun-o:before {
+.fa-sun-o:before {
   content: "\f185";
 }
-html /deep/ .fa-moon-o:before {
+.fa-moon-o:before {
   content: "\f186";
 }
-html /deep/ .fa-archive:before {
+.fa-archive:before {
   content: "\f187";
 }
-html /deep/ .fa-bug:before {
+.fa-bug:before {
   content: "\f188";
 }
-html /deep/ .fa-vk:before {
+.fa-vk:before {
   content: "\f189";
 }
-html /deep/ .fa-weibo:before {
+.fa-weibo:before {
   content: "\f18a";
 }
-html /deep/ .fa-renren:before {
+.fa-renren:before {
   content: "\f18b";
 }
-html /deep/ .fa-pagelines:before {
+.fa-pagelines:before {
   content: "\f18c";
 }
-html /deep/ .fa-stack-exchange:before {
+.fa-stack-exchange:before {
   content: "\f18d";
 }
-html /deep/ .fa-arrow-circle-o-right:before {
+.fa-arrow-circle-o-right:before {
   content: "\f18e";
 }
-html /deep/ .fa-arrow-circle-o-left:before {
+.fa-arrow-circle-o-left:before {
   content: "\f190";
 }
-html /deep/ .fa-toggle-left:before,
-html /deep/ .fa-caret-square-o-left:before {
+.fa-toggle-left:before,
+.fa-caret-square-o-left:before {
   content: "\f191";
 }
-html /deep/ .fa-dot-circle-o:before {
+.fa-dot-circle-o:before {
   content: "\f192";
 }
-html /deep/ .fa-wheelchair:before {
+.fa-wheelchair:before {
   content: "\f193";
 }
-html /deep/ .fa-vimeo-square:before {
+.fa-vimeo-square:before {
   content: "\f194";
 }
-html /deep/ .fa-turkish-lira:before,
-html /deep/ .fa-try:before {
+.fa-turkish-lira:before,
+.fa-try:before {
   content: "\f195";
 }
-html /deep/ .fa-plus-square-o:before {
+.fa-plus-square-o:before {
   content: "\f196";
 }
-html /deep/ .fa-space-shuttle:before {
+.fa-space-shuttle:before {
   content: "\f197";
 }
-html /deep/ .fa-slack:before {
+.fa-slack:before {
   content: "\f198";
 }
-html /deep/ .fa-envelope-square:before {
+.fa-envelope-square:before {
   content: "\f199";
 }
-html /deep/ .fa-wordpress:before {
+.fa-wordpress:before {
   content: "\f19a";
 }
-html /deep/ .fa-openid:before {
+.fa-openid:before {
   content: "\f19b";
 }
-html /deep/ .fa-institution:before,
-html /deep/ .fa-bank:before,
-html /deep/ .fa-university:before {
+.fa-institution:before,
+.fa-bank:before,
+.fa-university:before {
   content: "\f19c";
 }
-html /deep/ .fa-mortar-board:before,
-html /deep/ .fa-graduation-cap:before {
+.fa-mortar-board:before,
+.fa-graduation-cap:before {
   content: "\f19d";
 }
-html /deep/ .fa-yahoo:before {
+.fa-yahoo:before {
   content: "\f19e";
 }
-html /deep/ .fa-google:before {
+.fa-google:before {
   content: "\f1a0";
 }
-html /deep/ .fa-reddit:before {
+.fa-reddit:before {
   content: "\f1a1";
 }
-html /deep/ .fa-reddit-square:before {
+.fa-reddit-square:before {
   content: "\f1a2";
 }
-html /deep/ .fa-stumbleupon-circle:before {
+.fa-stumbleupon-circle:before {
   content: "\f1a3";
 }
-html /deep/ .fa-stumbleupon:before {
+.fa-stumbleupon:before {
   content: "\f1a4";
 }
-html /deep/ .fa-delicious:before {
+.fa-delicious:before {
   content: "\f1a5";
 }
-html /deep/ .fa-digg:before {
+.fa-digg:before {
   content: "\f1a6";
 }
-html /deep/ .fa-pied-piper:before {
+.fa-pied-piper-square:before,
+.fa-pied-piper:before {
   content: "\f1a7";
 }
-html /deep/ .fa-pied-piper-alt:before {
+.fa-pied-piper-alt:before {
   content: "\f1a8";
 }
-html /deep/ .fa-drupal:before {
+.fa-drupal:before {
   content: "\f1a9";
 }
-html /deep/ .fa-joomla:before {
+.fa-joomla:before {
   content: "\f1aa";
 }
-html /deep/ .fa-language:before {
+.fa-language:before {
   content: "\f1ab";
 }
-html /deep/ .fa-fax:before {
+.fa-fax:before {
   content: "\f1ac";
 }
-html /deep/ .fa-building:before {
+.fa-building:before {
   content: "\f1ad";
 }
-html /deep/ .fa-child:before {
+.fa-child:before {
   content: "\f1ae";
 }
-html /deep/ .fa-paw:before {
+.fa-paw:before {
   content: "\f1b0";
 }
-html /deep/ .fa-spoon:before {
+.fa-spoon:before {
   content: "\f1b1";
 }
-html /deep/ .fa-cube:before {
+.fa-cube:before {
   content: "\f1b2";
 }
-html /deep/ .fa-cubes:before {
+.fa-cubes:before {
   content: "\f1b3";
 }
-html /deep/ .fa-behance:before {
+.fa-behance:before {
   content: "\f1b4";
 }
-html /deep/ .fa-behance-square:before {
+.fa-behance-square:before {
   content: "\f1b5";
 }
-html /deep/ .fa-steam:before {
+.fa-steam:before {
   content: "\f1b6";
 }
-html /deep/ .fa-steam-square:before {
+.fa-steam-square:before {
   content: "\f1b7";
 }
-html /deep/ .fa-recycle:before {
+.fa-recycle:before {
   content: "\f1b8";
 }
-html /deep/ .fa-automobile:before,
-html /deep/ .fa-car:before {
+.fa-automobile:before,
+.fa-car:before {
   content: "\f1b9";
 }
-html /deep/ .fa-cab:before,
-html /deep/ .fa-taxi:before {
+.fa-cab:before,
+.fa-taxi:before {
   content: "\f1ba";
 }
-html /deep/ .fa-tree:before {
+.fa-tree:before {
   content: "\f1bb";
 }
-html /deep/ .fa-spotify:before {
+.fa-spotify:before {
   content: "\f1bc";
 }
-html /deep/ .fa-deviantart:before {
+.fa-deviantart:before {
   content: "\f1bd";
 }
-html /deep/ .fa-soundcloud:before {
+.fa-soundcloud:before {
   content: "\f1be";
 }
-html /deep/ .fa-database:before {
+.fa-database:before {
   content: "\f1c0";
 }
-html /deep/ .fa-file-pdf-o:before {
+.fa-file-pdf-o:before {
   content: "\f1c1";
 }
-html /deep/ .fa-file-word-o:before {
+.fa-file-word-o:before {
   content: "\f1c2";
 }
-html /deep/ .fa-file-excel-o:before {
+.fa-file-excel-o:before {
   content: "\f1c3";
 }
-html /deep/ .fa-file-powerpoint-o:before {
+.fa-file-powerpoint-o:before {
   content: "\f1c4";
 }
-html /deep/ .fa-file-photo-o:before,
-html /deep/ .fa-file-picture-o:before,
-html /deep/ .fa-file-image-o:before {
+.fa-file-photo-o:before,
+.fa-file-picture-o:before,
+.fa-file-image-o:before {
   content: "\f1c5";
 }
-html /deep/ .fa-file-zip-o:before,
-html /deep/ .fa-file-archive-o:before {
+.fa-file-zip-o:before,
+.fa-file-archive-o:before {
   content: "\f1c6";
 }
-html /deep/ .fa-file-sound-o:before,
-html /deep/ .fa-file-audio-o:before {
+.fa-file-sound-o:before,
+.fa-file-audio-o:before {
   content: "\f1c7";
 }
-html /deep/ .fa-file-movie-o:before,
-html /deep/ .fa-file-video-o:before {
+.fa-file-movie-o:before,
+.fa-file-video-o:before {
   content: "\f1c8";
 }
-html /deep/ .fa-file-code-o:before {
+.fa-file-code-o:before {
   content: "\f1c9";
 }
-html /deep/ .fa-vine:before {
+.fa-vine:before {
   content: "\f1ca";
 }
-html /deep/ .fa-codepen:before {
+.fa-codepen:before {
   content: "\f1cb";
 }
-html /deep/ .fa-jsfiddle:before {
+.fa-jsfiddle:before {
   content: "\f1cc";
 }
-html /deep/ .fa-life-bouy:before,
-html /deep/ .fa-life-buoy:before,
-html /deep/ .fa-life-saver:before,
-html /deep/ .fa-support:before,
-html /deep/ .fa-life-ring:before {
+.fa-life-bouy:before,
+.fa-life-saver:before,
+.fa-support:before,
+.fa-life-ring:before {
   content: "\f1cd";
 }
-html /deep/ .fa-circle-o-notch:before {
+.fa-circle-o-notch:before {
   content: "\f1ce";
 }
-html /deep/ .fa-ra:before,
-html /deep/ .fa-rebel:before {
+.fa-ra:before,
+.fa-rebel:before {
   content: "\f1d0";
 }
-html /deep/ .fa-ge:before,
-html /deep/ .fa-empire:before {
+.fa-ge:before,
+.fa-empire:before {
   content: "\f1d1";
 }
-html /deep/ .fa-git-square:before {
+.fa-git-square:before {
   content: "\f1d2";
 }
-html /deep/ .fa-git:before {
+.fa-git:before {
   content: "\f1d3";
 }
-html /deep/ .fa-hacker-news:before {
+.fa-hacker-news:before {
   content: "\f1d4";
 }
-html /deep/ .fa-tencent-weibo:before {
+.fa-tencent-weibo:before {
   content: "\f1d5";
 }
-html /deep/ .fa-qq:before {
+.fa-qq:before {
   content: "\f1d6";
 }
-html /deep/ .fa-wechat:before,
-html /deep/ .fa-weixin:before {
+.fa-wechat:before,
+.fa-weixin:before {
   content: "\f1d7";
 }
-html /deep/ .fa-send:before,
-html /deep/ .fa-paper-plane:before {
+.fa-send:before,
+.fa-paper-plane:before {
   content: "\f1d8";
 }
-html /deep/ .fa-send-o:before,
-html /deep/ .fa-paper-plane-o:before {
+.fa-send-o:before,
+.fa-paper-plane-o:before {
   content: "\f1d9";
 }
-html /deep/ .fa-history:before {
+.fa-history:before {
   content: "\f1da";
 }
-html /deep/ .fa-genderless:before,
-html /deep/ .fa-circle-thin:before {
+.fa-circle-thin:before {
   content: "\f1db";
 }
-html /deep/ .fa-header:before {
+.fa-header:before {
   content: "\f1dc";
 }
-html /deep/ .fa-paragraph:before {
+.fa-paragraph:before {
   content: "\f1dd";
 }
-html /deep/ .fa-sliders:before {
+.fa-sliders:before {
   content: "\f1de";
 }
-html /deep/ .fa-share-alt:before {
+.fa-share-alt:before {
   content: "\f1e0";
 }
-html /deep/ .fa-share-alt-square:before {
+.fa-share-alt-square:before {
   content: "\f1e1";
 }
-html /deep/ .fa-bomb:before {
+.fa-bomb:before {
   content: "\f1e2";
-}
-html /deep/ .fa-soccer-ball-o:before,
-html /deep/ .fa-futbol-o:before {
-  content: "\f1e3";
-}
-html /deep/ .fa-tty:before {
-  content: "\f1e4";
-}
-html /deep/ .fa-binoculars:before {
-  content: "\f1e5";
-}
-html /deep/ .fa-plug:before {
-  content: "\f1e6";
-}
-html /deep/ .fa-slideshare:before {
-  content: "\f1e7";
-}
-html /deep/ .fa-twitch:before {
-  content: "\f1e8";
-}
-html /deep/ .fa-yelp:before {
-  content: "\f1e9";
-}
-html /deep/ .fa-newspaper-o:before {
-  content: "\f1ea";
-}
-html /deep/ .fa-wifi:before {
-  content: "\f1eb";
-}
-html /deep/ .fa-calculator:before {
-  content: "\f1ec";
-}
-html /deep/ .fa-paypal:before {
-  content: "\f1ed";
-}
-html /deep/ .fa-google-wallet:before {
-  content: "\f1ee";
-}
-html /deep/ .fa-cc-visa:before {
-  content: "\f1f0";
-}
-html /deep/ .fa-cc-mastercard:before {
-  content: "\f1f1";
-}
-html /deep/ .fa-cc-discover:before {
-  content: "\f1f2";
-}
-html /deep/ .fa-cc-amex:before {
-  content: "\f1f3";
-}
-html /deep/ .fa-cc-paypal:before {
-  content: "\f1f4";
-}
-html /deep/ .fa-cc-stripe:before {
-  content: "\f1f5";
-}
-html /deep/ .fa-bell-slash:before {
-  content: "\f1f6";
-}
-html /deep/ .fa-bell-slash-o:before {
-  content: "\f1f7";
-}
-html /deep/ .fa-trash:before {
-  content: "\f1f8";
-}
-html /deep/ .fa-copyright:before {
-  content: "\f1f9";
-}
-html /deep/ .fa-at:before {
-  content: "\f1fa";
-}
-html /deep/ .fa-eyedropper:before {
-  content: "\f1fb";
-}
-html /deep/ .fa-paint-brush:before {
-  content: "\f1fc";
-}
-html /deep/ .fa-birthday-cake:before {
-  content: "\f1fd";
-}
-html /deep/ .fa-area-chart:before {
-  content: "\f1fe";
-}
-html /deep/ .fa-pie-chart:before {
-  content: "\f200";
-}
-html /deep/ .fa-line-chart:before {
-  content: "\f201";
-}
-html /deep/ .fa-lastfm:before {
-  content: "\f202";
-}
-html /deep/ .fa-lastfm-square:before {
-  content: "\f203";
-}
-html /deep/ .fa-toggle-off:before {
-  content: "\f204";
-}
-html /deep/ .fa-toggle-on:before {
-  content: "\f205";
-}
-html /deep/ .fa-bicycle:before {
-  content: "\f206";
-}
-html /deep/ .fa-bus:before {
-  content: "\f207";
-}
-html /deep/ .fa-ioxhost:before {
-  content: "\f208";
-}
-html /deep/ .fa-angellist:before {
-  content: "\f209";
-}
-html /deep/ .fa-cc:before {
-  content: "\f20a";
-}
-html /deep/ .fa-shekel:before,
-html /deep/ .fa-sheqel:before,
-html /deep/ .fa-ils:before {
-  content: "\f20b";
-}
-html /deep/ .fa-meanpath:before {
-  content: "\f20c";
-}
-html /deep/ .fa-buysellads:before {
-  content: "\f20d";
-}
-html /deep/ .fa-connectdevelop:before {
-  content: "\f20e";
-}
-html /deep/ .fa-dashcube:before {
-  content: "\f210";
-}
-html /deep/ .fa-forumbee:before {
-  content: "\f211";
-}
-html /deep/ .fa-leanpub:before {
-  content: "\f212";
-}
-html /deep/ .fa-sellsy:before {
-  content: "\f213";
-}
-html /deep/ .fa-shirtsinbulk:before {
-  content: "\f214";
-}
-html /deep/ .fa-simplybuilt:before {
-  content: "\f215";
-}
-html /deep/ .fa-skyatlas:before {
-  content: "\f216";
-}
-html /deep/ .fa-cart-plus:before {
-  content: "\f217";
-}
-html /deep/ .fa-cart-arrow-down:before {
-  content: "\f218";
-}
-html /deep/ .fa-diamond:before {
-  content: "\f219";
-}
-html /deep/ .fa-ship:before {
-  content: "\f21a";
-}
-html /deep/ .fa-user-secret:before {
-  content: "\f21b";
-}
-html /deep/ .fa-motorcycle:before {
-  content: "\f21c";
-}
-html /deep/ .fa-street-view:before {
-  content: "\f21d";
-}
-html /deep/ .fa-heartbeat:before {
-  content: "\f21e";
-}
-html /deep/ .fa-venus:before {
-  content: "\f221";
-}
-html /deep/ .fa-mars:before {
-  content: "\f222";
-}
-html /deep/ .fa-mercury:before {
-  content: "\f223";
-}
-html /deep/ .fa-transgender:before {
-  content: "\f224";
-}
-html /deep/ .fa-transgender-alt:before {
-  content: "\f225";
-}
-html /deep/ .fa-venus-double:before {
-  content: "\f226";
-}
-html /deep/ .fa-mars-double:before {
-  content: "\f227";
-}
-html /deep/ .fa-venus-mars:before {
-  content: "\f228";
-}
-html /deep/ .fa-mars-stroke:before {
-  content: "\f229";
-}
-html /deep/ .fa-mars-stroke-v:before {
-  content: "\f22a";
-}
-html /deep/ .fa-mars-stroke-h:before {
-  content: "\f22b";
-}
-html /deep/ .fa-neuter:before {
-  content: "\f22c";
-}
-html /deep/ .fa-facebook-official:before {
-  content: "\f230";
-}
-html /deep/ .fa-pinterest-p:before {
-  content: "\f231";
-}
-html /deep/ .fa-whatsapp:before {
-  content: "\f232";
-}
-html /deep/ .fa-server:before {
-  content: "\f233";
-}
-html /deep/ .fa-user-plus:before {
-  content: "\f234";
-}
-html /deep/ .fa-user-times:before {
-  content: "\f235";
-}
-html /deep/ .fa-hotel:before,
-html /deep/ .fa-bed:before {
-  content: "\f236";
-}
-html /deep/ .fa-viacoin:before {
-  content: "\f237";
-}
-html /deep/ .fa-train:before {
-  content: "\f238";
-}
-html /deep/ .fa-subway:before {
-  content: "\f239";
-}
-html /deep/ .fa-medium:before {
-  content: "\f23a";
 }

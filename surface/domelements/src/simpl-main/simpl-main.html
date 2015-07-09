@@ -412,7 +412,7 @@
 			},
 			_onCssResponse: function( e ) {
 				var _import = e.target.import;
-				var css =  _import.body.innerText;
+				var css =  _import.body.textContent;
 				var scope = this.selectedModel.node.scope;
 				if( scope ){
 					//console.log( "css:", css );
