@@ -45,47 +45,7 @@
 	</script>
 </dom-module>
 
-<dom-module id="simpl-header" noscript>
-	<style>
-		:host {
-			font-size: 1.3em;
-			padding: 16px 24px;
-		}
-
-	</style>
-	<template>
-		<content></content>
-	</template>
-	<script>
-		Polymer( {
-			is: 'simpl-header'
-		} );
-
-	</script>
-</dom-module>
-
-<dom-module id="simpl-header2" noscript>
-	<style>
-		:host {
-			font-size: 0.75em;
-			padding: 1.1em 24px;
-		}
-
-	</style>
-	<template>
-		<content></content>
-	</template>
-	<script>
-		Polymer( {
-			is: 'simpl-header2'
-		} );
-
-	</script>
-</dom-module>
-
-
-
-<dom-module id="simpl-group" vertical flex layout noscript>
+<dom-module id="simpl-group">
 	<style>
 		:host {
 			margin-bottom: 20px;
@@ -108,11 +68,8 @@
 	</script>
 </dom-module>
 
-<dom-module id="simpl-row" horizontal layout center wrap novanish noscript>
+<dom-module id="simpl-row">
 	<style>
-		html /deep/ [novanish] {
-			min-height: 8px;
-		}
 		html /deep/ simpl-row {
 			padding: 0 0px;
 		}
@@ -163,7 +120,7 @@
 		},
 		isRow: function( id ) {
 			var r = id == 'Row';
-			console.log( "isRow(" + id + ":", r );
+			if ( r ) console.log( "isRow(" + id + ":", r );
 			return r;
 		},
 		isPage: function( id ) {
@@ -171,35 +128,41 @@
 		},
 		isForm: function( id ) {
 			var r = id == 'Form';
-			console.log( "isForm(" + id + ":", r );
+			if ( r ) console.log( "isForm(" + id + ":", r );
 			return r;
 		},
 		isField: function( id ) {
 			var r = id == 'Input' || id == 'ActionButton' || id == 'Tableselect' || id == 'Enumselect' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
-			console.log( "isField(" + id + "):" + r );
+			if ( r ) console.log( "isField(" + id + "):" + r );
 			return r;
 		},
 		isInputAndBoolean: function( id, xf_type ) {
 			var r = id == 'Input' && xf_type == 'boolean';
-			console.log( "isInputAndBoolean(" + id + ":", r );
+			if ( r ) console.log( "isInputAndBoolean(" + id + ":", r );
 			return r;
 		},
 		isInputAndNotBoolean: function( id, xf_type ) {
 			var r = id == 'Input' && xf_type != 'boolean';
-			console.log( "isInputAndNotBoolean(" + id + ":", r );
+			if ( r ) console.log( "isInputAndNotBoolean(" + id + ":", r );
 			return r;
 		}
 	};
 
 </script>
 
-<dom-module id="render-form-element" horizontal layout center wrap novanish noscript>
+<dom-module id="render-form-element">
+	<style>
+		:host {
+			min-width: 200px;
+		}
+
+	</style>
 	<template>
 		<template is="dom-if" if="{{isInputAndBoolean(item.id,item.xf_type)}}">
-			<checkbox-field flex type={{item.xf_type}} enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></checkbox-field>
+			<checkbox-field class="flex" type={{item.xf_type}} enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></checkbox-field>
 		</template>
-		<template is="dom-if" if="{{isInputAndNotBoolean(id,xf_type)}}">
-			<input-field flex type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
+		<template is="dom-if" if="{{isInputAndNotBoolean(item.id,item.xf_type)}}">
+			<input-field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
 		</template>
 		<template is="dom-if" if="{{isActionButton(item.id)}}">
 			<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" style="color:{{item.xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{item.xf_action}}" raised>
@@ -207,33 +170,38 @@
 			</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}">
-			<dropdown-field flex name="{{item.xf_id}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			<dropdown-field class="flex" name="{{item.xf_id}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 				<template is="dom-repeat" items="{{items}}">
 					<paper-item name="{{item.value}}">{{item.label}}</paper-item>
 				</template>
 			</dropdown-field>
 		</template>
 		<template is="dom-if" if="{{isTableSelect(item.id)}}">
-			<tableselect-field flex name="{{item.xf_id}}" multiSelect?="{{item.xf_multiselection}}" required="{{item.xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			<tableselect-field class="flex" name="{{item.xf_id}}" multiSelect?="{{item.xf_multiselection}}" required="{{item.xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</tableselect-field>
 		</template>
 		<template is="dom-if" if="{{isTextArea(item.id)}}">
-			<multiline-field flex name="{{item.xf_id}}" rows="{{item.xf_rows}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></multiline-field>
+			<multiline-field class="flex" name="{{item.xf_id}}" rows="{{item.xf_rows}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></multiline-field>
 		</template>
 		<template is="dom-if" if="{{isRelatedTo(item.id)}}">
-			<related-field flex name="{{item.xf_id}}" namespace="{{item.xf_namespace}}" entity="{{item.xf_type}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}"></related-field>
+			<related-field class="flex" name="{{item.xf_id}}" namespace="{{item.xf_namespace}}" entity="{{item.xf_type}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}"></related-field>
 		</template>
 		<template is="dom-if" if="{{isModuleSelector(item.id)}}">
-			<db-selector-field flex name="{{item.xf_id}}" namespace="{{item.xf_namespace}}" fieldlist="{{item.xf_fieldlist}}" entity="{{item.xf_module}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}"></db-selector-field>
+			<db-selector-field class="flex" name="{{item.xf_id}}" namespace="{{item.xf_namespace}}" fieldlist="{{item.xf_fieldlist}}" entity="{{item.xf_module}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}" label="{{item.label}}"></db-selector-field>
 		</template>
 		<template is="dom-if" if="{{isAlert(item.id)}}">
 			<html-echo name="{{item.xf_id}}" html="{{item.xf_message}}" invisible-expr="{{item.xf_invisible}}" exclude-expr="{{item.xf_exclude}}"></html-echo>
 		</template>
 		<template is="dom-if" if="{{isGroup(item.id)}}">
-			<grapp-template-ref ref="group" bind="[[item]]"></grapp-template-ref>
+			<simpl-group class="group">
+				<core-label for=".group">{{item.label}}</core-label>
+				<render-form-root class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
+			</simpl-group>
 		</template>
 		<template is="dom-if" if="{{isRow(item.id)}}">
-			<grapp-template-ref ref="row" bind="[[item]]"></grapp-template-ref>
+			<simpl-row class="horizontal layout center wrap">
+				<render-form-root class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
+			</simpl-row>
 		</template>
 	</template>
 	<script>
@@ -255,24 +223,49 @@
 	</script>
 </dom-module>
 
-<dom-module id="render-form-root" horizontal layout center wrap novanish noscript>
+<dom-module id="render-form-root">
 	<template>
 		<template is="dom-repeat" items="{{items}}">
 
 			<template is="dom-if" if="{{isField(item.id)}}">
-				<render-form-element item="[[item]]" />
+				<render-form-element class="flex" item="[[item]]" />
 			</template>
 
 			<template is="dom-if" if="{{isTabView(item.id)}}">
-				<render-form-tabs shape="[[item]]" />
+				<div class="tabcontainer" class="layout vertical">
+					<paper-tabs class="transparent-teal" selected="{{item.selected}}">
+						<template is="dom-repeat" items="{{item.childShapes}}">
+							<template is="dom-if" if="{{isPage(item.id)}}">
+								<paper-tab id="{{item.xf_id}}">{{title||xf_id}}</paper-tab>
+							</template>
+						</template>
+					</paper-tabs>
+
+					<core-animated-pages selected="{{item.selected}}" vertical layout>
+						<template is="dom-repeat" items="{{item.childShapes}}">
+							<template is="dom-if" if="{{isPage(item.id)}}">
+								<section style="margin-top:20px;position:relative;padding:0px;">
+									<template is="dom-repeat" items="{{childShapes}}">
+										<render-form-element class="flex" item="[[item]]" />
+									</template>
+								</section>
+							</template>
+						</template>
+					</core-animated-pages>
+				</div>
 			</template>
 
 			<template is="dom-if" if="{{isGroup(item.id)}}">
-				<render-form-group shape="[[item]]" />
+				<simpl-group class="group">
+					<core-label for=".group">{{item.label}}</core-label>
+					<render-form-root class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
+				</simpl-group>
 			</template>
 
 			<template is="dom-if" if="{{isRow(item.id)}}">
-				<render-form-row items="[[item.childShapes]]" />
+				<simpl-row class="horizontal layout center wrap">
+					<render-form-root class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
+				</simpl-row>
 			</template>
 
 			<template is="dom-if" if="{{isForm(item.id)}}">
@@ -294,31 +287,6 @@
 			],
 			attached: function() {
 				console.log( "render-form-root:", this.items );
-			}
-		} );
-
-	</script>
-</dom-module>
-
-<dom-module id="render-form-row" horizontal layout center wrap novanish noscript>
-	<template>
-		<simpl-row>
-			<render-form-root items="{{items}}" />
-		</simpl-row>
-	</template>
-	<script>
-		Polymer( {
-			is: 'render-form-row',
-			properties: {
-				items: {
-					type: Object
-				}
-			},
-			behaviors: [
-				FormElementExprBehavior
-			],
-			attached: function() {
-				console.log( "render-form-row:", this.items );
 			}
 		} );
 
@@ -404,54 +372,6 @@
 			<render-form-root items="{{shapes}}" />
 		</fieldset>
 
-		<template is="dom-template" id="form">
-			<template is="dom-repeat" items="{{item.childShapes}}">
-				<grapp-template-ref ref="root" bind="[[item]]"></grapp-template-ref>
-			</template>
-		</template>
-
-		<template is="dom-template" id="group">
-			<simpl-group class="group">
-				<core-label for=".group">{{item.label}}</core-label>
-				<template is="dom-repeat" items="{{item.childShapes}}">
-					<grapp-template-ref ref="root" bind="[[item]]"></grapp-template-ref>
-				</template>
-			</simpl-group>
-		</template>
-
-		<template is="dom-template" id="row">
-			<simpl-row>
-				<template is="dom-repeat" items="{{item.childShapes}}">
-					<grapp-template-ref ref="root" bind="[[item]]"></grapp-template-ref>
-				</template>
-			</simpl-row>
-		</template>
-
-		<template is="dom-template" id="tabs">
-			<div class="tabcontainer" layout vertical felx>
-				<paper-tabs class="transparent-teal" selected="{{item.selected}}">
-					<template is="dom-repeat" items="{{item.childShapes}}">
-						<template is="dom-if" if="{{isPage(item.id)}}">
-							<paper-tab id="{{item.xf_id}}">{{|xf_id}}</paper-tab>
-						</template>
-					</template>
-				</paper-tabs>
-
-				<iron-pages selected="{{item.selected}}" vertical layout>
-					<template is="dom-repeat" items="{{item.childShapes}}">
-						<template if="{{isPage(item.id)}}">
-							<section style="margin-top:20px;position:relative;padding:0px;">
-								<template is="dom-repeat" items="{{item.childShapes}}"></template>
-								<render-form-element shape="[[item]]" />
-							</section>
-						</template>
-					</template>
-				</iron-pages>
-			</div>
-		</template>
-
-		<template is="dom-template" id="element">
-		</template>
 		<template is="dom-if" if="{{item.defaultButtons}}">
 			<simpl-row>
 				<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" xaction="execute" raised>
