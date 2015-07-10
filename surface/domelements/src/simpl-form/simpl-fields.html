@@ -58,14 +58,9 @@
 		},
 
 		attached: function() {
-			if ( this.getAttribute( "name" ) ) { //Fire only if from form , not from dialog
-				console.log( "Field.Fire", this );
-				this.fire( 'add-form-field', this );
-			}
 			this.isDomReady = true;
 		},
 		detached: function() {
-			this.fire( 'remove-form-field', this );
 		},
 		setForm: function( form ) {
 			this.form = form;

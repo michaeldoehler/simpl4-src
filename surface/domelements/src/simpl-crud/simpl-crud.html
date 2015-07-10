@@ -42,7 +42,7 @@
 
 	</style>
 	<template>
-		<iron-pages selected="{{pageSelected}}" attr-for-selected="num">
+		<iron-pages id="ironPages" selected="{{pageSelected}}" attr-for-selected="num">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
 				<template is="dom-if" if="{{filter}}">
@@ -69,7 +69,8 @@
 					</div>
 				</simpl-panel>
 				<paper-toast id="toast" duration=3000 class="capsule" text="{{toast_message}}" style="padding-right: 60px;"></paper-toast>
-				<paper-dialog id="error" class="scrolling"> <!--action-dialog-->
+				<paper-dialog id="error" class="scrolling">
+					<!--action-dialog-->
 					<iron-icon class="error-big" icon="error"></iron-icon>
 					<p></p>
 					<paper-button raised affirmative autofocus>
@@ -78,7 +79,7 @@
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
 				<div class="layout horizontal" style="margin-top:5px;margin-bottom:10px;text-align:left;">
-					<paper-button class="flex" raised on-tap="{{cancelAction}}">
+					<paper-button class="flex" raised on-tap="cancelAction">
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable>
@@ -86,13 +87,13 @@
 				</simpl-panel>
 				<template is="dom-if" if="{{entityChildList}}">
 					<template is="dom-repeat" items="{{entityChildList}}">
-						<simpl-panel bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="openAction" collapsable="true" collapsed="true">
-							<simpl-crudtable id="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
+						<simpl-panel class="flex" bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="openAction" collapsable collapsed>
+							<simpl-crudtable id$="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
 						</simpl-panel>
 					</template>
 				</template>
 				<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-					<paper-button class="flex" raised on-tap="{{cancelAction}}" x>
+					<paper-button class="flex" raised on-tap="cancelAction" x>
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 			</section>
@@ -109,28 +110,25 @@
 				entity: {
 					type: String
 				},
-				buttonList:{
-					type:String,
-					value:'add,edit,copy,detail'
+				buttonList: {
+					type: String,
+					value: 'add,edit,copy,detail'
 				},
-				buttonListDetail:{
-					type:String,
-					value:'add,edit,copy'
+				buttonListDetail: {
+					type: String,
+					value: 'add,edit,copy'
 				},
-				panelBackgroundColor:{
-					type:String,
-					value:'#000'
+				panelBackgroundColor: {
+					type: String,
+					value: '#000'
 				},
-				pageSelected:{
-					type:Number,
-					value:0
+				pageSelected: {
+					type: Number,
+					value: 0
 				}
 			},
 			attached: function() {
-				console.log( "Crud.Entity:", this.entity );
-				console.log( "Crud.namespace:", this.namespace );
-				//var ea = simpl4.util.EntityManager.getEntityAccess( this.namespace ||  simpl4.util.BaseManager.getNamespace());
-				//console.log("loggin-ok:"+JSON.stringify(ea,null,2));
+				console.log( "Crud.attached.Entity:", this.entity+"/namespace:"+this.namespace );
 				if ( this.namespace && this.namespace != simpl4.util.BaseManager.getNamespace() ) {
 					simpl4MessageManager.installMessages( this.namespace );
 				}
@@ -150,7 +148,8 @@
 			},
 			openAction: function( e ) {
 				var detail = e.detail;
-				var ct = this.shadowRoot.querySelector( "#" + detail.data.id );
+				console.log( "detail:", this );
+				var ct = this.$.ironPages.querySelector( "#" + detail.data.id );
 				var data = detail.data;
 				data.namespace = this.namespace;
 				ct.filter = data;
@@ -219,7 +218,7 @@
 				this.handlePrevNextButtons();
 				this.panelHeaderCrudForm = tr( "data." + detail.entity );
 				this.whenElementsReady( ( function() {
-					console.debug( "Ready:" + JSON.stringify( this.currentRowData, null, 2 ) );
+					console.debug( "Form.Ready:" + JSON.stringify( this.currentRowData, null, 2 ) );
 					this.$.formid.setData( this.currentRowData );
 					this.pageSelected = 1;
 				} ).bind( this ) );
@@ -242,7 +241,8 @@
 				} ).bind( this ) );
 			},
 			detailAction: function( e ) {
-				console.log( "detailAction:", e );
+				console.log( "detailAction:", e.detail );
+				console.log( "detailAction:", this.$.detailid );
 				var currentRowData = e.detail.data;
 				this.$.detailid.setData( e.detail.data );
 				var props = simpl4EntityManager.getPropertiesForEntity( this.mainEntityName, {
@@ -375,7 +375,9 @@
 				return def;
 			},
 			whenElementsReady: function( done ) {
-			 done();
+				this.async( function() {
+				done();
+				},1 );
 			},
 			alert: function( message ) {
 				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;

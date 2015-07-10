@@ -137,7 +137,7 @@
 				</div>
 
 				<paper-scroll-header-panel main xondenses class="flex">
-					<paper-toolbar style="background:{{toolbarBackground}};" class="{{toolboxClass}}">
+					<paper-toolbar id="mainToolbar" class="{{toolboxClass}}">
 						<paper-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></paper-icon-button>
 						<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
 						<template if="{{selectedModel.node.help!=null}}">
@@ -190,7 +190,7 @@
 					type: String
 				},
 				toolbarBackground: {
-					value: null,
+					observer:"toolbarBackgroundChanged",
 					type: String
 				},
 				loginMessage: {
@@ -246,6 +246,9 @@
 				console.log( "location:" + window.location );
 				console.log( "init.route:" + this.route );
 				this.toolboxClass = "";
+			},
+			toolbarBackgroundChanged: function() {
+				$( this.$.mainToolbar ).css( "background", this.toolbarBackground );
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );

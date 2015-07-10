@@ -1,55 +1,78 @@
 <dom-module id="simpl-details" attributes="namespace entity">
+	<style>
+		.col0 {
+			width: 30%;
+		}
+		.col1 {
+			width: 70%;
+		}
+		.details-table th {
+			vertical-align: top;
+			color: #999;
+			padding-left: 15px;
+			text-align: right;
+			font-size: 12px;
+			padding-top: 4px;
+			line-height: inherit;
+			background: #f8f8f8;
+			padding-bottom: 4px;
+		}
+		.details-table table {
+			background: white;
+		}
+		.details-table td {
+			vertical-align: top;
+			color: #545454;
+			padding-top: 4px;
+			padding-bottom: 4px;
+			font-size: 12px;
+			word-wrap: break-word;
+			word-break: break-all;
+			line-height: inherit;
+			background: white;
+		}
+
+	</style>
 	<template>
-		<style>
-			.col0 {
-				width: 30%;
-			}
-			.col1 {
-				width: 70%;
-			}
-			.details-table th {
-				vertical-align: top;
-				color: #999;
-				padding-left: 15px;
-				text-align: right;
-				font-size:12px;
-				padding-top:4px;
-				line-height:inherit;
-				background:#f8f8f8;
-				padding-bottom:4px;
-			}
-			.details-table table {
-				background:white;
-			}
-			.details-table td {
-				vertical-align: top;
-				color: #545454;
-				padding-top:4px;
-				padding-bottom:4px;
-				font-size:12px;
-				word-wrap: break-word;
-				word-break: break-all;
-				line-height:inherit;
-				background:white;
-			}
-		</style>
 		<table class="details-table" style="width:100%;" cellspacing="0" cellpadding="5">
 			<colgroup>
 				<col class="col0">
 					<col class="col1">
 			</colgroup>
-				<tr  template if="{{data}}" repeat="{{f in meta}}">
-					<th>{{f.title}}</th>
-					<td>{{data[f.data]}}</td>
-				</tr>
+			<template is="dom-repeat" items="{{meta}}">
+				<template is="dom-if" if="{{data}}">
+					<tr>
+						<th>{{item.title}}</th>
+						<td>{{getCellData(item)}}</td>
+					</tr>
+				</template>
+			</template>
 		</table>
 		<content></content>
 	</template>
 	<script>
-		Polymer({ is:'simpl-details',
+		Polymer( {
+			is: 'simpl-details',
+			properties: {
+				namespace: {
+					type: String
+				},
+				entity: {
+					observer:"entityChanged",
+					type: String
+				}
+			},
+			attached: function( item ) {
+				console.debug( "simpl-details.attached" );
+			},
+			getCellData: function( item ) {
+				return this.data[ item.data ];
+			},
 			entityChanged: function( e ) {
 				this.namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
-				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.entity, "main-form", true, {namespace:this.namespace} ) );
+				this.meta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.entity, "main-form", true, {
+					namespace: this.namespace
+				} ) );
 			},
 			preProcessData: function( rows ) {
 				var selKeys = Object.keys( this.selectableList );

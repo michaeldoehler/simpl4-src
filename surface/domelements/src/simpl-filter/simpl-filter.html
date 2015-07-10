@@ -161,8 +161,7 @@
 				return this.searchModeIcon;
 			},
 			attached: function() {
-				console.debug( "Filter.Entity:", this.entity );
-				console.debug( "Filter.namespace:", this.namespace );
+				console.debug( "Filter.attached.Entity:", this.entity+"/namespace:"+this.namespace );
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
 				} );

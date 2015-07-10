@@ -211,7 +211,7 @@
 						this.$.panelContent.style.display = "none";
 						this.style.height = "30px";
 					} else {
-						if ( this.height ) {
+						if ( this.height && this.height != 30) {
 							this.style.height = parseInt( this.height, 10 ) + "px";
 							this.$.panelContent.style.height = ( parseInt( this.height, 10 ) - 40 ) + "px";
 							this.$.panelContent.style[ "-ms-flex" ] = "none";

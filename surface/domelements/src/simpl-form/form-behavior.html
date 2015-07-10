@@ -21,12 +21,10 @@
 <script>
 	FormBehavior = {
 		eventDelegates: {
-			'value-changed': 'valueChanged',
-			'add-form-field': 'addField',
-			'remove-form-field': 'removeField'
+			'value-changed': 'valueChanged'
 		},
 		valueChanged: function( e ) {
-			//console.debug( "valueChanged:", e );
+			//console.debug( "Form.valueChanged:", e );
 			var map = {};
 			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 				var f = this.fields[ i ];
@@ -150,18 +148,6 @@
 			}
 			return def;
 		},
-		addField: function( e ) {
-console.debug("Fire.addField");
-			this.fields.push( e.detail );
-			this.fieldsMap[ e.detail.name ] = e.detail;
-			e.detail.setForm( this );
-		},
-		removeField: function( e ) {
-			var i = this.fields.indexOf( e.detail );
-			if ( i >= 0 ) {
-				this.fields.splice( i, 1 );
-			}
-		},
 		getField: function( path ) {
 			var f = this.fieldsMap[ path ];
 			return f;
@@ -204,17 +190,33 @@ console.debug("Fire.addField");
 		formNameChanged: function() {
 			this.fields = [];
 			this.fieldsMap = {};
-			console.log( "formNameChanged:", this.formName + "/" + this.namespace );
 			var form = simpl4FormManager.getForm( this.formName, this.namespace );
 			this.defaultButtons = form.properties.xf_default_buttons;
 			this.shapes = this.prepareShape( form ).childShapes;
+			this.async( function() {
+				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+				this.fieldsMap = this.toMap( this.fields );
+				console.log( "Fields:", this.fields.length );
+			} );
 		},
 		/*----------------------------------*/
-		specChanged: function(e) {
+		specChanged: function( e ) {
 			this.fields = [];
 			this.fieldsMap = {};
 			console.log( "crudform.specChanged" );
-			this.shapes =  this.spec;
+			this.shapes = this.spec;
+			this.async( function() {
+				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+				this.fieldsMap = this.toMap( this.fields );
+				console.log( "Fields:", this.fields.length );
+			} );
+		},
+		toMap: function( arr ) {
+			var map = {};
+			arr.forEach( function( elem ) {
+				map[ elem.name ] = elem;
+			}, this );
+			return map;
 		},
 		prepareShape: function( shape ) {
 			shape = this.cleanShape( shape );
