@@ -30,6 +30,9 @@
 		paper-button {
 			font-size: 10px;
 		}
+		paper-button /deep/ paper-material.content {
+			padding: 0.5em 0 !important;
+		}
 		:host /deep/ td.phone {
 			padding: 0px !important;
 		}
@@ -163,7 +166,9 @@
 					this.buttonDef[ "select" ].disabled =
 					this.buttonDef[ "detail" ].disabled = this.selection == null;
 					for( var i=0; i< this.buttonList.length; i++){
-						this.set("buttonList."+i+".disabled",  this.selection==null);
+						if( this.buttonList[i].name != 'add' && this.buttonList[i].name != 'cancel'){
+							this.set("buttonList."+i+".disabled",  this.selection==null);
+						}
 					}
 			},
 			buttonsChanged: function() {

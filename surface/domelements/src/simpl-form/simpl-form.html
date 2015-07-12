@@ -153,7 +153,7 @@
 <dom-module id="form-element-renderer">
 	<style>
 		:host {
-			min-width: 200px;
+			min-width: 250px;
 		}
 
 	</style>
@@ -170,10 +170,7 @@
 			</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}">
-			<dropdown-field field class="flex" name$="{{item.xf_id}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
-				<template is="dom-repeat" items="{{items}}">
-					<paper-item name="{{item.value}}">{{item.label}}</paper-item>
-				</template>
+			<dropdown-field field class="flex" name$="{{item.xf_id}}" items="{{item.items}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</dropdown-field>
 		</template>
 		<template is="dom-if" if="{{isTableSelect(item.id)}}">
@@ -421,8 +418,8 @@
 				'add-form-field': 'addField',
 				'remove-form-field': 'removeField'
 			},
-			attached:function(){
-				console.log("Form.attached");
+			attached: function() {
+				console.log( "Form.attached" );
 			}
 		} );
 

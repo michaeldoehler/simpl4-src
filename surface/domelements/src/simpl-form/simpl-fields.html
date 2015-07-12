@@ -60,8 +60,7 @@
 		attached: function() {
 			this.isDomReady = true;
 		},
-		detached: function() {
-		},
+		detached: function() {},
 		setForm: function( form ) {
 			this.form = form;
 		},
@@ -69,20 +68,21 @@
 			return this.value;
 		},
 		_focusBlurHandler: function( event ) {
-			console.log( "_focusBlurHandler4" );
 			var target = event.path ? event.path[ 0 ] : event.target;
 			if ( target === this ) {
 				var focused = event.type === 'focus';
 				this._setFocused( focused );
 			} else if ( !this.shadowRoot ) {
-				//@@@MS event.stopPropagation();
-				this.fire( event.type, {
-					sourceEvent: event
-				}, {
-					node: this,
-					bubbles: event.bubbles,
-					cancelable: event.cancelable
-				} );
+				if ( false /*this.hasDate*/ ) {
+					event.stopPropagation();
+					this.fire( event.type, {
+						sourceEvent: event
+					}, {
+						node: this,
+						bubbles: event.bubbles,
+						cancelable: event.cancelable
+					} );
+				}
 			}
 		},
 		checkConstraints: function() {
@@ -122,20 +122,15 @@
 <dom-module id="input-field" attributes="min max maxlength pattern step" layout horizontal center>
 	<style>
 		:host {
-			//				min-width: 166px;
-			//				margin: 3px 10px 2px 0;
-			//				padding: 0 !important;
-		}
-		:host {
-			//min-width:266px !important;
+			--paper-input-container: {
+					padding: 0px;
+			};
 		}
 		:host #input.compact {
-			padding: 0;
+			padding: 0px !important;
 			margin: 0px;
 		}
-		:host #decorator {
-			padding: 0 !important;
-		}
+
 		:host #label {
 			padding: 0 !important;
 			font-size: 14px;
@@ -152,33 +147,33 @@
 
 			<label id="label" hidden$="[[!label]]">[[label]]</label>
 
-      <input is="iron-input" id="input"
-        aria-labelledby$="[[_ariaLabelledBy]]"
-        aria-describedby$="[[_ariaDescribedBy]]"
-        disabled$="[[disabled]]"
-        bind-value="{{editValue}}"
-        invalid="{{invalid}}"
-        prevent-invalid-input="[[preventInvalidInput]]"
-        allowed-pattern="[[allowedPattern]]"
-        validator="[[validator]]"
-        type$="[[type]]"
-        pattern$="[[pattern]]"
-        maxlength$="[[maxlength]]"
-        required$="[[required]]"
-        autocomplete$="[[autocomplete]]"
-        autofocus$="[[autofocus]]"
-        inputmode$="[[inputmode]]"
-        minlength$="[[minlength]]"
-        min$="[[min]]"
-        max$="[[max]]"
-        step$="[[step]]"
-        name$="[[name]]"
-        placeholder$="[[placeholder]]"
-        readonly$="[[readonly]]"
-        list$="[[list]]"
-        size$="[[size]]"
-        autocapitalize$="[[autocapitalize]]"
-        autocorrect$="[[autocorrect]]">
+			<input is="iron-input" id="input"
+				aria-labelledby$="[[_ariaLabelledBy]]"
+				aria-describedby$="[[_ariaDescribedBy]]"
+				disabled$="[[disabled]]"
+				bind-value="{{editValue}}"
+				invalid="{{invalid}}"
+				prevent-invalid-input="[[preventInvalidInput]]"
+				allowed-pattern="[[allowedPattern]]"
+				validator="[[validator]]"
+				type$="[[type]]"
+				pattern$="[[pattern]]"
+				maxlength$="[[maxlength]]"
+				required$="[[required]]"
+				autocomplete$="[[autocomplete]]"
+				autofocus$="[[autofocus]]"
+				inputmode$="[[inputmode]]"
+				minlength$="[[minlength]]"
+				min$="[[min]]"
+				max$="[[max]]"
+				step$="[[step]]"
+				name$="[[name]]"
+				placeholder$="[[placeholder]]"
+				readonly$="[[readonly]]"
+				list$="[[list]]"
+				size$="[[size]]"
+				autocapitalize$="[[autocapitalize]]"
+				autocorrect$="[[autocorrect]]">
 
 			<template is="dom-if" if="[[errorMessage]]">
 				<paper-input-error>[[errorMessage]]</paper-input-error>
@@ -198,7 +193,6 @@
 				Polymer.IronControlState,
 				FieldBehavior
 			],
-
 			properties: {
 				compact: {
 					value: false,
@@ -212,7 +206,10 @@
 					value: "true",
 					type: String
 				},
-				text: {
+				name: {
+					type: String
+				},
+				type: {
 					value: "text",
 					type: String
 				},
@@ -510,34 +507,34 @@
 	</script>
 </dom-module>
 
-<dom-module id="checkbox-field" extends="form-field" kind="checkbox">
-	<template>
-		<style>
-			:host {
-				padding-left: 5px !important;
-			}
-			[invalid],
-			.error {
-				color: #d34336;
-			}
-			.error-text {
-				font-size: 0.75em;
-				padding: 0.5em 0;
-			}
-			.floated-label {
-				font-size: 0.75em;
-				padding: 1em 0;
-				white-space: nowrap;
-				color: #757575;
-			}
-			.label-text {
-				display: inline-block;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				overflow: hidden;
-			}
+<dom-module id="checkbox-field">
+	<style>
+		:host {
+			padding-left: 5px !important;
+		}
+		[invalid],
+		.error {
+			color: #d34336;
+		}
+		.error-text {
+			font-size: 0.75em;
+			padding: 0.5em 0;
+		}
+		.floated-label {
+			font-size: 0.75em;
+			padding: 1em 0;
+			white-space: nowrap;
+			color: #757575;
+		}
+		.label-text {
+			display: inline-block;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
 
-		</style>
+	</style>
+	<template>
 		<div class="floated-label" invalid?="{{isInvalid}}" invisible?="{{value === undefined}}">
 			<span invalid?="{{isInvalid}}" class="label-text">{{label}}</span>
 		</div>
@@ -674,122 +671,94 @@
 </dom-module>
 
 
-<dom-module id="dropdown-field" extends="form-field" kind="dropdown">
+<dom-module id="dropdown-field">
+ <link rel="import" type="css" href="jquery.dropdown.css" />
+	<style>
+		:host {
+			padding: 0.75em 0;
+			--paper-input-container: {
+				padding: 0px;
+			};
+		}
+		:host #decorator.compact {
+			padding: 0;
+			margin: 0px;
+		}
+
+	</style>
 	<template>
-		<style>
-			:host {
-				padding: 0.75em 0;
-			}
-			:host(.compact) {
-				position: relative;
-				top: -3px;
-				margin: 0;
-			}
-			.error {
-				color: #d34336;
-			}
-			.error-text {
-				font-size: 0.75em;
-				padding: 0.5em 0;
-			}
-			[invisible] {
-				visibility: hidden;
-			}
-			.floated-label {
-				font-size: 0.75em;
-				white-space: nowrap;
-				color: #757575;
-			}
-			#floatedLabel.compact {
-				display: none;
-			}
-			.label-text {
-				display: inline-block;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				overflow: hidden;
-			}
-			#paperDropdownMenu {
-				width: 100%;
-				background-color: transparent;
-				padding: 0;
-			}
-			#paperDropdownMenu[invalid] {
-				margin: 0;
-			}
-			#paperDropdownMenu.compact {
-				margin: 0;
-			}
-			paper-dropdown-menu::shadow #dropdown {
-				min-width: 100%;
-			}
-			paper-dropdown-menu {
-				margin: 0px;
-			}
-			:host /deep/ #scroller {
-				overflow: auto;
-				max-height: 300px;
-			}
-			::content paper-item /deep/ .button-content {
-				padding: 0.35em 1em;
-				font-size: 14px;
-			}
-
-		</style>
-
-		<div id="floatedLabel" class="floated-label" invisible?="{{value === undefined || value==''}}">
-			<span class="label-text">{{label}}</span>
-		</div>
-		<div vertical layout>
-			<paper-dropdown-menu id="paperDropdownMenu" label="{{label}}" invalid?="{{isInvalid}}" selected="{{value}}" valueattr="textContent">
-				<paper-dropdown flex class="dropdown">
-					<core-menu selected="{{value}}" icon="arrow-drop-down">
-						<content></content>
-					</core-menu>
-				</paper-dropdown>
-			</paper-dropdown-menu>
-
-			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
-				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
-				<core-icon class="error-icon" icon="warning"></core-icon>
-			</div>
-		</div>
+		<paper-input-container id="decorator" no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" readonly disabled$="[[disabled]]">
+			<label id="label" hidden$="[[!label]]">[[label]]</label>
+			<input hidden is="iron-input" id="input" bind-value="[[value]]" />
+			<select id="select" name="[[name]]">
+				<template is="dom-repeat" as="i" items="{{items}}">
+					<option value$="{{i.value}}">{{i.label}}</option>
+				</template>
+			</select>
+		</paper-input-container>
 	</template>
 	<script>
 		Polymer( {
 			is: "dropdown-field",
-			behaviors: [ FieldBehavior ],
+			behaviors: [
+				Polymer.IronFormElementBehavior,
+				Polymer.PaperInputBehavior,
+				Polymer.IronControlState,
+				StyleScopeBehavior,
+				FieldBehavior
+			],
 			properties: {
 				compact: {
-					value: false,
-					reflect: true
+					value: false
+				},
+				_dropdown: {
+					type: Object
+				},
+				items: {
+					type: Object
 				}
 			},
-			valueChanged: function( e ) {
-				if ( this.withoutCheck ) {
-					this.withoutCheck = false;
-					return;
-				}
-				if ( this.isDomReady != true ) return;
-				this.checkConstraints();
-				this.fire( 'value-changed', this );
+			observers: [
+				'valueChanged(value)'
+			],
+			valueChanged: function( v ) {
+				console.log( "drop-field(" + this.name + ").valueChanged;", this.value );
 			},
 			setValue: function( v ) {
+				this._dropdown.data( "options", this._options );
+				console.log( "drop-field(" + this.name + ").setValue;", this._dropdown.data( "options" ) );
 				this.value = v;
+
+				this.async( function() {
+					$( this._dropdown ).dropdown( "select", this.value );
+				} );
 			},
-			setErrorMessage: function( message ) {
-				this.error = message;
+			getValue: function() {
+				console.log( "drop-field(" + this.name + "),GetValue:", this.value );
+				return this.value;
 			},
-			setInvalid: function( b ) {
-				this.isInvalid = b;
+			onSelected: function( val ) {
+				this.value = val;
+				console.log( "drop-field(" + this.name + ").selectValue:", this.value );
+			},
+			onCallback: function( dropdown ) {
+				this._dropdown = dropdown;
+				this.setStyleScope( this._dropdown.get(0), "style-scope", this.tagName.toLowerCase() ); 
 			},
 			attached: function() {
 				this.isDomReady = true;
 				if ( this.compact ) {
-					jQuery( this.$.floatedLabel ).addClass( "compact" );
-					jQuery( this.$.paperDropdownMenu ).addClass( "compact" );
-					jQuery( this ).addClass( "compact" );
+					jQuery( this.decorator ).addClass( "compact" );
 				}
+				this._options = {
+					onSelected: this.onSelected.bind( this ),
+					callback: this.onCallback.bind( this ),
+					optionClass: this.name
+				}
+
+				this.async( function() {
+					$( this.$.select ).dropdown( this._options );
+				} );
 			}
 		} );
 
@@ -905,10 +874,12 @@
 <dom-module id="related-field">
 	<style>
 		:host /deep/ #relatedDialog {
+			position:fixed;
 			top: 5vh;
 			min-width: 70%;
 			max-width: 70%;
-			border-radius:4px;
+			max-height:90%;
+			border-radius: 4px;
 		}
 		@media screen and (max-width: 767px) {
 			:host /deep/ #relatedDialog {
@@ -916,6 +887,11 @@
 				min-width: 100%;
 				margin: 0px;
 			}
+		}
+		:host {
+			--paper-input-container: {
+				padding: 0px;
+			};
 		}
 		:host /deep/ paper-dialog > *:last-child {
 			margin-bottom: 4px;
@@ -934,7 +910,7 @@
 		}
 		:host /deep/ #scrollable {
 			max-height: inherit !important;
-  		padding: 0 10px;
+			padding: 0 10px;
 		}
 
 	</style>
@@ -954,22 +930,16 @@
 			</template>
 		</div>
 
-		<paper-dialog id="relatedDialog" with-backdrop="">
+		<paper-dialog id="relatedDialog" no-cancel-on-outside-click with-backdrop="">
 			<paper-dialog-scrollable>
 				<div class="lyaout vertical flex">
 					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
 					<div style="height:20px;"></div>
-					<template is="dom-if" if="{{isFilter(filter)}}">
-						<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="">
-							<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
-						</simpl-panel>
-					</template>
+					<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="">
+						<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
+					</simpl-panel>
 				</div>
 			</paper-dialog-scrollable>
-			<!--div class="buttons">
-				<paper-button dialog-dismiss="">Cancel</paper-button>
-				<paper-button dialog-confirm="">Accept</paper-button>
-			</div-->
 		</paper-dialog>
 
 	</template>
@@ -1005,7 +975,6 @@
 			actionCallback: function() {
 				console.log( "actionCallback" );
 				this.$.relatedDialog.open();
-				this.setDimensions();
 			},
 			clearCallback: function() {
 				this.editValue = null;
@@ -1020,17 +989,6 @@
 			},
 			cancelAction: function() {
 				this.$.relatedDialog.close();
-			},
-			setDimensions: function() {
-				$( this.$.relatedDialog ).css( "top", "0vw" );
-				$( this.$.relatedDialog ).css( "max-width", "70%" );
-				$( this.$.relatedDialog ).css( "min-width", "70%" );
-				if ( window.matchMedia( "(max-width:768px)" ).matches ) {
-					$( this.$.relatedDialog ).css( "min-width", "100%" );
-					$( this.$.relatedDialog ).css( "max-width", "100%" );
-					$( this.$.relatedDialog ).css( "left", "0vw" );
-					$( this.$.relatedDialog ).css( "margin", "0" );
-				}
 			},
 			editValueChanged: function() {
 				if ( this.editValue ) {

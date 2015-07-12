@@ -36,6 +36,12 @@
 			border-top-left-radius: 4px;
 			border-top-right-radius: 4px;
 		}
+		paper-button /deep/ paper-material.content {
+			padding: 0.5em 0 !important;
+		}
+		paper-button.h /deep/ iron-icon {
+		  vertical-align: bottom;
+		}
 		paper-button[invisible] {
 			display: none;
 		}
@@ -55,16 +61,16 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-						<paper-button class="flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
+						<paper-button class="h flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
 							<iron-icon icon="image:navigate-before"></iron-icon>
 						</paper-button>
-						<paper-button class="flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
+						<paper-button class="h flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
 							<iron-icon icon="image:navigate-next"></iron-icon>
 						</paper-button>
 
-						<paper-button class="flex" raised on-tap="saveAction">
+						<paper-button class="h flex" raised on-tap="saveAction">
 							<iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button class="flex" raised on-tap="cancelAction">
+						<paper-button class="h flex" raised on-tap="cancelAction">
 							<iron-icon icon="cancel"></iron-icon>{{tr('tasks.form.cancel')}}</paper-button>
 					</div>
 				</simpl-panel>
@@ -158,12 +164,16 @@
 				this.prevNextButtonsInvisible = true;
 				var prevPage = this.pageStack.pop();
 				console.log( "CancelAction:" + prevPage );
-				this.pageSelected = prevPage;
 				if ( this.needRefresh ) {
 					this.needRefresh = false;
 					setTimeout( ( function() {
+						this.pageSelected = prevPage;
 						this.currentTable.refresh();
 					} ).bind( this ), 100 );
+				}else{
+					this.async( function() {
+						this.pageSelected = prevPage;
+					},100 );
 				}
 			},
 			copyAction: function( e ) {
@@ -377,7 +387,7 @@
 			whenElementsReady: function( done ) {
 				this.async( function() {
 				done();
-				},1 );
+				},50 );
 			},
 			alert: function( message ) {
 				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;

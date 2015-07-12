@@ -103,9 +103,9 @@
 			content: '#shadowId';
 			margin: 3px;
 		}
-		#shadowId{
-  		padding: 2px;
-  		border-radius: 3px;
+		#shadowId {
+			padding: 2px;
+			border-radius: 3px;
 		}
 
 	</style>
@@ -140,7 +140,7 @@
 	<script>
 		Polymer( {
 			is: 'simpl-filter',
-			behaviors: [TranslationsBehavior],
+			behaviors: [ TranslationsBehavior ],
 			searchMode: "simple",
 			isBuilderInitialized: false,
 			searchModeIcon: "expand-more",
@@ -152,8 +152,8 @@
 					type: String
 				},
 				filter: {
-					value:null,
-					notify:true,
+					value: null,
+					notify: true,
 					type: String
 				}
 			},
@@ -161,7 +161,7 @@
 				return this.searchModeIcon;
 			},
 			attached: function() {
-				console.debug( "Filter.attached.Entity:", this.entity+"/namespace:"+this.namespace );
+				console.debug( "Filter.attached.Entity:", this.entity + "/namespace:" + this.namespace );
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
 				} );
@@ -297,7 +297,7 @@
 				rules.entity = this.entity;
 				console.log( "Filter.namespace:", this.namespace );
 				rules.namespace = this.namespace;
-				this.set('filter',  rules);
+				this.set( 'filter', rules );
 			},
 			_setStyleScope: function( main_el ) {
 				this._domVisitor( main_el, function( el ) {
