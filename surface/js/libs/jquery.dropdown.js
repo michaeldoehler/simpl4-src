@@ -48,6 +48,7 @@
         var $dropdown = $("<div></div>");
         $dropdown.addClass("dropdownjs").addClass(options.dropdownStyle);
         $dropdown.data("select", $select);
+        $dropdown.data("options", options); //@@@MS
 
         // Create the fake input used as "select" element and cache it as $input
         var $input = $("<input type=text readonly class=fakeinput>");
@@ -137,6 +138,7 @@
         });
 
         $ul.on("focus", "li:not(.dropdownjs-add)", function() {
+					return;//@@@MS
           if ($select.is(":disabled")) {
             return;
           }
@@ -160,6 +162,7 @@
 
         // Listen for new added options and update dropdown if needed
         $select.on("DOMNodeInserted", function(e) {
+					return;//@@@MS
           var $this = $(e.target);
           if (!$this.val().length) return;
 
@@ -238,6 +241,7 @@
 
       // Get dropdown's elements
       var $select = $dropdown.data("select"),
+       $options = $dropdown.data("options"),
           $input  = $dropdown.find("input.fakeinput");
 
       // Is it a multi select?
@@ -289,8 +293,8 @@
       }
       
        // Call the callback
-        if (this.options.onSelected) {
-            this.options.onSelected($target.attr("value"));
+        if ($options.onSelected) {
+            $options.onSelected($target.attr("value"));
         }
 
     },
