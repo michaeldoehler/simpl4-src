@@ -1088,7 +1088,7 @@
 				for (var elementId in groupElements)
 					if (groupElements.hasOwnProperty(elementId)) {
 
-						if (!document.querySelector("html /deep/ #" + elementId)) {
+						if (!document.querySelector("#" + elementId)) {
 							//if the element no longer exists, remove it from the bindings and continue
 							delete groupElements[elementId];
 						} else {
@@ -1468,7 +1468,7 @@
 
 		//We clone the element because input elements in a form can sometimes have the same name as a native
 		//form property, which overrides that property.
-		var element = document.querySelector("html /deep/ #" + context.elementId);
+		var element = document.querySelector("#" + context.elementId);
 		var name = "";
 		if( element.name){
 			name = element.name.replace(/\s/g, "");
@@ -1854,7 +1854,7 @@
 
 		//Element is cloned here because forms can have input elements that have the same name as a native
 		//form property, which overrides that property
-		var element = document.querySelector("html /deep/ #" + elementId);
+		var element = document.querySelector("#" + elementId);
 		var composingConstraintViolations = [];
 
 		if (constraintDefinitions[elementConstraint].formSpecific) {
@@ -1897,7 +1897,7 @@
 	function asynchronouslyRunValidatorFor(currentGroup, elementId, elementConstraint, params, callback) {
 		//Element is cloned here because forms can have input elements that have the same name as a native
 		//form property, which overrides that property
-		var element = document.querySelector("html /deep/ #" + elementId);
+		var element = document.querySelector("#" + elementId);
 
 		if (constraintDefinitions[elementConstraint].formSpecific) {
 			constraintDefinitions[elementConstraint].validator.call(element, params, publicValidator, function(failingElements) {
@@ -1948,7 +1948,7 @@
 	}
 
 	function interpolateConstraintDefaultMessage(elementId, elementConstraint, params) {
-		var element = document.querySelector("html /deep/ #" + elementId);
+		var element = document.querySelector("#" + elementId);
 		var errorMessage = "";
 
 		if (params["message"]) {
@@ -4269,7 +4269,7 @@
 
 		if (element === null) {
 			//			elementsWithRegulaValidation = DOMUtils.getElementsByAttribute(document.body, "*", "data-constraints");
-			elementsWithRegulaValidation = document.querySelectorAll("html /deep/ [data-constraints]");
+			elementsWithRegulaValidation = document.querySelectorAll("[data-constraints]");
 			console.log("elementsWithRegulaValidation:", elementsWithRegulaValidation);
 		} else {
 			elementsWithRegulaValidation = [element];
@@ -4507,10 +4507,10 @@
 				var elements = null;
 				if (html5Constraint.value == null) {
 					//					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute);
-					elements = document.querySelectorAll("html /deep/ [" + html5Constraint.attribute + "]");
+					elements = document.querySelectorAll("[" + html5Constraint.attribute + "]");
 				} else {
 					//					elements = DOMUtils.getElementsByAttribute(document.body, "*", html5Constraint.attribute, html5Constraint.value);
-					elements = document.querySelectorAll("html /deep/ [" + html5Constraint.attribute + "=\"" + html5Constraint.value + "\"]");
+					elements = document.querySelectorAll("[" + html5Constraint.attribute + "=\"" + html5Constraint.value + "\"]");
 				}
 
 				addConstraintToElementMap(elementsWithHTML5Validation, elements, html5Constraint);
@@ -4560,7 +4560,7 @@
 		}
 
 		MapUtils.iterateOverMap(elementsWithHTML5Validation, function(elementId, constraintDefinitions, index) {
-			var element = document.querySelector("html /deep/ #" + elementId);
+			var element = document.querySelector("#" + elementId);
 
 			for (var i = 0; i < constraintDefinitions.length; i++) {
 				var constraintDefinition = constraintDefinitions[i];
@@ -5351,7 +5351,7 @@
 			}
 
 			if (typeof options.elements === "undefined") {
-				options.elements = document.querySelector("html /deep/ #" + options.elementId);
+				options.elements = document.querySelector("#" + options.elementId);
 
 				//This can happen when they pass in an id that doesn't belong to any element
 				if (options.elements[0] === null) {
