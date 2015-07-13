@@ -92,7 +92,8 @@
 <script>
 	FormElementSelectorBehavior = {
 		isTabView: function( id ) {
-			return id == 'TabView';
+			console.log( "isTabView:", ( id == 'Tabview' ) );
+			return id == 'Tabview';
 		},
 		isEnumSelect: function( id ) {
 			return id == 'Enumselect';
@@ -116,6 +117,7 @@
 			return id == 'RelatedTo';
 		},
 		isGroup: function( id ) {
+			console.log( "isGroup:", ( id == 'Group' ) );
 			return id == 'Group';
 		},
 		isRow: function( id ) {
@@ -145,6 +147,10 @@
 			var r = id == 'Input' && xf_type != 'boolean';
 			if ( r ) console.log( "isInputAndNotBoolean(" + id + ":", r );
 			return r;
+		},
+		tabTitle: function( t ) {
+			console.log( "tabTitle:" + t );
+			return t;
 		}
 	};
 
@@ -153,8 +159,8 @@
 <dom-module id="form-element-renderer">
 	<style>
 		:host {
-			padding-left:3px;
-			padding-right:3px;
+			padding-left: 3px;
+			padding-right: 3px;
 			min-width: 250px;
 		}
 
@@ -222,6 +228,69 @@
 	</script>
 </dom-module>
 
+<dom-module id="form-tab-renderer">
+	<style>
+		:host {
+			padding-left: 3px;
+			padding-right: 3px;
+			min-width: 250px;
+		}
+
+	</style>
+	<template>
+		<div class="tabcontainer layout vertical">
+			<paper-tabs class="transparent-teal" selected="{{tabSelected}}" attr-for-selected="name">
+				<template is="dom-repeat" as="i" items="[[item.childShapes]]">
+					<template is="dom-if" if="[[i.title]]">
+						<paper-tab name$="[[i.xf_id]]">[[tabTitle(i.ititle)]]</paper-tab>
+					</template>
+					<template is="dom-if" if="[[!i.title]]">
+						<paper-tab name$="[[i.xf_id]]">[[tabTitle(i.xf_id)]]</paper-tab>
+					</template>
+				</template>
+			</paper-tabs>
+
+			<iron-pages selected="{{tabSelected}}" attr-for-selected="name" class="vertical layout">
+				<template is="dom-repeat" as="i" items="[[item.childShapes]]">
+					<section name$="[[i.xf_id]]" style="margin-top:20px;position:relative;padding:0px;">
+						<template is="dom-repeat" as="j" items="[[i.childShapes]]">
+							<form-element-renderer class="flex" item="[[j]]" />
+						</template>
+					</section>
+				</template>
+			</iron-pages>
+		</div>
+	</template>
+	<script>
+		Polymer( {
+			is: 'form-tab-renderer',
+			properties: {
+				item: {
+					type: Object
+				}
+			},
+			behaviors: [
+				FormElementSelectorBehavior
+			],
+			attached: function() {
+				console.log( "form-tab-renderer:", this.item );
+				this.async( function() {
+					var tab = this.item.selected;
+					if ( !tab && this.item.childShapes.length > 0 ) {
+						tab = this.item.childShapes[ 0 ].xf_id;
+					}
+					console.log( "SelectingiTab:", tab );
+					this.tabSelected = tab;
+				}, 1 );
+			}
+		} );
+
+	</script>
+</dom-module>
+
+
+
+
 <dom-module id="form-element-selector">
 	<template>
 		<template is="dom-repeat" items="{{items}}">
@@ -230,28 +299,8 @@
 				<form-element-renderer class="flex" item="[[item]]" />
 			</template>
 
-			<template is="dom-if" if="{{isTabView(item.id)}}">
-				<div class="tabcontainer" class="layout vertical">
-					<paper-tabs class="transparent-teal" selected="{{item.selected}}">
-						<template is="dom-repeat" items="{{item.childShapes}}">
-							<template is="dom-if" if="{{isPage(item.id)}}">
-								<paper-tab id="{{item.xf_id}}">{{title||xf_id}}</paper-tab>
-							</template>
-						</template>
-					</paper-tabs>
-
-					<core-animated-pages selected="{{item.selected}}" vertical layout>
-						<template is="dom-repeat" items="{{item.childShapes}}">
-							<template is="dom-if" if="{{isPage(item.id)}}">
-								<section style="margin-top:20px;position:relative;padding:0px;">
-									<template is="dom-repeat" items="{{childShapes}}">
-										<form-element-renderer class="flex" item="[[item]]" />
-									</template>
-								</section>
-							</template>
-						</template>
-					</core-animated-pages>
-				</div>
+			<template is="dom-if" if="[[isTabView(item.id)]]">
+				<form-tab-renderer class="flex" item="[[item]]" />
 			</template>
 
 			<template is="dom-if" if="{{isGroup(item.id)}}">

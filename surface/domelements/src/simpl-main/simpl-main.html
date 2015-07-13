@@ -138,7 +138,7 @@
 
 				<paper-scroll-header-panel main xondenses class="flex">
 					<paper-toolbar id="mainToolbar" class="{{toolboxClass}}">
-						<paper-icon-button id="menuButton" icon="menu" on-tap="{{togglePanel}}"></paper-icon-button>
+						<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
 						<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
 						<template if="{{selectedModel.node.help!=null}}">
 							<core-tooltip label="{{helpMessage}}" position="left">

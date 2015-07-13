@@ -188,6 +188,7 @@
 		},
 
 		formNameChanged: function() {
+			console.log("crudform.formNameChanged");
 			this.fields = [];
 			this.fieldsMap = {};
 			var form = simpl4FormManager.getForm( this.formName, this.namespace );
