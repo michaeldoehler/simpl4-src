@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.jdo.PersistenceManager;
-import javax.jdo.spi.PersistenceCapable;
+import javax.jdo.annotations.PersistenceCapable;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -621,7 +621,9 @@ public class MultiOperations {
 					Class propertyType = TypeUtils.getTypeForField(destinationObj, propertyName);
 					debug("propertyType:" + propertyType + "/" + propertyName);
 					if (propertyType != null) {
-						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable) {
+						boolean hasAnn = propertyType.isAnnotationPresent(PersistenceCapable.class);
+						debug("hasAnnotation:"+hasAnn);
+						if (propertyType.newInstance() instanceof javax.jdo.spi.PersistenceCapable || hasAnn) {
 							handleRelatedTo(sessionContext, sourceMap,propertyName, destinationMap, destinationObj, propertyType);
 							Object obj = sourceMap.get(propertyName);
 							if (obj != null && obj instanceof Map) {

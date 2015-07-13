@@ -42,7 +42,7 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Element;
-import javax.jdo.spi.PersistenceCapable;
+import javax.jdo.annotations.PersistenceCapable;
 import javax.script.ScriptEngineManager;
 import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
@@ -1078,7 +1078,9 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 					Class type = TypeUtils.getTypeForField(to, key);
 					if (type != null) {
 						Object o = type.newInstance();
-						if (o instanceof javax.jdo.spi.PersistenceCapable) {
+						boolean hasAnn = type.isAnnotationPresent(PersistenceCapable.class);
+						debug("hasAnnotation:"+hasAnn);
+						if (o instanceof javax.jdo.spi.PersistenceCapable || hasAnn) {
 							Object id = null;
 							try {
 								Object _id = from.get(key);
@@ -1095,7 +1097,6 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 									}
 								}
 							} catch (Exception e) {
-				
 							}
 							if (id != null && !"".equals(id) && !"null".equals(id)) {
 								debug("\tId2:"+id);
