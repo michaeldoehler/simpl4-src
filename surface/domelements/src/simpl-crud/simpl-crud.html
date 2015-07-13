@@ -45,6 +45,17 @@
 		paper-button[invisible] {
 			display: none;
 		}
+		paper-toast#toast {
+			z-index:10;
+		}
+			paper-button[dialog-confirm] {
+				color: #4285f4;
+			}
+			iron-icon.error-big {
+				color: red;
+				height: 64px;
+				width: 64px;
+			}
 
 	</style>
 	<template>
@@ -77,10 +88,12 @@
 				<paper-toast id="toast" duration=3000 class="capsule" text="{{toast_message}}" style="padding-right: 60px;"></paper-toast>
 				<paper-dialog id="error" class="scrolling">
 					<!--action-dialog-->
+					<div style="padding:15px;">
 					<iron-icon class="error-big" icon="error"></iron-icon>
 					<p></p>
-					<paper-button raised affirmative autofocus>
-						<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+        	<paper-button dialog-confirm autofocus= role="button" aria-disabled="false">
+							<iron-icon icon="check"></iron-icon>Ok</paper-button>
+					</div>
 				</paper-dialog>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
@@ -327,7 +340,7 @@
 				console.log( "mainEntityId:" + this.mainEntityId );
 				if ( !valid ) {
 					this.toast_message = tr( "widgets.table.form_incomplete" );
-					this.shadowRoot.querySelector( "#toast" ).show();
+					this.querySelector( "#toast" ).show();
 					return;
 				} else {
 					try {
@@ -351,7 +364,7 @@
 							} else {
 								this.toast_message = tr( "data.form.saved" );
 							}
-							this.shadowRoot.querySelector( "#toast" ).show();
+							this.querySelector( "#toast" ).show();
 
 							this.needRefresh = true;
 							//setTimeout( ( function() {
@@ -364,7 +377,7 @@
 						}
 					} catch ( e ) {
 						this.toast_message = tr( "data.form.save" ) + ":" + e.message;
-						this.shadowRoot.querySelector( "#toast" ).show();
+						this.querySelector( "#toast" ).show();
 						return;
 					}
 				}
@@ -390,8 +403,8 @@
 				},50 );
 			},
 			alert: function( message ) {
-				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
-				this.shadowRoot.querySelector( "#error" ).open();
+				this.querySelector( "#error p" ).innerHTML = message;
+				this.querySelector( "#error" ).open();
 			}
 		} );
 

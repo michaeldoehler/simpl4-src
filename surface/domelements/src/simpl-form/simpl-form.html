@@ -153,16 +153,18 @@
 <dom-module id="form-element-renderer">
 	<style>
 		:host {
+			padding-left:3px;
+			padding-right:3px;
 			min-width: 250px;
 		}
 
 	</style>
 	<template>
 		<template is="dom-if" if="{{isInputAndBoolean(item.id,item.xf_type)}}">
-			<checkbox-field field class="flex" type={{item.xf_type}} enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></checkbox-field>
+			<checkbox-field field class="flex" type={{item.xf_type}} enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints$="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></checkbox-field>
 		</template>
 		<template is="dom-if" if="{{isInputAndNotBoolean(item.id,item.xf_type)}}">
-			<input-field field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
+			<input-field field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints$="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
 		</template>
 		<template is="dom-if" if="{{isActionButton(item.id)}}">
 			<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" style="color:{{item.xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{item.xf_action}}" raised>
@@ -170,11 +172,11 @@
 			</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}">
-			<dropdown-field field class="flex" name$="{{item.xf_id}}" items="{{item.items}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			<dropdown-field field class="flex" name$="{{item.xf_id}}" items="{{item.items}}" data-constraints$="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</dropdown-field>
 		</template>
 		<template is="dom-if" if="{{isTableSelect(item.id)}}">
-			<tableselect-field field class="flex" name$="{{item.xf_id}}" multiSelect?="{{item.xf_multiselection}}" required="{{item.xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			<tableselect-field field class="flex" name$="{{item.xf_id}}" multiSelect?="{{item.xf_multiselection}}" required="{{item.xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints$="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</tableselect-field>
 		</template>
 		<template is="dom-if" if="{{isTextArea(item.id)}}">
