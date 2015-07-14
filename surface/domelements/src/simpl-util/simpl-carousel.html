@@ -20,23 +20,34 @@
 -->
 <dom-module id="simpl-carousel">
 		<link rel="import" type="css" href="carousel.css" />
+<style>
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+</style>
+
 	<template>
 
-		<div style="padding-bottom:20px;" class="layout vertical center end-justified" id="prev" on-click="prev">
+		<div style="padding-bottom:20px;" class="noselect layout vertical center end-justified" id="prev" on-click="prev">
 			<iron-icon icon="chevron-left"></iron-icon>
 		</div>
 
-		<iron-pages  id="carousel" transitions="slide-from-right">
+		<neon-animated-pages  id="carousel" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<template is="dom-repeat" items="{{items}}">
 				<section style="overflow:hidden;position:relative;">
-					<div slide-from-right>
+					<div>
 						<content select="{{getSelector(index)}}"></content>
 					</div>
 				</section>
 			</template>
-		</iron-pages>
+		</neon-animated-pages>
 
-		<div style="padding-bottom:20px;" class="layout vertical center end-justified" id="next" on-click="next">
+		<div style="padding-bottom:20px;" class="noselect layout vertical center end-justified" id="next" on-click="next">
 			<iron-icon icon="chevron-right"></iron-icon>
 		</div>
 
@@ -62,11 +73,11 @@
 					this.carousel = this.$.carousel;
 					this.carousel.selected=0;
 					this.addEventListener( "track", function( event ) {
-						var userIsSwipingLeftwards = ( event.dx < 0 );
-						var userIsSwipingRightwards = ( event.dx > 0 );
+						if( event.detail.state === "start") return;
+						var userIsSwipingLeftwards = ( event.detail.dx < 0 );
+						var userIsSwipingRightwards = ( event.detail.dx > 0 );
 
-						var thresholdWasCrossed = ( Math.abs( event.dx ) / this.pageWidth ) > this.threshold;
-
+						var thresholdWasCrossed = ( Math.abs( event.detail.dx ) / this.pageWidth ) > this.threshold;
 						if ( thresholdWasCrossed ) {
 							if ( userIsSwipingRightwards ) {
 								this.prev();
@@ -81,11 +92,15 @@
 					this.carousel = null;
 				},
 				next: function() {
+				 	this.entryAnimation = 'slide-from-right-animation';
+      //  	this.exitAnimation = 'slide-left-animation';
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
 					$( this.$.carousel.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 					this.carousel.selected = ( this.carousel.items.length === this.carousel.selected + 1 ) ? 0 : this.carousel.selected + 1;
 				},
 				prev: function() {
+				  this.entryAnimation = 'slide-from-left-animation';
+       // 	this.exitAnimation = 'slide-right-animation';
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
 					$( this.$.carousel.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 					this.carousel.selected = ( this.carousel.selected === 0 ) ? this.carousel.items.length - 1 : this.carousel.selected - 1;

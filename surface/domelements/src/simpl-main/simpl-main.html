@@ -152,15 +152,15 @@
 					</paper-toolbar>
 
 					<div class="content" style="height:100%">
-						<iron-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" transitions="slide-from-right">
+						<neon-animated-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 							<template is="dom-repeat" items="{{getPages()}}">
-								<section class="main" style="position:relative;" hash$={{item.hash}}>
+								<neon-animatable class="main" style="position:relative;" hash$={{item.hash}}>
 									<div slide-from-right style="height:100%">
 										<div style="max-width:100%;">{{item.name}}</div>
 									</div>
-								</section>
+								</neon-animatable>
 							</template>
-						</iron-pages>
+						</neon-animated-pages>
 					</div>
 				</paper-scroll-header-panel>
 
@@ -225,6 +225,8 @@
 					this._attached();
 				} );
 				this.globals = simpl4Globals.getAll();
+			//	this.entryAnimation = 'fade-in-animation';
+        this.exitAnimation = 'fade-out-animation';
 			},
 			_attached: function() {
 				this.helpMessage = tr( "button.help" );
@@ -260,8 +262,8 @@
 					this.route = route;
 				}
 				console.log( "routeChanged2:" + this.route );
-				//$( this.$.pages.querySelectorAll( "section" ) ).css( "display", "" );
-				//$( this.$.pages.querySelector( "section.iron-selected" ) ).css( "display", "none" );
+				//	$( this.$.pages.querySelectorAll( "neon-animatable" ) ).css( "display", "" );
+			//		$( this.$.pages.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 				channel.publish( "route.changed", {
 					route: this.route
 				} );
