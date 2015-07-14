@@ -18,26 +18,26 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-carousel" attributes="items">
+<dom-module id="simpl-carousel">
+		<link rel="import" type="css" href="carousel.css" />
 	<template>
-		<link rel="stylesheet" href="carousel.css" />
 
-		<div style="padding-bottom:20px;" layout vertical center end-justified id="prev" on-click="{{prev}}">
-			<core-icon icon="chevron-left"></core-icon>
+		<div style="padding-bottom:20px;" class="layout vertical center end-justified" id="prev" on-click="prev">
+			<iron-icon icon="chevron-left"></iron-icon>
 		</div>
 
-		<core-animated-pages id="carousel" transitions="slide-from-right">
-			<template repeat="{{item,i in items}}">
+		<iron-pages  id="carousel" transitions="slide-from-right">
+			<template is="dom-repeat" items="{{items}}">
 				<section style="overflow:hidden;position:relative;">
 					<div slide-from-right>
-						<content select="*[data-index='{{i}}']"></content>
+						<content select="{{getSelector(index)}}"></content>
 					</div>
 				</section>
 			</template>
-		</core-animated-pages>
+		</iron-pages>
 
-		<div style="padding-bottom:20px;" layout vertical center end-justified id="next" on-click="{{next}}">
-			<core-icon icon="chevron-right"></core-icon>
+		<div style="padding-bottom:20px;" class="layout vertical center end-justified" id="next" on-click="next">
+			<iron-icon icon="chevron-right"></iron-icon>
 		</div>
 
 	</template>
@@ -46,16 +46,22 @@
 		( function() {
 			Polymer( {
 				is:"simpl-carousel",
-				carousel:null,
+				properties: {
+					items: {
+						type: Object
+					}
+				},
+				getSelector:function(index){
+					return "*[data-index='"+index+"']";
+				},
 				get pageWidth() {
 					return this.getBoundingClientRect().width;
 				},
-				publish: {
-					threshold: 0.20,
-				},
 				attached: function() {
+					this.threshold=0.2;
 					this.carousel = this.$.carousel;
-					PolymerGestures.addEventListener( this, "trackend", function( event ) {
+					this.carousel.selected=0;
+					this.addEventListener( "track", function( event ) {
 						var userIsSwipingLeftwards = ( event.dx < 0 );
 						var userIsSwipingRightwards = ( event.dx > 0 );
 
@@ -76,12 +82,12 @@
 				},
 				next: function() {
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
-					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
+					$( this.$.carousel.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 					this.carousel.selected = ( this.carousel.items.length === this.carousel.selected + 1 ) ? 0 : this.carousel.selected + 1;
 				},
 				prev: function() {
 					$( this.$.carousel.querySelectorAll( "section" ) ).css( "display", "" );
-					$( this.$.carousel.querySelector( "section.core-selected" ) ).css( "display", "none" );
+					$( this.$.carousel.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 					this.carousel.selected = ( this.carousel.selected === 0 ) ? this.carousel.items.length - 1 : this.carousel.selected - 1;
 				},
 				get selected() {

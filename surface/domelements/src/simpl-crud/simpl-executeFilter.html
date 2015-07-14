@@ -59,15 +59,18 @@
 				'paramsChanged(params.*)'
 			],
 			ready: function() {
-				this.set( "params", {} );
-				console.log( "executefilter.attached:", this.get( 'params' ) );
+				if( this.params==null){
+					 this.set( "params", {} );
+				}
+				console.log( "executefilter.ready:", this.get( 'params' ) );
 			},
 			paramsChanged: function() {
 				console.log( "executefilter.paramsChanged:", this.params );
 				this.execute( false );
 			},
 			nameChanged: function() {
-				this.execute( true );
+				console.log( "executefilter.nameChanged:", this.name );
+				//this.execute( true );
 			},
 			parseParams: function( o ) {
 				if ( o == null ) return;
@@ -95,6 +98,7 @@
 					this.meta = map.meta;
 					console.log( "Meta:", this.meta );
 				}
+console.log("executeFilter.data:",map.rows);
 				this.data = map.rows;
 			}
 		} );

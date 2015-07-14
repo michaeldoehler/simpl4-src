@@ -36,9 +36,12 @@
 					type: String
 				}
 			},
+			attached: function( filter ) {
+			},
 			dataChanged: function( filter ) {
+console.log("asciidoctor.Data.dataChanged");
 				var template = this.textContent;
-				console.log("textContent:",this.textContent);
+				//console.log("textContent:",this.textContent);
 				var data = null;
 				if ( typeof this.data == "object" && !Array.isArray( this.data ) ) {
 					data = this.data;
@@ -47,7 +50,6 @@
 						data: this.data
 					};
 				}
-console.log("Data:",data);
 				var html = simpl4.util.Rpc.rpcSync( "camelRoute:asciidoctor", {
 					namespace: "global",
 					data: data,
