@@ -361,7 +361,7 @@
 					this.convertSheetsToStyles( insertPoint );
 					var scope = this.selectedModel.node.scope;
 					this._setStyleScope( insertPoint, scope);
-					//this.evalScripts( insertPoint );
+					this.evalScripts( insertPoint );
 				}, 2 );
 			},
 			_maskedEval: function( scr, env, def ) {

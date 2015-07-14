@@ -22,6 +22,12 @@
 	html /deep/ xaction-button iron-icon {
 		pointer-events: none;
 	}
+	html /deep/ xaction-button paper-material {
+		pointer-events: none;
+	}
+	html /deep/ xaction-button paper-ripple {
+		pointer-events: none;
+	}
 
 </style>
 
@@ -94,6 +100,7 @@
 				}
 			}
 		} );
+
 	</script>
 </dom-module>
 
@@ -234,7 +241,7 @@
 			<input-field field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints$="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
 		</template>
 		<template is="dom-if" if="{{isActionButton(item.id)}}">
-			<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" style$="[[getActionButtonColor(item.xf_action)]]" xaction="{{item.xf_action}}" raised>
+			<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" style$="[[getActionButtonColor(item.xf_action)]]" xaction="{{item.xf_action}}" raised>
 				<iron-icon icon="{{item.xf_iconname}}"></iron-icon>{{item.xf_label}}</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}">
@@ -280,8 +287,16 @@
 			behaviors: [
 				FormElementSelectorBehavior
 			],
-			getActionButtonColor:function(action){
-				return "color:"+ (action=='execute' ? '#4285f4;' : 'black;');
+			getActionButtonColor: function( action ) {
+				return "color:" + ( action == 'execute' ? '#4285f4;' : 'black;' );
+			},
+			internalXAction: function( e ) {
+				var target = e.target || e.srcElement;
+				console.log( "internalXAction", e );
+				this.fire( 'internal-xaction', null, {
+					node: target
+				} );
+
 			},
 			attached: function() {
 				console.log( "form-element-renderer:", this.item );
@@ -408,7 +423,7 @@
 </dom-module>
 
 <link rel="import" href="form-behavior.html">
-<dom-module id="simpl-form" attributes="actionCallback data mode" vertical layout>
+<dom-module id="simpl-form" attributes="data mode" vertical layout>
 	<style>
 		:host {
 			display: block;
@@ -488,9 +503,9 @@
 
 		<template is="dom-if" if="{{item.defaultButtons}}">
 			<simpl-row>
-				<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" xaction="execute" raised>
+				<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" xaction="execute" raised>
 					<iron-icon icon="check"></iron-icon>{{'form.execute'|tr}}</xaction-button>
-				<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" xaction="cancel" raised>
+				<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" xaction="cancel" raised>
 					<iron-icon icon="clear"></iron-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
 			</simpl-row>
 		</template>
@@ -532,8 +547,16 @@
 			],
 			listeners: {
 				'value-changed': 'valueChanged',
-				'add-form-field': 'addField',
-				'remove-form-field': 'removeField'
+				'internal-xaction': 'internalXAction'
+			},
+			internalXAction: function( e ) {
+				var target = e.target || e.srcElement;
+				console.log( "Form.internAction", e );
+				console.log( "Form.internAction.xaction", target.xaction + "/" + e.xid );
+				var data = this.getData();
+				var valid = this.validate();
+				console.log( "Form.data", JSON5.stringify(data,null,2) );
+				this.fire( 'xaction', {xaction:target.xaction, data:data, valid:valid} );
 			},
 			attached: function() {
 				console.log( "Form.attached" );

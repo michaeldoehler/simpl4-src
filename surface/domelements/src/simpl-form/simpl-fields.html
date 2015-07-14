@@ -99,8 +99,18 @@
 				this.setInvalid( errorList.length > 0 );
 				if ( errorList.length > 0 ) {
 					this.setErrorMessage( errorList[ 0 ].message );
+				}else{
+					this.setErrorMessage( null );
 				}
 			} );
+		},
+		setErrorMessage: function( message ) {
+			console.log("setErrorMessage:",message);
+			this.errorMessage = message;
+		},
+		setInvalid: function( b ) {
+			console.log("setInvalid:",b);
+			this.invalid = b;
 		}
 	};
 
@@ -179,9 +189,6 @@
 				<paper-input-error>[[errorMessage]]</paper-input-error>
 			</template>
 
-			<template is="dom-if" if="[[charCounter]]">
-				<paper-input-char-counter></paper-input-char-counter>
-			</template>
 		</paper-input-container>
 	</template>
 	<script>
@@ -476,8 +483,13 @@
 		Polymer( {
 			is: "multiline-field",
 			behaviors: [
+				Polymer.IronFormElementBehavior,
 				Polymer.PaperInputBehavior,
+				Polymer.IronControlState,
 				FieldBehavior
+			],
+			observers: [
+				'editValueChanged(editValue)'
 			],
 			properties: {
 			},
@@ -506,62 +518,44 @@
 		:host {
 			padding-left: 5px !important;
 		}
-		[invalid],
-		.error {
-			color: #d34336;
-		}
-		.error-text {
-			font-size: 0.75em;
-			padding: 0.5em 0;
-		}
-		.floated-label {
-			font-size: 0.75em;
-			padding: 1em 0;
-			white-space: nowrap;
-			color: #757575;
-		}
-		.label-text {
-			display: inline-block;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			overflow: hidden;
+		paper-input-error{
+			visibility:visible;
 		}
 
 	</style>
 	<template>
-		<div class="floated-label" invalid?="{{isInvalid}}" invisible?="{{value === undefined}}">
-			<span invalid?="{{isInvalid}}" class="label-text">{{label}}</span>
+		<div class="vertical layout">
+			<paper-checkbox checked="{{value}}">
+				<label id="label" hidden$="[[!label]]">[[label]]</label>
+			</paper-checkbox>
+
+			<template is="dom-if" if="[[errorMessage]]">
+				<paper-input-error>[[errorMessage]]</paper-input-error>
+			</template>
 		</div>
 
-		<div horizontal layout>
-			<paper-checkbox checked="{{value}}"></paper-checkbox>
-
-			<div class="error" style="margin-left:15px;" layout horizontal hidden?="{{!isInvalid}}">
-				<div class="error-text" auto role="alert" aria-hidden="{{!isInvalid}}">{{error}}</div>
-				<core-icon class="error-icon" icon="warning"></core-icon>
-			</div>
-		</div>
 
 	</template>
 	<script>
 		Polymer( {
 			is: "checkbox-field",
 			behaviors: [ FieldBehavior ],
-			properties: {
-				setErrorMessage: function( message ) {
-					this.error = message;
-				},
-				setInvalid: function( b ) {
-					this.isInvalid = b;
-				},
-				valueChanged: function( e ) {
-					if ( this.isDomReady != true ) return;
-					if ( this.withoutCheck ) {
-						this.withoutCheck = false;
-						return;
-					}
-					this.checkConstraints();
+			observers: [
+				'valueChanged(value)'
+			],
+			setValue:function(v){
+				this.value = v;
+			},
+			getValue:function(){
+				return this.value;
+			},
+			valueChanged: function( e ) {
+				if ( this.isDomReady != true ) return;
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
 				}
+				this.checkConstraints();
 			}
 		} );
 
