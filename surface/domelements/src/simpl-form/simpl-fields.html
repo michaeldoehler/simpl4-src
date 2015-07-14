@@ -278,10 +278,9 @@
 					}
 				}
 				if ( this.type.match( /^date/ ) && this.hasDate ) {
-					this.$.decorator.labelVisible = true;
-					//var ldiv = this.$.decorator.querySelector( "paper-input-decorator /deep/ .floated-label" );
-					//ldiv.removeAttribute( "invisible" );
-					//ldiv.style.fontSize = "0.90em";
+					this.async( function() {
+						this.decorator._inputHasContent = true;
+					} );
 				}
 				if ( this.compact ) {
 					console.log( "Add compact" );
@@ -440,55 +439,50 @@
 	</script>
 </dom-module>
 
-<dom-module id="multiline-field" extends="form-field" attributes="rows cols maxlength readonly disabled autofocus wrap" kind="multiline-input" layout horizontal center>
+<dom-module id="multiline-field">
 	<style>
 		:host {
-			min-width: 166px;
-			margin: 2px 10px 2px 0;
+			--paper-input-container: {
+					padding: 0px;
+			};
 		}
-		textarea {
-			width: 100%;
+		:host {
 		}
-
 	</style>
 	<template>
-		<paper-input-decorator id="decorator" flex label="{{label}}" floatingLabel>
-			<paper-autogrow-textarea>
-				<textarea rows="{{rows}}" cols="{{cols}}" maxlength="{{maxlength}}" value="{{editValue}}" id="textarea" warp?={{wrap}} autofocus?={{autofocus}} readonly?={{readonly}} disabled?={{disabled}}></textarea>
-			</paper-autogrow-textarea>
-		</paper-input-decorator>
+    <paper-input-container id="decorator" no-label-float$="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" disabled$="[[disabled]]" invalid="[[invalid]]">
+
+      <label hidden$="[[!label]]">[[label]]</label>
+
+      <iron-autogrow-textarea id="input" class="paper-input-input"
+        bind-value="{{editValue}}"
+        autocomplete$="[[autocomplete]]"
+        autofocus$="[[autofocus]]"
+        inputmode$="[[inputmode]]"
+        name$="[[name]]"
+        placeholder$="[[placeholder]]"
+        readonly$="[[readonly]]"
+        required$="[[required]]"
+        maxlength$="[[maxlength]]"
+        autocapitalize$="[[autocapitalize]]"></iron-autogrow-textarea>
+
+      <template is="dom-if" if="[[errorMessage]]">
+        <paper-input-error>[[errorMessage]]</paper-input-error>
+      </template>
+
+    </paper-input-container>
 	</template>
 	<script>
 		Polymer( {
 			is: "multiline-field",
-			behaviors: [ FieldBehavior ],
+			behaviors: [
+				Polymer.PaperInputBehavior,
+				FieldBehavior
+			],
 			properties: {
-				autofocus: {
-					value: false,
-					reflect: true
-				},
-				warp: {
-					value: false,
-					reflect: true
-				},
-				readonly: {
-					value: false,
-					reflect: true
-				},
-				disabled: {
-					value: false,
-					reflect: true
-				}
 			},
-			rows: 3,
-			value: "",
 			editValueChanged: function() {
 				this.value = this.editValue;
-				if ( this.editValue ) {
-					this.$.decorator.updateLabelVisibility( "X" );
-				} else {
-					this.$.decorator.updateLabelVisibility( "" );
-				}
 				this.fire( 'value-changed', this );
 			},
 			valueChanged: function() {

@@ -24,26 +24,79 @@
 	}
 
 </style>
-<dom-module id="xaction-button" extends="paper-button" attributes="xaction xid" noscript>
+
+
+<dom-module id="xaction-button">
 	<style>
-		:host /deep/ .button-content {
-			padding-left: 5px;
-			padding-right: 5px;
-			padding-top: 12px;
-			padding-bottom: 12px;
+		:host {
+			display: inline-block;
+			position: relative;
+			box-sizing: border-box;
+			min-width: 5.14em;
+			margin: 0 0.29em;
+			background: transparent;
+			text-align: center;
+			font: inherit;
+			text-transform: uppercase;
+			outline: none;
+			border-radius: 3px;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			-webkit-user-select: none;
+			user-select: none;
+			cursor: pointer;
+			z-index: 0;
+			@apply(--paper-button);
+		}
+		.keyboard-focus {
+			font-weight: bold;
+		}
+		:host([disabled]) {
+			background: #eaeaea;
+			color: #a8a8a8;
+			cursor: auto;
+			pointer-events: none;
+			@apply(--paper-button-disabled);
+		}
+		:host([noink]) paper-ripple {
+			display: none;
+		}
+		paper-material {
+			border-radius: inherit;
+		}
+		.content >::content * {
+			text-transform: inherit;
+		}
+		.content {
+			padding: 0.7em 0.57em
 		}
 
 	</style>
+
 	<template>
-		<shadow></shadow>
+		<paper-ripple></paper-ripple>
+		<paper-material class="content" elevation="[[_elevation]]" animated>
+			<content></content>
+		</paper-material>
 	</template>
 	<script>
 		Polymer( {
-			is: 'xaction-button'
+			is: 'xaction-button',
+			behaviors: [
+				Polymer.PaperButtonBehavior
+			],
+			properties: {
+				xaction: {
+					type: String
+				},
+				xid: {
+					type: String
+				}
+			}
 		} );
-
 	</script>
 </dom-module>
+
 
 <dom-module id="simpl-group">
 	<style>
@@ -75,6 +128,9 @@
 		}
 		html /deep/ simpl-row >:not(:last-child) {
 			margin-right: 0px;
+		}
+		:host {
+			width: 100%;
 		}
 
 	</style>
@@ -133,8 +189,13 @@
 			if ( r ) console.log( "isForm(" + id + ":", r );
 			return r;
 		},
+		isActionButtopn: function( id ) {
+			var r = id == id == 'ActionButton';
+			if ( r ) console.log( "isField(" + id + "):" + r );
+			return r;
+		},
 		isField: function( id ) {
-			var r = id == 'Input' || id == 'ActionButton' || id == 'Tableselect' || id == 'Enumselect' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
+			var r = id == 'Input' || id == 'Tableselect' || id == 'Enumselect' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
 			if ( r ) console.log( "isField(" + id + "):" + r );
 			return r;
 		},
@@ -173,9 +234,8 @@
 			<input-field field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints$="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
 		</template>
 		<template is="dom-if" if="{{isActionButton(item.id)}}">
-			<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" style="color:{{item.xf_action=='execute' ? '#4285f4' : 'black'}};" xaction="{{item.xf_action}}" raised>
-				<iron-icon icon="{{item.xf_iconname}}"></iron-icon>{{item.xf_label}}
-			</xaction-button>
+			<xaction-button on-tap="actionCallback" class="button" xid="{{item.xf_id}}" style$="[[getActionButtonColor(item.xf_action)]]" xaction="{{item.xf_action}}" raised>
+				<iron-icon icon="{{item.xf_iconname}}"></iron-icon>{{item.xf_label}}</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}">
 			<dropdown-field field class="flex" name$="{{item.xf_id}}" items="{{item.items}}" data-constraints$="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
@@ -220,6 +280,9 @@
 			behaviors: [
 				FormElementSelectorBehavior
 			],
+			getActionButtonColor:function(action){
+				return "color:"+ (action=='execute' ? '#4285f4;' : 'black;');
+			},
 			attached: function() {
 				console.log( "form-element-renderer:", this.item );
 			}
@@ -254,7 +317,7 @@
 				<template is="dom-repeat" as="i" items="[[item.childShapes]]">
 					<section name$="[[i.xf_id]]" style="margin-top:20px;position:relative;padding:0px;">
 						<template is="dom-repeat" as="j" items="[[i.childShapes]]">
-							<form-element-renderer class="flex" item="[[j]]" />
+							<form-element-renderer style="display:block;padding-top:0px;padding-bottom:0px;" class="flex" item="[[j]]" />
 						</template>
 					</section>
 				</template>
@@ -298,14 +361,17 @@
 			<template is="dom-if" if="{{isField(item.id)}}">
 				<form-element-renderer class="flex" item="[[item]]" />
 			</template>
+			<template is="dom-if" if="{{isActionButton(item.id)}}">
+				<form-element-renderer class="" style="min-width:100px;margin-top:20px;" item="[[item]]" />
+			</template>
 
 			<template is="dom-if" if="[[isTabView(item.id)]]">
 				<form-tab-renderer class="flex" item="[[item]]" />
 			</template>
 
 			<template is="dom-if" if="{{isGroup(item.id)}}">
-				<simpl-group class="group">
-					<core-label for=".group">{{item.label}}</core-label>
+				<simpl-group class="flex layout horizontal group">
+					<label for=".group">{{item.label}}</label>
 					<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 				</simpl-group>
 			</template>
