@@ -111,6 +111,9 @@
 				margin-right: 0px;
 			}
 		}
+		.toolbarClass{
+			color:black;
+		}
 
 	</style>
 	<template>
@@ -137,7 +140,7 @@
 				</div>
 
 				<paper-scroll-header-panel main xondenses class="flex">
-					<paper-toolbar id="mainToolbar" class="{{toolboxClass}}">
+					<paper-toolbar id="mainToolbar" class="toolbarClass">
 						<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
 						<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
 						<template if="{{selectedModel.node.help!=null}}">
@@ -145,7 +148,7 @@
 								<paper-icon-button on-click="{{showHelp}}" icon="help"></paper-icon-button>
 							</core-tooltip>
 						</template>
-						<paper-icon-button on-click="{{reload}}" class="langIcon" src="{{globals.lang|langIcon}}"></paper-icon-button>
+						<paper-icon-button on-click="reload" class="langIcon" src="{{getLangIcon()}}"></paper-icon-button>
 						<core-tooltip label="{{loginMessage}}" position="left">
 							<paper-icon-button on-click="{{login}}" icon="system-update-tv"></paper-icon-button>
 						</core-tooltip>
@@ -205,6 +208,9 @@
 					value: null,
 					type: String
 				},
+				toolbarClass: {
+					type: String
+				},
 				logoBackground: {
 					value: null,
 					type: String
@@ -247,7 +253,6 @@
 
 				console.log( "location:" + window.location );
 				console.log( "init.route:" + this.route );
-				this.toolboxClass = "";
 			},
 			toolbarBackgroundChanged: function() {
 				$( this.$.mainToolbar ).css( "background", this.toolbarBackground );
@@ -363,7 +368,7 @@
 					this.convertSheetsToStyles( insertPoint );
 					var scope = this.selectedModel.node.scope;
 					this._setStyleScope( insertPoint, scope);
-					this.evalScripts( insertPoint );
+					//this.evalScripts( insertPoint );
 				}, 2 );
 			},
 			_maskedEval: function( scr, env, def ) {
@@ -510,8 +515,8 @@
 			login: function( e ) {
 				this.$.loginDialog.toggle();
 			},
-
-			langIcon: function( lang ) {
+			getLangIcon: function( ) {
+				var lang = Simpl4.Cache.getItem( "lang" );
 				return ( lang == "de" || lang == null ) ? "en.svg" : "de.svg";
 			},
 			reload: function( e ) {
