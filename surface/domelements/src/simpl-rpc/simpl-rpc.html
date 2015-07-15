@@ -18,97 +18,36 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<!--
-/**
- * json-rpc can be used to perform XMLHttpRequests.
- *
- * Example:
- *
- *     <simpl-rpc auto url="http://gdata.youtube.com/feeds/api/videos/" 
- *         params='{"alt":"json", "q":"chrome"}'
- *         handleAs="json"
- *         on-response="{{handleResponse}}">
- *     </simpl-rpc>
- *
- * @class json-rpc
- */
-/**
- * Fired when a response is received.
- * @event response
- */
-/**
- * Fired when an error is received.
- * @event error
- */
-/**
- * Fired whenever a response or an error is received.
- * @event complete
- */
--->
-<dom-module id="simpl-rpc" attributes="url auto service method params response headers">
+<dom-module id="simpl-rpc">
+	<template>
+	</template>
 	<script>
-		Polymer({ is:'simpl-rpc',
-			/**
-			 * The URL target of the request.
-			 *
-			 * @attribute url
-			 * @type string
-			 * @default ''
-			 */
-			url: '/rpc/xyz',
-			/**
-			 * If true, automatically performs an Ajax request when either url or params has changed.
-			 *
-			 * @attribute auto
-			 * @type boolean
-			 * @default false
-			 */
-			auto: true,
-			/**
-			 * The JSON-RPC method to call
-			 *
-			 * @attribute method
-			 * @type string
-			 * @default ''
-			 */
-			method: '',
-			/**
-			 * Optional parameters for the JSON-RPC method
-			 *
-			 * @attribute params
-			 * @type string (JSON)
-			 * @default ''
-			 */
-			params: '',
-			/**
-			 * Returns the response object.
-			 *
-			 * @attribute response
-			 * @type Object
-			 * @default null
-			 */
-			response: null,
-			/**
-			 * HTTP request headers to send.
-			 *
-			 * Example:
-			 *
-			 *     <simpl-rpc-ajax auto 
-			 *         headers='{"X-Requested-With": "XMLHttpRequest"}'
-			 *         handleAs="json"
-			 *         on-response="{{handleResponse}}">
-			 *     </simpl-rpc>
-			 *
-			 * @attribute headers
-			 * @type Object
-			 * @default null
-			 */
-			request_id: 1,
-			headers: null,
+		Polymer( {
+			is: 'simpl-rpc',
+			properties: {
+				allparams: {
+					computed: "collectAll(params,method,service)"
+				},
+				service: {
+					type: String
+				},
+				method: {
+					type: String
+				},
+				params: {
+					type: Object
+				},
+				response: {
+					type: Object,
+					notify: true
+				}
+			},
+			collectAll: function() {
+				this.go();
+			},
 			ready: function() {
-				console.log( "Ready:" )
-				this.xhr = document.createElement( 'core-xhr' );
-				console.log( "xhr:", this.xhr )
+				this.request_id = 1;
+				this.xhr = document.createElement( 'simpl-xhr' );
 			},
 			receive: function( response, xhr ) {
 				if ( this.isSuccess( xhr ) ) {
@@ -147,7 +86,6 @@
 				var r = xhr.responseText;
 				try {
 					var response = JSON.parse( r );
-					// TODO: Add error checking
 					return response.result;
 				} catch ( x ) {
 					return r;
@@ -156,25 +94,6 @@
 			getId: function() {
 				return this.request_id++;
 			},
-			urlChanged: function() {
-				this.autoGo();
-			},
-			paramsChanged: function() {
-				this.autoGo();
-			},
-			autoChanged: function() {
-				this.autoGo();
-			},
-			autoGo: function() {
-				if ( this.auto ) {
-					this.goJob = this.job( this.goJob, this.go, 0 );
-				}
-			},
-			/**
-			 * Performs an Ajax request to the url specified.
-			 *
-			 * @method go
-			 */
 			go: function() {
 				var args = this.xhrArgs || {};
 				args.headers = this.headers || {};
@@ -186,7 +105,7 @@
 				var password = simpl4.util.Rpc._getPassword();
 				args.headers[ 'Authorization' ] = 'Basic ' + simpl4.util.Base64.encode( username + ":" + password );
 				args.callback = this.receive.bind( this );
-				args.url = this.url;
+				args.url = "/rpc/xyz";
 				args.method = 'POST';
 				var body = {
 					jsonrpc: '2.0',
@@ -198,7 +117,9 @@
 					body.params = JSON5.parse( this.params );
 				}
 				args.body = JSON.stringify( body, null, 2 );
-				console.log( "xhr2:", args.body )
+				if ( this.xhr == null ) {
+					this.xhr = document.createElement( 'simpl-xhr' );
+				}
 				return this.xhr.request( args );
 			}
 		} );

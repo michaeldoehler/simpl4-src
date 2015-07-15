@@ -55,7 +55,7 @@ clazz.construct.extend( "simpl4.util.Rpc", {
 			completed: parameter.completed,
 			failed: parameter.failed,
 			context: parameter.context,
-			msg: parameter.msg,
+			msg: parameter.msg
 		}
 		var result = simpl4.util.Rpc._send( url, false, config, requestObject );
 		if ( !result ) {
