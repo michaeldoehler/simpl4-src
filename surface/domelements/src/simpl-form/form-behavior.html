@@ -250,6 +250,7 @@ console.log("errorList:",this.errorList);
 			return shape;
 		},
 		cleanShape: function( shape ) {
+console.log("shape:",shape);
 			if ( shape.stencil.id.toLowerCase() == "input" ||
 				shape.stencil.id.toLowerCase() == 'textarea' ||
 				shape.stencil.id.toLowerCase() == 'relatedto' ||
@@ -355,7 +356,7 @@ console.log("errorList:",this.errorList);
 			} else {
 				shape.properties.label = "";
 			}
-			return _.extend( shape.properties, shape.stencil, {
+			return _.extend( shape.properties, {bounds:shape.bounds}, shape.stencil, {
 				childShapes: shape.childShapes
 			} );
 		},

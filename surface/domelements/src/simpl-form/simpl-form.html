@@ -313,43 +313,68 @@
 			padding-right: 3px;
 			min-width: 250px;
 		}
+		mat-pages /deep/ xp-pages {
+			position: relative;
+		}
+		mat-pages {
+			position: relative;
+		}
 
 	</style>
 	<template>
-		<div class="tabcontainer layout vertical">
-			<paper-tabs class="transparent-teal" selected="{{tabSelected}}" attr-for-selected="name">
-				<template is="dom-repeat" as="i" items="[[item.childShapes]]">
-					<template is="dom-if" if="[[i.title]]">
-						<paper-tab name$="[[i.xf_id]]">[[tabTitle(i.ititle)]]</paper-tab>
-					</template>
-					<template is="dom-if" if="[[!i.title]]">
-						<paper-tab name$="[[i.xf_id]]">[[tabTitle(i.xf_id)]]</paper-tab>
-					</template>
+		<mat-tabs target="tabsid">
+			<template is="dom-repeat" as="i" items="[[item.childShapes]]">
+				<template is="dom-if" if="[[i.title]]">
+					<mat-tab name$="[[i.xf_id]]" label$="[[tabTitle(i.ititle)]]"></mat-tab>
 				</template>
-			</paper-tabs>
+				<template is="dom-if" if="[[!i.title]]">
+					<mat-tab name$="[[i.xf_id]]" label$="[[tabTitle(i.xf_id)]]"></mat-tab>
+				</template>
+			</template>
+		</mat-tabs>
 
-			<iron-pages selected="{{tabSelected}}" attr-for-selected="name" class="vertical layout">
-				<template is="dom-repeat" as="i" items="[[item.childShapes]]">
-					<section name$="[[i.xf_id]]" style="margin-top:20px;position:relative;padding:0px;">
-						<template is="dom-repeat" as="j" items="[[i.childShapes]]">
-							<form-element-renderer style="display:block;padding-top:0px;padding-bottom:0px;" class="flex" item="[[j]]" />
-						</template>
-					</section>
-				</template>
-			</iron-pages>
-		</div>
+		<mat-pages id="tabsid" style$="{{pagesStyle}}">
+			<template is="dom-repeat" as="i" items="[[item.childShapes]]">
+				<mat-page name$="[[i.xf_id]]" style$="[[getPageStyle()]]">
+					<template is="dom-repeat" as="j" items="[[i.childShapes]]">
+						<form-element-renderer style$="[[getElementStyle()]]" class="flex" item="[[j]]" />
+					</template>
+				</mat-page>
+			</template>
+		</mat-pages>
 	</template>
 	<script>
 		Polymer( {
 			is: 'form-tab-renderer',
-			properties: {
-				item: {
-					type: Object
-				}
-			},
 			behaviors: [
 				FormElementSelectorBehavior
 			],
+			properties: {
+				item: {
+					type: Object
+				},
+				pagesStyle: {
+					computed: "computePagesStyle(item)"
+				}
+			},
+			observers: [
+				'routeChanged(route)'
+			],
+			getElementStyle: function() {
+				return "display:block;padding-top:0px;padding-bottom:0px;"
+			},
+			getPageStyle: function() {
+				return "margin-top:20px;padding:0px;"
+			},
+			computePagesStyle: function( item ) {
+				var maxHeight = 0;
+				for ( var i = 0; i < item.childShapes.length; i++ ) {
+					var s = item.childShapes[ i ];
+					var h = s.bounds.lowerRight.y - s.bounds.upperLeft.y;
+					maxHeight = Math.max( maxHeight, h );
+				}
+				return "min-height:" + ( maxHeight - 60 ) + "px;";
+			},
 			attached: function() {
 				console.log( "form-tab-renderer:", this.item );
 				this.async( function() {
@@ -358,7 +383,7 @@
 						tab = this.item.childShapes[ 0 ].xf_id;
 					}
 					console.log( "SelectingiTab:", tab );
-					this.tabSelected = tab;
+					//		this.tabSelected = tab;
 				}, 1 );
 			}
 		} );
@@ -555,8 +580,12 @@
 				console.log( "Form.internAction.xaction", target.xaction + "/" + e.xid );
 				var data = this.getData();
 				var valid = this.validate();
-				console.log( "Form.data", JSON5.stringify(data,null,2) );
-				this.fire( 'xaction', {xaction:target.xaction, data:data, valid:valid} );
+				console.log( "Form.data", JSON5.stringify( data, null, 2 ) );
+				this.fire( 'xaction', {
+					xaction: target.xaction,
+					data: data,
+					valid: valid
+				} );
 			},
 			attached: function() {
 				console.log( "Form.attached" );
