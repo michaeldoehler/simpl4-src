@@ -1,5 +1,4 @@
 <dom-module id="simpl-viewer" attributes="showAssemblies panelBackgroundColor tableHeight viewerHeight">
-	<template>
 		<style>
 			[vs100] {
 				width: 100%!important;
@@ -80,17 +79,18 @@
 			}
 
 		</style>
-		<div horizontal layout wrap>
-			<div id="assemblyId" layout horizontal vs100 vl33>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeader}}" layout horizontal vertical flex collapsable="true" collapsed="false">
+	<template>
+		<div class="horizontal layout wrap">
+			<div id="assemblyId" class="layout horizontal" vs100 vl33>
+				<simpl-panel bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeader}}" class="layout horizontal vertical flex" collapsable>
 					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
 				</simpl-panel>
 			</div>
-			<div id="viewerAndListId" layout vertical vs100 vl66>
-				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" layout vertical heading="{{panelHeaderBom}}" collapsable="false" collapsed="false">
+			<div id="viewerAndListId" class="layout vertical" vs100 vl66>
+				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" class="layout vertical" heading="{{panelHeaderBom}}"  >
 					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
-				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" layout vertical collapsable="true" collapsed="false">
+				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" class="layout vertical" >
 					<div id="viewer"> </div>
 				</simpl-panel>
 			</div>

@@ -18,47 +18,47 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-tree" attributes="selectedItem selected data idProp childrenProp nameProp">
-		<style>
-			div[idvalue] {
-				cursor: pointer;
-				-webkit-tap-highlight-color:  lightgray; 
-			}
-			span[selected] {
-				color: #fc0 !important;
-				font-weight: bold;
-			}
-			ul {
-				margin: 0;
-				padding-left: 20px;
-			}
-			li {
-				list-style-type: none;
-			}
-			.truncate {
-				padding-top: 6px;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			polyfill-rule {
-				content: '.truncate';
-				width: calc(100% - 28px);
-				padding-top: 3px;
-			}
-			tree-icon {
-				display: inline-block;
-				vertical-align: middle;
-				background-repeat: no-repeat;
-				fill: currentcolor;
-				position: relative;
-				height: 24px;
-				width: 24px;
-			}
+<dom-module id="simpl-tree">
+	<style>
+		div[idvalue] {
+			cursor: pointer;
+			-webkit-tap-highlight-color: lightgray;
+		}
+		span[selected] {
+			color: #fc0 !important;
+			font-weight: bold;
+		}
+		ul {
+			margin: 0;
+			padding-left: 20px;
+		}
+		li {
+			list-style-type: none;
+		}
+		.truncate {
+			padding-top: 6px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		polyfill-rule {
+			content: '.truncate';
+			width: calc(100% - 28px);
+			padding-top: 3px;
+		}
+		tree-icon {
+			display: inline-block;
+			vertical-align: middle;
+			background-repeat: no-repeat;
+			fill: currentcolor;
+			position: relative;
+			height: 24px;
+			width: 24px;
+		}
 
-		</style>
+	</style>
 	<template>
-		<div id="main" unresolved="">
+		<!--div id="main" unresolved="">
 			<template id="tree_template" bind="{{data as d}}">
 				<div layout horizontal idvalue="{{d[idProp]}}" class="{{ d.children && d.children.length > 0 ? 'parent' : ''}} collapsed" on-click="{{selectItem}}">
 					<tree-icon on-click="{{toggleEvent}}" icon="{{ d.children && d.children.length > 0 ? 'hardware:keyboard-arrow-right' : 'arrow-drop-dowx'}}"></tree-icon>
@@ -72,10 +72,31 @@
 					</template>
 				</ul>
 			</template>
-		</div>
+		</div-->
+		<content></content>
 	</template>
 	<script>
-		Polymer({ is:'simpl-tree',
+		Polymer( {
+			is: 'simpl-tree',
+			properties: {
+				data: {
+					observer: 'dataChanged',
+					type: Object
+				},
+				idProp: {
+					type: String
+				},
+				childrenProp: {
+					type: String
+				},
+				nameProp: {
+					type: String
+				},
+				selected: {
+					observer: 'selectedChanged',
+					type: String
+				}
+			},
 			iconOpen: 'hardware:keyboard-arrow-right',
 			iconClose: 'hardware:keyboard-arrow-down',
 			iconBOM: 'arrow-drop-down',
@@ -97,11 +118,13 @@
 					if ( current_display === 'none' ) {
 						div.className = 'parent expanded';
 						div.nextElementSibling.style.display = 'block';
-						icon.setIcon( this.iconClose );
+						//icon.setIcon( this.iconClose );
+						icon.setAttribute( "icon", this.iconClose );
 					} else {
 						div.className = 'parent collapsed';
 						div.nextElementSibling.style.display = 'none';
-						icon.setIcon( this.iconOpen );
+						//icon.setIcon( this.iconOpen );
+						icon.setAttribute( "icon", this.iconOpen );
 					}
 				}
 			},
@@ -110,6 +133,7 @@
 				var span = target;
 				target = target.parentNode;
 				var id = target.getAttribute( "idvalue" );
+				console.log( "selectItem:", id );
 				if ( id == null ) return;
 
 				if ( this.prevSelected ) {
@@ -122,7 +146,7 @@
 			selectedChanged: function() {
 				var selector = '[idvalue="' + this.selected + '"] span';
 				var span = this.$.main.querySelector( selector );
-				this.openTree(span);
+				this.openTree( span );
 				if ( this.prevSelected ) {
 					this.prevSelected.removeAttribute( "selected" );
 				}
@@ -131,7 +155,7 @@
 				var selectedItem = this.getItemById( this.selected, this.data );
 				this.selectedItem = selectedItem;
 			},
-			openTree:function(span){
+			openTree: function( span ) {
 				var div = span.parentElement;
 				while ( div && div.nodeName == "DIV" ) {
 					var li = div.parentElement;
@@ -155,17 +179,59 @@
 				}
 				return null;
 			},
-			created: function() {},
-
-			domReady: function() {},
-
-			ready: function() {
-				this.$.main.setAttribute( 'resolved', '' );
-				this.$.main.removeAttribute( 'unresolved' );
+			dataChanged: function() {
+				this._createRoot();
 			},
+			_createRoot: function() {
+				var div = document.createElement( 'div' );
+				Polymer.dom( div ).setAttribute( "id", "main" );
+				this._tree = div;
+				Polymer.dom( this.root ).appendChild( div )
+				console.log( "simpl-tree._createRoot:", this.data );
+				this._createNode( div, this.data, true );
+			},
+			_createNode: function( parent, data, firstLevel ) {
+				var div = document.createElement( 'div' );
+				Polymer.dom( div ).classList.add( 'layout' )
+				Polymer.dom( div ).classList.add( 'horizontal' )
+				div.addEventListener( 'click', this.selectItem.bind( this ) );
+				Polymer.dom( parent ).appendChild( div )
+				var hashChilds = false;
+				if ( data.children && data.children.length > 0 ) {
+					Polymer.dom( div ).classList.add( 'parent' )
+					hashChilds = true;
+				}
+				Polymer.dom( div ).classList.add( 'collapsed' )
 
-			attached: function() {},
+				Polymer.dom( div ).setAttribute( "idvalue", data[ this.idProp ] );
 
+				var icon = document.createElement( 'iron-icon' );
+				Polymer.dom( div ).appendChild( icon );
+				if ( hashChilds ) {
+					Polymer.dom( icon ).setAttribute( "icon", "hardware:keyboard-arrow-right" );
+				}
+
+				icon.addEventListener( 'click', this.toggleEvent.bind( this ) );
+
+				var span = document.createElement( 'span' );
+				Polymer.dom( div ).appendChild( span );
+				Polymer.dom( span ).classList.add( 'truncate' )
+				Polymer.dom( span ).setAttribute( "style", hashChilds ? "color:black;" : "color:gray;" );
+				Polymer.dom( span ).setAttribute( "title", data[ this.nameProp ] );
+				var t = document.createTextNode( data[ this.nameProp ] );
+				Polymer.dom( span ).appendChild( t );
+				var ul = document.createElement( 'ul' );
+				Polymer.dom( ul ).setAttribute( "style", "display:none;" );
+				Polymer.dom( parent ).appendChild( ul )
+				if ( hashChilds ) {
+					for ( var i = 0; i < data.children.length; i++ ) {
+						var dataChild = data.children[ i ];
+						var li = document.createElement( 'li' );
+						Polymer.dom( ul ).appendChild( li )
+						this._createNode( li, dataChild );
+					}
+				}
+			},
 			detached: function() {},
 
 			attributeChanged: function( attr, oldVal, newVal ) {}
