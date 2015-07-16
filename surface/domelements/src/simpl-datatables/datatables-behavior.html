@@ -147,8 +147,14 @@
 			}
 			return raw;
 		},
+		metaChanged: function() {
+console.log("dataTables.metaChanged.data:",this.data);
+console.log("dataTables.metaChanged.meta:",this.meta);
+		},
 		_metaChanged: function() {},
 		dataChanged: function() {
+console.log("dataTables.dataChanged.data:",this.data);
+console.log("dataTables.dataChanged.meta:",this.meta);
 			if ( this.meta == null ) {
 				this.preparedMeta = this.prepareMetaFromData( this.data );
 			} else {

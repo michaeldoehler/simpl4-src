@@ -68,6 +68,7 @@
 				background: #fc0;
 				max-width: 300px;
 				color: black;
+				z-index:10;
 			}
 			@media(max-width:768px) {
 				paper-toast {
@@ -83,12 +84,12 @@
 		<div class="horizontal layout wrap">
 			<div id="assemblyId" class="layout horizontal" vs100 vl33>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeader}}" class="layout horizontal vertical flex" collapsable>
-					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" selectedItem="{{selectedAssembly}}"></simpl-tree>
+					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" on-item-selected="selectedAssemblyChanged"></simpl-tree>
 				</simpl-panel>
 			</div>
 			<div id="viewerAndListId" class="layout vertical" vs100 vl66>
 				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" class="layout vertical" heading="{{panelHeaderBom}}"  >
-					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="{{partSelected}}" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
+					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="partSelected" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
 				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" class="layout vertical" >
 					<div id="viewer"> </div>
@@ -99,17 +100,21 @@
 	</template>
 	<script>
 		Polymer({ is:'simpl-viewer',
-			panelBackgroundColor:"#666666",
-			panelHeader: 'Maschine',
-			panelHeaderBom: 'Stückliste',
-			panelHeaderDrawing: 'Zeichnung',
-			showAssemblies:true,
-			dataTablesOptions: {
-				paging: true,
-				dom: "frtiS",
-				scrollY: '150px'
+			properties:{
 			},
+			observers: [
+			],
 			ready: function() {
+				this.panelBackgroundColor="#666666";
+				this.panelHeader= 'Maschine';
+				this.panelHeaderBom= 'Stückliste';
+				this.panelHeaderDrawing= 'Zeichnung';
+				this.showAssemblies=true;
+				this.dataTablesOptions= {
+					paging: true,
+					dom: "frtiS",
+					scrollY: '150px'
+				};
 				simpl4.util.MessageManager.installMessages( "bhs" );
 				var t = null;
 				try {
@@ -140,7 +145,7 @@
 					$( this.$.viewer ).css( "height", this.viewerHeight+"px" );
 				}
 			},
-			domReady: function( context ) {
+			attached: function( context ) {
 				var prefixUrl = simpl4.util.BaseManager.getBaseUrl() + "/sw/resource/openseadragon/";
 				this._openSeadragon = OpenSeadragon( {
 					hash: "hash_" + this,
@@ -179,12 +184,14 @@
 				$( window ).trigger( "resize.dtr" );
 			},
 			selectedAssemblyChanged: function( e ) {
-				var part = this.selectedAssembly.part;
-				this.showLoading( "Loading " + this.selectedAssembly.name + "..." );
+				console.log("Details:",e.detail);
+				var selectedAssembly = e.detail.item;
+				var part = selectedAssembly.part;
+				this.showLoading( "Loading " + selectedAssembly.name + "..." );
 				setTimeout( ( function() {
-					console.log( "selectedAssemblyChanged:", this.selectedAssembly );
-					this.panelHeaderBom = "Stückliste(" + this.selectedAssembly.name + ")";
-					this.assemblyTableData = this.getAssembyTableData( this.selectedAssembly.path );
+					console.log( "selectedAssemblyChanged:", selectedAssembly );
+					this.panelHeaderBom = "Stückliste(" + selectedAssembly.name + ")";
+					this.assemblyTableData = this.getAssembyTableData( selectedAssembly.path );
 					var mapUrl = simpl4.util.BaseManager.getBaseUrl() + '/sw/resource/png_' + part + '/map.xml';
 					this.open( part, this.getHotspots( mapUrl ), "page-width" );
 				} ).bind( this ), 10 );
@@ -290,7 +297,7 @@
 				var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 				var ns = simpl4.util.BaseManager.getNamespace();
 				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
-					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;height:13px;width:100%;' type='text'></input></div>";
+					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;height:13px;min-width:30px;width:100%;' type='text'></input></div>";
 				}else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
 					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:13px;background:#787878;' src='"+baseUrl+"/repo/"+ns+"/basket.gif' type='image'></input></div>";
 				} else {

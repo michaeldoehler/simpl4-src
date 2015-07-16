@@ -126,18 +126,22 @@
 				},
 				bgcolor: {
 					value: "#428bca",
+					observer:"bgcolorChanged",
 					type: String
 				},
 				color: {
 					value: "white",
+					observer:"colorChanged",
 					type: String
 				},
 				fontWeight: {
 					value: "normal",
+					observer:"fontWeightChanged",
 					type: String
 				},
 				fontSize: {
 					value: "1.2em",
+					observer:"fontSizeChanged",
 					type: String
 				},
 				height: {
@@ -151,12 +155,20 @@
 			},
 			attached: function() {
 			},
-			ready: function() {
-				this.$.heading.style.background = this.bgcolor;
-				this.$.heading.style.fontWeight = this.fontWeight;
+			fontSizeChanged:function(){
 				this.$.heading.style.fontSize = this.fontSize;
-				this.$.heading.style.color = this.color;
+			},
+			fontWeightChanged:function(){
+				this.$.heading.style.fontWeight = this.fontWeight;
+			},
+			bgcolorChanged:function(){
 				this.$.panelContent.style.borderColor = this.bgcolor;
+				this.$.heading.style.background = this.bgcolor;
+			},
+			colorChanged:function(){
+				this.$.heading.style.color = this.color;
+			},
+			ready: function() {
 				if ( !this.height && !this.style.height ) {
 					this.$.panelContent.style[ "-ms-flex" ] = "none";
 				} else {
