@@ -176,7 +176,7 @@
 
 		<paper-dialog with-backdrop id="helpDialog">
 			<paper-dialog-scrollable>
-			<simpl-import class="flex layout horizontal" id="helpImport" content="{{substituteLang(selectedPage.help)}}"></simpl-import>
+			<simpl-import class="flex layout horizontal" id="helpImport" url="{{substituteLang(selectedPage.help)}}"></simpl-import>
 			</paper-dialog-scrollable>
 		</paper-dialog>
 		<!--paper-dialog id="loginDialog">
@@ -323,9 +323,9 @@
 				}
 			},
 			menuItemSelected: function( e ) {
-				console.debug( "menuItemSelected:", e );
 				var page = e.detail.page;
 				if ( e.detail.isSelected && page.url ) {
+					console.debug( "menuItemSelected:", e );
 					this.selectedPage = page;
 					this.route = page.hash;
 					if ( this.cache[ page.url ] !== true ) {
@@ -339,36 +339,20 @@
 				var body = _import.body;
 				var head = _import.head;
 
-				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
-					img.setAttribute( 'src', img.src );
-				} );
-
 				this.cache[ this.selectedPage.url ] = true;
 
 				var insertPoint = this.neonPages.selectedItem.firstElementChild;
-				console.log( "insertPoint:", insertPoint );
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
 				}
 				if ( head.firstElementChild ) {
-					if ( head.firstElementChild ) {
-						try {
-							head.firstElementChild.set( "globals", this.getGlobals() );
-							var self = this;
-							head.firstElementChild.set( "eval", function( p1 ) {
-								return self._maskedEval( p1, this.getGlobals() );
-							} );
-							head.firstElementChild.set( "tr", function( p1 ) {
-								return tr( p1 );
-							} );
-						} catch ( e ) {
-							console.log( "simpl-main.template.set:", e.stack );
-						}
-					}
+					head.firstElementChild.set( "globals", this.getGlobals() );
+					head.firstElementChild.set( "tr", function( text ) {
+						return tr( text );
+					} );
 					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body.firstElementChild ) {
-					console.log( "simpl-main.body.firstElementChild", body.firstElementChild );
 					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
 				
@@ -378,14 +362,6 @@
 					this.setStyleScope( insertPoint, scope);
 					//this.evalScripts( insertPoint );
 				}, 2 );
-			},
-			_maskedEval: function( scr, env, def ) {
-				try {
-					return ( new Function( "with(this) { return " + scr + "}" ) ).call( env );
-				} catch ( e ) {
-					console.error( "simpl-main.eval.error:" + e );
-				}
-				return def;
 			},
 			evalScripts: function( root ) {
 				var SCRIPT_SELECTOR = 'script';
@@ -421,7 +397,7 @@
 					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
 
-				this.$.helpImport.contentChanged(this.substituteLang(this.selectedPage.help,true));
+//				this.$.helpImport.contentChanged(this.substituteLang(this.selectedPage.help,true));
 				this.$.helpDialog.toggle();
 			},
 			loginOk: function( e ) {

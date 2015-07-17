@@ -1,43 +1,67 @@
-<script>
-	Polymer( {
-		is: 'simpl-import',
-		properties: {
-			content: {
-				observer: 'contentChanged',
-				type: String
-			}
-		},
-		contentChanged: function( name, oldVal, newVal ) {
-			this.importHref( this.content, function( e ) {
-				if ( e.target.import.body ) {
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<dom-module id="simpl-import">
+	<template>
+		<div id="insertPoint"></div>
+	</template>
+	<script>
+		Polymer( {
+			is: 'simpl-import',
+			properties: {
+				url: {
+					observer: 'urlChanged',
+					type: String
+				},
+			},
+			behaviors: [
+				StyleScopeBehavior
+			],
+			urlChanged: function( name ) {
+				if( this.url == null) return;
+				var appendChar = "?";
+				if ( this.url.indexOf( "?" ) > 0 ) {
+					appendChar = "&";
+				}
+				var url = this.url + appendChar + "time=" + ( new Date().getTime() );
+				this.importHref( url, this.onResponse.bind( this ) );
+			},
+			onResponse: function( e ) {
+				var body = e.target.import.body;
+				var head = e.target.import.head;
+
+				var insertPoint = this.$.insertPoint;
+				while ( insertPoint.firstChild ) {
+					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
+				}
+				if ( head.firstElementChild ) {
+					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
+				}
+				if ( body.firstElementChild ) {
+					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 					var page = simpl4PageRegistry.getActivePage();
-					console.log( "simpl-import.url:"+ name +"/"+page.scope);
-					Polymer.dom( this.root ).appendChild( e.target.import.body );
-					this._setStyleScope(this.root, page.scope);
-				}
-			}, function( e ) {} );
-		},
-		_setStyleScope: function( main_el, scope ) {
-			if ( !scope ) {
-				return;
-			}
-			this.async( function() {
-				this._domVisitor( main_el, function( el ) {
-					if ( !$( el ).hasClass( scope ) && el.nodeType == 1 ) {
-						el.classList.add( scope )
-					}
-				} );
-			}, 0 );
-		},
-		_domVisitor: function( el, f ) {
-			if ( el ) {
-				f( el );
-				for ( var i = 0; i < el.childNodes.length; i++ ) {
-					this._domVisitor( el.childNodes[ i ], f );
+					this.setStyleScope( insertPoint, page.scope );
 				}
 			}
-		}
 
-	} );
+		} );
 
-</script>
+	</script>
+</dom-module>
