@@ -20,6 +20,7 @@
 -->
 
 <link rel="import" href="utils-import.html">
+<link rel="import" href="../simpl-main/css-import-behavior.html">
 <dom-module id="simpl-globals" attributes="globals namespace" hidden>
 	<script>
 		( function() {
@@ -126,8 +127,15 @@
 						value: "xxx"
 					}
 				},
-				created: function() {
-					console.debug( "simpl-globals.create:" + tr( 'data.customer.cid' ) );
+				behaviors: [
+					CSSImportBehavior
+				],
+				ready: function() {
+					console.debug( "simpl-globals.ready:" + tr( 'data.customer.cid' ) );
+					this.selectedPage = {
+						scope:"asciidoctor-default"
+					}
+					this.importSheet("asciidoc.css");
 				},
 				namespaceChanged: function() {
 					simpl4MessageManager.installMessages( this.namespace );
@@ -166,7 +174,12 @@
 				setStyleScope: function( main_el ) {
 					var args  = [];
 					for ( i = 1; i < arguments.length; i++ ) {
-						args.push( arguments[i]);
+						if( arguments[i] != null){
+							args.push( arguments[i]);
+						}
+					}
+					if( args.length==0){
+						return;
 					}
 					console.debug( "args:", args );
 					this._domVisitor( main_el, function( el ) {

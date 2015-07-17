@@ -18,10 +18,9 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<link rel="import" href="../simpl-main/css-import-behavior.html">
 <dom-module id="simpl-asciidoctor" attributes="data" flex relative>
 	<template>
-		<core-style ref="main"></core-style>
-		<core-style ref="asciidoctor"></core-style>
 		<span style="display:none;">
 			<content> </content>
 		</span>
@@ -34,12 +33,29 @@
 				data: {
 					observer: 'dataChanged',
 					type: String
+				},
+				scope: {
+					type: String
+				},
+				css: {
+					type: String
 				}
 			},
+			behaviors: [
+				CSSImportBehavior,
+				StyleScopeBehavior
+			],
 			attached: function( filter ) {
 			},
 			dataChanged: function( filter ) {
-console.log("asciidoctor.Data.dataChanged");
+				var page = simpl4PageRegistry.getActivePage();
+				var scope = this.scope || page.scope || "asciidoctor-default";
+				this.selectedPage = {
+					scope:scope
+				}
+				if( this.css){
+					this.importSheet(this.css);
+				}
 				var template = this.textContent;
 				//console.log("textContent:",this.textContent);
 				var data = null;
@@ -55,8 +71,8 @@ console.log("asciidoctor.Data.dataChanged");
 					data: data,
 					template: template
 				} );
-				//console.log("Html.",html);
 				this.$.asciidoctorId.innerHTML = html;
+				this.setStyleScope(this.$.asciidoctorId,scope);
 			}
 		} );
 

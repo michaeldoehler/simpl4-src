@@ -350,15 +350,20 @@
 					head.firstElementChild.set( "tr", function( text ) {
 						return tr( text );
 					} );
+					//console.log("HEAD;", head.innerHTML);
 					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body.firstElementChild ) {
+					//console.log("BODY;", body.innerHTML);
 					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
 				
 				this.async( function() {
 					this.convertSheetsToStyles( insertPoint );
 					var scope = this.selectedPage.scope;
+					if(this.isAsciidoc(this.selectedPage.url) && scope==null){
+						scope = "asciidoctor-default";
+					}
 					this.setStyleScope( insertPoint, scope);
 					//this.evalScripts( insertPoint );
 				}, 2 );
@@ -399,6 +404,9 @@
 
 //				this.$.helpImport.contentChanged(this.substituteLang(this.selectedPage.help,true));
 				this.$.helpDialog.toggle();
+			},
+			isAsciidoc:function(url){
+				return url.indexOf(".adoc") > 0;
 			},
 			loginOk: function( e ) {
 				this.loginMessage = "User:" + e.detail.identifier;

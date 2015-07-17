@@ -32,10 +32,13 @@
 				s.parentNode.removeChild( s );
 			}
 		},
+		importSheet:function(href){
+			this.importHref( href, this._onCssResponse.bind( this ) );
+		},
 		_onCssResponse: function( e ) {
 			var _import = e.target.import;
 			var css = _import.body.textContent;
-			var scope = this.selectedModel.node.scope;
+			var scope = this.selectedPage.scope;
 			if ( scope ) {
 				//console.log( "css:", css );
 				var ast = mensch.parse( css );

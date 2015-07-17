@@ -55,10 +55,20 @@
 					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body.firstElementChild ) {
-					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
-					var page = simpl4PageRegistry.getActivePage();
-					this.setStyleScope( insertPoint, page.scope );
+					Polymer.dom( insertPoint ).appendChild( body );
 				}
+				this.setScope(insertPoint);
+			},
+			setScope:function(insertPoint){
+				var page = simpl4PageRegistry.getActivePage();
+				var scope = page.scope;
+				if(this.isAsciidoc(this.url) && scope==null){
+					scope = "asciidoctor-default";
+				}
+				this.setStyleScope( insertPoint, scope );
+			},
+			isAsciidoc:function(url){
+				return url.indexOf(".adoc") > 0;
 			}
 
 		} );
