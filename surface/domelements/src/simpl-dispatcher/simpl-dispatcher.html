@@ -42,20 +42,6 @@
 			},
 			ready: function() {
 				this.pages = simpl4PageRegistry.getPages();
-				console.log( "dispatcher.Ready:" + this.selected );
-				if ( this.selected ) {
-					var node = this.getNodeByHash( this.selected );
-					if ( node ) {
-						this.selectedModel = {
-							node: node
-						};
-						simpl4PageRegistry.setActivePage(node);
-						this.fire( "mmenu-selected", {
-							isSelected: true,
-							model: this.selectedModel
-						} );
-					}
-				}
 			},
 			attached: function() {
 				this.async( function() {
@@ -63,13 +49,12 @@
 				} );
 			},
 			_attached: function() {
-				console.log( "dispatcher._attached:" + this.selected );
 				this.mainMenuElement = Polymer.dom( document.querySelectorAll( this.shadowRoot ? "html /deep/ simpl-mmenu" : "simpl-mmenu" )[ 0 ].root );
 				var aList = this.mainMenuElement.querySelectorAll( "a" );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
-						$( a ).tap( this.activateListener.bind( this ), false );
+						$( a ).tap( this.tapListener.bind( this ), false );
 					}
 				}
 				if ( this.selected ) {
@@ -79,31 +64,29 @@
 					}, 300 );
 				}
 			},
-			activateListener: function( e ) {
+			tapListener: function( e ) {
 				if ( e.target[ "className" ] == "mm-subopen" ) {
 					return;
 				}
-				var model = {};
-				model.node = e.target.node;
-				console.log( "activateListener.model:", model.node );
-				if ( !model.node ) return;
-				var node = model.node;
-				if ( this.selectedModel ) {
+				var page = e.target.page;
+				console.log( "dispatcher.tapListener.page:", page );
+				if ( !page ) return;
+				if ( this._selectedPage ) {
 					this.fire( "mmenu-selected", {
 						isSelected: false,
-						model: this.selectedModel
+						page: this._selectedPage
 					} );
 				}
-				this.selectedModel = model;
-				simpl4PageRegistry.setActivePage(model.node);
+				this._selectedPage = page;
+				simpl4PageRegistry.setActivePage(page);
 				this.fire( "mmenu-selected", {
 					isSelected: true,
-					model: this.selectedModel
+					page: this._selectedPage
 				} );
-				this.selected = node.hash;
-				console.log( "activateListener:" + node.hash );
+				this.selected = page.hash;
+				console.log( "dispatcher.tapListener:" + page.hash );
 			},
-			getNodeByHash: function( hash ) {
+			getPageByHash: function( hash ) {
 				for ( var i = 0; i < this.pages.length; i++ ) {
 					if ( this.pages[ i ].hash == hash ) {
 						return this.pages[ i ];
@@ -111,7 +94,6 @@
 				}
 			},
 			openMenuByHash: function( mainelem, hash ) {
-				console.log( "openMenuByHash:" + hash );
 				if ( mainelem == null ) return;
 				var li = $( mainelem.querySelector( '#x' + hash ) );
 				var pli = li.parents( "li" );
@@ -123,17 +105,14 @@
 				li.trigger( "setSelected", true );
 			},
 			selectedChanged: function( e ) {
-				//console.log( "Dispatcher.selectedChanged:" + this.selectedModel );
-				if ( this.selectedModel == null || this.selected != this.selectedModel.node.hash ) {
-					var node = this.getNodeByHash( this.selected );
-					if ( node ) {
-						this.selectedModel = {
-							node: node
-						};
-						simpl4PageRegistry.setActivePage(node);
+				if ( this._selectedPage == null || this.selected != this._selectedPage.hash ) {
+					var page = this.getPageByHash( this.selected );
+					if ( page ) {
+						this._selectedPage = page;
+						simpl4PageRegistry.setActivePage(page);
 						this.fire( "mmenu-selected", {
 							isSelected: true,
-							model: this.selectedModel
+							page: this._selectedPage
 						} );
 					}
 				}

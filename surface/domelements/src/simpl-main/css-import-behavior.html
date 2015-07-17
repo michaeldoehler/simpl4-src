@@ -1,0 +1,91 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<script>
+	CSSImportBehavior = {
+		convertSheetsToStyles: function( root ) {
+			var SHEET_SELECTOR = 'link[rel=stylesheet]';
+			var sheets = root.querySelectorAll( SHEET_SELECTOR );
+			console.log( "sheets:", sheets );
+			for ( var i = 0, l = sheets.length, s, c;
+				( i < l ) && ( s = sheets[ i ] ); i++ ) {
+				var href = this.hrefForSheet( s, this.ownerDocument.baseURI );
+				c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ), this.ownerDocument );
+				this.importHref( href, this._onCssResponse.bind( this ) );
+				s.parentNode.removeChild( s );
+			}
+		},
+		_onCssResponse: function( e ) {
+			var _import = e.target.import;
+			var css = _import.body.textContent;
+			var scope = this.selectedModel.node.scope;
+			if ( scope ) {
+				//console.log( "css:", css );
+				var ast = mensch.parse( css );
+				this._visitCssRules( ast.stylesheet.rules, this._visitCssNode.bind( this ), scope );
+				css = mensch.stringify( ast );
+			}
+			var c = this.createStyleElement( css, this.ownerDocument );
+			document.head.appendChild( c );
+		},
+		_visitCssNode: function( node, scope ) {
+			if ( node.type == "rule" ) {
+				this._visitCssRule( node, scope );
+			} else if ( node.type == "media" ) {
+				if ( node.rules ) {
+					this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
+				}
+			}
+		},
+		_visitCssRules: function( items, fn, scope ) {
+			return items.reduce( function( results, item ) {
+				if ( item.type !== 'comment' ) {
+					fn( item, scope );
+				}
+			}, [] );
+		},
+		_visitCssRule: function( node, scope ) {
+			if ( node.selectors ) {
+				for ( var i = 0; i < node.selectors.length; i++ ) {
+					node.selectors[ i ] = node.selectors[ i ] + "." + scope;
+				}
+			}
+			if ( node.rules ) {
+				this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
+			}
+		},
+		importRuleForSheet: function( sheet, baseUrl ) {
+			var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
+			return '@import \'' + href + '\';';
+		},
+		hrefForSheet: function( sheet, baseUrl ) {
+			var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
+			return href;
+		},
+		createStyleElement: function( cssText, scope ) {
+			scope = scope || document;
+			scope = scope.createElement ? scope : scope.ownerDocument;
+			var style = scope.createElement( 'style' );
+			style.textContent = cssText;
+			return style;
+		},
+	}
+
+</script>

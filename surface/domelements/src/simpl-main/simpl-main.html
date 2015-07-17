@@ -18,6 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<link rel="import" href="css-import-behavior.html">
 <dom-module id="simpl-main">
 	<style>
 		core-animated-pages > * {
@@ -145,15 +146,15 @@
 				<paper-scroll-header-panel main xondenses class="flex">
 					<paper-toolbar id="mainToolbar" class="toolbarClass">
 						<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
-						<h2 id="headlineId" class="flex">{{selectedModel.node.name}}</h2>
-						<template if="{{selectedModel.node.help!=null}}">
+						<h2 id="headlineId" class="flex">{{selectedPage.name}}</h2>
+						<template is="dom-if" if="{{selectedPage.help}}">
 							<core-tooltip label="{{helpMessage}}" position="left">
-								<paper-icon-button on-click="{{showHelp}}" icon="help"></paper-icon-button>
+								<paper-icon-button on-click="showHelp" icon="help"></paper-icon-button>
 							</core-tooltip>
 						</template>
 						<paper-icon-button on-click="reload" class="langIcon" src="{{getLangIcon()}}"></paper-icon-button>
 						<core-tooltip label="{{loginMessage}}" position="left">
-							<paper-icon-button on-click="{{login}}" icon="system-update-tv"></paper-icon-button>
+							<paper-icon-button on-click="login" icon="system-update-tv"></paper-icon-button>
 						</core-tooltip>
 					</paper-toolbar>
 
@@ -173,24 +174,25 @@
 			</paper-drawer-panel>
 		</simpl-dispatcher>
 
-		<!--paper-dialog layered="false" id="helpDialog">
-			<template is="imported-template" content="{{selectedModel.node.help|substituteLang}}"></template>
+		<paper-dialog with-backdrop id="helpDialog">
+			<paper-dialog-scrollable>
+			<simpl-import class="flex layout horizontal" id="helpImport" content="{{substituteLang(selectedPage.help)}}"></simpl-import>
+			</paper-dialog-scrollable>
 		</paper-dialog>
-		<paper-dialog id="loginDialog">
+		<!--paper-dialog id="loginDialog">
 			<simpl-login on-login-ok="{{loginOk}}" id="login"></simpl-login>
 		</paper-dialog-->
 	</template>
 	<script>
 		Polymer( {
 			is: 'simpl-main',
-			cache: function() {
-				return {};
-			},
-			toolbarBackground: null,
+			behaviors: [
+				CSSImportBehavior,
+				StyleScopeBehavior
+			],
 			properties: {
-				globals: Object,
 				logoLinkLang: {
-					computed: "substituteLang(logoLink,globals)"
+					computed: "substituteLang(logoLinkobals)"
 				},
 				logoLink: {
 					type: String
@@ -226,6 +228,9 @@
 			observers: [
 				'routeChanged(route)'
 			],
+			cache: function() {
+				return {};
+			},
 			getPages: function() {
 				return simpl4PageRegistry.getPages();
 			},
@@ -233,14 +238,13 @@
 				this.async( function() {
 					this._attached();
 				} );
-				this.globals = simpl4Globals.getAll();
 			//	this.entryAnimation = 'fade-in-animation';
         this.exitAnimation = 'fade-out-animation';
 			},
 			_attached: function() {
 				this.helpMessage = tr( "button.help" );
 				this.drawerPanel = this.$.drawerPanel;
-				this.corePages = this.$.pages;
+				this.neonPages = this.$.pages;
 				this.keys = this.$.keys;
 				$( this.$.logo ).css( "background", this.logoBackground );
 				$( this.$.nav ).css( "background", this.logoBackground );
@@ -256,6 +260,12 @@
 
 				console.log( "location:" + window.location );
 				console.log( "init.route:" + this.route );
+			},
+			getGlobals:function(){
+				if( this.globals==null){
+					this.globals = simpl4Globals.getAll();
+				}
+				return this.globals;
 			},
 			toolbarBackgroundChanged: function() {
 				$( this.$.mainToolbar ).css( "background", this.toolbarBackground );
@@ -294,36 +304,32 @@
 			keyHandler: function( e, detail, sender ) {
 				var num = parseInt( detail.key );
 				if ( !isNaN( num ) && num <= simpl4PageRegistry.getPages().length ) {
-					this.corePages.selectIndex( num - 1 );
+					this.neonPages.selectIndex( num - 1 );
 					return;
 				}
 
 				switch ( detail.key ) {
 					case 'left':
 					case 'up':
-						this.corePages.selectPrevious();
+						this.neonPages.selectPrevious();
 						break;
 					case 'right':
 					case 'down':
-						this.corePages.selectNext();
+						this.neonPages.selectNext();
 						break;
 					case 'space':
-						detail.shift ? this.corePages.selectPrevious() : this.corePages.selectNext();
+						detail.shift ? this.neonPages.selectPrevious() : this.neonPages.selectNext();
 						break;
 				}
 			},
 			menuItemSelected: function( e ) {
-				console.log( "menuItemSelected:", e );
-				var url = null;
-				try {
-					url = e.detail.model.node.url;
-				} catch ( e ) {}
-				if ( e.detail.isSelected && url ) {
-					this.selectedModel = e.detail.model;
-					this.route = e.detail.model.node.hash;
-					if ( this.cache[ url ] !== true ) {
-						console.log( "Loading:", e.detail.model.node.url );
-						this.importHref( e.detail.model.node.url, this.onResponse.bind( this ) );
+				console.debug( "menuItemSelected:", e );
+				var page = e.detail.page;
+				if ( e.detail.isSelected && page.url ) {
+					this.selectedPage = page;
+					this.route = page.hash;
+					if ( this.cache[ page.url ] !== true ) {
+						this.importHref( page.url, this.onResponse.bind( this ) );
 					}
 				}
 				this.$.drawerPanel.closeDrawer();
@@ -332,15 +338,14 @@
 				var _import = e.target.import;
 				var body = _import.body;
 				var head = _import.head;
-				console.log( "onResponse", e );
 
 				[].forEach.call( body.querySelectorAll( 'img' ), function( img ) {
 					img.setAttribute( 'src', img.src );
 				} );
 
-				this.cache[ this.selectedModel.node.url ] = true;
+				this.cache[ this.selectedPage.url ] = true;
 
-				var insertPoint = this.corePages.selectedItem.firstElementChild;
+				var insertPoint = this.neonPages.selectedItem.firstElementChild;
 				console.log( "insertPoint:", insertPoint );
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
@@ -348,10 +353,10 @@
 				if ( head.firstElementChild ) {
 					if ( head.firstElementChild ) {
 						try {
-							head.firstElementChild.set( "globals", this.globals );
+							head.firstElementChild.set( "globals", this.getGlobals() );
 							var self = this;
 							head.firstElementChild.set( "eval", function( p1 ) {
-								return self._maskedEval( p1, this.globals );
+								return self._maskedEval( p1, this.getGlobals() );
 							} );
 							head.firstElementChild.set( "tr", function( p1 ) {
 								return tr( p1 );
@@ -369,8 +374,8 @@
 				
 				this.async( function() {
 					this.convertSheetsToStyles( insertPoint );
-					var scope = this.selectedModel.node.scope;
-					this._setStyleScope( insertPoint, scope);
+					var scope = this.selectedPage.scope;
+					this.setStyleScope( insertPoint, scope);
 					//this.evalScripts( insertPoint );
 				}, 2 );
 			},
@@ -382,26 +387,6 @@
 				}
 				return def;
 			},
-			_setStyleScope: function( main_el, scope ) {
-				if( !scope) {
-					return;
-				}
-				this.async( function() {
-					this._domVisitor( main_el, function( el ) {
-						if ( !$( el ).hasClass( scope ) && el.nodeType == 1 ) {
-							el.classList.add( scope )
-						}
-					} );
-				}, 0 );
-			},
-			_domVisitor: function( el, f ) {
-				if ( el ) {
-					f( el );
-					for ( var i = 0; i < el.childNodes.length; i++ ) {
-						this._domVisitor( el.childNodes[ i ], f );
-					}
-				}
-			},
 			evalScripts: function( root ) {
 				var SCRIPT_SELECTOR = 'script';
 				var scripts = root.querySelectorAll( SCRIPT_SELECTOR );
@@ -409,97 +394,23 @@
 					eval( scripts[ i ].text );
 				}
 			},
-			convertSheetsToStyles: function( root ) {
-				var SHEET_SELECTOR = 'link[rel=stylesheet]';
-				var sheets = root.querySelectorAll( SHEET_SELECTOR );
-				console.log( "sheets:", sheets );
-				for ( var i = 0, l = sheets.length, s, c;
-					( i < l ) && ( s = sheets[ i ] ); i++ ) {
-					var href = this.hrefForSheet( s, this.ownerDocument.baseURI );
-					c = this.createStyleElement( this.importRuleForSheet( s, this.ownerDocument.baseURI ), this.ownerDocument );
-					this.importHref( href, this._onCssResponse.bind( this ) );
-					//this.copySheetAttributes( c, s );
-					//s.parentNode.replaceChild( c, s );
-					s.parentNode.removeChild( s );
-				}
-			},
-			_onCssResponse: function( e ) {
-				var _import = e.target.import;
-				var css =  _import.body.textContent;
-				var scope = this.selectedModel.node.scope;
-				if( scope ){
-					//console.log( "css:", css );
-					var ast = mensch.parse( css );
-					this._visitCssRules( ast.stylesheet.rules, this._visitCssNode.bind( this ), scope );
-					css = mensch.stringify(ast);
-				}
-				var	c = this.createStyleElement( css, this.ownerDocument );
-				document.head.appendChild( c );
-			},
-			_visitCssNode: function( node, scope ) {
-				if ( node.type == "rule" ) {
-					this._visitCssRule( node, scope );
-				} else if ( node.type == "media" ) {
-					if ( node.rules ) {
-						this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
-					}
-				}
-			},
-			_visitCssRules: function( items, fn, scope ) {
-				return items.reduce( function( results, item ) {
-					if ( item.type !== 'comment' ) {
-						fn( item, scope );
-					}
-				}, [] );
-			},
-			_visitCssRule: function( node, scope ) {
-				if ( node.selectors ) {
-					for ( var i = 0; i < node.selectors.length; i++ ) {
-						node.selectors[ i ] = node.selectors[i]+"."+scope;
-					}
-				}
-				if ( node.rules ) {
-					this._visitCssRules( node.rules, this._visitCssRule.bind( this ), scope );
-				}
-			},
-			copySheetAttributes: function( style, link ) {
-				for ( var i = 0, attr = link.attributes, l = attr.length, a;
-					( a = attr[ i ] ) && i < l; i++ ) {
-					if ( a.name !== 'rel' && a.name !== 'href' ) {
-						style.setAttribute( a.name, a.value );
-					}
-				}
-			},
-			importRuleForSheet: function( sheet, baseUrl ) {
-				var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
-				return '@import \'' + href + '\';';
-			},
-			hrefForSheet: function( sheet, baseUrl ) {
-				var href = new URL( sheet.getAttribute( 'href' ), baseUrl ).href;
-				return href;
-			},
-			createStyleElement: function( cssText, scope ) {
-				scope = scope || document;
-				scope = scope.createElement ? scope : scope.ownerDocument;
-				var style = scope.createElement( 'style' );
-				style.textContent = cssText;
-				return style;
-			},
 			getLogoLink: function() {
 				console.log( "logoLink2:", this.logoLink );
 				return this.substituteLang( this.logoLink );
 			},
-			substituteLang: function( url ) {
-				console.log( "substituteLang:", this.globals );
+			substituteLang: function( url, notemp ) {
+				console.log( "substituteLang:", this.getGlobals() );
 				if ( url == null || url == '' ) return;
 				if ( url.indexOf( "%l" ) != -1 ) {
-					url = url.replace( "%l", this.globals.lang );
+					url = url.replace( "%l", this.getGlobals().lang );
 				}
 				if ( !url.match( /^http/ ) ) {
 					if ( url.match( /^[a-zA-Z].*/ ) ) {
 						url = "./" + url;
 					}
+					if( notemp == null){
 					url += "?t=1";
+					}
 				}
 				console.log( "url:" + url );
 				return url;
@@ -509,6 +420,8 @@
 					var action = this.route == "0" ? "main" : this.route;
 					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
+
+				this.$.helpImport.contentChanged(this.substituteLang(this.selectedPage.help,true));
 				this.$.helpDialog.toggle();
 			},
 			loginOk: function( e ) {
