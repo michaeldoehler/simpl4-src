@@ -32,7 +32,7 @@
 				s.parentNode.removeChild( s );
 			}
 		},
-		importSheet:function(href){
+		importSheet: function( href ) {
 			this.importHref( href, this._onCssResponse.bind( this ) );
 		},
 		_onCssResponse: function( e ) {
@@ -67,7 +67,13 @@
 		_visitCssRule: function( node, scope ) {
 			if ( node.selectors ) {
 				for ( var i = 0; i < node.selectors.length; i++ ) {
-					node.selectors[ i ] = node.selectors[ i ] + "." + scope;
+					var s = node.selectors[ i ];
+					var colon = s.indexOf( ":" );
+					if ( colon >= 0 ) {
+						node.selectors[i] = this._insert(s,colon, "."+scope);
+					} else {
+						node.selectors[ i ] = s + "." + scope;
+					}
 				}
 			}
 			if ( node.rules ) {
@@ -89,6 +95,13 @@
 			style.textContent = cssText;
 			return style;
 		},
-	}
+		_insert: function( str, index, ins ) {
+			if ( index > 0 ) {
+				return str.substring( 0, index ) + ins + str.substring( index, str.length );
+			} else {
+				return ins + str;
+			}
+		}
+	};
 
 </script>

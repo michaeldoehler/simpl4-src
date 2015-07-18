@@ -47,17 +47,21 @@
 				var body = e.target.import.body;
 				var head = e.target.import.head;
 
+//console.log("Head:",head.innerHTML);
+//console.log("Body:",body.innerHTML);
 				var insertPoint = this.$.insertPoint;
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
 				}
 				if ( head.firstElementChild ) {
-					Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
+					//Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body.firstElementChild ) {
 					Polymer.dom( insertPoint ).appendChild( body );
 				}
-				this.setScope(insertPoint);
+				this.async( function() {
+					this.setScope(insertPoint);
+				}, 50 );
 			},
 			setScope:function(insertPoint){
 				var page = simpl4PageRegistry.getActivePage();

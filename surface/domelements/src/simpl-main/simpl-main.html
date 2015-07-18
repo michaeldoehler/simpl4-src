@@ -176,7 +176,7 @@
 
 		<paper-dialog with-backdrop id="helpDialog">
 			<paper-dialog-scrollable>
-			<simpl-import class="flex layout horizontal" id="helpImport" url="{{substituteLang(selectedPage.help)}}"></simpl-import>
+			<simpl-import style="[[getHelpDialogStyle()]]" class="flex layout horizontal" id="helpImport" url="{{substituteLang(selectedPage.help,1)}}"></simpl-import>
 			</paper-dialog-scrollable>
 		</paper-dialog>
 		<!--paper-dialog id="loginDialog">
@@ -345,7 +345,7 @@
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
 				}
-				if ( head.firstElementChild ) {
+				if ( head.firstElementChild && head.firstElementChild.set) {
 					head.firstElementChild.set( "globals", this.getGlobals() );
 					head.firstElementChild.set( "tr", function( text ) {
 						return tr( text );
@@ -395,6 +395,11 @@
 				}
 				console.log( "url:" + url );
 				return url;
+			},
+			getHelpDialogStyle:function(){
+				var h = $(window).height()*0.9;
+				console.log("height:",h);
+				return "height:"+h+"px;";
 			},
 			showHelp: function( e ) {
 				if ( window._paq && !this.$.helpDialog.opened ) {
