@@ -21,37 +21,13 @@
 <link rel="import" href="css-import-behavior.html">
 <dom-module id="simpl-main">
 	<style>
-		core-animated-pages > * {
-			font-size: inherit;
-			overflow-y: auto;
-			border-radius: 5px;
-			background-color: white;
-		}
-		core-animated-pages {
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-		}
 		@media all and (max-width: 480px) {
-			core-animated-pages {
-				width: 100%;
-				height: 100%;
-			}
 		}
-		neon-animatable.main {
+		neon-animatable {
 			padding: 6px;
-		}
-		section.main {
-			padding: 6px;
-			width: 100%;
-			height: 100%;
-		}
-		section> div {
-			width: 100%;
-			height: 100%;
 		}
 		simpl-mmenu {
-			position: relative;
+		//	position: relative;
 		}
 		@media all and (max-width: 480px) {
 			html /deep/ #loginDialog {
@@ -60,10 +36,7 @@
 			}
 		}
 		[drawer] {
-			box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
-		}
-		[main] {
-			height: 100%;
+		//	box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
 		}
 		#drawerPanel:not([narrow]) #menuButton {
 			display: none;
@@ -119,10 +92,11 @@
 			color:black;
 		}
 
+		simpl-mmenu {
+			position: relative;
+		}
 	</style>
 	<template>
-		<core-style ref="main"></core-style>
-
 		<simpl-globals></simpl-globals>
 
 		<flatiron-director route="{{route}}" auto-hash></flatiron-director>
@@ -143,7 +117,7 @@
 					</nav>
 				</div>
 
-				<paper-scroll-header-panel main xondenses class="flex">
+				<paper-scroll-header-panel main>
 					<paper-toolbar id="mainToolbar" class="toolbarClass">
 						<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
 						<h2 id="headlineId" class="flex">{{selectedPage.name}}</h2>
@@ -158,17 +132,13 @@
 						</core-tooltip>
 					</paper-toolbar>
 
-					<div class="content" style="height:100%">
-						<neon-animated-pages style="position:relative;" id="pages" selected="{{route}}" attr-for-selected="hash" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+						<neon-animated-pages id="pages" selected="{{route}}" attr-for-selected="hash" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 							<template is="dom-repeat" items="{{getPages()}}">
-								<neon-animatable class="main" style="position:relative;" hash$={{item.hash}}>
-									<div slide-from-right style="height:100%">
-										<div style="max-width:100%;">{{item.name}}</div>
-									</div>
+								<neon-animatable  hash$={{item.hash}}>
+										<div>{{item.name}}</div>
 								</neon-animatable>
 							</template>
 						</neon-animated-pages>
-					</div>
 				</paper-scroll-header-panel>
 
 			</paper-drawer-panel>
@@ -231,6 +201,9 @@
 			cache: function() {
 				return {};
 			},
+			created: function() {
+				this.firstLoad=true;
+			},
 			getPages: function() {
 				return simpl4PageRegistry.getPages();
 			},
@@ -238,7 +211,7 @@
 				this.async( function() {
 					this._attached();
 				} );
-			//	this.entryAnimation = 'fade-in-animation';
+				this.entryAnimation = 'fade-in-animation';
         this.exitAnimation = 'fade-out-animation';
 			},
 			_attached: function() {
@@ -366,7 +339,15 @@
 					}
 					this.setStyleScope( insertPoint, scope);
 					//this.evalScripts( insertPoint );
-				}, 2 );
+					//this.resize();
+				}, 20 );
+			},
+			resize:function(){
+				if( this.firstLoad === false) return;
+				this.firstLoad=false;
+				this.async( function() {
+					window.dispatchEvent(new Event('resize'));
+				}, 300 );
 			},
 			evalScripts: function( root ) {
 				var SCRIPT_SELECTOR = 'script';
