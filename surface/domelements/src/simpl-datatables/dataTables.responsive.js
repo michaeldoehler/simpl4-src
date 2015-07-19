@@ -639,7 +639,7 @@ console.log("haveHidden:"+haveHidden);
 			.insertBefore( dt.table().node() );
 
 		if( callback){
-			 callback();
+			 callback(true);
 		}
 
 		// The cloned header now contains the smallest that each column can be

@@ -78,8 +78,14 @@
 			if ( this.dtTable == null ) {
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
 					this.whenTableReady( ( function() {
-						new jQuery.fn.dataTable.Responsive( settings, null, ( function() {
-							this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
+						new jQuery.fn.dataTable.Responsive( settings, null, ( function(sync) {
+							if( sync){
+								this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
+							}else{
+								this.async( function() {
+									this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
+								},30 );
+							}
 						} ).bind( this ) );
 						this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 					} ).bind( this ) );
