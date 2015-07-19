@@ -21,12 +21,15 @@
 <link rel="import" href="import-js.html">
 <link rel="import" href="datatables-behavior.html">
 <dom-module id="simpl-datatables" flex relative>
-	<link rel="import" type="css" href="jquery.dataTables.css" />
-	<link rel="import" type="css" href="dataTables.responsive.css" />
+	<link rel="import" type="css" href="jquery.dataTables.css" >
+	<link rel="import" type="css" href="dataTables.responsive.css" >
 	<link rel="import" type="css" href="simpl-datatables.css">
+	<style>
+
+	</style>
 	<template>
 		<div id="dtId" style="overflow:hidden;">
-			<table id="dataTablesId"  class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
+			<table id="dataTablesId"  class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%" ></table>
 		</div>
 		<content>
 		</content>
