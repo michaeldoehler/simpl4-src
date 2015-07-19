@@ -81,6 +81,11 @@
 			left: 2px !important;
 		}
 	}
+	:host table.dataTable.dtr-inline.collapsed tbody tr.parent td:first-child:before,
+	:host table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before {
+		content: '-';
+		background-color: white;
+	}
 	:host table.responsive.dataTables thead tr th,
 	:host table.responsive.dataTables tfoot tr th {
 		background: white;

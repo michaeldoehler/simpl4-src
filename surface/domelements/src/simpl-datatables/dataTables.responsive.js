@@ -143,7 +143,7 @@ Responsive.prototype = {
 		// this.s.alwaysHidden = dt.columns(':hidden').indexes();
 
 		this._classLogic();
-		this._resizeAuto();
+		this._resizeAuto(callback);
 
 		// First pass - draw the table for the current viewport size
 		this._resize();
@@ -219,7 +219,6 @@ Responsive.prototype = {
 				requiredWidth += columns[i].minWidth;
 			}
 		}
-
 		// Second pass, use up any remaining width for other columns
 		var widthAvailable = dt.table().container().offsetWidth;
 		var usedWidth = widthAvailable - requiredWidth;
@@ -594,7 +593,7 @@ console.log("haveHidden:"+haveHidden);
 	 *
 	 * @private
 	 */
-	_resizeAuto: function ()
+	_resizeAuto: function (callback)
 	{
 		var dt = this.s.dt;
 		var columns = this.s.columns;
@@ -638,6 +637,10 @@ console.log("haveHidden:"+haveHidden);
 			} )
 			.append( clonedTable )
 			.insertBefore( dt.table().node() );
+
+		if( callback){
+			 callback();
+		}
 
 		// The cloned header now contains the smallest that each column can be
 		dt.columns().eq(0).each( function ( idx ) {

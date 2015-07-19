@@ -27,6 +27,9 @@
 				position: relative;
 				box-sizing: border-box;
 			}
+			:host /deep/ td.menge {
+				width:20px;
+			}
 			:host /deep/ .hotspot {
 				border-radius: 3px;
 				//				background: yellow;
@@ -248,7 +251,7 @@
 				var col = {};
 				col.data = "menge";
 				col.title = "";
-				col.class="input";
+				col.class="input menge";
 				col.width="20";
 				col.mRender= this.renderColumn;
 				colHds.push( col );
@@ -297,9 +300,9 @@
 				var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 				var ns = simpl4.util.BaseManager.getNamespace();
 				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
-					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px;margin:0px;font-size:10px;height:13px;min-width:30px;width:100%;' type='text'></input></div>";
+					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px !important; ;max-width:34px;margin:0px;font-size:10px;height:19px;xidth:100%;' type='text'></input></div>";
 				}else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
-					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:13px;background:#787878;' src='"+baseUrl+"/repo/"+ns+"/basket.gif' type='image'></input></div>";
+					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:16px;background:#787878;' src='"+baseUrl+"/repo/"+ns+"/basket.gif' type='image'></input></div>";
 				} else {
 					return row[ name ];
 				}

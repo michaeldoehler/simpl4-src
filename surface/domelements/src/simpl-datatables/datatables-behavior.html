@@ -79,9 +79,7 @@
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
 					this.whenTableReady( ( function() {
 						new jQuery.fn.dataTable.Responsive( settings, null, ( function() {
-							this.async( function() {
-								this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
-							} );
+							this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 						} ).bind( this ) );
 						this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 					} ).bind( this ) );

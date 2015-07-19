@@ -19,8 +19,8 @@
  */
 -->
 <dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
-	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css" />
-	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css" />
+	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css" >
+	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css" >
 	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
 	<style>
 		paper-button.ripple {
@@ -60,7 +60,7 @@
 			</template>
 		</div>
 		<div id="dtId" style="overflow:hidden;">
-			<table id="dataTablesId" class="dataTables" cellpadding="0" cellspacing="0" border="0" width="100%" class="display responsive"></table>
+			<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%" ></table>
 		</div>
 	</template>
 	<script>
