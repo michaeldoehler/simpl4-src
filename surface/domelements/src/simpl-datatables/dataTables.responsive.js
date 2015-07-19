@@ -72,7 +72,7 @@ var factory = function( $, DataTable ) {
  *      } );
  *    } );
  */
-var Responsive = function ( settings, opts ) {
+var Responsive = function ( settings, opts, callback ) {
 	// Sanity check that we are using DataTables 1.10 or newer
 	if ( ! DataTable.versionCheck || ! DataTable.versionCheck( '1.10.1' ) ) {
 		throw 'DataTables Responsive requires DataTables 1.10.1 or newer';
@@ -95,7 +95,7 @@ var Responsive = function ( settings, opts ) {
 
 	this.c = $.extend( true, {}, Responsive.defaults, DataTable.defaults.responsive, opts );
 	settings.responsive = this;
-	this._constructor();
+	this._constructor(callback);
 };
 
 Responsive.prototype = {
@@ -108,7 +108,7 @@ Responsive.prototype = {
 	 *
 	 * @private
 	 */
-	_constructor: function ()
+	_constructor: function (callback)
 	{
 		var that = this;
 		var dt = this.s.dt;
@@ -118,6 +118,7 @@ Responsive.prototype = {
 		// Use DataTables' private throttle function to avoid processor thrashing
 		$(window).on( 'resize.dtr orientationchange.dtr', dt.settings()[0].oApi._fnThrottle( function () {
 			that._resize();
+			callback();
 		} ) );
 
 		// Destroy event handler
@@ -150,11 +151,12 @@ Responsive.prototype = {
 		// Details handler
 		var details = this.c.details;
 		if ( details.type ) {
-			that._detailsInit();
+			that._detailsInit(callback);
 			this._detailsVis();
 
 			dt.on( 'column-visibility.dtr', function () {
 				that._detailsVis();
+				callback();
 			} );
 
 			// Redraw the details box on each draw. This is used until
@@ -167,6 +169,7 @@ Responsive.prototype = {
 						var info = that.c.details.renderer( dt, idx );
 						row.child( info, 'child' ).show();
 					}
+				callback();
 				} );
 			} );
 
@@ -413,7 +416,7 @@ Responsive.prototype = {
 	 *
 	 * @private
 	 */
-	_detailsInit: function ()
+	_detailsInit: function (callback)
 	{
 		var that    = this;
 		var dt      = this.s.dt;
@@ -464,6 +467,7 @@ Responsive.prototype = {
 				var info = that.c.details.renderer( dt, row[0] );
 				row.child( info, 'child' ).show();
 				$( row.node() ).addClass( 'parent' );
+				callback();
 			}
 		} );
 	},
@@ -478,7 +482,6 @@ Responsive.prototype = {
 	{
 		var that = this;
 		var dt = this.s.dt;
-
 		// Find how many columns are hidden
 		var hiddenColumns = dt.columns().indexes().filter( function ( idx ) {
 			var col = dt.column( idx );

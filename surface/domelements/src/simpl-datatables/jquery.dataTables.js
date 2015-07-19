@@ -3174,6 +3174,7 @@
 	 */
 	function _fnUpdateInfo ( settings )
 	{
+console.log("_fnUpdateInfo:");
 		/* Show information about the table */
 		var nodes = settings.aanFeatures.i;
 		if ( nodes.length === 0 ) {
