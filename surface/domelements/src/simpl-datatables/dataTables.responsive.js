@@ -118,7 +118,7 @@ Responsive.prototype = {
 		// Use DataTables' private throttle function to avoid processor thrashing
 		$(window).on( 'resize.dtr orientationchange.dtr', dt.settings()[0].oApi._fnThrottle( function () {
 			that._resize();
-			callback();
+			//callback();
 		} ) );
 
 		// Destroy event handler
@@ -169,7 +169,7 @@ Responsive.prototype = {
 						var info = that.c.details.renderer( dt, idx );
 						row.child( info, 'child' ).show();
 					}
-				callback();
+				//callback();
 				} );
 			} );
 
@@ -466,7 +466,7 @@ Responsive.prototype = {
 				var info = that.c.details.renderer( dt, row[0] );
 				row.child( info, 'child' ).show();
 				$( row.node() ).addClass( 'parent' );
-				callback();
+				//callback();
 			}
 		} );
 	},

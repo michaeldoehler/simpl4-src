@@ -78,7 +78,11 @@
 			if ( this.dtTable == null ) {
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
 					this.whenTableReady( ( function() {
-						new jQuery.fn.dataTable.Responsive( settings, null, ( function(sync) {
+								this.async( function() {
+									new jQuery.fn.dataTable.Responsive( settings, null, function(sync) {});
+								},50 );
+/*						new jQuery.fn.dataTable.Responsive( settings, null, ( function(sync) {
+							return;
 							if( sync){
 								this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 							}else{
@@ -86,8 +90,8 @@
 									this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 								},30 );
 							}
-						} ).bind( this ) );
-						this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
+						} ).bind( this ) );*/
+			//			this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
 					} ).bind( this ) );
 				} ).bind( this ) );
 			}
