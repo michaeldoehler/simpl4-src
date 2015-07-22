@@ -81,11 +81,12 @@
 			},
 			execute: function( withMeta ) {
 				var params = this.parseParams( this.params );
-				console.debug( "execute.namespace:", this.namespace );
 				var namespace = this.namespace || "firstapp"; //globals.mainNamespace;
-				console.debug( "execute:", this.params );
-				console.debug( "pagesize:", this.pagesize );
-				console.debug( "offset:", this.offset );
+				console.debug( "execute.namespace:", this.namespace );
+				console.debug( "execute.name:", this.name );
+				console.debug( "execute.params:", this.params );
+				console.debug( "execute.pagesize:", this.pagesize );
+				console.debug( "execute.offset:", this.offset );
 				var map = simpl4.util.Rpc.rpcSync( "data:executeFilterByName", {
 					storeId: namespace + "_data",
 					withMeta: withMeta,

@@ -45,22 +45,6 @@
 				type: String
 			}
 		},
-
-		ready: function() {},
-		whenTableReady: function( done ) {
-			var self = this;
-
-			function waitForTable() {
-				var width = self.$.dataTablesId.offsetWidth;
-				console.log( "waitForTable.Width:", width );
-				if ( width > 0 ) {
-					done();
-					return;
-				}
-				setTimeout( waitForTable, 20 );
-			}
-			waitForTable();
-		},
 		createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;
 			if ( options ) {
@@ -70,35 +54,24 @@
 			} else {
 				options = {};
 			}
-			if ( this.dtTable ) {
-				this.dtTable.destroy( false );
+			if ( this._api ) {
+				this._api.destroy( false );
 			}
 			var self = this;
 			var dtMainElem = $( this.$.dataTablesId );
-			if ( this.dtTable == null ) {
+			if ( this._api == null ) {
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
 					this.whenTableReady( ( function() {
-								this.async( function() {
-									new jQuery.fn.dataTable.Responsive( settings, null, function(sync) {});
-								},50 );
-/*						new jQuery.fn.dataTable.Responsive( settings, null, ( function(sync) {
-							return;
-							if( sync){
-								this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
-							}else{
-								this.async( function() {
-									this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
-								},30 );
-							}
-						} ).bind( this ) );*/
-			//			this.setStyleScope( this.$.dtId, "style-scope", this.tagName.toLowerCase() );
+						this.async( function() {
+							new jQuery.fn.dataTable.Responsive( settings, null, function( sync ) {} );
+						}, 50 );
 					} ).bind( this ) );
 				} ).bind( this ) );
 			}
 			if ( dataSet && dataSet.length < 10 ) {
 				options.dom = "t";
 			}
-			this.dtTable = dtMainElem.DataTable( jQuery.extend( {
+			this._api = dtMainElem.DataTable( jQuery.extend( {
 				language: this.getLang(),
 				paging: true,
 				pagingType: "two_button",
@@ -120,7 +93,7 @@
 		},
 		createRowListener: function() {
 			var self = this;
-			var rows = this.dtTable.rows().nodes();
+			var rows = this._api.rows().nodes();
 			for ( var i = 0; i < rows.length; i++ ) {
 				$( rows[ i ] ).tap( function( e ) {
 					self.currentRowIndex = e.currentTarget._DT_RowIndex;
@@ -138,7 +111,7 @@
 			}
 			this.unselectAll();
 			$( t ).addClass( 'selected' );
-			var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
+			var sel = this.copySelection( this._api.rows( '.selected' ).data() );
 			this.fire( "rows-selected", {
 				rows: sel
 			} );
@@ -146,7 +119,7 @@
 		},
 		tapActionMulti: function( e, t, double ) {
 			$( t ).toggleClass( 'selected' );
-			var sel = this.copySelection( this.dtTable.rows( '.selected' ).data() );
+			var sel = this.copySelection( this._api.rows( '.selected' ).data() );
 			this.fire( "rows-selected", {
 				rows: sel
 			} );
@@ -176,15 +149,30 @@
 		dataChanged: function() {
 			console.log( "dataTables.dataChanged.data:", this.data );
 			console.log( "dataTables.dataChanged.meta:", this.meta );
+			var firsttime = this.preparedMeta == null;
 			if ( this.meta == null ) {
-				this.preparedMeta = this.prepareMetaFromData( this.data );
+				if ( this.data.length > 0 ) {
+					this.preparedMeta = this.prepareMetaFromData( this.data );
+				}
 			} else {
 				this.preparedMeta = this.prepareMeta( this.meta );
 			}
 
-			this.whenTableReady( ( function() {
-				this.createTable( this.preparedMeta, this.data, this.options );
-			} ).bind( this ) );
+			if ( this.prepareMeta == null ) {
+				return;
+			}
+			if ( firsttime ) {
+				this.whenTableReady( ( function() {
+					this.createTable( this.preparedMeta, this.data, this.options );
+				} ).bind( this ) );
+			} else {
+				this._api.clear();
+				this.data.forEach( ( function( row, idx ) {
+					this._api.row.add( row );
+				} ).bind( this ) );
+				this._api.draw();
+				this.createRowListener();
+			}
 		},
 		prepareMeta: function( meta ) {
 			var fields = meta.fields;
@@ -224,6 +212,20 @@
 				ret.push( col );
 			}, this );
 			return ret;
+		},
+		whenTableReady: function( done ) {
+			var self = this;
+
+			function waitForTable() {
+				var width = self.$.dataTablesId.offsetWidth;
+				console.log( "waitForTable.Width:", width );
+				if ( width > 0 ) {
+					done();
+					return;
+				}
+				setTimeout( waitForTable, 20 );
+			}
+			waitForTable();
 		},
 		parseOptions: function( o ) {
 			if ( o == null ) return;

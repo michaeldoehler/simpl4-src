@@ -19,8 +19,8 @@
  */
 -->
 <dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
-	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css" >
-	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css" >
+	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css">
+	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css">
 	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
 	<style>
 		paper-button.ripple {
@@ -54,13 +54,13 @@
 	<!--template is="dom-if" if="{{dataSet}}"-->
 	<template>
 		<div class="layout horizontal" style="margin-bottom:10px;">
-			<template is="dom-repeat"  items="{{buttonList}}">
+			<template is="dom-repeat" items="{{buttonList}}">
 				<paper-button raised name$="{{item.name}}" class="ripple flex" on-tap="onTap" disabled$="{{item.disabled}}">
 					<iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 			</template>
 		</div>
 		<div id="dtId" style="overflow:hidden;">
-			<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%" ></table>
+			<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%"></table>
 		</div>
 	</template>
 	<script>
@@ -83,11 +83,8 @@
 				'buttonsChanged(buttons)',
 				'selectionChanged(selection)'
 			],
-			created: function() {
-				console.debug( "crudtable.created" );
-			},
 			ready: function() {
-				this.dtMeta= null;
+				//this.dtMeta= null; //@@@MS ?!?!?
 				console.debug( "crudtable.ready:" + this.namespace );
 			},
 			addAction: function() {
@@ -159,17 +156,17 @@
 				this.buttonDef[ name ].action.call( this );
 			},
 			selectionChanged: function() {
-				if( this.buttonDef == null) return;
+				if ( this.buttonDef == null ) return;
 				this.buttonDef[ "edit" ].disabled =
 					this.buttonDef[ "copy" ].disabled =
 					this.buttonDef[ "show" ].disabled =
 					this.buttonDef[ "select" ].disabled =
 					this.buttonDef[ "detail" ].disabled = this.selection == null;
-					for( var i=0; i< this.buttonList.length; i++){
-						if( this.buttonList[i].name != 'add' && this.buttonList[i].name != 'cancel'){
-							this.set("buttonList."+i+".disabled",  this.selection==null);
-						}
+				for ( var i = 0; i < this.buttonList.length; i++ ) {
+					if ( this.buttonList[ i ].name != 'add' && this.buttonList[ i ].name != 'cancel' ) {
+						this.set( "buttonList." + i + ".disabled", this.selection == null );
 					}
+				}
 			},
 			buttonsChanged: function() {
 				console.log( "buttonsChanged" );
@@ -225,20 +222,34 @@
 					bList.push( b );
 				} ).bind( this ) );
 				this.buttonList = bList;
-console.log("buttonList:",this.buttonList);
+				console.log( "buttonList:", this.buttonList );
 			},
 			filterChanged: function( o, n ) {
-				console.log( "filterChanged:", this.filter );
-				if( !this.filter) return;
+				console.log( "crudtable.filterChanged:", this.filter );
+				if ( !this.filter ) return;
 				this.entity = this.filter.entity;
 				this.namespace = this.filter.namespace || simpl4.util.BaseManager.getNamespace();
+				var firsttime = false;
 				if ( this.dtMeta == null ) {
+					firsttime = true;
+				}
+				console.log( "crudtable.firsttime:" + firsttime );
+				if ( firsttime ) {
 					this.dtMeta = this.preProcessMeta( simpl4EntityManager.getEntityViewFields( this.filter.entity, "main-grid", true, {
 						namespace: this.namespace
 					} ) );
 				}
 				this.dataSet = this.preProcessData( this.getData( this.filter ) );
-				this.createTable( this.dtMeta, this.dataSet );
+				if ( firsttime ) {
+					this.createTable( this.dtMeta, this.dataSet );
+				} else {
+					this._api.clear();
+					this.dataSet.forEach( ( function( row, idx ) {
+						this._api.row.add( row );
+					} ).bind( this ) );
+					this._api.draw();
+					this.createRowListener();
+				}
 			},
 			preProcessData: function( rows ) {
 				var selKeys = Object.keys( this.selectableList );
