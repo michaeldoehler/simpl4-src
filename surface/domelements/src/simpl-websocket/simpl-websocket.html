@@ -19,16 +19,43 @@
  */
 -->
 <dom-module id="simpl-websocket" attributes="namespace websocketName service routeSpec connected recvMessage" constructor="SimplWebsocket">
-	<template>
 		<style>
 			:host {
 				display: none;
 			}
 		</style>
+	<template>
 	</template>
 	<script type="text/javascript">
 		( function() {
 			Polymer({ is:"simpl-websocket",
+				properties: {
+					namespace: {
+						type: String
+					},
+					websocketName: {
+						type: String
+					},
+					service: {
+						type: String
+					},
+					routeSpec: {
+						type: Object
+					},
+					connected: {
+						type: Boolean,
+						notify:true
+					},
+					recvMessage: {
+						type: Object,
+						notify: true
+					}
+				},
+				observers: [
+					'dataChanged(data.*)',
+					'specChanged(spec.*)',
+					'formNameChanged(formName)'
+				],
 				connected: false,
 
 				sendMessage: function( data ) {
@@ -43,6 +70,7 @@
 					this.socket.onCompleted( );
 				},
 				openConnection: function( params, timeoutCallback ) {
+console.log("websocket.openConnection",params);
 					var password = simpl4.util.BaseManager.getPassword();
 					var username = simpl4.util.BaseManager.getUser();
 					var credentials = simpl4.util.Base64.encode( username + ":" + password );
@@ -58,7 +86,7 @@
 					}
 
 					var qs = $.param( params );
-
+console.log("qs:",qs);
 					this.url = baseUrl + "/ws/xyz?" + qs;
 
 					var openObserver = Rx.Observer.create( ( function( e ) {
@@ -81,6 +109,7 @@
 					this.socket.subscribe(
 						function( e ) {
 							var data = e.data;
+console.log("Data:",data);
 							data = JSON.parse( data );
 							self.fire( "message", {
 								data: data

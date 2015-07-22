@@ -30,11 +30,9 @@
 				notify: true
 			},
 			meta: {
-				observer: "metaChanged",
 				type: Object
 			},
 			data: {
-				observer: "dataChanged",
 				type: Object
 			},
 			options: {
@@ -45,6 +43,10 @@
 				type: String
 			}
 		},
+		observers: [
+			'dataChanged(data)',
+			'metaChanged(meta)'
+		],
 		createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;
 			if ( options ) {
@@ -147,6 +149,11 @@
 		},
 		_metaChanged: function() {},
 		dataChanged: function() {
+			this.async( function() {
+				this._dataChanged();
+			}, 0 );
+		},
+		_dataChanged: function() {
 			console.log( "dataTables.dataChanged.data:", this.data );
 			console.log( "dataTables.dataChanged.meta:", this.meta );
 			var firsttime = this.preparedMeta == null;

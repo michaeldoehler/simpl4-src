@@ -92,9 +92,8 @@
 			console.log( "Values:" + jsonData );
 		},
 		created: function() {},
-		ready: function() {},
-		domReady: function() {
-			console.debug( "simpl-baseform.domReady:", this.namespace );
+		ready: function() {
+			console.error("form.ready");
 		},
 		shapesChanged: function() {
 			console.debug( "simpl-baseform.shapesChanged" );
@@ -149,6 +148,19 @@ console.log("errorList:",this.errorList);
 			}
 			return def;
 		},
+		whenFieldsReady: function( done ) {
+			var self = this;
+
+			function waitForFields() {
+				//console.log( "form.WaitForFields:", self.fields );
+				if ( self.fields != null && self.fields.length>0 ) {
+					done();
+					return;
+				}
+				setTimeout( waitForFields, 20 );
+			}
+			waitForFields();
+		},
 		getField: function( path ) {
 			var f = this.fieldsMap[ path ];
 			return f;
@@ -158,15 +170,19 @@ console.log("errorList:",this.errorList);
 			return f.label;
 		},
 		dataChanged: function() {
-			this.async( function() {
+console.log("form.dataChanged",this.data);
+			this.whenFieldsReady( (function() {
 				this.setData( this.data );
-			}, null, 10 );
+			}).bind(this) );
 		},
 		setData: function( data ) {
+console.log("form.setData",data);
+			console.log("form.fields",this.fields);
 			this.fields.forEach( function( field ) {
 				if ( field.setValue == null ) return;
 				field.withoutCheck = true;
 				if ( field.setInvalid ) field.setInvalid( false );
+				console.log("setValue:"+field.name+"/"+data[field.name]);
 				field.setValue( data[ field.name ] || field.defaultValue || "" );
 			}, this );
 		},
@@ -189,14 +205,18 @@ console.log("errorList:",this.errorList);
 		},
 
 		formNameChanged: function() {
-			console.log("crudform.formNameChanged");
+			console.log("form.formNameChanged");
 			this.fields = [];
 			this.fieldsMap = {};
 			var form = simpl4FormManager.getForm( this.formName, this.namespace );
+			this._form = form.properties;
 			this.defaultButtons = form.properties.xf_default_buttons;
 			this.shapes = this.prepareShape( form ).childShapes;
 			this.async( function() {
 				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+				this.fields.forEach( function( field ) {
+					field.setForm( this );
+				}, this );
 				this.fieldsMap = this.toMap( this.fields );
 				console.log( "Fields:", this.fields.length );
 			},100 );
@@ -205,10 +225,14 @@ console.log("errorList:",this.errorList);
 		specChanged: function( e ) {
 			this.fields = [];
 			this.fieldsMap = {};
-			console.log( "crudform.specChanged" );
+			console.log( "form.specChanged" );
 			this.shapes = this.spec;
+			this._form = {};
 			this.async( function() {
 				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+				this.fields.forEach( function( field ) {
+					field.setForm( this );
+				}, this );
 				this.fieldsMap = this.toMap( this.fields );
 				console.log( "Fields:", this.fields.length );
 			},100 );
@@ -250,7 +274,6 @@ console.log("errorList:",this.errorList);
 			return shape;
 		},
 		cleanShape: function( shape ) {
-console.log("shape:",shape);
 			if ( shape.stencil.id.toLowerCase() == "input" ||
 				shape.stencil.id.toLowerCase() == 'textarea' ||
 				shape.stencil.id.toLowerCase() == 'relatedto' ||
@@ -291,9 +314,9 @@ console.log("shape:",shape);
 					var enumembed = props.xf_enumembed;
 					var si;
 					if ( enumembed && enumembed.totalCount > 0 ) {
-						si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, enumembed );
+						si = simpl4FormManager.createSelectableItems( this.namespace, this.formName, props.xf_id, enumembed );
 					} else {
-						si = simpl4FormManager.createSelectableItems( null, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
+						si = simpl4FormManager.createSelectableItems( this.namespace, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
 					}
 					props.items = si.getItems();
 				}
@@ -307,7 +330,7 @@ console.log("shape:",shape);
 							"enumDescription": "sw.filter:" + filter,
 							items: []
 						};
-						var si = simpl4FormManager.createSelectableItems( 'kfzplan', this.formName, props.xf_id, JSON.stringify( filterDesc ) );
+						var si = simpl4FormManager.createSelectableItems( this.namespace, this.formName, props.xf_id, JSON.stringify( filterDesc ) );
 						si.setVariable( "name", "" );
 						props.items = si.getItems();
 					} else if ( inputListName ) {
@@ -334,6 +357,7 @@ console.log("shape:",shape);
 					}, this );
 					var bounds = shape.bounds;
 					props.height = bounds.lowerRight.y - bounds.upperLeft.y;
+					console.log("HEIGHT",props.height);
 				}
 			} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 				var icon = shape.properties.xf_iconname;

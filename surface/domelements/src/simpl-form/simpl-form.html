@@ -112,7 +112,7 @@
 			border: 1px solid #E0E0E0;
 			border-radius: 4px;
 			padding: 7px;
-			margin-top: 5px;
+			margin-top: 10px;
 			background: white !important;
 		}
 
@@ -155,7 +155,7 @@
 <script>
 	FormElementSelectorBehavior = {
 		isTabView: function( id ) {
-			console.log( "isTabView:", ( id == 'Tabview' ) );
+			//console.log( "isTabView:", ( id == 'Tabview' ) );
 			return id == 'Tabview';
 		},
 		isEnumSelect: function( id ) {
@@ -180,7 +180,7 @@
 			return id == 'RelatedTo';
 		},
 		isGroup: function( id ) {
-			console.log( "isGroup:", ( id == 'Group' ) );
+			//console.log( "isGroup:", ( id == 'Group' ) );
 			return id == 'Group';
 		},
 		isRow: function( id ) {
@@ -217,7 +217,7 @@
 			return r;
 		},
 		tabTitle: function( t ) {
-			console.log( "tabTitle:" + t );
+			//console.log( "tabTitle:" + t );
 			return t;
 		}
 	};
@@ -231,7 +231,11 @@
 			padding-right: 3px;
 			min-width: 250px;
 		}
-
+		<style>
+			label{
+				margin-bottom: 10px;
+			}
+	</style>
 	</style>
 	<template>
 		<template is="dom-if" if="{{isInputAndBoolean(item.id,item.xf_type)}}">
@@ -249,7 +253,7 @@
 			</dropdown-field>
 		</template>
 		<template is="dom-if" if="{{isTableSelect(item.id)}}">
-			<tableselect-field field class="flex" name$="{{item.xf_id}}" multiSelect?="{{item.xf_multiselection}}" required="{{item.xf_required}}" height="{{height}}" items="{{items}}" meta="{{meta}}" data-constraints$="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			<tableselect-field field class="flex" name$="{{item.xf_id}}" multi-select="[[item.xf_multiselection]]" required$="[[item.xf_required]]" height="[[item.height]]" items="[[item.items]]" meta="[[item.meta]]" data-constraints$="{{item.regulaConstraints}}" enabled-expr="{{item.xf_enabled}}" readonly-expr="{{item.xf_readonly}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</tableselect-field>
 		</template>
 		<template is="dom-if" if="{{isTextArea(item.id)}}">
@@ -265,8 +269,8 @@
 			<html-echo field name$="{{item.xf_id}}" html="{{item.xf_message}}" invisible-expr="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}"></html-echo>
 		</template>
 		<template is="dom-if" if="{{isGroup(item.id)}}">
-			<simpl-group class="group">
-				<core-label for=".group">{{item.label}}</core-label>
+			<simpl-group class="group layout vertical">
+				<label for=".group">{{item.label}}</label>
 				<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 			</simpl-group>
 		</template>
@@ -299,7 +303,7 @@
 
 			},
 			attached: function() {
-				console.log( "form-element-renderer:", this.item );
+				//console.log( "form-element-renderer:", this.item );
 			}
 		} );
 
@@ -376,7 +380,7 @@
 				return "min-height:" + ( maxHeight - 60 ) + "px;";
 			},
 			attached: function() {
-				console.log( "form-tab-renderer:", this.item );
+				//console.log( "form-tab-renderer:", this.item );
 				this.async( function() {
 					var tab = this.item.selected;
 					if ( !tab && this.item.childShapes.length > 0 ) {
@@ -395,6 +399,11 @@
 
 
 <dom-module id="form-element-selector">
+	<style>
+		label{
+  		margin-bottom: 10px;
+		}
+	</style>
 	<template>
 		<template is="dom-repeat" items="{{items}}">
 
@@ -410,7 +419,7 @@
 			</template>
 
 			<template is="dom-if" if="{{isGroup(item.id)}}">
-				<simpl-group class="flex layout horizontal group">
+				<simpl-group class="flex layout vertical group">
 					<label for=".group">{{item.label}}</label>
 					<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 				</simpl-group>
@@ -440,7 +449,7 @@
 				FormElementSelectorBehavior
 			],
 			attached: function() {
-				console.log( "form-element-selector:", this.items );
+				//console.log( "form-element-selector:", this.items );
 			}
 		} );
 
@@ -472,13 +481,6 @@
 		tableselect-field,
 		dropdown-field {
 			margin: 5px;
-		}
-		core-label {
-			margin-bottom: 10px;
-		}
-		html-echo {
-			color: red;
-			margin: 15px;
 		}
 		xaction-button {
 			margin-top: 20px;
@@ -526,12 +528,12 @@
 			<form-element-selector items="{{shapes}}" />
 		</fieldset>
 
-		<template is="dom-if" if="{{item.defaultButtons}}">
+		<template is="dom-if" if="{{_form.xf_default_buttons}}">
 			<simpl-row>
-				<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" xaction="execute" raised>
-					<iron-icon icon="check"></iron-icon>{{'form.execute'|tr}}</xaction-button>
-				<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" xaction="cancel" raised>
-					<iron-icon icon="clear"></iron-icon>{{'tasks.form.cancel'|tr}}</xaction-button>
+				<xaction-button on-tap="internalXAction" class="button" xid="{{_form.xf_id}}" xaction="execute" raised>
+					<iron-icon icon="check"></iron-icon>[[tr('form.execute')]]</xaction-button>
+				<xaction-button on-tap="internalXAction" class="button" xid="{{_form.xf_id}}" xaction="cancel" raised>
+					<iron-icon icon="clear"></iron-icon>[[tr('tasks.form.cancel')]]</xaction-button>
 			</simpl-row>
 		</template>
 
@@ -543,7 +545,8 @@
 		Polymer( {
 			is: 'simpl-form',
 			behaviors: [
-				FormBehavior
+				FormBehavior,
+				TranslationsBehavior
 			],
 			properties: {
 				namespace: {
@@ -556,6 +559,9 @@
 					type: String
 				},
 				data: {
+					type: Object
+				},
+				item: {
 					type: Object
 				},
 				spec: {
@@ -588,7 +594,7 @@
 				} );
 			},
 			attached: function() {
-				console.log( "Form.attached" );
+				console.log( "Form.attached",this._form );
 			}
 		} );
 

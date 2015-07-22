@@ -19,188 +19,161 @@
  */
 -->
 <dom-module id="simpl-chat" attributes="globals demotext">
+	<style>
+		paper-button /deep/ .button-content {
+			padding: 0.5em 0.5em;
+		}
+		paper-button.sendButton {
+			font-size:10px;
+			margin-top:4px;
+		}
+		paper-button.userButton {
+			text-transform: none;
+			min-width: 60px !important;
+			max-width: 120px;
+		}
+		paper-button.userButton /deep/ paper-material,
+		paper-button.userButton /deep/ paper-ripple {
+			pointer-events: none;
+		}
+		.userButtons {
+			font-size:10px;
+		}
+		.userButtons iron-icon.small {
+			color: #4285F4;
+			pointer-events: none;
+		}
+		.chatSection {
+			padding-left: 3px;
+		}
+		simpl-row {
+			margin-bottom: 12px;
+		}
+		iron-icon.small {
+			width: 16px;
+			height: 16px;
+		}
+		iron-icon.big {
+			width: 24px;
+			height: 24px;
+		}
+		simpl-panel#mainPanel /deep/ #panelContent {
+			min-height: 450px;
+			padding: 0px 0px 0px 0px !important;
+			overflow-x: hidden !important;
+		}
+		.message-column {
+			padding: 2px;
+			font-size: 11px;
+			word-wrap: break-word;
+			color: #d50303;
+		}
+		.icon-column {
+			color: #4285F4;
+		}
+		.name-column {
+			color: black;
+			padding: 2px;
+			font-size: 10px;
+			font-weight: bold;
+		}
+		.timestamp-column {
+			font-size: 10px;
+			font-weight: lighter;
+			width: 65px;
+			padding-top: 5px;
+			padding: 3px;
+			color: gray;
+		}
+		.presence {
+			color: #d50303;
+			padding: 5px;
+			font-size: 10px;
+			font-weight: bold;
+		}
+		.messageLine {
+			padding: 2px;
+		}
+		.messagesBox {
+			overflow-y: auto;
+			min-height: 100px;
+			font-size: 12px;
+		}
+		.currentParticipant {
+			border: 0px;
+		}
+		.shadowSendTo {
+			display: inline-block;
+			background: white;
+			box-sizing: border-box;
+			padding-left: 3px;
+		}
+		ol {
+			list-style: none;
+			margin: 0px;
+			padding: 0px;
+		}
+		li {
+			float: left;
+			display: inline;
+			border-bottom: 1px solid #e2e2e2;
+			width: 100%;
+			height: 100%;
+			padding-bottom: 0px;
+		}
+		paper-toolbar.core-narrow /deep/ #topBar.toolbar-tools {
+			align-items: baseline;
+		}
+		paper-toolbar.core-narrow {
+			height: 90px;
+			color: #000;
+			background: #f6f6f6;
+		}
+		paper-item {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			cursor: pointer;
+		}
+		paper-tab {
+			z-index: 11;
+			border-radius: 4px;
+			min-width: 75px;
+		}
+		paper-tabs /deep/ #selectionBar.paper-tabs {
+			background: #d50303;
+		}
+		paper-tabs /deep/ #selectionBar.paper-tabs {
+			opacity: .6;
+			color: #d50303;
+		}
+		paper-tabs /deep/ paper-ripple#ink.paper-tab {
+			color: #C5C5C5;
+		}
+    paper-tabs /deep/ #tabsContent.scrollable {
+      position: relative;
+    }
+		paper-tab.iron-selected {
+			color: black;
+			font-weight: bold;
+		}
+		neon-animatable {
+			display: none;
+		}
+		neon-animatable.iron-selected {
+			display: block;
+		}
+
+		paper-toast#toast_error {
+			z-index:10;
+		}
+	</style>
 	<template>
-		<style>
-			:host {
-				display: block;
-			}
-			paper-button /deep/ .button-content {
-				padding: 0.5em 0.5em;
-			}
-			paper-button {
-				max-width: 100px;
-			}
-			paper-button.sendButton {
-				max-width: 80px;
-			}
-			paper-button.userButton {
-				text-transform: none;
-				min-width: 60px !important;
-				max-width: 120px;
-			}
-			paper-button.sendButton /deep/ .button-content {
-				justify-content: flex-start !important;
-			}
-			.userButtons core-icon.small {
-				color: #4285F4;
-				pointer-events: none;
-			}
-			section.chatSection {
-				padding-left: 3px;
-			}
-			input-field {
-				margin: 0;
-			}
-			simpl-form {
-				width: 100%;
-			}
-			:host /deep/ xaction-button /deep/ .button-content {
-				width: 120px;
-				font-size: 12px;
-				padding: 0.5em 0.5em;
-			}
-			simpl-row {
-				margin-bottom: 12px;
-			}
-			core-icon-button.small {
-				padding: 4px;
-			}
-			core-icon.small {
-				width: 16px;
-				height: 16px;
-			}
-			core-icon.big {
-				width: 24px;
-				height: 24px;
-			}
-			simpl-panel#mainPanel /deep/ #panelContent {
-				min-height: 450px;
-				padding: 0px 0px 0px 0px !important;
-				overflow-x: hidden !important;
-			}
-			.small-input {
-				padding: 3px;
-				margin-right: 2px;
-				max-width: 50px;
-				border-radius: 3px;
-				border: 1px solid #CCC;
-				background-image: none;
-			}
-			.message-column {
-				padding: 2px;
-				font-size: 11px;
-				word-wrap: break-word;
-				color: #d50303;
-			}
-			.icon-column {
-				color: #4285F4;
-			}
-			.name-column {
-				color: black;
-				padding: 2px;
-				font-size: 10px;
-				font-weight: bold;
-			}
-			.timestamp-column {
-				font-size: 10px;
-				font-weight: lighter;
-				width: 65px;
-				padding-top: 5px;
-				padding: 3px;
-				color: gray;
-			}
-			polyfill-rule {
-				content: '.timestamp-column';
-				padding: 0px !important;
-			}
-			polyfill-rule {
-				content: '.name-column';
-				padding: 0px !important;
-			}
-			polyfill-rule {
-				content: '.message-column';
-				padding: 0px !important;
-			}
-			polyfill-rule {
-				content: 'simpl-panel #panelId';
-				margin-left: 0px;
-			}
-			.presence {
-				color: #d50303;
-				padding: 5px;
-				font-size: 10px;
-				font-weight: bold;
-			}
-			.messageLine {
-				padding: 2px;
-			}
-			.messagesBox {
-				overflow-y: auto;
-				min-height: 100px;
-				font-size: 12px;
-			}
-			input.currentParticipant {
-				border: 0px;
-			}
-			.shadowSendTo {
-				display: inline-block;
-				background: white;
-				box-sizing: border-box;
-				padding-left: 3px;
-			}
-			ol {
-				list-style: none;
-				margin: 0px;
-				padding: 0px;
-			}
-			polyfill-rule {
-				content: 'ol';
-				margin-left: 0px !important;
-			}
-			li {
-				float: left;
-				display: inline;
-				border-bottom: 1px solid #e2e2e2;
-				width: 100%;
-				height: 100%;
-				padding-bottom: 0px;
-			}
-			core-toolbar.core-narrow /deep/ #topBar.toolbar-tools {
-				align-items: baseline;
-			}
-			core-toolbar.core-narrow {
-				height: 90px;
-				background: #f6f6f6;
-			}
-			core-item {
-				overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-			}
-			paper-tab {
-				z-index: 11;
-				border-radius: 4px;
-			}
-			paper-tabs::shadow #selectionBar {
-				background: #d50303;
-			}
-			paper-tabs paper-tab::shadow #ink {
-				opacity: .6;
-				color: #d50303;
-			}
-			.dropdown {
-				border-radius: 3px;
-				color: #000;
-				border: 1px solid #ccc;
-				background-color: #eee;
-			}
-
-		</style>
 
 
-		<template if="{{demotext==true}}">
-			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="{{'chat.usage'|tr}}" collapsable="true" collapsed="false">
-				<template if="{{globals.lang=='de'}}">
+		<template is="dom-if" if="[[hasDemoText()]]">
+			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="[[tr('chat.usage')]]" collapsable>
+				<template is="dom-if" if="[[isLang('de')]]">
 					<simpl-asciidoctor data="">
 [INFO]
 ====
@@ -222,7 +195,7 @@ Verwenden Sie  den Hilfebutton für eine technische Übersicht.
 					</simpl-asciidoctor>
 				</template>
 
-				<template if="{{globals.lang=='en'}}">
+				<template is="dom-if" if="[[isLang('en')]]">
 					<simpl-asciidoctor data="">
 [INFO]
 ====
@@ -247,128 +220,155 @@ Use the Help button for an technical overview.
 		</template>
 
 		<!--service={xmpp|camel}-->
-		<simpl-websocket id="websocket" namespace="global" websocketName="ws1" routeSpec="xmpp.camel" service="camel" connected="{{connected}}" recvMessage="{{recvMessage}}" autoConnect="{{autoConnect}}"> </simpl-websocket>
+		<!--route-spec={xmpp|xmpp_ws}-->
+		<!--camelWS(false,true)-->
+		<simpl-websocket id="websocket" namespace="global" websocket-name="ws1" route-spec="xmpp.camel" service="xmpp" connected="{{connected}}" recv-message="{{recvMessage}}" auto-connect="{{autoConnect}}"> </simpl-websocket>
 
-		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable="true" collapsed="false">
-			<core-animated-pages id="pages" selected="{{viewId}}" transitions="slide-from-right" valueattr="view-id">
-				<section view-id="loginView">
-					<simpl-row>
-						<simpl-form id="loginForm" namespace="global" data="{{loginData}}" actionCallback="{{loginCallback}}" formName="/forms/chat/login.form"></simpl-form>
-					</simpl-row>
-				</section>
-				<section class="mainSection" style="position:relative;" view-id="chatView">
-					<simpl-row>
-						<core-toolbar flex class="core-narrow">
-							<core-icon-button on-tap="{{disconnect}}" icon="cloud-off"></core-icon-button>
-							<core-icon-button icon="account-circle">{{loginData.username}}</core-icon-button>
-							<core-menu-button>
-								<core-icon-button icon="menu"></core-icon-button>
-								<core-dropdown class="dropdown" layered="true">
-									<core-menu>
-										<core-item on-tap="{{showAddUserForm}}" icon="add">{{'chat.add_contact'|tr}}</core-item>
-										<!--core-item on-tap="{{showAddGroupForm}}" icon="add-circle">{{'chat.add_group'|tr}}</core-item-->
-										<core-item on-tap="{{showJoinRoomForm}}" icon="content-copy">{{'chat.joinRoom'|tr}}</core-item>
-										<core-item on-tap="{{showLeaveRoomForm}}" icon="launch">{{'chat.leaveRoom'|tr}}</core-item>
-									</core-menu>
-								</core-dropdown>
-							</core-menu-button>
+		<simpl-panel id="mainPanel" bgcolor="black" heading="~ simpl4 Chat" collapsable>
+			<neon-animated-pages id="pages" selected="{{viewId}}" attr-for-selected="view-id" xnimateInitialSelection entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+				<neon-animatable view-id="loginView">
+					<template is="dom-if" if="[[isView(viewId, 'loginView')]]">
+						<simpl-row class="layout horizontal">
+							<simpl-form id="loginForm" class="flex" namespace="global" data="[[loginData]]" on-xaction="loginCallback" form-name="/forms/chat/login.form"></simpl-form>
+						</simpl-row>
+					</template>
+				</neon-animatable>
+				<neon-animatable class="mainSection" style="position:relative;" view-id="chatView">
+					<simpl-row class="layout horizontal">
+						<paper-toolbar class="core-narrow flex">
+							<paper-icon-button on-tap="disconnect" icon="cloud-off"></paper-icon-button>
+							<paper-button>
+								<iron-icon icon="account-circle"></iron-icon>
+								<label>{{loginData.username}}</label>
+							</paper-button>
+							<paper-menu-button>
+								<paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+								<paper-menu class="dropdown-content">
+									<paper-item on-tap="showAddUserForm">
+										<iron-icon icon="add"></iron-icon>
+										<div class="flex">[[tr('chat.add_contact')]]</div>
+									</paper-item>
 
-							<span style="color:#D50303;">{{currentChat.chatState}}</span>
-							<div class="bottom fit" horizontal layout>
-								<paper-tabs selected="{{chatId}}" flex style="max-width:600px;" valueattr="chat-id" scrollable>
-									<template repeat="{{chat, i in chatList}}">
-										<paper-tab chat-id="{{chat.id}}">{{chat.id}}</paper-tab>
+									<!--paper-item on-tap="showAddGroupForm">
+											<iron-icon icon="add-circle"></iron-icon>
+											<div class="flex">[[tr('chat.add_group')]]</div>
+										</paper-item-->
+
+									<paper-item on-tap="showJoinRoomForm">
+										<iron-icon icon="content-copy"></iron-icon>
+										<div class="flex">[[tr('chat.joinRoom')]]</div>
+									</paper-item>
+
+									<paper-item on-tap="showLeaveRoomForm">
+										<iron-icon icon="launch"></iron-icon>
+										<div class="flex">[[tr('chat.leaveRoom')]]</div>
+									</paper-item>
+								</paper-menu>
+							</paper-menu-button>
+
+							<span style="color:#D50303;">[[currentChat.chatState]]</span>
+							<div class="bottom fit horizontal layout">
+								<paper-tabs selected="{{chatId}}" selectables="paper-tab" style="max-width:600px;" attr-for-selected="chat-id" scrollable>
+									<template is="dom-repeat" as="chat" items="{{chatList}}">
+										<paper-tab chat-id$="[[chat.id]]">[[chat.id]]</paper-tab>
 									</template>
 								</paper-tabs>
 							</div>
-						</core-toolbar>
+						</paper-toolbar>
 					</simpl-row>
 
 
-					<core-animated-pages id="chatPages" selected="{{chatId}}" transitions="slide-from-right" valueattr="chat-id">
-						<template repeat="{{chat, i in chatList}}">
-							<section class="chatSection" style="position:relative;" chat-id="{{chat.id}}">
-								<template if="{{chat.type != 'groupchat'}}">
-									<div layout vertical>
-										<template if="{{chat.type == 'mixedchat'}}">
-											<div class="userButtons" style="flex-wrap:wrap;" layout horizontal>
-												<template repeat="{{entry in rosterEntries}}">
-													<paper-button class="userButton" data-username="[[entry.username]]" raised on-tap="{{setCurrentParticipant}}">
-														<core-icon class="small" icon="account-box"></core-icon>[[entry.username|getNameFromJid]]</paper-button>
+					<neon-animated-pages id="chatPages" selected="[[chatId]]" attr-for-selected="chat-id" xnimateInitialSelection entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+						<template is="dom-repeat" as="chat" items="[[chatList]]">
+							<neon-animatable class="chatSection" style="position:relative;" chat-id$="[[chat.id]]">
+								<template is="dom-if" if="[[!isChatType(chat.type,'groupchat')]]">
+									<div class="layout vertical">
+										<template is="dom-if" if="[[isChatType(chat.type, 'mixedchat')]]">
+											<div class="userButtons layout horizontal" style="flex-wrap:wrap;">
+												<template is="dom-repeat" as="entry" items="[[rosterEntries]]">
+													<paper-button class="userButton" data-username$="[[entry.username]]" raised on-tap="setCurrentParticipant">
+														<iron-icon class="small" icon="account-box"></iron-icon>[[getNameFromJid(entry.username)]]</paper-button>
 												</template>
 											</div>
 											<simpl-row>
 											</simpl-row>
 											<div style="padding-top:-2px;">
-												<paper-shadow class="shadowSendTo" z="2">
-													<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">
-														{{'chat.participant'|tr}}:
+												<paper-material class="shadowSendTo" elevation="3">
+													<label style="vertical-align:middle;color:#d50303;font-weight:bold;" for="{{'#participant-'+chat.id}}">[[tr('chat.participant')]]<span>:</span>
 													</label>
-													<input class="currentParticipant" id="{{'participant-'+chat.id}}" readonly type="text">
-													<core-icon-button class="small" disabled?="{{!isCurrentParticipant}}" on-tap="{{openSingleChat}}" icon="check-box-outline-blank">[['chat.singleChat'|tr]]</core-icon-button>
-												</paper-shadow>
+													<input class="currentParticipant" id="[[strcat('participant-',chat.id)]]" readonly type="text">
+													<paper-button class="small" disabled$="[[!isCurrentParticipant]]" on-tap="openSingleChat">
+														<iron-icon class="small" icon="check-box-outline-blank"></iron-icon>[[tr('chat.singleChat')]]</paper-button>
+												</paper-material>
 											</div>
 										</template>
 									</div>
 								</template>
 								<simpl-row>
 								</simpl-row>
-								<template if="{{chat.type == 'groupchat'}}">
-									<label style="vertical-align:middle;color:#d50303;font-weight:bold;">
-										{{'chat.occupiants'|tr}}:
+								<template is="dom-if" if="[[isChatType(chat.type, 'groupchat')]]">
+									<label style="vertical-align:middle;color:#d50303;font-weight:bold;">[[tr('chat.occupiants')]]<span>:</span>
 									</label>
 									<simpl-row>
 									</simpl-row>
-									<div style="flex-wrap:wrap;" layout horizontal>
-										<template repeat="{{user,i in chat.presence}}">
-											<paper-button class="userButton" raised on-tap="{{sendMessageInput}}">
-												<core-icon class="small" icon="account-box"></core-icon>{{user}}</paper-button>
+									<div style="flex-wrap:wrap;" class="layout horizontal">
+										<template is="dom-repeat" as="user" items="[[chat.presence]]">
+											<paper-button class="userButton" raised on-tap="sendMessageInput">
+												<iron-icon class="small" icon="account-box"></iron-icon>[[user]]</paper-button>
 										</template>
 									</div>
 								</template>
-								<simpl-row>
-									<input-field flex type="text" name="" id="{{'messageInput-'+chat.id}}" on-keyup="{{chatEventListener}}" on-keydown="{{onMessageKeydown}}" disabled?="{{!connected}}"></input-field>
-									<paper-button class="sendButton" raised on-tap="{{sendMessageInput}}" disabled?="{{!connected}}" flex>
-										<core-icon class="big" icon="send"></core-icon>{{'chat.sendButton'|tr}}</paper-button>
+								<simpl-row class="layout horizontal">
+									<input-field class="flex" type="text" name="" id="[[strcat('messageInput-',chat.id)]]" on-keyup="chatEventListener" on-keydown="onMessageKeydown" disabled$="[[!connected]]"></input-field>
+									<paper-button class="sendButton" raised on-tap="sendMessageInput" disabled$="[[!connected]]">
+										<iron-icon class="big" icon="send"></iron-icon>[[tr('chat.sendButton')]]</paper-button>
 								</simpl-row>
 								<div class="messagesBox" role="status" aria-live="polite" aria-label="Chat log" aria-atomic="false" aria-busy="false" aria-relevant="additions">
-									<template repeat="{{message in chat.messages}}">
+									<template id="[[strcat('messageBoxTemplate-',chat.id)]]" is="dom-repeat" as="message" items="[[chat.messages]]">
 										<ol>
 											<li>
-												<div class="messageLine" layout horizontal style="{{message.style}}">
-													<core-icon class="icon-column small" icon="mail"></core-icon>
-													<div flex layout vertical>
-														<div layout horizontal>
-															<div class="timestamp-column">{{ message.time }}</div>
-															<div flex class="name-column">{{ message.from|getNameFromJid }}</div>
+												<div class="messageLine layout horizontal" style="[[message.style]]">
+													<iron-icon class="icon-column small" icon="mail"></iron-icon>
+													<div class="flex layout vertical">
+														<div class="layout horizontal">
+															<div class="timestamp-column">[[message.time]]</div>
+															<div class="flex" class="name-column">[[getNameFromJid(message.from)]]</div>
 														</div>
-														<div class="message-column">{{ message.body }} </div>
+														<div class="message-column">[[message.body]]</div>
 													</div>
 												</div>
 											</li>
 										</ol>
 									</template>
 								</div>
-							</section>
+							</neon-animatable>
 						</template>
-					</core-animated-pages>
-				</section>
-				<section view-id="addUserView">
-					<h2>{{'chat.new_contact_header1'|tr}}</h2>
-					<h4>{{'chat.new_contact_header2'|tr}}</h4>
-					<simpl-form id="addUserForm" namespace="global" actionCallback="{{addUserCallback}}" formName="/forms/chat/add_user.form"></simpl-form>
-				</section>
-				<section view-id="addGroupView">
-					<h2>{{'chat.new_group_header'|tr}}</h2>
-					<simpl-form id="addGroupForm" namespace="global" actionCallback="{{addGroupCallback}}" formName="/forms/chat/add_group.form"></simpl-form>
-				</section>
-				<section view-id="joinRoomView">
-					<simpl-form id="joinRoomForm" namespace="global" actionCallback="{{joinRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
-				</section>
-				<section view-id="leaveRoomView">
-					<simpl-form id="leaveRoomForm" namespace="global" actionCallback="{{leaveRoomCallback}}" formName="/forms/chat/select_room.form"></simpl-form>
-				</section>
-			</core-animated-pages>
+					</neon-animated-pages>
+				</neon-animatable>
+				<neon-animatable view-id="addUserView">
+					<template is="dom-if" if="[[isView(viewId, 'addUserView')]]">
+						<h2>[[tr('chat.new_contact_header1')]]</h2>
+						<h4>[[tr('chat.new_contact_header2')]]</h4>
+						<simpl-form id="addUserForm" class="flex" namespace="global" on-xaction="addUserCallback" form-name="/forms/chat/add_user.form"></simpl-form>
+					</template>
+				</neon-animatable>
+				<neon-animatable view-id="addGroupView">
+					<template is="dom-if" if="[[isView(viewId, 'addGroupView')]]">
+						<h2>[[tr('chat.new_group_header')]]</h2>
+						<simpl-form id="addGroupForm" class="flex" namespace="global" on-xaction="addGroupCallback" form-name="/forms/chat/add_group.form"></simpl-form>
+					</template>
+				</neon-animatable>
+				<neon-animatable view-id="joinRoomView">
+					<template is="dom-if" if="[[isView(viewId, 'joinRoomView')]]">
+						<simpl-form id="joinRoomForm" class="flex" namespace="global" on-xaction="joinRoomCallback" form-name="/forms/chat/select_room.form"></simpl-form>
+					</template>
+				</neon-animatable>
+				<neon-animatable view-id="leaveRoomView">
+					<template is="dom-if" if="[[isView(viewId, 'leaveRoomView')]]">
+						<simpl-form id="leaveRoomForm" class="flex" namespace="global" on-xaction="leaveRoomCallback" form-name="/forms/chat/select_room.form"></simpl-form>
+					</template>
+				</neon-animatable>
+			</neon-animated-pages>
 
 		</simpl-panel>
 		<paper-toast id="toast_error" duration="5000" text="" style="background:#d50303;padding-right:60px;" role="alert" class="capsule">
@@ -378,18 +378,49 @@ Use the Help button for an technical overview.
 	<script>
 		Polymer( {
 			is: "simpl-chat",
-			demotext: false,
-			camelWS: true,
-			chatId: 'main',
-			viewId: "loginView",
-			recvMessage: null,
-			connected: false,
-			autoConnect: true,
-			resourceId: null,
-			pausingTimeout: 2500,
-			messages: [],
+			behaviors: [
+				TranslationsBehavior
+			],
+			properties: {
+				demotext: {
+					value: false,
+					type: Boolean
+				},
+				chatList: {
+					value: function() {
+						return [];
+					},
+					type: Array
+				},
+				connected: {
+					value: false,
+					type: Boolean
+				},
+				chatId: {
+					value: "main",
+					notify: true,
+					type: String
+				}
+			},
+			observers: [
+				'demotextChanged(demotext)',
+				'connectedChanged(connected)',
+				'recvMessageChanged(recvMessage)',
+				'chatIdChanged(chatId)'
+			],
+			attached: function() {
+				this.chatId = "main";
+			},
 			ready: function() {
-				this.resetChatList();
+				//this.chatId= 'main';
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-right-animation';
+				this.viewId = "loginView";
+				this.camelWS = false;
+				this.recvMessage = null;
+				this.autoConnect = true;
+				this.resourceId = null;
+				this.pausingTimeout = 2500;
 				this.isCurrentParticipant = false;
 				this.resourceId = getShortId();
 				this.addUserCallback = this.addUser.bind( this );
@@ -398,7 +429,7 @@ Use the Help button for an technical overview.
 				this.joinRoomCallback = this.joinRoom.bind( this );
 				this.leaveRoomCallback = this.leaveRoom.bind( this );
 				window.addEventListener( 'unload', ( function( e ) {
-					if ( this.connected ) {
+					if ( this.connected === true ) {
 						this.sendChatState( "gone" );
 					}
 				} ).bind( this ) );
@@ -409,8 +440,8 @@ Use the Help button for an technical overview.
 			},
 			sendMessageInput: function() {
 				var chat = this.chatHash[ this.chatId ];
-				var messageInput = this.shadowRoot.querySelector( "#messageInput-" + chat.id );
-				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				var messageInput = this.querySelector( "#messageInput-" + chat.id );
+				var participant = chat.participant || $( this.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) && chat.type === 'mixedchat' ) {
 					this.showError( "no participant selected" );
 					console.error( "no participant selected" );
@@ -430,7 +461,9 @@ Use the Help button for an technical overview.
 					if ( chat.type !== 'groupchat' ) {
 						message.style = "background:light-yellow;";
 						message.time = this.getTime();
-						chat.messages.unshift( message );
+						var t = this.getMessageBoxTemplate();
+						console.log( "t.items:", t.items );
+						t.unshift( "items", message );
 					}
 					this.$.websocket.sendMessage( message );
 					messageInput.setValue( "" );
@@ -440,6 +473,7 @@ Use the Help button for an technical overview.
 			},
 			recvMessageChanged: function() {
 				var message = this.recvMessage;
+				if ( message == null ) return;
 				message.time = this.getTime();
 				console.log( "-> recvMessage", message );
 
@@ -471,7 +505,9 @@ Use the Help button for an technical overview.
 				}
 				if ( !this.isEmpty( message.body ) ) {
 					message.style = "background:#f8f8f8;";
-					chat.messages.unshift( message );
+					//chat.messages.unshift( message );
+					var t = this.getMessageBoxTemplate();
+					t.unshift( "items", message );
 				}
 				if ( chat && message.chatState ) {
 					chat.chatState = tr( 'chat.state_' + message.chatState );
@@ -480,14 +516,15 @@ Use the Help button for an technical overview.
 					chat.chatState = '';
 				}
 				if ( chat && chat.type === 'mixedchat' ) {
-					var participant = $( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val();
+					var participant = $( this.querySelector( "#participant-" + this.chatId ) ).val();
 					if ( participant != this.getNameAndDomainFromJid( message.from ) ) {
 						chat.chatState = '';
 					}
 				}
 				if ( message.rosterEntries ) {
-					this.rosterEntries = this.filterSingleChat( message.rosterEntries );
-					this.rosterEntries.sort( this.sortRosterEntries );
+					var re = this.filterSingleChat( message.rosterEntries );
+					re.sort( this.sortRosterEntries );
+					this.rosterEntries = re;
 				}
 				if ( message.presence ) {
 					var chatId = this.getNameFromJid( message.from );
@@ -499,7 +536,7 @@ Use the Help button for an technical overview.
 				}
 			},
 			login: function( e ) {
-				var loginForm = this.shadowRoot.querySelector( "#loginForm" );
+				var loginForm = this.querySelector( "#loginForm" );
 				var formData = loginForm.getData();
 				if ( this.isEmpty( formData.username ) ) {
 					return;
@@ -555,16 +592,17 @@ Use the Help button for an technical overview.
 				}, null, 500 );
 			},
 			connectedChanged: function() {
-				if ( this.connected ) {
+				console.log( "chat.connectedChanged", this.connected );
+				if ( this.connected === true ) {
 					this.viewId = "chatView";
 					this.sendOpen();
 				} else {
 					this.viewId = "loginView";
 				}
-				if ( this.connected ) {
+				if ( this.connected === true ) {
 					this.bindFocusListener( true );
 				} else {
-					for ( var i = 0; i < this.chatList.length; i++ ) {
+					for ( var i = 0; this.chatList && i < this.chatList.length; i++ ) {
 						var chat = this.chatList[ i ];
 						if ( chat.type !== 'groupchat' ) {
 							this.bindFocusListener( false );
@@ -574,7 +612,7 @@ Use the Help button for an technical overview.
 			},
 			bindFocusListener: function( bind ) {
 				this.async( function() {
-					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					var messageInputElement = this.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 					if ( bind ) {
 						$( messageInputElement ).on( 'focus', this.chatEventListener.bind( this ) );
 						$( messageInputElement ).on( 'blur', this.chatEventListener.bind( this ) );
@@ -608,19 +646,17 @@ Use the Help button for an technical overview.
 						var items = {
 							room: rooms
 						};
-						var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
+						var joinRoomForm = this.querySelector( "#joinRoomForm" );
 						joinRoomForm.setItems( items );
 					}
 				}
 				simpl4.util.Rpc.rpcAsync( params );
 			},
 			joinRoom: function( e ) {
-				var joinRoomForm = this.shadowRoot.querySelector( "#joinRoomForm" );
-				var formData = joinRoomForm.getData();
-				console.log( "roomListData:", formData );
-
+				console.log( "chat.joinRoom.e:", e.detail );
+				var formData = e.detail.data;
 				this.viewId = "chatView";
-				if ( e.target.xaction == "cancel" ) {
+				if ( e.detail.xaction == "cancel" ) {
 					return;
 				}
 				if ( formData.room == null ) {
@@ -642,22 +678,24 @@ Use the Help button for an technical overview.
 				}, null, 300 );
 			},
 			openSingleChat: function() {
-				var participant = $( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val();
+				var participant = $( this.querySelector( "#participant-" + this.chatId ) ).val();
 				var chat = {};
 				chat.id = this.getNameFromJid( participant );
-				chat.messages = [];
+				//				chat.messages = [{time:new Date(),body:'ddddd'}];
 				chat.participant = participant;
 				chat.type = 'singlechat';
 				this.addChat( chat );
 				this.bindFocusListener( true );
 				this.updateRoster();
-				$( this.shadowRoot.querySelector( "#participant-" + this.chatId ) ).val( null );
+				$( this.querySelector( "#participant-" + this.chatId ) ).val( null );
 				this.isCurrentParticipant = false;
-				this.chatId = chat.id;
+				try {
+					this.chatId = chat.id;
+				} catch ( e ) {}
 			},
 			showLeaveRoomForm: function() {
 				this.viewId = "leaveRoomView";
-				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var leaveRoomForm = this.querySelector( "#leaveRoomForm" );
 				var items = [];
 				for ( var i = 0; i < this.chatList.length; i++ ) {
 					if ( this.chatList[ i ].type === 'groupchat' ) {
@@ -673,15 +711,15 @@ Use the Help button for an technical overview.
 						room: items
 					} );
 					var actionButton = leaveRoomForm.querySelector( "simpl-form /deep/ xaction-button" );
-					actionButton.innerHTML = '<core-icon icon="launch"></core-icon>' + tr( 'chat.leaveRoom' );
+					actionButton.innerHTML = '<iron-icon icon="launch"></iron-icon>' + tr( 'chat.leaveRoom' );
 				}, null, 30 );
 			},
 			leaveRoom: function( e ) {
-				var leaveRoomForm = this.shadowRoot.querySelector( "#leaveRoomForm" );
+				var leaveRoomForm = this.querySelector( "#leaveRoomForm" );
 				var formData = leaveRoomForm.getData();
 
 				this.viewId = "chatView";
-				if ( e.target.xaction == "cancel" ) {
+				if ( e.detail.xaction == "cancel" ) {
 					return;
 				}
 				if ( formData.room == null ) {
@@ -704,8 +742,17 @@ Use the Help button for an technical overview.
 				this.viewId = "addGroupView";
 			},
 			addUser: function( e ) {
+				console.log( "chat.addUser.e:", e.detail );
+				var addUserForm = this.querySelector( "#addUserForm" );
+				if ( e.detail.xaction == "execute" ) {
+					if ( addUserForm.validate() == false ) {
+						return;
+					}
+				}
 				this.viewId = "chatView";
-				var addUserForm = this.shadowRoot.querySelector( "#addUserForm" );
+				if ( e.detail.xaction == "cancel" ) {
+					return;
+				}
 				var formData = addUserForm.getData();
 				if ( this.isEmpty( formData.username ) ) {
 					return;
@@ -717,12 +764,22 @@ Use the Help button for an technical overview.
 						nickname: formData.nickname
 					}
 				};
+				console.log( "chat.addUser.sendMessage:", message );
 				this.$.websocket.sendMessage( message );
 			},
 			addGroup: function( e ) {
+				var addGroupForm = this.querySelector( "#addGroupForm" );
+				console.log( "chat.addGroup.e:", e.detail );
+				if ( e.detail.xaction == "execute" ) {
+					if ( addGroupForm.validate() == false ) {
+						return;
+					}
+				}
 				this.viewId = "chatView";
-				var addGroupForm = this.shadowRoot.querySelector( "#addGroupForm" );
-				console.log( "addGroup:", addGroupForm.getData() );
+				if ( e.detail.xaction == "cancel" ) {
+					return;
+				}
+
 				var formData = addUserForm.getData();
 				if ( this.isEmpty( formData.groupname ) ) {
 					return;
@@ -745,7 +802,7 @@ Use the Help button for an technical overview.
 				}
 				var type = e.type;
 				if ( type == 'keyup' && e.keyCode != 13 ) {
-					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					var messageInputElement = this.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 					if ( $( messageInputElement ).val() && ( chat.isComposing == false ) ) {
 						chat.isComposing = true;
 						this.checkPausingTimeout = setTimeout( this.checkPausing.bind( this ), this.pausingTimeout );
@@ -759,7 +816,7 @@ Use the Help button for an technical overview.
 					}
 				}
 				if ( type == 'focus' ) {
-					var messageInputElement = this.shadowRoot.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
+					var messageInputElement = this.querySelector( "#messageInput-" + this.chatId + " /deep/ #input" );
 					if ( !$( messageInputElement ).val() ) {
 						this.sendChatState( 'active' );
 					} else {
@@ -799,7 +856,7 @@ Use the Help button for an technical overview.
 			},
 			sendChatState: function( state ) {
 				var chat = this.chatHash[ this.chatId ];
-				var participant = chat.participant || $( this.shadowRoot.querySelector( "#participant-" + chat.id ) ).val();
+				var participant = chat.participant || $( this.querySelector( "#participant-" + chat.id ) ).val();
 				if ( this.isEmpty( participant ) ) {
 					if ( chat.type === 'mixedchat' ) {
 						console.error( "no participant selected" );
@@ -824,6 +881,11 @@ Use the Help button for an technical overview.
 				}
 				return 0;
 			},
+			getMessageBoxTemplate: function() {
+				var chat = this.chatHash[ this.chatId ];
+				var t = this.querySelector( "#messageBoxTemplate-" + chat.id );
+				return t;
+			},
 			showError: function( msg ) {
 				this.errorMessage = msg;
 				this.$.toast_error.show();
@@ -833,10 +895,11 @@ Use the Help button for an technical overview.
 				return "[" + moment().format( format ) + "]";
 			},
 			chatIdChanged: function() {
-				var chatPages = this.shadowRoot.querySelector( "#chatPages" );
-				$( chatPages.querySelectorAll( "section.chatSection" ) ).css( "display", "" );
-				$( chatPages.querySelector( "section.chatSection.core-selected" ) ).css( "display", "none" );
-				this.currentChat = this.chatHash[ this.chatId ];
+				console.log( "chatIdChanged:", this.chatId );
+				var chatPages = this.querySelector( "#chatPages" );
+				if ( this.chatHash ) {
+					this.currentChat = this.chatHash[ this.chatId ];
+				}
 			},
 			getNameFromJid: function( name ) {
 				if ( name.indexOf( "@" ) == -1 ) return name;
@@ -848,13 +911,13 @@ Use the Help button for an technical overview.
 			},
 			setCurrentParticipant: function( e ) {
 				var chat = this.chatHash[ this.chatId ];
-				var participant = $( this.shadowRoot.querySelector( "#participant-" + chat.id ) );
+				var participant = $( this.querySelector( "#participant-" + chat.id ) );
 				participant.val( e.target.dataset.username );
 				this.isCurrentParticipant = true;
 				chat.chatState = '';
 			},
 			resetChatList: function() {
-				this.chatList = [];
+				this.arrayClear( this.chatList );
 				var chat = {
 					id: 'main',
 					isComposing: false,
@@ -879,7 +942,7 @@ Use the Help button for an technical overview.
 			removeChat: function( name ) {
 				for ( var i = 0; i < this.chatList.length; i++ ) {
 					if ( name === this.chatList[ i ].id ) {
-						this.chatList.splice( i, 1 );
+						this.splice( "chatList", i, 1 );
 						break;
 					}
 				}
@@ -887,11 +950,16 @@ Use the Help button for an technical overview.
 				this.chatId = "main";
 			},
 			addChat: function( chat ) {
+				chat.messages = [];
 				chat.presence = [];
 				chat.isComposing = false;
 				chat.chatState = '';
-				this.chatList.push( chat );
+				this.push( 'chatList', chat );
 				this.chatHash = this.toHash( this.chatList );
+			},
+			arrayClear: function( a ) {
+				if ( a.length == 0 ) return;
+				this.splice( "chatList", 0, a.length );
 			},
 			toHash: function( list ) {
 				var hash = {}
@@ -899,6 +967,24 @@ Use the Help button for an technical overview.
 					hash[ list[ i ].id ] = list[ i ];
 				}
 				return hash;
+			},
+			demotextChanged: function() {},
+			isChatType: function( t1, t2 ) {
+				return t1 == t2;
+			},
+			isView: function( t1, t2 ) {
+				return t1 == t2;
+			},
+			strcat: function( s1, s2 ) {
+				return s1 + s2;
+			},
+			hasDemoText: function() {
+				if ( this.demotext == null ) return false;
+				return this.demotext;
+			},
+			isLang: function( lang ) {
+				var _lang = Simpl4.Cache.getItem( "lang" );
+				return lang == _lang;
 			},
 			mapSomeErrors: function( msg ) {
 				if ( msg.indexOf( "not-authorized" ) > 0 ) {

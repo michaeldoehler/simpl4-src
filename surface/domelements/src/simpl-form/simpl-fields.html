@@ -116,12 +116,27 @@
 
 </script>
 
-<dom-module id="html-echo" extends="form-field" kind="alert" attributes="html">
+<dom-module id="html-echo">
+	<style>
+		:host {
+			margin:15px;
+		}
+  </style>
+	<template><content></content></template>
 	<script>
 		Polymer( {
 			is: 'html-echo',
+			behaviors: [
+				FieldBehavior
+			],
+			properties: {
+				html: {
+					observer:"htmlChanged",
+					type: String
+				}
+			},
 			htmlChanged: function() {
-				this.innerHTML = this.html;
+				Polymer.dom(this).innerHTML = this.html;
 			}
 		} );
 
@@ -753,7 +768,7 @@
 	</script>
 </dom-module>
 
-<dom-module id="tableselect-field" attributes="multiSelect required meta items height" extends="form-field" kind="tableselect">
+<dom-module id="tableselect-field">
 	<style>
 		.error {
 			color: #d34336;
@@ -765,11 +780,11 @@
 		[invisible] {
 			visibility: hidden;
 		}
-		.floated-label {
+		.floatedLabel {
 			font-size: 1.05em;
 			white-space: nowrap;
 			color: #757575;
-			margin-bottom: 10px;
+			padding:0.4em;
 		}
 		.label-text {
 			display: inline-block;
@@ -788,26 +803,61 @@
 	</style>
 	<template>
 
-		<div id="floatedLabel" hidden?="{{label==null || label==''}}" class="floated-label">
-			<span class="label-text">{{label}}</span>
-		</div>
-		<div vertical layout style="height:{{height}}px;">
-			<simpl-datatables flex id="dataTable" invalid?="{{isInvalid}}" selection="{{selection}}" multiSelect?="{{multiSelect}}" selected="{{value}}" options="{{dataTablesOptions}}" meta="{{meta}}" data="{{tableData}}">
-			</simpl-datatables>
-			<!--hr style="width:100%;color:black;" /-->
-			<div class="error" layout horizontal center hidden?="{{!isInvalid}}">
-				<div class="error-text" flex auto role="alert" aria-hidden="{{!isInvalid}}"></div>
-				<div class="error-text" role="alert" aria-hidden="{{!isInvalid}}">{{error}}&nbsp;&nbsp;</div>
-				<core-icon class="error-icon" icon="warning"></core-icon>
+		<template is="dom-if" if="[[height]]">
+			<div id="floatedLabel" hidden$="[[!label]]" class="floatedLabel">
+				<label class="label-text">{{label}}</label>
 			</div>
-		</div>
+			<div vertical layout style="[[getHeight()]">
+				<simpl-datatables class="flex" id="dataTable" invalid$="[[isInvalid]]" selection="{{selection}}" multi-Select="[[multiSelect]]" selected="{{value}}" options="[[dataTablesOptions]]" meta="[[meta]]" data="[[items]]">
+				</simpl-datatables>
+				<div class="error layout horizontal center" hidden$="[[!isInvalid]]">
+					<div class="error-text flex auto" role="alert" aria-hidden$="[[!isInvalid]]"></div>
+					<div class="error-text" role="alert" aria-hidden$="[[!isInvalid]]">{{error}}<span>&nbsp;&nbsp;</span></div>
+					<iron-icon class="error-icon" icon="warning"></iron-icon>
+				</div>
+			</div>
+		</template>
 	</template>
 	<script>
 		Polymer( {
 			is: "tableselect-field",
-			behaviors: [ FieldBehavior ],
-			multiSelect: false,
-			required: "",
+			behaviors: [
+				Polymer.IronFormElementBehavior,
+				Polymer.PaperInputBehavior,
+				Polymer.IronControlState,
+				FieldBehavior
+			],
+			properties: {
+				multiSelect: {
+					value:false,
+					type: Boolean
+				},
+				required: {
+					value:false,
+					type: String
+				},
+				items: {
+					type: Object
+				},
+				selection: {
+					type: Object,
+					notify:true
+				},
+				meta: {
+					type: Object
+				},
+				height: {
+					value:null,
+					observer: "heightChanged",
+					type: String
+				}
+			},
+			observers: [
+				'selectionChanged(selection)'
+			],
+			getHeight:function(){
+				return "height:"+this.height+"px";
+			},
 			checkConstraints: function() {
 				this.setInvalid( false );
 				if ( !this.isRequired() ) return;
@@ -833,26 +883,22 @@
 				this.fire( 'value-changed', this );
 			},
 			heightChanged: function() {
+				console.log("tableselct-fieldheightChanged", this.height);
 				this.dataTablesOptions = {
 					paging: true,
 					dom: "rtS",
-					//dom: "frtiS",
 					scrollCollapse: false,
 					scrollY: ( this.height - 40 ) + "px"
 				};
-				console.log( "dataTablesOptions:" + JSON.stringify( this.dataTablesOptions, null, 2 ) );
-				this.tableData = this.items;
+				this.setInvalid(false);;
 			},
 			setItems: function( items ) {
-				this.tableData = items;
+				this.items = items;
 			},
 			isRequired: function() {
 				var data = this.form.getData();
 				var req = this.form._maskedEval( this.required, data, false );
 				return req;
-			},
-			ready: function() {
-				this.isDomReady = true;
 			}
 		} );
 
