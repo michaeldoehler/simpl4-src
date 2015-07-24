@@ -31,7 +31,6 @@
 				map[ f.name ] = f.value;
 			}
 			map[ "isEdit" ] = this.mode == "edit";
-			//console.log( "Map:" + JSON.stringify( map, null, 2 ) );
 
 			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 				var f = this.fields[ i ];
@@ -62,7 +61,6 @@
 					} else {
 						f.removeAttribute( "exclude" );
 					}
-					console.log( "exclude:" + e );
 				}
 				var invisibleExpr = f.getAttribute( "invisible-expr" );
 				//console.log( "Name:" + f.name + "|invisibleExpr:" + invisibleExpr + "|" );
@@ -73,7 +71,6 @@
 					} else {
 						f.removeAttribute( "invisible" );
 					}
-					console.log( "invisible:" + e );
 				}
 			}
 		},
@@ -112,7 +109,6 @@
 				errorList = regula.validate( {
 					elements: elements
 				} );
-console.log("errorList:",this.errorList);
 				errorList.forEach( function( err ) {
 					err.failingElements.forEach( function( elem ) {
 						elem.setInvalid( true );
@@ -170,19 +166,15 @@ console.log("errorList:",this.errorList);
 			return f.label;
 		},
 		dataChanged: function() {
-console.log("form.dataChanged",this.data);
 			this.whenFieldsReady( (function() {
 				this.setData( this.data );
 			}).bind(this) );
 		},
 		setData: function( data ) {
-console.log("form.setData",data);
-			console.log("form.fields",this.fields);
 			this.fields.forEach( function( field ) {
 				if ( field.setValue == null ) return;
 				field.withoutCheck = true;
 				if ( field.setInvalid ) field.setInvalid( false );
-				console.log("setValue:"+field.name+"/"+data[field.name]);
 				field.setValue( data[ field.name ] || field.defaultValue || "" );
 			}, this );
 		},
@@ -195,6 +187,11 @@ console.log("form.setData",data);
 			return data;
 		},
 		setItems: function( items ) {
+			this.whenFieldsReady( (function() {
+				this._setItems( items );
+			}).bind(this) );
+		},
+		_setItems: function( items ) {
 			this.fields.forEach( function( field ) {
 				if ( field.setItems == null || items[ field.name ] == null ) return;
 				field.setItems( items[ field.name ] );
@@ -218,7 +215,6 @@ console.log("form.setData",data);
 					field.setForm( this );
 				}, this );
 				this.fieldsMap = this.toMap( this.fields );
-				console.log( "Fields:", this.fields.length );
 			},100 );
 		},
 		/*----------------------------------*/
@@ -234,7 +230,6 @@ console.log("form.setData",data);
 					field.setForm( this );
 				}, this );
 				this.fieldsMap = this.toMap( this.fields );
-				console.log( "Fields:", this.fields.length );
 			},100 );
 		},
 		toMap: function( arr ) {
@@ -357,7 +352,6 @@ console.log("form.setData",data);
 					}, this );
 					var bounds = shape.bounds;
 					props.height = bounds.lowerRight.y - bounds.upperLeft.y;
-					console.log("HEIGHT",props.height);
 				}
 			} else if ( shape.stencil.id.toLowerCase() == "actionbutton" ) {
 				var icon = shape.properties.xf_iconname;

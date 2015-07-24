@@ -54,7 +54,6 @@
 			}
 		},
 		created: function() {
-			console.log( 'FieldBehavior for ', this, 'enabled!' );
 		},
 
 		attached: function() {
@@ -105,11 +104,9 @@
 			} );
 		},
 		setErrorMessage: function( message ) {
-			console.log("setErrorMessage:",message);
 			this.errorMessage = message;
 		},
 		setInvalid: function( b ) {
-			console.log("setInvalid:",b);
 			this.invalid = b;
 		}
 	};
@@ -258,7 +255,6 @@
 				return this.floatingLabel === "false" || this.floatingLabel === false;
 			},
 			ready: function() {
-				console.log( "Compact:", this.compact + "/floatingLabel:" + this.floatingLabel + "/label:" + this.label );
 				var self = this;
 				Object.keys( this.properties ).forEach( function( key ) {
 					var value = self.properties[ key ];
@@ -354,8 +350,6 @@
 			},
 			editValueChanged: function() {
 				this.$.input.focus();
-				console.log( "editValueChanged:", this.editValue );
-				console.log( "type:", this.type );
 				if ( this.type == null ) return;
 				if ( this.type.match( /^date/ ) && !this.hasDate ) {
 					this.value = this._i18nToIso( this.editValue );
@@ -370,7 +364,6 @@
 				this.fire( 'value-changed', this );
 			},
 			valueChanged: function() {
-				console.log( "valueChanged:", this.value );
 				if ( !this.$.decorator ) return;
 				if ( this.withoutCheck ) {
 					this.withoutCheck = false;
@@ -394,7 +387,6 @@
 						return null;
 					}
 				}
-				console.log( "GetValue:", this.value );
 				return this.value;
 			},
 			_convertDate: function( v ) {
@@ -883,7 +875,6 @@
 				this.fire( 'value-changed', this );
 			},
 			heightChanged: function() {
-				console.log("tableselct-fieldheightChanged", this.height);
 				this.dataTablesOptions = {
 					paging: true,
 					dom: "rtS",
@@ -1006,17 +997,14 @@
 				return this.meta == null;
 			},
 			isFilter: function( filter ) {
-				console.log( "isFilter:", ( this.filter != null ) );
 				return this.filter != null;
 			},
 			ready: function() {
 				this.props = simpl4.util.EntityManager.getPropertiesForEntity( this.entity, {
 					namespace: this.namespace
 				} );
-				console.log( "props:", this.props );
 			},
 			actionCallback: function() {
-				console.log( "actionCallback" );
 				this.$.relatedDialog.open();
 			},
 			clearCallback: function() {
@@ -1049,8 +1037,6 @@
 				} else {
 					this.editValue = null;
 				}
-				console.log( "related:", this.editValue );
-				console.log( "id:", this.id );
 			},
 			namespaceChanged: function() {
 				simpl4.util.MessageManager.installMessages( this.namespace );

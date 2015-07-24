@@ -435,7 +435,8 @@ Use the Help button for an technical overview.
 				} ).bind( this ) );
 				this.loginData = {
 					username: Simpl4.Cache.getItem( "chat.username" ),
-					password: Simpl4.Cache.getItem( "chat.password" )
+					password: Simpl4.Cache.getItem( "chat.password" ),
+					domain: Simpl4.Cache.getItem( "chat.domain" )
 				};
 			},
 			sendMessageInput: function() {
@@ -462,7 +463,6 @@ Use the Help button for an technical overview.
 						message.style = "background:light-yellow;";
 						message.time = this.getTime();
 						var t = this.getMessageBoxTemplate();
-						console.log( "t.items:", t.items );
 						t.unshift( "items", message );
 					}
 					this.$.websocket.sendMessage( message );
@@ -548,6 +548,7 @@ Use the Help button for an technical overview.
 				this.loginData = formData;
 				Simpl4.Cache.setItem( "chat.username", this.loginData.username );
 				Simpl4.Cache.setItem( "chat.password", this.loginData.password );
+				Simpl4.Cache.setItem( "chat.domain", this.loginData.domain );
 				this.rosterEntries = [];
 				this.chatId = 'main';
 				this.resetChatList();
@@ -592,7 +593,6 @@ Use the Help button for an technical overview.
 				}, null, 500 );
 			},
 			connectedChanged: function() {
-				console.log( "chat.connectedChanged", this.connected );
 				if ( this.connected === true ) {
 					this.viewId = "chatView";
 					this.sendOpen();
@@ -653,7 +653,6 @@ Use the Help button for an technical overview.
 				simpl4.util.Rpc.rpcAsync( params );
 			},
 			joinRoom: function( e ) {
-				console.log( "chat.joinRoom.e:", e.detail );
 				var formData = e.detail.data;
 				this.viewId = "chatView";
 				if ( e.detail.xaction == "cancel" ) {
@@ -695,7 +694,6 @@ Use the Help button for an technical overview.
 			},
 			showLeaveRoomForm: function() {
 				this.viewId = "leaveRoomView";
-				var leaveRoomForm = this.querySelector( "#leaveRoomForm" );
 				var items = [];
 				for ( var i = 0; i < this.chatList.length; i++ ) {
 					if ( this.chatList[ i ].type === 'groupchat' ) {
@@ -707,12 +705,13 @@ Use the Help button for an technical overview.
 					}
 				}
 				this.async( function() {
+					var leaveRoomForm = this.querySelector( "#leaveRoomForm" );
 					leaveRoomForm.setItems( {
 						room: items
 					} );
 					var actionButton = leaveRoomForm.querySelector( "simpl-form /deep/ xaction-button" );
 					actionButton.innerHTML = '<iron-icon icon="launch"></iron-icon>' + tr( 'chat.leaveRoom' );
-				}, null, 30 );
+				}, 30 );
 			},
 			leaveRoom: function( e ) {
 				var leaveRoomForm = this.querySelector( "#leaveRoomForm" );
@@ -742,7 +741,6 @@ Use the Help button for an technical overview.
 				this.viewId = "addGroupView";
 			},
 			addUser: function( e ) {
-				console.log( "chat.addUser.e:", e.detail );
 				var addUserForm = this.querySelector( "#addUserForm" );
 				if ( e.detail.xaction == "execute" ) {
 					if ( addUserForm.validate() == false ) {
@@ -757,19 +755,22 @@ Use the Help button for an technical overview.
 				if ( this.isEmpty( formData.username ) ) {
 					return;
 				}
+				var domain = this.loginData.domain;
+				var username = formData.username;
+				if( username.indexOf("@") == -1 && !this.isEmpty(domain)){
+					username = username + "@" + domain;
+				}
 				var message = {
 					command: "addUser",
 					parameter: {
-						username: formData.username,
+						username: username,
 						nickname: formData.nickname
 					}
 				};
-				console.log( "chat.addUser.sendMessage:", message );
 				this.$.websocket.sendMessage( message );
 			},
 			addGroup: function( e ) {
 				var addGroupForm = this.querySelector( "#addGroupForm" );
-				console.log( "chat.addGroup.e:", e.detail );
 				if ( e.detail.xaction == "execute" ) {
 					if ( addGroupForm.validate() == false ) {
 						return;
@@ -895,7 +896,6 @@ Use the Help button for an technical overview.
 				return "[" + moment().format( format ) + "]";
 			},
 			chatIdChanged: function() {
-				console.log( "chatIdChanged:", this.chatId );
 				var chatPages = this.querySelector( "#chatPages" );
 				if ( this.chatHash ) {
 					this.currentChat = this.chatHash[ this.chatId ];

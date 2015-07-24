@@ -155,7 +155,6 @@
 <script>
 	FormElementSelectorBehavior = {
 		isTabView: function( id ) {
-			//console.log( "isTabView:", ( id == 'Tabview' ) );
 			return id == 'Tabview';
 		},
 		isEnumSelect: function( id ) {
@@ -180,12 +179,10 @@
 			return id == 'RelatedTo';
 		},
 		isGroup: function( id ) {
-			//console.log( "isGroup:", ( id == 'Group' ) );
 			return id == 'Group';
 		},
 		isRow: function( id ) {
 			var r = id == 'Row';
-			if ( r ) console.log( "isRow(" + id + ":", r );
 			return r;
 		},
 		isPage: function( id ) {
@@ -193,31 +190,25 @@
 		},
 		isForm: function( id ) {
 			var r = id == 'Form';
-			if ( r ) console.log( "isForm(" + id + ":", r );
 			return r;
 		},
 		isActionButtopn: function( id ) {
 			var r = id == id == 'ActionButton';
-			if ( r ) console.log( "isField(" + id + "):" + r );
 			return r;
 		},
 		isField: function( id ) {
 			var r = id == 'Input' || id == 'Tableselect' || id == 'Enumselect' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
-			if ( r ) console.log( "isField(" + id + "):" + r );
 			return r;
 		},
 		isInputAndBoolean: function( id, xf_type ) {
 			var r = id == 'Input' && xf_type == 'boolean';
-			if ( r ) console.log( "isInputAndBoolean(" + id + ":", r );
 			return r;
 		},
 		isInputAndNotBoolean: function( id, xf_type ) {
 			var r = id == 'Input' && xf_type != 'boolean';
-			if ( r ) console.log( "isInputAndNotBoolean(" + id + ":", r );
 			return r;
 		},
 		tabTitle: function( t ) {
-			//console.log( "tabTitle:" + t );
 			return t;
 		}
 	};
@@ -296,14 +287,12 @@
 			},
 			internalXAction: function( e ) {
 				var target = e.target || e.srcElement;
-				console.log( "internalXAction", e );
 				this.fire( 'internal-xaction', null, {
 					node: target
 				} );
 
 			},
 			attached: function() {
-				//console.log( "form-element-renderer:", this.item );
 			}
 		} );
 
@@ -380,13 +369,11 @@
 				return "min-height:" + ( maxHeight - 60 ) + "px;";
 			},
 			attached: function() {
-				//console.log( "form-tab-renderer:", this.item );
 				this.async( function() {
 					var tab = this.item.selected;
 					if ( !tab && this.item.childShapes.length > 0 ) {
 						tab = this.item.childShapes[ 0 ].xf_id;
 					}
-					console.log( "SelectingiTab:", tab );
 					//		this.tabSelected = tab;
 				}, 1 );
 			}
@@ -449,7 +436,6 @@
 				FormElementSelectorBehavior
 			],
 			attached: function() {
-				//console.log( "form-element-selector:", this.items );
 			}
 		} );
 
@@ -582,11 +568,8 @@
 			},
 			internalXAction: function( e ) {
 				var target = e.target || e.srcElement;
-				console.log( "Form.internAction", e );
-				console.log( "Form.internAction.xaction", target.xaction + "/" + e.xid );
 				var data = this.getData();
 				var valid = this.validate();
-				console.log( "Form.data", JSON5.stringify( data, null, 2 ) );
 				this.fire( 'xaction', {
 					xaction: target.xaction,
 					data: data,
@@ -594,7 +577,6 @@
 				} );
 			},
 			attached: function() {
-				console.log( "Form.attached",this._form );
 			}
 		} );
 
