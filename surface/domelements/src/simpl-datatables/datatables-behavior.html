@@ -144,8 +144,6 @@
 			return raw;
 		},
 		metaChanged: function() {
-			console.log( "dataTables.metaChanged.data:", this.data );
-			console.log( "dataTables.metaChanged.meta:", this.meta );
 		},
 		_metaChanged: function() {},
 		dataChanged: function() {
@@ -157,6 +155,7 @@
 			console.log( "dataTables.dataChanged.data:", this.data );
 			console.log( "dataTables.dataChanged.meta:", this.meta );
 			var firsttime = this.preparedMeta == null;
+			console.log( "dataTables.dataChanged.firsttime:", firsttime );
 			if ( this.meta == null ) {
 				if ( this.data == null ) {
 					return;
