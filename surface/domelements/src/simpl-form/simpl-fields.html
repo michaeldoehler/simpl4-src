@@ -734,6 +734,7 @@
 			},
 			onSelected: function( val ) {
 				this.value = val;
+				this.fire( 'value-changed', this );
 				console.log( "drop-field(" + this.name + ").selectValue:", this.value );
 			},
 			onCallback: function( dropdown ) {

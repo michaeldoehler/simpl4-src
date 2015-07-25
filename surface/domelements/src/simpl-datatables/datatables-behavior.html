@@ -158,6 +158,9 @@
 			console.log( "dataTables.dataChanged.meta:", this.meta );
 			var firsttime = this.preparedMeta == null;
 			if ( this.meta == null ) {
+				if ( this.data == null ) {
+					return;
+				}
 				if ( this.data.length > 0 ) {
 					this.preparedMeta = this.prepareMetaFromData( this.data );
 				}

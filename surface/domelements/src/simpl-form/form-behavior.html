@@ -24,14 +24,13 @@
 			'value-changed': 'valueChanged'
 		},
 		valueChanged: function( e ) {
-			//console.debug( "Form.valueChanged:", e );
+			console.debug( "Form.valueChanged:", e );
 			var map = {};
 			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 				var f = this.fields[ i ];
 				map[ f.name ] = f.value;
 			}
 			map[ "isEdit" ] = this.mode == "edit";
-
 			for ( var i = 0, l = this.fields.length; i < l; i++ ) {
 				var f = this.fields[ i ];
 				var enabledExpr = f.getAttribute( "enabled-expr" );
@@ -211,10 +210,12 @@
 			this.shapes = this.prepareShape( form ).childShapes;
 			this.async( function() {
 				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+console.log("form.fields ok");
 				this.fields.forEach( function( field ) {
 					field.setForm( this );
 				}, this );
 				this.fieldsMap = this.toMap( this.fields );
+				this.valueChanged();
 			},100 );
 		},
 		/*----------------------------------*/
@@ -230,6 +231,7 @@
 					field.setForm( this );
 				}, this );
 				this.fieldsMap = this.toMap( this.fields );
+				this.valueChanged();
 			},100 );
 		},
 		toMap: function( arr ) {
