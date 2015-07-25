@@ -18,62 +18,72 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-tasks" extends="simpl-datatables" attributes="">
+<dom-module id="simpl-tasks">
+	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css">
+	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css">
+	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
+	<style>
+		li {
+			height: 30px;
+			cursor: pointer;
+		}
+		li.iron-selected:after {
+			content: "\2713";
+			padding-left: 10px;
+		}
+		paper-button.ripple {
+			float: left;
+			position: relative;
+		}
+
+	</style>
 	<template>
-		<style>
-			#list li {
-				height: 30px;
-				cursor: pointer;
-			}
-			#list li.core-selected:after {
-				content: "\2713";
-				padding-left: 10px;
-			}
-			paper-button.ripple {
-				float: left;
-				position: relative;
-			}
-			core-label {
-				font-family: 'Helvetica Neue', Helvetica, Arial;
-				font-size: 20px;
-				margin: 5px;
-			}
 
-		</style>
-
-		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
-			<section style="overflow-x:hidden;padding:3px;position:relative;">
-				<core-selector target="{{$.list}}" selected="{{taskListModeSelected}}">
-					<ul id="list">
-						<li>{{"tasks.table.not_assigned"|tr}}</li>
-						<li>{{"tasks.table.assigned"|tr}}</li>
-					</ul>
-				</core-selector>
-				<template if="{{currentTask!=null}}">
-					<div style="margin-bottom:30px;text-align:left;" layout vertical>
-						<paper-button raised class="ripple" on-tap="{{startTask}}">{{action+' ('+currentTask+')'}}</paper-button>
+		<neon-animated-pages selected="[[pageSelected]]">
+			<neon-animatables style="overflow-x:hidden;padding:3px;position:relative;">
+				<ul>
+					<iron-selector selected="{{taskListModeSelected}}">
+						<li>[[tr("tasks.table.not_assigned")]]</li>
+						<li>[[tr("tasks.table.assigned")]]</li>
+					</iron-selector>
+				</ul>
+				<template is="dom-if" if="[[currentTask]]">
+					<div style="margin-bottom:30px;text-align:left;" class="layout vertical">
+						<paper-button raised class="ripple" on-tap="startTask">[[getCurrentTaskDescription()]]</paper-button>
 					</div>
 				</template>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
-					<shadow></shadow>
+				<simpl-panel bgcolor="[[panelBackgroundColor]]" heading="[[panelHeader]]">
+					<div id="dtId" style="overflow:hidden;">
+						<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%"></table>
+					</div>
 				</simpl-panel>
-			</section>
-			<section style="position:relative;" unresolved>
+			</neon-animatables>
+			<neon-animatables style="position:relative;">
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
-			</section>
-		</core-animated-pages>
+			</neon-animatables>
+		</neon-animated-pages>
 	</template>
 
 	<script>
-		Polymer({ is:'simpl-tasks',
-			panelBackgroundColor: 'black',
-			panelHeader: tr( "tasks.table.assigned" ),
-			dtMeta: null,
-			pageSelected: 0,
-			taskListModeSelected: 1,
-			action: tr( "tasks.table.complete" ),
-			currentTask: null,
-			created: function() {
+		Polymer( {
+			is: 'simpl-tasks',
+			behaviors: [
+				DataTablesBehavior,
+				StyleScopeBehavior,
+				TranslationsBehavior
+			],
+			observers: [
+				'taskListModeSelectedChanged(taskListModeSelected)',
+				'selectionChanged(selection)'
+			],
+			ready: function() {
+				console.debug( "simpl-tasks.ready" );
+				this.panelBackgroundColor = 'black';
+				this.panelHeader = tr( "tasks.table.assigned" );
+				this.dtMeta = null,
+					this.action = tr( "tasks.table.complete" );
+				this.currentTask = null;
+				this.pageSelected = 0;
 				var subscription = channel.subscribe( "route.changed", ( function( data ) {
 					if ( data.route != 'tasklist' ) return;
 					if ( this.pageSelected != 0 ) return;
@@ -84,13 +94,12 @@
 					} ).bind( this ), 50 );
 				} ).bind( this ) );
 			},
-			domReady: function() {
-				console.log( "ready" );
+			attached: function() {
+				console.debug( "simpl-tasks.attached" );
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.getMeta();
 				}
-				var dataSet = this.getTasks();
-				this.createTable( this.dtMeta, dataSet );
+				this.taskListModeSelected = 1;
 			},
 			startTask: function( e ) {
 				this.pageSelected = 1;
@@ -112,12 +121,14 @@
 				this.currentTask = sel.processName + " / " + sel.name;
 			},
 			taskListModeSelectedChanged: function( e ) {
-				console.log( "e:" + e );
-				this.action = e == 0 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
-				this.panelHeader = e == 0 ? tr( "tasks.table.assigned" ) : tr( "tasks.table.not_assigned" );
-				var dataSet = this.getTasks( e == 0 ? "assigned" : "notassigned" );
+				this.action = e == 1 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
+				this.panelHeader = e == 1 ? tr( "tasks.table.assigned" ) : tr( "tasks.table.not_assigned" );
+				var dataSet = this.getTasks( e == 1 ? "assigned" : "notassigned" );
 				this.createTable( this.dtMeta, dataSet );
 				this.currentTask = null;
+			},
+			getCurrentTaskDescription: function() {
+				return this.action + ' (' + this.currentTask + ')';
 			},
 			getMeta: function() {
 				var colHds = [];
