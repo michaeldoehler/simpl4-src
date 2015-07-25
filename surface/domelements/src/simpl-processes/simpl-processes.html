@@ -28,8 +28,8 @@
 	</style>
 	<template>
 
-		<neon-animated-pages selected="[[pageSelected]]">
-			<neon-animatable style="overflow-x:hidden;padding:3px;position:relative;">
+		<neon-animated-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+			<neon-animatable>
 				<template is="dom-if" if="[[currentProcess]]">
 					<div style="margin-bottom:30px;text-align:left;" class="layout vertical">
 						<paper-button raised class="ripple" on-tap="startProcess">[[getCurrentProcessDescription()]]</paper-button>
@@ -41,7 +41,7 @@
 					</div>
 				</simpl-panel>
 			</neon-animatable>
-			<neon-animatable style="position:relative;" unresolved>
+			<neon-animatable>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
 			</neon-animatable>
 		</neon-animated-pages>
@@ -58,6 +58,8 @@
 				'selectionChanged(selection)'
 			],
 			attached: function() {
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-right-animation';
 				this.panelBackgroundColor = 'black';
 				this.panelHeader = tr( "tr.menu.process_list" );
 				this.dtMeta = null;

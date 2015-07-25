@@ -560,7 +560,7 @@
 			observers: [
 				'dataChanged(data.*)',
 				'specChanged(spec.*)',
-				'formNameChanged(formName)'
+				'formNameChanged(formName,namespace)'
 			],
 			listeners: {
 				'value-changed': 'valueChanged',
@@ -572,6 +572,7 @@
 				var valid = this.validate();
 				this.fire( 'xaction', {
 					xaction: target.xaction,
+					xid: target.xid,
 					data: data,
 					valid: valid
 				} );

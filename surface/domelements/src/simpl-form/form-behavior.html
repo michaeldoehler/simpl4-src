@@ -202,7 +202,7 @@
 		},
 
 		formNameChanged: function() {
-			console.log("form.formNameChanged");
+			console.log("form.formNameChanged:",this.formName+"/"+this.namespace);
 			this.fields = [];
 			this.fieldsMap = {};
 			var form = simpl4FormManager.getForm( this.formName, this.namespace );

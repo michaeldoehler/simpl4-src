@@ -18,9 +18,9 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-processcontroller" attributes="">
+<dom-module id="simpl-processcontroller">
 	<style>
-		html /deep/ core-icon.error-big {
+		html /deep/ iron-icon.error-big {
 			color: red;
 			height: 64px;
 			width: 64px;
@@ -33,7 +33,7 @@
 		paper-button[affirmative] {
 			color: #4285f4;
 		}
-		core-icon.error-big {
+		iron-icon.error-big {
 			color: red;
 			height: 64px;
 			width: 64px;
@@ -41,27 +41,36 @@
 
 	</style>
 	<template>
-		<template if="{{namespace!=null && formName!=null}}">
-			<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
-				<simpl-form id="formid" actionCallback="{{actionCallback}}" namespace="{{namespace}}" formName="{{formName}}" variables="{{variables}}"></simpl-form>
+		<template is="dom-if" if="[[isParamsOk(namespace,formName)]]">
+			<simpl-panel bgcolor="[[panelBackgroundColor]]" heading="[[panelHeader]]">
+				<simpl-form id="formid" on-xaction="actionCallback" namespace="[[namespace]]" form-name="[[formName]]" variables="[[variables]]"></simpl-form>
 			</simpl-panel>
 		</template>
-		<paper-toast id="toast" class="capsule" text="{{error_message}}" style="padding-right: 60px;"></paper-toast>
-		<paper-action-dialog id="error" class="scrolling">
-			<core-icon class="error-big" icon="error"></core-icon>
-			<p></p>
-			<paper-button raised affirmative autofocus>
-				<core-icon affirmative icon="check"></core-icon>Ok</paper-button>
-		</paper-action-dialog>
+		<paper-toast id="toast" class="capsule" text="[[error_message]]" style="padding-right: 60px;"></paper-toast>
+
+		<paper-dialog with-backdrop id="error">
+			<paper-dialog-scrollable>
+				<iron-icon class="error-big" icon="error"></iron-icon>
+				<p></p>
+				<paper-button raised affirmative autofocus>
+					<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+			</paper-dialog-scrollable>
+		</paper-dialog>
+
+
 	</template>
 
 	<script>
 		Polymer({ is:'simpl-processcontroller',
-			panelBackgroundColor: 'black',
-			panelHeader: '',
-			formName: null,
-			namespace: null,
-			domReady: function() {},
+			ready: function() {
+				this.panelBackgroundColor= 'black';
+				this.panelHeader= '';
+				this.formName= null;
+				this.namespace= null;
+			},
+			isParamsOk:function(namespace,formName){
+				return this.namespace!=null && this.formName!=null;
+			},
 			startByName: function( namespace, name, parameter ) {
 				this.namespace = namespace || simpl4.util.BaseManager.getNamespace();
 				//ms123.config.ConfigManager.installMessages( namespace );
@@ -114,25 +123,25 @@
 					return;
 				}
 				var formName = this.getFormName( formResourceKey );
-				console.warn( "{task,process}Name:" + taskName + "/" + processName );
-				console.warn( "formResourceKey:" + formResourceKey );
-				console.warn( "formName:" + formName );
+				console.log( "{task,process}Name:" + taskName + "/" + processName );
+				console.log( "formResourceKey:" + formResourceKey );
+				console.log( "formName:" + formName );
 				var self = this;
 				this.actionCallback = function( e ) {
-					event.stopPropagation();
-					var target = $( e.target ).is( 'xaction-button' ) ? e.target : e.target.parentNode;
-					console.log( "actionCallback:", target.xaction + "/" + target.xid );
-					if ( target.xaction == "execute" ) {
-						var buttonKey = target.xid;
-						var data = this.getData();
-						if ( !this.validate() ) {
+					console.log( "ProcessController.actionCallback:", e.detail );
+					var xaction = e.detail.xaction;
+					var xid = e.detail.xid;
+					var valid = e.detail.valid;
+					if ( xaction == "execute" ) {
+						var buttonKey = xid;
+						if ( !valid ) {
 							self.error_message = tr( "process.form_incomplete" );
 							self.shadowRoot.querySelector( "#toast" ).show();
 							return;
 						}
 						self.handleExecuteButton( data, task, formName, buttonKey, finishCallback );
 					}
-					if ( target.xaction == "cancel" ) {
+					if ( xaction == "cancel" ) {
 						if ( self.finishCallback ) {
 							self.finishCallback();
 						}
