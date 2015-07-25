@@ -38,6 +38,12 @@
 			height: 64px;
 			width: 64px;
 		}
+		paper-toast#toast {
+			z-index: 10;
+		}
+		paper-dialog {
+			min-height: 250px;
+		}
 
 	</style>
 	<template>
@@ -49,27 +55,31 @@
 		<paper-toast id="toast" class="capsule" text="[[error_message]]" style="padding-right: 60px;"></paper-toast>
 
 		<paper-dialog with-backdrop id="error">
-			<paper-dialog-scrollable>
+			<div class="layout vertical flex">
 				<iron-icon class="error-big" icon="error"></iron-icon>
 				<p></p>
-				<paper-button raised affirmative autofocus>
-					<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
-			</paper-dialog-scrollable>
+			</div>
+<div class="buttons">
+			<paper-button raised dialog-confirm>
+				<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+  </div>
+
 		</paper-dialog>
 
 
 	</template>
 
 	<script>
-		Polymer({ is:'simpl-processcontroller',
+		Polymer( {
+			is: 'simpl-processcontroller',
 			ready: function() {
-				this.panelBackgroundColor= 'black';
-				this.panelHeader= '';
-				this.formName= null;
-				this.namespace= null;
+				this.panelBackgroundColor = 'black';
+				this.panelHeader = '';
+				this.formName = null;
+				this.namespace = null;
 			},
-			isParamsOk:function(namespace,formName){
-				return this.namespace!=null && this.formName!=null;
+			isParamsOk: function( namespace, formName ) {
+				return this.namespace != null && this.formName != null;
 			},
 			startByName: function( namespace, name, parameter ) {
 				this.namespace = namespace || simpl4.util.BaseManager.getNamespace();
@@ -131,12 +141,13 @@
 					console.log( "ProcessController.actionCallback:", e.detail );
 					var xaction = e.detail.xaction;
 					var xid = e.detail.xid;
+					var data = e.detail.data;
 					var valid = e.detail.valid;
 					if ( xaction == "execute" ) {
 						var buttonKey = xid;
 						if ( !valid ) {
 							self.error_message = tr( "process.form_incomplete" );
-							self.shadowRoot.querySelector( "#toast" ).show();
+							self.querySelector( "#toast" ).show();
 							return;
 						}
 						self.handleExecuteButton( data, task, formName, buttonKey, finishCallback );
@@ -395,8 +406,8 @@
 				return null;
 			},
 			alert: function( message ) {
-				this.shadowRoot.querySelector( "#error p" ).innerHTML = message;
-				this.shadowRoot.querySelector( "#error" ).open();
+				this.querySelector( "#error p" ).innerHTML = message;
+				this.querySelector( "#error" ).open();
 			}
 		} );
 
