@@ -40,7 +40,7 @@
 	<template>
 
 		<neon-animated-pages selected="[[pageSelected]]">
-			<neon-animatables style="overflow-x:hidden;padding:3px;position:relative;">
+			<neon-animatable style="overflow-x:hidden;padding:3px;position:relative;">
 				<ul>
 					<iron-selector selected="{{taskListModeSelected}}">
 						<li>[[tr("tasks.table.not_assigned")]]</li>
@@ -57,10 +57,10 @@
 						<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%"></table>
 					</div>
 				</simpl-panel>
-			</neon-animatables>
-			<neon-animatables style="position:relative;">
+			</neon-animatable>
+			<neon-animatable style="position:relative;">
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
-			</neon-animatables>
+			</neon-animatable>
 		</neon-animated-pages>
 	</template>
 

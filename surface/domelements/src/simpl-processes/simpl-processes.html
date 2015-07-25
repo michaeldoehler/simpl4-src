@@ -19,55 +19,52 @@
  */
 -->
 <dom-module id="simpl-processes" extends="simpl-datatables" attributes="">
+	<style>
+		paper-button.ripple {
+			float: left;
+			position: relative;
+		}
+
+	</style>
 	<template>
-		<style>
-			#list li {
-				height: 30px;
-				cursor: pointer;
-			}
-			#list li.core-selected:after {
-				content: "\2713";
-				padding-left: 10px;
-			}
-			paper-button.ripple {
-				float: left;
-				position: relative;
-			}
-			core-label {
-				font-family: 'Helvetica Neue', Helvetica, Arial;
-				font-size: 20px;
-				margin: 5px;
-			}
 
-		</style>
-
-		<core-animated-pages selected="{{pageSelected}}" xransitions="hero-transition cross-fade">
-			<section style="overflow-x:hidden;padding:3px;position:relative;">
-				<template if="{{currentProcess!=null}}">
-					<div style="margin-bottom:30px;text-align:left;" layout vertical>
-						<paper-button raised class="ripple" on-tap="{{startProcess}}">{{action+' ('+currentProcess+')'}}</paper-button>
+		<neon-animated-pages selected="[[pageSelected]]">
+			<neon-animatable style="overflow-x:hidden;padding:3px;position:relative;">
+				<template is="dom-if" if="[[currentProcess]]">
+					<div style="margin-bottom:30px;text-align:left;" class="layout vertical">
+						<paper-button raised class="ripple" on-tap="startProcess">[[getCurrentProcessDescription()]]</paper-button>
 					</div>
 				</template>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeader}}" collapsable="false" collapsed="false">
-					<shadow></shadow>
+				<simpl-panel bgcolor="[[panelBackgroundColor]]" heading="[[panelHeader]]">
+					<div id="dtId" style="overflow:hidden;">
+						<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%"></table>
+					</div>
 				</simpl-panel>
-			</section>
-			<section style="position:relative;" unresolved>
+			</neon-animatable>
+			<neon-animatable style="position:relative;" unresolved>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
-			</section>
-		</core-animated-pages>
+			</neon-animatable>
+		</neon-animated-pages>
 	</template>
 
 	<script>
-		Polymer({ is:'simpl-processes',
-			panelBackgroundColor: 'black',
-			panelHeader: tr( "tr.menu.process_list" ),
-			dtMeta: null,
-			pageSelected: 0,
-			action: tr( "processexplorer.definition.start_workflow" ),
-			currentProcess: null,
-			domReady: function() {
-				console.log( "ready" );
+		Polymer( {
+			is: 'simpl-processes',
+			behaviors: [
+				DataTablesBehavior,
+				TranslationsBehavior
+			],
+			observers: [
+				'selectionChanged(selection)'
+			],
+			attached: function() {
+				this.panelBackgroundColor = 'black';
+				this.panelHeader = tr( "tr.menu.process_list" );
+				this.dtMeta = null;
+				this.pageSelected = 0;
+				this.action = tr( "processexplorer.definition.start_workflow" );
+				this.currentProcess = null;
+				console.log( "attached" );
 				this.namespace = "kfzplan"; //@@@MS simpl4.util.BaseManager.getNamespace();
 				if ( this.dtMeta == null ) {
 					this.dtMeta = this.getMeta();
@@ -77,7 +74,7 @@
 			},
 			startProcess: function( e ) {
 				this.pageSelected = 1;
-				var process = this.selection[0];
+				var process = this.selection[ 0 ];
 				var self = this;
 				this.$.processController.start( process, {}, function() {
 					console.log( "finishCallback2" );
@@ -85,7 +82,10 @@
 				} );
 			},
 			selectionChanged: function() {
-				this.currentProcess = this.selection[0].key;
+				this.currentProcess = this.selection[ 0 ].key;
+			},
+			getCurrentProcessDescription: function() {
+				return this.action + ' (' + this.currentProcess + ')';
 			},
 			getMeta: function() {
 				var colHds = [];
