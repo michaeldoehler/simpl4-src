@@ -54,6 +54,7 @@
 			}
 		},
 		created: function() {
+			this._iid = getShortId();
 		},
 
 		attached: function() {
@@ -839,6 +840,7 @@
 					type: String
 				},
 				items: {
+					observer: "itemsChanged",
 					type: Object
 				},
 				selection: {
@@ -902,6 +904,9 @@
 					scrollY: ( this.height - 40 ) + "px"
 				};
 				this.setInvalid(false);;
+			},
+			itemsChanged: function( items ) {
+				console.log("itemsChanged("+this._iid+"):",this.items);
 			},
 			setItems: function( items ) {
 				this.items = items;

@@ -111,14 +111,19 @@
 			margin-bottom: 20px;
 			border: 1px solid #E0E0E0;
 			border-radius: 4px;
-			padding: 7px;
 			margin-top: 10px;
-			background: white !important;
+		}
+		paper-material {
+			padding: 7px;
+			//background: white !important;
 		}
 
 	</style>
 	<template>
-		<content></content>
+		<paper-material elevation="0">
+			<content>
+			</content>
+		</paper-material>
 	</template>
 	<script>
 		Polymer( {
@@ -222,10 +227,10 @@
 			padding-right: 3px;
 			min-width: 250px;
 		}
-		<style>
-			label{
-				margin-bottom: 10px;
-			}
+		<style> label {
+			margin-bottom: 10px;
+		}
+
 	</style>
 	</style>
 	<template>
@@ -260,7 +265,7 @@
 			<html-echo field name$="{{item.xf_id}}" html="{{item.xf_message}}" invisible-expr$="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}"></html-echo>
 		</template>
 		<template is="dom-if" if="{{isGroup(item.id)}}" restamp>
-			<simpl-group class="group layout vertical">
+			<simpl-group class="group layout vertical" restamp>
 				<label for=".group">{{item.label}}</label>
 				<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 			</simpl-group>
@@ -292,8 +297,7 @@
 				} );
 
 			},
-			attached: function() {
-			}
+			attached: function() {}
 		} );
 
 	</script>
@@ -317,10 +321,10 @@
 	<template>
 		<mat-tabs target="tabsid">
 			<template is="dom-repeat" as="i" items="[[item.childShapes]]">
-				<template is="dom-if" if="[[i.title]]">
+				<template is="dom-if" if="[[i.title]]" restamp>
 					<mat-tab name$="[[i.xf_id]]" label$="[[tabTitle(i.ititle)]]"></mat-tab>
 				</template>
-				<template is="dom-if" if="[[!i.title]]">
+				<template is="dom-if" if="[[!i.title]]" restamp>
 					<mat-tab name$="[[i.xf_id]]" label$="[[tabTitle(i.xf_id)]]"></mat-tab>
 				</template>
 			</template>
@@ -387,38 +391,39 @@
 
 <dom-module id="form-element-selector">
 	<style>
-		label{
-  		margin-bottom: 10px;
+		label {
+			margin-bottom: 10px;
 		}
+
 	</style>
 	<template>
 		<template is="dom-repeat" items="{{items}}">
 
-			<template is="dom-if" if="{{isField(item.id)}}">
+			<template is="dom-if" if="{{isField(item.id)}}" restamp>
 				<form-element-renderer class="flex" item="[[item]]" />
 			</template>
-			<template is="dom-if" if="{{isActionButton(item.id)}}">
+			<template is="dom-if" if="{{isActionButton(item.id)}}" restamp>
 				<form-element-renderer class="" style="min-width:100px;margin-top:20px;" item="[[item]]" />
 			</template>
 
-			<template is="dom-if" if="[[isTabView(item.id)]]">
+			<template is="dom-if" if="[[isTabView(item.id)]]" restamp>
 				<form-tab-renderer class="flex" item="[[item]]" />
 			</template>
 
-			<template is="dom-if" if="{{isGroup(item.id)}}">
+			<template is="dom-if" if="{{isGroup(item.id)}}" restamp>
 				<simpl-group class="flex layout vertical group">
 					<label for=".group">{{item.label}}</label>
 					<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 				</simpl-group>
 			</template>
 
-			<template is="dom-if" if="{{isRow(item.id)}}">
+			<template is="dom-if" if="{{isRow(item.id)}}" restamp>
 				<simpl-row class="horizontal layout center wrap">
 					<form-element-selector class="flex layout horizontal center wrap" items="{{item.childShapes}}" />
 				</simpl-row>
 			</template>
 
-			<template is="dom-if" if="{{isForm(item.id)}}">
+			<template is="dom-if" if="{{isForm(item.id)}}" restamp>
 				<form-element-selector items="[[item.childShapes]]" />
 			</template>
 
@@ -435,8 +440,7 @@
 			behaviors: [
 				FormElementSelectorBehavior
 			],
-			attached: function() {
-			}
+			attached: function() {}
 		} );
 
 	</script>
@@ -577,8 +581,7 @@
 					valid: valid
 				} );
 			},
-			attached: function() {
-			}
+			attached: function() {}
 		} );
 
 	</script>
