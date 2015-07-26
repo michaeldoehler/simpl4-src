@@ -18,7 +18,7 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-chat" attributes="globals demotext">
+<dom-module id="simpl-chat">
 	<style>
 		paper-button /deep/ .button-content {
 			padding: 0.5em 0.5em;
@@ -171,7 +171,7 @@
 	<template>
 
 
-		<template is="dom-if" if="[[hasDemoText()]]">
+		<template is="dom-if" if="[[demotext]]">
 			<simpl-panel id="textPanel" bgcolor="#428BCA" heading="[[tr('chat.usage')]]" collapsable>
 				<template is="dom-if" if="[[isLang('de')]]">
 					<simpl-asciidoctor data="">
@@ -403,7 +403,6 @@ Use the Help button for an technical overview.
 				}
 			},
 			observers: [
-				'demotextChanged(demotext)',
 				'connectedChanged(connected)',
 				'recvMessageChanged(recvMessage)',
 				'chatIdChanged(chatId)'
@@ -968,7 +967,6 @@ Use the Help button for an technical overview.
 				}
 				return hash;
 			},
-			demotextChanged: function() {},
 			isChatType: function( t1, t2 ) {
 				return t1 == t2;
 			},
@@ -977,10 +975,6 @@ Use the Help button for an technical overview.
 			},
 			strcat: function( s1, s2 ) {
 				return s1 + s2;
-			},
-			hasDemoText: function() {
-				if ( this.demotext == null ) return false;
-				return this.demotext;
 			},
 			isLang: function( lang ) {
 				var _lang = Simpl4.Cache.getItem( "lang" );

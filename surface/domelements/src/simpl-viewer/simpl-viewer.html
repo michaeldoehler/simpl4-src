@@ -411,7 +411,7 @@
 			},
 			selectBom: function( nr ) {
 				var dt = this.$.bomTable;
-				var dtTable = dt.dtTable;
+				var dtTable = dt._api;
 				var rows = dtTable.rows( function( idx, data, node ) {
 					return data.part === nr ? true : false;
 				} );
