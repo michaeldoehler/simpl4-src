@@ -63,6 +63,9 @@
 		setForm: function( form ) {
 			this.form = form;
 		},
+		setValue: function( v ) {
+			this.value = v;
+		},
 		getValue: function() {
 			return this.value;
 		},
@@ -796,11 +799,10 @@
 	</style>
 	<template>
 
-		<template is="dom-if" if="[[height]]">
 			<div id="floatedLabel" hidden$="[[!label]]" class="floatedLabel">
 				<label class="label-text">{{label}}</label>
 			</div>
-			<div vertical layout style="[[getHeight()]">
+			<div vertical layout style="[[getHeight(height)]">
 				<simpl-datatables class="flex" id="dataTable" invalid$="[[isInvalid]]" selection="{{selection}}" multi-Select="[[multiSelect]]" selected="{{value}}" options="[[dataTablesOptions]]" meta="[[meta]]" data="[[items]]">
 				</simpl-datatables>
 				<div class="error layout horizontal center" hidden$="[[!isInvalid]]">
@@ -809,7 +811,6 @@
 					<iron-icon class="error-icon" icon="warning"></iron-icon>
 				</div>
 			</div>
-		</template>
 	</template>
 	<script>
 		Polymer( {
@@ -863,6 +864,16 @@
 			setValue: function( v ) {
 				this.$.dataTable.unselectAll();
 				this.value = null;
+			},
+			getValue: function() {
+				if( this.multiSelect ){
+					return this.value;
+				}else{
+					if( Array.isArray(this.value) && this.value.length>0  ){
+						return this.value[0];	
+					}
+				}
+				return null;
 			},
 			setErrorMessage: function( message ) {
 				this.error = message;

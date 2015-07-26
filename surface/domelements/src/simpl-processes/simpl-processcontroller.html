@@ -171,6 +171,10 @@
 				this.variables = processVariables;
 				this.namespace = processCategory;
 				this.formName = formName;
+				this.async( function() {
+					var form = this.querySelector( "#formid" );
+					form.setData( mappedFormValues);
+				}, 1 );
 			},
 			getFormName: function( formResourceKey ) {
 				var formName = null;

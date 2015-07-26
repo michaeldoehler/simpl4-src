@@ -166,10 +166,14 @@
 		},
 		dataChanged: function() {
 			this.whenFieldsReady( (function() {
-				this.setData( this.data );
+				this._setData( this.data );
 			}).bind(this) );
 		},
 		setData: function( data ) {
+			if( data == null) return;
+			this.data = data;
+		},
+		_setData: function( data ) {
 			this.fields.forEach( function( field ) {
 				if ( field.setValue == null ) return;
 				field.withoutCheck = true;
@@ -375,6 +379,9 @@ console.log("form.fields ok");
 				}
 			} else {
 				shape.properties.label = "";
+			}
+			if( shape.properties.xf_type==null){
+				 shape.properties.xf_type = "noop";
 			}
 			return _.extend( shape.properties, {bounds:shape.bounds}, shape.stencil, {
 				childShapes: shape.childShapes
