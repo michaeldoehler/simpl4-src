@@ -245,11 +245,17 @@ console.log("form.fields ok");
 			}, this );
 			return map;
 		},
+		_convertType:function(t){
+			if( t == "datetime"){
+				return "date";
+			}	
+			return t;
+		},
 		prepareShape: function( shape ) {
 			shape = this.cleanShape( shape );
 
 			if ( shape.id == 'Input' ) {
-				shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + shape.xf_type ] );
+				shape.regulaConstraints = this.constructRegulaConstraints( shape[ "xf_constraint_" + this._convertType(shape.xf_type) ] );
 			}
 
 			shape.childShapes = _.sortBy( shape.childShapes, function( element ) {
@@ -421,7 +427,9 @@ console.log("form.fields ok");
 					if ( params && params.length > 0 ) {
 						var pkey = params[ 0 ];
 						var val = pkey == 'format' ? '"YMD"' : values[ 1 ];
-						var val = pkey == 'regex' ? this.correctRegex(values[1]) : values[ 1 ];
+						if( pkey == "regex"){
+							val = this.correctRegex(values[1]);
+						}
 						ret += ',' + pkey + '=' + val;
 						if ( params.length > 1 ) {
 							var pkey = params[ 1 ];
