@@ -104,6 +104,9 @@ class BaseFormServiceImpl {
 		try {
 			bm.putAll(cleanData(data, inputShapes, true));
 		} catch (Exception e) {
+			for( Object key : bm.keySet()){
+				System.out.println("\tkey:"+key+"="+bm.getType((String)key));
+			}
 			e.printStackTrace();
 			throw new RuntimeException("FormService._validateForm:", e);
 		}
@@ -216,7 +219,7 @@ class BaseFormServiceImpl {
 				if (type == Date.class) {
 					try {
 						if( value instanceof String){
-							value= new SimpleDateFormat("yyyy-MM-dd").parse((String)value,new ParsePosition(0));
+							value= new SimpleDateFormat((((String)value).indexOf("T") >0) ? "yyyy-MM-dd'T'HH:mm" : "yyyy-MM-dd").parse((String)value,new ParsePosition(0));
 						}else{
 							Calendar cal = Calendar.getInstance();
 							cal.setTimeInMillis(((Long) value));
@@ -232,7 +235,7 @@ class BaseFormServiceImpl {
 				if (type == Date.class) {
 					try {
 						if( value instanceof String){
-							Date d =  new SimpleDateFormat("yyyy-MM-dd").parse((String)value,new ParsePosition(0));
+							Date d =  new SimpleDateFormat((((String)value).indexOf("T") >0) ? "yyyy-MM-dd'T'HH:mm" : "yyyy-MM-dd").parse((String)value,new ParsePosition(0));
 							value = d.getTime();
 						}
 					} catch (Exception e) {

@@ -245,7 +245,7 @@ debug("\t:"+getTeamUserWhere(sel));
 			} catch (Exception e) {
 				try{
 					if( data instanceof String){
-						d = new SimpleDateFormat("yyyy-MM-dd").parse((String)data,new ParsePosition(0));
+						d = new SimpleDateFormat((((String)data).indexOf("T") >0) ? "yyyy-MM-dd'T'HH:mm" : "yyyy-MM-dd").parse((String)data,new ParsePosition(0));
 					}
 				}catch(Exception e1){
 					System.out.println("E:"+e);
