@@ -371,13 +371,17 @@ public class Utils {
 	}
 
 	private static Object[] getLineNumberFromMsg(String msg) {
-		Pattern p = Pattern.compile(".*Script\\d{1,5}.groovy: (\\d{1,5}):(.*)", Pattern.DOTALL);
-		Matcher m = p.matcher(msg);
-		Object[] ret = new Object[2];
-		if (m.find()) {
-			ret[0] = m.group(1);
-			ret[1] = m.group(2);
-			return ret;
+		try{
+			Pattern p = Pattern.compile(".*Script\\d{1,5}.groovy: (\\d{1,5}):(.*)", Pattern.DOTALL);
+			Matcher m = p.matcher(msg);
+			Object[] ret = new Object[2];
+			if (m.find()) {
+				ret[0] = m.group(1);
+				ret[1] = m.group(2);
+				return ret;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		return null;
 	}
