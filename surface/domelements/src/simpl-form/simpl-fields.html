@@ -386,7 +386,7 @@
 			},
 			getValue: function() {
 				if ( this.type.match( /^date/ ) ) {
-					if ( typeof this.value === "string" && this.value.match( /[a-zA-Z]/ ) ) {
+					if ( typeof this.value === "string" && !this._isIsoDate(this.value) ) {
 						return null;
 					}
 				}
@@ -440,6 +440,14 @@
 					iso = mdate.year() + "-" + this.lpad( ( mdate.month() + 1 ) ) + "-" + this.lpad( mdate.date() );
 				}
 				return iso;
+			},
+			_isIsoDate:function(s){
+				var hasTime = this.type.match( /^datetime/ ) != null;
+				if( hasTime){
+ 					return s.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+				}else{
+ 					return s.match(/(\d{4})-(\d{2})-(\d{2})/);
+				}
 			},
 			setErrorMessage: function( message ) {
 				this.errorMessage = message;
