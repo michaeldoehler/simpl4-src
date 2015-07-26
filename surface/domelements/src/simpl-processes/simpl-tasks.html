@@ -40,7 +40,7 @@
 	<template>
 
 		<neon-animated-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<neon-animatable style="overflow-x:hidden;padding:3px;position:relative;">
+			<neon-animatable>
 				<ul>
 					<iron-selector selected="{{taskListModeSelected}}">
 						<li>[[tr("tasks.table.not_assigned")]]</li>
@@ -58,7 +58,7 @@
 					</div>
 				</simpl-panel>
 			</neon-animatable>
-			<neon-animatable style="position:relative;">
+			<neon-animatable>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
 			</neon-animatable>
 		</neon-animated-pages>
