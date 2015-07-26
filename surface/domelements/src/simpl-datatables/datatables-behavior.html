@@ -63,11 +63,11 @@
 			var dtMainElem = $( this.$.dataTablesId );
 			if ( this._api == null ) {
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
-					this.whenTableReady( ( function() {
+					//this.whenTableReady( ( function() {
 						this.async( function() {
 							new jQuery.fn.dataTable.Responsive( settings, null, function( sync ) {} );
 						}, 50 );
-					} ).bind( this ) );
+					//} ).bind( this ) );
 				} ).bind( this ) );
 			}
 			if ( dataSet && dataSet.length < 10 ) {
@@ -149,7 +149,7 @@
 		dataChanged: function() {
 			this.async( function() {
 				this._dataChanged();
-			}, 0 );
+			}, 30 );
 		},
 		_dataChanged: function() {
 			console.log( "dataTables.dataChanged.data:", this.data );
@@ -224,6 +224,7 @@
 		},
 		whenTableReady: function( done ) {
 			var self = this;
+			var counter = 0;
 
 			function waitForTable() {
 				var width = self.$.dataTablesId.offsetWidth;
@@ -232,7 +233,9 @@
 					done();
 					return;
 				}
-				setTimeout( waitForTable, 20 );
+				if( counter++<50){
+					setTimeout( waitForTable, 20 );
+				}
 			}
 			waitForTable();
 		},
