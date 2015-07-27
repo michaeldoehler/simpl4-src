@@ -1,88 +1,105 @@
 <dom-module id="simpl-viewer" attributes="showAssemblies panelBackgroundColor tableHeight viewerHeight">
-		<style>
-			[vs100] {
-				width: 100%!important;
+	<style>
+		[vs100] {
+			width: 100%!important;
+			-webkit-flex: none!important;
+			-ms-flex: none!important;
+			flex: none!important;
+		}
+		@media(min-width:992px) {
+			[vl33] {
+				width: 300px!important;
 				-webkit-flex: none!important;
 				-ms-flex: none!important;
 				flex: none!important;
 			}
-			@media(min-width:992px) {
-				[vl33] {
-					width: 300px!important;
-					-webkit-flex: none!important;
-					-ms-flex: none!important;
-					flex: none!important;
-				}
-				[vl66] {
-					width: calc(100% - 300px)!important;
-					-webkit-flex: none!important;
-					-ms-flex: none!important;
-					flex: none!important;
-				}
+			[vl66] {
+				width: calc(100% - 300px)!important;
+				-webkit-flex: none!important;
+				-ms-flex: none!important;
+				flex: none!important;
 			}
-			:host {
-				//margin-bottom: 20px;
-				display: block;
-				background: white;
-				position: relative;
-				box-sizing: border-box;
+		}
+		:host {
+			//margin-bottom: 20px;
+			display: block;
+			background: white;
+			position: relative;
+			box-sizing: border-box;
+		}
+		@media (max-width: 480px) {
+			:host /deep/ .menge {
+				width: 1px !important;
+				min-width: 1px;
+				max-width: 1px;
 			}
-			:host /deep/ td.menge {
-				width:20px;
+			:host /deep/ .button {
+				width: 20px !important;
+				min-width: 20px;
+				max-width: 20px;
 			}
-			:host /deep/ .hotspot {
-				border-radius: 3px;
-				//				background: yellow;
-				cursor: pointer;
+			:host /deep/ .teilenummer {
+				width: 60px !important;
+				max-width: 60px;
 			}
-			:host /deep/ .navigator {
-				background: white !important;
+			:host /deep/ .teilename {
+				width: 80px !important;
+				max-width: 80px;
 			}
-			:host /deep/ .hotspot:hover {
-				border: 1px solid black;
-				background: yellow;
-				opacity: .45 !important;
-			}
-			:host /deep/ .hotspot.selected {
-				border: 1px solid black;
-				background: red;
-				opacity: .45 !important;
-			}
+		}
+		:host /deep/ .hotspot {
+			border-radius: 3px;
+			//				background: yellow;
+			cursor: pointer;
+		}
+		:host /deep/ .navigator {
+			background: white !important;
+		}
+		:host /deep/ .hotspot:hover {
+			border: 1px solid black;
+			background: yellow;
+			opacity: .45 !important;
+		}
+		:host /deep/ .hotspot.selected {
+			border: 1px solid black;
+			background: red;
+			opacity: .45 !important;
+		}
+		#viewer {
+			min-height: 200px;
+			height: 1px;
+		}
+		@media(min-height:650px) {
 			#viewer {
-				min-height: 200px;
-				height: 1px;
+				min-height: 300px;
 			}
-			@media(min-height:650px) {
-				#viewer {
-					min-height: 300px;
-				}
+		}
+		@media(min-height:750px) {
+			#viewer {
+				min-height: 400px;
 			}
-			@media(min-height:750px) {
-				#viewer {
-					min-height: 400px;
-				}
+		}
+		@media(min-height:850px) {
+			#viewer {
+				min-height: 500px;
 			}
-			@media(min-height:850px) {
-				#viewer {
-					min-height: 500px;
-				}
-			}
+		}
+		paper-toast {
+			background: #fc0;
+			max-width: 300px;
+			color: black;
+			z-index: 10;
+		}
+		@media(max-width:768px) {
 			paper-toast {
-				background: #fc0;
-				max-width: 300px;
-				color: black;
-				z-index:10;
+				top: -80px;
+				position: fixed;
+				max-width: 100%;
+				height: 30px;
 			}
-			@media(max-width:768px) {
-				paper-toast {
-					top: -80px;
-					position: fixed;
-					max-width: 100%;
-					height: 30px;
-				}
-			}
+		}
 
-		</style>
+	</style>
 	<template>
 		<div class="horizontal layout wrap">
 			<div id="assemblyId" class="layout horizontal" vs100 vl33>
@@ -91,10 +108,10 @@
 				</simpl-panel>
 			</div>
 			<div id="viewerAndListId" class="layout vertical" vs100 vl66>
-				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" class="layout vertical" heading="{{panelHeaderBom}}"  >
+				<simpl-panel on-open-action="{{panelOpen}}" bgcolor="{{panelBackgroundColor}}" fontSize="1em" class="layout vertical" heading="{{panelHeaderBom}}">
 					<simpl-datatables id="bomTable" options="{{dataTablesOptions}}" on-rows-selected="partSelected" meta="{{assemblyTableMeta}}" data="{{assemblyTableData}}"></simpl-datatables>
 				</simpl-panel>
-				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" class="layout vertical" >
+				<simpl-panel id="drawingId" bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeaderDrawing}}" class="layout vertical">
 					<div id="viewer"> </div>
 				</simpl-panel>
 			</div>
@@ -102,18 +119,17 @@
 		<paper-toast id="toast" duration="2000" class="capsule" text="{{toastMessage}}" style="padding-right: 60px;"></paper-toast>
 	</template>
 	<script>
-		Polymer({ is:'simpl-viewer',
-			properties:{
-			},
-			observers: [
-			],
+		Polymer( {
+			is: 'simpl-viewer',
+			properties: {},
+			observers: [],
 			ready: function() {
-				this.panelBackgroundColor="#666666";
-				this.panelHeader= 'Maschine';
-				this.panelHeaderBom= 'Stückliste';
-				this.panelHeaderDrawing= 'Zeichnung';
-				this.showAssemblies=true;
-				this.dataTablesOptions= {
+				this.panelBackgroundColor = "#666666";
+				this.panelHeader = 'Maschine';
+				this.panelHeaderBom = 'Stückliste';
+				this.panelHeaderDrawing = 'Zeichnung';
+				this.showAssemblies = true;
+				this.dataTablesOptions = {
 					paging: true,
 					dom: "frtiS",
 					scrollY: '150px'
@@ -129,23 +145,23 @@
 					alert( "Viewer._init:" + e );
 					return;
 				}
-				if ( this.showAssemblies!=null && (this.showAssemblies == "false" || this.showAssemblies===false) ) {
+				if ( this.showAssemblies != null && ( this.showAssemblies == "false" || this.showAssemblies === false ) ) {
 					$( this.$.assemblyId ).css( "display", "none" );
 					$( this.$.viewerAndListId ).attr( "vl100", "" );
 					$( this.$.viewerAndListId ).removeAttr( "vl66" );
 				}
 				this.assemblies = t;
-				window.buttonClicked=this.buttonClicked.bind(this);
+				window.buttonClicked = this.buttonClicked.bind( this );
 			},
-			tableHeightChanged:function(){
-				if( this.tableHeight){
-					this.dataTablesOptions.scrollY=this.tableHeight+"px";
+			tableHeightChanged: function() {
+				if ( this.tableHeight ) {
+					this.dataTablesOptions.scrollY = this.tableHeight + "px";
 				}
 			},
-			viewerHeightChanged:function(){
-				if( this.viewerHeight){
-					$( this.$.viewer ).css( "min-height", this.viewerHeight+"px" );
-					$( this.$.viewer ).css( "height", this.viewerHeight+"px" );
+			viewerHeightChanged: function() {
+				if ( this.viewerHeight ) {
+					$( this.$.viewer ).css( "min-height", this.viewerHeight + "px" );
+					$( this.$.viewer ).css( "height", this.viewerHeight + "px" );
 				}
 			},
 			attached: function( context ) {
@@ -176,7 +192,7 @@
 				if ( navigator.userAgent.match( /android/i ) ) { //@@@MS without this, the  dataTable want scrolling, if the drawing i szommed
 					$( this.$.viewer.querySelector( ".openseadragon-container" ) ).css( "overflow", "auto" );
 				}
-				if( window.etk){
+				if ( window.etk ) {
 					window.etk.onExternalReady()
 				}
 			},
@@ -187,16 +203,18 @@
 				$( window ).trigger( "resize.dtr" );
 			},
 			selectedAssemblyChanged: function( e ) {
-				console.log("Details:",e.detail);
+				console.log( "Details:", e.detail );
 				var selectedAssembly = e.detail.item;
 				var part = selectedAssembly.part;
+				var mapUrl = simpl4.util.BaseManager.getBaseUrl() + '/sw/resource/png_' + part + '/map.xml';
+				var hotspots = this.getHotspots( mapUrl );
+				this._hotspots = hotspots;
 				this.showLoading( "Loading " + selectedAssembly.name + "..." );
 				setTimeout( ( function() {
 					console.log( "selectedAssemblyChanged:", selectedAssembly );
 					this.panelHeaderBom = "Stückliste(" + selectedAssembly.name + ")";
 					this.assemblyTableData = this.getAssembyTableData( selectedAssembly.path );
-					var mapUrl = simpl4.util.BaseManager.getBaseUrl() + '/sw/resource/png_' + part + '/map.xml';
-					this.open( part, this.getHotspots( mapUrl ), "page-width" );
+					this.open( part, hotspots, "page-width" );
 				} ).bind( this ), 10 );
 			},
 			showLoading: function( message ) {
@@ -205,11 +223,11 @@
 			},
 			partSelected: function( e ) {
 				var dataRow = e.detail.rows[ 0 ];
-				console.log( "partSelected:", dataRow["part"] );
+				console.log( "partSelected:", dataRow[ "part" ] );
 				this.selectHotspot( dataRow[ "part" ] );
 			},
 			open: function( url, hotspots, scale ) {
-				this._hotspots = hotspots;
+				//this._hotspots = hotspots;
 				var self = this;
 				var map = this._getParameter( url );
 				this._openSeadragon.open( {
@@ -251,36 +269,39 @@
 				var col = {};
 				col.data = "menge";
 				col.title = "";
-				col.class="input menge";
-				col.width="20";
-				col.mRender= this.renderColumn;
+				col.class = "input menge";
+				col.width = "2";
+				col.mRender = this.renderColumn;
 				colHds.push( col );
 
 				var col = {};
 				col.data = "basket";
 				col.title = "";
-				col.class="button";
-				col.icon="basket.gif";
-				col.width="20";
-				col.mRender= this.renderColumn;
+				col.class = "button";
+				col.width = "20";
+				col.icon = "basket.gif";
+				//			col.class="wkbutton";
+				col.mRender = this.renderColumn;
 				colHds.push( col );
 
 				var col = {};
 				col.data = "part";
-				col.width="70";
+				col.class = "teilenummer alignLeft";
+				col.width = "60";
 				col.title = tr( "bomviewer.part" );
-				col.class = "alignLeft";
 				colHds.push( col );
 
 				var col = {};
 				col.data = "name";
+				col.class = "teilename";
+				col.width = "80";
 				col.title = tr( "bomviewer.name" );
 				colHds.push( col );
 
 				var col = {};
 				col.data = "qty";
 				col.title = tr( "bomviewer.qty" );
-				col.width="20";
+				col.width = "20";
 				colHds.push( col );
 
 				var col = {};
@@ -300,42 +321,58 @@
 				var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 				var ns = simpl4.util.BaseManager.getNamespace();
 				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
-					return "<div style='' class='input'><input id='id"+row.part+"' style='padding:0px !important; ;max-width:34px;margin:0px;font-size:10px;height:14px;xidth:100%;' type='text'></input></div>";
-				}else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
-					return "<div onClick='window.buttonClicked("+row.part+");' class='button'><input style='height:14px;background:#787878;' src='"+baseUrl+"/repo/"+ns+"/basket.gif' type='image'></input></div>";
+					return "<div style='' class='input'><input id='id" + row.part + "' style='padding:0px !important; ;max-width:34px;margin:0px;font-size:10px;height:14px;xidth:100%;' type='text'></input></div>";
+				} else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
+					return "<div onClick='window.buttonClicked(" + row.part + ");' class='button'><input style='height:14px;background:#787878;' src='" + baseUrl + "/repo/" + ns + "/basket.gif' type='image'></input></div>";
 				} else {
 					return row[ name ];
 				}
 			},
-			buttonClicked:function(e){
+			buttonClicked: function( e ) {
 				var nr = e;
-				var inp = $(document.querySelector("html /deep/ #id"+e));
-				var val = this.isEmpty(inp.val()) ? 1 : parseInt(inp.val());
-				console.log("Part:"+nr+"/"+val);
-				if( !isNaN(val) && val > 0){
-					inp.val(null);
-					if( window.etk){
+				var inp = $( document.querySelector( "html /deep/ #id" + e ) );
+				var val = this.isEmpty( inp.val() ) ? 1 : parseInt( inp.val() );
+				console.log( "Part:" + nr + "/" + val );
+				if ( !isNaN( val ) && val > 0 ) {
+					inp.val( null );
+					if ( window.etk ) {
 						window.etk.addToBasket( nr, val );
 					}
 				}
 			},
-		   isEmpty:function(s){
-        if( s == null || s == '' ) return true;
-        return false;
-      },
+			isEmpty: function( s ) {
+				if ( s == null || s == '' ) return true;
+				return false;
+			},
 			getAssembyTableData: function( path ) {
 				try {
 					var d = simpl4.util.Rpc.rpcSync( "bhs:getAssembly", {
 						namespace: "bhs",
 						path: path + ".*{1}"
 					} );
+					d.forEach( ( function( r ) {
+						if ( this._hasHotspot( r.part ) ) {
+//							r.name = "<span style='color:#D50303;'>"+r.name+"</span>";
+							
+						} else {
+							r.name = "<span style='color:rgba(0, 0, 0, 0.5);'>"+r.name+"</span>";
+						}
+					} ).bind( this ) );
 					return d;
 				} catch ( e ) {
 					alert( "BOMViewer._getAssemby:" + e );
 					return;
 				}
 			},
-
+			_hasHotspot: function( href ) {
+				if ( this._hotspotMap == null ) {
+					this._hotspotMap = {};
+					this._hotspots.forEach( ( function( h ) {
+						this._hotspotMap[ h.href ] = true;
+					} ).bind( this ) );
+				}
+				return this._hotspotMap[ href ];
+			},
 			_selectHotspot: function( href, intern ) {
 				if ( this.internalHotspotEvent === true ) return;
 				//var el = this.getContentElement().getDomElement();
