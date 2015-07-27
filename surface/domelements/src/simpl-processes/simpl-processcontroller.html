@@ -38,6 +38,11 @@
 			height: 64px;
 			width: 64px;
 		}
+		iron-icon.finish-big {
+			color: blue;
+			height: 64px;
+			width: 64px;
+		}
 		paper-toast#toast {
 			z-index: 10;
 		}
@@ -59,13 +64,22 @@
 				<iron-icon class="error-big" icon="error"></iron-icon>
 				<p></p>
 			</div>
-<div class="buttons">
-			<paper-button raised dialog-confirm>
-				<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
-  </div>
-
+			<div class="buttons">
+				<paper-button raised dialog-confirm>
+					<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+			</div>
 		</paper-dialog>
 
+		<paper-dialog with-backdrop id="finish">
+			<div class="layout vertical flex">
+				<iron-icon class="finish-big" icon="verified-user"></iron-icon>
+				<p></p>
+			</div>
+			<div class="buttons">
+				<paper-button raised on-tap="onFinishTap" xialog-confirm>
+					<iron-icon affirmative icon="check"></iron-icon>Ok</paper-button>
+			</div>
+		</paper-dialog>
 
 	</template>
 
@@ -158,7 +172,6 @@
 						}
 					}
 				};
-
 				var processVariables = {};
 				var mappedFormValues = null;
 				if ( task != null ) {
@@ -173,7 +186,7 @@
 				this.formName = formName;
 				this.async( function() {
 					var form = this.querySelector( "#formid" );
-					form.setData( mappedFormValues);
+					form.setData( mappedFormValues );
 				}, 1 );
 			},
 			getFormName: function( formResourceKey ) {
@@ -251,7 +264,6 @@
 			},
 			completeActivity: function( processVariables, task, finishCallback ) {
 				var pdata = JSON.stringify( processVariables );
-				var hasMoreTasks = true;
 
 				var completed = ( function( ret ) {
 					var x = JSON.stringify( ret );
@@ -268,11 +280,10 @@
 						this.showForm( tasks.data[ 0 ], finishCallback );
 					} else {
 						if ( task && task.fromTaskList ) {
-							this.alert( tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ) );
+							this.finish( tr( "processes.taskform.started" ) + " -> ID" + ( task.processInstanceId ), finishCallback );
 						} else {
-							this.alert( tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ) );
+							this.finish( tr( "processes.startform.started" ) + " -> ID" + ( task ? task.processInstanceId : ret.id ), finishCallback );
 						}
-						hasMoreTasks = false;
 					}
 				} ).bind( this );
 
@@ -317,8 +328,6 @@
 					return simpl4.util.Rpc.rpcAsync( params );
 				} else {
 					this.completeTask( task.id, processVariables, completed, failed );
-					console.log( "hasMoreTasks:" + hasMoreTasks );
-					if ( !hasMoreTasks ) finishCallback();
 				}
 			},
 			completeTask: function( taskId, processVariables, completed, failed ) {
@@ -408,6 +417,16 @@
 				var defs = result[ "data" ];
 				if ( defs.length > 0 ) return defs[ 0 ];
 				return null;
+			},
+			finish: function( message, callback ) {
+				this.querySelector( "#finish p" ).innerHTML = message;
+
+				var dia = this.querySelector( "#finish" );
+				this.onFinishTap = function( e ) {
+					dia.close();
+					callback();
+				}
+				dia.open();
 			},
 			alert: function( message ) {
 				this.querySelector( "#error p" ).innerHTML = message;
