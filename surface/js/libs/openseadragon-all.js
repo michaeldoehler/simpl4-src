@@ -5675,7 +5675,7 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
                 onBlur:     onBlurHandler
             }));
 
-            buttons.push( this.fullPageButton = new $.Button({
+/*            buttons.push( this.fullPageButton = new $.Button({
                 element:    this.fullPageButton ? $.getElement( this.fullPageButton ) : null,
                 clickTimeThreshold: this.clickTimeThreshold,
                 clickDistThreshold: this.clickDistThreshold,
@@ -5687,7 +5687,7 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
                 onRelease:  onFullScreenHandler,
                 onFocus:    onFocusHandler,
                 onBlur:     onBlurHandler
-            }));
+            }));*/
 
             if (this.showRotationControl) {
                 buttons.push( this.rotateLeft = new $.Button({
