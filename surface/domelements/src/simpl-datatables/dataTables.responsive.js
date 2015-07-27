@@ -72,7 +72,7 @@ var factory = function( $, DataTable ) {
  *      } );
  *    } );
  */
-var Responsive = function ( settings, opts, callback ) {
+var Responsive = function ( settings, opts ) {
 	// Sanity check that we are using DataTables 1.10 or newer
 	if ( ! DataTable.versionCheck || ! DataTable.versionCheck( '1.10.1' ) ) {
 		throw 'DataTables Responsive requires DataTables 1.10.1 or newer';
@@ -95,7 +95,7 @@ var Responsive = function ( settings, opts, callback ) {
 
 	this.c = $.extend( true, {}, Responsive.defaults, DataTable.defaults.responsive, opts );
 	settings.responsive = this;
-	this._constructor(callback);
+	this._constructor();
 };
 
 Responsive.prototype = {
@@ -108,7 +108,7 @@ Responsive.prototype = {
 	 *
 	 * @private
 	 */
-	_constructor: function (callback)
+	_constructor: function ()
 	{
 		var that = this;
 		var dt = this.s.dt;
@@ -118,7 +118,6 @@ Responsive.prototype = {
 		// Use DataTables' private throttle function to avoid processor thrashing
 		$(window).on( 'resize.dtr orientationchange.dtr', dt.settings()[0].oApi._fnThrottle( function () {
 			that._resize();
-			//callback();
 		} ) );
 
 		// Destroy event handler
@@ -143,7 +142,7 @@ Responsive.prototype = {
 		// this.s.alwaysHidden = dt.columns(':hidden').indexes();
 
 		this._classLogic();
-		this._resizeAuto(callback);
+		this._resizeAuto();
 
 		// First pass - draw the table for the current viewport size
 		this._resize();
@@ -151,12 +150,11 @@ Responsive.prototype = {
 		// Details handler
 		var details = this.c.details;
 		if ( details.type ) {
-			that._detailsInit(callback);
+			that._detailsInit();
 			this._detailsVis();
 
 			dt.on( 'column-visibility.dtr', function () {
 				that._detailsVis();
-				callback();
 			} );
 
 			// Redraw the details box on each draw. This is used until
@@ -169,7 +167,6 @@ Responsive.prototype = {
 						var info = that.c.details.renderer( dt, idx );
 						row.child( info, 'child' ).show();
 					}
-				//callback();
 				} );
 			} );
 
@@ -415,7 +412,7 @@ Responsive.prototype = {
 	 *
 	 * @private
 	 */
-	_detailsInit: function (callback)
+	_detailsInit: function ()
 	{
 		var that    = this;
 		var dt      = this.s.dt;
@@ -466,7 +463,6 @@ Responsive.prototype = {
 				var info = that.c.details.renderer( dt, row[0] );
 				row.child( info, 'child' ).show();
 				$( row.node() ).addClass( 'parent' );
-				//callback();
 			}
 		} );
 	},
@@ -593,7 +589,7 @@ console.log("haveHidden:"+haveHidden);
 	 *
 	 * @private
 	 */
-	_resizeAuto: function (callback)
+	_resizeAuto: function ()
 	{
 		var dt = this.s.dt;
 		var columns = this.s.columns;
@@ -638,9 +634,6 @@ console.log("haveHidden:"+haveHidden);
 			.append( clonedTable )
 			.insertBefore( dt.table().node() );
 
-		if( callback){
-			 callback(true);
-		}
 
 		// The cloned header now contains the smallest that each column can be
 		dt.columns().eq(0).each( function ( idx ) {
