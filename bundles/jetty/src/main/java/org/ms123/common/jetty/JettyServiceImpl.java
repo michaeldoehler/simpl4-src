@@ -290,7 +290,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		String fileName = segs[segs.length-1];
 		String ext = getExtension(fileName);
 		if( segs.length>4){
-			int i = request.getPathInfo().indexOf( segs[3]);
+			System.out.println("pathInfo:"+request.getPathInfo());
+			int i = ("/repo/"+namespace+"/").length();
 			fileName = request.getPathInfo().substring(i);
 			System.out.println("Filename:"+fileName);
 		}
