@@ -134,7 +134,8 @@
 			return this.selection;
 		},
 		unselectAll: function() {
-			this.q( 'tr.selected' ).removeClass( 'selected' );
+			var rows = this._api.rows().nodes();
+			$( rows ).removeClass( 'selected' );
 		},
 		copySelection: function( sel ) {
 			var raw = [];
