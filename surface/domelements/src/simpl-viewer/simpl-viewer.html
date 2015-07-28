@@ -414,7 +414,7 @@
 					var rec = viewer.viewport.imageToViewportRectangle( x, y, w, h );
 					var p = viewer.viewport.imageToViewportCoordinates( x, y );
 					var div = this.createDiv( hs.href, p );
-					viewer.drawer.addOverlay( div, rec );
+					viewer.addOverlay( div, rec );
 
 				}
 			},
