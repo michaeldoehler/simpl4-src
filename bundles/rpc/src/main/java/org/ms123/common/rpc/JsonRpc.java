@@ -145,15 +145,15 @@ public class JsonRpc {
 
 	private Map<String, Object> buildResponse(final Map<String, Object> request, final Object methodResult, final Map<Class, List<String>> wantedFields) {
 		Map<String, Object> response;
-		try {
+//		try {
 			//final Object result = m_javaSerializer.serialize(methodResult, wantedFields, 0, 10);
 			response = new HashMap<String, Object>(3);
 			response.put("id", request.get("id"));
 			response.put("error", null);
 			response.put("result", methodResult);
-		} catch (SerializationException e) {
-			response = buildResponse(request, new RpcException(ERROR_FROM_SERVER, INTERNAL_SERVER_ERROR, "Unable to serialize method result.", e));
-		}
+//		} catch (SerializationException e) {
+		//	response = buildResponse(request, new RpcException(ERROR_FROM_SERVER, INTERNAL_SERVER_ERROR, "Unable to serialize method result.", e));
+		//}
 		return response;
 	}
 
