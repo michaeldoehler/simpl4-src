@@ -205,6 +205,11 @@
 		},
 
 		formNameChanged: function() {
+			this.async( function() {
+				this._formNameChanged();
+			},10 );
+		},
+		_formNameChanged: function() {
 			console.log("form.formNameChanged:",this.formName+"/"+this.namespace);
 			this.fields = [];
 			this.fieldsMap = {};
