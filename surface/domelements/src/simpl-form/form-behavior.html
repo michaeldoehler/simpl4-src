@@ -214,7 +214,6 @@
 			this.shapes = this.prepareShape( form ).childShapes;
 			this.async( function() {
 				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
-console.log("form.fields ok");
 				this.fields.forEach( function( field ) {
 					field.setForm( this );
 				}, this );

@@ -26,7 +26,7 @@
 			is: 'simpl-rpc',
 			properties: {
 				allparams: {
-					computed: "collectAll(params,method,service)"
+					computed: "collectAll(method,service)"
 				},
 				service: {
 					type: String
@@ -115,8 +115,17 @@
 				};
 				if ( this.params ) {
 					body.params = JSON5.parse( this.params );
+					if( (body.params.namespace && body.params.namespace=="default") || service == "camelRoute"){
+						body.params.namespace = simpl4.util.BaseManager.getNamespace();
+					}
+				}else{ 
+					if( this.service == "camelRoute"){
+						body.params = {};
+						body.params.namespace = simpl4.util.BaseManager.getNamespace();
+					}
 				}
 				args.body = JSON.stringify( body, null, 2 );
+				console.log("rpc.body:",args.body);
 				if ( this.xhr == null ) {
 					this.xhr = document.createElement( 'simpl-xhr' );
 				}

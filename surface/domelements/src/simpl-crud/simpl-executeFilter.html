@@ -47,7 +47,6 @@
 				},
 				name: {
 					value: null,
-					observer: "nameChanged",
 					type: String
 				},
 				namespace: {
@@ -68,10 +67,6 @@
 				console.log( "executefilter.paramsChanged:", this.params );
 				this.execute( false );
 			},
-			nameChanged: function() {
-				console.log( "executefilter.nameChanged:", this.name );
-				//this.execute( true );
-			},
 			parseParams: function( o ) {
 				if ( o == null ) return;
 				if ( typeof o == 'string' ) {
@@ -81,8 +76,8 @@
 			},
 			execute: function( withMeta ) {
 				var params = this.parseParams( this.params );
-				var namespace = this.namespace || "firstapp"; //globals.mainNamespace;
-				console.debug( "execute.namespace:", this.namespace );
+				var namespace = this.namespace || simpl4.util.BaseManager.getNamespace();
+				console.debug( "execute.namespace:", namespace );
 				console.debug( "execute.name:", this.name );
 				console.debug( "execute.params:", this.params );
 				console.debug( "execute.pagesize:", this.pagesize );
