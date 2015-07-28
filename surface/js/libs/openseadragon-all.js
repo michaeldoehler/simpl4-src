@@ -19047,7 +19047,11 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
 
 }( OpenSeadragon ));
 //###########################################################################
-﻿/* 
+//! OpenSeadragonViewerInputHook 1.1.0
+//! Build date: 2015-07-28
+//! Git commit: 2f1adfe-dirty
+//! https://github.com/msalsbery/OpenSeadragonViewerInputHook
+/* 
  * Copyright (c) 2013-2014 Mark Salsbery
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -19071,14 +19075,14 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
 
 /**
  * @file
- * @version  <%= pkg.name %> <%= pkg.version %>
+ * @version  OpenSeadragonViewerInputHook 1.1.0
  * @author Mark Salsbery <msalsbery@hotmail.com>
  *
  */
 
 /**
  * @module openseadragon-viewerinputhook
- * @version  <%= pkg.name %> <%= pkg.version %>
+ * @version  OpenSeadragonViewerInputHook 1.1.0
  *
  */
 
@@ -19165,10 +19169,10 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
      */
     /* jshint ignore:start */
     $.ViewerInputHook.version = {
-        versionStr: '<%= viewerinputhookVersion.versionStr %>',
-        major: <%= viewerinputhookVersion.major %>,
-        minor: <%= viewerinputhookVersion.minor %>,
-        revision: <%= viewerinputhookVersion.revision %>
+        versionStr: '1.1.0',
+        major: 1,
+        minor: 1,
+        revision: 0
     };
     /* jshint ignore:end */
 
