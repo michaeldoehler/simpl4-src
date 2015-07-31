@@ -54,8 +54,6 @@ import static org.apache.commons.io.FileUtils.copyDirectoryToDirectory;
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
-import com.taskadapter.redmineapi.*;
-import com.taskadapter.redmineapi.bean.*;
 
 /** NamespaceService implementation
  */
@@ -262,17 +260,12 @@ public class NamespaceServiceImpl implements NamespaceService {
 				options.add("isModified");
 				List repos = m_gitService.getRepositories(options, false);
 				return prepareList(null,repos);	
-			}else{
-				RedmineApi ca = new RedmineApi(m_gitHost,m_apiKey);
-				List<String> options = new ArrayList();
-				options.add("updateAvailable");
-				options.add("isModified");
-				return prepareList(ca.getProjects(), m_gitService.getRepositories(options,false));
 			}
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "NamespaceServiceImpl.getNamespaces:", e);
 		} finally {
 		}
+		return new ArrayList();
 	}
 
 	public Map getBranding() throws RpcException {
@@ -313,10 +306,6 @@ public class NamespaceServiceImpl implements NamespaceService {
 			@PName("withRepository")   @POptional @PDefaultBool(false) Boolean withRepository, 
 			@PName("withData")         @POptional @PDefaultBool(false) Boolean withData) throws RpcException {
 		try {
-			if (withRepository) {
-				RedmineApi ca = new RedmineApi(m_gitHost,m_apiKey);
-				ca.deleteProject(name);
-			}
 			m_gitService.deleteRepository(name);
 			if (withData) {
 				m_gitService.deleteRepository(GitServiceImpl.getDataRepoName(name));
