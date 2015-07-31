@@ -75,7 +75,12 @@ public class WampClientConsumer extends DefaultConsumer {
 			info("Consumer.Procedure called:" + request + "/hashCode:" + this.hashCode());
 			final boolean reply = false;
 			final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
-			prepareExchange(exchange, request);
+			try{
+				prepareExchange(exchange, request);
+			}catch(Exception e){
+				request.reply(buildResponse(e));
+				return;
+			}
 			try {
 				getAsyncProcessor().process(exchange, new AsyncCallback() {
 
