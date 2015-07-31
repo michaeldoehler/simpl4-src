@@ -69,8 +69,9 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	private void wampClientConnected() {
-		info("Consumer.register:" + endpoint.getProcedure() + "/" + this.hashCode());
-		Subscription addProcSubscription = this.clientSession.registerProcedure(endpoint.getProcedure()).subscribe((request) -> {
+		String namespace = endpoint.getCamelContext().getName().split("/")[0];
+		info("Consumer.register:" +namespace+"."+endpoint.getProcedure() );
+		Subscription addProcSubscription = this.clientSession.registerProcedure(namespace+"."+endpoint.getProcedure()).subscribe((request) -> {
 
 			info("Consumer.Procedure called:" + request + "/hashCode:" + this.hashCode());
 			final boolean reply = false;
@@ -332,7 +333,8 @@ public class WampClientConsumer extends DefaultConsumer {
 	}
 
 	protected void doStop() throws Exception {
-		debug("######Consumer.Stop:" + endpoint.getProcedure() + "/" + this.hashCode());
+		String namespace = endpoint.getCamelContext().getName().split("/")[0];
+		debug("######Consumer.Stop:" + namespace+"."+endpoint.getProcedure() + "/" + this.hashCode());
 		this.clientSession.close();
 		super.doStop();
 	}
