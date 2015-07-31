@@ -1,0 +1,38 @@
+<!--etc/jooq/jooq-oracle.xml -->
+<!--bin/jooq-codegen.sh jooq-oracle.xml -->
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.6.0.xsd">
+  <!-- Configure the database connection here -->
+  <jdbc>
+    <driver>oracle.jdbc.OracleDriver</driver>
+    <url>jdbc:oracle:thin:@localhost:1521:ORCL</url>
+    <user>xxxx</user>
+    <password>yyyyy</password>
+  </jdbc>
+
+  <generator>
+    <name>org.jooq.util.DefaultGenerator</name>
+
+    <database>
+      <name>org.jooq.util.jdbc.JDBCDatabase</name>
+
+      <inputSchema>Schemaname</inputSchema>
+
+      <!-- All elements that are generated from your schema (A Java regular expression. Use the pipe to separate several expressions) Watch out for case-sensitivity. Depending on your database, this might be important! -->
+      <includes>.*</includes>
+
+      <!-- All elements that are excluded from your schema (A Java regular expression. Use the pipe to separate several expressions). Excludes match before includes -->
+      <excludes></excludes>
+    </database>
+
+    <generate>
+      <pojos>true</pojos>
+    </generate>
+
+    <target>
+      <packageName>oracle.bosch</packageName>
+      <directory>workspace/jooq/gen</directory>
+    </target>
+  </generator>
+</configuration>
+

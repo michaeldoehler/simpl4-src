@@ -1,4 +1,4 @@
-#gitrepos/.tunnel/org.ops4j.datasource-test.cfg
+#gitrepos/.bundles/org.ops4j.datasource-test.cfg
 osgi.jdbc.driver.name=mysql
 osgi.jdbc.driver.class=com.mysql.jdbc.Driver
 databaseName=zurmo
@@ -8,6 +8,7 @@ serverName=localhost
 dataSourceName=zurmods
 
 
+#special, if database is not direct reachable
 #/etc/service/tunnel/run 
 #!/bin/sh
 /usr/bin/ssh -o StrictHostKeyChecking=no  -4 -N  -l root -L 127.0.0.1:3306:127.0.0.1:3306   192.168.2.7
