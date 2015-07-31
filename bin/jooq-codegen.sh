@@ -20,20 +20,21 @@ do
 done
 
 
-CONFIG=
+CONFIGFILE=
 BUILD=
+NAMESPACE=
 #########################################################
 # usage
 #########################################################
 usage() {
-   echo "usage: $0 [-b] -c config.xml"
+   echo "usage: $0 [-b] -n namespace -c configfile.xml"
 }
 
 #########################################################
 # parameter
 #########################################################
-shortoptions='c:b'
-longoptions='config:build'
+shortoptions='n:c:b'
+longoptions='namespace:configfile:build'
 getopt=$(getopt -o $shortoptions --longoptions  $longoptions -- "$@")
 if [ $? != 0 ]; then
    usage
@@ -43,9 +44,14 @@ fi
 eval set -- "$getopt"
 while true; do
    case "$1" in
-      -c|--config)
+      -c|--configfile)
          shift
-         CONFIG=$1
+         CONFIGFILE=$1
+         shift
+      ;;
+      -n|--namespace)
+         shift
+         NAMESPACE=$1
          shift
       ;;
       -b|--build)
@@ -58,20 +64,20 @@ while true; do
    esac
 done
 
-if [ -z "$CONFIG" -a -z "$BUILD" ] ; then
+if [ -z "$CONFIGFILE" -o -z "$BUILD" -o -z $NAMESPACE ] ; then
    usage;
    exit 1
 fi
 
 BUILDIR=$SIMPL4DIR/workspace/jooq/build
 GENDIR=$SIMPL4DIR/workspace/jooq/gen
-CONFIGFILE=$SIMPL4DIR/etc/jooq/$CONFIG
+CONFIGFILE=$SIMPL4DIR/gitrepos/$NAMESPACE/.etc/jooq/$CONFIGFILE
 
 echo "BUILDIR:$BUILDIR"
 echo "GENDIR:$GENDIR"
 echo "CONFIGFILE=$CONFIGFILE"
 
-if [ -n "$CONFIG" ] ; then
+if [ -n "$CONFIGFILE" ] ; then
    echo "================="
    echo "generate ->"
    echo "================="
