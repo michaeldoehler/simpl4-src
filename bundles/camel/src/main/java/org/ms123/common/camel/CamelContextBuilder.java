@@ -123,6 +123,8 @@ public class CamelContextBuilder {
 		camelContext.getProperties().put(Exchange.LOG_DEBUG_BODY_STREAMS, "true");
 		camelContext.setMessageHistory(true);
 		camelContext.getManagementStrategy().addEventNotifier(new ExchangeEventNotifer(namespace, permissionService));
+		camelContext.getShutdownStrategy().setSuppressLoggingOnTimeout(true);
+		camelContext.getShutdownStrategy().setTimeout(10);
 		return camelContext;
 	}
 
