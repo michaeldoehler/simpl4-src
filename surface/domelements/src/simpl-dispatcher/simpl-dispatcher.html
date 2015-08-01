@@ -20,6 +20,8 @@
 -->
 <dom-module id="simpl-dispatcher" flex relative>
 	<style shim-shadowdom>
+
+
 	</style>
 	<template>
 		<div id="main" />
@@ -43,8 +45,9 @@
 				} );
 			},
 			_attached: function() {
-				this.mainMenuElement = Polymer.dom( document.querySelectorAll( this.shadowRoot ? "html /deep/ simpl-mmenu" : "simpl-mmenu" )[ 0 ].root );
-				var aList = this.mainMenuElement.querySelectorAll( "a" );
+				this._mmenu = document.querySelectorAll( this.shadowRoot ? "html /deep/ simpl-mmenu" : "simpl-mmenu" )[ 0 ];
+				this._mmenuRoot = Polymer.dom( this._mmenu.root );
+				var aList = this._mmenuRoot.querySelectorAll( "a" );
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					if ( a[ "className" ] != "mm-subopen" ) {
@@ -54,7 +57,7 @@
 				if ( this.selected ) {
 					var self = this;
 					setTimeout( function() {
-						self.openMenuByHash( self.mainMenuElement, self.selected );
+						self.selectMenuItem( self.selected );
 					}, 300 );
 				}
 			},
@@ -63,7 +66,6 @@
 					return;
 				}
 				var page = e.target.page;
-				console.log( "dispatcher.tapListener.page:", page );
 				if ( !page ) return;
 				if ( this._selectedPage ) {
 					this.fire( "mmenu-selected", {
@@ -72,13 +74,12 @@
 					} );
 				}
 				this._selectedPage = page;
-				simpl4PageRegistry.setActivePage(page);
+				simpl4PageRegistry.setActivePage( page );
 				this.fire( "mmenu-selected", {
 					isSelected: true,
 					page: this._selectedPage
 				} );
 				this.selected = page.hash;
-				console.log( "dispatcher.tapListener:" + page.hash );
 			},
 			getPageByHash: function( hash ) {
 				for ( var i = 0; i < this.pages.length; i++ ) {
@@ -87,30 +88,34 @@
 					}
 				}
 			},
-			openMenuByHash: function( mainelem, hash ) {
-				if ( mainelem == null ) return;
-				var li = $( mainelem.querySelector( '#x' + hash ) );
-				var pli = li.parents( "li" );
-				pli.each( function() {
-					if ( !$( this ).hasClass( "mm-opened" ) ) {
-						$( this ).find( "a" ).first().trigger( "click" );
+			selectMenuItem: function(  hash ) {
+				if ( this._mmenuRoot == null ) return;
+				var li = $( this._mmenuRoot.querySelector( '#x' + hash ) );
+				var i = 0;
+				var $e = li.parent();
+				while ( $e.length>0 && i++ < 10 ) {
+					console.log( "e:", $e.prop( "tagName" ) );
+					if ( $e.prop( "tagName" ) === "DIV" ) {
+						this._mmenu.openPanel( $e );
+						break;
 					}
-				} )
-				li.trigger( "setSelected", true );
+					var $e = $e.parent();
+				}
+				this._mmenu.setSelected( li );
 			},
 			selectedChanged: function( e ) {
 				if ( this._selectedPage == null || this.selected != this._selectedPage.hash ) {
 					var page = this.getPageByHash( this.selected );
 					if ( page ) {
 						this._selectedPage = page;
-						simpl4PageRegistry.setActivePage(page);
+						simpl4PageRegistry.setActivePage( page );
 						this.fire( "mmenu-selected", {
 							isSelected: true,
 							page: this._selectedPage
 						} );
 					}
 				}
-				this.openMenuByHash( this.mainMenuElement, this.selected );
+				this.selectMenuItem( this.selected );
 			}
 		} );
 

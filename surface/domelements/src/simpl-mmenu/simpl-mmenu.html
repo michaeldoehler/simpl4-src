@@ -20,8 +20,7 @@
 -->
 <link rel="import" href="import-js.html">
 <dom-module id="simpl-mmenu" flex relative>
-	<link rel="import" type="css" href="simpl-mmenu.css" />
-	<!--core-style ref="mmenu"></core-style-->
+	<link rel="import" type="css" href="jquery.mmenu.all.css" />
 	<style>
 		:host .mm-search input {
 			border-radius: 6px;
@@ -31,6 +30,31 @@
 			padding-left: 1px;
 			padding-right: 1px;
 		}
+		li.firstLevel {
+			//border-top: 1px solid #e6e6e6;
+		}
+		.mm-list > li.ctx-hidden {
+			display: none;
+		}
+/*		.mm-list > li:not(.mm-subtitle):not(.mm-label):not(.mm-search):not(.mm-noresults):after {
+			border-bottom-width: 1px;
+		}
+		.mm-list > li:not(.mm-subtitle):not(.mm-label):not(.mm-search):not(.mm-noresults):after {
+			border-bottom-width: 1px;
+		}
+		.mm-list a.mm-subopen:before {
+			border-left-width: 1px;
+		}
+		.mm-list a.mm-subopen:after,
+		.mm-list a.mm-subclose:before {
+			margin-bottom: 5px;
+		}
+		.mm-list a.mm-subclose:before {
+			margin-bottom: -4px;
+		}
+		.mm-menu.mm-vertical .mm-list .mm-panel {
+			padding: 0px 0 10px 15px;
+		}*/
 
 	</style>
 	<template>
@@ -44,32 +68,56 @@
 				classes: String,
 				slidingSubmenus: String,
 				background: String,
-				searchfield: String
+				searchfield: String,
+				context: {
+					observer: "contextChanged",
+					type: String
+				}
 			},
-			observers: [
+			observers: [],
+			behaviors: [
+				StyleScopeBehavior
 			],
-			level: -1,
-			classes: "mm-white mm-zoom-panels",
-			backgroundColor: "invalid",
 			attached: function() {
 				console.log( "mmenu.attached" );
 			},
 			ready: function() {
+				this.context = null;
+				this.backgroundColor = "invalid";
+				this.classes = "mm-white mm-zoom-panels";
 				console.log( "mmenu.globalsChanged:", simpl4Globals.getAll() );
 				this._getMenuYaml();
 				this._createTree();
 				this._createMenu()
-				this._setStyleScope( this._mainmenu );
+					//				this.context = "class2";
+				this.setStyleScope( this._mainmenu, "style-scope", this.tagName.toLowerCase() );
+				var subscription = channel.subscribe( "context.changed", ( function( data ) {
+					this.context = data.context;
+				} ).bind( this ) );
+			},
+			getMenuApi: function() {
+				return $( this._mainmenu ).data( "mmenu" );
+			},
+			setSelected: function( e ) {
+				console.log( "setSelected:", e );
+				$( this._mainmenu ).data( "mmenu" ).setSelected( e );
+			},
+			openPanel: function( e ) {
+				console.log( "openPanel:", e );
+				$( this._mainmenu ).data( "mmenu" ).openPanel( e );
 			},
 			_createMenu: function() {
 				console.log( "mmenu.createMenu.classes:", this.classes );
 				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: this.searchfield != "false",
+					navbars: {
+						content: [ "searchfield" ],
+						height: 2
+					},
 					body: $( this._mainmenu ),
 					classes: this.classes,
 					offCanvas: false
-
 				} );
 
 				var b = this.background;
@@ -117,6 +165,7 @@
 				var span = document.createElement( 'span' );
 				var t = document.createTextNode( node.name );
 				Polymer.dom( parent ).appendChild( li )
+				this._addNodeClasses( li, node.classes );
 				Polymer.dom( li ).appendChild( span )
 				Polymer.dom( li ).appendChild( ul )
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
@@ -135,6 +184,7 @@
 				var a = document.createElement( 'a' );
 				var t = document.createTextNode( node.name );
 				Polymer.dom( parent ).appendChild( li )
+				this._addNodeClasses( li, node.classes );
 				Polymer.dom( li ).appendChild( a )
 				Polymer.dom( a ).appendChild( fontAwesome );
 				Polymer.dom( a ).setAttribute( "style", 'cursor:pointer' );
@@ -147,27 +197,33 @@
 				}
 				a.page = node;
 			},
+			_addNodeClasses: function( el, classes ) {
+				if ( classes == null ) return;
+				var classArray = classes.split( "," );
+				for ( var i = 0; i < classArray.length; i++ ) {
+					el.classList.add( classArray[ i ] );
+				}
+			},
 			_isNodeDisabled: function( node ) {
 				return node.disabled === true;
 			},
 			_hasNodeChildren: function( node ) {
 				return node.children && node.children.length > 0;
 			},
-			_setStyleScope: function( main_el ) {
-				this._domVisitor( main_el, function( el ) {
-					if ( !$( el ).hasClass( "style-scope" ) && el.nodeType == 1 ) {
-						el.classList.add( 'style-scope' )
-						el.classList.add( 'simpl-mmenu' )
-					}
-				} );
+			contextChanged: function() {
+				console.log( "contextChanged:", this.context );
+				if ( this.context == null ) return;
+				this._applyMenuContext( this._mainmenu );
 			},
-			_domVisitor: function( el, f ) {
-				if ( el ) {
-					f( el );
-					for ( var i = 0; i < el.childNodes.length; i++ ) {
-						this._domVisitor( el.childNodes[ i ], f );
+			_applyMenuContext: function( main_el ) {
+				this._domVisitor( main_el, ( function( el ) {
+					if ( el.tagName === "LI" ) {
+						el.classList.add( "ctx-hidden" );
+						if ( el.classList.contains( this.context ) ) {
+							el.classList.remove( "ctx-hidden" );
+						}
 					}
-				}
+				} ).bind( this ) );
 			},
 			_getMenuYaml: function() {
 				console.log( "Menu._getMenuYaml:", this.name );
@@ -185,9 +241,7 @@
 				}
 				this._pages = [];
 				this._traverse( this.nodes );
-				//this.pages = this._pages;
-				simpl4PageRegistry.addPages(this._pages);
-				//console.log("Pages:"+JSON.stringify(this.nodes,null,2));
+				simpl4PageRegistry.addPages( this._pages );
 			},
 			_traverse: function( nodes ) {
 				for ( var i = 0; i < nodes.length; i++ ) {
@@ -205,7 +259,7 @@
 						}
 					}
 					if ( node.url && node.url.indexOf( "%l" ) != -1 ) {
-						node.url = node.url.replace( "%l", simpl4Globals.get("lang") );
+						node.url = node.url.replace( "%l", simpl4Globals.get( "lang" ) );
 					}
 					if ( node.disabled !== true ) {
 						if ( node.children && node.children.length > 0 ) {
