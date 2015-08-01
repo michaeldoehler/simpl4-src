@@ -140,7 +140,10 @@
 	<script>
 		Polymer( {
 			is: 'simpl-filter',
-			behaviors: [ TranslationsBehavior ],
+			behaviors: [ 
+				StyleScopeBehavior,
+				TranslationsBehavior 
+			],
 			searchMode: "simple",
 			isBuilderInitialized: false,
 			searchModeIcon: "expand-more",
@@ -193,7 +196,7 @@
 				} );
 				this.isBuilderInitialized = true;
 				this.async( function() {
-					this._setStyleScope( this.$.builder );
+					this.setStyleScope( this.$.builder, "style-scope", this.tagName.toLowerCase() );
 					this.toggleSearchMode();
 				} );
 			},
@@ -298,22 +301,6 @@
 				console.log( "Filter.namespace:", this.namespace );
 				rules.namespace = this.namespace;
 				this.set( 'filter', rules );
-			},
-			_setStyleScope: function( main_el ) {
-				this._domVisitor( main_el, function( el ) {
-					if ( !$( el ).hasClass( "style-scope" ) && el.nodeType == 1 ) {
-						el.classList.add( 'style-scope' )
-						el.classList.add( 'simpl-filter' )
-					}
-				} );
-			},
-			_domVisitor: function( el, f ) {
-				if ( el ) {
-					f( el );
-					for ( var i = 0; i < el.childNodes.length; i++ ) {
-						this._domVisitor( el.childNodes[ i ], f );
-					}
-				}
 			},
 			getLang: function() {
 				return {
