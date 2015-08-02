@@ -39,8 +39,8 @@
 	</style>
 	<template>
 
-		<neon-animated-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<neon-animatable>
+		<iron-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+			<section>
 				<ul>
 					<iron-selector selected="{{taskListModeSelected}}">
 						<li>[[tr("tasks.table.not_assigned")]]</li>
@@ -57,11 +57,11 @@
 						<table id="dataTablesId" class="dataTables responsive" cellpadding="0" cellspacing="0" border="0" width="100%"></table>
 					</div>
 				</simpl-panel>
-			</neon-animatable>
-			<neon-animatable>
+			</section>
+			<section>
 				<simpl-processcontroller id="processController"></simpl-processcontroller>
-			</neon-animatable>
-		</neon-animated-pages>
+			</section>
+		</iron-pages>
 	</template>
 
 	<script>
@@ -77,46 +77,43 @@
 				'selectionChanged(selection)'
 			],
 			ready: function() {
-				console.debug( "simpl-tasks.ready" );
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-right-animation';
 				this.panelBackgroundColor = 'black';
 				this.panelHeader = tr( "tasks.table.assigned" );
-				this.dtMeta = null,
-				this.action = tr( "tasks.table.complete" );
+				this.meta = null,
+					this.action = tr( "tasks.table.complete" );
 				this.currentTask = null;
 				this.pageSelected = 0;
 				var subscription = channel.subscribe( "route.changed", ( function( data ) {
 					if ( data.route != 'tasklist' ) return;
 					if ( this.pageSelected != 0 ) return;
 					console.debug( "TaskList active" );
-					setTimeout( ( function() {
-						console.debug( "TaskList active2,"+this.taskListModeSelected );
+					this.async( function() {
+						console.debug( "TaskList active2," + this.taskListModeSelected );
 						this.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
-					} ).bind( this ), 50 );
+					}, 50 );
 				} ).bind( this ) );
 			},
 			attached: function() {
-				console.debug( "simpl-tasks.attached" );
-				if ( this.dtMeta == null ) {
-					this.dtMeta = this.getMeta();
-				}
+				this.meta = this.getMeta();
 				this.taskListModeSelected = 1;
 			},
 			startTask: function( e ) {
-				this.pageSelected = 1;
-				console.log( "startTask:", e );
-				console.log( "currentTask:" + JSON.stringify( this.selection[ 0 ], null, 2 ) );
+				console.log( "startTask:", this.selection[ 0 ] );
 				var task = this.selection[ 0 ];
 				task.fromTaskList = true;
+
 				var self = this;
 				this.$.processController.showForm( task, function() {
-					self.pageSelected = 0;
-					setTimeout( ( function() {
-						console.debug( "TaskList active3" );
-						this.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
-					} ).bind( self ), 50 );
-				} );
+					this.async( function() {
+						self.pageSelected = 0;
+						self.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
+					}, 50 );
+				});
+				this.async( function() {
+					self.pageSelected = 1;
+				}, 200 );
 			},
 			selectionChanged: function() {
 				var sel = this.selection[ 0 ];
@@ -126,7 +123,7 @@
 				this.action = e == 1 ? tr( "tasks.task.complete" ) : tr( "tasks.task.claim" );
 				this.panelHeader = e == 1 ? tr( "tasks.table.assigned" ) : tr( "tasks.table.not_assigned" );
 				var dataSet = this.getTasks( e == 1 ? "assigned" : "notassigned" );
-				this.createTable( this.dtMeta, dataSet );
+				this.data = dataSet;
 				this.currentTask = null;
 			},
 			getCurrentTaskDescription: function() {

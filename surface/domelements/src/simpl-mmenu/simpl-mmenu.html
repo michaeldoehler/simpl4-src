@@ -110,7 +110,14 @@
 				console.log( "mmenu.createMenu.classes:", this.classes );
 				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
-					searchfield: this.searchfield != "false",
+					searchfield: {
+						add : this.searchfield != "false",
+						noResults : tr('mmenu.noResults')
+					},
+					navbar      : {
+						add       : true,
+						title     : tr('mmenu.title')
+					},
 					navbars: {
 						content: [ "searchfield" ],
 						height: 2

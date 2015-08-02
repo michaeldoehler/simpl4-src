@@ -48,6 +48,14 @@
 			'metaChanged(meta)'
 		],
 		createTable: function( dtMeta, dataSet, options ) {
+			this.whenTableReady( ( function() {
+				this._createTable( dtMeta, dataSet, options );
+			} ).bind( this ) );
+		},
+		recalc:function(){
+			this._api.responsive.recalc();
+		},
+		_createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;
 			if ( options ) {
 				options = this.parseOptions( options );
@@ -64,9 +72,9 @@
 			if ( this._api == null ) {
 				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
 					//this.whenTableReady( ( function() {
-						this.async( function() {
-							new jQuery.fn.dataTable.Responsive( settings, null, function( sync ) {} );
-						}, 50 );
+					this.async( function() {
+						new jQuery.fn.dataTable.Responsive( settings, null, function( sync ) {} );
+					}, 50 );
 					//} ).bind( this ) );
 				} ).bind( this ) );
 			}
@@ -144,8 +152,7 @@
 			}
 			return raw;
 		},
-		metaChanged: function() {
-		},
+		metaChanged: function() {},
 		_metaChanged: function() {},
 		dataChanged: function() {
 			this.async( function() {
@@ -172,9 +179,7 @@
 				return;
 			}
 			if ( firsttime ) {
-				this.whenTableReady( ( function() {
-					this.createTable( this.preparedMeta, this.data, this.options );
-				} ).bind( this ) );
+				this.createTable( this.preparedMeta, this.data, this.options );
 			} else {
 				this._api.clear();
 				this.data.forEach( ( function( row, idx ) {
@@ -234,7 +239,7 @@
 					done();
 					return;
 				}
-				if( counter++<50){
+				if ( counter++ < 50 ) {
 					setTimeout( waitForTable, 20 );
 				}
 			}

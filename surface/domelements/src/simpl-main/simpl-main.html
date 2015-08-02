@@ -110,7 +110,7 @@
 								<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
 							</a>
 						</div>
-						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="false" searchfield="true" pages="{{getPages()}}" class="flex" />
+						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="true" searchfield="true" pages="{{getPages()}}" class="flex" />
 					</nav>
 				</div>
 
@@ -336,7 +336,7 @@
 					//this.evalScripts( insertPoint );
 					this.async( function() {
 						$(insertPoint).fadeIn();
-					}, 250 );
+					}, 0 );
 				}, 2 );
 			},
 			evalScripts: function( root ) {
