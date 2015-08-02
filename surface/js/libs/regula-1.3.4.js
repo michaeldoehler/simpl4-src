@@ -682,7 +682,9 @@
 
 			if (shouldValidate(this, params)) {
 				var dates = parseDates.call(this, params);
-				result = (dates.dateToValidate < dates.dateToTestAgainst);
+				if( dates != null){
+					result = (dates.dateToValidate < dates.dateToTestAgainst);
+				}
 			}
 
 			return result;
@@ -693,7 +695,9 @@
 
 			if (shouldValidate(this, params)) {
 				var dates = parseDates.call(this, params);
-				result = (dates.dateToValidate > dates.dateToTestAgainst);
+				if( dates != null){
+					result = (dates.dateToValidate > dates.dateToTestAgainst);
+				}
 			}
 
 			return result;
@@ -959,6 +963,8 @@
 			}
 		};
 
+
+		if( this.value == null) return null;
 		var dateFormatIndices = DateFormatIndices[params["format"]];
 
 		var separator = params["separator"];
