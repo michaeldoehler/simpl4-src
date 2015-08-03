@@ -81,18 +81,15 @@
 				this.exitAnimation = 'slide-right-animation';
 				this.panelBackgroundColor = 'black';
 				this.panelHeader = tr( "tasks.table.assigned" );
-				this.meta = null,
-					this.action = tr( "tasks.table.complete" );
+				this.meta = null;
+				this.action = tr( "tasks.table.complete" );
 				this.currentTask = null;
 				this.pageSelected = 0;
 				var subscription = channel.subscribe( "route.changed", ( function( data ) {
 					if ( data.route != 'tasklist' ) return;
 					if ( this.pageSelected != 0 ) return;
-					console.debug( "TaskList active" );
-					this.async( function() {
-						console.debug( "TaskList active2," + this.taskListModeSelected );
-						this.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
-					}, 50 );
+					console.debug( "TaskList active:" + this.taskListModeSelected );
+					this.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
 				} ).bind( this ) );
 			},
 			attached: function() {
@@ -110,7 +107,7 @@
 						self.pageSelected = 0;
 						self.taskListModeSelectedChanged( this.taskListModeSelected == 0 ? 0 : 1 );
 					}, 50 );
-				});
+				} );
 				this.async( function() {
 					self.pageSelected = 1;
 				}, 200 );

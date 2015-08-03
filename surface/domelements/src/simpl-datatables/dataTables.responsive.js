@@ -1,15 +1,15 @@
-/*! Responsive 1.0.4-dev
- * 2014 SpryMedia Ltd - datatables.net/license
+/*! Responsive 1.0.6
+ * 2014-2015 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     Responsive
  * @description Responsive tables plug-in for DataTables
- * @version     1.0.4-dev
+ * @version     1.0.6
  * @file        dataTables.responsive.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     www.sprymedia.co.uk/contact
- * @copyright   Copyright 2014 SpryMedia Ltd.
+ * @copyright   Copyright 2014-2015 SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license/mit
@@ -123,7 +123,7 @@ Responsive.prototype = {
 		// Destroy event handler
 		dt.on( 'destroy.dtr', function () {
 			$(window).off( 'resize.dtr orientationchange.dtr draw.dtr' );
-			//@@@MS destroy event handler also
+      //@@@MS destroy event handler also
 			dt.off( 'column-visibility.dtr');
 			dt.off( 'draw.dtr');
 			dt.off( 'destroy.dtr');
@@ -137,15 +137,12 @@ Responsive.prototype = {
 		} );
 
 		// Determine which columns are already hidden, and should therefore
-		// remain hidden. TODO - should this be done? See thread 22677
+		// remain hidden. todo - should this be done? See thread 22677
 		//
 		// this.s.alwaysHidden = dt.columns(':hidden').indexes();
 
 		this._classLogic();
 		this._resizeAuto();
-
-		// First pass - draw the table for the current viewport size
-		this._resize();
 
 		// Details handler
 		var details = this.c.details;
@@ -160,7 +157,7 @@ Responsive.prototype = {
 			// Redraw the details box on each draw. This is used until
 			// DataTables implements a native `updated` event for rows
 			dt.on( 'draw.dtr', function () {
-				dt.rows().iterator( 'row', function ( settings, idx ) {
+				dt.rows( {page: 'current'} ).iterator( 'row', function ( settings, idx ) {
 					var row = dt.row( idx );
 
 					if ( row.child.isShown() ) {
@@ -172,6 +169,9 @@ Responsive.prototype = {
 
 			$(dt.table().node()).addClass( 'dtr-'+details.type );
 		}
+
+		// First pass - draw the table for the current viewport size
+		this._resize();
 	},
 
 
@@ -216,8 +216,15 @@ Responsive.prototype = {
 				requiredWidth += columns[i].minWidth;
 			}
 		}
-		// Second pass, use up any remaining width for other columns
-		var widthAvailable = dt.table().container().offsetWidth;
+
+		// Second pass, use up any remaining width for other columns. For
+		// scrolling tables we need to subtract the width of the scrollbar. It
+		// may not be requires which makes this sub-optimal, but it would
+		// require another full redraw to make complete use of those extra few
+		// pixels
+		var scrolling = dt.settings()[0].oScroll;
+		var bar = scrolling.sY || scrolling.sX ? scrolling.iBarWidth : 0;
+		var widthAvailable = dt.table().container().offsetWidth - bar;
 		var usedWidth = widthAvailable - requiredWidth;
 
 		// Control column needs to always be included. This makes it sub-
@@ -233,11 +240,19 @@ Responsive.prototype = {
 
 		// Allow columns to be shown (counting from the left) until we run out
 		// of room
+		var empty = false;
 		for ( i=0, ien=display.length ; i<ien ; i++ ) {
 			if ( display[i] === '-' && ! columns[i].control ) {
-				display[i] = usedWidth - columns[i].minWidth < 0 ?
-					false :
-					true;
+				// Once we've found a column that won't fit we don't let any
+				// others display either, or columns might disappear in the
+				// middle of the table
+				if ( empty || usedWidth - columns[i].minWidth < 0 ) {
+					empty = true;
+					display[i] = false;
+				}
+				else {
+					display[i] = true;
+				}
 
 				usedWidth -= columns[i].minWidth;
 			}
@@ -477,6 +492,7 @@ Responsive.prototype = {
 	{
 		var that = this;
 		var dt = this.s.dt;
+
 		// Find how many columns are hidden
 		var hiddenColumns = dt.columns().indexes().filter( function ( idx ) {
 			var col = dt.column( idx );
@@ -493,13 +509,10 @@ Responsive.prototype = {
 		if ( hiddenColumns.length === 0 || ( hiddenColumns.length === 1 && this.s.columns[ hiddenColumns[0] ].control ) ) {
 			haveHidden = false;
 		}
-console.log("haveHidden:"+haveHidden);
-		if ( haveHidden ) {
-			// Got hidden columns
-			$( dt.table().node() ).addClass('collapsed');
 
+		if ( haveHidden ) {
 			// Show all existing child rows
-			dt.rows().eq(0).each( function (idx) {
+			dt.rows( { page: 'current' } ).eq(0).each( function (idx) {
 				var row = dt.row( idx );
 
 				if ( row.child() ) {
@@ -516,11 +529,8 @@ console.log("haveHidden:"+haveHidden);
 			} );
 		}
 		else {
-			// No hidden columns
-			$( dt.table().node() ).removeClass('collapsed');
-
 			// Hide all existing child rows
-			dt.rows().eq(0).each( function (idx) {
+			dt.rows( { page: 'current' } ).eq(0).each( function (idx) {
 				dt.row( idx ).child.hide();
 			} );
 		}
@@ -557,6 +567,8 @@ console.log("haveHidden:"+haveHidden);
 		var width = $(window).width();
 		var breakpoints = this.c.breakpoints;
 		var breakpoint = breakpoints[0].name;
+		var columns = this.s.columns;
+		var i, ien;
 
 
 		var widthAvailable = dt.table().container().offsetWidth;
@@ -564,8 +576,9 @@ console.log("haveHidden:"+haveHidden);
 		//Width is 0, when table not visible
 		if( widthAvailable==0) return;
 
+
 		// Determine what breakpoint we are currently at
-		for ( var i=breakpoints.length-1 ; i>=0 ; i-- ) {
+		for ( i=breakpoints.length-1 ; i>=0 ; i-- ) {
 			if ( width <= breakpoints[i].width ) {
 				breakpoint = breakpoints[i].name;
 				break;
@@ -573,10 +586,23 @@ console.log("haveHidden:"+haveHidden);
 		}
 		
 		// Show the columns for that break point
-		var columns = this._columnsVisiblity( breakpoint );
+		var columnsVis = this._columnsVisiblity( breakpoint );
+
+		// Set the class before the column visibility is changed so event
+		// listeners know what the state is. Need to determine if there are
+		// any columns that are not visible but can be shown
+		var collapsedClass = false;
+		for ( i=0, ien=columns.length ; i<ien ; i++ ) {
+			if ( columnsVis[i] === false && ! columns[i].never ) {
+				collapsedClass = true;
+				break;
+			}
+		}
+
+		$( dt.table().node() ).toggleClass('collapsed', collapsedClass );
 
 		dt.columns().eq(0).each( function ( colIdx, i ) {
-			dt.column( colIdx ).visible( columns[i] );
+			dt.column( colIdx ).visible( columnsVis[i] );
 		} );
 	},
 
@@ -612,6 +638,8 @@ console.log("haveHidden:"+haveHidden);
 		var clonedHeader = $( dt.table().header().cloneNode( false ) ).appendTo( clonedTable );
 		var clonedBody   = $( dt.table().body().cloneNode( false ) ).appendTo( clonedTable );
 
+		$( dt.table().footer() ).clone( false ).appendTo( clonedTable );
+
 		// This is a bit slow, but we need to get a clone of each row that
 		// includes all columns. As such, try to do this as little as possible.
 		dt.rows( { page: 'current' } ).indexes().flatten().each( function ( idx ) {
@@ -624,16 +652,30 @@ console.log("haveHidden:"+haveHidden);
 			$(clone).appendTo( clonedBody );
 		} );
 
-		var cells        = dt.columns().header().to$().clone( false ).wrapAll('tr').appendTo( clonedHeader );
-		var inserted     = $('<div/>')
+		var cells = dt.columns().header().to$().clone( false );
+		$('<tr/>')
+			.append( cells )
+			.appendTo( clonedHeader );
+
+		// In the inline case extra padding is applied to the first column to
+		// give space for the show / hide icon. We need to use this in the
+		// calculation
+		if ( this.c.details.type === 'inline' ) {
+			$(clonedTable).addClass( 'dtr-inline collapsed' );
+		}
+
+		var inserted = $('<div/>')
 			.css( {
 				width: 1,
 				height: 1,
 				overflow: 'hidden'
 			} )
-			.append( clonedTable )
-			.insertBefore( dt.table().node() );
+			.append( clonedTable );
 
+		// Remove columns which are not to be included
+		inserted.find('th.never, td.never').remove();
+
+		inserted.insertBefore( dt.table().node() );
 
 		// The cloned header now contains the smallest that each column can be
 		dt.columns().eq(0).each( function ( idx ) {
@@ -725,10 +767,14 @@ Responsive.defaults = {
 				var cellData = dtPrivate.oApi._fnGetCellData(
 					dtPrivate, idx.row, idx.column, 'display'
 				);
+				var title = header.text();
+				if ( title ) {
+					title = title + ':';
+				}
 
 				return '<li data-dtr-index="'+idx.column+'">'+
 						'<span class="dtr-title">'+
-							header.text()+':'+
+							title+
 						'</span> '+
 						'<span class="dtr-data">'+
 							cellData+
@@ -791,7 +837,7 @@ Api.register( 'responsive.recalc()', function () {
  * @name Responsive.version
  * @static
  */
-Responsive.version = '1.0.4-dev';
+Responsive.version = '1.0.6';
 
 
 $.fn.dataTable.Responsive = Responsive;
@@ -800,6 +846,10 @@ $.fn.DataTable.Responsive = Responsive;
 // Attach a listener to the document which listens for DataTables initialisation
 // events so we can automatically initialise
 $(document).on( 'init.dt.dtr', function (e, settings, json) {
+	if ( e.namespace !== 'dt' ) {
+		return;
+	}
+
 	if ( $(settings.nTable).hasClass( 'responsive' ) ||
 		 $(settings.nTable).hasClass( 'dt-responsive' ) ||
 		 settings.oInit.responsive ||
@@ -832,4 +882,3 @@ else if ( jQuery && !jQuery.fn.dataTable.Responsive ) {
 
 
 })(window, document);
-
