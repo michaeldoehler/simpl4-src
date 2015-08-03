@@ -288,8 +288,8 @@
 			behaviors: [
 				FormElementSelectorBehavior
 			],
-			itemChanged: function( ) {
-				console.log("form-element-renderer:",this.item);
+			itemChanged: function() {
+			//	console.log( "form-element-renderer:", this.item );
 			},
 			getActionButtonColor: function( action ) {
 				return "color:" + ( action == 'execute' ? '#4285f4;' : 'black;' );
@@ -577,7 +577,10 @@
 			internalXAction: function( e ) {
 				var target = e.target || e.srcElement;
 				var data = this.getData();
-				var valid = this.validate();
+				var valid;
+				if ( target.xaction !== "cancel" ) {
+					valid = this.validate();
+				}
 				this.fire( 'xaction', {
 					xaction: target.xaction,
 					xid: target.xid,
