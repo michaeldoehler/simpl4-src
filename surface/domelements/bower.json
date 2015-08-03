@@ -17,6 +17,6 @@
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "neon-animation": "PolymerElements/neon-animation",
-    "map-elements": "expandjs/mat-elements"
+    "map-elements": "expandjs/mat-elements#0.9.4"
   }
 }
