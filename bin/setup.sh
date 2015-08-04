@@ -1,15 +1,42 @@
 #!/bin/bash
-echo "In setup.sh:$1"
-if [ -n "$1" ] ; then
-    SIMPL4DIR="$1"
-else
-    SIMPL4DIR=`pwd`
-fi 
-if [ -n "$2" ] ; then
-    JETTYPORT="$2"
-else
-    JETTYPORT=8080
-fi 
+
+#########################################################
+# init
+#########################################################
+SIMPL4DIR=`pwd`
+JETTYPORT=8080
+#########################################################
+# usage
+#########################################################
+usage() {
+    echo "usage: $0 -p port"
+}
+#########################################################
+# parameter
+#########################################################
+shortoptions='p:'
+longoptions='port:'
+getopt=$(getopt -o $shortoptions --longoptions  $longoptions -- "$@")
+if [ $? != 0 ]; then
+   usage
+   exit 1;
+fi
+
+eval set -- "$getopt"
+while true; do
+   case "$1" in
+      -p|--port)
+         shift
+         JETTYPORT=$1
+         shift
+      ;;
+      *)
+				break
+      ;;
+   esac
+done
+
+
 echo "Setup in $SIMPL4DIR/Port=$JETTYPORT"
 
 if [ ! -e "${SIMPL4DIR}/server/felix/config.ini" ] ; then
@@ -42,10 +69,12 @@ sed    "s!_BASEDIR_!$SIMPL4DIR2!g" etc/config/org/ops4j/pax/logging.config.tpl >
 sed    "s!_BASEDIR_!$SIMPL4DIR!g" server/run.bat.tpl > server/run.bat
 sed -i "s!_JAVAEXEC_!$JAVAEXEC!g" server/run.bat
 sed -i "s!_JETTYPORT_!$JETTYPORT!g" server/run.bat
+sed    "s!_JETTYPORT_!$JETTYPORT!g" bin/start.sh.tpl >bin/start.sh
 #sed    "s!_BASEDIR_!$SIMPL4DIR!g" bin/installservice.bat.tpl > bin/installservice.bat
 #sed -i "s!_JETTYPORT_!$JETTYPORT!g" bin/installservice.bat
 #sed    "s!_BASEDIR_!$SIMPL4DIR!g" bin/uninstallservice.bat.tpl > bin/uninstallservice.bat
 
+chmod +x bin/start.sh
 cp etc/branding.example etc/branding
 
 

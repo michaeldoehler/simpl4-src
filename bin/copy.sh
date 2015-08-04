@@ -97,7 +97,7 @@ cp $SRCTOPDIR/bin/setup.bat $BINDIRECTORY
 cp $SRCTOPDIR/bin/jooq-codegen.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/bash.exe $BINDIRECTORY
 cp $SRCTOPDIR/bin/py.exe $BINDIRECTORY
-cp $SRCTOPDIR/bin/start.sh $BINDIRECTORY
+cp $SRCTOPDIR/bin/start.sh.tpl $BINDIRECTORY
 cp $SRCTOPDIR/bin/start.cmd $BINDIRECTORY
 cp $SRCTOPDIR/bin/createclasses.sh $BINDIRECTORY
 cp $SRCTOPDIR/bin/updatemetadata.sh $BINDIRECTORY
