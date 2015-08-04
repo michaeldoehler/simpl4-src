@@ -549,7 +549,7 @@
 	
 		// In rtl text layout, some browsers (most, but not all) will place the
 		// scrollbar on the left, rather than the right.
-		browser.bScrollbarLeft = Math.round( test.offset().left ) !== 1;
+		browser.bScrollbarLeft = false;//Math.round( test.offset().left ) !== 1; //@@@MS not reliable
 	
 		n.remove();
 	}
