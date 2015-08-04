@@ -63,6 +63,8 @@ import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -130,6 +132,50 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 			gresult.add(rmap);
 		}
 	}
+	private List<Map> getPermissions(Map userProps, String filter){
+		List<Map> permissions = new ArrayList();
+		Pattern p = null;
+		if( filter != null){
+			p = Pattern.compile(filter);
+		}
+		debug("userProps:" + userProps);
+		debug("filter:" + filter);
+		List<String> roleList = null;
+		String rs = (String) userProps.get(ROLES);
+		if (rs != null && rs.length() > 0) {
+			roleList = Arrays.asList(rs.split("\\s*,\\s*"));
+		}
+		debug("roleList:" + roleList);
+		if (roleList != null) {
+			for (String roleid : roleList) {
+				String[] s = roleid.split("\\.");
+				if (s.length != 2) {
+					info("PermissionServiceImpl.login:wrong roleid:" + roleid);
+					continue;
+				}
+				Map<String,List<Map>> pm = getRole(s[0], roleid);
+				if (pm != null) {
+					List<Map> permList = pm.get(PERMISSIONS);
+					if (permList != null) {
+						for (Map<String,String> perm : permList) {
+							if (getBoolean(perm.get("enabled"), false)) {
+								String sperm = perm.get("permission");
+								if( p == null){
+									permissions.add(perm);
+								}else{
+									boolean b = p.matcher(sperm).matches();
+									if( b ){
+										permissions.add(perm);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return permissions;
+	}
 
 	public boolean login(String namespace, String username, String password) {
 		info("PermissionServiceImpl:login:" + username + "/" + password + "/namespace:" + namespace+"/RC:"+org.ms123.common.system.thread.ThreadContext.getThreadContext());
@@ -172,35 +218,8 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 			sa.addRole("admin");
 		} else {
 			try {
-				List<Map> permissions = new ArrayList();
-				debug("userProps:" + userProps);
-				List<String> roleList = null;
-				String rs = (String) userProps.get(ROLES);
-				if (rs != null && rs.length() > 0) {
-					roleList = Arrays.asList(rs.split("\\s*,\\s*"));
-				}
-				debug("roleList:" + roleList);
-				if (roleList != null) {
-					for (String roleid : roleList) {
-						String[] s = roleid.split("\\.");
-						if (s.length != 2) {
-							//throw new RuntimeException("PermissionServiceImpl.login:wrong roleid:"+roleid);
-							info("PermissionServiceImpl.login:wrong roleid:" + roleid);
-							continue;
-						}
-						Map<String,List<Map>> pm = getRole(s[0], roleid);
-						if (pm != null) {
-							List<Map> permList = pm.get(PERMISSIONS);
-							if (permList != null) {
-								for (Map perm : permList) {
-									if (getBoolean(perm.get("enabled"), false)) {
-										permissions.add(perm);
-									}
-								}
-							}
-						}
-					}
-				}
+				//List<Map> permissions = getPermissions(userProps, "^.*:entities:.*");
+				List<Map> permissions = getPermissions(userProps, null);
 				Iterator<Map> pit = permissions.iterator();
 				while (pit.hasNext()) {
 					Map p = pit.next();
