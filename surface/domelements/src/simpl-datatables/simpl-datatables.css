@@ -188,3 +188,10 @@
 		overflow-x: hidden !important;
 	}
 
+	table.dataTables.responsive {
+		background: #fff;
+		margin-bottom: 0em;
+		border: solid 0px;
+		border-collapse: initial;
+		border-spacing: 0;
+	}
