@@ -126,9 +126,6 @@
 			} );
 			this.selection = sel;
 		},
-		q: function( sel ) {
-			return $( this.$.dataTablesId.querySelectorAll( sel ) );
-		},
 		getSelection: function() {
 			return this.selection;
 		},
@@ -144,13 +141,7 @@
 			return raw;
 		},
 		metaChanged: function() {},
-		_metaChanged: function() {},
 		dataChanged: function() {
-			this.async( function() {
-				this._dataChanged();
-			}, 30 );
-		},
-		_dataChanged: function() {
 			console.log( "dataTables.dataChanged.data:", this.data );
 			console.log( "dataTables.dataChanged.meta:", this.meta );
 			var firsttime = this.preparedMeta == null;
@@ -178,7 +169,6 @@
 				} ).bind( this ) );
 				this._api.draw();
 				this.createRowListener();
-				//this.recalc();
 			}
 		},
 		prepareMeta: function( meta ) {
