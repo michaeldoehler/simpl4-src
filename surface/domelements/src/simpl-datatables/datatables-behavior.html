@@ -69,15 +69,6 @@
 			}
 			var self = this;
 			var dtMainElem = $( this.$.dataTablesId );
-			if ( this._api == null ) {
-				dtMainElem.on( 'init.dt.dtr', ( function( e, settings, json ) {
-					//this.whenTableReady( ( function() {
-					this.async( function() {
-						new jQuery.fn.dataTable.Responsive( settings, null, function( sync ) {} );
-					}, 50 );
-					//} ).bind( this ) );
-				} ).bind( this ) );
-			}
 			if ( dataSet && dataSet.length < 10 ) {
 				options.dom = "t";
 			}
@@ -175,7 +166,7 @@
 				this.preparedMeta = this.prepareMeta( this.meta );
 			}
 
-			if ( this.prepareMeta == null ) {
+			if ( this.preparedMeta == null ) {
 				return;
 			}
 			if ( firsttime ) {
