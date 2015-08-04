@@ -44,7 +44,7 @@ qx.Class.define("ms123.util.TableCellTextField", {
 
 		_createEditor: function () {
 			var cellEditor = new qx.ui.form.TextField();
-			if( this.options){
+			if( this.options && this.options.filter){
 				cellEditor.setFilter(this.options.filter);
 			}
 			cellEditor.setAppearance("table-editor-textfield");
