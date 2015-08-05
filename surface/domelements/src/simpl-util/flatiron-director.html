@@ -30,6 +30,10 @@ license that can be found in the LICENSE file.
 						this.route = route;
 					}.bind( this ) );
 					var r = this.router.getRoute();
+					if( window.startPage ){
+						r = [window.startPage];
+						window.startPage=null;
+					}
 					this.route = r && r != "" ? r.join( this.router.delimiter ) : '0';
 				},
 				routeChanged: function() {

@@ -82,6 +82,8 @@
 
 			simpl4.util.BaseManager.setNamespace( namespace );
 
+			window.startPage = getParameterByName( "page" );
+
 			var qlang = getParameterByName( "lang" );
 			removeQueryParameter();
 			console.log( "search:", location );
@@ -94,6 +96,7 @@
 				simpl4.util.BaseManager.setLanguage( lang ? lang : "en" );
 				simpl4.util.Globals.set( "lang", lang ? lang : "en" );
 			}
+			Simpl4.Cache.setItem( "lang", simpl4.util.BaseManager.getLanguage() );
 
 			simpl4.util.BaseManager.setUser( "guest" );
 			simpl4.util.BaseManager.setPassword( "guest" );
