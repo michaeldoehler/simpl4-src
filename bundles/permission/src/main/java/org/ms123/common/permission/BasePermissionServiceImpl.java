@@ -46,6 +46,8 @@ import org.ms123.common.git.GitService;
 import org.ms123.common.store.StoreDesc;
 import org.apache.shiro.authz.Permission;
 import org.mvel2.MVEL;
+import org.springframework.util.AntPathMatcher;
+import static org.apache.commons.io.FileUtils.readFileToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -217,6 +219,65 @@ class BasePermissionServiceImpl implements Constants {
 		debug("Permission.getUser.roleList("+userid+"):" + roleListRet);
 		return roleListRet;
 	} 
+
+	public boolean isFileAccesPermitted(String userName, List<String> permittedUserList, List<String> permittedRoleList) {
+		List<String> userRoleList = null;
+		try{
+			userRoleList = getUserRoles(userName);
+		}catch(Exception e){
+			error("BasePermissionServiceImpl.getUserRoles", e);
+			return false;
+		}
+		info("UserRoleList:" + userRoleList);
+		info("PermittedUserList:" + permittedUserList);
+		if (permittedUserList != null && permittedUserList.contains(userName)) {
+			info("userName(" + userName + ") is allowed:" + permittedUserList);
+			return true;
+		}
+		info("permittedRoleList:" + permittedRoleList);
+		for (String userRole : userRoleList) {
+			if (permittedRoleList != null && permittedRoleList.contains(userRole)) {
+				info("userRole(" + userRole + ") is allowed:" + permittedRoleList);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected List<Map<String, Object>> getAccessRules(String namespace) {
+		File file = new File(System.getProperty("git.repos") + "/" + namespace + "/.etc/access-rules.json");
+		String content = null;
+		try {
+			content = readFileToString(file);
+		} catch (Exception e) {
+			info("LoginFilter.getAccessRules:" + e.getMessage());
+			return null;
+		}
+		return (List) this.m_ds.deserialize(content);
+	}
+
+	protected Map<String, Object> getMatchingAccessRule(String resPath, List<Map<String, Object>> rules) {
+		if (rules == null) {
+			return null;
+		}
+		debug("getMatchingAccessRule:" + resPath);
+		AntPathMatcher a = new AntPathMatcher();
+		for (Map<String, Object> rule : rules) {
+			String pat = (String) rule.get("pattern");
+			boolean ok;
+			if( pat.startsWith("/") && !resPath.startsWith("/")){
+				ok = a.match(pat, "/"+ resPath);
+			}else{
+				ok = a.match(pat, resPath);
+			}
+			debug("\tmatch:" + pat + " -> " + ok);
+			if (ok) {
+				return rule;
+			}
+		}
+		return null;
+	}
+
 	protected void debug(String msg) {
 		//System.out.println(msg);
 		m_logger.debug(msg);
@@ -224,6 +285,11 @@ class BasePermissionServiceImpl implements Constants {
 	protected void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
+	}
+	protected void error(String msg, Exception e) {
+		System.err.println(msg);
+		e.printStackTrace();
+		m_logger.error(msg,e);
 	}
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(BasePermissionServiceImpl.class);
 }

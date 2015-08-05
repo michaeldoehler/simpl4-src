@@ -356,7 +356,32 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 		try {
 			return m_gitMetaData.getRole(namespace, name);
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "PermissionServiceImpl.getPermissions:", e);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "PermissionServiceImpl.getRole:", e);
+		}
+	}
+
+	public List<Map> getAccessPermissionsForFileList(
+			@PName(StoreDesc.NAMESPACE) String namespace, 
+			@PName("filenames")             List<String> filenames) throws RpcException {
+		try {
+			String	username = org.ms123.common.system.thread.ThreadContext.getThreadContext().getUserName();
+			List<Map> result = new ArrayList();
+			List<Map<String, Object>> rules = getAccessRules(namespace);
+			for( String name : filenames){
+				Map<String, Object>	accessRule = getMatchingAccessRule(name, rules);
+				Map access = new HashMap();
+				access.put("filename", name);
+				access.put("access", true);
+				if (accessRule != null) {
+					if (!isFileAccesPermitted(username, (List) accessRule.get(PERMITTED_USERS), (List) accessRule.get(PERMITTED_ROLES))) {
+						access.put("access", false);
+					}
+				}
+				result.add(access);
+			}
+			return result;
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "PermissionServiceImpl.getAccessPermissionsForFileList:", e);
 		}
 	}
 

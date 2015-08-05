@@ -26,6 +26,8 @@ import org.apache.shiro.authz.Permission;
 
 public interface PermissionService {
 	public final String PERMISSION_SERVICE = "permissionService";
+	public String PERMITTED_USERS = "permittedUsers";
+	public String PERMITTED_ROLES = "permittedRoles";
 
 	public boolean login(String appName, String username, String password);
 
@@ -50,4 +52,6 @@ public interface PermissionService {
 
 	public List<Map> permissionFieldListFilter(StoreDesc sdesc, String entity, List<Map> fieldList, String fieldKey, String actions);
 	public List<String> permissionFieldListFilter(StoreDesc sdesc, String entity, List<String> fieldList, String actions);
+	public List<Map> getAccessPermissionsForFileList(String namespace,  List<String> filenames) throws RpcException;
+	public boolean isFileAccesPermitted(String userName, List<String> permittedUserList, List<String> permittedRoleList);
 }
