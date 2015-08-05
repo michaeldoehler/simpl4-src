@@ -39,8 +39,6 @@ import static org.apache.commons.io.FileUtils.readFileToString;
 public class LoginFilter implements Filter {
 
 
-	private String PERMITTED_USERS = "permittedUsers";
-	private String PERMITTED_ROLES = "permittedRoles";
 	private String USERNAME = "username";
 	private FilterConfig config = null;
 	private JSONDeserializer ds = new JSONDeserializer();
@@ -163,7 +161,7 @@ public class LoginFilter implements Filter {
 		if (ok || checkCredentials(namespace, credentials, false)) {
 			if (accessRule != null) {
 				String username = (String) req.getAttribute(USERNAME);
-				if (!isPermitted(username, getUserRoles(username), (List) accessRule.get(PERMITTED_USERS), (List) accessRule.get(PERMITTED_ROLES))) {
+				if (!m_permissionService.isFileAccesPermitted(username, (List) accessRule.get(PermissionService.PERMITTED_USERS), (List) accessRule.get(PermissionService.PERMITTED_ROLES))) {
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}
@@ -174,8 +172,7 @@ public class LoginFilter implements Filter {
 			info(request.getPathInfo() + "|" + request.getMethod() + "|Uri:" + request.getRequestURI());
 			info(request.getRequestURL() + "|Url:" + request.getServletPath() + "|QS:" + request.getQueryString());
 			chain.doFilter(rm, response);
-			info(">>>> End FILTER:" + ThreadContext.getThreadContext().get(ThreadContext.SESSION_MANAGER) + "/"
-					+ new Date().getTime());
+			info(">>>> End FILTER:" + ThreadContext.getThreadContext().get(ThreadContext.SESSION_MANAGER) + "/" + new Date().getTime());
 			Date startTime = ThreadContext.getThreadContext().getStartTime();
 			ThreadContext.getThreadContext().finalize(null);
 			ThreadContext.getThreadContext().remove();
@@ -207,33 +204,6 @@ public class LoginFilter implements Filter {
 		}
 	}
 
-	private List<String> getUserRoles(String userName) {
-		List<String> userRoleList = null;
-		try {
-			userRoleList = m_permissionService.getUserRoles(userName);
-		} catch (Exception e) {
-			userRoleList = new ArrayList();
-		}
-		return userRoleList;
-	}
-
-	private boolean isPermitted(String userName, List<String> userRoleList, List<String> permittedUserList, List<String> permittedRoleList) {
-		info("UserRoleList:" + userRoleList);
-		info("PermittedUserList:" + permittedUserList);
-		if (permittedUserList != null && permittedUserList.contains(userName)) {
-			info("userName(" + userName + ") is allowed:" + permittedUserList);
-			return true;
-		}
-		info("permittedRoleList:" + permittedRoleList);
-		for (String userRole : userRoleList) {
-			if (permittedRoleList != null && permittedRoleList.contains(userRole)) {
-				info("userRole(" + userRole + ") is allowed:" + permittedRoleList);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private boolean isRepoRequest(String pathInfo) {
 		return pathInfo.startsWith("/repo");
 	}
@@ -256,11 +226,17 @@ public class LoginFilter implements Filter {
 		}
 		String resPath = pathInfo.substring(("/repo/" + ns + "/").length());
 		AntPathMatcher a = new AntPathMatcher();
+		debug("getMatchingAccessRule:" + resPath);
 		for (Map<String, Object> rule : rules) {
 			String pat = (String) rule.get("pattern");
-			boolean res = a.match(pat, resPath);
-			info("\tmatch:" + pat + " -> " + res);
-			if (res) {
+			boolean ok;
+			if( pat.startsWith("/") && !resPath.startsWith("/")){
+				ok = a.match(pat, "/"+ resPath);
+			}else{
+				ok = a.match(pat, resPath);
+			}
+			debug("\tmatch:" + pat + " -> " + ok);
+			if (ok) {
 				return rule;
 			}
 		}
