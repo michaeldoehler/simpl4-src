@@ -21,8 +21,13 @@
 <link rel="import" href="css-import-behavior.html">
 <dom-module id="simpl-main">
 	<style>
-*, *:before, *:after { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
-
+		*,
+		*:before,
+		*:after {
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
 		@media all and (max-width: 480px) {} neon-animatable {
 			padding: 6px;
 		}
@@ -115,19 +120,29 @@
 				</div>
 
 				<paper-scroll-header-panel header-height="64" main>
-					<paper-toolbar id="mainToolbar" class="toolbarClass">
-						<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
-						<h2 id="headlineId" class="flex">{{selectedPage.name}}</h2>
-						<template is="dom-if" if="{{selectedPage.help}}">
-							<core-tooltip label="{{helpMessage}}" position="left">
-								<paper-icon-button on-click="showHelp" icon="help"></paper-icon-button>
-							</core-tooltip>
-						</template>
-						<paper-icon-button on-click="reload" class="langIcon" src="{{getLangIcon()}}"></paper-icon-button>
-						<core-tooltip label="{{loginMessage}}" position="left">
-							<paper-icon-button on-click="login" icon="system-update-tv"></paper-icon-button>
-						</core-tooltip>
-					</paper-toolbar>
+					<template is="dom-if" if="[[!toolbarProvided]]">
+						<paper-toolbar id="mainToolbar" class="toolbarClass">
+							<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
+							<h2 id="headlineId" class="flex">[[selectedPage.name]]</h2>
+							<template is="dom-if" if="[[selectedPage.help]]">
+								<div>
+									<paper-tooltip>[[helpMessage]]</paper-tooltip>
+									<paper-icon-button on-click="showHelp" icon="help"></paper-icon-button>
+								</div>
+							</template>
+							<paper-icon-button on-click="reload" class="langIcon" src="[[getLangIcon()]]"></paper-icon-button>
+							<template is="dom-if" if="[[signInOutIcon]]">
+								<div>
+									<paper-tooltip position="left">[[loginMessage]]</paper-tooltip>
+									<paper-icon-button on-click="login" icon="[[signInOutIcon]]"></paper-icon-button>
+								</div>
+							</template>
+						</paper-toolbar>
+					</template>
+
+					<template is="dom-if" if="[[toolbarProvided]]">
+						<content select="*"></content>
+					</template>
 
 					<neon-animated-pages id="pages" selected="{{route}}" attr-for-selected="hash" animateInitialSelection entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 						<template is="dom-repeat" items="{{getPages()}}">
@@ -172,6 +187,10 @@
 					value: 'Login',
 					type: String
 				},
+				selectedPage: {
+					notify: true,
+					type: Object
+				},
 				mmenuBackground: {
 					value: null,
 					type: String
@@ -179,6 +198,10 @@
 				mmenuClasses: {
 					value: null,
 					type: String
+				},
+				toolbarProvided: {
+					value: false,
+					type: Boolean
 				},
 				toolbarClass: {
 					type: String
@@ -205,13 +228,14 @@
 				this.async( function() {
 					this._attached();
 				} );
-				this.entryAnimation = 'slide-from-right-animation';
-				this.exitAnimation = 'slide-right-animation';
 			},
 			_attached: function() {
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-right-animation';
 				this.helpMessage = tr( "button.help" );
 				this.drawerPanel = this.$.drawerPanel;
 				this.neonPages = this.$.pages;
+				//this.signInOutIcon="system-update-alt";
 				this.keys = this.$.keys;
 				$( this.$.logo ).css( "background", this.logoBackground );
 				$( this.$.nav ).css( "background", this.logoBackground );
@@ -235,20 +259,13 @@
 				return this.globals;
 			},
 			toolbarBackgroundChanged: function() {
-				$( this.$.mainToolbar ).css( "background", this.toolbarBackground );
+				this.async( function() {
+					var mainToolbar = this.querySelector( "#mainToolbar" );
+					$( mainToolbar ).css( "background", this.toolbarBackground );
+				}, 20 );
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );
-				var route = this.route;
-				if ( route.match( /^!/ ) ) {
-					route = route.substring( 1 );
-				}
-				if ( this.route != route ) {
-					this.route = route;
-				}
-				console.log( "routeChanged2:" + this.route );
-				//	$( this.$.pages.querySelectorAll( "neon-animatable" ) ).css( "display", "" );
-				//		$( this.$.pages.querySelector( "section.iron-selected" ) ).css( "display", "none" );
 				channel.publish( "route.changed", {
 					route: this.route
 				} );
@@ -256,8 +273,8 @@
 					if ( window._paq ) {
 						var action = this.route == "0" ? "main" : this.route;
 						if ( this.lastAction != action ) {
-							console.log( "trackEvent,webclient:" + action )
-								//@@@MS							_paq.push( [ 'trackEvent', "webclient", action+ "/"+globals.lang ] )
+							console.log( "trackEvent,webdemo:" + action )
+							_paq.push( [ 'trackEvent', "webdemo", action + "/" + Simpl4.Cache.getItem( "lang" ) ] )
 						}
 						this.lastAction = action;
 					}
@@ -312,7 +329,7 @@
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
 				}
-				$(insertPoint).hide();
+				$( insertPoint ).hide();
 				if ( head.firstElementChild && head.firstElementChild.set ) {
 					head.firstElementChild.set( "globals", this.getGlobals() );
 					head.firstElementChild.set( "tr", function( text ) {
@@ -333,18 +350,10 @@
 						scope = "asciidoctor-default";
 					}
 					this.setStyleScope( insertPoint, scope );
-					//this.evalScripts( insertPoint );
 					this.async( function() {
-						$(insertPoint).fadeIn();
+						$( insertPoint ).fadeIn();
 					}, 0 );
 				}, 2 );
-			},
-			evalScripts: function( root ) {
-				var SCRIPT_SELECTOR = 'script';
-				var scripts = root.querySelectorAll( SCRIPT_SELECTOR );
-				for ( var i = 0; i < scripts.length; i++ ) {
-					eval( scripts[ i ].text );
-				}
 			},
 			getLogoLink: function() {
 				console.log( "logoLink2:", this.logoLink );
@@ -377,8 +386,6 @@
 					var action = this.route == "0" ? "main" : this.route;
 					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
-
-				//				this.$.helpImport.contentChanged(this.substituteLang(this.selectedPage.help,true));
 				this.$.helpDialog.toggle();
 			},
 			isAsciidoc: function( url ) {
