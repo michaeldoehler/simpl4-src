@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import rx.Subscription;
 import static org.ms123.common.wamp.camel.WampClientConstants.*;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class WampClientConsumer extends DefaultConsumer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WampClientConsumer.class);
@@ -70,15 +70,15 @@ public class WampClientConsumer extends DefaultConsumer {
 
 	private void wampClientConnected() {
 		String namespace = endpoint.getCamelContext().getName().split("/")[0];
-		info("Consumer.register:" +namespace+"."+endpoint.getProcedure() );
-		Subscription addProcSubscription = this.clientSession.registerProcedure(namespace+"."+endpoint.getProcedure()).subscribe((request) -> {
+		info("Consumer.register:" + namespace + "." + endpoint.getProcedure());
+		Subscription addProcSubscription = this.clientSession.registerProcedure(namespace + "." + endpoint.getProcedure()).subscribe((request) -> {
 
 			info("Consumer.Procedure called:" + request + "/hashCode:" + this.hashCode());
 			final boolean reply = false;
 			final Exchange exchange = endpoint.createExchange(reply ? ExchangePattern.InOut : ExchangePattern.InOnly);
-			try{
+			try {
 				prepareExchange(exchange, request);
-			}catch(Exception e){
+			} catch (Exception e) {
 				request.reply(buildResponse(e));
 				return;
 			}
@@ -88,7 +88,11 @@ public class WampClientConsumer extends DefaultConsumer {
 					@Override
 					public void done(boolean doneSync) {
 						if (exchange.getException() != null) {
-							request.reply(buildResponse(exchange.getException()));
+							try {
+								request.replyError("XXXX", buildErrorResponse(exchange.getException()));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						} else {
 							request.reply(buildResponse(getResult(exchange)));
 						}
@@ -208,8 +212,7 @@ public class WampClientConsumer extends DefaultConsumer {
 		return response;
 	}
 
-	private Map<String, Object> buildResponse(final Exception exception) {
-		final Map<String, Object> response = new HashMap<String, Object>(3);
+	private Map<String, Object> buildErrorResponse(final Exception exception) {
 		final Map<String, Object> error = new HashMap<String, Object>(6);
 		//error.put("origin", exception.getOrigin());
 		//error.put("code", exception.getErrorCode());
@@ -226,10 +229,7 @@ public class WampClientConsumer extends DefaultConsumer {
 		}
 		error.put("message", constructMessage(exception.getMessage(), cmessage));
 		error.put("class", exception.getClass().getName());
-		//response.put("id", request.get("id"));
-		response.put("error", error);
-		response.put("result", null);
-		return response;
+		return error;
 	}
 
 	private String constructMessage(String m1, String m2) {
@@ -334,7 +334,7 @@ public class WampClientConsumer extends DefaultConsumer {
 
 	protected void doStop() throws Exception {
 		String namespace = endpoint.getCamelContext().getName().split("/")[0];
-		debug("######Consumer.Stop:" + namespace+"."+endpoint.getProcedure() + "/" + this.hashCode());
+		debug("######Consumer.Stop:" + namespace + "." + endpoint.getProcedure() + "/" + this.hashCode());
 		this.clientSession.close();
 		super.doStop();
 	}
