@@ -45,12 +45,21 @@ clazz.isContainer = function( current ) {
 	return /^f|^o/.test( typeof current );
 };
 
+clazz.getGlobal = function(){
+	try{
+		global = window;
+	}catch( e){
+	}
+	return global;
+};
+
+
 clazz.getObject = function( name, roots, add ) {
 	var parts = name ? name.split( '.' ) : [],
 		length = parts.length,
 		current, r = 0,
 		i, container, rootsLength;
-	roots = [ roots || window ];
+	roots = [ roots || clazz.getGlobal() ];
 	rootsLength = roots.length;
 	if ( !length ) {
 		return roots[ 0 ];
@@ -188,7 +197,7 @@ clazz.define( 'clazz/construct/construct', clazz, function( clazz ) {
 			}
 			clazz.construct._inherit( klass, _super_class, Constructor );
 			if ( fullName ) {
-				current = clazz.getObject( parts.join( '.' ), window, true );
+				current = clazz.getObject( parts.join( '.' ), clazz.getGlobal(), true );
 				namespace = current;
 				_fullName = clazz.underscore( fullName.replace( /\./g, '_' ) );
 				_shortName = clazz.underscore( shortName );

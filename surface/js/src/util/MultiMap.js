@@ -16,19 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
+require("./Construct");
+require("./Map");
 simpl4.util.Map.extend( "simpl4.util.MultiMap", {
 }, {
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
 	init: function( iterable ) {
-		this.store = {};
-
-		if ( iterable ) {
-			iterable.forEach( function( i ) {
-				this.set( i[ 0 ], i[ 1 ] );
-			} );
-		}
+		simpl4.util.Map.prototype.init.call(this, iterable);
 	},
 	set: function( key,val ) {
 		var args = Array.prototype.slice.call( arguments );

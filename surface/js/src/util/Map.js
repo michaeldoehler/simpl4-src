@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
+require("./Construct");
 clazz.construct.extend( "simpl4.util.Map", {
 }, {
 	/******************************************************************************

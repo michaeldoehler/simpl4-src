@@ -2,6 +2,7 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
+		fileset(file:'libs/require-dummy.js')
 		fileset(file:'libs/classlist.js')
 		fileset(file:'libs/matchmedia.js')
 		fileset(file:'libs/underscore.js')
