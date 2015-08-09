@@ -27,26 +27,16 @@
 			position: relative;
 			box-sizing: border-box;
 		}
-		@media (max-width: 480px) {
 			:host /deep/ .menge {
-				width: 1px !important;
-				min-width: 1px;
-				max-width: 1px;
+				width: 60px !important;
+				padding-left:30px !important;
+				padding-right:0px !important;
 			}
 			:host /deep/ .button {
 				width: 20px !important;
-				min-width: 20px;
-				max-width: 20px;
+				padding-left:0px !important;
+				padding-right:0px !important;
 			}
-			:host /deep/ .teilenummer {
-				width: 60px !important;
-				max-width: 60px;
-			}
-			:host /deep/ .teilename {
-				width: 80px !important;
-				max-width: 80px;
-			}
-		}
 		:host /deep/ .hotspot {
 			border-radius: 3px;
 			//				background: yellow;
@@ -104,7 +94,7 @@
 		<div class="horizontal layout wrap">
 			<div id="assemblyId" class="layout horizontal" vs100 vl33>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" fontSize="1em" heading="{{panelHeader}}" class="layout horizontal vertical flex" collapsable>
-					<simpl-tree data={{assemblies}} selected="{{selected}}" idProp="path" on-item-selected="selectedAssemblyChanged"></simpl-tree>
+					<simpl-tree data={{assemblies}} selected="{{selected}}" id-prop="path" on-item-selected="selectedAssemblyChanged"></simpl-tree>
 				</simpl-panel>
 			</div>
 			<div id="viewerAndListId" class="layout vertical" vs100 vl66>
@@ -270,7 +260,6 @@
 				col.data = "menge";
 				col.title = "";
 				col.class = "input menge";
-				col.width = "2";
 				col.mRender = this.renderColumn;
 				colHds.push( col );
 
@@ -278,7 +267,6 @@
 				col.data = "basket";
 				col.title = "";
 				col.class = "button";
-				col.width = "20";
 				col.icon = "basket.gif";
 				//			col.class="wkbutton";
 				col.mRender = this.renderColumn;
@@ -287,15 +275,20 @@
 				var col = {};
 				col.data = "part";
 				col.class = "teilenummer alignLeft";
-				col.width = "60";
+				col.width = "50";
 				col.title = tr( "bomviewer.part" );
 				colHds.push( col );
 
 				var col = {};
 				col.data = "name";
 				col.class = "teilename";
-				col.width = "80";
+				col.width = "70";
 				col.title = tr( "bomviewer.name" );
+				colHds.push( col );
+
+				var col = {};
+				col.data = "name2";
+				col.title = "Beschreibung";
 				colHds.push( col );
 
 				var col = {};
@@ -304,10 +297,6 @@
 				col.width = "20";
 				colHds.push( col );
 
-				var col = {};
-				col.data = "name2";
-				col.title = "Beschreibung";
-				colHds.push( col );
 
 				var col = {};
 				col.data = "price";
