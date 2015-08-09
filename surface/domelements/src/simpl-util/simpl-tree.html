@@ -54,17 +54,20 @@
 		Polymer( {
 			is: 'simpl-tree',
 			properties: {
+				nameProp: {
+					value:"name",
+					type: String
+				},
 				data: {
 					observer: 'dataChanged',
 					type: Object
 				},
 				idProp: {
+					value:"path",
 					type: String
 				},
 				childrenProp: {
-					type: String
-				},
-				nameProp: {
+					value:"children",
 					type: String
 				},
 				selected: {
@@ -72,13 +75,11 @@
 					type: String
 				}
 			},
-			iconOpen: 'hardware:keyboard-arrow-right',
-			iconClose: 'hardware:keyboard-arrow-down',
-			iconBOM: 'arrow-drop-down',
-			data: {},
-			idProp: 'path',
-			childrenProp: 'children',
-			nameProp: 'name',
+			ready: function( e ) {
+				this.iconOpen= 'hardware:keyboard-arrow-right';
+				this.iconClose= 'hardware:keyboard-arrow-down';
+				this.iconBOM ='arrow-drop-down';
+			},
 			toggleEvent: function( e ) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -122,7 +123,6 @@
 				this.prevSelected = span;
 			},
 			selectedChanged: function() {
-console.log("selectedChanged");
 				var selector = '[idvalue="' + this.selected + '"] span';
 				var span = this._tree.querySelector( selector );
 				this.openTree( span );
@@ -161,7 +161,6 @@ console.log("selectedChanged");
 				return null;
 			},
 			dataChanged: function() {
-console.log("dataChanged");
 				this._createRoot();
 			},
 			_createRoot: function() {
