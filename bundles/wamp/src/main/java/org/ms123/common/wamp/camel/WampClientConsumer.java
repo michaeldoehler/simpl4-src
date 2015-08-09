@@ -19,6 +19,7 @@
 package org.ms123.common.wamp.camel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +80,11 @@ public class WampClientConsumer extends DefaultConsumer {
 			try {
 				prepareExchange(exchange, request);
 			} catch (Exception e) {
-				request.reply(buildResponse(e));
+				try {
+					request.replyError("X", buildErrorResponse(e));
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 				return;
 			}
 			try {
@@ -94,7 +99,7 @@ public class WampClientConsumer extends DefaultConsumer {
 								e.printStackTrace();
 							}
 						} else {
-							request.reply(buildResponse(getResult(exchange)));
+							request.reply(null, buildResponse(getResult(exchange)));
 						}
 					}
 				});
@@ -204,12 +209,15 @@ public class WampClientConsumer extends DefaultConsumer {
 		return null;
 	}
 
-	private Map<String, Object> buildResponse(final Object methodResult) {
-		Map<String, Object> response = new HashMap<String, Object>(3);
-		//response.put("id", request.get("id"));
-		response.put("error", null);
-		response.put("result", methodResult);
-		return response;
+	private ObjectNode buildResponse(final Object methodResult) {
+		ObjectNode node = null;
+		if( methodResult instanceof Map ){
+			node = this.objectMapper.valueToTree(methodResult);
+		}else{
+			node = this.objectMapper.createObjectNode();
+			node.putPOJO("result", methodResult);
+		}
+		return node;
 	}
 
 	private Map<String, Object> buildErrorResponse(final Exception exception) {
