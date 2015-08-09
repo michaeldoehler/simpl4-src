@@ -24,7 +24,7 @@ license that can be found in the LICENSE file.
 				observers: [
 					'routeChanged(route)'
 				],
-				ready: function() {
+				attached: function() {
 					console.log( "flatiron-route.ready:", this.route );
 					this.router.on( /(.*)/, function( route ) {
 						this.route = route;
