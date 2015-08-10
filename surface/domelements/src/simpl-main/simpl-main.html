@@ -64,9 +64,6 @@
 			border: none;
 			outline: none;
 			display: inline-block;
-			//-webkit-appearance: none;
-			//-moz-appearance: none;
-			//appearance: none;
 			cursor: pointer;
 		}
 		#headlineId {
@@ -90,11 +87,18 @@
 				margin-right: 0px;
 			}
 		}
-		.toolbarClass {
-			color: #D50303;
-		}
 		simpl-mmenu {
 			position: relative;
+		}
+		paper-toolbar.small /deep/ #topBar.toolbar-tools {
+			align-items: baseline;
+		}
+		paper-toolbar.small {
+			height: 90px;
+		}
+		paper-toolbar#mainToolbar {
+			color: #D50303;
+			background: #f6f6f6;
 		}
 
 	</style>
@@ -121,7 +125,7 @@
 
 				<paper-scroll-header-panel header-height="64" main>
 					<template is="dom-if" if="[[!toolbarProvided]]">
-						<paper-toolbar id="mainToolbar" class="toolbarClass">
+						<paper-toolbar id="mainToolbar">
 							<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
 							<h2 id="headlineId" class="flex">[[selectedPage.name]]</h2>
 							<template is="dom-if" if="[[selectedPage.help]]">
@@ -137,6 +141,7 @@
 									<paper-icon-button on-click="login" icon="[[signInOutIcon]]"></paper-icon-button>
 								</div>
 							</template>
+							<div class="toolbar bottom horizontal layout"> </div> <!--insertpoint toolbar-bottom-->
 						</paper-toolbar>
 					</template>
 
@@ -203,9 +208,6 @@
 					value: false,
 					type: Boolean
 				},
-				toolbarClass: {
-					type: String
-				},
 				logoBackground: {
 					value: null,
 					type: String
@@ -218,7 +220,10 @@
 			observers: [
 				'routeChanged(route)'
 			],
-			cache: function() {
+			toolbarBottomCache: function() {
+				return {};
+			},
+			pageCache: function() {
 				return {};
 			},
 			getPages: function() {
@@ -312,8 +317,16 @@
 					console.debug( "menuItemSelected:", e );
 					this.selectedPage = page;
 					this.route = page.hash;
-					if ( this.cache[ page.url ] !== true ) {
+					if ( this.pageCache[ page.url ] !== true ) {
 						this.importHref( page.url, this.onResponse.bind( this ) );
+					} else {
+						var toolbarBottom = this.querySelector( ".toolbar.bottom" );
+						var tb = this.toolbarBottomCache[ page.url ];
+						this.setToolbarClass( tb );
+						if( tb == null){
+							tb = this.getEmptyToolbarBottom();
+						}
+						toolbarBottom.parentNode.replaceChild( tb, toolbarBottom );
 					}
 				}
 				this.$.drawerPanel.closeDrawer();
@@ -323,8 +336,16 @@
 				var body = _import.body;
 				var head = _import.head;
 
-				this.cache[ this.selectedPage.url ] = true;
+				var newToolbarBottom = body.querySelector( ".toolbar.bottom" );
+				this.setToolbarClass( newToolbarBottom );
+				this.toolbarBottomCache[ this.selectedPage.url ] = newToolbarBottom;
+				if ( newToolbarBottom == null ) {
+					newToolbarBottom = this.getEmptyToolbarBottom();
+				}
+				var toolbarBottom = this.querySelector( "div.toolbar.bottom" );
+				toolbarBottom.parentNode.replaceChild( newToolbarBottom, toolbarBottom );
 
+				this.pageCache[ this.selectedPage.url ] = true;
 				var insertPoint = this.neonPages.selectedItem.firstElementChild;
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
@@ -387,6 +408,25 @@
 					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
 				this.$.helpDialog.toggle();
+			},
+			setToolbarClass: function( newToolbarBottom ) {
+				var mainToolbar = this.querySelector( "#mainToolbar" );
+				if ( newToolbarBottom == null ) {
+					mainToolbar.classList.remove( "medium-tall" );
+					mainToolbar.classList.remove( "small" );
+				} else {
+					mainToolbar.classList.add( "medium-tall" );
+					mainToolbar.classList.add( "small" );
+				}
+			},
+			getEmptyToolbarBottom: function() {
+				if ( this.emptyToolbarBottom == null ) {
+					var div = document.createElement( 'div' );
+					div.classList.add( "toolbar" );
+					div.classList.add( "bottom" );
+					this.emptyToolbarBottom = div;
+				}
+				return this.emptyToolbarBottom;
 			},
 			isAsciidoc: function( url ) {
 				return url.indexOf( ".adoc" ) > 0;
