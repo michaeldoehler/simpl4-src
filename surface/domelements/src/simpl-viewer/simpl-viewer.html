@@ -188,7 +188,7 @@
 			},
 			panelOpen: function() {
 				var dt = this.$.bomTable;
-				var dtTable = dt.dtTable;
+				var dtApi = dt._api;
 				$( window ).trigger( "resize.DT-dataTablesId" );
 				$( window ).trigger( "resize.dtr" );
 			},
@@ -437,16 +437,16 @@
 			},
 			selectBom: function( nr ) {
 				var dt = this.$.bomTable;
-				var dtTable = dt._api;
-				var rows = dtTable.rows( function( idx, data, node ) {
+				var dtApi = dt._api;
+				var rows = dtApi.rows( function( idx, data, node ) {
 					return data.part === nr ? true : false;
 				} );
 				console.log( "RowNodes:", rows[ 0 ] );
 				dt.unselectAll();
-				dtTable.rows( rows[ 0 ] ).nodes().to$().addClass( 'selected' );
+				dtApi.rows( rows[ 0 ] ).nodes().to$().addClass( 'selected' );
 				if ( rows[ 0 ].length > 0 ) {
 					console.log( "RowNodes:", rows[ 0 ][ 0 ] );
-					var scroller = dtTable.scroller();
+					var scroller = dtApi.scroller();
 					console.log( "Scroller:", scroller );
 					scroller.scrollToRow( rows[ 0 ][ 0 ] - 2, false );
 				}

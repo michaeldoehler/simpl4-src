@@ -195,3 +195,6 @@
 		border-collapse: initial;
 		border-spacing: 0;
 	}
+	.dataTables_wrapper.no-footer .dataTables_scrollBody {
+		border-bottom: 0px solid #111;
+	}
