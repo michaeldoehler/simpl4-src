@@ -120,11 +120,11 @@
 		top: 3px !important;
 	}
 	html table.responsive.dataTables tbody tr td:not(:first-child) {
-		padding: 5px 8px 5px;
+		padding: 3px 8px 3px;
 		line-height: 1.0;
 	}
 	html table.responsive.dataTables tbody tr td:first-child {
-		padding: 5px 28px 5px;
+		padding: 3px 28px 3px;
 	}
 	html table.responsive.dataTables thead tr th,
 	table.dataTable tfoot tr th {
