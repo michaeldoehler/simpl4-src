@@ -101,6 +101,12 @@
 			background: #f6f6f6;
 		}
 
+	:host /deep/ paper-icon-button iron-icon {
+		pointer-events: none;
+	}
+	:host /deep/ paper-icon-button  paper-ripple {
+		pointer-events: none;
+	}
 	</style>
 	<template>
 		<simpl-globals></simpl-globals>
@@ -344,6 +350,11 @@
 				}
 				var toolbarBottom = this.querySelector( "div.toolbar.bottom" );
 				toolbarBottom.parentNode.replaceChild( newToolbarBottom, toolbarBottom );
+				var buttons = newToolbarBottom.querySelectorAll("[on-tap]");
+				for( var i=0; i < buttons.length; i++){
+					var button = buttons[i];
+					button.addEventListener('tap',this.externalButtonEventHandler);
+				}
 
 				this.pageCache[ this.selectedPage.url ] = true;
 				var insertPoint = this.neonPages.selectedItem.firstElementChild;
@@ -408,6 +419,12 @@
 					_paq.push( [ 'trackEvent', "webclient", action + "_help" ] )
 				}
 				this.$.helpDialog.toggle();
+			},
+			externalButtonEventHandler:function(e){
+				console.log("externalButtonEventHandler:",e);
+				this.fire( 'toolbar-button-pressed', e.target||e.srcElement, {
+					key1:"value1"
+				} );
 			},
 			setToolbarClass: function( newToolbarBottom ) {
 				var mainToolbar = this.querySelector( "#mainToolbar" );

@@ -163,6 +163,16 @@
 					return ret;
 				}
 			} );
+			ToolbarButtonBehavior = {
+				_toolbarButtonPressed:function(e){
+					var target = e.target||e.srcElement;
+					var action = target.getAttribute("on-tap");
+					this[action]();
+				},
+				created: function() {
+					document.addEventListener("toolbar-button-pressed", this._toolbarButtonPressed.bind(this));
+				},
+			};
 
 			TranslationsBehavior = {
 				properties: {},
