@@ -102,6 +102,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private Server m_server;
 
+	private boolean m_notStarted = true;
+
 	private String m_basedir;
 
 	public Map<String,String> FILETYPES = createFiletypeMap();
@@ -159,6 +161,10 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 					String[] objectClass = (String[]) sr[i].getProperty("objectClass");
 					m_rpcServlet.putServiceMapping(rpc_prefix, objectClass[0]);
 					System.out.println("Jetty.ServiceName:" + objectClass[0] + "/rpc_prefix:" + rpc_prefix);
+					if( m_notStarted && rpc_prefix.equals("wamp")){
+						m_notStarted=false;
+		   			m_server.start();
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -272,7 +278,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}), "/*");
 		contexts.setHandlers(new Handler[] { context0, webappOpenfire, webAppActivemq });
 		m_server.setHandler(contexts);
-		m_server.start();
+//		m_server.start();
 		info("initJetty.ok");
 	}
 
@@ -652,6 +658,14 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		}
 		if (event.getType() == ServiceEvent.REGISTERED) {
 			debug("Ex1: Service of type " + objectClass[0] + " registered.rpc_prefix:" + rpc_prefix);
+			if( m_notStarted && rpc_prefix.equals("wamp")){
+				m_notStarted=false;
+				try{
+					m_server.start();
+				}catch( Exception e){
+					e.printStackTrace();
+				}
+			}
 			m_rpcServlet.putServiceMapping(rpc_prefix, objectClass[0]);
 		} else if (event.getType() == ServiceEvent.UNREGISTERING) {
 			m_rpcServlet.putServiceMapping(rpc_prefix, null);
@@ -687,13 +701,6 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		info("gitService:" + dbService);
 		this.m_gitService = dbService;
 	}
-
-/*	@Reference(dynamic = true)
-	public void setMiltonService(MiltonService miltonService) {
-		info("miltonService:" + miltonService);
-		this.m_miltonService = miltonService;
-	}*/
-
 	private boolean isAssetRequest(String target){
 		try{
 			String p[] = target.split("/");
