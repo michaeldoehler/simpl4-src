@@ -69,8 +69,8 @@
 			}
 			var self = this;
 			var dtMainElem = $( this.$.dataTablesId );
-			if ( dataSet && dataSet.length < 10 ) {
-//@@@No good idea				options.dom = "t";
+			if ( dataSet && dataSet.length < 10 && options && options.dom) {
+				options.dom = options.dom.replace("f","");
 			}
 			this._api = dtMainElem.DataTable( jQuery.extend( {
 				language: this.getLang(),
