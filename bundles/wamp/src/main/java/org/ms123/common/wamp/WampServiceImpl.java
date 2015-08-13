@@ -96,7 +96,9 @@ public class WampServiceImpl extends BaseWampServiceImpl implements WampService 
 			for (WampRouterSession.SessionContext context : realm.m_contextList) {
 				realm.removeSession(context, false);
 				String goodbye = WampCodec.encode(new GoodbyeMessage(null, ApplicationError.SYSTEM_SHUTDOWN));
-				context.webSocket.sendStringByFuture(goodbye);
+				if( context.webSocket != null){
+					context.webSocket.sendStringByFuture(goodbye);
+				}
 			}
 			realm.m_contextList.clear();
 		}
