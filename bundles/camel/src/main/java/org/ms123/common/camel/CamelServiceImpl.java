@@ -38,6 +38,7 @@ import org.ms123.common.auth.api.AuthService;
 import org.ms123.common.utils.UtilsService;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.git.GitService;
+import org.ms123.common.wamp.WampService;
 import org.ms123.common.store.StoreDesc;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
@@ -361,6 +362,11 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 	public void setGitService(GitService gitService) {
 		info("CamelServiceImpl.setGitService:" + gitService);
 		m_gitService = gitService;
+	}
+
+	@Reference(dynamic = true, optional = false)
+	public void setWampService(WampService wampService) {
+		info("CamelServiceImpl.setWampService:" + wampService);
 	}
 
 	@Reference(dynamic = true, optional=true)
