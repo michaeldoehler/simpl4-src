@@ -27,6 +27,9 @@
 			cursor: pointer;
 			-webkit-tap-highlight-color: lightgray;
 		}
+		span {
+			cursor: pointer;
+		}
 		span[selected] {
 			color: #fc0 !important;
 			font-weight: bold;
@@ -104,6 +107,16 @@
 					}
 				}
 			},
+			openChildren: function( div, icon ) {
+				if ( div.className.indexOf( 'parent' ) > -1 && div.nextElementSibling ) {
+					var current_display = div.nextElementSibling.style.display;
+					if ( current_display === 'none' ) {
+						div.className = 'parent expanded';
+						div.nextElementSibling.style.display = 'block';
+						icon.setAttribute( "icon", this.iconClose );
+					}
+				}
+			},
 			_selectItem: function( e ) {
 				var target = e.target || e.srcElement;
 				var span = target;
@@ -146,7 +159,7 @@
 					li = li.parentElement.parentElement;
 					var div = li.querySelector( "div[idvalue]" );
 					var icon = div.querySelector( "iron-icon" );
-					this.toggleChildren( div, icon );
+					this.openChildren( div, icon );
 				}
 			},
 			getItemById: function( id, node ) {
