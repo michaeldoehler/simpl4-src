@@ -56,6 +56,10 @@
 			padding: 0px 0 10px 15px;
 		}*/
 
+		:host /deep/  paper-ripple {
+			pointer-events: none;
+		}
+
 	</style>
 	<template>
 		<content></content>
@@ -189,10 +193,13 @@
 				var fontAwesome = document.createElement( 'font-awesome' );
 				var li = document.createElement( 'li' );
 				var a = document.createElement( 'a' );
+				var pr = document.createElement( 'paper-ripple' );
 				var t = document.createTextNode( node.name );
 				Polymer.dom( parent ).appendChild( li )
 				this._addNodeClasses( li, node.classes );
+				this._addNodeClasses( li, "menu__item,menu__item_primary" );
 				Polymer.dom( li ).appendChild( a )
+				Polymer.dom( li ).appendChild( pr )
 				Polymer.dom( a ).appendChild( fontAwesome );
 				Polymer.dom( a ).setAttribute( "style", 'cursor:pointer' );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );

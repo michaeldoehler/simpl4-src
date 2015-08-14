@@ -98,16 +98,14 @@
 		paper-toolbar.small {
 			height: 90px;
 		}
-		paper-toolbar#mainToolbar {
-			color: #D50303;
-			background: #f6f6f6;
-		}
-
 	:host /deep/ paper-icon-button iron-icon {
 		pointer-events: none;
 	}
 	:host /deep/ paper-icon-button  paper-ripple {
 		pointer-events: none;
+	}
+	neon-animatable{
+		position:relative;
 	}
 	</style>
 	<template>
@@ -121,19 +119,19 @@
 		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
 			<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
 				<div class="vertical layout" drawer>
-					<nav id="nav" class="layout vertical fit">
-						<div>
+					<div class="layout vertical brand_drawer_panel fit">
+						<div class="brand__area">
 							<a href="[[logoLinkLang]]" target="_blank">
-								<img id="logo" src='{{logo}}' style="max-height:120px;max-width:220px;padding-left:8px;padding-top:8px;padding-bottom:3px;border-width: 0px; border-style: solid;" />
+								<img src='{{logo}}' class="brand__logo"/>
 							</a>
 						</div>
 						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="true" searchfield="true" pages="{{getPages()}}" class="flex" />
-					</nav>
+					</div>
 				</div>
 
 				<paper-scroll-header-panel header-height="64" main>
 					<template is="dom-if" if="[[!toolbarProvided]]">
-						<paper-toolbar id="mainToolbar">
+						<paper-toolbar class="main__toolbar" id="mainToolbar">
 							<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
 							<h2 id="headlineId" class="flex">[[selectedPage.name]]</h2>
 							<template is="dom-if" if="[[selectedPage.help]]">
@@ -192,10 +190,6 @@
 				logoLink: {
 					type: String
 				},
-				toolbarBackground: {
-					observer: "toolbarBackgroundChanged",
-					type: String
-				},
 				loginMessage: {
 					value: 'Login',
 					type: String
@@ -215,10 +209,6 @@
 				toolbarProvided: {
 					value: false,
 					type: Boolean
-				},
-				logoBackground: {
-					value: null,
-					type: String
 				},
 				logo: {
 					value: 'logo.svg',
@@ -250,8 +240,6 @@
 				this.neonPages = this.$.pages;
 				//this.signInOutIcon="system-update-alt";
 				this.keys = this.$.keys;
-				$( this.$.logo ).css( "background", this.logoBackground );
-				$( this.$.nav ).css( "background", this.logoBackground );
 				// Allow selecting pages by num keypad. 
 				var keysToAdd = Array.apply( null, simpl4PageRegistry.getPages() ).map( function( x, i ) {
 					return i + 1;
@@ -270,12 +258,6 @@
 					this.globals = simpl4Globals.getAll();
 				}
 				return this.globals;
-			},
-			toolbarBackgroundChanged: function() {
-				this.async( function() {
-					var mainToolbar = this.querySelector( "#mainToolbar" );
-					$( mainToolbar ).css( "background", this.toolbarBackground );
-				}, 20 );
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );
