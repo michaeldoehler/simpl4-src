@@ -678,19 +678,31 @@
 	</template>
 </dom-module>
 
-
 <dom-module id="dropdown-field">
- <link rel="import" type="css" href="jquery.dropdown.css" />
+	<link rel="import" type="css" href="jquery.dropdown.css" />
 	<style>
 		:host {
 			padding: 0.75em 0;
 			--paper-input-container: {
 				padding: 0px;
-			};
+			}
+			;
+		}
+		:host.compact {
+			padding: 0;
 		}
 		:host #decorator.compact {
 			padding: 0;
 			margin: 0px;
+		}
+		:host /deep/ .floated-label-placeholder.compact {
+			display: none;
+		}
+		:host #label.compact {
+			display: none;
+		}
+		:host /deep/ div.dropdown-field > input.fakeinput {
+			font-size: 14px !important;
 		}
 
 	</style>
@@ -722,13 +734,32 @@
 				_dropdown: {
 					type: Object
 				},
+				jsonItems: {
+					type: String
+				},
 				items: {
 					type: Object
 				}
 			},
 			observers: [
-				'valueChanged(value)'
+				'valueChanged(value)',
+				'compactChanged(compact)',
+				'jsonItemsChanged(jsonItems)'
 			],
+			compactChanged: function( ) {
+				this.async( function() {
+					jQuery( this.decorator ).addClass( "compact" );
+					jQuery( this.$.label ).addClass( "compact" );
+					jQuery( this ).addClass( "compact" );
+					var e = this.$.decorator.querySelector( ".floated-label-placeholder" );
+					jQuery( e ).addClass( "compact" );
+				}, 20 );
+			},
+			jsonItemsChanged: function( v ) {
+				var o = JSON.parse( this.jsonItems );
+				console.log( "prsed:", o );
+				this.items = o;
+			},
 			valueChanged: function( v ) {
 				console.log( "drop-field(" + this.name + ").valueChanged;", this.value );
 			},
@@ -752,19 +783,18 @@
 			},
 			onCallback: function( dropdown ) {
 				this._dropdown = dropdown;
-				this.setStyleScope( this._dropdown.get(0), "style-scope", this.tagName.toLowerCase() ); 
+				this.setStyleScope( this._dropdown.get( 0 ), "style-scope", this.tagName.toLowerCase() );
 			},
 			attached: function() {
 				this.isDomReady = true;
 				if ( this.compact ) {
-					jQuery( this.decorator ).addClass( "compact" );
+					this.compactChanged();
 				}
 				this._options = {
 					onSelected: this.onSelected.bind( this ),
 					callback: this.onCallback.bind( this ),
 					optionClass: this.name
 				}
-
 				this.async( function() {
 					$( this.$.select ).dropdown( this._options );
 				} );

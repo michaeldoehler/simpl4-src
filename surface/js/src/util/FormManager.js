@@ -77,7 +77,7 @@ simpl4.util.BaseManager.extend( "simpl4.util.FormManager", {
 		var attributes = this.constructAttributes( filter.type, filter.label, c, filter.dataValues != null );
 		if ( filter.dataValues ) {
 			rule.find( ".rule-value-container" ).
-			append( '<dropdown-field ' + attributes + ' name="' + rule.selector.substring( 1 ) + '_value_0" >' + this.getSelectables( filter.dataValues ) + '</dropdown-field>' );
+ 			append( "<dropdown-field " + attributes + " name='" + rule.selector.substring( 1 ) + "_value_0' json-items='"+JSON.stringify(filter.dataValues)+"'></dropdown-field>" );
 		} else {
 			rule.find( ".rule-value-container" ).
 			append( '<input-field ' + attributes + ' ' + regulaConstraints + ' name="' + rule.selector.substring( 1 ) + '_value_0" ></input-field>' );
