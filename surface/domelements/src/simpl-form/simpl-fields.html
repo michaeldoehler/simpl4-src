@@ -747,6 +747,8 @@
 				'jsonItemsChanged(jsonItems)'
 			],
 			compactChanged: function( ) {
+				console.log("compactChanged:", this.compact);
+				if( this.compact === false) return;
 				this.async( function() {
 					jQuery( this.decorator ).addClass( "compact" );
 					jQuery( this.$.label ).addClass( "compact" );
