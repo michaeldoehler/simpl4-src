@@ -602,7 +602,7 @@ html.mm-opened.mm-dragging #mm-blocker {
   top: 40px; }
 
 .mm-hasnavbar-top-2 .mm-panel {
-  top: 80px; }
+  top: 80px !important; }
 .mm-hasnavbar-top-2 .mm-indexer {
   top: 90px; }
 .mm-hasnavbar-top-2 .mm-fixeddivider {
