@@ -1949,11 +1949,7 @@ window.CustomElements.addModule(function(scope) {
     if (Object.__proto__) {
       element.__proto__ = definition.prototype;
     } else {
-try{ //@@@MS must be investigated
-      customMixin(element, definition.prototype, definition.native);
-}catch(e){
-	console.error("customMixin error:",e);
-}
+			customMixin(element, definition.prototype, definition.native);
       element.__proto__ = definition.prototype;
     }
   }
@@ -1964,6 +1960,7 @@ try{ //@@@MS must be investigated
       var keys = Object.getOwnPropertyNames(p);
       for (var i = 0, k; k = keys[i]; i++) {
         if (!used[k]) {
+					if( k == "recordset") continue; //@@@MS must be investigated, seams only one name is not allowed: "recordset"
           Object.defineProperty(inTarget, k, Object.getOwnPropertyDescriptor(p, k));
           used[k] = 1;
         }
