@@ -138,9 +138,9 @@
 				ready: function() {
 					console.debug( "simpl-globals.ready:" + tr( 'data.customer.cid' ) );
 					this.selectedPage = {
-						scope:"asciidoctor-default"
+						scope: "asciidoctor-default"
 					}
-					this.importSheet("asciidoc.css");
+					this.importSheet( "asciidoc.css" );
 				},
 				namespaceChanged: function() {
 					simpl4MessageManager.installMessages( this.namespace );
@@ -164,13 +164,13 @@
 				}
 			} );
 			ToolbarButtonBehavior = {
-				_toolbarButtonPressed:function(e){
-					var target = e.target||e.srcElement;
-					var action = target.getAttribute("on-tap");
-					this[action]();
+				_toolbarButtonPressed: function( e ) {
+					var target = e.target || e.srcElement;
+					var action = target.getAttribute( "on-tap" );
+					this[ action ]();
 				},
 				created: function() {
-					document.addEventListener("toolbar-button-pressed", this._toolbarButtonPressed.bind(this));
+					document.addEventListener( "toolbar-button-pressed", this._toolbarButtonPressed.bind( this ) );
 				},
 			};
 
@@ -187,20 +187,28 @@
 
 			StyleScopeBehavior = {
 				setStyleScope: function( main_el ) {
-					var args  = [];
+					var args = [];
 					for ( i = 1; i < arguments.length; i++ ) {
-						if( arguments[i] != null){
-							args.push( arguments[i]);
+						if ( arguments[ i ] != null ) {
+							args.push( arguments[ i ] );
 						}
 					}
-					if( args.length==0){
+					if ( args.length == 0 ) {
 						return;
 					}
 					console.debug( "args:", args );
 					this._domVisitor( main_el, function( el ) {
 						for ( i = 0; i < args.length; i++ ) {
 							if ( !$( el ).hasClass( args[ i ] ) && el.nodeType == 1 ) {
-								el.classList.add( args[ i ] )
+								if ( el.classList == null ) {
+									console.log( "el:", el );
+								} else {
+									try { //@@@MS SVG-Elements in IE
+										el.classList.add( args[ i ] )
+									} catch ( e ) {
+										console.log( "classList:", e );
+									}
+								}
 							}
 						}
 					} );
