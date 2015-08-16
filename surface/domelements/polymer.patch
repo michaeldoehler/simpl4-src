@@ -1,0 +1,37 @@
+				if( !document.styleSheets[0].rules){
+					target.insertBefore( style, afterNode && afterNode.nextSibling || target.firstChild );
+				}else{
+					if( window._cssContext == null ){
+						var curIndex = document.styleSheets.length;
+						window._cssContext = {};
+						window._cssContext.currentSheetIndex = curIndex;
+						window._cssContext.lastSheetIndex = curIndex+ 10;
+						window._cssContext.currentRuleIndex = 0;
+						for(var i=0; i < 2; i++){
+							var style = document.createElement( 'style' );
+							target.appendChild( style);
+							style.setAttribute( 'scope', "ms123"+i );
+						}
+					}
+					var ctx = window._cssContext;
+					target.appendChild( style);
+					var rules = document.styleSheets[document.styleSheets.length-1].rules;
+					target.removeChild( style);
+					if( document.styleSheets.length > 30){
+						alert("Too much styles");
+					}
+					var sheet = document.styleSheets[ctx.currentSheetIndex];
+//console.log("Sheetnum:",ctx.currentSheetIndex+"/"+ctx.currentRuleIndex+"/"+rules.length);
+					for( var i=0; i< rules.length;i++){
+						var rule= rules[i];
+						var cssText = rule.cssText;
+						var selectorText = rule.selectorText;
+						var styleText = cssText.substring(selectorText.length+2,cssText.length-2);
+						sheet.addRule(selectorText, styleText,ctx.currentRuleIndex++);
+						if( ctx.currentRuleIndex> 4095){
+							ctx.currentSheetIndex++;
+							sheet = document.styleSheets[ctx.currentSheetIndex];
+							ctx.currentRuleIndex=0;
+						}
+					}
+				}
