@@ -61,7 +61,7 @@ dd.rules-group-body{
   .query-builder .rule-container select,
   .query-builder .rule-container input[type=text],
   .query-builder .rule-container input[type=number] {
-    padding:1px;
+//    padding:1px;
     margin-bottom:4px;
   }
 
