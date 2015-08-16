@@ -1949,7 +1949,11 @@ window.CustomElements.addModule(function(scope) {
     if (Object.__proto__) {
       element.__proto__ = definition.prototype;
     } else {
+try{ //@@@MS must be investigated
       customMixin(element, definition.prototype, definition.native);
+}catch(e){
+	console.error("customMixin error:",e);
+}
       element.__proto__ = definition.prototype;
     }
   }

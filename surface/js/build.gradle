@@ -2,8 +2,12 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
+		fileset(file:'libs/debug-ie-dummy.js')
+		fileset(file:'libs/browser-detect.js')
 		fileset(file:'libs/require-dummy.js')
 		fileset(file:'libs/classlist.js')
+		fileset(file:'libs/date-now.js')
+		fileset(file:'libs/request-animationframe.js')
 		fileset(file:'libs/matchmedia.js')
 		fileset(file:'libs/underscore.js')
 		fileset(file:'libs/jquery-2.1.1.js')

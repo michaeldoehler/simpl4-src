@@ -1,70 +1,64 @@
-(function () {
 
-if (typeof window.Element === "undefined" || "classList" in document.documentElement) return;
-
-var prototype = Array.prototype,
-    push = prototype.push,
-    splice = prototype.splice,
-    join = prototype.join;
-
-function DOMTokenList(el) {
-  this.el = el;
-  // The className needs to be trimmed and split on whitespace
-  // to retrieve a list of classes.
-  var classes = el.className.replace(/^\s+|\s+$/g,'').split(/\s+/);
-  for (var i = 0; i < classes.length; i++) {
-    push.call(this, classes[i]);
-  }
-};
-
-DOMTokenList.prototype = {
-  add: function(token) {
-    if(this.contains(token)) return;
-    push.call(this, token);
-    this.el.className = this.toString();
-  },
-  contains: function(token) {
-    return this.el.className.indexOf(token) != -1;
-  },
-  item: function(index) {
-    return this[index] || null;
-  },
-  remove: function(token) {
-    if (!this.contains(token)) return;
-    for (var i = 0; i < this.length; i++) {
-      if (this[i] == token) break;
-    }
-    splice.call(this, i, 1);
-    this.el.className = this.toString();
-  },
-  toString: function() {
-    return join.call(this, ' ');
-  },
-  toggle: function(token) {
-    if (!this.contains(token)) {
-      this.add(token);
-    } else {
-      this.remove(token);
-    }
-
-    return this.contains(token);
-  }
-};
-
-window.DOMTokenList = DOMTokenList;
-
-function defineElementGetter (obj, prop, getter) {
-    if (Object.defineProperty) {
-        Object.defineProperty(obj, prop,{
-            get : getter
-        });
-    } else {
-        obj.__defineGetter__(prop, getter);
-    }
-}
-
-defineElementGetter(Element.prototype, 'classList', function () {
-  return new DOMTokenList(this);
-});
-
+// Array.indexOf
+;(function(){
+	if (!Array.prototype.indexOf){
+		Array.prototype.indexOf = function(elt /*, from*/){
+			var l = this.length >>> 0;
+			var from = Number(arguments[1]) || 0;
+			from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+			if (from < 0) from += l;
+			for (; from < l; from++) {
+				if (from in this && this[from] === elt)
+					return from;
+			}
+			return -1;
+		};
+	}
+})();
+// HTMLElement.classList
+;(function(){
+	if (!("classList" in document.documentElement)) {
+		function addClassList(e) {
+			Object.defineProperty(e.prototype, 'classList', {
+				get: function() {
+					var self = this, cls = self.className.split(/\s+/g);
+					function _update(type) {
+						return function(value) {
+							var index = cls.indexOf(value), isToggle = type == "toggle";
+							if (isToggle) {
+								type = ~index ? "remove" : "add";
+							}
+							if (type == "add") {
+								~index || cls.push(value);
+							} else if (type == "remove") {
+								~index && cls.splice(index, 1);
+							}
+							self.className = cls.join(" ");
+							if (isToggle) {
+								return !~index;
+							}
+						}
+					};
+					cls.add = _update("add");
+					cls.remove = _update("remove");
+					cls.toggle = _update("toggle");
+					cls.contains = function(value) {
+						return !!~cls.indexOf(value);
+					};
+					cls.item = function(i) {
+						return cls[i] || null;
+					};
+					return cls;
+				}
+			});
+		};
+		if (window.HTMLElement) {
+			addClassList(HTMLElement);
+		} else {
+			var doms = ["HTMLAnchorElement", "HTMLAreaElement", "HTMLBRElement", "HTMLBaseElement", "HTMLBodyElement", "HTMLButtonElement", "HTMLDListElement", "HTMLDivElement", "HTMLDocument", "HTMLEmbedElement", "HTMLFieldSetElement", "HTMLFontElement", "HTMLFormElement", "HTMLFrameElement", "HTMLFrameSetElement", "HTMLHRElement", "HTMLHeadElement", "HTMLHeadingElement", "HTMLHtmlElement", "HTMLIFrameElement", "HTMLImageElement", "HTMLInputElement", "HTMLLIElement", "HTMLLabelElement", "HTMLLegendElement", "HTMLLinkElement", "HTMLMapElement", "HTMLMarqueeElement", "HTMLMetaElement", "HTMLOListElement", "HTMLObjectElement", "HTMLOptionElement", "HTMLParagraphElement", "HTMLParamElement", "HTMLScriptElement", "HTMLSelectElement", "HTMLSpanElement", "HTMLStyleElement", "HTMLTableCaptionElement", "HTMLTableCellElement", "HTMLTableColElement", "HTMLTableElement", "HTMLTableRowElement", "HTMLTableSectionElement", "HTMLTextAreaElement", "HTMLTitleElement", "HTMLUListElement", "HTMLUnknownElement"];
+			for (var i = 0; i < doms.length; i++) {
+				window[doms[i]] && addClassList(window[doms[i]]);
+			}
+		}
+	}
 })();
