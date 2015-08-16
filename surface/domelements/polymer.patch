@@ -1,4 +1,4 @@
-				if( !document.styleSheets[0].rules){
+				if( BrowserDetect.browser != 'Explorer' || BrowserDetect.version > 9){
 					target.insertBefore( style, afterNode && afterNode.nextSibling || target.firstChild );
 				}else{
 					if( window._cssContext == null ){
