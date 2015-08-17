@@ -1,0 +1,3 @@
+					if( c.parentNode){ //@@@MS , if <content></content> have no parent, ie. paper-toolbar, paper-material
+						saveLightChildrenIfNeeded( c.parentNode );
+					}
