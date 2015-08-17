@@ -1,37 +1,69 @@
 				if( BrowserDetect.browser != 'Explorer' || BrowserDetect.version > 9){
 					target.insertBefore( style, afterNode && afterNode.nextSibling || target.firstChild );
-				}else{
-					if( window._cssContext == null ){
-						var curIndex = document.styleSheets.length;
+				} else {
+					function countSelectors(sheet) {
+						var count = 0;
+						if( !sheet || !sheet.cssRules){
+								return;
+						}
+						for (var j = 0, l = sheet.cssRules.length; j < l; j++) {
+							if (!sheet.cssRules[j].selectorText) {
+								if (sheet.cssRules[j].cssRules) {
+									for (var m = 0, n = sheet.cssRules[j].cssRules.length; m < n; m++) {
+										if(sheet.cssRules[j].cssRules[m].selectorText) {
+											count += sheet.cssRules[j].cssRules[m].selectorText.split(',').length;
+										}
+									}
+								}
+							} else {
+								count += sheet.cssRules[j].selectorText.split(',').length;
+							}
+						}
+						if (count >= 4096) {
+							console.error('\n********************************\nWARNING:\n There are ' + count + ' CSS rules in the stylesheet - IE will ignore the last ' + (count - 4096) + ' rules!\n');
+						}
+						return count;
+					}
+
+					function getStyle(index){
+						var sel = "style[scope='ms123-"+index+"']";
+						return document.head.querySelector(sel);
+					}
+					if ( window._cssContext == null ) {
+						/*Remove unused style*/
+						var styles = document.querySelectorAll("style");
+						for( var i = 0; i < styles.length;i++){
+							var style = styles[i];
+							if( style.sheet.rules.length == 0){
+								style.parentNode.removeChild(style);
+							}
+						}
+						if ( document.styleSheets.length > 28 ) {
+							console.error( "More than 28 style's in use" );
+							return;
+						}
+						var startSheetInex = document.styleSheets.length;
 						window._cssContext = {};
-						window._cssContext.currentSheetIndex = curIndex;
-						window._cssContext.lastSheetIndex = curIndex+ 10;
-						window._cssContext.currentRuleIndex = 0;
-						for(var i=0; i < 2; i++){
+						window._cssContext.currentSheetIndex = document.styleSheets.length;
+						window._cssContext.currentCssText = '';
+						for ( var i = 0; i < 3; i++ ) { /*Reserved style for later use*/
 							var style = document.createElement( 'style' );
-							target.appendChild( style);
-							style.setAttribute( 'scope', "ms123"+i );
+							target.appendChild( style );
+							style.setAttribute( 'scope', "ms123-" + (startSheetInex+i) );
 						}
 					}
 					var ctx = window._cssContext;
-					target.appendChild( style);
-					var rules = document.styleSheets[document.styleSheets.length-1].rules;
-					target.removeChild( style);
-					if( document.styleSheets.length > 30){
-						alert("Too much styles");
-					}
-					var sheet = document.styleSheets[ctx.currentSheetIndex];
-//console.log("Sheetnum:",ctx.currentSheetIndex+"/"+ctx.currentRuleIndex+"/"+rules.length);
-					for( var i=0; i< rules.length;i++){
-						var rule= rules[i];
-						var cssText = rule.cssText;
-						var selectorText = rule.selectorText;
-						var styleText = cssText.substring(selectorText.length+2,cssText.length-2);
-						sheet.addRule(selectorText, styleText,ctx.currentRuleIndex++);
-						if( ctx.currentRuleIndex> 4095){
-							ctx.currentSheetIndex++;
-							sheet = document.styleSheets[ctx.currentSheetIndex];
-							ctx.currentRuleIndex=0;
-						}
+					var style = getStyle(ctx.currentSheetIndex);
+					style.innerHTML = ctx.currentCssText + "\n" + cssText;
+					var count = countSelectors(style.sheet);
+					if( count < 3800){
+						ctx.currentCssText = ctx.currentCssText + "\n" + cssText;
+					}else{
+						style.innerHTML = ctx.currentCssText;
+						ctx.currentSheetIndex++;
+						ctx.currentCssText = cssText;
+						style = getStyle(ctx.currentSheetIndex);
+						ctx.currentCssText = cssText;
+						style.innerHTML = ctx.currentCssText;
 					}
 				}
