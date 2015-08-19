@@ -152,6 +152,7 @@
 					type: String
 				},
 				entity: {
+					observer:"entityChanged",
 					type: String
 				},
 				filter: {
@@ -163,8 +164,12 @@
 			getSearchModeIcon: function() {
 				return this.searchModeIcon;
 			},
+			entityChanged:function(){
+				this.attached();
+			},
 			attached: function() {
 				console.debug( "Filter.attached.Entity:", this.entity + "/namespace:" + this.namespace );
+				if( this.entity == null) return;
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
 				} );
