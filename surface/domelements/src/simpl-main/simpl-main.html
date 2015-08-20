@@ -100,6 +100,12 @@
 		paper-toolbar.small {
 			height: 90px;
 		}
+		:host.ie9 paper-toolbar {
+			overflow: hidden;
+		}
+		:host.ie9 #headlineId {
+			display: inline;
+		}
 	:host /deep/ paper-icon-button iron-icon {
 		pointer-events: none;
 	}
@@ -120,8 +126,8 @@
 
 		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
 			<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
-				<div class="vertical layout" drawer>
-					<div class="layout vertical brand_drawer_panel fit">
+				<div class="column grid" drawer>
+					<div class="grid column brand_drawer_panel fit">
 						<div class="brand__area">
 							<a href="[[logoLinkLang]]" target="_blank">
 								<img src='{{logo}}' class="brand__logo"/>
@@ -135,12 +141,12 @@
 					<template is="dom-if" if="[[!toolbarProvided]]">
 						<paper-toolbar class="main__toolbar" id="mainToolbar">
 							<paper-icon-button id="menuButton" icon="menu" on-tap="togglePanel"></paper-icon-button>
-							<h2 id="headlineId" class="flex">[[selectedPage.name]]</h2>
+							<div id="headlineId" class="flex">[[selectedPage.name]]</div>
 							<template is="dom-if" if="[[selectedPage.help]]">
-								<div>
+								<span>
 									<paper-tooltip>[[helpMessage]]</paper-tooltip>
 									<paper-icon-button on-click="showHelp" icon="help"></paper-icon-button>
-								</div>
+								</span>
 							</template>
 							<paper-icon-button on-click="reload" class="langIcon" src="[[getLangIcon()]]"></paper-icon-button>
 							<template is="dom-if" if="[[signInOutIcon]]">
@@ -149,7 +155,7 @@
 									<paper-icon-button on-click="login" icon="[[signInOutIcon]]"></paper-icon-button>
 								</div>
 							</template>
-							<div class="toolbar bottom horizontal layout"> </div> <!--insertpoint toolbar-bottom-->
+							<div class="toolbar bottom row grid"> </div> <!--insertpoint toolbar-bottom-->
 						</paper-toolbar>
 					</template>
 
@@ -171,7 +177,7 @@
 
 		<paper-dialog with-backdrop id="helpDialog">
 			<paper-dialog-scrollable>
-				<simpl-import style="[[getHelpDialogStyle()]]" class="flex layout horizontal" id="helpImport" url="{{substituteLang(selectedPage.help,1)}}"></simpl-import>
+				<simpl-import style="[[getHelpDialogStyle()]]" class="flex grid row" id="helpImport" url="{{substituteLang(selectedPage.help,1)}}"></simpl-import>
 			</paper-dialog-scrollable>
 		</paper-dialog>
 		<!--paper-dialog id="loginDialog">
@@ -183,6 +189,7 @@
 			is: 'simpl-main',
 			behaviors: [
 				CSSImportBehavior,
+				ModernizrBehavior,
 				StyleScopeBehavior
 			],
 			properties: {
