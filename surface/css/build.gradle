@@ -2,10 +2,9 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${cssLibs}") {
-//		fileset(file:'libs/asciidoctor.css')
 		fileset(file:'libs/font-awesome.css')
-		fileset(file:'libs/layout-columns.css')
 		fileset(file:'libs/pikaday.css')
+		fileset(file:'libs/reflex.css')
 		fileset(dir:'css',includes:'**/*.css')
 	}
 	ant.gzip( src:"${surfaceBuild}/${cssLibs}",destfile:"${surfaceBuild}/${cssLibs}.gz")

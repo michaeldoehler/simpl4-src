@@ -1,0 +1,624 @@
+/*!
+ *
+ * Reflex v1.0
+ *
+ * Reflex is a flexbox grid which provides a way to take advantage of emerging
+ * flexbox support while providing a fall back to inline-block on older browsers
+ *
+ * Built by Lee Jordan G.C.S.E.
+ * email: ldjordan$gmail.com
+ * github: https://github.com/leejordan
+ *
+ * Structure and calculations are inspired by twitter bootstrap
+ *
+ */
+
+.order-12 {
+	-webkit-order: 12;
+	order: 12;
+}
+.order-11 {
+	-webkit-order: 11;
+	order: 11;
+}
+.order-10 {
+	-webkit-order: 10;
+	order: 10;
+}
+.order-9 {
+	-webkit-order: 9;
+	order: 9;
+}
+.order-8 {
+	-webkit-order: 8;
+	order: 8;
+}
+.order-7 {
+	-webkit-order: 7;
+	order: 7;
+}
+.order-6 {
+	-webkit-order: 6;
+	order: 6;
+}
+.order-5 {
+	-webkit-order: 5;
+	order: 5;
+}
+.order-4 {
+	-webkit-order: 4;
+	order: 4;
+}
+.order-3 {
+	-webkit-order: 3;
+	order: 3;
+}
+.order-2 {
+	-webkit-order: 2;
+	order: 2;
+}
+.order-1 {
+	-webkit-order: 1;
+	order: 1;
+}
+.order-0 {
+	-webkit-order: 0;
+	order: 0;
+}
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+*:before,
+*:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.grid {
+	display: inline-block;
+	display: -webkit-flex;
+	display: flex;
+	*display: inline;
+	zoom: 1;
+	-webkit-flex-wrap: wrap;
+	flex-wrap: wrap;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	max-width: 100%;
+	list-style-type: none;
+}
+.grid:before,
+.grid:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	max-width: 100%;
+}
+.grid *:before,
+.grid *:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.grid .grid {
+	-webkit-flex: 1 1 auto;
+	flex: 1 1 auto;
+}
+.no-flexbox .grid,
+.no-flexbox .layout {
+	display: inline-block !important;
+	*display: inline;
+	zoom: 1;
+}
+[class*="col-"] {
+	display: inline-block;
+	display: -webkit-flex;
+	display: flex;
+	*display: inline;
+	zoom: 1;
+	text-align: left;
+	text-align: start;
+	position: relative;
+	width: 100%;
+	vertical-align: top;
+	padding: 1em;
+}
+.no-flexbox [class*="col-"] {
+	display: inline-block !important;
+	*display: inline;
+	zoom: 1;
+}
+.cell {
+	display: block;
+	-webkit-flex: 1 1 auto;
+	flex: 1 1 auto;
+}
+_:-ms-fullscreen,
+:root .reflex-col-cell {
+	width: 100%;
+}
+.col-12 {
+	width: 100%;
+	*width: 99.9%;
+}
+.col-11 {
+	width: 91.66667%;
+	*width: 91.56667%;
+}
+.col-10 {
+	width: 83.33333%;
+	*width: 83.23333%;
+}
+.col-9 {
+	width: 75%;
+	*width: 74.9%;
+}
+.col-8 {
+	width: 66.66667%;
+	*width: 66.56667%;
+}
+.col-7 {
+	width: 58.33333%;
+	*width: 58.23333%;
+}
+.col-6 {
+	width: 50%;
+	*width: 49.9%;
+}
+.col-5 {
+	width: 41.66667%;
+	*width: 41.56667%;
+}
+.col-4 {
+	width: 33.33333%;
+	*width: 33.23333%;
+}
+.col-3 {
+	width: 25%;
+	*width: 24.9%;
+}
+.col-2 {
+	width: 16.66667%;
+	*width: 16.56667%;
+}
+.col-1 {
+	width: 8.33333%;
+	*width: 8.23333%;
+}
+@media (max-width: 640px) {
+	.col-xs-12 {
+		width: 100%;
+		*width: 99.9%;
+	}
+	.col-xs-11 {
+		width: 91.66667%;
+		*width: 91.56667%;
+	}
+	.col-xs-10 {
+		width: 83.33333%;
+		*width: 83.23333%;
+	}
+	.col-xs-9 {
+		width: 75%;
+		*width: 74.9%;
+	}
+	.col-xs-8 {
+		width: 66.66667%;
+		*width: 66.56667%;
+	}
+	.col-xs-7 {
+		width: 58.33333%;
+		*width: 58.23333%;
+	}
+	.col-xs-6 {
+		width: 50%;
+		*width: 49.9%;
+	}
+	.col-xs-5 {
+		width: 41.66667%;
+		*width: 41.56667%;
+	}
+	.col-xs-4 {
+		width: 33.33333%;
+		*width: 33.23333%;
+	}
+	.col-xs-3 {
+		width: 25%;
+		*width: 24.9%;
+	}
+	.col-xs-2 {
+		width: 16.66667%;
+		*width: 16.56667%;
+	}
+	.col-xs-1 {
+		width: 8.33333%;
+		*width: 8.23333%;
+	}
+}
+@media (min-width: 641px) {
+	.col-sm-12 {
+		width: 100%;
+		*width: 99.9%;
+	}
+	.col-sm-11 {
+		width: 91.66667%;
+		*width: 91.56667%;
+	}
+	.col-sm-10 {
+		width: 83.33333%;
+		*width: 83.23333%;
+	}
+	.col-sm-9 {
+		width: 75%;
+		*width: 74.9%;
+	}
+	.col-sm-8 {
+		width: 66.66667%;
+		*width: 66.56667%;
+	}
+	.col-sm-7 {
+		width: 58.33333%;
+		*width: 58.23333%;
+	}
+	.col-sm-6 {
+		width: 50%;
+		*width: 49.9%;
+	}
+	.col-sm-5 {
+		width: 41.66667%;
+		*width: 41.56667%;
+	}
+	.col-sm-4 {
+		width: 33.33333%;
+		*width: 33.23333%;
+	}
+	.col-sm-3 {
+		width: 25%;
+		*width: 24.9%;
+	}
+	.col-sm-2 {
+		width: 16.66667%;
+		*width: 16.56667%;
+	}
+	.col-sm-1 {
+		width: 8.33333%;
+		*width: 8.23333%;
+	}
+}
+@media (min-width: 1025px) {
+	.col-md-12 {
+		width: 100%;
+		*width: 99.9%;
+	}
+	.col-md-11 {
+		width: 91.66667%;
+		*width: 91.56667%;
+	}
+	.col-md-10 {
+		width: 83.33333%;
+		*width: 83.23333%;
+	}
+	.col-md-9 {
+		width: 75%;
+		*width: 74.9%;
+	}
+	.col-md-8 {
+		width: 66.66667%;
+		*width: 66.56667%;
+	}
+	.col-md-7 {
+		width: 58.33333%;
+		*width: 58.23333%;
+	}
+	.col-md-6 {
+		width: 50%;
+		*width: 49.9%;
+	}
+	.col-md-5 {
+		width: 41.66667%;
+		*width: 41.56667%;
+	}
+	.col-md-4 {
+		width: 33.33333%;
+		*width: 33.23333%;
+	}
+	.col-md-3 {
+		width: 25%;
+		*width: 24.9%;
+	}
+	.col-md-2 {
+		width: 16.66667%;
+		*width: 16.56667%;
+	}
+	.col-md-1 {
+		width: 8.33333%;
+		*width: 8.23333%;
+	}
+}
+@media (min-width: 1225px) {
+	.col-lg-12 {
+		width: 100%;
+		*width: 99.9%;
+	}
+	.col-lg-11 {
+		width: 91.66667%;
+		*width: 91.56667%;
+	}
+	.col-lg-10 {
+		width: 83.33333%;
+		*width: 83.23333%;
+	}
+	.col-lg-9 {
+		width: 75%;
+		*width: 74.9%;
+	}
+	.col-lg-8 {
+		width: 66.66667%;
+		*width: 66.56667%;
+	}
+	.col-lg-7 {
+		width: 58.33333%;
+		*width: 58.23333%;
+	}
+	.col-lg-6 {
+		width: 50%;
+		*width: 49.9%;
+	}
+	.col-lg-5 {
+		width: 41.66667%;
+		*width: 41.56667%;
+	}
+	.col-lg-4 {
+		width: 33.33333%;
+		*width: 33.23333%;
+	}
+	.col-lg-3 {
+		width: 25%;
+		*width: 24.9%;
+	}
+	.col-lg-2 {
+		width: 16.66667%;
+		*width: 16.56667%;
+	}
+	.col-lg-1 {
+		width: 8.33333%;
+		*width: 8.23333%;
+	}
+}
+@media (min-width: 1441px) {
+	.col-xl-12 {
+		width: 100%;
+		*width: 99.9%;
+	}
+	.col-xl-11 {
+		width: 91.66667%;
+		*width: 91.56667%;
+	}
+	.col-xl-10 {
+		width: 83.33333%;
+		*width: 83.23333%;
+	}
+	.col-xl-9 {
+		width: 75%;
+		*width: 74.9%;
+	}
+	.col-xl-8 {
+		width: 66.66667%;
+		*width: 66.56667%;
+	}
+	.col-xl-7 {
+		width: 58.33333%;
+		*width: 58.23333%;
+	}
+	.col-xl-6 {
+		width: 50%;
+		*width: 49.9%;
+	}
+	.col-xl-5 {
+		width: 41.66667%;
+		*width: 41.56667%;
+	}
+	.col-xl-4 {
+		width: 33.33333%;
+		*width: 33.23333%;
+	}
+	.col-xl-3 {
+		width: 25%;
+		*width: 24.9%;
+	}
+	.col-xl-2 {
+		width: 16.66667%;
+		*width: 16.56667%;
+	}
+	.col-xl-1 {
+		width: 8.33333%;
+		*width: 8.23333%;
+	}
+}
+.bleed [class*="col-"] {
+	padding: 0;
+}
+.wrap {
+	-webkit-flex-wrap: wrap;
+	flex-wrap: wrap;
+}
+.no-wrap {
+	-webkit-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+}
+.wrap-reverse {
+	-webkit-flex-wrap: wrap-reverse;
+	flex-wrap: wrap-reverse;
+}
+.row,
+.horizotal {
+	-webkit-flex-direction: row;
+	flex-direction: row;
+}
+.row-reverse,
+.horizotal-reverse {
+	-webkit-flex-direction: row-reverse;
+	flex-direction: row-reverse;
+}
+.column,
+.vertical {
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+.column-reverse,
+.vertical-reverse {
+	-webkit-flex-direction: column-reverse;
+	flex-direction: column-reverse;
+}
+.align-start {
+	-webkit-align-items: flex-start;
+	align-items: flex-start;
+}
+.align-end {
+	-webkit-align-items: flex-end;
+	align-items: flex-end;
+}
+.align-end [class*="col-"] {
+	vertical-align: bottom;
+}
+.align-center {
+	-webkit-align-items: center;
+	align-items: center;
+}
+.align-center [class*="col-"] {
+	vertical-align: middle;
+}
+.align-baseline {
+	-webkit-align-items: baseline;
+	align-items: baseline;
+}
+.align-baseline [class*="col-"] {
+	vertical-align: baseline;
+}
+.align-content-start {
+	-webkit-align-content: flex-start;
+	align-content: flex-start;
+}
+.align-content-end {
+	-webkit-align-content: flex-end;
+	align-content: flex-end;
+}
+.align-content-end [class*="col-"] {
+	vertical-align: bottom;
+}
+.align-content-center {
+	-webkit-align-content: center;
+	align-content: center;
+}
+.align-content-space-between {
+	-webkit-align-content: space-between;
+	align-content: space-between;
+}
+.align-content-space-around {
+	-webkit-align-content: space-around;
+	align-content: space-around;
+}
+.align-self-stretch {
+	-webkit-align-self: stretch;
+	align-self: stretch;
+}
+.align-self-start {
+	-webkit-align-self: flex-start;
+	align-self: flex-start;
+}
+.align-self-end {
+	-webkit-align-self: flex-end;
+	align-self: flex-end;
+	vertical-align: bottom;
+}
+.align-self-center {
+	-webkit-align-self: center;
+	align-self: center;
+	vertical-align: middle;
+}
+.align-self-baseline {
+	-webkit-align-self: baseline;
+	align-self: baseline;
+	vertical-align: baseline;
+}
+.justify-start {
+	text-align: left;
+	-webkit-justify-content: flex-start;
+	justify-content: flex-start;
+}
+.justify-end {
+	text-align: right;
+	-webkit-justify-content: flex-end;
+	justify-content: flex-end;
+}
+.justify-end .cell {
+	text-align: left;
+	text-align: start;
+}
+.justify-center {
+	text-align: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+}
+.justify-center .cell {
+	text-align: left;
+	text-align: start;
+}
+.justify-space-between {
+	text-align: justify;
+	-moz-text-align-last: justify;
+	text-align-last: justify;
+	-webkit-justify-content: space-between;
+	justify-content: space-between;
+}
+.justify-space-between .cell {
+	text-align: left;
+	text-align: start;
+}
+.justify-space-around {
+	text-align: justify;
+	-moz-text-align-last: justify;
+	text-align-last: justify;
+	-webkit-justify-content: space-around;
+	justify-content: space-around;
+}
+.justify-space-around .cell {
+	text-align: left;
+	text-align: start;
+}
+.bleed {
+	padding: 0;
+}
+.padding-sm {
+	padding: 0.5em;
+}
+.padding-md {
+	padding: 1em;
+}
+.padding-lg {
+	padding: 2em;
+}
+.cell-img {
+	display: block;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex: 0 0 auto;
+	flex: 0 0 auto;
+	margin-left: 0;
+	margin-right: 0;
+	max-width: 100%;
+	width: 100%;
+	height: auto;
+}
+.cell-footer {
+	display: inline-block;
+	display: -webkit-flex;
+	display: flex;
+	*display: inline;
+	zoom: 1;
+	width: 100%;
+	margin-top: auto;
+}
