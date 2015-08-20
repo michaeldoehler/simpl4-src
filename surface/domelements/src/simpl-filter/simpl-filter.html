@@ -200,9 +200,11 @@
 					} ]
 				} );
 				this.isBuilderInitialized = true;
+				this.searchMode = "simple";
+				this.setSearchMode(this.searchMode);
 				this.async( function() {
 					this.setStyleScope( this.$.builder, "style-scope", this.tagName.toLowerCase() );
-					this.toggleSearchMode();
+					//this.toggleSearchMode();
 				} );
 			},
 			renameOne: function( from, to, model ) {
@@ -272,12 +274,12 @@
 			loadSearch: function( e ) {},
 			saveSearch: function( e ) {},
 			toggleSearchMode: function() {
-				this.setSearchMode( this.searchMode );
 				this.searchMode = this.searchMode == 'complex' ? "simple" : "complex";
+				this.setSearchMode( this.searchMode );
 				this.searchTooltip = this.searchMode == "complex" ? tr( "button.complex-search" ) : tr( "button.simple-search" );
 			},
 			setSearchMode: function( mode ) {
-				console.log( "setSearchMode:", this.isBuilderInitialized );
+				console.log( "setSearchMode:", mode );
 				if ( this.isBuilderInitialized == false ) return;
 				if ( mode == "complex" ) {
 					this.searchModeIcon = "expand-less";
