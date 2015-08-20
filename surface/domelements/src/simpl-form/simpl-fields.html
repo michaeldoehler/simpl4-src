@@ -719,9 +719,9 @@
 			<label id="label" hidden$="[[!label]]">[[label]]</label>
 			<input hidden is="iron-input" id="input" bind-value="[[value]]" />
 			<select id="select" name="[[name]]">
-				<template is="dom-repeat" as="i" items="{{items}}">
+				<!--template is="dom-repeat" as="i" items="{{items}}">
 					<option value$="{{i.value}}">{{i.label}}</option>
-				</template>
+				</template-->
 			</select>
 		</paper-input-container>
 	</template>
@@ -746,6 +746,7 @@
 					type: String
 				},
 				items: {
+					observer:"itemsChanged",
 					type: Object
 				}
 			},
@@ -769,6 +770,20 @@
 				var o = JSON.parse( this.jsonItems );
 				console.log( "prsed:", o );
 				this.items = o;
+			},
+			itemsChanged:function(){
+				var select = this.$.select;
+				while (select.firstChild) {
+    			select.removeChild(select.firstChild);
+				}
+				for( var i=0; i < this.items.length;i++){
+					var item = this.items[i];
+					var option = document.createElement("option");
+					var label = document.createTextNode(item.label);
+					option.value = item.value;
+					Polymer.dom( option ).appendChild( label );
+					Polymer.dom( select ).appendChild( option );
+				}
 			},
 			valueChanged: function( v ) {
 				console.log( "drop-field(" + this.name + ").valueChanged;", this.value );
