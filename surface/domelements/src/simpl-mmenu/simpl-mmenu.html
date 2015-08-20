@@ -199,7 +199,9 @@
 				this._addNodeClasses( li, node.classes );
 				this._addNodeClasses( li, "menu__item,menu__item_primary" );
 				Polymer.dom( li ).appendChild( a )
-//				Polymer.dom( li ).appendChild( pr )
+				if( browser.name != "ie"  || (browser.major != "9" && browser.major!="10")){
+					Polymer.dom( li ).appendChild( pr )
+				}
 				Polymer.dom( a ).appendChild( fontAwesome );
 				Polymer.dom( a ).setAttribute( "style", 'cursor:pointer' );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
