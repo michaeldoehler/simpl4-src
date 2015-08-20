@@ -17,6 +17,7 @@ task stage (type:Task) {
 		fileset(file:'libs/es6-promise-2.0.1.js')
 		fileset(file:'libs/regula-1.3.4.js')
 		fileset(file:'libs/modernizr.js')
+		fileset(file:'libs/detectizr.js')
 		fileset(file:'libs/moment.js')
 		fileset(file:'libs/pikaday-time.js')
 		fileset(file:'libs/jQuery.extendext.js')
