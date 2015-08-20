@@ -167,6 +167,9 @@
 			font-size: 14px;
 			font-weight: normal;
 		}
+		:host.ie  #input {
+			height:24px;
+		}
 
 	</style>
 	<template>
@@ -215,7 +218,8 @@
 				Polymer.IronFormElementBehavior,
 				Polymer.PaperInputBehavior,
 				Polymer.IronControlState,
-				FieldBehavior
+				FieldBehavior,
+				ModernizrBehavior
 			],
 			properties: {
 				compact: {
