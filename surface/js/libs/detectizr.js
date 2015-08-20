@@ -521,4 +521,6 @@ window.Detectizr = (function(window, navigator, document, undefined) {
 }(this, this.navigator, this.document));
 
 
+window.browser = Detectizr.browser;
 console.log("Detectizr:", Detectizr);
+console.log("Browser:", browser);

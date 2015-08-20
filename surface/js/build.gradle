@@ -2,8 +2,9 @@ defaultTasks "buildAll"
 
 task stage (type:Task) {
 	ant.concat(destfile:"${surfaceBuild}/${jsLibs}") {
+		fileset(file:'libs/modernizr.js')
+		fileset(file:'libs/detectizr.js')
 		fileset(file:'libs/debug-ie-dummy.js')
-		fileset(file:'libs/browser-detect.js')
 		fileset(file:'libs/require-dummy.js')
 		fileset(file:'libs/classlist.js')
 		fileset(file:'libs/date-now.js')
@@ -16,8 +17,6 @@ task stage (type:Task) {
 		fileset(file:'libs/cache.js')
 		fileset(file:'libs/es6-promise-2.0.1.js')
 		fileset(file:'libs/regula-1.3.4.js')
-		fileset(file:'libs/modernizr.js')
-		fileset(file:'libs/detectizr.js')
 		fileset(file:'libs/moment.js')
 		fileset(file:'libs/pikaday-time.js')
 		fileset(file:'libs/jQuery.extendext.js')
