@@ -185,6 +185,25 @@
 				}
 			};
 
+			WhitespaceBehavior = {
+				attached: function() {
+					$( '.grid' ).contents().filter( function() {
+						return this.nodeType === 3;
+					} ).remove();
+				}
+			};
+			ModernizrBehavior = {
+				attached: function() {
+					var el = document.documentElement;
+					var classNames = el.className.length ? el.className.split( /\s/ ) : [];
+					for ( var i = 0; i < classNames.length; i++ ) {
+						var clazz = classNames[ i ];
+						if ( !$( this ).hasClass( clazz ) ) {
+							this.classList.add( clazz );
+						}
+					}
+				}
+			};
 			StyleScopeBehavior = {
 				setStyleScope: function( main_el ) {
 					var args = [];
