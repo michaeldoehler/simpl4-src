@@ -1,4 +1,4 @@
-				if( BrowserDetect.browser != 'Explorer' || BrowserDetect.version > 9){
+				if( browser.name != 'ie' || browser.major != "9" ){
 					target.insertBefore( style, afterNode && afterNode.nextSibling || target.firstChild );
 				} else {
 					function countSelectors(sheet) {
@@ -34,19 +34,19 @@
 						var styles = document.querySelectorAll("style");
 						for( var i = 0; i < styles.length;i++){
 							var style = styles[i];
-							if( style.sheet.rules.length == 0){
+							if( style.sheet.cssRules.length == 0){
 								style.parentNode.removeChild(style);
 							}
 						}
 						if ( document.styleSheets.length > 28 ) {
-							console.error( "More than 28 style's in use" );
+							alert( "Too much styles" );
 							return;
 						}
 						var startSheetInex = document.styleSheets.length;
 						window._cssContext = {};
 						window._cssContext.currentSheetIndex = document.styleSheets.length;
 						window._cssContext.currentCssText = '';
-						for ( var i = 0; i < 3; i++ ) { /*Reserved style for later use*/
+						for ( var i = 0; i < 5; i++ ) { /*Reserved style for later use*/
 							var style = document.createElement( 'style' );
 							target.appendChild( style );
 							style.setAttribute( 'scope', "ms123-" + (startSheetInex+i) );
@@ -56,7 +56,7 @@
 					var style = getStyle(ctx.currentSheetIndex);
 					style.innerHTML = ctx.currentCssText + "\n" + cssText;
 					var count = countSelectors(style.sheet);
-					if( count < 3800){
+					if( count < 2000){
 						ctx.currentCssText = ctx.currentCssText + "\n" + cssText;
 					}else{
 						style.innerHTML = ctx.currentCssText;
