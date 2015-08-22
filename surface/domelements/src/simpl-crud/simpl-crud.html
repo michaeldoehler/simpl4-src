@@ -72,16 +72,16 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-						<paper-button class="h flex" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
+						<paper-button class="h flex button button_secondary" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
 							<iron-icon icon="image:navigate-before"></iron-icon>
 						</paper-button>
-						<paper-button class="h flex" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
+						<paper-button class="h flex button button_secondary" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
 							<iron-icon icon="image:navigate-next"></iron-icon>
 						</paper-button>
 
-						<paper-button class="h flex" raised on-tap="saveAction">
+						<paper-button class="h flex button button_primary_raised" raised on-tap="saveAction">
 							<iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button class="h flex" raised on-tap="cancelAction">
+						<paper-button class="h flex button button_secondary_raised" raised on-tap="cancelAction">
 							<iron-icon icon="cancel"></iron-icon>{{tr('tasks.form.cancel')}}</paper-button>
 					</div>
 				</simpl-panel>
@@ -98,7 +98,7 @@
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
 				<div class="layout horizontal" style="margin-top:5px;margin-bottom:10px;text-align:left;">
-					<paper-button class="flex" raised on-tap="cancelAction">
+					<paper-button class="flex button button_secondary_raised" raised on-tap="cancelAction">
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable>
@@ -112,7 +112,7 @@
 					</template>
 				</template>
 				<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-					<paper-button class="flex" raised on-tap="cancelAction" x>
+					<paper-button class="flex button button_secondary_raised" raised on-tap="cancelAction" x>
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 			</section>

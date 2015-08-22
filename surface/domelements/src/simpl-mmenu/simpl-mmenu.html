@@ -181,6 +181,7 @@
 				Polymer.dom( li ).appendChild( ul )
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
+				this._addNodeClasses( li, "menu__item,menu__item_primary" );
 				Polymer.dom( span ).appendChild( fontAwesome );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
 				Polymer.dom( span ).appendChild( t );
@@ -198,6 +199,7 @@
 				Polymer.dom( parent ).appendChild( li )
 				this._addNodeClasses( li, node.classes );
 				this._addNodeClasses( li, "menu__item,menu__item_primary" );
+				this._addNodeClasses( pr, "ripple" );
 				Polymer.dom( li ).appendChild( a )
 				if( browser.name != "ie"  || (browser.major != "9" && browser.major!="10")){
 					Polymer.dom( li ).appendChild( pr )

@@ -19,9 +19,7 @@
  */
 -->
 <dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
-	<link rel="import" type="css" href="../simpl-datatables/jquery.dataTables.css">
-	<link rel="import" type="css" href="../simpl-datatables/dataTables.responsive.css">
-	<link rel="import" type="css" href="../simpl-datatables/simpl-datatables.css">
+	<link rel="import" is="custom-style" type="css" href="../simpl-datatables/simpl-datatables.css">
 	<style>
 		paper-button.ripple {
 			float: left;
@@ -55,7 +53,7 @@
 	<template>
 		<div class="layout horizontal" style="margin-bottom:10px;">
 			<template is="dom-repeat" items="{{buttonList}}">
-				<paper-button raised name$="{{item.name}}" class="ripple flex" on-tap="onTap" disabled$="{{item.disabled}}">
+				<paper-button class="button button_succesx_raised ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}">
 					<iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 			</template>
 		</div>
