@@ -56,7 +56,24 @@
 	width: 90px;
 	margin-top: 2px;
 }
-:host /deep/ table.dataTable.dtr-inline.collapsed.responsive.dataTables td:first-child:before {
+:host /deep/  table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
+:host /deep/  table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+  top: 2px;
+	font-size: 16px;
+	line-height: 16px;
+	font-weight: 800;
+	border: var(--simpl-datatables-detailbutton-border, 2px solid white);
+	border-radius: var(--simpl-datatables-detailbutton-border-radius, 3px);
+	box-shadow: var(--simpl-datatables-detailbutton-box-shadow, 0 0 3px #444);
+	color: var(--simpl-datatables-detailbutton-closed-color, black);
+	background: var(--simpl-datatables-detailbutton-closed-background, brown);
+}
+:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before,
+:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child:before {
+	color: var(--simpl-datatables-detailbutton-open-color, black);
+	background: var(--simpl-datatables-detailbutton-open-background, gray);
+}
+/*:host /deep/ table.dataTable.dtr-inline.collapsed.responsive.dataTables td:first-child:before {
 	top: 2px !important;
 	height: 16px !important;
 	width: 16px !important;
@@ -68,7 +85,7 @@
 	//border: 1px solid gray !important;
 	border-radius: 3px !important;
 	box-shadow: 0 0 0px !important;
-	//		background-color: white;
+	background-color: red;
 	color: gray;
 }
 @media screen and (max-width: 767px) {
@@ -86,7 +103,7 @@
 :host /deep/ table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before {
 	content: '-';
 	background-color: blue;
-}
+}*/
 :host /deep/ table.responsive.dataTables thead tr th,
 :host /deep/ table.responsive.dataTables tfoot tr th {
 	color: var(--simpl-datatables-header-color, --secondary-text-color);

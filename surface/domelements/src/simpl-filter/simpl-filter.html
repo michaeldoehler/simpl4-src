@@ -165,7 +165,9 @@
 				return this.searchModeIcon;
 			},
 			entityChanged:function(){
-				this.attached();
+				this.async( function() {
+					this.attached();
+				},30 );
 			},
 			attached: function() {
 				console.debug( "Filter.attached.Entity:", this.entity + "/namespace:" + this.namespace );
