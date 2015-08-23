@@ -199,12 +199,12 @@
           } else {
             $ul.attr("placement", "bottom-left");
           }
-
+console.log("height:",height);
 					var ul = $(this).next("ul");
           ul.css("max-height", height - 20);
-          ul.css("position", "fixed");
-          ul.css("top", event.clientY+"px");
-          ul.css("left", event.clientX+"px");
+        //  ul.css("position", "fixed");
+        //  ul.css("top", event.clientY+"px");
+        //  ul.css("left", event.clientX+"px");
           $(this).addClass("focus");
         });
         // Close every dropdown on click outside
