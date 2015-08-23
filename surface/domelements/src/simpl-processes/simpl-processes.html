@@ -19,15 +19,14 @@
  */
 -->
 <dom-module id="simpl-processes">
-	<link rel="import" is="custom-style" type="css" href="../simpl-datatables/simpl-datatables.css">
-	<style>
-		paper-button.ripple {
-			float: left;
-			position: relative;
-		}
-
-	</style>
 	<template>
+		<style is="custom-style"  include="simpl-datatables-shared-styles"></style>
+		<style>
+			paper-button.ripple {
+				float: left;
+				position: relative;
+			}
+		</style>
 
 		<iron-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<section>

@@ -4257,6 +4257,7 @@
 		if ( (tableWidthAttr || scrollX) && ! oSettings._reszEvt ) {
 			var bindResize = function () {
 				$(window).bind('resize.DT-'+oSettings.sInstance, _fnThrottle( function () {
+console.log("_fnAdjustColumnSizing");
 					_fnAdjustColumnSizing( oSettings );
 				} ) );
 			};

@@ -19,23 +19,22 @@
  */
 -->
 <dom-module id="simpl-tasks">
-	<link rel="import" is="custom-style" type="css" href="../simpl-datatables/simpl-datatables.css">
-	<style>
-		li {
-			height: 30px;
-			cursor: pointer;
-		}
-		li.iron-selected:after {
-			content: "\2713";
-			padding-left: 10px;
-		}
-		paper-button.ripple {
-			float: left;
-			position: relative;
-		}
-
-	</style>
 	<template>
+		<style is="custom-style"  include="simpl-datatables-shared-styles"></style>
+		<style>
+			li {
+				height: 30px;
+				cursor: pointer;
+			}
+			li.iron-selected:after {
+				content: "\2713";
+				padding-left: 10px;
+			}
+			paper-button.ripple {
+				float: left;
+				position: relative;
+			}
+		</style>
 
 		<iron-pages selected="[[pageSelected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<section>

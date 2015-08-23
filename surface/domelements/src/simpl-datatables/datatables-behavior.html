@@ -54,6 +54,7 @@
 		},
 		recalc:function(){
 			this._api.responsive.recalc();
+			this._api.columns.adjust()
 		},
 		_createTable: function( dtMeta, dataSet, options ) {
 			this.dataSet = dataSet;

@@ -18,39 +18,37 @@
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<dom-module id="simpl-crudtable" attributes="buttons namespace meta filter" flex relative>
-	<link rel="import" is="custom-style" type="css" href="../simpl-datatables/simpl-datatables.css">
-	<style>
-		paper-button.ripple {
-			float: left;
-			position: relative;
-		}
-		paper-button {
-			font-size: 10px;
-		}
-		paper-button /deep/ paper-material.content {
-			padding: 0.5em 0 !important;
-		}
-		:host /deep/ td.phone {
-			padding: 0px !important;
-		}
-		:host /deep/ a {
-			color: #888;
-			text-decoration: initial;
-			font-weight: 400;
-			padding: 4px !important;
-			font-size: 11px;
-			min-width: 70px;
-		}
-		:host /deep/ div.phone {
-			box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
-			display: inline;
-			max-width: 70px;
-		}
-
-	</style>
-	<!--template is="dom-if" if="{{dataSet}}"-->
+<dom-module id="simpl-crudtable">
 	<template>
+		<style is="custom-style"  include="simpl-datatables-shared-styles"></style>
+		<style>
+			paper-button.ripple {
+				float: left;
+				position: relative;
+			}
+			paper-button {
+				font-size: 10px;
+			}
+			paper-button /deep/ paper-material.content {
+				padding: 0.5em 0 !important;
+			}
+			:host /deep/ td.phone {
+				padding: 0px !important;
+			}
+			:host /deep/ a {
+				color: #888;
+				text-decoration: initial;
+				font-weight: 400;
+				padding: 4px !important;
+				font-size: 11px;
+				min-width: 70px;
+			}
+			:host /deep/ div.phone {
+				box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
+				display: inline;
+				max-width: 70px;
+			}
+		</style>
 		<div class="layout horizontal" style="margin-bottom:10px;">
 			<template is="dom-repeat" items="{{buttonList}}">
 				<paper-button class="button button_primary ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}">
