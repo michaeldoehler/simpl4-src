@@ -776,6 +776,9 @@
 				while (select.firstChild) {
     			select.removeChild(select.firstChild);
 				}
+				if( this.items == null){
+					return;
+				}
 				for( var i=0; i < this.items.length;i++){
 					var item = this.items[i];
 					var option = document.createElement("option");
@@ -1040,7 +1043,7 @@
 		<paper-dialog id="relatedDialog" no-cancel-on-outside-click with-backdrop="">
 			<paper-dialog-scrollable>
 				<div class="lyaout vertical flex">
-					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entity}}" filter="{{filter}}"></simpl-filter>
+					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entityName}}" filter="{{filter}}"></simpl-filter>
 					<div style="height:20px;"></div>
 					<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="">
 						<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
@@ -1065,13 +1068,11 @@
 				},
 				entity: {
 					type: String
-				},
-				entity: {
-					type: String
 				}
 			},
 			observers: [
-				'editValueChanged(editValue)'
+				'editValueChanged(editValue)',
+				'entityChanged(namespace)'
 			],
 			id: null,
 			isMetaNull: function() {

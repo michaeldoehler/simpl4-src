@@ -149,6 +149,7 @@
 			searchModeIcon: "expand-more",
 			properties: {
 				namespace: {
+					observer:"namespaceChanged",
 					type: String
 				},
 				entity: {
@@ -164,14 +165,21 @@
 			getSearchModeIcon: function() {
 				return this.searchModeIcon;
 			},
+			namespaceChanged:function(){
+				console.log("filter.namespaceChanged:", this.namespace+"/"+this.entity);
+				if( this.entity==null) return;
+				this.attached();
+			},
 			entityChanged:function(){
-				this.async( function() {
-					this.attached();
-				},30 );
+				console.log("filter.entityChanged:", this.namespace+"/"+this.entity);
+				if( this.namespace==null) return;
+				this.attached();
 			},
 			attached: function() {
 				console.debug( "Filter.attached.Entity:", this.entity + "/namespace:" + this.namespace );
-				if( this.entity == null) return;
+				if( this.entity == null || this.namespace==null){
+					 return;
+				}
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
 				} );

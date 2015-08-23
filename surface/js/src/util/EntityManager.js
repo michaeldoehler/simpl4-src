@@ -248,6 +248,9 @@ simpl4.util.BaseManager.extend( "simpl4.util.EntityManager", {
 		var buildstr = build !== false ? "true" : "no";
 		var namespace = args.namespace || this.getNamespace();
 		console.error( "namespace:" + namespace + "/" + args.view );
+if( args.entity == "text"){
+console.trace();
+}
 		var fields = simpl4.util.EntityManager.fieldCache[ "vf-" + args.entity + "-" + namespace + "-" + args.view + "-" + buildstr ];
 		if ( fields === undefined ) {
 			try {
