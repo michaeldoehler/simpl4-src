@@ -249,7 +249,7 @@
 			<input-field field class="flex" type={{item.xf_type}} enabled-expr$="{{item.xf_enabled}}" readonly-expr$="{{item.xf_readonly}}" invisible-expr$="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" data-constraints$="{{item.regulaConstraints}}" name$="{{item.xf_id}}" label="{{item.label}}" defaultValue="{{item.defaultValue}}"></input-field>
 		</template>
 		<template is="dom-if" if="{{isActionButton(item.id)}}" restamp>
-			<xaction-button on-tap="internalXAction" class="button" xid="{{item.xf_id}}" style$="[[getActionButtonColor(item.xf_action)]]" xaction="{{item.xf_action}}" raised>
+			<xaction-button on-tap="internalXAction" class$="[[getActionButtonClasses(item.xf_action)]]" xid="{{item.xf_id}}" style$="[[getActionButtonColor(item.xf_action)]]" xaction="{{item.xf_action}}" raised>
 				<iron-icon icon="{{item.xf_iconname}}"></iron-icon>{{item.xf_label}}</xaction-button>
 		</template>
 		<template is="dom-if" if="{{isEnumSelect(item.id)}}" restamp>
@@ -300,7 +300,11 @@
 			//	console.log( "form-element-renderer:", this.item );
 			},
 			getActionButtonColor: function( action ) {
-				return "color:" + ( action == 'execute' ? '#4285f4;' : 'black;' );
+				return "min-width:200px;";
+				//return "color:" + ( action == 'execute' ? '#4285f4;' : 'black;' );
+			},
+			getActionButtonClasses: function( action ) {
+				return  action == 'execute' ? 'button button_primary' : 'button;'
 			},
 			internalXAction: function( e ) {
 				var target = e.target || e.srcElement;
@@ -488,7 +492,7 @@
 			margin-top: 20px;
 		}
 		xaction-button[xaction=execute] {
-			color: #4285f4;
+		//	color: #4285f4;
 		}
 		paper-item {
 			overflow: hidden;
@@ -532,7 +536,7 @@
 
 		<template is="dom-if" if="{{_form.xf_default_buttons}}">
 			<simpl-row>
-				<xaction-button on-tap="internalXAction" class="button" xid="{{_form.xf_id}}" xaction="execute" raised>
+				<xaction-button on-tap="internalXAction" class="button button_primary" xid="{{_form.xf_id}}" xaction="execute" raised>
 					<iron-icon icon="check"></iron-icon>[[tr('form.execute')]]</xaction-button>
 				<xaction-button on-tap="internalXAction" class="button" xid="{{_form.xf_id}}" xaction="cancel" raised>
 					<iron-icon icon="clear"></iron-icon>[[tr('tasks.form.cancel')]]</xaction-button>
