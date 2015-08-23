@@ -33,7 +33,7 @@
 			<section>
 				<template is="dom-if" if="[[currentProcess]]">
 					<div style="margin-bottom:30px;text-align:left;" class="layout vertical">
-						<paper-button raised class="ripple" on-tap="startProcess">[[getCurrentProcessDescription()]]</paper-button>
+						<paper-button raised class="button button_primary ripple" on-tap="startProcess">[[getCurrentProcessDescription()]]</paper-button>
 					</div>
 				</template>
 				<simpl-panel bgcolor="[[panelBackgroundColor]]" heading="[[panelHeader]]">

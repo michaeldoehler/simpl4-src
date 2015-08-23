@@ -53,7 +53,7 @@
 	<template>
 		<div class="layout horizontal" style="margin-bottom:10px;">
 			<template is="dom-repeat" items="{{buttonList}}">
-				<paper-button class="button button_primary_raised ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}">
+				<paper-button class="button button_primary ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}">
 					<iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 			</template>
 		</div>

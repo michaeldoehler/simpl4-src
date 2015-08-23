@@ -72,16 +72,16 @@
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-						<paper-button class="h flex button button_secondary" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
+						<paper-button class="h flex button button_primary" id="prevButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="prevAction">
 							<iron-icon icon="image:navigate-before"></iron-icon>
 						</paper-button>
-						<paper-button class="h flex button button_secondary" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
+						<paper-button class="h flex button button_primary" id="nextButton" invisible$="{{prevNextButtonsInvisible}}" style="min-width:45px;max-width:45px;" raised on-tap="nextAction">
 							<iron-icon icon="image:navigate-next"></iron-icon>
 						</paper-button>
 
-						<paper-button class="h flex button button_primary_raised" raised on-tap="saveAction">
+						<paper-button class="h flex button button_primary" raised on-tap="saveAction">
 							<iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button class="h flex button button_secondary_raised" raised on-tap="cancelAction">
+						<paper-button class="h flex button button_secondary" raised on-tap="cancelAction">
 							<iron-icon icon="cancel"></iron-icon>{{tr('tasks.form.cancel')}}</paper-button>
 					</div>
 				</simpl-panel>
