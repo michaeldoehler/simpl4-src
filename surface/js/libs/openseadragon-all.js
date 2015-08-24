@@ -13163,7 +13163,7 @@ $.ButtonGroup = function( options ) {
                     _this.buttons[ i ].notifyGroupExit();
                 }
             }
-        },
+        }
     });
 };
 
@@ -13675,7 +13675,7 @@ $.ReferenceStrip = function ( options ) {
         element.style.width         = _this.panelWidth + 'px';
         element.style.height        = _this.panelHeight + 'px';
         element.style.display       = 'inline';
-        element.style.float         = 'left'; //Webkit
+        element.style["float"]         = 'left'; //Webkit
         element.style.cssFloat      = 'left'; //Firefox
         element.style.styleFloat    = 'left'; //IE
         element.style.padding       = '2px';
@@ -13933,7 +13933,7 @@ function loadPanels( strip, viewerSize, scroll ) {
             style.left          = '0px';
             style.fontSize      = '0px';
             style.overflow      = 'hidden';
-            style.float         = 'left'; //Webkit
+            style["float"]         = 'left'; //Webkit
             style.cssFloat      = 'left'; //Firefox
             style.styleFloat    = 'left'; //IE
             style.zIndex        = 999999999;

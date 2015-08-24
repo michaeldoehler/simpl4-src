@@ -547,17 +547,17 @@ JSON5.stringify = function (obj, replacer, space) {
         }
     };
 
-    function isWordChar(char) {
-        return (char >= 'a' && char <= 'z') ||
-            (char >= 'A' && char <= 'Z') ||
-            (char >= '0' && char <= '9') ||
-            char === '_' || char === '$';
+    function isWordChar(_char) {
+        return (_char >= 'a' && _char <= 'z') ||
+            (_char >= 'A' && _char <= 'Z') ||
+            (_char >= '0' && _char <= '9') ||
+            _char === '_' || _char === '$';
     }
 
-    function isWordStart(char) {
-        return (char >= 'a' && char <= 'z') ||
-            (char >= 'A' && char <= 'Z') ||
-            char === '_' || char === '$';
+    function isWordStart(_char) {
+        return (_char >= 'a' && _char <= 'z') ||
+            (_char >= 'A' && _char <= 'Z') ||
+            _char === '_' || _char === '$';
     }
 
     function isWord(key) {

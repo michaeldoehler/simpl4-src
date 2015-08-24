@@ -250,9 +250,9 @@ function isShortId(id) {
     }
 
     var characters = alphabet.characters();
-    var invalidCharacters = id.split('').map(function(char){
-        if (characters.indexOf(char) === -1) {
-            return char;
+    var invalidCharacters = id.split('').map(function(_char){
+        if (characters.indexOf(_char) === -1) {
+            return _char;
         }
     }).join('').split('').join('');
 
