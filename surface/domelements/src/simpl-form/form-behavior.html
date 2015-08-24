@@ -122,6 +122,7 @@
 					errorList.push( "Error" );
 				}
 			}
+			console.log("form.validate:", errorList);
 			return errorList.length == 0;
 		},
 		filterToArray: function( nodeList, all ) {
@@ -231,16 +232,20 @@
 			this.fields = [];
 			this.fieldsMap = {};
 			console.log( "form.specChanged" );
-			this.shapes = this.spec;
+			this.shapes = [];
 			this._form = {};
+
 			this.async( function() {
-				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
-				this.fields.forEach( function( field ) {
-					field.setForm( this );
-				}, this );
-				this.fieldsMap = this.toMap( this.fields );
-				this.valueChanged();
-			},100 );
+				this.shapes = this.spec;
+				this.async( function() {
+					this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+					this.fields.forEach( function( field ) {
+						field.setForm( this );
+					}, this );
+					this.fieldsMap = this.toMap( this.fields );
+					this.valueChanged();
+				},50 );
+			},50 );
 		},
 		toMap: function( arr ) {
 			var map = {};

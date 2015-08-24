@@ -1072,7 +1072,7 @@
 			},
 			observers: [
 				'editValueChanged(editValue)',
-				'entityChanged(namespace)'
+				'entityChanged(entity,namespace)'
 			],
 			id: null,
 			isMetaNull: function() {
@@ -1082,6 +1082,7 @@
 				return this.filter != null;
 			},
 			ready: function() {
+				console.log("Field.relatedto.ready:",this.entity+"/"+this.namespace);
 				this.props = simpl4.util.EntityManager.getPropertiesForEntity( this.entity, {
 					namespace: this.namespace
 				} );
@@ -1124,6 +1125,8 @@
 				simpl4.util.MessageManager.installMessages( this.namespace );
 			},
 			entityChanged: function() {
+			  console.log("Field.relatedto.entityChanged:",this.entity+"/"+this.namespace);
+				if( this.entity==null) return;
 				this.entityName = this.entity;
 			},
 			_maskedEval: function( scr, env, def ) {
