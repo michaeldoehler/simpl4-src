@@ -94,7 +94,7 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 		return shape;
 	},
 	convertFieldType: function( f ) {
-		var retType = "text";
+		var retType = null;
 		if ( f.datatype && f.datatype == 'date' ) {
 			retType = f.edittype == "text" ? "date" : f.edittype;
 		} else if ( f.datatype && ( f.datatype == 'decimal' || f.datatype == 'double' ) ) {
