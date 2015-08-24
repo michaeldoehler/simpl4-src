@@ -1,0 +1,83 @@
+<!doctype html>
+<head>
+<meta name="description" content="Issue 2355 repro">
+  <meta charset="utf-8">
+  
+  <base href="http://polymer-magic-server.appspot.com/components/">
+  <script src="webcomponentsjs/webcomponents-lite.min.js"></script>
+  <link href="polymer/polymer.html" rel="import">
+</head>
+<body>
+  
+<dom-module id="test-element2">
+    <script>
+      Polymer( {
+        is: "test-element2",
+        properties: {
+          value: {
+            observer: "valueChanged",
+            type: String
+          }
+        },
+        valueChanged: function() {
+          console.log( "valueChanged:", this.value );
+        }
+      } );
+    </script>
+  </dom-module>
+
+  <dom-module id="test-element">
+    <template>
+      <template is="dom-if" if="[[value]]" restamp>
+        <test-element2 value="[[value]]"></test-element2>
+      </template>
+    </template>
+    <script>
+      Polymer( {
+        is: 'test-element',
+        attached: function() {
+          var domif = this.$$('template[is=dom-if]');
+          domif.addEventListener('dom-change',
+                                function() {
+            console.log("dom changed.");
+            var te2 = this.$$('test-element2');  
+            if (te2) {
+              console.log("te2 still exists, value: "+  te2.value);
+            }
+
+          });
+          this.value = "Hello";
+          this.async( function() { 
+            this.value = null;
+            var te2 = this.$$('test-element2');
+            if (te2) {
+              console.log("te2 still exists, value: "+  te2.value);
+            }
+            Polymer.dom.flush();
+            te2 = this.$$('test-element2');
+            if (te2) {
+              console.log("te2 still exists, value: " + te2.value);
+            } else {
+              console.log(" no more te2");
+            }
+            this.async(function() {
+              te2 = this.$$('test-element2');
+              if (te2) {
+                console.log("te2 still exists, value: " +  te2.value);
+              }
+              Polymer.dom.flush();
+              te2 = this.$$('test-element2');
+              if (te2) {
+                console.log("te2 still exists, value: ", te2.value);
+              }
+            }, 200);
+          }, 200);
+
+        }
+      } );
+    </script>
+  </dom-module>
+
+  <test-element>
+
+</body>
