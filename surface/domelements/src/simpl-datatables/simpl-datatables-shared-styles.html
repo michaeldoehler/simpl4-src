@@ -62,7 +62,7 @@
 			}
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
-				top: 2px;
+				top: 4px;
 				font-size: 16px;
 				line-height: 16px;
 				font-weight: 800;
@@ -71,6 +71,12 @@
 				box-shadow: var(--simpl-datatables-detailbutton-box-shadow, 0 0 3px #444);
 				color: var(--simpl-datatables-detailbutton-closed-color, black);
 				background: var(--simpl-datatables-detailbutton-closed-background, brown);
+			}
+			@media screen and (max-width: 767px) {
+				:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
+				:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+					top: 6px;
+				}
 			}
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before,
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child:before {
