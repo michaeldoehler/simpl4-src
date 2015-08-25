@@ -49,7 +49,7 @@
 			background-color: #4B575C !important;
 			border-color: #4B575C !important;
 		}
-		:host /deep/ .core-tooltip {
+		:host /deep/ .iron-tooltip {
 			color: #000;
 			background-color: rgba(255, 255, 255, 0.9);
 			border: 1px solid black;
@@ -99,13 +99,12 @@
 		:host /deep/ #builder li.has-error {
 			border-color: white;
 		}
-		polyfill-rule {
-			content: '#shadowId';
-			margin: 3px;
-		}
 		#shadowId {
 			padding: 0px;
 			border-radius: 0px;
+		}
+		:host /deep/ .content.paper-button {
+			padding: 0.3em 0.57em;
 		}
 
 	</style>
@@ -114,18 +113,18 @@
 		<paper-material id="shadowId" elevation="2">
 			<div class="layout horizontal">
 				<div style="text-align:left;">
-					<core-tooltip label="{{tr('button.save-search')}}" on-tap="saveSearch" position="center">
-						<paper-icon-button icon="file-upload">
-							</core-icon-button>
-					</core-tooltip>
-					<core-tooltip label="{{tr('button.load-search')}}" on-tap="loadSearch" position="center">
-						<paper-icon-button icon="file-download">
-							</core-icon-button>
-					</core-tooltip>
-					<core-tooltip label="{{searchTooltip}}" xn-tap="toggleSearchMode" position="center">
-						<paper-icon-button on-tap="toggleSearchMode" icon="{{getSearchModeIcon()}}">
-							</core-icon-button>
-					</core-tooltip>
+					<span>
+						<paper-tooltip  on-tap="saveSearch">[[tr('button.save-search')]]</paper-tooltip>
+						<paper-icon-button icon="file-upload"></paper-icon-button>
+					</span>
+					<span>
+						<paper-tooltip  on-tap="loadSearch">[[tr('button.load-search')]]</paper-tooltip>
+						<paper-icon-button icon="file-download"></paper-icon-button>
+					</span>
+					<span>
+						<paper-tooltip>[[searchTooltip]]</paper-tooltip>
+						<paper-icon-button on-tap="toggleSearchMode" icon="{{getSearchModeIcon()}}"></paper-icon-button>
+					</span>
 				</div>
 				<div class="flex" style="text-align:right;">
 					<paper-button raised style="min-width:150px !important;" class="flex button_primary_raised" on-tap="search">
@@ -140,20 +139,20 @@
 	<script>
 		Polymer( {
 			is: 'simpl-filter',
-			behaviors: [ 
+			behaviors: [
 				StyleScopeBehavior,
-				TranslationsBehavior 
+				TranslationsBehavior
 			],
 			searchMode: "simple",
 			isBuilderInitialized: false,
 			searchModeIcon: "expand-more",
 			properties: {
 				namespace: {
-					observer:"namespaceChanged",
+					observer: "namespaceChanged",
 					type: String
 				},
 				entity: {
-					observer:"entityChanged",
+					observer: "entityChanged",
 					type: String
 				},
 				filter: {
@@ -165,20 +164,23 @@
 			getSearchModeIcon: function() {
 				return this.searchModeIcon;
 			},
-			namespaceChanged:function(){
-				console.log("filter.namespaceChanged:", this.namespace+"/"+this.entity);
-				if( this.entity==null) return;
+			namespaceChanged: function() {
+				console.log( "filter.namespaceChanged:", this.namespace + "/" + this.entity );
+				if ( this.entity == null ) return;
 				this.attached();
 			},
-			entityChanged:function(){
-				console.log("filter.entityChanged:", this.namespace+"/"+this.entity);
-				if( this.namespace==null) return;
+			entityChanged: function() {
+				console.log( "filter.entityChanged:", this.namespace + "/" + this.entity );
+				if ( this.namespace == null ) return;
 				this.attached();
+			},
+			ready:function(){
+				this.toggleSearchMode();
 			},
 			attached: function() {
 				console.debug( "Filter.attached.Entity:", this.entity + "/namespace:" + this.namespace );
-				if( this.entity == null || this.namespace==null){
-					 return;
+				if ( this.entity == null || this.namespace == null ) {
+					return;
 				}
 				var filters = simpl4.util.SearchFilter.createSearchFilter( this.entity, {
 					namespace: this.namespace
@@ -211,7 +213,7 @@
 				} );
 				this.isBuilderInitialized = true;
 				this.searchMode = "simple";
-				this.setSearchMode(this.searchMode);
+				this.setSearchMode( this.searchMode );
 				this.async( function() {
 					this.setStyleScope( this.$.builder, "style-scope", this.tagName.toLowerCase() );
 					//this.toggleSearchMode();
