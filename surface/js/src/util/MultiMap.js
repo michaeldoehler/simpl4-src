@@ -89,7 +89,7 @@ simpl4.util.Map.extend( "simpl4.util.MultiMap", {
 	}
 } );
 
-var map = new simpl4.util.MultiMap();
+/*var map = new simpl4.util.MultiMap();
 map.put("key1", "val1a");
 map.put("key1", "val1b");
 map.put("key2", "val2");
@@ -98,4 +98,4 @@ map.put("key2", "val2");
 console.log("MultiMap:",JSON.stringify(map.toJS(),null,2));
 console.log("Size:",map.size());
 console.log("Values:",map.values());
-console.log("Keys:",map.keys());
+console.log("Keys:",map.keys());*/
