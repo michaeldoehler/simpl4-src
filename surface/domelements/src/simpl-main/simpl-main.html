@@ -100,6 +100,12 @@
 		paper-toolbar.small {
 			height: 90px;
 		}
+		paper-item {
+			cursor: pointer;
+			font-size:12px;
+			line-height:18px;
+			min-height:30px;
+		}
 		:host.ie9 paper-toolbar {
 			overflow: hidden;
 		}
@@ -148,6 +154,40 @@
 									<paper-icon-button on-click="showHelp" icon="help"></paper-icon-button>
 								</span>
 							</template>
+
+							<paper-menu-button xo-animation xorizontal-offset="-50" vertical-offset="30" class="layout">
+								<paper-icon-button icon="editor:format-color-fill" class="dropdown-trigger"></paper-icon-button>
+								<paper-menu style:"cursor:pointer;" class="dropdown-content">
+									<paper-item on-tap="changeTheme">
+										<div class="flex">bluegrey-red</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">teal-grey</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">indigo-orange</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">indigo-red</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">brown-orange</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">blue-amber</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">red-lime</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">grey-pink</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">pink-grey</div>
+									</paper-item>
+								</paper-menu>
+							</paper-menu-button>
+
 							<paper-icon-button on-click="reload" class="langIcon" src="[[getLangIcon()]]"></paper-icon-button>
 							<template is="dom-if" if="[[signInOutIcon]]">
 								<div>
@@ -451,6 +491,12 @@
 			getLangIcon: function() {
 				var lang = Simpl4.Cache.getItem( "lang" );
 				return ( lang == "de" || lang == null ) ? "en.svg" : "de.svg";
+			},
+			changeTheme:function(e){
+				console.log("changeTheme:",e.target.innerText);
+				Simpl4.Cache.setItem( "theme", e.target.innerText);
+				location.search = "";
+				history.go( 0 )
 			},
 			reload: function( e ) {
 				var lang = Simpl4.Cache.getItem( "lang" );

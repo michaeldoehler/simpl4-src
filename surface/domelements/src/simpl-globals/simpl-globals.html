@@ -84,10 +84,12 @@
 
 			window.startPage = getParameterByName( "page" );
 
+			var qtheme = getParameterByName( "theme" );
 			var qlang = getParameterByName( "lang" );
 			removeQueryParameter();
 			console.log( "search:", location );
 			console.log( "qlang:" + qlang );
+			console.log( "qtheme:" + qtheme );
 			var lang = Simpl4.Cache.getItem( "lang" );
 			if ( qlang ) {
 				simpl4.util.BaseManager.setLanguage( qlang );
@@ -97,6 +99,23 @@
 				simpl4.util.Globals.set( "lang", lang ? lang : "en" );
 			}
 			Simpl4.Cache.setItem( "lang", simpl4.util.BaseManager.getLanguage() );
+
+			if ( qtheme ) {
+				Simpl4.Cache.setItem( "theme", qtheme );
+			}
+			var themeImport = document.querySelectorAll( "head > [href=\"theme.html\"]" );
+			console.log("hrefTheme:",themeImport);
+			if( themeImport.length == 0 ){
+				console.log("themeCache:",Simpl4.Cache.getItem( "theme" ));
+				var themeName = qtheme || Simpl4.Cache.getItem( "theme" );
+				if( themeName == null ){
+					themeName = "indigo-red";
+				}
+				var themeLink = document.createElement("link");
+				themeLink.rel = "import";
+				themeLink.href = "theme-"+themeName+".html";
+				document.getElementsByTagName("head")[0].appendChild(themeLink);
+			}
 
 			simpl4.util.BaseManager.setUser( "guest" );
 			simpl4.util.BaseManager.setPassword( "guest" );
