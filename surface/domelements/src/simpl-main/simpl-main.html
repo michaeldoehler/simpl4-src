@@ -91,8 +91,8 @@
 		}
 		simpl-mmenu {
 			position: absolute;
-			width:100%;
-			height:100%;
+			width: 100%;
+			height: 100%;
 		}
 		paper-toolbar.small /deep/ #topBar.toolbar-tools {
 			align-items: baseline;
@@ -102,9 +102,9 @@
 		}
 		paper-item {
 			cursor: pointer;
-			font-size:12px;
-			line-height:18px;
-			min-height:30px;
+			font-size: 12px;
+			line-height: 18px;
+			min-height: 30px;
 		}
 		:host.ie9 paper-toolbar {
 			overflow: hidden;
@@ -112,15 +112,20 @@
 		:host.ie9 #headlineId {
 			display: inline;
 		}
-	:host /deep/ paper-icon-button iron-icon {
-		pointer-events: none;
-	}
-	:host /deep/ paper-icon-button  paper-ripple {
-		pointer-events: none;
-	}
-	neon-animatable{
-		//position:relative;
-	}
+		:host /deep/ iron-dropdown {
+			//@@@Bullshit fix
+			left: inherit !important;
+		}
+		:host /deep/ paper-icon-button iron-icon {
+			pointer-events: none;
+		}
+		:host /deep/ paper-icon-button paper-ripple {
+			pointer-events: none;
+		}
+		neon-animatable {
+			//position:relative;
+		}
+
 	</style>
 	<template>
 		<simpl-globals></simpl-globals>
@@ -136,7 +141,7 @@
 					<div class="grid column brand_drawer_panel fit">
 						<div class="brand__area">
 							<a href="[[logoLinkLang]]" target="_blank">
-								<img src='{{logo}}' class="brand__logo"/>
+								<img src='{{logo}}' class="brand__logo" />
 							</a>
 						</div>
 						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="true" searchfield="true" pages="{{getPages()}}" class="flex" />
@@ -157,12 +162,18 @@
 
 							<paper-menu-button xo-animation xorizontal-offset="-50" vertical-offset="30" class="layout">
 								<paper-icon-button icon="editor:format-color-fill" class="dropdown-trigger"></paper-icon-button>
-								<paper-menu style:"cursor:pointer;" class="dropdown-content">
+								<paper-menu style: "cursor:pointer;" class="dropdown-content">
 									<paper-item on-tap="changeTheme">
 										<div class="flex">bluegrey-red</div>
 									</paper-item>
 									<paper-item on-tap="changeTheme">
 										<div class="flex">teal-grey</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">blue-bluegrey</div>
+									</paper-item>
+									<paper-item on-tap="changeTheme">
+										<div class="flex">lightblue-red</div>
 									</paper-item>
 									<paper-item on-tap="changeTheme">
 										<div class="flex">indigo-orange</div>
@@ -195,7 +206,8 @@
 									<paper-icon-button on-click="login" icon="[[signInOutIcon]]"></paper-icon-button>
 								</div>
 							</template>
-							<div class="toolbar bottom row grid"> </div> <!--insertpoint toolbar-bottom-->
+							<div class="toolbar bottom row grid"> </div>
+							<!--insertpoint toolbar-bottom-->
 						</paper-toolbar>
 					</template>
 
@@ -362,7 +374,7 @@
 						var toolbarBottom = this.querySelector( ".toolbar.bottom" );
 						var tb = this.toolbarBottomCache[ page.url ];
 						this.setToolbarClass( tb );
-						if( tb == null){
+						if ( tb == null ) {
 							tb = this.getEmptyToolbarBottom();
 						}
 						toolbarBottom.parentNode.replaceChild( tb, toolbarBottom );
@@ -383,10 +395,10 @@
 				}
 				var toolbarBottom = this.querySelector( "div.toolbar.bottom" );
 				toolbarBottom.parentNode.replaceChild( newToolbarBottom, toolbarBottom );
-				var buttons = newToolbarBottom.querySelectorAll("[on-tap]");
-				for( var i=0; i < buttons.length; i++){
-					var button = buttons[i];
-					button.addEventListener('tap',this.externalButtonEventHandler);
+				var buttons = newToolbarBottom.querySelectorAll( "[on-tap]" );
+				for ( var i = 0; i < buttons.length; i++ ) {
+					var button = buttons[ i ];
+					button.addEventListener( 'tap', this.externalButtonEventHandler );
 				}
 
 				this.pageCache[ this.selectedPage.url ] = true;
@@ -453,10 +465,10 @@
 				}
 				this.$.helpDialog.toggle();
 			},
-			externalButtonEventHandler:function(e){
-				console.log("externalButtonEventHandler:",e);
-				this.fire( 'toolbar-button-pressed', e.target||e.srcElement, {
-					key1:"value1"
+			externalButtonEventHandler: function( e ) {
+				console.log( "externalButtonEventHandler:", e );
+				this.fire( 'toolbar-button-pressed', e.target || e.srcElement, {
+					key1: "value1"
 				} );
 			},
 			setToolbarClass: function( newToolbarBottom ) {
@@ -492,9 +504,9 @@
 				var lang = Simpl4.Cache.getItem( "lang" );
 				return ( lang == "de" || lang == null ) ? "en.svg" : "de.svg";
 			},
-			changeTheme:function(e){
-				console.log("changeTheme:",e.target.innerText);
-				Simpl4.Cache.setItem( "theme", e.target.innerText);
+			changeTheme: function( e ) {
+				console.log( "changeTheme:", e.target.innerText );
+				Simpl4.Cache.setItem( "theme", e.target.innerText );
 				location.search = "";
 				history.go( 0 )
 			},
