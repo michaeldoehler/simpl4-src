@@ -181,7 +181,7 @@
 				Polymer.dom( li ).appendChild( ul )
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
-				this._addNodeClasses( li, "menu__item,menu__item_primary" );
+				this._addNodeClasses( li, "menu__item,menu__item_primary,has-sub-menu" );
 				Polymer.dom( span ).appendChild( fontAwesome );
 				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
 				Polymer.dom( span ).appendChild( t );

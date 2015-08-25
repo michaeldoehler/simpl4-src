@@ -51,6 +51,7 @@
 			-ms-flex-align: center;
 			-webkit-align-items: center;
 			box-sizing: border-box;
+			position:relative;
 		}
 		.panel__header .icon {
 			display: none;
@@ -94,7 +95,11 @@
 	<template>
 		<paper-material style="position:relative;height:100%;-webkit-flex:1;" id="panelId" elevation="3">
 			<div id="panel" class="panel">
-				<header class="panel__header" id="heading"><span class="title">{{heading}}</span>
+				<header class="panel__header" id="heading">
+					<template is="dom-if" if="[[collapsable]]">
+						<paper-ripple></paper-ripple>
+					</template>
+					<span class="title">{{heading}}</span>
 					<iron-icon class="icon" icon="custom-icons:icon-expand" id="collapsable" style="{{getIconFill()}}">
 				</header>
 				<div class="panel__content" id="panelContent">

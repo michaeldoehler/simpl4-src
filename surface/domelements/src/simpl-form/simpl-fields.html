@@ -362,7 +362,7 @@
 			committedValueChanged: function() { //@@@MS ???
 			},
 			editValueChanged: function() {
-				this.$.input.focus();
+				//this.$.input.focus();
 				if ( this.type == null ) return;
 				if ( this.type.match( /^date/ ) && !this.hasDate ) {
 					this.value = this._i18nToIso( this.editValue );
