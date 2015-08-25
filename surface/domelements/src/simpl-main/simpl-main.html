@@ -504,8 +504,8 @@
 				return ( lang == "de" || lang == null ) ? "en.svg" : "de.svg";
 			},
 			changeTheme: function( e ) {
-				console.log( "changeTheme:", e.target.innerText );
-				Simpl4.Cache.setItem( "theme", e.target.innerText );
+				console.log( "changeTheme:", e.target.innerHTML );
+				Simpl4.Cache.setItem( "theme", e.target.innerHTML );
 				location.search = "";
 				history.go( 0 )
 			},
