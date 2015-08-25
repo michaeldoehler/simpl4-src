@@ -35,22 +35,41 @@
 			padding: 0.5em 0 !important;
 		}
 		paper-button.h /deep/ iron-icon {
-		  vertical-align: bottom;
+			vertical-align: bottom;
 		}
 		paper-button[invisible] {
 			display: none;
 		}
 		paper-toast#toast {
-			z-index:10;
+			z-index: 10;
 		}
-			paper-button[dialog-confirm] {
-				color: #4285f4;
-			}
-			iron-icon.error-big {
-				color: red;
-				height: 64px;
-				width: 64px;
-			}
+		paper-button[dialog-confirm] {
+			color: #4285f4;
+		}
+		iron-icon.error-big {
+			color: red;
+			height: 64px;
+			width: 64px;
+		}
+		neon-animatable {
+			display: none;
+		}
+		neon-animatable paper-material {
+			padding-left: 4px;
+			padding-right: 4px;
+			padding-top: 15px;
+			padding-bottom: 15px;
+			margin-left: 4px;
+			margin-right: 8px;
+			margin-top: 15px;
+			margin-bottom: 15px;
+		}
+		neon-animatable.iron-selected {
+			display: block;
+		}
+		paper-tab {
+			padding: 0 6px;
+		}
 
 	</style>
 	<template>
@@ -84,32 +103,45 @@
 				<paper-dialog id="error" class="scrolling">
 					<!--action-dialog-->
 					<div style="padding:15px;">
-					<iron-icon class="error-big" icon="error"></iron-icon>
-					<p></p>
-        	<paper-button dialog-confirm autofocus= role="button" aria-disabled="false">
+						<iron-icon class="error-big" icon="error"></iron-icon>
+						<p></p>
+						<paper-button dialog-confirm autofocus=r ole="button" aria-disabled="false">
 							<iron-icon icon="check"></iron-icon>Ok</paper-button>
 					</div>
 				</paper-dialog>
 			</section>
-			<section style="padding:0px;position:relative;overflow-x:hidden;" num="2" unresolved>
-				<div class="layout horizontal" style="margin-top:5px;margin-bottom:10px;text-align:left;">
-					<paper-button class="flex button button_primary" raised on-tap="cancelAction">
+			<section style="padding:0px;overflow-x:hidden;" num="2">
+				<div class="grid flex" style="margin-top:5px;margin-bottom:10px">
+					<paper-button style="text-align:left;" class="flex button button_primary" raised on-tap="cancelAction">
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
-				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderDetails}}" collapsable>
-					<simpl-details id="detailid" namespace="{{namespace}}" entity="{{mainEntityName}}"></simpl-details>
-				</simpl-panel>
-				<template is="dom-if" if="{{entityChildList}}">
-					<template is="dom-repeat" items="{{entityChildList}}">
-						<simpl-panel class="flex" bgcolor="{{panelBackgroundColor}}" data="{{item}}" heading="{{item.title}}" on-open-action="openAction" collapsable collapsed>
-							<simpl-crudtable id$="{{item.id}}" buttons="{{item.buttonListDetail}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
-						</simpl-panel>
+
+				<paper-tabs class="flex" selected="{{selectedDetailsTabId}}" selectables="paper-tab" attr-for-selected="details-item-id" scrollable>
+					<paper-tab details-item-id="detailsMainTabId">[[panelHeaderDetails]]</paper-tab>
+					<template is="dom-repeat" as="item" items="[[entityChildList]]">
+						<paper-tab details-item-id$="[[item.id]]">[[item.title]]</paper-tab>
 					</template>
-				</template>
-				<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
-					<paper-button class="flex button button_primary" raised on-tap="cancelAction" x>
-						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
-				</div>
+				</paper-tabs>
+
+				<neon-animated-pages selected="{{selectedDetailsTabId}}" attr-for-selected="details-item-id" xnimateInitialSelection entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+					<neon-animatable style="position:relative;" details-item-id="detailsMainTabId">
+						<paper-material class="flex" elevation="2">
+							<simpl-details id="detailsOverviewId" namespace="{{namespace}}" entity="[[mainEntityName]]"></simpl-details>
+						</paper-material>
+					</neon-animatable>
+					<template is="dom-repeat" as="item" items="{{entityChildList}}">
+						<neon-animatable style="position:relative;" details-item-id$="[[item.id]]">
+							<paper-material class="flex" elevation="1">
+								<simpl-crudtable id$="{{item.id}}" buttons="{{item.buttonListDetail}}" data="[[item]]" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
+							</paper-material>
+						</neon-animatable>
+					</template>
+					</neo-animatable>
+
+					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
+						<paper-button class="flex button button_primary" raised on-tap="cancelAction" x>
+							<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
+					</div>
 			</section>
 		</iron-pages>
 	</template>
@@ -139,10 +171,17 @@
 				pageSelected: {
 					type: Number,
 					value: 0
+				},
+				selectedDetailsTabId: {
+					type: String,
+					observer: "selectedDetailsTabIdChanged"
 				}
 			},
 			attached: function() {
-				console.log( "Crud.attached.Entity:", this.entity+"/namespace:"+this.namespace );
+				this.selectedDetailsTabId = "detailsMainTabId";
+				this.entryAnimation = 'slide-from-left-animation';
+				this.exitAnimation = 'slide-left-animation';
+				console.log( "Crud.attached.Entity:", this.entity + "/namespace:" + this.namespace );
 				if ( this.namespace && this.namespace != simpl4.util.BaseManager.getNamespace() ) {
 					simpl4MessageManager.installMessages( this.namespace );
 				}
@@ -160,13 +199,12 @@
 				this.prevNamespace = namespace;
 				this.formSpec = [ formSpec ];
 			},
-			openAction: function( e ) {
-				var detail = e.detail;
-				console.log( "detail:", this );
-				var ct = this.$.ironPages.querySelector( "#" + detail.data.id );
-				var data = detail.data;
-				data.namespace = this.namespace;
-				ct.filter = data;
+			selectedDetailsTabIdChanged: function( e ) {
+				var ct = this.$.ironPages.querySelector( "#" + this.selectedDetailsTabId );
+				if ( ct == null ) return;
+				console.log( "ct:", ct.data );
+				ct.data.namespace = this.namespace;
+				ct.filter = ct.data;
 			},
 			cancelAction: function( e ) {
 				this.prevNextButtonsInvisible = true;
@@ -178,10 +216,10 @@
 						this.pageSelected = prevPage;
 						this.currentTable.refresh();
 					} ).bind( this ), 100 );
-				}else{
+				} else {
 					this.async( function() {
 						this.pageSelected = prevPage;
-					},100 );
+					}, 100 );
 				}
 			},
 			copyAction: function( e ) {
@@ -260,9 +298,9 @@
 			},
 			detailAction: function( e ) {
 				console.log( "detailAction:", e.detail );
-				console.log( "detailAction:", this.$.detailid );
+				console.log( "detailAction:", this.$.detailsOverviewId );
 				var currentRowData = e.detail.data;
-				this.$.detailid.setData( e.detail.data );
+				this.$.detailsOverviewId.setData( e.detail.data );
 				var props = simpl4EntityManager.getPropertiesForEntity( this.mainEntityName, {
 					namespace: this.namespace
 				} );
@@ -394,8 +432,8 @@
 			},
 			whenElementsReady: function( done ) {
 				this.async( function() {
-				done();
-				},50 );
+					done();
+				}, 50 );
 			},
 			alert: function( message ) {
 				this.querySelector( "#error p" ).innerHTML = message;
