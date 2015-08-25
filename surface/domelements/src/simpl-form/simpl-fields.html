@@ -1040,7 +1040,7 @@
 			</template>
 		</div>
 
-		<paper-dialog id="relatedDialog" no-cancel-on-outside-click with-backdrop="">
+		<paper-dialog id="relatedDialog" no-cancel-on-outside-click eith-backdrop="">
 			<paper-dialog-scrollable>
 				<div class="lyaout vertical flex">
 					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entityName}}" filter="{{filter}}"></simpl-filter>
@@ -1088,7 +1088,9 @@
 				} );
 			},
 			actionCallback: function() {
-				this.$.relatedDialog.open();
+				this.async( function() {
+					this.$.relatedDialog.open();
+				},50 );
 			},
 			clearCallback: function() {
 				this.editValue = null;
@@ -1102,7 +1104,9 @@
 				this.editValue = t;
 			},
 			cancelAction: function() {
-				this.$.relatedDialog.close();
+				this.async( function() {
+					this.$.relatedDialog.close();
+				},50 );
 			},
 			editValueChanged: function() {
 				if ( this.editValue ) {
