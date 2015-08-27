@@ -321,6 +321,16 @@
 			},
 			routeChanged: function() {
 				console.log( "routeChanged:" + this.route );
+
+				var route = this.route;
+				if ( route.match( /^!/ ) ) {
+					route = route.substring( 1 );
+				}
+				if ( this.route != route ) {
+					this.route = route;
+				}
+				console.log( "routeChanged2:" + this.route );
+
 				channel.publish( "route.changed", {
 					route: this.route
 				} );
