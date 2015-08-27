@@ -1689,6 +1689,10 @@ window.CustomElements.addModule(function(scope) {
       if (find(e, data) !== true) {
         findAllElements(e, find, data);
       }
+if( e == null){
+	console.trace();
+ 	return null;
+}
       e = e.nextElementSibling;
     }
     return null;
