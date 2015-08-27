@@ -1300,15 +1300,15 @@ console.log("QueryBuilder.init");
 <dl id="'+ group_id +'" class="style-scope simpl-filter rules-group-container"> \
   <dt class="style-scope simpl-filter rules-group-header"> \
     <div class="style-scope simpl-filter btn-group pull-right group-actions"> \
-      <button type="button" class="style-scope simpl-filter btn btn-xs btn-success" data-add="rule"> \
+      <paper-button type="button" class="style-scope simpl-filter button_secondary_raised" data-add="rule"> \
         <i class="style-scope simpl-filter ' + this.icons.add_rule + '"></i> '+ this.lang.add_rule +' \
-      </button> \
-      '+ (this.settings.allow_groups===-1 || this.settings.allow_groups>=level ? '<button type="button" class="style-scope simpl-filter btn btn-xs btn-success" data-add="group"> \
+      </paper-button> \
+      '+ (this.settings.allow_groups===-1 || this.settings.allow_groups>=level ? '<paper-button type="button" class="style-scope simpl-filter button_secondary_raised" data-add="group"> \
         <i class="style-scope simpl-filter ' + this.icons.add_group + '"></i> '+ this.lang.add_group +' \
-      </button>' : '') +' \
-      '+ (level>1 ? '<button type="button" class="style-scope simpl-filter btn btn-xs btn-danger" data-delete="group"> \
+      </paper-button>' : '') +' \
+      '+ (level>1 ? '<paper-button type="button" class="style-scope simpl-filter small button_error_raised" data-delete="group"> \
         <i class="' + this.icons.remove_group + '"></i> '+ this.lang.delete_group +' \
-      </button>' : '') +' \
+      </paper-button>' : '') +' \
     </div> \
     <div class="style-scope simpl-filter btn-group group-conditions"> \
       '+ this.getGroupConditions(group_id) +' \
@@ -1355,9 +1355,9 @@ console.log("QueryBuilder.init");
 <li id="'+ rule_id +'" class="style-scope simpl-filter rule-container"> \
   <div class="style-scope simpl-filter rule-header"> \
     <div class="style-scope simpl-filter btn-group pull-right rule-actions"> \
-      <button type="button" class="style-scope simpl-filter btn btn-xs btn-danger" data-delete="rule"> \
+      <paper-button type="button" class="style-scope simpl-filter small button_error_raised" data-delete="rule"> \
         <i class="style-scope simpl-filter ' + this.icons.remove_rule + '"></i> '+ this.lang.delete_rule +' \
-      </button> \
+      </paper-button> \
     </div> \
   </div> \
   '+ (this.settings.display_errors ? '<div class="style-scope simpl-filter error-container"><i class="' + this.icons.error + '"></i></div>' : '') +'\
