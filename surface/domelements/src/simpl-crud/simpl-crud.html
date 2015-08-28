@@ -116,7 +116,7 @@
 						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
 				</div>
 
-				<paper-tabs class="flex" selected="{{selectedDetailsTabId}}" selectables="paper-tab" attr-for-selected="details-item-id" scrollable>
+				<paper-tabs class="flex" selected="{{selectedDetailsTabId}}" selectables="paper-tab" scrollable attr-for-selected="details-item-id" scrollable>
 					<paper-tab details-item-id="detailsMainTabId">[[panelHeaderDetails]]</paper-tab>
 					<template is="dom-repeat" as="item" items="[[entityChildList]]">
 						<paper-tab details-item-id$="[[item.id]]">[[item.title]]</paper-tab>
@@ -329,7 +329,9 @@
 				this.entityChildList = entityChildList;
 				console.log( "entityChildList:", this.entityChildList );
 				this.pageStack.push( this.pageSelected );
-				this.pageSelected = 2;
+				this.async(function(){
+					this.pageSelected = 2;
+				},100);
 			},
 			storeData: function( data ) {
 				var rpc = null;
