@@ -124,7 +124,6 @@
 	position: relative;
 	width: 100%;
 	vertical-align: top;
-	padding: 1em;
 }
 .no-flexbox [class*="col-"] {
 	display: inline-block !important;
