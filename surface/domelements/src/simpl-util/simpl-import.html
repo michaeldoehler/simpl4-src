@@ -59,6 +59,7 @@
 				if ( body.firstElementChild ) {
 					Polymer.dom( insertPoint ).appendChild( body );
 				}
+				document.querySelector("#dispatcherId").filterLocalLinks(insertPoint.firstElementChild);
 				this.async( function() {
 					this.setScope(insertPoint);
 				}, 50 );

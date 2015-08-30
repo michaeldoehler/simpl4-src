@@ -134,7 +134,7 @@
 		<!-- Keyboard nav controller. -->
 		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
 
-		<simpl-dispatcher on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
+		<simpl-dispatcher id="dispatcherId" on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
 			<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
 				<div class="column grid" drawer>
 					<div class="grid column brand_drawer_panel fit">
@@ -428,7 +428,7 @@
 					//console.log("BODY;", body.innerHTML);
 					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
-
+				this.$.dispatcherId.filterLocalLinks(insertPoint.firstElementChild);
 				this.async( function() {
 					this.convertSheetsToStyles( insertPoint );
 					var scope = this.selectedPage.scope;

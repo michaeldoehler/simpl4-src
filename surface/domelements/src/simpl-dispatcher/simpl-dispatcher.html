@@ -66,7 +66,9 @@
 					return;
 				}
 				var page = e.target.page;
-				if ( !page ) return;
+				if ( !page ){
+					 return;
+				}
 				if ( this._selectedPage ) {
 					this.fire( "mmenu-selected", {
 						isSelected: false,
@@ -94,7 +96,6 @@
 				var i = 0;
 				var $e = li.parent();
 				while ( $e.length>0 && i++ < 10 ) {
-					console.log( "e:", $e.prop( "tagName" ) );
 					if ( $e.prop( "tagName" ) === "DIV" ) {
 						this._mmenu.openPanel( $e );
 						break;
@@ -116,6 +117,22 @@
 					}
 				}
 				this.selectMenuItem( this.selected );
+			},
+			filterLocalLinks:function(e){
+				var aList = e.querySelectorAll( "a" );
+				for ( var i = 0; i < aList.length; i++ ) {
+					var a = aList[ i ];
+					var href = a.getAttribute("href");
+					if( href.match(/^local.*/)){
+						var page = simpl4PageRegistry.getPage( href.substring("local:".length));
+						console.log("Dispatcher.filterLocalLinks.page:",page);
+						if( page){
+							a.removeAttribute("href");
+							a.page = page;
+							$( a ).tap( this.tapListener.bind( this ), false );
+						}
+					}
+				}
 			}
 		} );
 
