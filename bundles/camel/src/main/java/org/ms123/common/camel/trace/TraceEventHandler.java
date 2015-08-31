@@ -105,7 +105,8 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		props.put(LOG_HINT, hasException ? "error" : "ok");
 		props.put(LOG_TYPE, "camel/trace");
 		props.put(LOG_MSG, js.exclude("tracedExchange").deepSerialize(msg));
-		eventAdmin.sendEvent(new Event("log", props));
+System.out.println("createLogEntry:"+props);
+		eventAdmin.postEvent(new Event("log", props));
 	}
 
 	private boolean getPropertyBoolean(String name, Exchange exchange){

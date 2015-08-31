@@ -611,7 +611,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		props.put(LOG_KEY, key);
 		props.put(LOG_HINT, hasException ? "error": "ok");
 		props.put(LOG_MSG, routeStackTrace);
-		m_eventAdmin.sendEvent(new Event("log", props));
+		m_eventAdmin.postEvent(new Event("log", props));
 	}
 
 	public static class SleepBean {
