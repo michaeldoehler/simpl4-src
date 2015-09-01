@@ -75,8 +75,23 @@
 					}
 				}
 			}
-			var x = location.toString().split( "/" );
-			var namespace = x[ x.length - 2 ];
+
+			var pathElements = window.location.pathname.split("/");
+			var namespace = pathElements[ 2 ];
+
+			if( pathElements.length > 4 ){
+				console.log("base.pathname.split:",window.location.pathname.split("/"));
+				var loc = window.location;
+				var head = document.getElementsByTagName("head")[0];
+				if( head.querySelector("base")) {
+					console.log("Remove base");
+					head.removeChild(head.querySelector("base"));
+				}
+				var base = document.createElement("base");
+				base.href = loc.protocol + "//" + loc.hostname+"/repo/"+ namespace + "/";
+				console.log("base.new.href:",base.href);
+				head.appendChild(base);
+			}
 
 			window.is_chromium = navigator.userAgent.toLowerCase().indexOf( 'chrome' ) > -1;
 
