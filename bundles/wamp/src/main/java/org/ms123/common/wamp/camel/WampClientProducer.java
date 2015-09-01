@@ -18,6 +18,8 @@
  */
 package org.ms123.common.wamp.camel;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadRuntimeException;
@@ -32,11 +34,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import org.ms123.common.wamp.camel.WampClientConstants.*;
+import org.ms123.common.wamp.WampClientSession;
 
 public class WampClientProducer extends DefaultAsyncProducer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WampClientProducer.class);
+	private WampClientSession clientSession;
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	public WampClientProducer(WampClientEndpoint endpoint) {
 		super(endpoint);
@@ -49,9 +55,70 @@ public class WampClientProducer extends DefaultAsyncProducer {
 
 	@Override
 	public boolean process(Exchange exchange, AsyncCallback callback) {
-		//String address = getEndpoint().getAddress();
-		boolean reply = ExchangeHelper.isOutCapable(exchange);
+		String namespace = getEndpoint().getCamelContext().getName().split("/")[0];
+		this.clientSession.publish(namespace + "." + getEndpoint().getTopic(),null,buildResponse(getPublishData(exchange)));
 		return true;
+	}
+
+	protected void doStart() throws Exception {
+		String namespace = getEndpoint().getCamelContext().getName().split("/")[0];
+		debug("######WampProducer.doSart:" + namespace + "." + getEndpoint().getTopic());
+		super.doStart();
+		this.clientSession = getEndpoint().createWampClientSession("realm1");
+	}
+
+	protected void doStop() throws Exception {
+		String namespace = getEndpoint().getCamelContext().getName().split("/")[0];
+		debug("######WampProducer.doStop:" + namespace + "." + getEndpoint().getTopic());
+		this.clientSession.close();
+		super.doStop();
+	}
+	private ObjectNode buildResponse(final Object methodResult) {
+		ObjectNode node = null;
+		if( methodResult instanceof Map ){
+			node = this.objectMapper.valueToTree(methodResult);
+		}else{
+			node = this.objectMapper.createObjectNode();
+			node.putPOJO("result", methodResult);
+		}
+		return node;
+	}
+
+	private Object getPublishData(Exchange exchange) {
+		String publishSpec = getEndpoint().getPublish();
+		List<String> publishHeaderList = getEndpoint().getPublishHeaderList();
+		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);
+		if ("body".equals(publishSpec)) {
+			return ExchangeHelper.extractResultBody(exchange, null);
+		} else if ("headers".equals(publishSpec)) {
+			Map<String, Object> camelVarMap = new HashMap();
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if (publishHeaderList.size() == 0 || publishHeaderList.contains(header.getKey())) {
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		} else if ("bodyAndHeaders".equals(publishSpec)) {
+			Map<String, Object> camelVarMap = new HashMap();
+			if (camelBody instanceof Map<?, ?>) {
+				Map<?, ?> camelBodyMap = (Map<?, ?>) camelBody;
+				for (@SuppressWarnings("rawtypes")
+				Map.Entry e : camelBodyMap.entrySet()) {
+					if (e.getKey() instanceof String) {
+						camelVarMap.put((String) e.getKey(), e.getValue());
+					}
+				}
+			} else {
+				camelVarMap.put("body", camelBody);
+			}
+			for (Map.Entry<String, Object> header : exchange.getIn().getHeaders().entrySet()) {
+				if (publishHeaderList.size() == 0 || publishHeaderList.contains(header.getKey())) {
+					camelVarMap.put(header.getKey(), header.getValue());
+				}
+			}
+			return camelVarMap;
+		}
+		return null;
 	}
 
 	protected void debug(String msg, Object... args) {

@@ -59,10 +59,13 @@ public class WampClientEndpoint extends DefaultEndpoint {
 	// consumer(rpc) options
 	@UriParam
 	private String procedure;
+	private String topic;
 	private String startableGroups;
 	private String startableUsers;
+	private String publish;
 	private String rpcReturn;
 	private String rpcParameter;
+	private String publishHeaders;
 	private String rpcReturnHeaders;
 
 	private BundleContext m_bundleContext;
@@ -109,6 +112,14 @@ public class WampClientEndpoint extends DefaultEndpoint {
 		this.procedure = procedure;
 	}
 
+	public String getTopic() {
+		return this.topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
 	public String getStartableUsers() {
 		return this.startableUsers;
 	}
@@ -149,6 +160,24 @@ public class WampClientEndpoint extends DefaultEndpoint {
 		this.rpcReturnHeaders = s;
 	}
 
+
+
+	public String getPublish() {
+		return this.publish;
+	}
+
+	public void setPublish(String s) {
+		this.publish = s;
+	}
+
+	public String getPublishHeaders() {
+		return this.publishHeaders;
+	}
+
+	public void setPublishHeaders(String s) {
+		this.publishHeaders = s;
+	}
+
 	public String getMode() {
 		return mode;
 	}
@@ -168,7 +197,7 @@ public class WampClientEndpoint extends DefaultEndpoint {
 		Map  res =  (Map)ds.deserialize(this.rpcParameter);
 		return (List<Map>)res.get("items");
 	}
-	public List<Map> getReturnHeaders() {
+	private List<Map> _getReturnHeaders() {
 		if( this.rpcReturnHeaders==null) return new ArrayList<Map>();
 		Map  res =  (Map)ds.deserialize(this.rpcReturnHeaders);
 		return (List<Map>)res.get("items");
@@ -176,13 +205,30 @@ public class WampClientEndpoint extends DefaultEndpoint {
 
 	public List<String> getReturnHeaderList(){
 		List<String> returnHeaderList = new ArrayList();
-		List<Map> rh = this.getReturnHeaders();
+		List<Map> rh = this._getReturnHeaders();
 		if (rh != null) {
 			for (Map<String, String> m : rh) {
 				returnHeaderList.add(m.get("name"));
 			}
 		}
 		return returnHeaderList;
+	}
+
+	private List<Map> _getPublishHeaders() {
+		if( this.publishHeaders==null) return new ArrayList<Map>();
+		Map  res =  (Map)ds.deserialize(this.publishHeaders);
+		return (List<Map>)res.get("items");
+	}
+
+	public List<String> getPublishHeaderList(){
+		List<String> publishHeaderList = new ArrayList();
+		List<Map> rh = this._getPublishHeaders();
+		if (rh != null) {
+			for (Map<String, String> m : rh) {
+				publishHeaderList.add(m.get("name"));
+			}
+		}
+		return publishHeaderList;
 	}
 
 	protected List<String> getStringList(String s) {

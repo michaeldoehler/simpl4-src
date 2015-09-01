@@ -227,6 +227,7 @@ public class WampClientSession {
 				options.put("exclude_me", false);
 			}
 			final WampMessages.PublishMessage msg = new WampMessages.PublishMessage(requestId, options, topic, arguments, argumentsKw);
+System.out.println("WampMessages.PublishMessage:"+msg);
 
 			requestMap.put(requestId, new RequestMapEntry(WampMessages.PublishMessage.ID, resultSubject));
 			WampClientSession.this.webSocket.onWebSocketText(WampCodec.encode(msg));
