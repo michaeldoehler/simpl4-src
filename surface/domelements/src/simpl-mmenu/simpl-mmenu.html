@@ -199,13 +199,13 @@
 			},
 			_createIcon: function( node ) {
 				var icon = null;
-				if ( node.icon ) {
+				if ( node.aweicon ) {
 					icon = document.createElement( 'font-awesome' );
-					Polymer.dom( icon ).setAttribute( "icon", node.icon );
-				} else if ( node.ironicon ) {
+					Polymer.dom( icon ).setAttribute( "icon", node.aweicon );
+				} else if ( node.icon ) {
 					icon = document.createElement( 'iron-icon' );
 					this._addNodeClasses( icon, "small" );
-					Polymer.dom( icon ).setAttribute( "icon", node.ironicon );
+					Polymer.dom( icon ).setAttribute( "icon", node.icon );
 				}
 				return icon;
 			},
