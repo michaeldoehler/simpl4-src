@@ -36,28 +36,12 @@
 		.mm-list > li.ctx-hidden {
 			display: none;
 		}
-/*		.mm-list > li:not(.mm-subtitle):not(.mm-label):not(.mm-search):not(.mm-noresults):after {
-			border-bottom-width: 1px;
-		}
-		.mm-list > li:not(.mm-subtitle):not(.mm-label):not(.mm-search):not(.mm-noresults):after {
-			border-bottom-width: 1px;
-		}
-		.mm-list a.mm-subopen:before {
-			border-left-width: 1px;
-		}
-		.mm-list a.mm-subopen:after,
-		.mm-list a.mm-subclose:before {
-			margin-bottom: 5px;
-		}
-		.mm-list a.mm-subclose:before {
-			margin-bottom: -4px;
-		}
-		.mm-menu.mm-vertical .mm-list .mm-panel {
-			padding: 0px 0 10px 15px;
-		}*/
-
-		:host /deep/  paper-ripple {
+		:host /deep/ paper-ripple {
 			pointer-events: none;
+		}
+		.small {
+			--iron-icon-height: 24px;
+			--iron-icon-width: 24px;
 		}
 
 	</style>
@@ -115,12 +99,12 @@
 				var menu = $( this._mainmenu ).mmenu( {
 					slidingSubmenus: this.slidingSubmenus == "true",
 					searchfield: {
-						add : this.searchfield != "false",
-						noResults : tr('mmenu.noResults')
+						add: this.searchfield != "false",
+						noResults: tr( 'mmenu.noResults' )
 					},
-					navbar      : {
-						add       : true,
-						title     : tr('mmenu.title')
+					navbar: {
+						add: true,
+						title: tr( 'mmenu.title' )
 					},
 					navbars: {
 						content: [ "searchfield" ],
@@ -170,7 +154,7 @@
 				}
 			},
 			_createNode: function( parent, node, firstLevel ) {
-				var fontAwesome = document.createElement( 'font-awesome' );
+				var icon = this._createIcon( node );
 				var li = document.createElement( 'li' );
 				var ul = document.createElement( 'ul' );
 				var span = document.createElement( 'span' );
@@ -182,8 +166,7 @@
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
 				this._addNodeClasses( li, "menu__item,menu__item_primary,has-sub-menu" );
-				Polymer.dom( span ).appendChild( fontAwesome );
-				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
+				Polymer.dom( span ).appendChild( icon );
 				Polymer.dom( span ).appendChild( t );
 				if ( firstLevel ) {
 					Polymer.dom( li ).classList.add( 'firstLevel' )
@@ -191,7 +174,7 @@
 				return ul;
 			},
 			_createLeaf: function( parent, node, firstLevel ) {
-				var fontAwesome = document.createElement( 'font-awesome' );
+				var icon = this._createIcon( node );
 				var li = document.createElement( 'li' );
 				var a = document.createElement( 'a' );
 				var pr = document.createElement( 'paper-ripple' );
@@ -201,12 +184,11 @@
 				this._addNodeClasses( li, "menu__item,menu__item_primary" );
 				this._addNodeClasses( pr, "ripple" );
 				Polymer.dom( li ).appendChild( a )
-				if( browser.name != "ie"  || (browser.major != "9" && browser.major!="10")){
+				if ( browser.name != "ie" || ( browser.major != "9" && browser.major != "10" ) ) {
 					Polymer.dom( li ).appendChild( pr )
 				}
-				Polymer.dom( a ).appendChild( fontAwesome );
+				Polymer.dom( a ).appendChild( icon );
 				Polymer.dom( a ).setAttribute( "style", 'cursor:pointer' );
-				Polymer.dom( fontAwesome ).setAttribute( "icon", node.icon );
 				Polymer.dom( a ).appendChild( t );
 				Polymer.dom( li ).setAttribute( "style", 'list-style:none' );
 				Polymer.dom( li ).setAttribute( "id", "x" + node.hash );
@@ -214,6 +196,18 @@
 					Polymer.dom( li ).classList.add( 'firstLevel' )
 				}
 				a.page = node;
+			},
+			_createIcon: function( node ) {
+				var icon = null;
+				if ( node.icon ) {
+					icon = document.createElement( 'font-awesome' );
+					Polymer.dom( icon ).setAttribute( "icon", node.icon );
+				} else if ( node.ironicon ) {
+					icon = document.createElement( 'iron-icon' );
+					this._addNodeClasses( icon, "small" );
+					Polymer.dom( icon ).setAttribute( "icon", node.ironicon );
+				}
+				return icon;
 			},
 			_addNodeClasses: function( el, classes ) {
 				if ( classes == null ) return;
