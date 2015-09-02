@@ -131,8 +131,7 @@
 
 		<flatiron-director route="{{route}}" auto-hash></flatiron-director>
 
-		<!-- Keyboard nav controller. -->
-		<!--core-a11y-keys id="keys" target="{{parentElement}}" keys="up down left right space space+shift" on-keys-pressed="{{keyHandler}}"></core-a11y-keys-->
+		<!--iron-a11y-keys id="keys" target="[[target]]" keys="up down left right space space+shift" on-keys-pressed="keyHandler"></iron-a11y-keys-->
 
 		<simpl-dispatcher id="dispatcherId" on-mmenu-selected="menuItemSelected" selected="{{route}}" pages="{{getPages()}}">
 			<paper-drawer-panel id="drawerPanel" drawer-width="230px" responsive-width="700px" disable-swipe="false">
@@ -269,6 +268,12 @@
 				toolbarProvided: {
 					value: false,
 					type: Boolean
+				},
+				target: {
+					type: Object,
+					value: function() {
+						return document.body;
+					}
 				},
 				logo: {
 					value: 'logo.svg',
