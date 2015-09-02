@@ -161,39 +161,17 @@
 							<paper-menu-button xo-animation xorizontal-offset="-50" vertical-offset="30" class="layout">
 								<paper-icon-button icon="editor:format-color-fill" class="dropdown-trigger"></paper-icon-button>
 								<paper-menu style: "cursor:pointer;" class="dropdown-content">
-									<paper-item on-tap="changeTheme">
-										<div class="flex">bluegrey-red</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">teal-grey</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">blue-bluegrey</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">lightblue-red</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">indigo-orange</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">indigo-red</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">brown-orange</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">blue-amber</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">red-lime</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">grey-pink</div>
-									</paper-item>
-									<paper-item on-tap="changeTheme">
-										<div class="flex">pink-grey</div>
-									</paper-item>
+									<paper-item on-tap="changeTheme">bluegrey-red</paper-item>
+									<paper-item on-tap="changeTheme">teal-grey</paper-item>
+									<paper-item on-tap="changeTheme">blue-bluegrey</paper-item>
+									<paper-item on-tap="changeTheme">lightblue-red</paper-item>
+									<paper-item on-tap="changeTheme">indigo-orange</paper-item>
+									<paper-item on-tap="changeTheme">indigo-red</paper-item>
+									<paper-item on-tap="changeTheme">brown-orange</paper-item>
+									<paper-item on-tap="changeTheme">blue-amber</paper-item>
+									<paper-item on-tap="changeTheme">red-lime</paper-item>
+									<paper-item on-tap="changeTheme">grey-pink</paper-item>
+									<paper-item on-tap="changeTheme">pink-grey</paper-item>
 								</paper-menu>
 							</paper-menu-button>
 
@@ -433,7 +411,7 @@
 					//console.log("BODY;", body.innerHTML);
 					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
-				this.$.dispatcherId.filterLocalLinks(insertPoint.firstElementChild);
+				this.$.dispatcherId.filterLocalLinks( insertPoint.firstElementChild );
 				this.async( function() {
 					this.convertSheetsToStyles( insertPoint );
 					var scope = this.selectedPage.scope;
@@ -519,8 +497,9 @@
 				return ( lang == "de" || lang == null ) ? "en.svg" : "de.svg";
 			},
 			changeTheme: function( e ) {
-				console.log( "changeTheme:", e.target.innerHTML );
-				Simpl4.Cache.setItem( "theme", e.target.innerHTML );
+				var t = e.target.innerHTML.trim();
+				console.log( "changeTheme:", t );
+				Simpl4.Cache.setItem( "theme", t );
 				location.search = "";
 				history.go( 0 )
 			},
