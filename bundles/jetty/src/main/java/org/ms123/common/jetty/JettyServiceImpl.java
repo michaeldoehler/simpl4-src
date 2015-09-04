@@ -181,6 +181,13 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 	private void initJetty() throws Exception {
 		String port = System.getProperty("jetty.port");
 		m_server = new Server( getInt(port, 8075) );
+		for(Connector y : m_server.getConnectors()) {
+			for(ConnectionFactory x  : y.getConnectionFactories()) {
+				if(x instanceof HttpConnectionFactory) {
+					((HttpConnectionFactory)x).getHttpConfiguration().setSendServerVersion(false);
+				}
+			}
+		}
 
 		String sh = System.getProperty("workspace");
 		m_basedir = new File(sh).getCanonicalFile().getParent();
