@@ -35,6 +35,8 @@ task stage (type:Task) {
 		fileset(file:'libs/accounting.js')
 //		fileset(file:'libs/mutation-summary.js')
 		fileset(file:'src/util/Construct.js')
+		fileset(file:'libs/svg.js')
+		fileset(file:'libs/jquery.touchSwipe.js')
 		fileset(dir:'src',includes:'**/*.js', excludes:'src/util/Construct.js')
 	}
 	def strip = "/opt/dev/tools/bin/jsstrip.sh  -o " + surfaceBuild + "/" + jsLibs 

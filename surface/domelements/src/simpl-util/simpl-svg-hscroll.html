@@ -1,0 +1,92 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<dom-module id="simpl-svg-hscroll">
+	<style>
+		:host #container{
+			width:100%;
+		}
+
+	</style>
+
+	<template>
+		<div id="container">
+			<object id="objId" style$="[[contentStyle]]" data="[[src]]" type="image/svg+xml"> </object>
+		</div>
+	</template>
+
+</dom-module>
+
+<script>
+	Polymer( {
+		is: 'simpl-svg-hscroll',
+
+		properties: {
+			contentStyle: {
+				computed: "getContentStyle(height)"
+			},
+			src: {
+				value: null,
+				type: String
+			},
+			height: {
+				value: null,
+				type: String
+			}
+		},
+		getContentStyle: function() {
+			return "height:" + this.height + "px;";
+		},
+		attached: function() {
+			var objId = this.$.objId;
+			objId.addEventListener( "load", function() {
+				var svgDoc = objId.getSVGDocument();
+				var svg = svgDoc.querySelector( "svg" );
+				var draw = SVG( svg );
+				var layer1 = SVG.get( "layer1", svgDoc );
+				//var bbox = draw.bbox();
+				//console.log( "bbox1:", bbox );
+				//var factor = 1;
+				//layer1.scale( factor );
+				//layer1.translate( bbox.x * factor, bbox.y * factor )
+				$( svg ).swipe( {
+					swipe: function( event, direction, distance, duration, fingerCount, fingerData ) {
+						console.log( "You swiped " + direction + "/" + ( Math.pow( distance, 2 ) / 100 )+"/"+fingerCount );
+						distance = Math.pow( distance, 2 ) / 100;
+						if( fingerCount == 0) return;
+						if ( direction == "right" ) {
+							//layer1.animate(800,SVG.easing.bounce).transform( {x:distance}, true )
+							layer1.transform( {
+								x: distance
+							}, true )
+						} else if ( direction == "left" ) {
+							layer1.transform( {
+								x: -distance
+							}, true )
+						}
+					},
+					allowPageScroll: "vertical",
+					threshold: 0
+				} );
+			} );
+		}
+	} );
+
+</script>
