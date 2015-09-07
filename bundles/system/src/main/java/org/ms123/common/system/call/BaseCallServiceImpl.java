@@ -36,6 +36,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Endpoint;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Route;
 import org.apache.camel.util.ExchangeHelper;
 import org.ms123.common.system.thread.ThreadContext;
 import org.ms123.common.git.GitService;
@@ -192,10 +194,27 @@ abstract class BaseCallServiceImpl {
 		String id = ((String) properties.get(OVERRIDEID));
 		return id;
 	}
+	protected String getRouteId( String baseId, int index){
+		return baseId+"_"+index;
+	}
 	private org.ms123.common.system.thread.ThreadContext getThreadContext() {
 		return org.ms123.common.system.thread.ThreadContext.getThreadContext();
 	}
 
+	protected Route getRouteWithDirectConsumer(CamelContext cc, String baseRouteId){
+		for( int i = 1; i < 10; i++){
+			Route route = cc.getRoute(getRouteId(baseRouteId,i));
+			if( route != null ){
+				info(".getRouteWithDirectConsumer.Route:"+route);
+				Endpoint ep = route.getConsumer().getEndpoint();
+				String epUri = ep.getEndpointUri();
+				if( epUri.startsWith("direct")){
+					return route;
+				}
+			}
+		}
+		return null;
+	}
 	protected String getNamespace(Object params) {
 		String ns = null;
 		if (params instanceof Map) {

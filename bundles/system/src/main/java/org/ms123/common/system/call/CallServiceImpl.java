@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Route;
+import org.apache.camel.CamelContext;
 import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
@@ -129,9 +130,13 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		}
 
 		String routeId = getId(shape);
-		Route route = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT)).getRoute(routeId);
-		if( route == null){
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+routeId+"' not found");
+		CamelContext cc = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT));
+		Route route = cc.getRoute(routeId);
+		if( route == null){ //Maybe multiple routes
+			route= getRouteWithDirectConsumer(cc, routeId);
+			if( route == null){
+				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+routeId+"' not found");
+			}
 		}
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
