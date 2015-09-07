@@ -423,16 +423,14 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			cc.stopRoute(baseRouteId);
 			cc.removeRoute(baseRouteId);
 		}
-		int i=1;
-		while(true){
+		for(int i=1; i < 100; i++){
 			String routeId = createRouteId(baseRouteId,i);	
 			routeDefinition =  cc.getRouteDefinition(routeId);
-			if( routeDefinition==null){
-				break;
+			if( routeDefinition != null){
+				info("stopAndRemoveRoute:"+routeId);
+				cc.stopRoute(routeId);
+				cc.removeRoute(routeId);
 			}
-			info("stopAndRemoveRoute:"+routeId);
-			cc.stopRoute(routeId);
-			cc.removeRoute(routeId);
 		}
 	}
 
