@@ -26,6 +26,7 @@ public final class SWDataConstants {
 	public static final String OBJECT_ID = "objectId";
 
 	public static final String ENTITY_TYPE = "entityType";
+	public static final String NAMESPACE = "namespace";
 
 	public static final String ROW_COUNT = "rowCount";
 

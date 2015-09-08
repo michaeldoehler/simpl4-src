@@ -190,7 +190,7 @@ public class SWDataProducer extends DefaultProducer {
 		persistenceSpecification.put(SWDataConstants.NO_UPDATE,no_update);
 		System.out.println("persistenceSpecification:"+persistenceSpecification);
 		//String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		List<Object> result = null;
 		try {
@@ -205,7 +205,7 @@ public class SWDataProducer extends DefaultProducer {
 	private void doDelete(Exchange exchange) {
 		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
 		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		Map result = null;
 		try {
@@ -220,7 +220,7 @@ public class SWDataProducer extends DefaultProducer {
 	private void doInsert(Exchange exchange) {
 		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
 		Map insert = exchange.getIn().getBody(Map.class);
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		Map result = null;
 		try {
@@ -237,7 +237,7 @@ public class SWDataProducer extends DefaultProducer {
 		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
 		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
 		Map update = exchange.getIn().getBody(Map.class);
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		Map result = null;
 		try {
@@ -253,8 +253,8 @@ public class SWDataProducer extends DefaultProducer {
 		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
 		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
 		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
-		SessionContext sc = getSessionContext();
-		Object ret = sc.getObjectMapById(m_entityType, m_objectId);
+		SessionContext sc = getSessionContext(exchange);
+		Object ret = sc.getObjectMapById(entityType, objectId);
 		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findById);
 		if( resultHeader != null && resultHeader.length()>0){
 			resultMessage.setHeader(resultHeader, ret);
@@ -271,7 +271,7 @@ public class SWDataProducer extends DefaultProducer {
 		if( disableStateSelect){
 			options.put(SWDataConstants.DISABLE_STATESELECT, true);
 		}
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		List result = null;
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
 		Map retMap = sc.executeNamedFilter(filterName, exVars,options);
@@ -292,7 +292,7 @@ public class SWDataProducer extends DefaultProducer {
 	private void doFindOneByFilter(Exchange exchange) {
 		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
 		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
-		SessionContext sc = getSessionContext();
+		SessionContext sc = getSessionContext(exchange);
 		Map result = null;
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
 		Map retMap = sc.executeNamedFilter(filterName, exVars,m_options);
@@ -312,8 +312,12 @@ public class SWDataProducer extends DefaultProducer {
 		}
 	}
 
-	private SessionContext getSessionContext() {
-		StoreDesc sdesc = StoreDesc.getNamespaceData(m_namespace);
+	private SessionContext getSessionContext(Exchange exchange) {
+		String namespace = getString(exchange, SWDataConstants.NAMESPACE, m_namespace);
+		StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
+		if (sdesc == null){
+			throw new RuntimeException("SWDataProducer.namespace:" + namespace + " not found");
+		}
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		return sc;
 	}
