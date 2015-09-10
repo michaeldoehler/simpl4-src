@@ -320,7 +320,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 					return;
 				}
 				this.facade.vis.selectNode( map.msg.resourceId);
-				this._setDetails(map.msg.headers, map.msg.properties, map.msg.body, map.msg.causedByException );
+				this._setDetails(map.msg.headers, map.msg.properties, map.msg.body, map.msg.outBody, map.msg.causedByException );
 			}, this);
 
 
@@ -363,15 +363,25 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			this._viewDetailsBody = this._createViewDetailsBody();
 			page3.add(this._viewDetailsBody);
 
-			var page4 = new qx.ui.tabview.Page(this.tr("processexplorer.details_exception"), "resource/ms123/camel.png").set({
+			var page4 = new qx.ui.tabview.Page(this.tr("processexplorer.details_outbody"), "icon/16/actions/help-faq.png").set({
 				showCloseButton: false
 			});
 			page4.setLayout(new qx.ui.layout.Grow());
 			detailsTabs.add(page4, {
 				edge: 0
 			});
+			this._viewDetailsOutBody = this._createViewDetailsBody();
+			page4.add(this._viewDetailsOutBody);
+
+			var page5 = new qx.ui.tabview.Page(this.tr("processexplorer.details_exception"), "resource/ms123/camel.png").set({
+				showCloseButton: false
+			});
+			page4.setLayout(new qx.ui.layout.Grow());
+			detailsTabs.add(page5, {
+				edge: 0
+			});
 			this._viewDetailsException = this._createViewDetailsException();
-			page4.add(this._viewDetailsException);
+			page5.add(this._viewDetailsException);
 
 			detailsTabs.setSelection([page1]);
 			this._detailsTabs = detailsTabs;
@@ -462,7 +472,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			}
 			return qx.bom.String.escape(df.format(new Date(time)));
 		},
-		_setDetails:function(dataHeaders,dataProperties, body, exception){
+		_setDetails:function(dataHeaders,dataProperties, body, outBody, exception){
 			var headersArray = Object.keys(dataHeaders).map(function(key) {
 					var value = dataHeaders[key];
 					if( (typeof value == "object") && (value !== null) ){
@@ -481,6 +491,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			this._tableModelDetailsProperties.setDataAsMapArray(propertiesArray, true);
 			this._viewDetailsException.setValue( exception );
 			this._viewDetailsBody.setValue( body );
+			this._viewDetailsOutBody.setValue( outBody );
 		},
 		_clearDetails:function(){
 			this._tableDetailsHeaders.removeRows(0, this._tableModelDetailsHeaders.getRowCount());
