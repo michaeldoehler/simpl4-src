@@ -42,6 +42,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.language.ConstantExpression;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
+import static org.ms123.common.camel.api.CamelService.CAMEL_TYPE;
+import static org.ms123.common.camel.api.CamelService.OVERRIDEID;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.osgi.framework.BundleContext;
 
@@ -52,6 +54,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 	def m_ctx;
 	def m_typesMap = [:];
 	def m_shapeMap = [:];
+	def m_procedureShapeMap = [:];
 	def m_sharedEndpointMap = [:];
 	CamelRouteJsonConverter(String path, ModelCamelContext camelContext, Map rootShape,Map branding, Map buildEnv,BundleContext bundleContext) {
 		m_path = path;
@@ -77,14 +80,19 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		def i=1;
 		int size = m_ctx.routesDefinition.getRoutes().size();
 		m_ctx.routesDefinition.getRoutes().each(){ routeDef ->
-			routeDef.routeId( size == 1 ? baseId : createRouteId(baseId,i));
+			def routeId =  size == 1 ? baseId : createRouteId(baseId,i);
+			routeDef.routeId( routeId );
+			def shape = startList.get(i-1);
 			i++;
+			if( getRpcFlag(shape) && getProcedureName(shape)!=null){
+				shape.get(PROPERTIES).put(OVERRIDEID, routeId);
+				m_procedureShapeMap[routeId] = shape;
+			}
 			if( logExceptionsOnly){
 				def expr = new ConstantExpression(logExceptionsOnly as String);
 				routeDef.setProperty("__logExceptionsOnly",expr);
 			}
 		}
-
 		println("RoutesDefinition:"+m_ctx.routesDefinition);
 	}
 	private def getStartList(Map rootShape) {
@@ -201,6 +209,9 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 
 	public RoutesDefinition getRoutesDefinition() {
 		return m_ctx.routesDefinition;
+	}
+	public Map<String,Map> getProcedureShapes() {
+		return m_procedureShapeMap;
 	}
 
 	public void toDot(){

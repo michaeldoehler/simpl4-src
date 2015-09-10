@@ -71,7 +71,11 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		if (ns == null) {
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
 		}
-		Map shape = getCamelShape(ns, methodName);
+		Map shape  = m_camelService.getProcedureShape(ns,methodName );
+		if( shape == null){
+			shape = getCamelShape(ns, methodName);
+		}
+System.out.println("procedureShape:"+shape);
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
 		String userName = getUserName();

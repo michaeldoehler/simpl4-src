@@ -30,6 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static org.ms123.common.camel.api.CamelService.PROPERTIES;
+import static org.ms123.common.camel.api.CamelService.RPC;
+import static org.ms123.common.camel.api.CamelService.PROCEDURENAME;
+import static org.ms123.common.camel.api.CamelService.OVERRIDEID;
 
 /**
  *
@@ -91,8 +95,8 @@ public class BaseRouteJsonConverter {
 	}
 
 	protected String getId(Map shape) {
-		Map properties = (Map) shape.get("properties");
-		String id = ((String) properties.get("overrideid"));
+		Map properties = (Map) shape.get(PROPERTIES);
+		String id = ((String) properties.get(OVERRIDEID));
 		if( id == null || id.length()==0){
 			id = (String)shape.get("resourceId");
 		}
@@ -100,11 +104,27 @@ public class BaseRouteJsonConverter {
 	}
 
 	protected String getSharedOriginRef(Map shape) {
-		Map<String,String> properties = (Map) shape.get("properties");
+		Map<String,String> properties = (Map) shape.get(PROPERTIES);
 		if( "origin".equals(properties.get("shared"))){
 			return properties.get("shareRef");
 		}
 		return null;
+	}
+
+	protected boolean getRpcFlag(Map shape) {
+		Map<String,Boolean> properties = (Map) shape.get(PROPERTIES);
+		try{
+			Boolean rpc = properties.get(RPC);
+			return rpc != null && rpc == true;
+		}catch(Exception e){
+			System.out.println("e:"+e);
+			return false;
+		}
+	}
+
+	protected String getProcedureName(Map shape) {
+		Map<String,String> properties = (Map) shape.get(PROPERTIES);
+		return properties.get(PROCEDURENAME);
 	}
 
 	protected String createRouteId( String baseId, int index){

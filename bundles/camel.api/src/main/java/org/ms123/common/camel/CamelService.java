@@ -27,10 +27,13 @@ public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
 	public final String DEFAULT_CONTEXT = "default";
 	public final String PROPERTIES = "properties";
+	public final String PROCEDURENAME = "procedureName";
+	public final String RPC = "rpc";
 	public final String OVERRIDEID = "overrideid";
 	public final String CAMEL_TYPE = "sw.camel";
 	public CamelContext getCamelContext(String namespace, String name);
 	public Map getShapeByRouteId(String namespace, String routeId);
+	public Map getProcedureShape(String namespace, String procedureName);
 	public void saveHistory(Exchange exchange);
 	public List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg,Map<String,String> meta);
 	public Object camelSend(String epUri, final Map<String, Object> properties);

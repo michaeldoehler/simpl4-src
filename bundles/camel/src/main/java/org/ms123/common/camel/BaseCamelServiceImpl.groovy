@@ -128,12 +128,38 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 	private Map<String, ContextCacheEntry> m_contextCache = new LinkedHashMap();
 	private Map<String, List<Route>> m_routeCache = new LinkedHashMap();
+	private Map<String, Map<String,Object>> m_procedureCache = new LinkedHashMap();
 
 	public CamelContext getCamelContext(String namespace, String camelName) {
 		try{
 			return m_contextCache.get(getContextKey(namespace,  camelName)).context;
 		}catch(Exception e){
 			throw new RuntimeException("BaseCamelServiceImpl.getCamelContext("+namespace+","+camelName+"): not found");
+		}
+	}
+
+	public Map<String,Object> getProcedureShape(String namespace, String procedureName) {
+		Iterator<Map.Entry<String,Map>> iter = m_procedureCache.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<String,Map> entry = iter.next();
+			String key = entry.getKey();
+			if(key.startsWith(namespace+".") && key.endsWith("."+procedureName)){
+				return entry.value;
+			}
+		}
+	}
+	private void addProcedureShapeToCache(String namespace, String baseRouteId,Map shape) {
+		if( shape == null) return;
+		String procedureName = getProcedureName(shape);
+		m_procedureCache.put(namespace+"."+baseRouteId + "." +  procedureName, shape);
+	}
+	private void removeProcedureShapeByPrefix(String prefix){
+		Iterator<Map.Entry<String,Map>> iter = m_procedureCache.entrySet().iterator();
+		while (iter.hasNext()) {
+				Map.Entry<String,Map> entry = iter.next();
+				if(entry.getKey().startsWith(prefix)){
+						iter.remove();
+				}
 		}
 	}
 
@@ -318,9 +344,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 
-	private RoutesDefinition createRoutesDefinitionFromShape(String path, ModelCamelContext context, Map rootShape) {
+	private CamelRouteJsonConverter createRoutesDefinitionFromRootShape(String path, ModelCamelContext context, Map rootShape) {
 		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null,m_bundleContext);
-		return c.getRoutesDefinition();
+		return c;
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){
 		_createRoutesFromShape(namespace,null);
@@ -328,7 +354,8 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected synchronized void _createRoutesFromShape(String namespace,String path){
 		Map<String, List> routeShapeMap = getRouteShapeMap(namespace);
 		if( routeShapeMap.size() == 0){
-			stopNotActiveRoutes( getContextKey(namespace,"default"), []);
+			stopNotActiveRoutes( namespace, getContextKey(namespace,"default"), []);
+			removeProcedureShapeByPrefix(namespace+".");
 		}
 		for( String  contextKey : routeShapeMap.keySet()){
 			List<Map> list = routeShapeMap.get(contextKey);
@@ -336,7 +363,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			if( cce == null){
 				if(list.size() == 0) {
 					//No enabled route
-					stopNotActiveRoutes(contextKey,[]);
+					stopNotActiveRoutes(namespace, contextKey,[]);
 					continue;
 				}
 				cce = new ContextCacheEntry();
@@ -363,7 +390,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					//new Route
 					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeBaseId);
 					info("Add route:"+routeBaseId);
-					RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
+					def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
+					RoutesDefinition routesDef = c.getRoutesDefinition();
+					Map<String,Map> procedureShapes = c.getProcedureShapes();					
 					System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context, routesDef));
 
 					int i=1;
@@ -374,6 +403,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						routeDef.setGroup(namespace);
 						routeDef.autoStartup( autoStart);
 						addRouteDefinition(cce.context, routeDef,re);
+						addProcedureShapeToCache( namespace, routeBaseId, procedureShapes[routeId]);
 						if( autoStart){
 							cce.context.startRoute(routeId);
 						}
@@ -391,9 +421,12 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						info("Exchange route:"+routeBaseId+"/"+autoStart);
 						re.md5 = md5;
 						re.shape = routeShape;
-						RoutesDefinition routesDef = createRoutesDefinitionFromShape( _path, cce.context, routeShape);
+						def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
+						RoutesDefinition routesDef = c.getRoutesDefinition();
+						Map<String,Map> procedureShapes = c.getProcedureShapes();					
 						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context,routesDef));
 
+						removeProcedureShapeByPrefix( namespace+"."+routeBaseId+"." );
 						stopAndRemoveRoutesForShape(cce.context, routeBaseId);
 						int i=1;
 						int size = routesDef.getRoutes().size();
@@ -403,6 +436,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 							routeDef.routeId(routeId);
 							routeDef.autoStartup( autoStart);
 							addRouteDefinition(cce.context, routeDef,re);
+							addProcedureShapeToCache( namespace, routeBaseId, procedureShapes[routeId]);
 							if( autoStart){
 								cce.context.startRoute(routeId);
 							}
@@ -412,7 +446,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					}
 				}
 			}
-			stopNotActiveRoutes(contextKey,okList);
+			stopNotActiveRoutes(namespace, contextKey,okList);
+		}
+		m_js.prettyPrint(true);
+		if( m_procedureCache.size()>0){
+			System.out.println("m_procedureCache("+namespace+"):"+m_js.deepSerialize(m_procedureCache));
 		}
 	}
 
@@ -434,7 +472,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 
-	private void stopNotActiveRoutes(String contextKey, List okList){
+	private void stopNotActiveRoutes(String namespace, String contextKey, List okList){
 		info("stopNotActiveRoutes:"+contextKey+"/"+okList);
 		ContextCacheEntry cce = m_contextCache.get(contextKey);
 		if( cce == null) return;
@@ -447,7 +485,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				info("Remove route:"+rid);
 				cce.context.stopRoute(rid);
 				cce.context.removeRoute(rid);
-				cce.routeEntryMap.remove(getBaseRouteId(rid));
+				def baseRouteId = getBaseRouteId(rid);
+				cce.routeEntryMap.remove(baseRouteId);
+				removeProcedureShapeByPrefix(namespace+"."+baseRouteId+".");
 			}
 		}
 		info("-->Context("+contextKey+"):status:"+cce.context.getStatus());
@@ -684,6 +724,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			id = (String)shape.get(RESOURCEID);
 		}
 		return id;
+	}
+
+	protected String getProcedureName(Map shape) {
+		Map<String,String> properties = (Map) shape.get(PROPERTIES);
+		return properties.get(PROCEDURENAME);
 	}
 
 	private static class RouteCacheEntry {
