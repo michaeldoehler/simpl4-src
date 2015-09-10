@@ -43,12 +43,6 @@ public class DirectEndpoint extends DefaultEndpoint {
 
 	private volatile Map<String, Collection<DirectConsumer>> consumers;
 
-	@UriParam
-	private boolean block;
-
-	@UriParam
-	private long timeout = 30000L;
-
 	public DirectEndpoint() {
 		this.consumers = new ConcurrentHashMap<String, Collection<DirectConsumer>>();
 	}
@@ -63,11 +57,7 @@ public class DirectEndpoint extends DefaultEndpoint {
 	}
 
 	public Producer createProducer() throws Exception {
-		if (block) {
-			return new DirectBlockingProducer(this);
-		} else {
-			return new DirectProducer(this);
-		}
+		return new DirectProducer(this);
 	}
 
 	public Consumer createConsumer(Processor processor) throws Exception {
@@ -112,22 +102,6 @@ public class DirectEndpoint extends DefaultEndpoint {
 		String key = getKey();
 		Collection<DirectConsumer> consumerList = consumers.get(key);
 		return consumerList != null ? consumerList : new ArrayList<DirectConsumer>();
-	}
-
-	public boolean isBlock() {
-		return block;
-	}
-
-	public void setBlock(boolean block) {
-		this.block = block;
-	}
-
-	public long getTimeout() {
-		return timeout;
-	}
-
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
 	}
 
 	protected String getKey() {

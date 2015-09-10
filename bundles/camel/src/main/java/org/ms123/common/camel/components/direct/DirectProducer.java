@@ -38,7 +38,7 @@ public class DirectProducer extends DefaultAsyncProducer {
 	public void process(Exchange exchange) throws Exception {
 		Collection<DirectConsumer> consumers = endpoint.getConsumers();
 		if (consumers.size() == 0) {
-			throw new DirectConsumerNotAvailableException("No consumers available on endpoint: " + endpoint, exchange);
+			throw new RuntimeException("No consumers available on endpoint: " + endpoint);
 		} else {
 			for (DirectConsumer consumer : consumers) {
 				consumer.getProcessor().process(exchange);
@@ -50,7 +50,7 @@ public class DirectProducer extends DefaultAsyncProducer {
 		Collection<DirectConsumer> consumers = endpoint.getConsumers();
 		if (consumers.size() == 0) {
 			// indicate its done synchronously
-			exchange.setException(new DirectConsumerNotAvailableException("No consumers available on endpoint: " + endpoint, exchange));
+			exchange.setException(new RuntimeException("No consumers available on endpoint: " + endpoint));
 			callback.done(true);
 			return true;
 		} else {
