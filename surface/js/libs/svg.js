@@ -1083,7 +1083,7 @@ SVG.Element = SVG.invent({
       return this instanceof SVG.Doc ? this : this.parent(SVG.Doc)
     }
     // Returns the svg node to call native svg methods on it
-  , native: function() {
+  , 'native': function() {
       return this.node
     }
     // Import raw svg
@@ -1832,15 +1832,15 @@ SVG.Matrix = SVG.invent({
     }
     // Multiplies by given matrix
   , multiply: function(matrix) {
-      return new SVG.Matrix(this.native().multiply(parseMatrix(matrix).native()))
+      return new SVG.Matrix(this['native']().multiply(parseMatrix(matrix)['native']()))
     }
     // Inverses matrix
   , inverse: function() {
-      return new SVG.Matrix(this.native().inverse())
+      return new SVG.Matrix(this['native']().inverse())
     }
     // Translate matrix
   , translate: function(x, y) {
-      return new SVG.Matrix(this.native().translate(x || 0, y || 0))
+      return new SVG.Matrix(this['native']().translate(x || 0, y || 0))
     }
     // Scale matrix
   , scale: function(x, y, cx, cy) {
@@ -1867,7 +1867,7 @@ SVG.Matrix = SVG.invent({
     }
     // Skew
   , skew: function(x, y, cx, cy) {
-      return this.around(cx, cy, this.native().skewX(x || 0).skewY(y || 0))
+      return this.around(cx, cy, this['native']().skewX(x || 0).skewY(y || 0))
     }
     // Transform around a center point
   , around: function(cx, cy, matrix) {
@@ -1877,7 +1877,7 @@ SVG.Matrix = SVG.invent({
         .multiply(new SVG.Matrix(1, 0, 0, 1, -cx || 0, -cy || 0))
     }
     // Convert to native SVGMatrix
-  , native: function() {
+  , 'native': function() {
       // create new matrix
       var matrix = SVG.parser.draw.node.createSVGMatrix()
 

@@ -41,7 +41,7 @@ clazz.construct.extend( "simpl4.util.Map", {
 		this.store[ key ] = val;
 		return this;
 	},
-	delete: function( key,val ) {
+	'delete': function( key,val ) {
 		if ( !this.has( key ) ){	
 			return false;
 		}

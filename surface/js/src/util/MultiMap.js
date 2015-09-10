@@ -37,7 +37,7 @@ simpl4.util.Map.extend( "simpl4.util.MultiMap", {
 		Array.prototype.push.apply( entry, args );
 		return this;
 	},
-	delete: function( key,val ) {
+	'delete': function( key,val ) {
 		if ( !this.has( key ) ){
 			return false;
 		}
