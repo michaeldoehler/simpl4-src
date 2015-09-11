@@ -132,8 +132,8 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		result.put("html.gz", "text/html");
 		result.put("gif", "image/gif");
 		result.put("png", "image/png");
-		result.put("jpg", "image/jpg");
-		result.put("jepg", "image/jpg");
+		result.put("jpg", "image/jpeg");
+		result.put("jepg", "image/jpeg");
 		result.put("woff", "application/x-font-woff");
 		result.put("woff.gz", "application/x-font-woff");
 		result.put("svg", "image/svg+xml");
@@ -725,7 +725,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		try{
 			int dot = asset.lastIndexOf(".");
 			String ext = asset.substring(dot+1);	
-			if( "jpeg".equals(ext)) return "jpg";
+			if( "jpg".equals(ext)) return "jpeg";
 			return ext;
 		}catch(Exception e){
 			return "unknown_ext";

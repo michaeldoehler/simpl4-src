@@ -450,17 +450,15 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			if (!gitDir.exists()) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:Repo(" + repoName + ") not exists");
 			}
+			info("searchFile.name:"+name+"|"+type);
 			List<String> pathList = null;
-			//if( name.indexOf("/")>=0){
-				File f = new File(gitDir,name);
-				if( f.exists() && (isEmpty(type) || getFileType(f).equals(type))){
-					info("searchFile.found:"+f);
-					return f;
-				}
-				//pathList = new ArrayList();
-			//}else{
-				pathList = assetList(repoName, name, type, true);
-			//}
+			File f = new File(gitDir,name);
+			String ft = getFileType(f);
+			if( f.exists() && (isEmpty(type) || ft.equals(type))){
+				info("searchFile.found:"+f);
+				return f;
+			}
+			pathList = assetList(repoName, name, type, true);
 			long endTime = new Date().getTime();
 			debug("searchFile.time:" + (endTime - startTime));
 			if (pathList.size() == 0) {
@@ -1187,7 +1185,7 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 						break;
 				}
 			} else if (i == -2555936) {
-				return "image/jpg";
+				return "image/jpeg";
 			} else if (i == -1991225785) {
 				return "image/png";
 			}
