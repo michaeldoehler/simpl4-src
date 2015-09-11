@@ -230,6 +230,13 @@ abstract class BaseCallServiceImpl {
 		return ns;
 	}
 
+	protected Map getProcedureShape(String ns, String methodName){
+		Map shape  = m_camelService.getProcedureShape(ns,methodName );
+		if( shape == null && methodName.endsWith(".camel")){
+			shape = m_camelService.getProcedureShape( ns, methodName.substring(0, methodName.length()-6));
+		}
+		return shape;
+	}
 	protected boolean isPermitted(String userName, List<String> userRoleList, List<String> permittedUserList, List<String> permittedRoleList) {
 		if (permittedUserList.contains(userName)) {
 			info("userName(" + userName + " is allowed:" + permittedUserList);

@@ -143,17 +143,17 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		while (iter.hasNext()) {
 			Map.Entry<String,Map> entry = iter.next();
 			String key = entry.getKey();
-			if(key.startsWith(namespace+".") && key.endsWith("."+procedureName)){
+			if(key.startsWith(namespace+"/") && key.endsWith("/"+procedureName)){
 				return entry.value;
 			}
 		}
 	}
-	private void addProcedureShapeToCache(String namespace, String baseRouteId,Map shape) {
+	private void addProcedureShape(String namespace, String baseRouteId,Map shape) {
 		if( shape == null) return;
 		String procedureName = getProcedureName(shape);
-		m_procedureCache.put(namespace+"."+baseRouteId + "." +  procedureName, shape);
+		m_procedureCache.put(namespace+"/"+baseRouteId + "/" +  procedureName, shape);
 	}
-	private void removeProcedureShapeByPrefix(String prefix){
+	private void removeProcedureShape(String prefix){
 		Iterator<Map.Entry<String,Map>> iter = m_procedureCache.entrySet().iterator();
 		while (iter.hasNext()) {
 				Map.Entry<String,Map> entry = iter.next();
@@ -228,8 +228,6 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		info("Def:"+cc.getRouteDefinitions());
 		List<RouteDefinition> rdList =  cc.getRouteDefinitions();
 		for( RouteDefinition rd : rdList){
-			System.out.println("I:"+rd.getInputs());
-			System.out.println("O:"+rd.getOutputs());
 			Map routeMap = new HashMap();
 			routeMap.put("id", rd.getId());
 			routeMap.put("route", rd.toString());
@@ -308,7 +306,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv, m_bundleContext);
 		RoutesDefinition routesDef = c.getRoutesDefinition();
-						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(context,routesDef));
+		debug("routesDef:"+ModelHelper.dumpModelAsXml(context,routesDef));
 		int i=1;
 		routes = new ArrayList();
 		def baseId = getId( shape);
@@ -355,7 +353,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		Map<String, List> routeShapeMap = getRouteShapeMap(namespace);
 		if( routeShapeMap.size() == 0){
 			stopNotActiveRoutes( namespace, getContextKey(namespace,"default"), []);
-			removeProcedureShapeByPrefix(namespace+".");
+			removeProcedureShape(namespace+"/");
 		}
 		for( String  contextKey : routeShapeMap.keySet()){
 			List<Map> list = routeShapeMap.get(contextKey);
@@ -393,7 +391,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
 					RoutesDefinition routesDef = c.getRoutesDefinition();
 					Map<String,Map> procedureShapes = c.getProcedureShapes();					
-					System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context, routesDef));
+					debug("createRoutesDefinitionFromRootShape.routesDef:"+ModelHelper.dumpModelAsXml(cce.context, routesDef));
 
 					int i=1;
 					int size = routesDef.getRoutes().size();
@@ -403,7 +401,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						routeDef.setGroup(namespace);
 						routeDef.autoStartup( autoStart);
 						addRouteDefinition(cce.context, routeDef,re);
-						addProcedureShapeToCache( namespace, routeBaseId, procedureShapes[routeId]);
+						addProcedureShape( namespace, routeBaseId, procedureShapes[routeId]);
 						if( autoStart){
 							cce.context.startRoute(routeId);
 						}
@@ -424,9 +422,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
 						RoutesDefinition routesDef = c.getRoutesDefinition();
 						Map<String,Map> procedureShapes = c.getProcedureShapes();					
-						System.out.println("routesDef:"+ModelHelper.dumpModelAsXml(cce.context,routesDef));
+						debug("createRoutesDefinitionFromRootShape.routesDef:"+ModelHelper.dumpModelAsXml(cce.context,routesDef));
 
-						removeProcedureShapeByPrefix( namespace+"."+routeBaseId+"." );
+						removeProcedureShape( namespace+"/"+routeBaseId+"/" );
 						stopAndRemoveRoutesForShape(cce.context, routeBaseId);
 						int i=1;
 						int size = routesDef.getRoutes().size();
@@ -436,7 +434,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 							routeDef.routeId(routeId);
 							routeDef.autoStartup( autoStart);
 							addRouteDefinition(cce.context, routeDef,re);
-							addProcedureShapeToCache( namespace, routeBaseId, procedureShapes[routeId]);
+							addProcedureShape( namespace, routeBaseId, procedureShapes[routeId]);
 							if( autoStart){
 								cce.context.startRoute(routeId);
 							}
@@ -448,9 +446,9 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			}
 			stopNotActiveRoutes(namespace, contextKey,okList);
 		}
-		m_js.prettyPrint(true);
 		if( m_procedureCache.size()>0){
-			System.out.println("m_procedureCache("+namespace+"):"+m_js.deepSerialize(m_procedureCache));
+			m_js.prettyPrint(true);
+			debug("m_procedureCache("+namespace+"):"+m_js.deepSerialize(m_procedureCache));
 		}
 	}
 
@@ -487,7 +485,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				cce.context.removeRoute(rid);
 				def baseRouteId = getBaseRouteId(rid);
 				cce.routeEntryMap.remove(baseRouteId);
-				removeProcedureShapeByPrefix(namespace+"."+baseRouteId+".");
+				removeProcedureShape(namespace+"/"+baseRouteId+"/");
 			}
 		}
 		info("-->Context("+contextKey+"):status:"+cce.context.getStatus());
@@ -507,7 +505,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
-						System.out.println("XrouteDef:"+ModelHelper.dumpModelAsXml(context,rd));
+		debug("addRouteDefinition.routeDef:"+ModelHelper.dumpModelAsXml(context,rd));
 		try{
 			context.addRouteDefinition(rd );
 			if( re != null){

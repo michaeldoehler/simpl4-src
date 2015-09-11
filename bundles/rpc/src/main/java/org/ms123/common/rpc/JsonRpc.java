@@ -121,7 +121,7 @@ public class JsonRpc {
 		final String serviceName = (String) requestIntermediateObject.get("service");
 		final String methodName = (String) requestIntermediateObject.get("method");
 		final Object methodParams = requestIntermediateObject.get("params");
-		if (CallService.CAMELSERVICENAME.equals(serviceName)) {
+		if (CallService.CAMELSERVICENAME.equals(serviceName) ||  CallService.CAMELSERVICENAME2.equals(serviceName)){
 			return getCallService().callCamel(methodName, methodParams, null, null);
 		}
 		return callProcedure(obj, serviceName, methodName, methodParams);

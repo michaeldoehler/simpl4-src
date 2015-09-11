@@ -67,23 +67,32 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 
 	public Object callCamel(String methodName, Object _methodParams, HttpServletRequest request, HttpServletResponse response) {
 		Map methodParams = (Map) _methodParams;
-		String ns = getNamespace(methodParams);
-		if (ns == null) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
+		int dot = methodName.indexOf(".");
+		String namespace = null;
+		if( dot > 0){
+			String a[] = methodName.split("\\.");
+			namespace = a[0];
+			methodName = a[1];
 		}
-		Map shape  = m_camelService.getProcedureShape(ns,methodName );
+		if( namespace == null){
+			namespace = getNamespace(methodParams);
+			if (namespace == null) {
+				throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
+			}
+		}
+		info("Namespace/Procedure:"+namespace+"/"+methodName);
+		Map shape  = this.getProcedureShape(namespace,methodName );
 		if( shape == null){
-			shape = getCamelShape(ns, methodName);
+			shape = getCamelShape(namespace, methodName);
 		}
-System.out.println("procedureShape:"+shape);
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
 		String userName = getUserName();
 		List<String> userRoleList = getUserRoles(userName);
 		debug("userName:" + userName);
-		debug("userRoleList:" + userRoleList);
-		debug("permittedRoleList:" + permittedRoleList);
-		debug("permittedUserList:" + permittedUserList);
+		info("userRoleList:" + userRoleList);
+		info("permittedRoleList:" + permittedRoleList);
+		info("permittedUserList:" + permittedUserList);
 		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "User(" + userName + ") has no permission");
 		}
@@ -118,7 +127,7 @@ System.out.println("procedureShape:"+shape);
 			}
 		}
 		properties.put("__logExceptionsOnly", getBoolean(shape, "logExceptionsOnly", false));
-		debug("methodParams:" + methodParams);
+		info("methodParams:" + methodParams);
 		debug("paramList:" + paramList);
 		debug("properties:" + properties);
 		debug("headers:" + headers);
@@ -134,7 +143,7 @@ System.out.println("procedureShape:"+shape);
 		}
 
 		String routeId = getId(shape);
-		CamelContext cc = m_camelService.getCamelContext(ns, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT));
+		CamelContext cc = m_camelService.getCamelContext(namespace, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT));
 		Route route = cc.getRoute(routeId);
 		if( route == null){ //Maybe multiple routes
 			route= getRouteWithDirectConsumer(cc, routeId);
@@ -145,7 +154,7 @@ System.out.println("procedureShape:"+shape);
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {
-			answer = m_camelService.camelSend(ns, route.getEndpoint(), bodyObj, headers, properties,returnSpec, returnHeaderList);
+			answer = m_camelService.camelSend(namespace, route.getEndpoint(), bodyObj, headers, properties,returnSpec, returnHeaderList);
 			info("Answer:" + answer);
 		} catch (Exception e) {
 			e.printStackTrace();

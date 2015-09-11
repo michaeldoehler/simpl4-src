@@ -33,7 +33,8 @@ public interface CallService {
 	public static String AT_AFTER = "after";
 	public static String METHODRESULT = "result";
 	public static String PRECONDITION = "preCondition";
-	public static String CAMELSERVICENAME = "camelRoute";
+	public static String CAMELSERVICENAME = "camel";
+	public static String CAMELSERVICENAME2 = "camelRoute";
 
 	public void callHooks(Map params);
 	public Object callCamel(String methodName, Object methodParams, HttpServletRequest request, HttpServletResponse response);
