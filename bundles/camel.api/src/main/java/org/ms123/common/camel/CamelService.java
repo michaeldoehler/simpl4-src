@@ -27,7 +27,7 @@ public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
 	public final String DEFAULT_CONTEXT = "default";
 	public final String PROPERTIES = "properties";
-	public final String PROCEDURENAME = "procedureName";
+	public final String PROCEDURENAME = "urivalue_name";
 	public final String RPC = "rpc";
 	public final String OVERRIDEID = "overrideid";
 	public final String CAMEL_TYPE = "sw.camel";

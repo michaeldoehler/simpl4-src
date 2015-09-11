@@ -139,10 +139,12 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	public Map<String,Object> getProcedureShape(String namespace, String procedureName) {
+		info("getProcedureShape:"+procedureName);
 		Iterator<Map.Entry<String,Map>> iter = m_procedureCache.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry<String,Map> entry = iter.next();
 			String key = entry.getKey();
+			info("\t"+entry.key);
 			if(key.startsWith(namespace+"/") && key.endsWith("/"+procedureName)){
 				return entry.value;
 			}
