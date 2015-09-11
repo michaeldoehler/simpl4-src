@@ -376,7 +376,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			var page5 = new qx.ui.tabview.Page(this.tr("processexplorer.details_exception"), "resource/ms123/camel.png").set({
 				showCloseButton: false
 			});
-			page4.setLayout(new qx.ui.layout.Grow());
+			page5.setLayout(new qx.ui.layout.Grow());
 			detailsTabs.add(page5, {
 				edge: 0
 			});
