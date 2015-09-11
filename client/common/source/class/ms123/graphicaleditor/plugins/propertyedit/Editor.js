@@ -532,6 +532,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							break;
 						case ms123.oryx.Config.TYPE_RESOURCE_SELECTOR:
 							formElement = new ms123.form.ResourceSelectorField(pair.config(), key, this.facade);
+							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
 								console.log("changeValue.resourceselector:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
