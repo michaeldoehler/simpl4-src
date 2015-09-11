@@ -461,6 +461,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 						switch (pair.type()) {
 						case ms123.oryx.Config.TYPE_TEXT:
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.TextAreaField(key, pair.config(),this.facade);
+							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
