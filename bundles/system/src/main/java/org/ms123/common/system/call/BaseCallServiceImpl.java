@@ -49,6 +49,7 @@ import org.ms123.common.camel.api.CamelService;
 import static org.ms123.common.camel.api.CamelService.CAMEL_TYPE;
 import static org.ms123.common.camel.api.CamelService.PROPERTIES;
 import static org.ms123.common.camel.api.CamelService.OVERRIDEID;
+import static org.ms123.common.camel.api.CamelService.RPC;
 import groovy.lang.*;
 import org.apache.commons.beanutils.ConvertUtils;
 
@@ -183,9 +184,6 @@ abstract class BaseCallServiceImpl {
 				shape = m_camelService.getShapeByRouteId(ns, name+".camel");
 			}
 		}
-		if (shape == null) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method " + name + "(.camel) not found");
-		}
 		return shape;
 	}
 
@@ -230,6 +228,16 @@ abstract class BaseCallServiceImpl {
 		return ns;
 	}
 
+	protected boolean isRPC(Map shape) {
+		Map<String,Boolean> properties = (Map) shape.get(PROPERTIES);
+		try{
+			Boolean rpc = properties.get(RPC);
+			return rpc != null && rpc == true;
+		}catch(Exception e){
+			System.out.println("e:"+e);
+			return false;
+		}
+	}
 	protected Map getProcedureShape(String ns, String methodName){
 		Map shape  = m_camelService.getProcedureShape(ns,methodName );
 		if( shape == null && methodName.endsWith(".camel")){
@@ -325,6 +333,10 @@ abstract class BaseCallServiceImpl {
 		if (value == null)
 			return def;
 		return (Boolean) value;
+	}
+
+	private boolean isEmpty(String s) {
+		return (s == null || "".equals(s.trim()));
 	}
 
 	protected String getUserName() {

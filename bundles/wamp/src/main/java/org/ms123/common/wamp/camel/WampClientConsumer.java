@@ -136,16 +136,20 @@ public class WampClientConsumer extends DefaultConsumer {
 		for (Map param : paramList) {
 			String destination = (String) param.get("destination");
 			String name = (String) param.get("name");
+			String destname = (String) param.get("destname");
+			if( isEmpty(destname)){
+				destname = name;
+			}	
 			Object def = param.get("defaultvalue");
 			Class type = this.types.get((String) param.get("type"));
 			Boolean opt = (Boolean) param.get("optional");
 			if ("property".equals(destination)) {
-				properties.put(name, getValue(name, methodParams.get(name), def, opt, type));
+				properties.put(destname, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("header".equals(destination)) {
-				headers.put(name, getValue(name, methodParams.get(name), def, opt, type));
+				headers.put(destname, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("body".equals(destination)) {
 				bodyObj = getValue(name, methodParams.get(name), def, opt, type);
-				bodyMap.put(name, bodyObj);
+				bodyMap.put(destname, bodyObj);
 			}
 		}
 
@@ -317,7 +321,14 @@ public class WampClientConsumer extends DefaultConsumer {
 		return kls.cast(ctx.getRegistry().lookupByName(kls.getName()));
 	}
 
+	private boolean isEmpty(String s) {
+		return (s == null || "".equals(s.trim()));
+	}
+
 	protected void doStart() throws Exception {
+		if( !this.endpoint.getMode().equals("rpc")){
+			return;
+		}
 		super.doStart();
 		this.clientSession = endpoint.createWampClientSession("realm1");
 		info("======Consumer.Start:" + this.clientSession);

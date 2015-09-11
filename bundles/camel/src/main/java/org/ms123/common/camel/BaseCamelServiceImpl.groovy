@@ -277,54 +277,6 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		return vg.getGraph(routeDefinitions);
 	}
 
-	public synchronized List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg,Map<String,String> meta) {
-		ModelCamelContext context = (ModelCamelContext)getCamelContext(namespace,"default");
-		String routeString = m_gitService.searchContent( namespace, name, "sw.camel" );
-		String md5 = getMD5OfUTF8(routeString+(buildEnv != null ? buildEnv.toString():""));
-		List<Route> routes = m_routeCache.get(md5);
-		if( routes != null) return routes;
-		Map shape = (Map)m_ds.deserialize(routeString);
-
-		String recvEndpoint = getString(shape, "recvEndpoint",null);
-		String sendEndpoint = getString(shape, "sendEndpoint",null);
-		if( recvEndpoint == null){
-			throw new RuntimeException("Missing \"ReceiveEndpoint\" in:"+namespace+"/"+name);
-		}
-		if( sendEndpoint == null){
-			throw new RuntimeException("Missing \"SendEndpoint\" in:"+namespace+"/"+name);
-		}
-	  StrSubstitutor ss = new StrSubstitutor(buildEnv, "{{", "}}");
-	
-		meta.put("recvEndpoint", ss.replace(recvEndpoint));
-		meta.put("sendEndpoint", ss.replace(sendEndpoint));
-		println("Meta:"+meta);
-
-		List<String> permittedRoleList = getStringList(shape, "startableGroups");
-		List<String> permittedUserList = getStringList(shape, "startableUsers");
-		List<String> userRoleList = getUserRoles(userName);
-		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
-			throw new RuntimeException("User(" + userName + ") has no permission execute route:"+namespace+"/"+name);
-		}
-
-		def c = new CamelRouteJsonConverter(msg, context, shape,m_namespaceService.getBranding(), buildEnv, m_bundleContext);
-		RoutesDefinition routesDef = c.getRoutesDefinition();
-		debug("routesDef:"+ModelHelper.dumpModelAsXml(context,routesDef));
-		int i=1;
-		routes = new ArrayList();
-		def baseId = getId( shape);
-		int size = routesDef.getRoutes().size();
-		routesDef.getRoutes().each(){RouteDefinition routeDef->
-			String routeId = size == 1 ? baseId : createRouteId(baseId,i);
-			routeDef.routeId(routeId);
-			addRouteDefinition( context, routeDef, null);
-			Route route = context.getRoute(routeId);
-			routes.add(route);
-			i++;
-		}
-		m_routeCache.put(md5, routes);
-		return routes;
-	}
-
 	protected String createRouteId( String baseId, int index){
 		return baseId+"_"+index;
 	}
@@ -402,7 +354,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						routeDef.routeId(routeId);
 						routeDef.setGroup(namespace);
 						routeDef.autoStartup( autoStart);
-						addRouteDefinition(cce.context, routeDef,re);
+						addRouteDefinition(cce.context, routeDef,re, routeBaseId);
 						addProcedureShape( namespace, routeBaseId, procedureShapes[routeId]);
 						if( autoStart){
 							cce.context.startRoute(routeId);
@@ -435,7 +387,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 							if( i==1 && size > 1)
 							routeDef.routeId(routeId);
 							routeDef.autoStartup( autoStart);
-							addRouteDefinition(cce.context, routeDef,re);
+							addRouteDefinition(cce.context, routeDef,re, routeBaseId);
 							addProcedureShape( namespace, routeBaseId, procedureShapes[routeId]);
 							if( autoStart){
 								cce.context.startRoute(routeId);
@@ -447,10 +399,6 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				}
 			}
 			stopNotActiveRoutes(namespace, contextKey,okList);
-		}
-		if( m_procedureCache.size()>0){
-			m_js.prettyPrint(true);
-			debug("m_procedureCache("+namespace+"):"+m_js.deepSerialize(m_procedureCache));
 		}
 	}
 
@@ -506,7 +454,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		return false;
 	}
 
-	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re) throws Exception{
+	private void addRouteDefinition(CamelContext context, RouteDefinition rd, RouteCacheEntry re, String baseRouteId) throws Exception{
 		debug("addRouteDefinition.routeDef:"+ModelHelper.dumpModelAsXml(context,rd));
 		try{
 			context.addRouteDefinition(rd );
@@ -516,6 +464,12 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}catch(Exception e){
 			e.printStackTrace();
 			context.removeRouteDefinition(rd);
+			try{
+				stopAndRemoveRoutesForShape(context, baseRouteId);
+			}catch(Exception e1){
+				info("stopAndRemoveRoutesForShape.error:"+e1.getMessage());
+				e1.printStackTrace();
+			}
 			if( re != null){
 				re.lastError = e.getMessage();
 			}
@@ -613,6 +567,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}
 	}
 	protected static void debug(String msg) {
+		System.out.println(msg);
 		m_logger.debug(msg);
 	}
 	protected static void info(String msg) {

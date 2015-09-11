@@ -85,6 +85,12 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		if( shape == null){
 			shape = getCamelShape(namespace, methodName);
 		}
+		if (shape == null) {
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method \"" + methodName + "\" not found");
+		}
+		if(!isRPC(shape)){
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "RPC in \"" + methodName + "\" not enabled");
+		}
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
 		String userName = getUserName();
@@ -106,16 +112,20 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		for (Map param : paramList) {
 			String destination = (String) param.get("destination");
 			String name = (String) param.get("name");
+			String destname = (String) param.get("destname");
+			if( isEmpty(destname)){
+				destname = name;
+			}	
 			Object def = param.get("defaultvalue");
 			Class type = m_types.get((String) param.get("type"));
 			Boolean opt = (Boolean) param.get("optional");
 			if ("property".equals(destination)) {
-				properties.put(name, getValue(name, methodParams.get(name), def, opt, type));
+				properties.put(destname, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("header".equals(destination)) {
-				headers.put(name, getValue(name, methodParams.get(name), def, opt, type));
+				headers.put(destname, getValue(name, methodParams.get(name), def, opt, type));
 			} else if ("body".equals(destination)) {
 				bodyObj = getValue(name, methodParams.get(name), def, opt, type);
-				bodyMap.put(name, bodyObj);
+				bodyMap.put(destname, bodyObj);
 			}
 		}
 

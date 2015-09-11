@@ -35,7 +35,6 @@ public interface CamelService {
 	public Map getShapeByRouteId(String namespace, String routeId);
 	public Map getProcedureShape(String namespace, String procedureName);
 	public void saveHistory(Exchange exchange);
-	public List<Route> createRoutes(String namespace, String name, String userName, Map buildEnv, String msg,Map<String,String> meta);
 	public Object camelSend(String epUri, final Map<String, Object> properties);
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> properties);
 	public Object camelSend(String epUri, final Object body, final Map<String, Object> headers, final Map<String, Object> properties);
