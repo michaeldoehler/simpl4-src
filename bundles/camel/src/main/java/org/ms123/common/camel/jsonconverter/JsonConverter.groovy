@@ -523,10 +523,15 @@ class ConvertBodyToJsonConverter extends JsonConverterImpl{
 		String charset = shapeProperties.charset!= null ? shapeProperties.charset : "utf-8";
 		Class type = null;
 		try{
-			type = Class.forName(shapeProperties.type!=null ? shapeProperties.type : "java.lang.String");
+			if( shapeProperties.type == "byte[]"){
+				type = byte[].class;
+			}else{
+				type = Class.forName(shapeProperties.type!=null ? shapeProperties.type : "java.lang.String");
+			}
 		}catch(Exception e){
 			throw new RuntimeException("ConvertBodyToJsonConverter:Class.forName("+shapeProperties.type+"):"+e.getMessage());
 		}
+		if( charset == "") charset=null;
 		ctx.current = ctx.current.convertBodyTo(type,charset);
 		ctx.current.id(resourceId);
 	}
