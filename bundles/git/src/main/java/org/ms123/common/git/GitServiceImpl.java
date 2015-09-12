@@ -450,11 +450,10 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			if (!gitDir.exists()) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:Repo(" + repoName + ") not exists");
 			}
-			info("searchFile.name:"+name+"|"+type);
 			List<String> pathList = null;
 			File f = new File(gitDir,name);
-			String ft = getFileType(f);
-			if( f.exists() && (isEmpty(type) || ft.equals(type))){
+			info("searchFile.name:"+name+"|wantedType:"+type);
+			if( f.exists() && (isEmpty(type) || getFileType(f).equals(type))){
 				info("searchFile.found:"+f);
 				return f;
 			}
@@ -787,7 +786,7 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 				if (file.isDirectory() || pathString.startsWith("store")) {
 					continue;
 				}
-				if (typeList.contains(getFileType(file))) {
+				if (typeList.contains("all") || typeList.contains(getFileType(file))) {
 					if (name == null || name.equals(getBasename(pathString))) {
 						debug("\tTreffer:" + pathString);
 						hitList.add(pathString);
