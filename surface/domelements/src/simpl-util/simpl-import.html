@@ -26,16 +26,25 @@
 		Polymer( {
 			is: 'simpl-import',
 			properties: {
+				data: {
+					type: Object
+				},
+				method: {
+					type: String
+				},
 				url: {
 					observer: 'urlChanged',
 					type: String
-				},
+				}
 			},
 			behaviors: [
 				StyleScopeBehavior
 			],
+			observers: [
+				'dataChanged(data,method)'
+			],
 			urlChanged: function( name ) {
-				if( this.url == null) return;
+				if ( this.url == null ) return;
 				var appendChar = "?";
 				if ( this.url.indexOf( "?" ) > 0 ) {
 					appendChar = "&";
@@ -43,12 +52,29 @@
 				var url = this.url + appendChar + "time=" + ( new Date().getTime() );
 				this.importHref( url, this.onResponse.bind( this ) );
 			},
+			dataChanged: function( name ) {
+				var params = this.data;
+				if ( typeof params == 'string' ) {
+					params = JSON5.parse( params );
+				}
+				var rpc = {
+					"service": "camel-routing",
+					"method": this.method,
+					params: params
+				};
+				var password = simpl4.util.BaseManager.getPassword();
+				var username = simpl4.util.BaseManager.getUser();
+				var credentials = simpl4.util.Base64.encode( username + ":" + password );
+				var url = "/rpc/__rpcForm__?__rpc__=" + JSON.stringify( rpc ) + "&credentials=" + credentials;
+				console.log( "Url:", url );
+				this.importHref( url, this.onResponse.bind( this ) );
+			},
 			onResponse: function( e ) {
 				var body = e.target.import.body;
 				var head = e.target.import.head;
 
-//console.log("Head:",head.innerHTML);
-//console.log("Body:",body.innerHTML);
+				//		console.log("Head:",head.innerHTML);
+				//		console.log("Body:",body.innerHTML);
 				var insertPoint = this.$.insertPoint;
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
@@ -56,24 +82,25 @@
 				if ( head.firstElementChild ) {
 					//Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
-				if ( body.firstElementChild ) {
+				if ( body && body.firstElementChild ) {
 					Polymer.dom( insertPoint ).appendChild( body );
 				}
-				document.querySelector("#dispatcherId").filterLocalLinks(insertPoint.firstElementChild);
+				document.querySelector( "#dispatcherId" ).filterLocalLinks( insertPoint.firstElementChild );
 				this.async( function() {
-					this.setScope(insertPoint);
+					this.setScope( insertPoint );
 				}, 50 );
 			},
-			setScope:function(insertPoint){
+			setScope: function( insertPoint ) {
 				var page = simpl4PageRegistry.getActivePage();
 				var scope = page.scope;
-				if(this.isAsciidoc(this.url) && scope==null){
+				if ( this.isAsciidoc( this.url ) && scope == null ) {
 					scope = "asciidoctor-default";
 				}
 				this.setStyleScope( insertPoint, scope );
 			},
-			isAsciidoc:function(url){
-				return url.indexOf(".adoc") > 0;
+			isAsciidoc: function( url ) {
+				if( url == null) return false;
+				return url.indexOf( ".adoc" ) > 0;
 			}
 
 		} );
