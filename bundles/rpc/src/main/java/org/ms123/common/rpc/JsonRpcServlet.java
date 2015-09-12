@@ -644,29 +644,9 @@ public class JsonRpcServlet extends HttpServlet {
 	 * @throws ServletException thrown when writing the response fails.
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		String result;
-		final String jsTransportId = request.getParameter(SCRIPT_TRANSPORT_ID);
-		if (jsTransportId != null) {
-			final String requestString = request.getParameter(SCRIPT_TRANSPORT_DATA);
-			final String res = handleRPC(request, requestString, response);
-			result = "qx.io.remote.ScriptTransport._requestFinished(\"" + jsTransportId + "\", " + res + ");";
-		} else {
-			result = makeJavaScriptServerInfo(request);
+		if( request.getPathInfo().indexOf("__rpcForm__") != -1){
+			doPost(request,response);
 		}
-		try {
-			final Writer responseWriter = response.getWriter();
-			if (request.getParameter("pretty") != null) {
-				result = makePretty(result);
-			}
-			responseWriter.write(result);
-		} catch (IOException e) {
-			throw new ServletException("Cannot write response", e);
-		}
-	}
-
-	private String makeJavaScriptServerInfo(final HttpServletRequest request) {
-		// sessions from the original code have been replaced by "null".
-		return "if (!qx || !qx.core || !qx.core.ServerSettings) {" + "qx.OO.defineClass(\"qx.core.ServerSettings\");" + "}" + "qx.core.ServerSettings.serverPathPrefix = \"" + getContextURL(request) + "\";" + "qx.core.ServerSettings.serverPathSuffix = \";" + "jsessionid=null\";" + "qx.core.ServerSettings.sessionTimeoutInSeconds = null;" + "qx.core.ServerSettings.lastSessionRefresh = (new Date()).getTime();";
 	}
 
 	private CallService getCallService(){
