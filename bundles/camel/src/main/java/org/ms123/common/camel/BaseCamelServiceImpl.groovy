@@ -296,9 +296,13 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 
-	private CamelRouteJsonConverter createRoutesDefinitionFromRootShape(String path, ModelCamelContext context, Map rootShape) {
-		def c = new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null,m_bundleContext);
-		return c;
+	private CamelRouteJsonConverter createRoutesDefinitionFromRootShape(RouteCacheEntry re, String path, ModelCamelContext context, Map rootShape) {
+		try{
+			return new CamelRouteJsonConverter(path, context, rootShape,m_namespaceService.getBranding(),null,m_bundleContext);
+		}catch(Exception e){
+			re.lastError=e.getMessage();
+			throw e;
+		}
 	}
 	protected synchronized void _createRoutesFromShape(String namespace){
 		_createRoutesFromShape(namespace,null);
@@ -342,7 +346,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					//new Route
 					re = new RouteCacheEntry( shape:routeShape,md5:md5,routeId:routeBaseId);
 					info("Add route:"+routeBaseId);
-					def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
+					def c  = createRoutesDefinitionFromRootShape( re, _path, cce.context, routeShape);
 					RoutesDefinition routesDef = c.getRoutesDefinition();
 					Map<String,Map> procedureShapes = c.getProcedureShapes();					
 					debug("createRoutesDefinitionFromRootShape.routesDef:"+ModelHelper.dumpModelAsXml(cce.context, routesDef));
@@ -364,6 +368,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					cce.routeEntryMap[routeBaseId] = re;
 					okList.add( routeBaseId);
 				}else{
+info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 					if( re.lastError == null  && re.md5 == md5 ){
 						//Nothing changed.
 						okList.add( routeBaseId);
@@ -373,7 +378,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 						info("Exchange route:"+routeBaseId+"/"+autoStart);
 						re.md5 = md5;
 						re.shape = routeShape;
-						def c  = createRoutesDefinitionFromRootShape( _path, cce.context, routeShape);
+						def c  = createRoutesDefinitionFromRootShape( re, _path, cce.context, routeShape);
 						RoutesDefinition routesDef = c.getRoutesDefinition();
 						Map<String,Map> procedureShapes = c.getProcedureShapes();					
 						debug("createRoutesDefinitionFromRootShape.routesDef:"+ModelHelper.dumpModelAsXml(cce.context,routesDef));
