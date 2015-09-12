@@ -29,6 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.io.Writer;
+import java.io.OutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import org.apache.camel.Route;
 import org.apache.camel.CamelContext;
 import org.ms123.common.rpc.PName;
@@ -43,6 +48,7 @@ import org.ms123.common.rpc.RpcException;
 import org.ms123.common.rpc.JsonRpcServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static org.apache.commons.io.IOUtils.copy;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
@@ -166,7 +172,10 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		Object answer = null;
 		try {
 			answer = m_camelService.camelSend(namespace, route.getEndpoint(), bodyObj, headers, properties,returnSpec, returnHeaderList);
-			info("Answer:" + answer);
+			info("CallServiceImpl.Answer:" + answer);
+			if( answer != null){
+				info("CallServiceImpl.Answer.type:" + answer.getClass());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService", e);
@@ -174,12 +183,27 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		if( "bodyWithMime".equals(returnSpec)){
 			String mime = getString(shape, "mimetype", "text/html");
 			response.setContentType(mime);
-			response.setCharacterEncoding( "UTF-8" );
 			try {
-				final Writer responseWriter = response.getWriter();
-				responseWriter.write(String.valueOf(answer));
-				response.setStatus(HttpServletResponse.SC_OK);
-				responseWriter.close();
+				if( mime.startsWith("image/")){
+					OutputStream os = response.getOutputStream();
+					if( answer instanceof byte[] ){
+						copy( new ByteArrayInputStream((byte[])answer) , os );
+						os.close();
+					}else{
+						copy( new FileInputStream((File)answer) , os );
+						os.close();
+					}
+				}else{
+					response.setCharacterEncoding( "UTF-8" );
+					final Writer responseWriter = response.getWriter();
+					response.setStatus(HttpServletResponse.SC_OK);
+					if( answer instanceof String ){
+						responseWriter.write(String.valueOf(answer));
+					}else{
+						copy( new FileReader((File)answer), responseWriter); 
+					}
+					responseWriter.close();
+				}
 			} catch (Exception e) {
 				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:response to method \"" + methodName + "\":",e);
 			}
