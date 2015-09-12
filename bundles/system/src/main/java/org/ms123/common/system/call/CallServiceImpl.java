@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.Writer;
 import org.apache.camel.Route;
 import org.apache.camel.CamelContext;
 import org.ms123.common.rpc.PName;
@@ -170,7 +171,22 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			e.printStackTrace();
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService", e);
 		}
-		return answer;
+		if( "bodyWithMime".equals(returnSpec)){
+			String mime = getString(shape, "mimetype", "text/html");
+			response.setContentType(mime);
+			response.setCharacterEncoding( "UTF-8" );
+			try {
+				final Writer responseWriter = response.getWriter();
+				responseWriter.write(String.valueOf(answer));
+				response.setStatus(HttpServletResponse.SC_OK);
+				responseWriter.close();
+			} catch (Exception e) {
+				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:response to method \"" + methodName + "\":",e);
+			}
+			return null;
+		}else{
+			return answer;
+		}
 	}
 
 	public void callHooks(Map props) {

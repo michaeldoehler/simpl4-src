@@ -320,7 +320,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		Exchange exchange = template.send(endpoint, p);
 
 		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);
-		if( "body".equals(returnSpec)){
+		if( "body".equals(returnSpec) || "bodyWithMime".equals(returnSpec)){
 			return ExchangeHelper.extractResultBody(exchange, null);
 		}else if( "headers".equals(returnSpec)){
 			Map<String, Object> camelVarMap = new HashMap();

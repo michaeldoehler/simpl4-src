@@ -335,7 +335,7 @@ abstract class BaseCallServiceImpl {
 		return (Boolean) value;
 	}
 
-	private boolean isEmpty(String s) {
+	protected boolean isEmpty(String s) {
 		return (s == null || "".equals(s.trim()));
 	}
 
