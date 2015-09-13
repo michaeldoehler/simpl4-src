@@ -261,6 +261,8 @@ public class JsonRpcServlet extends HttpServlet {
 		boolean 	rpcForm = false;
 		if( request.getPathInfo().indexOf("__rpcForm__") != -1){
 			rpcForm = true;
+		}else if( request.getPathInfo().indexOf("/get") != -1){
+			rpcForm = true;
 		}
 		final String contentType = request.getHeader(CONTENT_TYPE);
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -286,9 +288,13 @@ public class JsonRpcServlet extends HttpServlet {
 				}
 			}
 			debug("dataMap:" + dataMap);
-			debug("rpcParams:" + dataMap.get("__rpc__"));
 			requestString = (String) dataMap.get("__rpc__");
+			if( requestString == null){
+				requestString = (String) dataMap.get("rpc");
+			}
+			debug("rpcParams:" + requestString);
 			dataMap.remove("__rpc__");
+			dataMap.remove("rpc");
 			dataMap.remove("__hints__");
 			Map p = (Map) m_ds.deserialize(requestString);
 			Map params = (Map) p.get("params");
@@ -298,6 +304,9 @@ public class JsonRpcServlet extends HttpServlet {
 			requestString = js.deepSerialize(p);
 		} else if(rpcForm){
 			requestString = request.getParameter("__rpc__");
+			if( requestString == null){
+				requestString = request.getParameter("rpc");
+			}
 		} else {
 			try {
 				is = request.getInputStream();
@@ -645,6 +654,8 @@ public class JsonRpcServlet extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		if( request.getPathInfo().indexOf("__rpcForm__") != -1){
+			doPost(request,response);
+		}else if( request.getPathInfo().indexOf("/get") != -1){
 			doPost(request,response);
 		}
 	}
