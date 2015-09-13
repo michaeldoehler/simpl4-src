@@ -38,24 +38,35 @@ public class RepoGetProducer extends RepoProducer {
 		super(endpoint, configuration);
 	}
 
+	private String getString(Exchange e, String key, String def) {
+		String value = e.getIn().getHeader(key, String.class);
+		if (value == null) {
+			value = e.getProperty(key, String.class);
+		}
+		info("getString:" + key + "=" + value + "/def:" + def);
+		return value != null ? value : def;
+	}
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		String path = configuration.getPath();
-		String repo = configuration.getRepo();
-		String type = configuration.getType();
-		String target = configuration.getTarget();
-		String header = configuration.getHeader();
+		String path = getString(exchange, "path", configuration.getPath());
+		String repo = getString(exchange, "repo", configuration.getRepo());
+		String type = getString(exchange, "type", configuration.getType());
+		String target = getString(exchange, "target", configuration.getTarget());
+		String header = getString(exchange, "header", configuration.getHeader());
 		GitService gitService = getGitService();
-		info("producer --> get:repo: " + repo + ",path:" + path + ",type:" + type+"/target:"+target);
+		info("producer --> get:repo: " + repo + ",path:" + path + ",type:" + type + "/target:" + target);
 		File file = gitService.searchFile(repo, path, type);
-		if( "body".equals(target)){
+		if ("body".equals(target)) {
 			exchange.getIn().setBody(file);
-		}else{
-			exchange.getIn().setHeader(header, file );
+		} else {
+			exchange.getIn().setHeader(header, file);
 		}
 	}
+
 	private void info(String msg) {
 		System.out.println(msg);
 		LOG.info(msg);
 	}
 }
+
