@@ -183,10 +183,14 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		if( "bodyWithMime".equals(returnSpec)){
 			String mime = getString(shape, "mimetype", "text/html");
 			response.setContentType(mime);
+			boolean bytes=false;
+			if( answer instanceof byte[] ){
+				bytes=true;
+			}
 			try {
-				if( mime.startsWith("image/")){
+				if( bytes || mime.startsWith("image/") || mime.endsWith("pdf")){
 					OutputStream os = response.getOutputStream();
-					if( answer instanceof byte[] ){
+					if( bytes ){
 						copy( new ByteArrayInputStream((byte[])answer) , os );
 						os.close();
 					}else{
