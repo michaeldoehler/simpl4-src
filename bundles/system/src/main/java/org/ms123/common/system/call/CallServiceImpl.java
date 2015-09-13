@@ -84,19 +84,20 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		if( namespace == null){
 			namespace = getNamespace(methodParams);
 			if (namespace == null) {
-				throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Namespace not found");
+				throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.PARAMETER_MISMATCH, "Method("+methodName+"):Namespace not found");
 			}
 		}
 		info("Namespace/Procedure:"+namespace+"/"+methodName);
+		String fqMethodName = namespace+"."+methodName;
 		Map shape  = this.getProcedureShape(namespace,methodName );
 		if( shape == null){
 			shape = getCamelShape(namespace, methodName);
 		}
 		if (shape == null) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method \"" + methodName + "\" not found");
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method \"" + fqMethodName + "\" not found");
 		}
 		if(!isRPC(shape)){
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "RPC in \"" + methodName + "\" not enabled");
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "RPC in \"" + fqMethodName + "\" not enabled");
 		}
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
 		List<String> permittedUserList = getStringList(shape, "startableUsers");
@@ -107,7 +108,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		info("permittedRoleList:" + permittedRoleList);
 		info("permittedUserList:" + permittedUserList);
 		if (!isPermitted(userName, userRoleList, permittedUserList, permittedRoleList)) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "User(" + userName + ") has no permission");
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "Method("+fqMethodName+"):User(" + userName + ") has no permission");
 		}
 
 		Map<String, Object> properties = new HashMap();
@@ -127,11 +128,11 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			Class type = m_types.get((String) param.get("type"));
 			Boolean opt = (Boolean) param.get("optional");
 			if ("property".equals(destination)) {
-				properties.put(destname, getValue(name, methodParams.get(name), def, opt, type));
+				properties.put(destname, getValue(name, methodParams.get(name), def, opt, type,fqMethodName));
 			} else if ("header".equals(destination)) {
-				headers.put(destname, getValue(name, methodParams.get(name), def, opt, type));
+				headers.put(destname, getValue(name, methodParams.get(name), def, opt, type,fqMethodName));
 			} else if ("body".equals(destination)) {
-				bodyObj = getValue(name, methodParams.get(name), def, opt, type);
+				bodyObj = getValue(name, methodParams.get(name), def, opt, type,fqMethodName);
 				bodyMap.put(destname, bodyObj);
 			}
 		}

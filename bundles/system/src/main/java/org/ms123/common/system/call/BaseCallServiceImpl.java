@@ -259,19 +259,19 @@ abstract class BaseCallServiceImpl {
 		return false;
 	}
 
-	protected Object getValue(String name, Object value, Object def, boolean optional, Class type) {
+	protected Object getValue(String name, Object value, Object def, boolean optional, Class type,String methodName) {
 		if (value == null && def != null) {
 			def = convertTo(def, type);
 			value = def;
 		}
 		if (value == null && optional == false) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:Missing parameter:" + name);
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "Method("+methodName+"):Missing parameter:" + name);
 		}
 		if (value == null) {
 			return null;
 		}
 		if (!type.isAssignableFrom(value.getClass())) {
-			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:parameter(" + name + ") wrong type:" + value.getClass() + " needed:" + type);
+			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "Method("+methodName+"):" + name + ") wrong type:" + value.getClass() + " needed:" + type);
 		}
 		return value;
 	}
