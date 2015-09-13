@@ -58,6 +58,7 @@ console.log("RepoList");
 				});
 				console.log("namespace:"+JSON.stringify(ret,null,2));
 				var repoList = [];
+				repoList.push("-");
 				for( var i = 0; i< ret.length;i++){
 					var r = ret[i];
 					repoList.push( r.name );
