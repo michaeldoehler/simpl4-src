@@ -77,9 +77,13 @@
 			onResponse: function( e ) {
 				var body = e.target.import.body;
 				var head = e.target.import.head;
+				if (body.innerHTML && body.innerHTML.startsWith('{"error":')){
+					console.error("simpl-import.onResponse:", JSON5.parse(body.innerHTML).error.message);
+					return;
+				}
 
-				//		console.log("Head:",head.innerHTML);
-				//		console.log("Body:",body.innerHTML);
+				//console.log("Head:",head.innerHTML);
+				//console.log("Body:",body.innerHTML);
 				var insertPoint = this.$.insertPoint;
 				while ( insertPoint.firstChild ) {
 					Polymer.dom( insertPoint ).removeChild( insertPoint.firstChild );
@@ -88,7 +92,7 @@
 					//Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body && body.firstElementChild ) {
-					Polymer.dom( insertPoint ).appendChild( body );
+					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
 				}
 				document.querySelector( "#dispatcherId" ).filterLocalLinks( insertPoint.firstElementChild );
 				this.async( function() {
