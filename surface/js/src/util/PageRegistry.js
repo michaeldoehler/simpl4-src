@@ -30,7 +30,6 @@ clazz.construct.extend( "simpl4.util.PageRegistry", {
 		return simpl4.util.PageRegistry.pageCache[ hash ];
 	},
 	addPages: function( pages ) {
-		console.log( "addPages:", pages );
 		for ( var i = 0; i < pages.length; i++ ) {
 			simpl4.util.PageRegistry.pageCache[ pages[ i ].hash ] = pages[ i ];
 		}
@@ -41,7 +40,6 @@ clazz.construct.extend( "simpl4.util.PageRegistry", {
 		for ( var i = 0; i < keys.length; i++ ) {
 			ret.push( simpl4.util.PageRegistry.pageCache[ keys[ i ] ] );
 		}
-		console.log( "getPages:", ret );
 		return ret;
 	},
 	setActivePage:function(ap){
@@ -52,20 +50,16 @@ clazz.construct.extend( "simpl4.util.PageRegistry", {
 	},
 	registerListener: function() {
 		var aList = document.querySelectorAll( 'html /deep/ a' )
-		console.log( "Xa-lIst:", aList );
 
 		var source = Rx.DOM.fromEvent( aList, 'tap', function( e ) {
-			console.log( "selector:", e );
 			return e;
 		} );
 		return source;
 	},
 	subscribe: function(cb) {
-		console.log( "subscribe:", this.observable );
 		if ( this.observable == null ) {
 			this.observable = this.registerListener();
 		}
-		console.log( "subscribe2:", this.observable );
 		this.observable.subscribe(cb);
 	}
 }, {} );
