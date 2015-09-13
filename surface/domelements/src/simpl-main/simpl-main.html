@@ -139,7 +139,7 @@
 					<div class="grid column brand_drawer_panel fit">
 						<div class="brand__area">
 							<a href="[[logoLinkLang]]" target="_blank">
-								<img src='{{logo}}' class="brand__logo" />
+								<simpl-import class="brand__logo" method="cassandra.svgTemplate" data="[[logoData]]"></simpl-import>
 							</a>
 						</div>
 						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="true" searchfield="true" pages="{{getPages()}}" class="flex" />
@@ -168,10 +168,18 @@
 									<paper-item on-tap="changeTheme">indigo-orange</paper-item>
 									<paper-item on-tap="changeTheme">indigo-red</paper-item>
 									<paper-item on-tap="changeTheme">brown-orange</paper-item>
+									<paper-item on-tap="changeTheme">brown-gray</paper-item>
 									<paper-item on-tap="changeTheme">blue-amber</paper-item>
 									<paper-item on-tap="changeTheme">red-lime</paper-item>
 									<paper-item on-tap="changeTheme">grey-pink</paper-item>
 									<paper-item on-tap="changeTheme">pink-grey</paper-item>
+									<paper-item on-tap="changeTheme">grey-teal</paper-item>
+									<paper-item on-tap="changeTheme">grey-cyan</paper-item>
+									<paper-item on-tap="changeTheme">green-grey</paper-item>
+									<paper-item on-tap="changeTheme">grey-green</paper-item>
+									<paper-item on-tap="changeTheme">grey-blue</paper-item>
+									<paper-item on-tap="changeTheme">grey-red</paper-item>
+									<paper-item on-tap="changeTheme">grey-cyan</paper-item>
 								</paper-menu>
 							</paper-menu-button>
 
@@ -227,6 +235,13 @@
 				logoLink: {
 					type: String
 				},
+				logo: {
+					value: 'logo212121.svg',
+					type: String
+				},
+				logoData: {
+					computed: "getLogoData(logo)"
+				},
 				loginMessage: {
 					value: 'Login',
 					type: String
@@ -252,10 +267,6 @@
 					value: function() {
 						return document.body;
 					}
-				},
-				logo: {
-					value: 'logo.svg',
-					type: String
 				}
 			},
 			observers: [
@@ -484,6 +495,12 @@
 			},
 			isAsciidoc: function( url ) {
 				return url.indexOf( ".adoc" ) > 0;
+			},
+			getLogoData: function() {
+				return {
+					path: this.logo,
+					repo:simpl4.util.BaseManager.getNamespace()
+				}
 			},
 			loginOk: function( e ) {
 				this.loginMessage = "User:" + e.detail.identifier;
