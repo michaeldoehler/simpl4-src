@@ -57,15 +57,20 @@
 				if ( typeof params == 'string' ) {
 					params = JSON5.parse( params );
 				}
+				var method = this.method;
+				if( method.indexOf(".") ==-1){
+					var namespace = simpl4.util.BaseManager.getNamespace();
+					method = namespace + "." + method;
+				}
 				var rpc = {
 					"service": "camel-routing",
-					"method": this.method,
+					"method": method,
 					params: params
 				};
 				var password = simpl4.util.BaseManager.getPassword();
 				var username = simpl4.util.BaseManager.getUser();
 				var credentials = simpl4.util.Base64.encode( username + ":" + password );
-				var url = "/rpc/__rpcForm__?__rpc__=" + JSON.stringify( rpc ) + "&credentials=" + credentials;
+				var url = "/rpc/get?rpc=" + encodeURIComponent(JSON.stringify( rpc )) + "&credentials=" + credentials;
 				console.log( "Url:", url );
 				this.importHref( url, this.onResponse.bind( this ) );
 			},
