@@ -783,7 +783,7 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 				}
 				String pathString = new String(treeWalk.getRawPath());
 				File file = new File(basePath, pathString);
-				if (file.isDirectory() || pathString.startsWith("store")) {
+				if (file.isDirectory() || pathString.startsWith("store") || pathString.startsWith(".git") ) {
 					continue;
 				}
 				if (typeList.contains("all") || typeList.contains(getFileType(file))) {
@@ -1136,6 +1136,12 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 			return "sw.directory";
 		}else if( file.toString().endsWith(".txt")){
 			return "text/plain";
+		}else if( file.toString().endsWith(".jpeg") || file.toString().endsWith(".jpg")){
+			return "image/jpeg";
+		}else if( file.toString().endsWith(".png")){
+			return "image/png";
+		}else if( file.toString().endsWith(".svg")){
+			return "image/svg+xml";
 		}else if( file.toString().endsWith(".xml")){
 			return "text/xml";
 		}else if( file.toString().endsWith(".woff") || file.toString().endsWith(".woff.gz")){
