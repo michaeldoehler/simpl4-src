@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.*;
 import java.net.*;
+import java.io.File;
+import java.lang.reflect.Type;
 import com.google.gson.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -44,7 +46,9 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 
 	protected JSONSerializer m_js = new JSONSerializer();
 
-	private Gson m_gson = new GsonBuilder().setExclusionStrategies(new MyExclusionStrategy(String.class)).setPrettyPrinting().create();
+	private Gson m_gson = new GsonBuilder().setExclusionStrategies(new MyExclusionStrategy(String.class)).
+		registerTypeAdapter(File.class, new FileSerializer()).
+		setPrettyPrinting().create();
 
 	private Date timestamp;
 
@@ -360,6 +364,11 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		return "TraceEventMessage[" + exchangeId + "] on node: " + toNode;
 	}
 
+	private class FileSerializer implements JsonSerializer<File> {
+		public JsonElement serialize(File src, Type typeOfSrc, JsonSerializationContext context) {
+			return new JsonPrimitive(src.toString());
+		}
+	}
 	private static class MyExclusionStrategy implements ExclusionStrategy {
 
 		private final Class<?> typeToSkip;
@@ -380,6 +389,9 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 			}
 			if (clazz.toString().startsWith("interface")){
 				return true;
+			}
+			if (clazz.getName().startsWith("java.io.File")){
+				return false;
 			}
 			if (clazz.getName().startsWith("java.io")){
 				return true;
