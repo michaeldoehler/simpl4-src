@@ -31,9 +31,8 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
 import org.apache.camel.component.ResourceEndpoint;
 import org.apache.camel.util.ExchangeHelper;
-import groovy.text.GStringTemplateEngine;
-import groovy.text.SimpleTemplateEngine;
 import groovy.text.XmlTemplateEngine;
+import groovy.text.StreamingTemplateEngine;
 import groovy.text.Template;
 import groovy.text.TemplateEngine;
 import java.security.MessageDigest;
@@ -44,7 +43,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 
 	private Map<String, Template> m_templateCache = new LinkedHashMap();
 
-	private TemplateEngine m_engine = new SimpleTemplateEngine();
+	private TemplateEngine m_engine = new StreamingTemplateEngine();
 
 	private String m_engineType = "simple";
 	private String m_headerFields;
@@ -134,9 +133,6 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 	}
 
 	private TemplateEngine createTemplateEngine(String type) {
-		if ("gstring".equals(type)) {
-			return new GStringTemplateEngine();
-		}
 		if ("xml".equals(type)) {
 			try {
 				return new XmlTemplateEngine();
@@ -145,7 +141,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 				throw new RuntimeException("Cannot create XmlTemplateEngine:" + e.getMessage());
 			}
 		}
-		return new SimpleTemplateEngine();
+		return new StreamingTemplateEngine();
 	}
 
 	private static String getMD5OfUTF8(String text) {
