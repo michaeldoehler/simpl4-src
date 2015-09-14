@@ -151,7 +151,7 @@ public class CamelContextBuilder {
 				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
 					ThreadContext tc = ThreadContext.getThreadContext();
-					info("------>EventNotifierSupportStart:" + ev +"/"+tc);
+					debug("------>EventNotifierSupportStart:" + ev +"/"+tc);
 					if( tc == null){
 						m_permissionService.loginInternal(m_namespace);
 						ThreadContext.getThreadContext().put(ev.getExchange().getExchangeId(),true);
@@ -161,7 +161,7 @@ public class CamelContextBuilder {
 			if (event instanceof ExchangeCompletedEvent) {
 				ExchangeCompletedEvent ev = (ExchangeCompletedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
-					info("<-----EventNotifierSupportComplete:" + ev );
+					debug("<-----EventNotifierSupportComplete:" + ev );
 					if(ThreadContext.getThreadContext().get(ev.getExchange().getExchangeId()) != null){
 						ThreadContext.getThreadContext().finalize(null);
 					}
@@ -180,6 +180,10 @@ public class CamelContextBuilder {
 
 		protected void doStop() throws Exception {
 		}
+	}
+	private static void debug(String msg) {
+		//System.out.println(msg);
+		m_logger.debug(msg);
 	}
 
 	private static void info(String msg) {
