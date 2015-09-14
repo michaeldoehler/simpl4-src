@@ -241,6 +241,8 @@ public class OSGiScriptEngineManager extends ScriptEngineManager {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(u.openStream()));
 				String line;
 				while ((line = reader.readLine()) != null) {
+					line = line.trim();
+					if( line.length() == 0 || line.startsWith("#"))continue;
 					factoryCandidates.add(line.trim());
 				}
 			}

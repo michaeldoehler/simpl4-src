@@ -64,7 +64,7 @@ configure(subprojects -
 		vfs files("${rootDir}/repository/commons-logging-1.1.1.jar")
 		bnd files("${rootDir}/repository/biz.aQute.bnd-3.0.0.jar")
 		compile files("${rootDir}/repository/biz.aQute.bnd-3.0.0.jar")
-		compile files("${rootDir}/repository/groovy-all-2.2.2-indy.jar");
+		compile files("${rootDir}/repository/groovy-all-2.4.4-indy.jar");
 		compile files("${rootDir}/repository/aspectjrt-1.8.5.jar")
 		compile files("${rootDir}/repository/shiro-aspectj-1.2.0.jar")
 		compile files("${rootDir}/repository/shiro-core-1.2.0.jar")
