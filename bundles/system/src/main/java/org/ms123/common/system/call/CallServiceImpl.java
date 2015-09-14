@@ -91,14 +91,14 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		String fqMethodName = namespace+"."+methodName;
 		Map shape  = this.getProcedureShape(namespace,methodName );
 		if( shape == null){
-			info("getProcedureShape is null:"namespace+"/"+methodName);
+			info("getProcedureShape is null:"+fqMethodName);
 			shape = getCamelShape(namespace, methodName);
 		}
 		if (shape == null) {
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method \"" + fqMethodName + "\" not found");
 		}
 		if(!isRPC(shape)){
-			info("ShapeisRPC:"+shape);
+			info("Shape.isRPC:"+shape);
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "RPC in \"" + fqMethodName + "\" not enabled");
 		}
 		List<String> permittedRoleList = getStringList(shape, "startableGroups");
