@@ -64,6 +64,7 @@
 			is: 'simpl-crudtable',
 			behaviors: [
 				DataTablesBehavior,
+				ModernizrBehavior,
 				StyleScopeBehavior
 			],
 			properties: {
@@ -305,7 +306,7 @@
 			renderColumn: function( data, type, row, meta ) {
 				var name = meta.settings.aoColumns[ meta.col ].mData;
 				var clazz = meta.settings.aoColumns[ meta.col ].sClass;
-				if ( clazz && clazz.toLowerCase().indexOf( "phone" ) > -1 ) {
+				if ( Detectizr.device.type == "mobile" && clazz && clazz.toLowerCase().indexOf( "phone" ) > -1 ) {
 					return "<div class='phone'><a href='tel:" + row[ name ] + "'>" + row[ name ] + "</a></div>";
 				} else {
 					return row[ name ];

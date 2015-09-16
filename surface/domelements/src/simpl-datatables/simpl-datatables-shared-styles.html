@@ -27,6 +27,10 @@
 				font-size: 12px;
 				cursor: default;
 				border: 0 none;
+				-webkit-user-select: none;  /* Chrome all / Safari all */
+				-moz-user-select: none;     /* Firefox all */
+				-ms-user-select: none;      /* IE 10+ */
+				user-select: none;    
 			}
 			:host /deep/ table.responsive.dataTables tr {
 				height: 24px;
@@ -62,7 +66,7 @@
 			}
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
-				top: 4px;
+				top: 6px;
 				font-size: 16px;
 				line-height: 16px;
 				font-weight: 800;
@@ -72,16 +76,20 @@
 				color: var(--simpl-datatables-detailbutton-closed-color, black);
 				background: var(--simpl-datatables-detailbutton-closed-background, brown);
 			}
-			@media screen and (max-width: 767px) {
-				:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
-				:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
-					top: 6px;
-				}
+
+			:host.firefox /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
+			:host.firefox /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+				top: 4px !important;
 			}
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before,
 			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child:before {
 				color: var(--simpl-datatables-detailbutton-open-color, black);
 				background: var(--simpl-datatables-detailbutton-open-background, gray);
+			}
+
+			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.selected > td:first-child:before,
+			:host /deep/ table.dataTable.dtr-inline.collapsed > tbody > tr.selected > th:first-child:before {
+				color: var(--simpl-datatables-detailbutton-closed-selected-color, white);
 			}
 			
 			:host /deep/ table.responsive.dataTables thead tr th,
@@ -195,6 +203,14 @@
 				margin-right: 4px;
 			}
 
+    	:host /deep/ table.dataTable > tbody > tr.child ul li {
+      	border-bottom: 1px solid #efefef;
+      	padding: 0em 0; 
+			}
+    	:host.firefox /deep/ table.dataTable > tbody > tr.child ul li {
+      	border-bottom: 1px solid #efefef;
+      	padding: 0.2em 0; 
+			}
 		</style>
 	</template>
 </dom-module>
