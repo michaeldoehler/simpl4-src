@@ -45,7 +45,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 
 	private TemplateEngine m_engine = new StreamingTemplateEngine();
 
-	private String m_engineType = "simple";
+	private String m_engineType = "streaming";
 	private String m_headerFields;
 
 	public GroovyTemplateEndpoint() {
@@ -106,14 +106,7 @@ public class GroovyTemplateEndpoint extends ResourceEndpoint {
 			}
 		}
 
-		String text = exchange.getIn().getHeader(GroovyTemplateConstants.GROOVYTEMPLATE, String.class);
-		if (text != null) {
-			exchange.getIn().removeHeader(GroovyTemplateConstants.GROOVYTEMPLATE);
-		}
-		if( text == null){
-			text = exchange.getIn().getBody(String.class);
-			//text = exchange.getContext().getTypeConverter().mandatoryConvertTo(String.class, getResourceAsInputStream());
-		}
+		String text = exchange.getIn().getBody(String.class);
 
 		String key = getMD5OfUTF8(text);
 		Template template = m_templateCache.get(key);
