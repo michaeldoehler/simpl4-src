@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components.groovytemplate;
+package org.ms123.common.camel.components.template;
 
 import java.util.Map;
 import org.apache.camel.Endpoint;
@@ -26,10 +26,10 @@ import org.apache.camel.util.ResourceHelper;
 /**
  * @version 
  */
-public class GroovyTemplateComponent extends DefaultComponent {
+public class TemplateComponent extends DefaultComponent {
 
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-		GroovyTemplateEndpoint endpoint = new GroovyTemplateEndpoint(uri, this, remaining);
+		TemplateEndpoint endpoint = new TemplateEndpoint(uri, this, remaining);
 		endpoint.setEngineType(remaining);
 		endpoint.setHeaderfields((String) parameters.get("headerfields"));
 		setProperties(endpoint, parameters);

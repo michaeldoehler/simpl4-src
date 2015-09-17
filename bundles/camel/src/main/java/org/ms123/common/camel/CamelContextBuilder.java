@@ -36,7 +36,7 @@ import org.apache.camel.spi.Registry;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.apache.camel.support.EventNotifierSupport;
 import org.ms123.common.camel.components.*;
-import org.ms123.common.camel.components.groovytemplate.*;
+import org.ms123.common.camel.components.template.*;
 import org.ms123.common.camel.components.asciidoctor.*;
 import org.ms123.common.camel.components.xdocreport.*;
 import org.ms123.common.camel.components.repo.*;
@@ -80,7 +80,7 @@ public class CamelContextBuilder {
 		sr.put("websocket", new org.ms123.common.camel.components.websocket.WebsocketComponent());
 		sr.put("direct", new DirectComponent());
 		sr.put("xdocreport", new XDocReportComponent());
-		sr.put("groovytemplate", new GroovyTemplateComponent());
+		sr.put("template", new TemplateComponent());
 		sr.put("asciidoctor", new AsciidoctorComponent());
 		TransactionService ts = (TransactionService) or.lookupByName(TransactionService.class.getName());
 		sr.put(org.springframework.transaction.PlatformTransactionManager.class.getName(), ts.getPlatformTransactionManager());

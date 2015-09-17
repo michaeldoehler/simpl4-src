@@ -332,7 +332,7 @@ ${cassandrabundles} \
   scan-bundle:file:$REPOSITORY/shiro-aspectj-1.2.0.jar \
   scan-bundle:file:$REPOSITORY/shiro-core-1.2.0.jar \
 	scan-bundle:file:$REPOSITORY/xdocreport-1.0.5.jar \
-	scan-bundle:file:$REPOSITORY/freemarker-2.3.33 \
+	scan-bundle:file:$REPOSITORY/freemarker-2.3.33.jar \
 	scan-bundle:file:$REPOSITORY/xercesImpl-2.11.0.bar \
 	scan-bundle:file:$REPOSITORY/java-rdfa-0.4.2.bar \
 	scan-bundle:file:$REPOSITORY/jena-arq-2.13.0.bar \

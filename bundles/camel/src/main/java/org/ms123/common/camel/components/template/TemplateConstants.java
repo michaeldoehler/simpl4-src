@@ -16,19 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components.groovytemplate;
+package org.ms123.common.camel.components.template;
 
 /**
  * GroovyTemplate constants.
  */
-public final class GroovyTemplateConstants {
+public final class TemplateConstants {
 
-	public static final String GROOVYTEMPLATE_RESOURCE_URI = "groovyTemplateResourceUri";
+	public static final String TEMPLATE_DATA = "templateDATA";
 
-	public static final String GROOVYTEMPLATE_DATA = "groovyTemplateDATA";
-
-	public static final String GROOVYTEMPLATE = "groovyTemplate";
-
-	private GroovyTemplateConstants() {
+	private TemplateConstants() {
 	}
 }
