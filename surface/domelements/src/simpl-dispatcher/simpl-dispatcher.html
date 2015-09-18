@@ -62,6 +62,11 @@
 				}
 			},
 			tapListener: function( e ) {
+				var target = e.target;
+				if( target.params ){
+					$("#mainContainer").animate({ scrollTop: $(target.params.id).offset().top }, 1000);
+					return;
+				}
 				if ( e.target[ "className" ] == "mm-subopen" ) {
 					return;
 				}
@@ -123,6 +128,7 @@
 				for ( var i = 0; i < aList.length; i++ ) {
 					var a = aList[ i ];
 					var href = a.getAttribute("href");
+						console.log("Dispatcher.href:",href);
 					if( href.match(/^local.*/)){
 						var page = simpl4PageRegistry.getPage( href.substring("local:".length));
 						console.log("Dispatcher.filterLocalLinks.page:",page);
@@ -131,6 +137,10 @@
 							a.page = page;
 							$( a ).tap( this.tapListener.bind( this ), false );
 						}
+					}else if( href.startsWith("#_")){
+						a.removeAttribute("href");
+						a.params = { id: href};
+						$( a ).tap( this.tapListener.bind( this ), false );
 					}
 				}
 			}
