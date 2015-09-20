@@ -38,6 +38,7 @@ task stage (type:Task) {
 		fileset(file:'src/util/Construct.js')
 		fileset(file:'libs/svg.js')
 		fileset(file:'libs/panzoom.js')
+		fileset(file:'libs/jquery.pep.js')
 		fileset(file:'libs/jquery.touchSwipe.js')
 		fileset(dir:'src',includes:'**/*.js', excludes:'src/util/Construct.js')
 	}

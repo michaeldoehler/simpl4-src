@@ -77,12 +77,18 @@
 				var dh = $( this.$.imageDialog ).height();
 				var ih = $( this.$.bigImage ).height();
 				$( this.$.bigImage ).panzoom();
+				$( this.$.bigImage ).pep( {
+					useCSSTranslation: false,
+					velocityMultiplier: 1.0,
+					allowDragEventPropagation: false,
+					xonstrainTo: 'window'
+				} );
 				$( this.$.bigImage ).panzoom( "zoom", ( dh / ih ) * 0.8 );
 				$( this.$.imageDialog ).offset( {
 					top: 0,
 					left: this.isDrawerOpen() ? 200 : 0
 				} )
-				$( "#scroller",this ).height( dh );
+				$( "#scroller", this ).height( dh );
 				$( this.$.bigImage ).offset( {
 					top: 56,
 					left: this.isDrawerOpen() ? 200 : 0
