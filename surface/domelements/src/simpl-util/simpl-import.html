@@ -92,7 +92,11 @@
 					//Polymer.dom( insertPoint ).appendChild( head.firstElementChild );
 				}
 				if ( body && body.firstElementChild ) {
-					Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
+					if($(body).children().length == 1 || (body.firstElementChild instanceof SVGElement)){
+						Polymer.dom( insertPoint ).appendChild( body.firstElementChild );
+					}else{
+						Polymer.dom( insertPoint ).appendChild( body);
+					}
 				}
 				document.querySelector( "#dispatcherId" ).filterLocalLinks( insertPoint.firstElementChild );
 				this.async( function() {
