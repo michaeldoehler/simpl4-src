@@ -1090,6 +1090,11 @@
 				move = function(e) {
 					e.preventDefault();
 
+					if (e.touches == null || e.touches.length !== 2) {
+						console.log("touches1:",e.touches);
+						return;
+					}
+
 					// Calculate move on middle point
 					var middle = self._getMiddle(touches = e.touches);
 					var diff = self._getDistance(touches) - startDistance;
