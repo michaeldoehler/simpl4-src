@@ -1,2 +1,130 @@
+<!--
+/**
+ * This file is part of SIMPL4(http://simpl4.org).
+ *
+ * 	Copyright [2014] [Manfred Sattler] <manfred@ms123.org>
+ *
+ * SIMPL4 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SIMPL4 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<dom-module id="simpl-zoom">
+	<style>
+		:host /deep/ #imageDialog {
+			position: fixed;
+			top: 0;
+		}
+		:host /deep/ #imageDialog /deep/ #scroller {
+			max-height: 100%;
+			min-height: 100%;
+			height: 100%;
+			position:initial !important;
+		}
+		@media screen and (max-width: 767px) {
+			:host /deep/ #imageDialog {
+				left: 0px;
+			}
+		}
+
+	</style>
+
+	<template>
+
+		<div id="imageClosed">
+			<img src="[[image]]" style$="[[styleClosed]]">
+		</div>
+
+		<paper-fullscreen-dialog class="flex grid row column" no-cancel-on-outside-click with-backdrop$="[[backdrop]]" on-iron-overlay-opened="dialogOpened" id="imageDialog">
+			<img class="flex grid row" id="bigImage" src="[[image]]">
+		</paper-fullscreen-dialog>
+
+	</template>
+
+	<script>
+		Polymer( {
+			is: "simpl-zoom",
+			properties: {
+				styleClosed: {
+					computed: "computeStyleClosed(maxWidthClosed)"
+				},
+				backdrop: {
+					value: false,
+					type: Boolean
+				},
+				maxWidthClosed: {
+					value: "600px",
+					type: String
+				},
+				image: {
+					type: String
+				}
+			},
+			computeStyleClosed: function() {
+				var ret = "width:" + this.maxWidthClosed;
+				return ret;
+			},
+			dialogOpened: function() {
 				var dh = $( this.$.imageDialog ).height();
 				var ih = $( this.$.bigImage ).height();
+				$( this.$.bigImage ).panzoom({disablePan:true} );
+				$( this.$.bigImage ).pep( {
+					useCSSTranslation: false,
+					velocityMultiplier: 1.0,
+					allowDragEventPropagation: false,
+					xonstrainTo: 'window'
+				} );
+				$( this.$.bigImage ).panzoom( "zoom", ( dh / ih ) * 0.85 );
+				$( this.$.imageDialog ).offset( {
+					top: 0,
+					left: this.isDrawerOpen() ? 230 : 0
+				} )
+				$( "#scroller", this ).height( dh );
+				$( this.$.bigImage ).offset( {
+					top: 58,
+					left: this.isDrawerOpen() ? 230 : 0
+				} )
+				var self = this;
+				$( this.$.bigImage ).swipe( {
+					tap: function( event, target ) {
+						return false;
+					},
+					doubleTap: function( event, target ) {
+						self.async( function() {
+							self.$.imageDialog.close();
+						}, 50 );
+					},
+					doubleTapThreshold: 200
+				} );
+			},
+			attached: function() {
+				var self = this;
+				$( this.$.imageClosed ).swipe( {
+					tap: function( event, target ) {
+						return false;
+					},
+					doubleTap: function( event, target ) {
+						self.backdrop = self.isDrawerOpen();
+						self.async( function() {
+							self.$.imageDialog.open();
+						}, 50 );
+					}
+				} );
+			},
+			isDrawerOpen: function() {
+				return !document.querySelector( "#drawerPanel" ).narrow;
+			},
+			detached: function() {}
+		} );
+
+	</script>
+</dom-module>
