@@ -287,8 +287,13 @@
 				} );
 			},
 			_attached: function() {
-				this.entryAnimation = 'slide-from-right-animation';
-				this.exitAnimation = 'slide-right-animation';
+				if ( Detectizr.device.model == "android" ) {
+					this.entryAnimation = 'fade-in-animation';
+					this.exitAnimation = 'fade-out-animation';
+				}else{
+					this.entryAnimation = 'scale-up-animation';
+					this.exitAnimation = 'scale-down-animation';
+				}
 				this.helpMessage = tr( "button.help" );
 				this.drawerPanel = this.$.drawerPanel;
 				this.neonPages = this.$.pages;
