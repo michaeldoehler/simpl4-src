@@ -39,7 +39,19 @@ public class AsciidoctorX{
 					createBlock(parent, 'paragraph', [upperLines], attributes, [:])
 			}
 	}
+
+	def ext2 = {  
+			blockmacro (name: 'imagezoom') {
+						parent, target, attributes ->
+System.out.println("parent:"+parent);
+System.out.println("target:"+target);
+System.out.println("attributes:"+attributes);
+						String content = "<simpl-zoom image=\"${target}\"></simpl-zoom>"
+						createBlock(parent, "pass", [content], attributes, config);
+				}
+	}
 	public void register(){
 			AsciidoctorExtensions.extensions(ext1);
+			AsciidoctorExtensions.extensions(ext2);
 	}
 }

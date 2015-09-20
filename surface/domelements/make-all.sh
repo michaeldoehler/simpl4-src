@@ -14,6 +14,7 @@ if [ ! -d "bower_components" ] ; then
 	sed -i 's/console.\(log\|warn\|error\).apply/Function.prototype/' bower_components/polymer/polymer-micro.html
 #	sed -i '/function saveLightChildrenIfNeeded/a if( node == null){ console.log("saveLightChildrenIfNeeded:node is null"); return; }' bower_components/polymer/polymer-mini.html
 	 sed -e '/saveLightChildrenIfNeeded(\s*c.parentNode\s*)/ {' -e 'r polymer2.patch' -e 'd' -e '}' -i bower_components/polymer/polymer-mini.html
+	patch bower_components/iron-overlay-behavior/iron-overlay-behavior.html < polymer3.patch
 fi
 
 /usr/bin/vulcanize  --strip-comments --inline-css --inline-scripts --inline index.html >domelements.html

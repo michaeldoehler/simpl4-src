@@ -1,0 +1,11 @@
+--- bower_components/iron-overlay-behavior/iron-overlay-behavior.html	2015-09-19 10:19:28.755501047 +0200
++++ bower_components/iron-overlay-behavior/iron-overlay-behavior2.html	2015-09-19 10:38:10.201225533 +0200
+@@ -272,7 +272,7 @@
+         this._toggleListener(this.opened, document, 'click', this._boundOnCaptureClick, true);
+         this._toggleListener(this.opened, document, 'keydown', this._boundOnCaptureKeydown, true);
+         this._toggleListenersAsync = null;
+-      });
++      },1);
+     },
+ 
+     // tasks which must occur before opening; e.g. making the element visible

@@ -17,6 +17,7 @@
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "neon-animation": "PolymerElements/neon-animation",
-    "map-elements": "expandjs/mat-elements#0.9.4"
+    "map-elements": "expandjs/mat-elements#0.9.4",
+    "paper-fullscreen": "bendavis78/paper-fullscreen-dialog"
   }
 }
