@@ -44,7 +44,7 @@
 			<img src="[[image]]" style$="[[styleClosed]]">
 		</div>
 
-		<paper-fullscreen-dialog class="flex grid row column" no-cancel-on-outside-click with-backdrop$="[[backdrop]]" on-iron-overlay-opened="dialogOpened" id="imageDialog">
+		<paper-fullscreen-dialog class="flex grid row column" no-cancel-on-outside-click with-backdrop$="[[backdrop]]" on-iron-overlay-closed="dialogClosed" on-iron-overlay-opened="dialogOpened" id="imageDialog">
 			<img class="flex grid row" id="bigImage" src="[[image]]">
 		</paper-fullscreen-dialog>
 
@@ -101,6 +101,7 @@
 					doubleTap: function( event, target ) {
 						self.async( function() {
 							self.$.imageDialog.close();
+							self.showMainToolbar(true);
 						}, 50 );
 					},
 					doubleTapThreshold: 200
@@ -116,9 +117,20 @@
 						self.backdrop = self.isDrawerOpen();
 						self.async( function() {
 							self.$.imageDialog.open();
+							self.showMainToolbar(false);
 						}, 50 );
 					}
 				} );
+			},
+			dialogClosed: function() {
+				this.showMainToolbar(true);
+			},
+			showMainToolbar:function(b){
+				if(b){
+					$( "#mainToolbar" ).show();
+				}else{
+					$( "#mainToolbar" ).hide();
+				}
 			},
 			isDrawerOpen: function() {
 				return !document.querySelector( "#drawerPanel" ).narrow;
