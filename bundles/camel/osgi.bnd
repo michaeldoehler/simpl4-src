@@ -1,5 +1,5 @@
 version=1.0.0
-Export-Package org.ms123.common.camel,org.ms123.common.camel.components, org.ms123.common.camel.components.template, org.ms123.common.camel.components.websocket, org.ms123.common.camel.components.asciidoctor, org.ms123.common.camel.components.xdocreport, org.ms123.common.camel.components.eventbus, org.ms123.common.camel.components.repo, org.ms123.common.camel.components.repo.producer, org.ms123.common.camel.trace, org.ms123.common.camel.view,org.ms123.common.camel.jsonconverter,org.ms123.common.camel.components.direct
+Export-Package org.ms123.common.camel,org.ms123.common.camel.components, org.ms123.common.camel.components.template, org.ms123.common.camel.components.localdata, org.ms123.common.camel.components.activiti, org.ms123.common.camel.components.websocket, org.ms123.common.camel.components.asciidoctor, org.ms123.common.camel.components.xdocreport, org.ms123.common.camel.components.eventbus, org.ms123.common.camel.components.repo, org.ms123.common.camel.components.repo.producer, org.ms123.common.camel.trace, org.ms123.common.camel.view,org.ms123.common.camel.jsonconverter,org.ms123.common.camel.components.direct
 Import-Package *,org.jooq,org.jooq.impl,org.jooq.conf,javax.sql
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.

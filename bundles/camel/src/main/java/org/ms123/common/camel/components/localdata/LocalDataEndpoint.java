@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.localdata;
 
 import java.util.Map;
 import org.apache.camel.Consumer;
@@ -27,13 +27,13 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.ms123.common.data.api.DataLayer;
 
 /**
- * Represents a SWData endpoint.
+ * Represents a LocalData endpoint.
  */
-public class SWDataEndpoint extends DefaultEndpoint {
+public class LocalDataEndpoint extends DefaultEndpoint {
 
-	private SWDataComponent m_component = null;
+	private LocalDataComponent m_component = null;
 
-	private SWDataConsumer m_swDataConsumer;
+	private LocalDataConsumer m_localDataConsumer;
 
 	private String m_namespace;
 
@@ -54,30 +54,30 @@ public class SWDataEndpoint extends DefaultEndpoint {
 
 	private Map m_options;
 
-	public SWDataEndpoint() {
+	public LocalDataEndpoint() {
 	}
 
-	public SWDataEndpoint(String uri, SWDataComponent component) {
+	public LocalDataEndpoint(String uri, LocalDataComponent component) {
 		super(uri, component);
 		m_component = component;
 	}
 
-	void addConsumer(SWDataConsumer consumer) {
-		if (m_swDataConsumer != null) {
-			throw new RuntimeException("SWData consumer already defined for " + getEndpointUri() + "!");
+	void addConsumer(LocalDataConsumer consumer) {
+		if (m_localDataConsumer != null) {
+			throw new RuntimeException("LocalData consumer already defined for " + getEndpointUri() + "!");
 		}
-		m_swDataConsumer = consumer;
+		m_localDataConsumer = consumer;
 	}
 
 	public void process(Exchange ex) throws Exception {
-		if (m_swDataConsumer == null) {
-			throw new RuntimeException("SWData consumer not defined for " + getEndpointUri());
+		if (m_localDataConsumer == null) {
+			throw new RuntimeException("LocalData consumer not defined for " + getEndpointUri());
 		}
-		m_swDataConsumer.getProcessor().process(ex);
+		m_localDataConsumer.getProcessor().process(ex);
 	}
 
 	public void configureProperties(Map<String, Object> options) {
-		info("SWDataEndpoint:" + options);
+		info("LocalDataEndpoint:" + options);
 		m_options = options;
 	}
 
@@ -164,16 +164,16 @@ System.out.println("setLookupUpdateObjectExpr:"+update);
 		m_writeResultAsHeader = writeResultAsHeader;
 	}
 
-	public SWDataEndpoint(String endpointUri) {
+	public LocalDataEndpoint(String endpointUri) {
 		super(endpointUri);
 	}
 
 	public Producer createProducer() throws Exception {
-		return new SWDataProducer(this);
+		return new LocalDataProducer(this);
 	}
 
 	public Consumer createConsumer(Processor processor) throws Exception {
-		return new SWDataConsumer(this, processor);
+		return new LocalDataConsumer(this, processor);
 	}
 
 	protected DataLayer getDataLayer() {
@@ -187,5 +187,5 @@ System.out.println("setLookupUpdateObjectExpr:"+update);
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
-	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(SWDataEndpoint.class);
+	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(LocalDataEndpoint.class);
 }

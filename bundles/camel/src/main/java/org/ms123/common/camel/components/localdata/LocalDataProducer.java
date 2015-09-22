@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.localdata;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -35,13 +35,14 @@ import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.camel.components.ExchangeUtils;
 import org.ms123.common.system.thread.ThreadContext;
 
 /**
- * The SWData producer.
+ * The LocalData producer.
  */
 @SuppressWarnings("unchecked")
-public class SWDataProducer extends DefaultProducer {
+public class LocalDataProducer extends DefaultProducer {
 
 	private String m_filterName = null;
 	private String m_resultHeader = null;
@@ -57,18 +58,18 @@ public class SWDataProducer extends DefaultProducer {
 
 	private String m_entityType = null;
 
-	private SWDataOperation m_operation;
+	private LocalDataOperation m_operation;
 
-	private SWDataEndpoint m_endpoint;
+	private LocalDataEndpoint m_endpoint;
 
 	private Map m_options;
 	private PermissionService m_permissionService;
 
 	DataLayer m_dataLayer = null;
 
-	private static final transient Logger LOG = LoggerFactory.getLogger(SWDataProducer.class);
+	private static final transient Logger LOG = LoggerFactory.getLogger(LocalDataProducer.class);
 
-	public SWDataProducer(SWDataEndpoint endpoint) {
+	public LocalDataProducer(LocalDataEndpoint endpoint) {
 		super(endpoint);
 		CamelContext camelContext = endpoint.getCamelContext();
 		m_endpoint = endpoint;
@@ -89,10 +90,10 @@ public class SWDataProducer extends DefaultProducer {
 			endpointKey = endpointKey.split("\\?")[0];
 		}
 		if (endpointKey.indexOf(":") == -1) {
-			throw new RuntimeException("SWDataProducer.no_operation_in_uri:" + endpointKey);
+			throw new RuntimeException("LocalDataProducer.no_operation_in_uri:" + endpointKey);
 		}
 		String[] path = endpointKey.split(":");
-		m_operation = SWDataOperation.valueOf(path[1].replace("//", ""));
+		m_operation = LocalDataOperation.valueOf(path[1].replace("//", ""));
 		info("m_operation:" + m_operation);
 		if (path.length > 2) {
 			m_filterName = path[2].split("\\?")[0];
@@ -119,7 +120,7 @@ public class SWDataProducer extends DefaultProducer {
 	 * @param exchange
 	 * @throws Exception
 	 */
-	protected void invokeOperation(SWDataOperation operation, Exchange exchange) throws Exception {
+	protected void invokeOperation(LocalDataOperation operation, Exchange exchange) throws Exception {
 		switch(operation) {
 			case findOneByFilter:
 				doFindOneByFilter(exchange);
@@ -146,7 +147,7 @@ public class SWDataProducer extends DefaultProducer {
 				doAggregate(exchange);
 				break;*/
 			default:
-				throw new RuntimeException("SWDataProducer.Operation not supported. Value: " + operation);
+				throw new RuntimeException("LocalDataProducer.Operation not supported. Value: " + operation);
 		}
 	}
 
@@ -157,7 +158,7 @@ public class SWDataProducer extends DefaultProducer {
 			value = e.getProperty(key, String.class);
 		}
 		if (value == null && def == null){
-			throw new RuntimeException("SWDataProducer." + key + "_is_null");
+			throw new RuntimeException("LocalDataProducer." + key + "_is_null");
 		}
 		return value != null ? value : def;
 	}
@@ -178,18 +179,18 @@ public class SWDataProducer extends DefaultProducer {
 		return value != null ? value : def;
 	}
 	private void doMultiInsertUpdate(Exchange exchange) {
-		String lookupUpdateObjectExpr = getString(exchange, SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR, m_lookupUpdateObjectExpr);
-		String lookupRelationObjectExpr = getString(exchange, SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR, m_lookupRelationObjectExpr);
-		String relation = getString(exchange, SWDataConstants.RELATION, m_relation);
+		String lookupUpdateObjectExpr = getString(exchange, LocalDataConstants.LOOKUP_UPDATE_OBJECT_EXPR, m_lookupUpdateObjectExpr);
+		String lookupRelationObjectExpr = getString(exchange, LocalDataConstants.LOOKUP_RELATION_OBJECT_EXPR, m_lookupRelationObjectExpr);
+		String relation = getString(exchange, LocalDataConstants.RELATION, m_relation);
 		if( "-".equals(relation))relation=null;
-		Boolean no_update = getBoolean(exchange, SWDataConstants.NO_UPDATE, m_noUpdate);
+		Boolean no_update = getBoolean(exchange, LocalDataConstants.NO_UPDATE, m_noUpdate);
 		Map<String,Object> persistenceSpecification = new HashMap();
-		persistenceSpecification.put(SWDataConstants.LOOKUP_RELATION_OBJECT_EXPR,lookupRelationObjectExpr);
-		persistenceSpecification.put(SWDataConstants.LOOKUP_UPDATE_OBJECT_EXPR,lookupUpdateObjectExpr);
-		persistenceSpecification.put(SWDataConstants.RELATION,relation);
-		persistenceSpecification.put(SWDataConstants.NO_UPDATE,no_update);
+		persistenceSpecification.put(LocalDataConstants.LOOKUP_RELATION_OBJECT_EXPR,lookupRelationObjectExpr);
+		persistenceSpecification.put(LocalDataConstants.LOOKUP_UPDATE_OBJECT_EXPR,lookupUpdateObjectExpr);
+		persistenceSpecification.put(LocalDataConstants.RELATION,relation);
+		persistenceSpecification.put(LocalDataConstants.NO_UPDATE,no_update);
 		System.out.println("persistenceSpecification:"+persistenceSpecification);
-		//String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		//String entityType = getStringCheck(exchange, LocalDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		List<Object> result = null;
@@ -198,13 +199,13 @@ public class SWDataProducer extends DefaultProducer {
 		} catch (Exception e) {
 			ex = e;
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.multiInsertUpdate);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.multiInsertUpdate);
 		processAndTransferResult(result, exchange, ex);
 	}
 
 	private void doDelete(Exchange exchange) {
-		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
-		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		String objectId = getStringCheck(exchange, LocalDataConstants.OBJECT_ID, m_objectId);
+		String entityType = getStringCheck(exchange, LocalDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
 		Map result = null;
@@ -213,12 +214,12 @@ public class SWDataProducer extends DefaultProducer {
 		} catch (Exception e) {
 			ex = e;
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.delete);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.delete);
 		processAndTransferResult(result, exchange, ex);
 	}
 
 	private void doInsert(Exchange exchange) {
-		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		String entityType = getStringCheck(exchange, LocalDataConstants.ENTITY_TYPE, m_entityType);
 		Map insert = exchange.getIn().getBody(Map.class);
 		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
@@ -228,14 +229,14 @@ public class SWDataProducer extends DefaultProducer {
 		} catch (Exception e) {
 			ex = e;
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.insert);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.insert);
 		processAndTransferResult(result, exchange, ex);
 		resultMessage.setBody(result);
 	}
 
 	private void doUpdate(Exchange exchange) {
-		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
-		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		String objectId = getStringCheck(exchange, LocalDataConstants.OBJECT_ID, m_objectId);
+		String entityType = getStringCheck(exchange, LocalDataConstants.ENTITY_TYPE, m_entityType);
 		Map update = exchange.getIn().getBody(Map.class);
 		SessionContext sc = getSessionContext(exchange);
 		Exception ex = null;
@@ -245,17 +246,17 @@ public class SWDataProducer extends DefaultProducer {
 		} catch (Exception e) {
 			ex = e;
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.update);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.update);
 		processAndTransferResult(result, exchange, ex);
 	}
 
 	private void doFindById(Exchange exchange) {
-		String objectId = getStringCheck(exchange, SWDataConstants.OBJECT_ID, m_objectId);
-		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
-		String entityType = getStringCheck(exchange, SWDataConstants.ENTITY_TYPE, m_entityType);
+		String objectId = getStringCheck(exchange, LocalDataConstants.OBJECT_ID, m_objectId);
+		String resultHeader = getString(exchange, LocalDataConstants.RESULT_HEADER, m_resultHeader);
+		String entityType = getStringCheck(exchange, LocalDataConstants.ENTITY_TYPE, m_entityType);
 		SessionContext sc = getSessionContext(exchange);
 		Object ret = sc.getObjectMapById(entityType, objectId);
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findById);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.findById);
 		if( resultHeader != null && resultHeader.length()>0){
 			resultMessage.setHeader(resultHeader, ret);
 		}else{
@@ -264,12 +265,12 @@ public class SWDataProducer extends DefaultProducer {
 	}
 
 	private void doFindByFilter(Exchange exchange) {
-		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
-		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
-		Boolean disableStateSelect = getBoolean(exchange, SWDataConstants.DISABLE_STATESELECT, m_disableStateSelect);
+		String filterName = getStringCheck(exchange, LocalDataConstants.FILTER_NAME, m_filterName);
+		String resultHeader = getString(exchange, LocalDataConstants.RESULT_HEADER, m_resultHeader);
+		Boolean disableStateSelect = getBoolean(exchange, LocalDataConstants.DISABLE_STATESELECT, m_disableStateSelect);
 		Map options = m_options != null ? new HashMap(m_options) : new HashMap();
 		if( disableStateSelect){
-			options.put(SWDataConstants.DISABLE_STATESELECT, true);
+			options.put(LocalDataConstants.DISABLE_STATESELECT, true);
 		}
 		SessionContext sc = getSessionContext(exchange);
 		List result = null;
@@ -280,8 +281,8 @@ public class SWDataProducer extends DefaultProducer {
 		} else {
 			result = (List) retMap.get("rows");
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findByFilter);
-		resultMessage.setHeader(SWDataConstants.ROW_COUNT, result.size());
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.findByFilter);
+		resultMessage.setHeader(LocalDataConstants.ROW_COUNT, result.size());
 		if( resultHeader != null && resultHeader.length()>0){
 			resultMessage.setHeader(resultHeader, result);
 		}else{
@@ -290,8 +291,8 @@ public class SWDataProducer extends DefaultProducer {
 	}
 
 	private void doFindOneByFilter(Exchange exchange) {
-		String filterName = getStringCheck(exchange, SWDataConstants.FILTER_NAME, m_filterName);
-		String resultHeader = getString(exchange, SWDataConstants.RESULT_HEADER, m_resultHeader);
+		String filterName = getStringCheck(exchange, LocalDataConstants.FILTER_NAME, m_filterName);
+		String resultHeader = getString(exchange, LocalDataConstants.RESULT_HEADER, m_resultHeader);
 		SessionContext sc = getSessionContext(exchange);
 		Map result = null;
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true,false,false);
@@ -303,8 +304,8 @@ public class SWDataProducer extends DefaultProducer {
 				result = (Map) rows.get(0);
 			}
 		}
-		Message resultMessage = prepareResponseMessage(exchange, SWDataOperation.findOneByFilter);
-		resultMessage.setHeader(SWDataConstants.ROW_COUNT, 1);
+		Message resultMessage = prepareResponseMessage(exchange, LocalDataOperation.findOneByFilter);
+		resultMessage.setHeader(LocalDataConstants.ROW_COUNT, 1);
 		if( resultHeader != null && resultHeader.length()>0){
 			resultMessage.setHeader(resultHeader, result);
 		}else{
@@ -313,10 +314,10 @@ public class SWDataProducer extends DefaultProducer {
 	}
 
 	private SessionContext getSessionContext(Exchange exchange) {
-		String namespace = getString(exchange, SWDataConstants.NAMESPACE, m_namespace);
+		String namespace = getString(exchange, LocalDataConstants.NAMESPACE, m_namespace);
 		StoreDesc sdesc = StoreDesc.getNamespaceData(namespace);
 		if (sdesc == null){
-			throw new RuntimeException("SWDataProducer.namespace:" + namespace + " not found");
+			throw new RuntimeException("LocalDataProducer.namespace:" + namespace + " not found");
 		}
 		SessionContext sc = m_dataLayer.getSessionContext(sdesc);
 		return sc;
@@ -324,17 +325,17 @@ public class SWDataProducer extends DefaultProducer {
 
 	private void processAndTransferResult(Object result, Exchange exchange, Exception ex) {
 		if (ex != null) {
-			exchange.getOut().setHeader(SWDataConstants.LAST_ERROR, ex.getMessage());
+			exchange.getOut().setHeader(LocalDataConstants.LAST_ERROR, ex.getMessage());
 			exchange.setException(ex);
 		}
 		if (m_endpoint.isWriteResultAsHeader()) {
-			exchange.getOut().setHeader(SWDataConstants.WRITE_RESULT, result);
+			exchange.getOut().setHeader(LocalDataConstants.WRITE_RESULT, result);
 		} else {
 			exchange.getOut().setBody(result);
 		}
 	}
 
-	private Message prepareResponseMessage(Exchange exchange, SWDataOperation operation) {
+	private Message prepareResponseMessage(Exchange exchange, LocalDataOperation operation) {
 		Message answer = exchange.getOut();
 		MessageHelper.copyHeaders(exchange.getIn(), answer, false);
 		if (isWriteOperation(operation) && m_endpoint.isWriteResultAsHeader()) {
@@ -343,12 +344,12 @@ public class SWDataProducer extends DefaultProducer {
 		return answer;
 	}
 
-	private boolean isWriteOperation(SWDataOperation operation) {
-		return SWDataComponent.WRITE_OPERATIONS.contains(operation);
+	private boolean isWriteOperation(LocalDataOperation operation) {
+		return LocalDataComponent.WRITE_OPERATIONS.contains(operation);
 	}
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
-	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(SWDataProducer.class);
+	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(LocalDataProducer.class);
 }

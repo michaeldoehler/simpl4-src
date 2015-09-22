@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.localdata;
 
 import java.util.Map;
 import java.util.HashSet;
@@ -28,16 +28,16 @@ import org.ms123.common.data.api.DataLayer;
 import org.apache.camel.CamelContext;
 
 /**
- * Represents the component that manages {@link SWDataEndpoint}.
+ * Represents the component that manages {@link LocalDataEndpoint}.
  */
-public class SWDataComponent extends DefaultComponent {
+public class LocalDataComponent extends DefaultComponent {
 
 	private DataLayer m_dataLayer;
 
-	public static final Set<SWDataOperation> WRITE_OPERATIONS = new HashSet<SWDataOperation>(Arrays.asList(SWDataOperation.insert, SWDataOperation.update, SWDataOperation.delete));
+	public static final Set<LocalDataOperation> WRITE_OPERATIONS = new HashSet<LocalDataOperation>(Arrays.asList(LocalDataOperation.insert, LocalDataOperation.update, LocalDataOperation.delete));
 
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-		Endpoint endpoint = new SWDataEndpoint(uri, this);
+		Endpoint endpoint = new LocalDataEndpoint(uri, this);
 		setProperties(endpoint, parameters);
 		return endpoint;
 	}

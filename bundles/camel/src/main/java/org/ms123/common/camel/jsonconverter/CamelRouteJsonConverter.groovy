@@ -67,9 +67,14 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_ctx.sharedEndpoints = createSharedOriginEndpoints(camelContext);
 		def startList = getStartList(rootShape);
 		for( def startShape : startList){
-			def converter = m_typesMap[getStencilId(startShape)];
+			def stencilId = getStencilId(startShape);
+			def converter = m_typesMap[stencilId];
 			if( converter == null){
-				throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
+				if( stencilId.endsWith("endpoint")){
+					converter = EndpointJsonConverter.class;
+				}else{
+					throw new RuntimeException("No converter for StencilId:"+getStencilId(startShape));
+				}
 			}
 			def startJsonConverter = converter.newInstance(rootProperties:rootShape.properties, shapeProperties:startShape.properties,resourceId:getId(startShape),branding:branding,bundleContext:bundleContext);
 			createConverterGraph(startJsonConverter, startShape);

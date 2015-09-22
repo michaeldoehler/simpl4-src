@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.localdata;
 
 import java.util.Date;
 import org.apache.camel.Exchange;
@@ -25,11 +25,11 @@ import org.apache.camel.impl.DefaultConsumer;
 
 /**
  */
-public class SWDataConsumer extends DefaultConsumer {
+public class LocalDataConsumer extends DefaultConsumer {
 
-	private final SWDataEndpoint endpoint;
+	private final LocalDataEndpoint endpoint;
 
-	public SWDataConsumer(SWDataEndpoint endpoint, Processor processor) {
+	public LocalDataConsumer(LocalDataEndpoint endpoint, Processor processor) {
 		super(endpoint, processor);
 		this.endpoint = endpoint;
 	}
@@ -38,11 +38,11 @@ public class SWDataConsumer extends DefaultConsumer {
 	protected void doStart() throws Exception {
 		super.doStart();
 		info("doStart");
-		((SWDataEndpoint) getEndpoint()).addConsumer(this);
+		((LocalDataEndpoint) getEndpoint()).addConsumer(this);
 	}
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
-	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(SWDataConsumer.class);
+	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(LocalDataConsumer.class);
 }

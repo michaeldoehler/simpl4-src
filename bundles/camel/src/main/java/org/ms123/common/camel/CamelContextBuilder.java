@@ -36,6 +36,8 @@ import org.apache.camel.spi.Registry;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.apache.camel.support.EventNotifierSupport;
 import org.ms123.common.camel.components.*;
+import org.ms123.common.camel.components.activiti.*;
+import org.ms123.common.camel.components.localdata.*;
 import org.ms123.common.camel.components.template.*;
 import org.ms123.common.camel.components.asciidoctor.*;
 import org.ms123.common.camel.components.xdocreport.*;
@@ -72,7 +74,7 @@ public class CamelContextBuilder {
 		sr.put("datamapper", or.lookupByName(DatamapperService.class.getName()));
 		sr.put("namespace", namespace);
 		sr.put("activiti", new ActivitiComponent());
-		sr.put("swdata", new SWDataComponent());
+		sr.put("localdata", new LocalDataComponent());
 		sr.put("repo", new RepoComponent());
 		sr.put("xmpp", new org.ms123.common.xmpp.camel.XmppComponent());
 		sr.put("wamp", new org.ms123.common.wamp.camel.WampClientComponent());

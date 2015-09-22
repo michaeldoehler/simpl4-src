@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.localdata;
 
-public final class SWDataConstants {
+public final class LocalDataConstants {
 
 	public static final String FILTER_NAME = "filterName";
 	public static final String RESULT_HEADER = "resultHeader";
@@ -39,6 +39,6 @@ public final class SWDataConstants {
 	public static final String LOOKUP_RELATION_OBJECT_EXPR = "lookupRelationObjectExpr";
 	public static final String LOOKUP_UPDATE_OBJECT_EXPR = "lookupUpdateObjectExpr";
 
-	private SWDataConstants() {
+	private LocalDataConstants() {
 	}
 }

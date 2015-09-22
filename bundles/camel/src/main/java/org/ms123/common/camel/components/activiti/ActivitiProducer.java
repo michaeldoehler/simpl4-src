@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.camel.components;
+package org.ms123.common.camel.components.activiti;
 
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.Execution;
@@ -26,12 +26,17 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.camel.Exchange;
+import org.apache.camel.MessageHistory;
 import org.apache.camel.impl.DefaultProducer;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.system.thread.ThreadContext;
+import org.ms123.common.camel.components.ExchangeUtils;
+import org.ms123.common.camel.trace.ExchangeFormatter;
+import org.ms123.common.camel.trace.MessageHelper;
 import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
 import flexjson.*;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
@@ -119,9 +124,20 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		exchange.setProperty("activitikey", m_activitiKey);
 		info("createLogEntry.saveHistory.ActivitiProducer.process");
 		camelService.saveHistory(exchange);
-		BaseCamelBehavior.printHistory(exchange);
+		printHistory(exchange);
 	}
 
+	private   void printHistory(Exchange exchange){
+		info("printHistoryX");
+		List<MessageHistory> list = exchange.getProperty(Exchange.MESSAGE_HISTORY, List.class);
+		ExchangeFormatter formatter = new ExchangeFormatter();
+		formatter.setShowExchangeId(true);
+		formatter.setMultiline(true);
+		formatter.setShowHeaders(true);
+		formatter.setStyle(ExchangeFormatter.OutputStyle.Fixed);
+		String routeStackTrace = MessageHelper.dumpMessageHistoryStacktrace(exchange, formatter, true);
+		info(routeStackTrace);
+	}
 	private void createLogEntry(Exchange exchange, ProcessDefinition pd, Exception e){
 		EventAdmin eventAdmin = (EventAdmin)exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 		Map props = new HashMap();
