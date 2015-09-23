@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.workflow;
+package org.ms123.common.workflow.tasks;
 
 import java.util.*;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -35,6 +35,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.ProcessEngine;
 import org.ms123.common.git.GitService;
+import org.ms123.common.workflow.RulesProcessor;
 
 @SuppressWarnings("unchecked")
 public class TaskRulesExecutor extends TaskBaseExecutor implements JavaDelegate {

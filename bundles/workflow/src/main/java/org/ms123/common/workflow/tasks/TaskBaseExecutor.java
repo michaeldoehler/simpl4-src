@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.workflow;
+package org.ms123.common.workflow.tasks;
 
 import java.util.*;
 import java.io.File;
@@ -33,6 +33,7 @@ import org.activiti.engine.RuntimeService;
 import org.apache.commons.beanutils.*;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.workflow.api.WorkflowService;
+import org.ms123.common.workflow.GroovyTaskDsl;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.docbook.DocbookService;
 import org.ms123.common.git.GitService;

@@ -40,8 +40,6 @@ public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 	private final String DOCUMENTNAME_PROP = "el$activiti$documentname";
 	private final String FILENAME_PROP = "el$activiti$filename";
 	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
-	private final String CLASSNAME_PROP = "attr$activiti$class";
-	private final String CLASSNAME = "class";
 
 
 
@@ -55,12 +53,8 @@ public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
 		ServiceTask task = new ServiceTask();
-		/*String clazz = getPropertyValueAsString(CLASSNAME, elementNode);
-		System.out.println("DocumentTask.class:" + clazz);
-		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
-		task.setImplementation(clazz);*/
 
-		String clazz = "org.ms123.common.workflow.TaskDocumentExecutor";
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskDocumentExecutor");
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 

@@ -41,10 +41,6 @@ public class Simpl4ScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String SCRIPT = "script";
 
-	private final String CLASSNAME_PROP = "attr$activiti$class";
-
-	private final String CLASSNAME = "class";
-
 	protected String getStencilId(FlowElement flowElement) {
 		return "ScriptTask";
 	}
@@ -57,7 +53,7 @@ public class Simpl4ScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 		ServiceTask task = new ServiceTask();
 		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
 		Map<String, Object> propMap = (Map) elementMap.get("properties");
-		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskScriptExecutor");
 		System.out.println("ScriptTask.class:" + clazz);
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);

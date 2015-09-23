@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ms123.common.workflow;
+package org.ms123.common.workflow.tasks;
 
 import flexjson.*;
 import java.util.*;
@@ -37,6 +37,7 @@ import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
+import org.ms123.common.workflow.GroovyTaskDsl;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.springframework.transaction.support.TransactionCallback;

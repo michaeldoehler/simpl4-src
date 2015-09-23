@@ -43,10 +43,6 @@ public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String RULESNAME = "rulesname";
 
-	private final String CLASSNAME_PROP = "attr$activiti$class";
-
-	private final String CLASSNAME = "class";
-
 	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
 
 	private final String VARMAPPING = "variablesmapping";
@@ -64,7 +60,7 @@ public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
 		ServiceTask task = new ServiceTask();
 		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
 		Map<String, Object> propMap = (Map) elementMap.get("properties");
-		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskRulesExecutor");
 		System.out.println("RulesTask.class:" + clazz);
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
