@@ -26,13 +26,13 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.auth.api.AuthService;
 import flexjson.*;
 
-public class SWGroupManagerFactory implements SessionFactory {
+public class Simpl4GroupManagerFactory implements SessionFactory {
 
 	protected PermissionService m_permissionService;
 
 	protected AuthService m_authService;
 
-	public SWGroupManagerFactory(AuthService as, PermissionService ps) {
+	public Simpl4GroupManagerFactory(AuthService as, PermissionService ps) {
 		m_authService = as;
 		m_permissionService = ps;
 	}
@@ -44,6 +44,6 @@ public class SWGroupManagerFactory implements SessionFactory {
 
 	@Override
 	public Session openSession() {
-		return new SWGroupEntityManager(m_authService, m_permissionService);
+		return new Simpl4GroupEntityManager(m_authService, m_permissionService);
 	}
 }

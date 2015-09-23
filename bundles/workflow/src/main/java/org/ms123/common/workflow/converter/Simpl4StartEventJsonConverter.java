@@ -34,7 +34,7 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWStartEventJsonConverter extends StartEventJsonConverter {
+public class Simpl4StartEventJsonConverter extends StartEventJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
@@ -47,11 +47,11 @@ public class SWStartEventJsonConverter extends StartEventJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put(STENCIL_EVENT_START_NONE, SWStartEventJsonConverter.class);
-		convertersToBpmnMap.put(STENCIL_EVENT_START_TIMER, SWStartEventJsonConverter.class);
-		convertersToBpmnMap.put(STENCIL_EVENT_START_ERROR, SWStartEventJsonConverter.class);
-		convertersToBpmnMap.put(STENCIL_EVENT_START_MESSAGE, SWStartEventJsonConverter.class);
-		convertersToBpmnMap.put(STENCIL_EVENT_START_SIGNAL, SWStartEventJsonConverter.class);
+		convertersToBpmnMap.put(STENCIL_EVENT_START_NONE, Simpl4StartEventJsonConverter.class);
+		convertersToBpmnMap.put(STENCIL_EVENT_START_TIMER, Simpl4StartEventJsonConverter.class);
+		convertersToBpmnMap.put(STENCIL_EVENT_START_ERROR, Simpl4StartEventJsonConverter.class);
+		convertersToBpmnMap.put(STENCIL_EVENT_START_MESSAGE, Simpl4StartEventJsonConverter.class);
+		convertersToBpmnMap.put(STENCIL_EVENT_START_SIGNAL, Simpl4StartEventJsonConverter.class);
 	}
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {

@@ -33,20 +33,20 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWScriptTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	private final String SCRIPT_PROP = "el$activiti$script";
-
-	private final String SCRIPT = "script";
-
+	private final String DOCUMENTNAME_PROP = "el$activiti$documentname";
+	private final String FILENAME_PROP = "el$activiti$filename";
+	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
 	private final String CLASSNAME_PROP = "attr$activiti$class";
-
 	private final String CLASSNAME = "class";
 
+
+
 	protected String getStencilId(FlowElement flowElement) {
-		return "ScriptTask";
+		return "DocumentTask";
 	}
 
 	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
@@ -55,16 +55,18 @@ public class SWScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
 		ServiceTask task = new ServiceTask();
-		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
-		Map<String, Object> propMap = (Map) elementMap.get("properties");
-		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
-		System.out.println("ScriptTask.class:" + clazz);
+		/*String clazz = getPropertyValueAsString(CLASSNAME, elementNode);
+		System.out.println("DocumentTask.class:" + clazz);
+		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
+		task.setImplementation(clazz);*/
+
+		String clazz = "org.ms123.common.workflow.TaskDocumentExecutor";
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
-		FieldExtension field = new FieldExtension();
-		field.setFieldName(SCRIPT);
-		field.setStringValue(checkNull2(SCRIPT, propMap.get(SCRIPT_PROP)));
-		task.getFieldExtensions().add(field);
+
+		addField(VARMAPPING_PROP, elementNode, task);
+		addField(DOCUMENTNAME_PROP, elementNode, task);
+		addField(FILENAME_PROP, elementNode, task);
 		return task;
 	}
 
@@ -73,18 +75,40 @@ public class SWScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("ScriptTask", SWScriptTaskJsonConverter.class);
+		convertersToBpmnMap.put("DocumentTask", Simpl4DocumentTaskJsonConverter.class);
 	}
 
 	private String checkNull(String name, Object value) {
 		if (value == null)
-			throw new RuntimeException("SWScriptTaskJsonConverter:" + name + " is null");
+			throw new RuntimeException("Simpl4DocumentTaskJsonConverter:" + name + " is null");
 		return value.toString();
 	}
-	private String checkNull2(String name, Object value) {
+	private String getValue(String name, Object value) {
 		if (value == null){
-			return "";
+			return null;
 		}
 		return value.toString();
+	}
+	private String checkEmpty(String name, Object value) {
+		if (value == null)
+			throw new RuntimeException("Simpl4DocumentTaskJsonConverter:" + name + " is null");
+		String val=value.toString();
+		if( val.trim().length() ==0){
+			throw new RuntimeException("Simpl4DocumentTaskJsonConverter:" + name + " is empty");
+		}
+		return val;
+	}
+	protected void addField(String name, JsonNode elementNode, ServiceTask task) {
+		FieldExtension field = new FieldExtension();
+		field.setFieldName(name.substring(12));
+		String value = getPropertyValueAsString(name, elementNode);
+		if (StringUtils.isNotEmpty(value)) {
+			if ((value.contains("${") || value.contains("#{")) && value.contains("}")) {
+				field.setExpression(value);
+			} else {
+				field.setStringValue(value);
+			}
+		}
+		task.getFieldExtensions().add(field);
 	}
 }

@@ -32,7 +32,7 @@ import flexjson.*;
 
 /**
  */
-public class SWSendTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String PROPERTY_MAILTASK_TO = "el$activiti$to";
 
@@ -55,7 +55,7 @@ public class SWSendTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("SendTask", SWSendTaskJsonConverter.class);
+		convertersToBpmnMap.put("SendTask", Simpl4SendTaskJsonConverter.class);
 	}
 
 	public static void fillBpmnTypes(Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {

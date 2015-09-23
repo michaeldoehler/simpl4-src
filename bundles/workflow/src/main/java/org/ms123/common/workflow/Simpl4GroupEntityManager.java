@@ -33,7 +33,7 @@ import org.ms123.common.auth.api.AuthService;
 import flexjson.*;
 
 @SuppressWarnings("unchecked")
-public class SWGroupEntityManager extends GroupEntityManager {
+public class Simpl4GroupEntityManager extends GroupEntityManager {
 
 	protected JSONSerializer m_js = new JSONSerializer();
 
@@ -41,7 +41,7 @@ public class SWGroupEntityManager extends GroupEntityManager {
 
 	protected AuthService m_authService;
 
-	public SWGroupEntityManager(AuthService as, PermissionService ps) {
+	public Simpl4GroupEntityManager(AuthService as, PermissionService ps) {
 		m_js.prettyPrint(true);
 		m_authService = as;
 		m_permissionService = ps;
@@ -89,10 +89,10 @@ public class SWGroupEntityManager extends GroupEntityManager {
 
 	//@Override
 	public GroupEntity findGroupById(String activitiGroupID) {
-		System.out.println("SWGroupEntityManager:findGroupById:" + activitiGroupID);
+		System.out.println("Simpl4GroupEntityManager:findGroupById:" + activitiGroupID);
 		if (m_permissionService.hasRole(activitiGroupID)) {
 			GroupEntity g = convertToGroup(activitiGroupID);
-			System.out.println("SWGroupEntityManager:findGroupById:" + m_js.deepSerialize(g));
+			System.out.println("Simpl4GroupEntityManager:findGroupById:" + m_js.deepSerialize(g));
 			return g;
 		}
 		return null;
@@ -101,7 +101,7 @@ public class SWGroupEntityManager extends GroupEntityManager {
 	@Override
 	public List<Group> findGroupsByUser(String userLogin) {
 		List<Group> roleListRet = new ArrayList();
-		System.out.println("SWGroupEntityManager:findGroupsByUser:" + userLogin);
+		System.out.println("Simpl4GroupEntityManager:findGroupsByUser:" + userLogin);
 		try{
 			List<String> roleList = m_permissionService.getUserRoles(userLogin);
 			for (String roleid : roleList) {
@@ -109,9 +109,9 @@ public class SWGroupEntityManager extends GroupEntityManager {
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new RuntimeException("SWGroupEntityManager.findGroupsByUser:",e);
+			throw new RuntimeException("Simpl4GroupEntityManager.findGroupsByUser:",e);
 		}
-		System.out.println("SWGroupEntityManager:findGroupsByUser:" + m_js.deepSerialize(roleListRet));
+		System.out.println("Simpl4GroupEntityManager:findGroupsByUser:" + m_js.deepSerialize(roleListRet));
 		return roleListRet;
 	}
 

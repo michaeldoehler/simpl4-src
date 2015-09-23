@@ -33,14 +33,14 @@ import org.ms123.common.auth.api.AuthService;
 import flexjson.*;
 
 @SuppressWarnings("unchecked")
-public class SWUserEntityManager extends UserEntityManager {
+public class Simpl4UserEntityManager extends UserEntityManager {
 	protected JSONSerializer m_js = new JSONSerializer();
 
 	protected PermissionService m_permissionService;
 
 	protected AuthService m_authService;
 
-	public SWUserEntityManager(AuthService as, PermissionService ps) {
+	public Simpl4UserEntityManager(AuthService as, PermissionService ps) {
 		m_js.prettyPrint(true);
 		m_authService = as;
 		m_permissionService = ps;
@@ -69,12 +69,12 @@ public class SWUserEntityManager extends UserEntityManager {
 
 	@Override
 	public List<User> findUserByQueryCriteria(UserQueryImpl query, Page page) {
-		System.out.println("SWUserEntityManager.findUserByQueryCriteria:"+m_js.deepSerialize(query));
+		System.out.println("Simpl4UserEntityManager.findUserByQueryCriteria:"+m_js.deepSerialize(query));
 		List<User> userList = new ArrayList<User>();
 		UserQueryImpl userQuery = (UserQueryImpl) query;
 		if (StringUtils.isNotEmpty(userQuery.getId())) {
 			userList.add(convertToUser(m_authService.getUser(userQuery.getId())));
-			System.out.println("SWUserEntityManager.findUserByQueryCriteria:"+m_js.deepSerialize(userList));
+			System.out.println("Simpl4UserEntityManager.findUserByQueryCriteria:"+m_js.deepSerialize(userList));
 			return userList;
 		} else {
 			//TODO: get all users from your identity domain and convert them to List<User>

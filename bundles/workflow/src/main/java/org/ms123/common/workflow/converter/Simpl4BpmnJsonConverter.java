@@ -35,30 +35,30 @@ import org.ms123.common.stencil.api.StencilService;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWBpmnJsonConverter extends BpmnJsonConverter {
+public class Simpl4BpmnJsonConverter extends BpmnJsonConverter {
 
-	public SWBpmnJsonConverter(String namespace, StencilService stencilService) {
+	public Simpl4BpmnJsonConverter(String namespace, StencilService stencilService) {
 		try{
 			List<Map> additionalStencils = stencilService.getAddonStencils( namespace);
 			for( Map<String,Object> stencil : additionalStencils){
 				String id = (String)stencil.get("id");
 				Class c = stencilService.getConverterClass(namespace,id);
-				System.out.println("SWBpmnJsonConverter.classd("+id+"):"+c);
+				System.out.println("Simpl4BpmnJsonConverter.classd("+id+"):"+c);
 				convertersToBpmnMap.put(id, c);
 				DI_RECTANGLES.add(id);
 			}
 		}catch(Exception e){
-			throw new RuntimeException("SWBpmnJsonConverter:",e);
+			throw new RuntimeException("Simpl4BpmnJsonConverter:",e);
 		}
-		System.out.println("SWBpmnJsonConverter:"+convertersToBpmnMap);
-		SWSequenceFlowJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWFilterTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWDocumentTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWUserTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWScriptTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWRulesTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWSendTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		SWStartEventJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		System.out.println("Simpl4BpmnJsonConverter:"+convertersToBpmnMap);
+		Simpl4SequenceFlowJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4FilterTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4DocumentTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4UserTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4ScriptTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4RulesTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4SendTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4StartEventJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		DI_RECTANGLES.add("SendTask");
 		DI_RECTANGLES.add("FilterTask");
 		DI_RECTANGLES.add("RulesTask");

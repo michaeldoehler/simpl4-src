@@ -33,20 +33,33 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWDocumentTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4FilterTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	private final String DOCUMENTNAME_PROP = "el$activiti$documentname";
-	private final String FILENAME_PROP = "el$activiti$filename";
-	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
+
+	private final String LISTNAME_PROP = "el$activiti$listname";
+
+	private final String LISTNAME = "listname";
+
+	private final String FILTERNAME_PROP = "el$activiti$filtername";
+
+	private final String FILTERNAME = "filtername";
+
+	private final String FILTERVARNAME_PROP = "el$activiti$filtervarname";
+
+	private final String FILTERVARNAME = "filtervarname";
+
 	private final String CLASSNAME_PROP = "attr$activiti$class";
+
 	private final String CLASSNAME = "class";
 
+	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
 
+	private final String VARMAPPING = "variablesmapping";
 
 	protected String getStencilId(FlowElement flowElement) {
-		return "DocumentTask";
+		return "FilterTask";
 	}
 
 	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
@@ -55,18 +68,33 @@ public class SWDocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
 		ServiceTask task = new ServiceTask();
-		/*String clazz = getPropertyValueAsString(CLASSNAME, elementNode);
-		System.out.println("DocumentTask.class:" + clazz);
-		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
-		task.setImplementation(clazz);*/
+		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
+		Map<String, Object> propMap = (Map) elementMap.get("properties");
+		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
 
-		String clazz = "org.ms123.common.workflow.TaskDocumentExecutor";
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 
-		addField(VARMAPPING_PROP, elementNode, task);
-		addField(DOCUMENTNAME_PROP, elementNode, task);
-		addField(FILENAME_PROP, elementNode, task);
+		FieldExtension field = new FieldExtension();
+		field.setFieldName(VARMAPPING);
+		String variablesmapping = getValue(VARMAPPING, propMap.get(VARMAPPING_PROP));
+		field.setExpression(variablesmapping);
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(FILTERNAME);
+		field.setStringValue(getValue(FILTERNAME, propMap.get(FILTERNAME_PROP)));
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(FILTERVARNAME);
+		field.setStringValue(getValue(FILTERVARNAME, propMap.get(FILTERVARNAME_PROP)));
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(LISTNAME);
+		field.setStringValue(checkNull(LISTNAME, propMap.get(LISTNAME_PROP)));
+		task.getFieldExtensions().add(field);
 		return task;
 	}
 
@@ -75,12 +103,21 @@ public class SWDocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("DocumentTask", SWDocumentTaskJsonConverter.class);
+		convertersToBpmnMap.put("FilterTask", Simpl4FilterTaskJsonConverter.class);
+	}
+	private String checkEmpty(String name, Object value) {
+		if (value == null)
+			throw new RuntimeException("Simpl4FilterTaskJsonConverter:" + name + " is null");
+		String val=value.toString();
+		if( val.trim().length() ==0){
+			throw new RuntimeException("Simpl4FilterTaskJsonConverter:" + name + " is empty");
+		}
+		return val;
 	}
 
 	private String checkNull(String name, Object value) {
 		if (value == null)
-			throw new RuntimeException("SWDocumentTaskJsonConverter:" + name + " is null");
+			throw new RuntimeException("Simpl4FilterTaskJsonConverter:" + name + " is null");
 		return value.toString();
 	}
 	private String getValue(String name, Object value) {
@@ -89,26 +126,44 @@ public class SWDocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 		}
 		return value.toString();
 	}
-	private String checkEmpty(String name, Object value) {
-		if (value == null)
-			throw new RuntimeException("SWDocumentTaskJsonConverter:" + name + " is null");
-		String val=value.toString();
-		if( val.trim().length() ==0){
-			throw new RuntimeException("SWDocumentTaskJsonConverter:" + name + " is empty");
-		}
-		return val;
-	}
-	protected void addField(String name, JsonNode elementNode, ServiceTask task) {
-		FieldExtension field = new FieldExtension();
-		field.setFieldName(name.substring(12));
-		String value = getPropertyValueAsString(name, elementNode);
-		if (StringUtils.isNotEmpty(value)) {
-			if ((value.contains("${") || value.contains("#{")) && value.contains("}")) {
-				field.setExpression(value);
-			} else {
-				field.setStringValue(value);
-			}
-		}
-		task.getFieldExtensions().add(field);
-	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

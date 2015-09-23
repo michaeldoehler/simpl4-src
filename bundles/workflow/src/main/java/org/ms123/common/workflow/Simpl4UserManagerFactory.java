@@ -25,13 +25,13 @@ import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.auth.api.AuthService;
 
-public class SWUserManagerFactory implements SessionFactory {
+public class Simpl4UserManagerFactory implements SessionFactory {
 
 	protected PermissionService m_permissionService;
 
 	protected AuthService m_authService;
 
-	public SWUserManagerFactory(AuthService as, PermissionService ps) {
+	public Simpl4UserManagerFactory(AuthService as, PermissionService ps) {
 		m_authService = as;
 		m_permissionService = ps;
 	}
@@ -43,6 +43,6 @@ public class SWUserManagerFactory implements SessionFactory {
 
 	@Override
 	public Session openSession() {
-		return new SWUserEntityManager(m_authService, m_permissionService);
+		return new Simpl4UserEntityManager(m_authService, m_permissionService);
 	}
 }

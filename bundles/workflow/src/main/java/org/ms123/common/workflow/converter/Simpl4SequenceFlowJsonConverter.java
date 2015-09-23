@@ -37,7 +37,7 @@ import flexjson.*;
 
 /**
  */
-public class SWSequenceFlowJsonConverter extends SequenceFlowJsonConverter {
+public class Simpl4SequenceFlowJsonConverter extends SequenceFlowJsonConverter {
 
 	private String PROPERTY_SEQUENCEFLOW_CONDITIONALFLOW = "conditionalflow";
 
@@ -48,7 +48,7 @@ public class SWSequenceFlowJsonConverter extends SequenceFlowJsonConverter {
     fillJsonTypes(convertersToBpmnMap);
   }
   public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-    convertersToBpmnMap.put(STENCIL_SEQUENCE_FLOW, SWSequenceFlowJsonConverter.class);
+    convertersToBpmnMap.put(STENCIL_SEQUENCE_FLOW, Simpl4SequenceFlowJsonConverter.class);
   }
 
   @Override
@@ -63,7 +63,7 @@ public class SWSequenceFlowJsonConverter extends SequenceFlowJsonConverter {
       flow.setTargetRef(BpmnJsonConverterUtil.getElementId(shapeMap.get(targetId)));
     }
     String conditionalFlow = getPropertyValueAsString(PROPERTY_SEQUENCEFLOW_CONDITIONALFLOW, elementNode); 
-		System.out.println("SWSequenceFlowJsonConverter:"+conditionalFlow);
+		System.out.println("Simpl4SequenceFlowJsonConverter:"+conditionalFlow);
 		if( conditionalFlow==null || !conditionalFlow.toLowerCase().equals("none")){
     	flow.setConditionExpression(getPropertyValueAsString(PROPERTY_SEQUENCEFLOW_CONDITION, elementNode));
 		}

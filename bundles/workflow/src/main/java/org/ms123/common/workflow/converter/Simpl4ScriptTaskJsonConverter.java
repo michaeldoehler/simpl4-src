@@ -33,26 +33,20 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWRulesTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4ScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	protected JSONSerializer m_js = new JSONSerializer();
+	private final String SCRIPT_PROP = "el$activiti$script";
 
-	private final String RULESNAME_PROP = "el$activiti$rulesname";
-
-	private final String RULESNAME = "rulesname";
+	private final String SCRIPT = "script";
 
 	private final String CLASSNAME_PROP = "attr$activiti$class";
 
 	private final String CLASSNAME = "class";
 
-	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
-
-	private final String VARMAPPING = "variablesmapping";
-
 	protected String getStencilId(FlowElement flowElement) {
-		return "RulesTask";
+		return "ScriptTask";
 	}
 
 	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
@@ -60,24 +54,16 @@ public class SWRulesTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
-		m_js.prettyPrint(true);
 		ServiceTask task = new ServiceTask();
 		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
 		Map<String, Object> propMap = (Map) elementMap.get("properties");
 		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
-		System.out.println("RulesTask.class:" + clazz);
+		System.out.println("ScriptTask.class:" + clazz);
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
-
-		String variablesmapping = checkNull(VARMAPPING, propMap.get(VARMAPPING_PROP));
 		FieldExtension field = new FieldExtension();
-		field.setFieldName(VARMAPPING);
-		field.setExpression(variablesmapping);
-		task.getFieldExtensions().add(field);
-
-		field = new FieldExtension();
-		field.setFieldName(RULESNAME);
-		field.setStringValue(checkNull(RULESNAME, propMap.get(RULESNAME_PROP)));
+		field.setFieldName(SCRIPT);
+		field.setStringValue(checkNull2(SCRIPT, propMap.get(SCRIPT_PROP)));
 		task.getFieldExtensions().add(field);
 		return task;
 	}
@@ -87,12 +73,18 @@ public class SWRulesTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("RulesTask", SWRulesTaskJsonConverter.class);
+		convertersToBpmnMap.put("ScriptTask", Simpl4ScriptTaskJsonConverter.class);
 	}
 
 	private String checkNull(String name, Object value) {
 		if (value == null)
-			throw new RuntimeException("SWRulesTaskJsonConverter:" + name + " is null");
+			throw new RuntimeException("Simpl4ScriptTaskJsonConverter:" + name + " is null");
+		return value.toString();
+	}
+	private String checkNull2(String name, Object value) {
+		if (value == null){
+			return "";
+		}
 		return value.toString();
 	}
 }

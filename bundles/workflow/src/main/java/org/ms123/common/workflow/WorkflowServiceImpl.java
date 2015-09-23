@@ -68,7 +68,7 @@ import org.ms123.common.utils.Utils;
 import org.ms123.common.git.GitService;
 import org.ms123.common.system.tm.TransactionService;
 import org.ms123.common.stencil.api.StencilService;
-import org.ms123.common.workflow.converter.SWBpmnJsonConverter;
+import org.ms123.common.workflow.converter.Simpl4BpmnJsonConverter;
 import javax.servlet.http.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -269,8 +269,8 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		if (customSessionFactories == null) {
 			customSessionFactories = new ArrayList<SessionFactory>();
 		}
-		customSessionFactories.add(new SWGroupManagerFactory(m_authService, m_permissionService));
-		customSessionFactories.add(new SWUserManagerFactory(m_authService, m_permissionService));
+		customSessionFactories.add(new Simpl4GroupManagerFactory(m_authService, m_permissionService));
+		customSessionFactories.add(new Simpl4UserManagerFactory(m_authService, m_permissionService));
 		c.setCustomSessionFactories(customSessionFactories);
 		ProcessEngineFactory pef = new ProcessEngineFactory();
 		pef.setBundle(bundleContext.getBundle());
@@ -328,7 +328,7 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 	}
 
 	private byte[] getBpmnXML(String processJson, String ns, String path) throws Exception {
-		SWBpmnJsonConverter jsonConverter = new SWBpmnJsonConverter(ns,m_stencilService);
+		Simpl4BpmnJsonConverter jsonConverter = new Simpl4BpmnJsonConverter(ns,m_stencilService);
 		JsonNode editorNode = new ObjectMapper().readTree(processJson);
 		BpmnModel bpmnModel = jsonConverter.convertToBpmnModel(editorNode);
 		bpmnModel.setTargetNamespace(ns);

@@ -19,14 +19,11 @@
 package org.ms123.common.workflow.converter;
 
 import java.util.Map;
-import java.util.Arrays;
 import org.activiti.bpmn.model.BaseElement;
 import org.activiti.bpmn.model.FieldExtension;
 import org.activiti.bpmn.model.FlowElement;
 import org.activiti.bpmn.model.ImplementationType;
 import org.activiti.bpmn.model.ServiceTask;
-import org.activiti.bpmn.model.UserTask;
-import org.activiti.bpmn.model.FormProperty;
 import org.apache.commons.lang.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,59 +33,52 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class SWUserTaskJsonConverter extends UserTaskJsonConverter {
+public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	protected JSONSerializer m_jsPretty = new JSONSerializer();
-
 	protected JSONSerializer m_js = new JSONSerializer();
 
-	private final String FORMKEY_PROP = "attr$activiti$formkey";
+	private final String RULESNAME_PROP = "el$activiti$rulesname";
 
-	private final String FORMKEY = "formkey";
+	private final String RULESNAME = "rulesname";
 
-	private final String CANDIDATEGROUPS_PROP = "attr$activiti$candidategroups";
+	private final String CLASSNAME_PROP = "attr$activiti$class";
 
-	private final String CANDIDATEGROUPS = "candidategroups";
-
-	private final String ASSIGNEE_PROP = "attr$activiti$assignee";
-
-	private final String ASSIGNEE = "assignee";
+	private final String CLASSNAME = "class";
 
 	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
 
 	private final String VARMAPPING = "variablesmapping";
 
 	protected String getStencilId(FlowElement flowElement) {
-		return "UserTask";
+		return "RulesTask";
+	}
+
+	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+		ServiceTask serviceTask = (ServiceTask) flowElement;
 	}
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
-		UserTask task = (UserTask) super.convertJsonToElement(elementNode, modelNode, shapeMap);
-		m_jsPretty.prettyPrint(true);
+		m_js.prettyPrint(true);
+		ServiceTask task = new ServiceTask();
 		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
 		Map<String, Object> propMap = (Map) elementMap.get("properties");
-		System.out.println("\n--->>> UserTask.propMap:" + m_jsPretty.deepSerialize(propMap));
-		String formkey = getString(propMap.get(FORMKEY_PROP));
-		task.setFormKey(formkey);
-		String assignee = getString(propMap.get(ASSIGNEE_PROP));
-		task.setAssignee(assignee);
-		String candidategroups = getString(propMap.get(CANDIDATEGROUPS_PROP));
-		if (candidategroups != null) {
-			task.setCandidateGroups(Arrays.asList(candidategroups.split(",")));
-		}
-		String variablesmapping = getVarMapping(propMap.get(VARMAPPING_PROP));
-		System.out.println("UserTask.variablesmapping:" + variablesmapping);
-		if (variablesmapping != null) {
-			FormProperty formProperty = new FormProperty();
-			formProperty.setId(VARMAPPING);
-			formProperty.setName(VARMAPPING);
-			formProperty.setDefaultExpression("~" + variablesmapping);
-			formProperty.setVariable("~" + variablesmapping);
-			task.getFormProperties().add(formProperty);
-		}
-		System.out.println("\n<<<---UserTask.task:" + m_jsPretty.deepSerialize(task));
+		String clazz = checkNull(CLASSNAME, propMap.get(CLASSNAME_PROP));
+		System.out.println("RulesTask.class:" + clazz);
+		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
+		task.setImplementation(clazz);
+
+		String variablesmapping = checkNull(VARMAPPING, propMap.get(VARMAPPING_PROP));
+		FieldExtension field = new FieldExtension();
+		field.setFieldName(VARMAPPING);
+		field.setExpression(variablesmapping);
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(RULESNAME);
+		field.setStringValue(checkNull(RULESNAME, propMap.get(RULESNAME_PROP)));
+		task.getFieldExtensions().add(field);
 		return task;
 	}
 
@@ -97,25 +87,12 @@ public class SWUserTaskJsonConverter extends UserTaskJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("UserTask", SWUserTaskJsonConverter.class);
+		convertersToBpmnMap.put("RulesTask", Simpl4RulesTaskJsonConverter.class);
 	}
 
 	private String checkNull(String name, Object value) {
 		if (value == null)
-			throw new RuntimeException("SWUserTaskJsonConverter:" + name + " is null");
-		return value.toString();
-	}
-
-	private String getVarMapping(Object value) {
-		if (value == null || value.toString().trim().length() == 0) {
-			return null;
-		}
-		return m_js.deepSerialize(value);
-	}
-
-	private String getString(Object value) {
-		if (value == null)
-			return null;
+			throw new RuntimeException("Simpl4RulesTaskJsonConverter:" + name + " is null");
 		return value.toString();
 	}
 }
