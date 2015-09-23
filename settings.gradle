@@ -1,6 +1,6 @@
                   
-include 'bundles/rpc',
-	'bundles/libhelper',
+include 'bundles/libhelper',
+	'bundles/rpc',
 	'bundles/git',
 	'bundles/store',
 	'bundles/auth.api',
