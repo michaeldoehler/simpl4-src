@@ -156,7 +156,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		m_typesMap["asciidoctorendpoint"] = AsciidoctorEndpointJsonConverter.class;
 		m_typesMap["http4endpoint"] = HttpClientEndpointJsonConverter.class;
 		m_typesMap["jmsendpoint"] = JmsEndpointJsonConverter.class;
-		m_typesMap["databaseendpoint"] = DatabaseEndpointJsonConverter.class;
+		m_typesMap["localdataendpoint"] = LocaldataEndpointJsonConverter.class;
 		m_typesMap["simpleconnection"] = SimpleConnectionJsonConverter.class;
 		m_typesMap["whenconnection"] = WhenConnectionJsonConverter.class;
 		m_typesMap["setheader"] = SetHeaderJsonConverter.class;

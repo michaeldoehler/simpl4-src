@@ -483,7 +483,7 @@ class JmsEndpointJsonConverter extends EndpointJsonConverter{
 		super.convertToCamel(ctx);
 	}
 }
-class DatabaseEndpointJsonConverter extends EndpointJsonConverter{
+class LocaldataEndpointJsonConverter extends EndpointJsonConverter{
 	void convertToCamel(JsonConverterContext ctx){
 		super.convertToCamel(ctx);
 	}
