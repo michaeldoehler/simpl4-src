@@ -67,7 +67,7 @@ qx.Class.define("ms123.oryx.core.stencilset.Property", {
 		jsonProp.readonly = jsonProp.readonly || false;
 		jsonProp.visible = (jsonProp.visible || jsonProp.visible===false)  ? jsonProp.visible : true ;
 		jsonProp.optional = jsonProp.optional !== false;
-		jsonProp.include = jsonProp.include !== false;
+		jsonProp.include = (jsonProp.include || jsonProp.include===false)  ? jsonProp.include : true ;
 
 		//init refToView
 		if (this._jsonProp.refToView) {
@@ -134,9 +134,9 @@ qx.Class.define("ms123.oryx.core.stencilset.Property", {
 		//if (jsonProp.visible !== false) {
 		//	jsonProp.visible = true;
 		//}
-		if (jsonProp.include !== false) {
-			jsonProp.include = true;
-		}
+		//if (jsonProp.include !== false) {
+		//	jsonProp.include = true;
+		//}
 
 		if (jsonProp.isList !== true) {
 			jsonProp.isList = false;

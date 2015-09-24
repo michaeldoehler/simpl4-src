@@ -457,7 +457,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					if (isTargetNamespace) {
 						this.shapeSelection.shapes.first().setProperty(key, this.facade.storeDesc.getNamespace());
 					}
-					if (pair.include()) {
+					if (this.__maskedEval(pair.include(),env)) {
 						switch (pair.type()) {
 						case ms123.oryx.Config.TYPE_TEXT:
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.TextAreaField(key, pair.config(),this.facade);
@@ -634,7 +634,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							break;
 						}
 					}
-					if (formElement && pair.include()) {
+					if (formElement && this.__maskedEval(pair.include(),env)) {
 						formElement.setUserData("key", key);
 						if (attribute !== undefined) formElement.setValue(attribute);
 
@@ -789,7 +789,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 			return value;
 		},
 		_getEnvFromProperties: function () {
+			var _id = this.shapeSelection.shapes.first().getStencil().id()
+			var id  = _id.split("#")[1].toLowerCase();
+			console.log("Id:",id);
 			var env = {};
+			env["stencil"] = id;
 			if (this.shapeSelection.commonProperties) {
 				this.shapeSelection.commonProperties.each((function (pair, index) {
 
