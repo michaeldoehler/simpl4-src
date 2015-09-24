@@ -424,21 +424,21 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 		} else if (target.endsWith(".gif")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
-			response.setContentType("image/gif;charset=UTF-8");
+			response.setContentType("image/gif");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".jpg")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
-			response.setContentType("image/jpeg;charset=UTF-8");
+			response.setContentType("image/jpeg");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".png")) {
 			target = removeFirstSegmentInCaseWebsite(target);
 			FileResource fr = getFileResource(m_basedir, target);
-			response.setContentType("image/png;charset=UTF-8");
+			response.setContentType("image/png");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			response.addDateHeader("Expires", new java.util.Date().getTime() + 1000000000);
 			fr.writeTo(response.getOutputStream(), 0, -1);
@@ -463,7 +463,7 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 				return true;
 			}
 			response.setContentLength((int)fr.length());
-			response.setContentType("application/pdf;charset=UTF-8");
+			response.setContentType("application/pdf");
 			response.addDateHeader("Date", new java.util.Date().getTime());
 			fr.writeTo(response.getOutputStream(), 0, -1);
 		} else if (target.endsWith(".xml")) {
