@@ -447,6 +447,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					var isCamelDiagramName = (this.isCamelRoot && pair.id() == 'name');
 					var isCamelDiagramId = (this.isCamelRoot && pair.id() == 'overrideid');
 					var isBPMNDiagramName = (this.isBPMNRoot && pair.id() == 'name');
+
+					var configOrig = ms123.util.Clone.clone(pair.config()) || {};
+					var config = this.__supplant_object( pair.config(),configOrig,env) || {};
+
 					if( this.isBPMNRoot ){
 					}
 					if (isBPMNDiagramName || isCamelDiagramName || isCamelDiagramId) {
@@ -460,7 +464,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					if (this.__maskedEval(pair.include(),env)) {
 						switch (pair.type()) {
 						case ms123.oryx.Config.TYPE_TEXT:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.TextAreaField(key, pair.config(),this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.TextAreaField(key, config,this.facade);
 							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
@@ -468,7 +472,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_HTML:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.HtmlAreaField(key, pair.config(),this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.HtmlAreaField(key, config,this.facade);
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
@@ -523,7 +527,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this));
 							break;
 						case ms123.oryx.Config.TYPE_MODULE_SELECTOR:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.ModuleSelectorField(pair.config(), key, this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.ModuleSelectorField(config, key, this.facade);
 							formElement.addListener('changeValue', (function (e) {
 								console.log("changeValue.moduleselector:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
@@ -531,7 +535,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_RESOURCE_SELECTOR:
-							formElement = new ms123.form.ResourceSelectorField(pair.config(), key, this.facade);
+							formElement = new ms123.form.ResourceSelectorField(config, key, this.facade);
 							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
 								console.log("changeValue.resourceselector:" + e.getData() + "/" + formElement.getValue());
@@ -540,7 +544,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_MULTISELECT:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.MultiSelectField(pair.config(), key, this.facade,pair.title());
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.MultiSelectField(config, key, this.facade,pair.title());
 							formElement.addListener('changeValue', (function (e) {
 								console.log("changeValue.multiselect:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
@@ -573,7 +577,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							var items = pair.items();
 							var options = [];
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.SelectBox();
-							var config = pair.config();
 							if( config ){
 								items.each((function (value) {
 									if (value.refToView()[0]) refToViewFlag = true;
@@ -604,13 +607,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_COMPLEX:
-							var config = pair.config() || {};
 							if( config.kind == "enum" ){
-								formElement = new ms123.graphicaleditor.plugins.propertyedit.EnumField( pair.config(), pair.title(), pair.complexItems(), key, this.facade);
+								formElement = new ms123.graphicaleditor.plugins.propertyedit.EnumField( config, pair.title(), pair.complexItems(), key, this.facade);
 							}else if( config.kind == "filterparam" ){
-								formElement = new ms123.graphicaleditor.plugins.propertyedit.FilterParamField( pair.config(), pair.title(), pair.complexItems(), key, this.facade);
+								formElement = new ms123.graphicaleditor.plugins.propertyedit.FilterParamField( config, pair.title(), pair.complexItems(), key, this.facade);
 							}else{
-								formElement = new ms123.graphicaleditor.plugins.propertyedit.ComplexListField( pair.config(), pair.title(), pair.complexItems(), key, this.facade);
+								formElement = new ms123.graphicaleditor.plugins.propertyedit.ComplexListField( config, pair.title(), pair.complexItems(), key, this.facade);
 							}
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
@@ -618,15 +620,14 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_CONSTRAINTS:
-							var config = pair.config() || {};
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.ConstraintsField( pair.config(), pair.title(), pair.complexItems(), key, this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.ConstraintsField( config, pair.title(), pair.complexItems(), key, this.facade);
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
 							}).bind(this))
 							break;
 						case ms123.oryx.Config.TYPE_FIELD_SELECTOR:
-							formElement = new ms123.graphicaleditor.plugins.propertyedit.FieldSelectorField(pair.config(), pair.title(), key, this.facade);
+							formElement = new ms123.graphicaleditor.plugins.propertyedit.FieldSelectorField(config, pair.title(), key, this.facade);
 							formElement.addListener('changeValue', (function (e) {
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
@@ -659,6 +660,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 								}
 							}).bind(this));
 						}
+						formElement.addListener('focusin', (function (e) {
+							var env = this._getEnvFromFormElements();
+							this.__supplant_object( config,configOrig,env);
+						}).bind(this));
 
 						this.keyFormElementMap[key] = formElement;
 
@@ -728,6 +733,16 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 			}
 		},
 
+		__supplant_object: function (o,orig, env) {
+			if (typeof o == "string") {
+				return this.__supplant(orig,env);
+			}
+			for (var i in o) {
+				if (typeof o[i] == "function") continue;
+				o[i] = this.__supplant_object(o[i],orig[i],env);
+			}
+			return o;
+		},
 		__supplant: function (scr, env) {
 			if( scr == "null") return null;
 			var ok = false;
@@ -738,7 +753,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 			}
 			if (ok == false) return scr;
 			if (!env) env = {};
-			env.namespace = this.facade.storeDesc.getNamespace();
+			env.namespace = env.namespace || this.facade.storeDesc.getNamespace();
 			env.name = this.diagramName;
 			env.diagramname = this.diagramName;
 			return scr.replace(/[\\$@]{([^{}]*)}/g, function (a, b) {
