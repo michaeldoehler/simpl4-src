@@ -33,6 +33,7 @@ public interface CamelService {
 	public final String CAMEL_TYPE = "sw.camel";
 	public CamelContext getCamelContext(String namespace, String name);
 	public Map getShapeByRouteId(String namespace, String routeId);
+	public List<Map<String,Object>> getProcedureShapesForPrefix(String prefix);
 	public Map getProcedureShape(String namespace, String procedureName);
 	public void saveHistory(Exchange exchange);
 	public Object camelSend(String epUri, final Map<String, Object> properties);

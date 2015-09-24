@@ -120,6 +120,13 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromShape:"+msg);
 		}
 	}
+	public List<Map<String,Object>> getProcedureShapesForPrefix( @PName("prefix") String prefix) throws RpcException {
+		try {
+			return _getProcedureShapesForPrefix(prefix);
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getProcedureShapesForPrefix:", e);
+		}
+	}
 
 	public void  saveRouteShape(
 			@PName(StoreDesc.NAMESPACE) String namespace,

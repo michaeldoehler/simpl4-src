@@ -150,6 +150,19 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 			}
 		}
 	}
+	public List<Map<String,Object>> _getProcedureShapesForPrefix(String prefix) {
+		List<Map<String,Object>> ret = new ArrayList<Map<String,Object>>();
+		Iterator<Map.Entry<String,Map>> iter = m_procedureCache.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<String,Map> entry = iter.next();
+			String key = entry.getKey();
+			info("\t"+entry.key);
+			if(entry.getKey().startsWith(prefix)){
+				ret.add(entry.value);
+			}
+		}
+		return ret;
+	}
 	private void addProcedureShape(String namespace, String baseRouteId,Map shape) {
 		if( shape == null) return;
 		String procedureName = getProcedureName(shape);
