@@ -35,7 +35,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 
 
 		var includeList = ["sw.directory"];
-		var excludeList = ["messages"];
+		var excludeList = ["messages","stencilsets","process-explorer"];
 		if( config.helperTree ){
 			includeList = includeList.concat(config.helperTree);
 		}
@@ -94,6 +94,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 					type: "type"
 				}
 			});
+			if( includeList && includeList.indexOf(ms123.shell.Config.CAMEL_FT) > -1){
+				var procedureShapes = this._getCamelProcedureShapes();
+				this._appendCamelRoutes(t, procedureShapes);
+				this._removeUnused(t);
+			}
 			return t;
 		},
 		_createTree: function () {
@@ -299,20 +304,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 					}else{
 						this._getFilterFields(filter, fieldList);
 					}
-				}else if( item.getType() == "sw.camel"){
-					var procedureShapes = null;
-					try {
-						var resource = childs.getItem(0).getResource();
-						var type = childs.getItem(0).getType();
-						procedureShapes = ms123.util.Remote.rpcSync("camel:getProcedureShapesForPrefix", {
-							prefix: this._getNamespace() + "/" + item.getValue()
-						});
-					} catch (e) {
-						ms123.form.Dialog.alert("ResourceDetailTree._onOpenNode:" + e);
-						childs.removeAll();
-						return;
-					}
-					fieldArray= this._getCamelFields(procedureShapes,item);
 				}
 				if( fieldArray == null){
 					fieldArray = this._createChilds(fieldList, item.getValue());
@@ -377,23 +368,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 			}
 			return colarray;
 		},
-		_getCamelFields: function (procedureShapes,item) {
-			var fieldArray=[];
-			if( procedureShapes.length==0){
-				return null;
-			}
-			for( var i=0; i < procedureShapes.length;i++){
-				var procedureShape = procedureShapes[i];
-				var stencilId = procedureShape.stencil.id.toLowerCase();
-				var properties = procedureShape.properties;
-				var rpcParameter = properties.rpcParameter ? properties.rpcParameter.items : [];
-				var dir = this._createDirectory(properties.urivalue_name,item.getValue());
-				dir.children = this._createChilds(rpcParameter,null,"camelparam");
-				fieldArray.push(dir);
-			}
-			console.log("Push:", JSON.stringify(fieldArray,null,2));
-			return fieldArray;
-		},
 		_getFormFields: function (formDesc, fieldList) {
 			var stencilId = formDesc.stencil.id.toLowerCase();
 			var properties = formDesc.properties;
@@ -456,6 +430,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 			if (!model.children) {
 				model.children = [];
 			}
+			if( model.type == ms123.shell.Config.CAMEL_FT) return;
 			for (var i = 0; model.children && i < model.children.length; i++) {
 				var c = model.children[i];
 				this._setDummyInsteedFields(c);
@@ -535,9 +510,65 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ResourceDetailTree",
 				_list: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAPFBMVEUAAAAAgIBfn5+fv784mFg4eDg4WDh/n3/A2MBffz9/n1+YuHjY2Jjf37/4+PD///+fn5+AgIBfX19YWFheY3MBAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfdCgMSBxaeRkaWAAAAbklEQVQY05WO0RKDMAgEEy0ngvTU/v+/lljTTB+7b9zsAaUUl8TLF7Egw6TPbnTAad2RIJ6OLboipOIF5Qg2ZCmD/WxkReEZxMrG2ZY+ADNd5lqnDO6zCt7G9RjWhSl8jIudHEbj4FR/jON/Y/AG2/AHPeWumhMAAAAASUVORK5CYII=',
 				_integer: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAzFBMVEUAAADFvODFvd7X0elwXrBvXa5yYLFxX7BzYbF1ZLF4ZrR9bLh9bLeCcrmPgMKXiMaVh8WYiseekcucj8mfksuilsylmc+onNCupNGxp9Tc1+zi3vBVQp9aR59dSqRaSJ9ZR55cSaBeS6RdSqFcSqBdS6FhT6dgT6ZhT6ZiUKdkUqhiUKVgT6JkUqdlU6hlVKlsW61rW6xsXKxxYLFvXq51ZLKDdLyJer+GeLuLfb+KfL6OgMGhlcyupdK5sNrMxuReTqFpWayupdT///9zohUCAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQffCRgHBhzwFfQXAAAAqElEQVQY05WPXReBQBRFQ0OJQikSjUI+okIjitL9//9JE/Fsv929zlrnXIYpSKUm25JSpiJhBVEUBTapbi9W8zxXY+9t9NVFg4KGdl3pVEgdQgYANUJIV6aCeyKEAB4IBQFHxWZuYwwwwtiersuEszRNgLuJ7UWZkA87NwMYZ667H1IxMc4RbalHJ6NsYZRZ+0Y5bpXPMsUKeZ4PLeW7Pe35jt///fInL3ghFal4aGkqAAAAAElFTkSuQmCC',
 				_boolean: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABXFBMVEUAAAAGDAULEgoNEwsNFwkPFw0QFw4OGQoSFhEQHQwTGw8SHA8WGRUQHgwSIQ0ZHRcTIw4cIBsZLxMmRhwmRxwnSR08QTstUiEwWSQxWiQxWyRGS0RHS0UyXCQzXSVKUEg1YSdMUUo2ZCg5aCk5aSpVW1M8byw8cCw+cS0/dC5Adi9BeDBhYWFiYmJDfDFjY2NgZl9kZGREfjJFfzNGgjNGgjRHgzRlbGNJhjVKiDZMizdNjThQkzpSlzxVnD5YoUBYo0GDh4KGioWIjIdfrkWIjYeJjoiMkItitUiOk41jtkmQlo9lukplu0pmvEtnvUtnvktnvkxov0xowExpwk1qwk1qw01qw05qxE5rxE5rxk5rxk9sxk9sx09syE9tyE+0vbK8xLrHzMXIzsbHz8XKz8jP1M3O1czR1s/R1tDU2dLV29LY3dba4Njf5N7k6OPk6ePo6+f9/v3///9HAKs+AAAA5ElEQVQY02MoBoFMT0N99zQwkwGIcxT5JE3NZAVksiACiWzagdGhIdFBeqwJIIFcZrsYXx8g8I22Z8oGCkhrxfrIMTAwsFj5xBiJFTFk8Ab4+sjJ+fhYMfr4BAskM7hJRPmABVyAAtEKjgw6JmFAARYhIUZlH58QSx0GfeNwoICwlZWmAFDAQpfBWzwaosVHyMonWsqVIYfdF2KoLaODrz9nBkOxqko8xFpNn1gNeaA7Cnis4/1ADvOLs+HIAzk9XVDJIyoyItpLmT8F4rlCcy4RNXVRboN8qG+Li1Od9fWdksBMAIWiRLLlwAe2AAAAAElFTkSuQmCC',
-				_double: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH2QcRExQLBHwYWQAAAm9JREFUOI2Fk0tIlFEUx3/fNz7HwdGpmTRNhRmLJDVJsUUPI1+LQvLVorDaqEnCWOHaoqBdJZhItCho45j5iMgHhNODghYqKqUjMaaj46hkjlIz+t0W1uCk2H93zzm//73n3Hsl/tXL6mBWvAUIkY8gAVAhMQH0IFStlD5wbyyX/GBL5SkQDSnamLiS2EOYNAYCJJnxZRcdjkHez487gVpKmp5s2hhLuVnbZl5r/vZJKEIRW6lrZlhEd9YKLJU3/eGWyjxtm3l14PvkluBG2Zfn101ayi+st9BUHohOGn6ccTGxLP4wAOaBZt7O2QiQVEQEhpKui+fcnkz2h0cB0O0cIe9N/Sy/ghJldCLbpNEnno/L9B3I5nYxtOggS7+XmNAIGmx9pPXewjo3BkDuriSO7DQZCPYUySDlnI5OQZb85xmiCuRO8hkepZdhzbqGAG6MvPDlC3anAiJXRhBn1Og3D3WDkrUxpGpjGVp0+GLGMD0gx8lIklCE2NYAYGn1J+qAIN9aIAChyEh8HXPPbgu/dn1h1O3khH6fLza65ASwy0hKd4djgFWh+EErax5KPzwk23qPHOt9TBoDtw8U+PKtU/0g8UpFsdG+6KUwKiTckKFLAGBiZQFtoJoQVQAmjYEq43HqD54lMkgNwPOpfu6O9U4i1FXrdpbLR9Wt1Z53c7b/PqTPP2aErv2qQktlkX+jlopLoa1XvI3jfcKrrG0CFaGIp/aPIrK9RsFScf0v5n/5zyqOodCYELYjqTAmjcQ/n8nmdtE5PcjI0vQ4UENxU+fWBgB1dTJJ0yeRyUdgBCGBZEeiB2Whi1KLZ2P5bwjMSQjLsL1pAAAAAElFTkSuQmCC'
+				_double: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH2QcRExQLBHwYWQAAAm9JREFUOI2Fk0tIlFEUx3/fNz7HwdGpmTRNhRmLJDVJsUUPI1+LQvLVorDaqEnCWOHaoqBdJZhItCho45j5iMgHhNODghYqKqUjMaaj46hkjlIz+t0W1uCk2H93zzm//73n3Hsl/tXL6mBWvAUIkY8gAVAhMQH0IFStlD5wbyyX/GBL5SkQDSnamLiS2EOYNAYCJJnxZRcdjkHez487gVpKmp5s2hhLuVnbZl5r/vZJKEIRW6lrZlhEd9YKLJU3/eGWyjxtm3l14PvkluBG2Zfn101ayi+st9BUHohOGn6ccTGxLP4wAOaBZt7O2QiQVEQEhpKui+fcnkz2h0cB0O0cIe9N/Sy/ghJldCLbpNEnno/L9B3I5nYxtOggS7+XmNAIGmx9pPXewjo3BkDuriSO7DQZCPYUySDlnI5OQZb85xmiCuRO8hkepZdhzbqGAG6MvPDlC3anAiJXRhBn1Og3D3WDkrUxpGpjGVp0+GLGMD0gx8lIklCE2NYAYGn1J+qAIN9aIAChyEh8HXPPbgu/dn1h1O3khH6fLza65ASwy0hKd4djgFWh+EErax5KPzwk23qPHOt9TBoDtw8U+PKtU/0g8UpFsdG+6KUwKiTckKFLAGBiZQFtoJoQVQAmjYEq43HqD54lMkgNwPOpfu6O9U4i1FXrdpbLR9Wt1Z53c7b/PqTPP2aErv2qQktlkX+jlopLoa1XvI3jfcKrrG0CFaGIp/aPIrK9RsFScf0v5n/5zyqOodCYELYjqTAmjcQ/n8nmdtE5PcjI0vQ4UENxU+fWBgB1dTJJ0yeRyUdgBCGBZEeiB2Whi1KLZ2P5bwjMSQjLsL1pAAAAAElFTkSuQmCC',
+				_route: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAGFwAABhcBlmjpmQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADUSURBVDiN1dOxSgNhEATgb6MIai0qglailYTgc2hCaknpc8R3sLa28w3EF0iT1l7srBVZm7twF3I5EysH/mZ2Ztgd+GWmVR5u8VDlNq2OaxxHRL8kokhvRURsY4AdHGXmeDb85QkXGGJj4bzF3CnM3aW6JQEnuMFu26a1TiLiFB/o4TMznxd0c4C9zJzOOJxXNI94xygz3xoKvsclRiXXmdMkXpsCCnxjq+6q99DDYUvZ+zhr7GRdzJ/zj0IiYhgRd1VunQ94hW5ETP4S8oKvzHwqiR/NIQGpOnr1TgAAAABJRU5ErkJggg=='
 			}
 			return map[type];
+		},
+		_getCamelProcedureShapes:function(){
+			var procedureShapes;
+			try {
+				procedureShapes = ms123.util.Remote.rpcSync("camel:getProcedureShapesForPrefix", {
+					prefix: this._getNamespace() + "/"
+				});
+			} catch (e) {
+				ms123.form.Dialog.alert("ResourceSelectorWindow._getCamelProcedureShapes:" + e);
+				return null;
+			}
+			return procedureShapes;
+		},
+		_appendCamelRoutes: function (model,procedureShapes) {
+			if (model.type == ms123.shell.Config.CAMEL_FT) {
+				this._getRouteChildren( model, procedureShapes);
+			}
+			for (var i = 0; model.children && i < model.children.length; i++) {
+				var c = model.children[i];
+				this._appendCamelRoutes(c,procedureShapes);
+			}
+		},
+		_removeUnused: function (model) {
+			model.children = model.children.filter(function(child) {
+				return  child.type != ms123.shell.Config.CAMEL_FT || child.children.length>0;
+			});
+			for (var i = 0; model.children && i < model.children.length; i++) {
+				var c = model.children[i];
+				this._removeUnused(c);
+			}
+		},
+		_getRouteChildren:function(model, procedureShapes){
+			model.children=[];
+			var val = model.value;
+			for( var i=0; i< procedureShapes.length; i++){
+				var shape = procedureShapes[i];
+				var props = shape.properties;
+				if( qx.lang.String.startsWith(props.overrideid,val)){
+					var node ={};
+					node.id = node.name = node.value = node.title = props.urivalue_name;
+					node.path = model.path + "/"+ node.name;
+					node.type = "camelparam_route";
+					node.children=[];
+					model.children.push(node);
+					var rpcParameter = props.rpcParameter ? props.rpcParameter.items : [];
+					for( var j=0; j < rpcParameter.length;j++){
+						var item = rpcParameter[j];
+						var pnode ={};
+						pnode.id = pnode.name = pnode.value = pnode.title = item.name;
+						pnode.type = "camelparam" + "_" + item.type;
+						pnode.children=[];
+						node.children.push(pnode);
+					}
+				}
+			}
 		},
 		_getIconUrl: function (name) {
 			var am = qx.util.AliasManager.getInstance(name);

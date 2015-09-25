@@ -136,6 +136,7 @@ qx.Class.define("ms123.form.ResourceSelectorField", {
 					context.resourceType = this._resourceType;
 					context.showTextField = this._showTextField;
 					context.storeDesc = this._facade.storeDesc;
+					context.config = this._config;
 					context.title = this.tr("graphicaleditor.select_resource");
 					context.selected_callback = (function(data){
 						console.log("selected_callback:"+qx.util.Serializer.toJson(data));

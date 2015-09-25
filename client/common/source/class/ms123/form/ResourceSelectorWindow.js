@@ -50,13 +50,14 @@ qx.Class.define("ms123.form.ResourceSelectorWindow", {
 			resourceTypes = [context.resourceType];
 		}
 
+		this._config = context.config;
 		this.__storeDesc = context.storeDesc;
 		this._selected_callback = context.selected_callback;
 		var title = context.title;
 		var app = qx.core.Init.getApplication();
 
 		var includeTypeList = ["sw.directory"];
-		var excludePathList = ["messages"];
+		var excludePathList = ["messages","stencilsets","process-explorer"];
 		var includePathList = null;
 		var path = null;
 		includeTypeList= includeTypeList.concat(resourceTypes);
@@ -237,7 +238,7 @@ qx.Class.define("ms123.form.ResourceSelectorWindow", {
 		},
 		_getResources: function (path,includeTypeList, excludePathList,includePathList) {
 			var t = ms123.util.Remote.rpcSync("git:getWorkingTree", {
-				name: this.__storeDesc.getNamespace(),
+				name: this._getNamespace(),
 				path:path,
 				includeTypeList: includeTypeList,
 				excludePathList: excludePathList,
@@ -249,6 +250,11 @@ qx.Class.define("ms123.form.ResourceSelectorWindow", {
 					type: "type"
 				}
 			});
+			if( includeTypeList && includeTypeList.indexOf(ms123.shell.Config.CAMEL_FT) > -1){
+				var procedureShapes = this._getCamelProcedureShapes();
+				this._appendCamelRoutes(t, procedureShapes);
+				this._removeUnused(t);
+			}
 			return t;
 		},
 
@@ -297,6 +303,57 @@ qx.Class.define("ms123.form.ResourceSelectorWindow", {
 			this.__model = model;
 		},
 
+		_getCamelProcedureShapes:function(){
+			var procedureShapes;
+			try {
+				procedureShapes = ms123.util.Remote.rpcSync("camel:getProcedureShapesForPrefix", {
+					prefix: this._getNamespace() + "/"
+				});
+			} catch (e) {
+				ms123.form.Dialog.alert("ResourceSelectorWindow._getCamelProcedureShapes:" + e);
+				return null;
+			}
+			return procedureShapes;
+		},
+		_appendCamelRoutes: function (model,procedureShapes) {
+			if (model.type == ms123.shell.Config.CAMEL_FT) {
+				this._getRouteChildren( model, procedureShapes);
+			}
+			for (var i = 0; model.children && i < model.children.length; i++) {
+				var c = model.children[i];
+				this._appendCamelRoutes(c,procedureShapes);
+			}
+		},
+		_removeUnused: function (model) {
+			model.children = model.children.filter(function(child) {
+				return  child.type != ms123.shell.Config.CAMEL_FT || child.children.length>0;
+			});
+			for (var i = 0; model.children && i < model.children.length; i++) {
+				var c = model.children[i];
+				this._removeUnused(c);
+			}
+		},
+		_getRouteChildren:function(model, procedureShapes){
+			model.children=[];
+			var val = model.value;
+			for( var i=0; i< procedureShapes.length; i++){
+				var shape = procedureShapes[i];
+				if( qx.lang.String.startsWith(shape.properties.overrideid,val)){
+					var node ={};
+					node.id = node.name = node.value = node.title = shape.properties.urivalue_name;
+					node.path = model.path + "/"+ node.name;
+					node.type = "sw.route";
+					node.children=[];
+					model.children.push(node);
+				}
+			}
+		},
+		_getNamespace:function(){
+			if(this._config.namespace && this._config.namespace!='-'){
+				return this._config.namespace;
+			}
+			return this.__storeDesc.getNamespace();
+		},
 		_createWindow: function (name) {
 			var win = new qx.ui.window.Window(name, "").set({
 				resizable: true,

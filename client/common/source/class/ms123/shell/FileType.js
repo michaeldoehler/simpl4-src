@@ -65,6 +65,8 @@ qx.Class.define("ms123.shell.FileType", {
 					return "resource/ms123/jpg.png";
 				}else if (type == "application/vnd.oasis.opendocument.text") {
 					return "resource/ms123/odt.png";
+				}else if (type == "sw.route") {
+					return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAGFwAABhcBlmjpmQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADUSURBVDiN1dOxSgNhEATgb6MIai0qglailYTgc2hCaknpc8R3sLa28w3EF0iT1l7srBVZm7twF3I5EysH/mZ2Ztgd+GWmVR5u8VDlNq2OaxxHRL8kokhvRURsY4AdHGXmeDb85QkXGGJj4bzF3CnM3aW6JQEnuMFu26a1TiLiFB/o4TMznxd0c4C9zJzOOJxXNI94xygz3xoKvsclRiXXmdMkXpsCCnxjq+6q99DDYUvZ+zhr7GRdzJ/zj0IiYhgRd1VunQ94hW5ETP4S8oKvzHwqiR/NIQGpOnr1TgAAAABJRU5ErkJggg==';
 				} else if (type == ms123.shell.Config.RULE_FT) {
 					return ms123.shell.FileType._getIconUrl("bpmn/activity/list/type.business.rule.png");
 				} else if (type == ms123.shell.Config.DOCUMENT_FT) {

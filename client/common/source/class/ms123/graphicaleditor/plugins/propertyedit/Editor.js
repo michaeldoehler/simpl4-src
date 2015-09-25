@@ -20,6 +20,7 @@
 	* @ignore(Hash)
 	* @ignore($H)
 	* @ignore(Clazz)
+	* @ignore(jQuery.*)
 	* @ignore(Clazz.extend)
 */
 qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
@@ -577,7 +578,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							var items = pair.items();
 							var options = [];
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.SelectBox();
-							if( config ){
+							if( !jQuery.isEmptyObject(config) ){
 								items.each((function (value) {
 									if (value.refToView()[0]) refToViewFlag = true;
 									var title = this._notEmpty(value.title()) ?  value.title() : value.value();
