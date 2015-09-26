@@ -71,6 +71,9 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 	protected void deactivate() throws Exception {
 	}
 
+	public Object callCamel(String methodName, Object _methodParams) {
+			return callCamel(methodName,_methodParams,null,null);
+	}
 
 	public Object callCamel(String methodName, Object _methodParams, HttpServletRequest request, HttpServletResponse response) {
 		Map methodParams = (Map) _methodParams;
@@ -184,6 +187,9 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService", e);
 		}
 		if( "bodyWithMime".equals(returnSpec)){
+			if( response == null){
+				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:returnSpec is \"bodyWithMime\" and response is null");
+			}
 			String mime = getString(shape, "mimetype", "text/html");
 			response.setContentType(mime);
 			boolean bytes=false;

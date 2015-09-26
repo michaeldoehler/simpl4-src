@@ -37,6 +37,7 @@ public interface CallService {
 	public static String CAMELSERVICENAME2 = "camelRoute";
 
 	public void callHooks(Map params);
+	public Object callCamel(String methodName, Object methodParams);
 	public Object callCamel(String methodName, Object methodParams, HttpServletRequest request, HttpServletResponse response);
 	
 }
