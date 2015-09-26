@@ -53,6 +53,7 @@ public class Simpl4BpmnJsonConverter extends BpmnJsonConverter {
 		System.out.println("Simpl4BpmnJsonConverter:"+convertersToBpmnMap);
 		Simpl4SequenceFlowJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4FilterTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4CamelTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4DocumentTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4UserTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4ScriptTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
@@ -61,6 +62,7 @@ public class Simpl4BpmnJsonConverter extends BpmnJsonConverter {
 		Simpl4StartEventJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		DI_RECTANGLES.add("SendTask");
 		DI_RECTANGLES.add("FilterTask");
+		DI_RECTANGLES.add("CamelTask");
 		DI_RECTANGLES.add("RulesTask");
 		DI_RECTANGLES.add("DocumentTask");
 	}

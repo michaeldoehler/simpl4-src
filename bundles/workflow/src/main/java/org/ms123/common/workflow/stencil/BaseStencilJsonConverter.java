@@ -38,9 +38,6 @@ public abstract  class BaseStencilJsonConverter extends BaseBpmnJsonConverter {
 	protected JSONSerializer m_js = new JSONSerializer();
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	private final String CLASSNAME_PROP = "attr$activiti$class";
-	private final String CLASSNAME = "class";
-
 	protected abstract String getStencilId(FlowElement flowElement);
 	protected abstract void createFields(Map properties, ServiceTask task);
 	protected abstract String getClassName();

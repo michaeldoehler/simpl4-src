@@ -1,5 +1,5 @@
 version=1.0.0
-Export-Package org.ms123.common.workflow,org.ms123.common.workflow.stencil,org.ms123.common.workflow.converter,org.ms123.common.workflow.processengine
+Export-Package org.ms123.common.workflow,org.ms123.common.workflow.stencil, org.ms123.common.workflow.converter, org.ms123.common.workflow.tasks, org.ms123.common.workflow.processengine
 Import-Package *,org.activiti.engine.impl.juel,org.activiti.engine.impl.variable,org.activiti.engine.impl.task,org.activiti.engine.impl.repository,org.h2
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.

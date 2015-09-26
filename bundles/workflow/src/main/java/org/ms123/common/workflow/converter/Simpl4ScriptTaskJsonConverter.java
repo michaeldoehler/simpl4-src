@@ -37,7 +37,7 @@ public class Simpl4ScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	private final String SCRIPT_PROP = "el$activiti$script";
+	private final String SCRIPT_PROP = "script";
 
 	private final String SCRIPT = "script";
 

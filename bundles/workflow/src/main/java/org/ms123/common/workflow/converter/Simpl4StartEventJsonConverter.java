@@ -40,7 +40,7 @@ public class Simpl4StartEventJsonConverter extends StartEventJsonConverter {
 
 	protected JSONSerializer m_js = new JSONSerializer();
 
-	private final String FORMKEY_PROP = "attr$activiti$formkey";
+	private final String FORMKEY_PROP = "formkey";
 
 	public static void fillTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap, Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
 		fillJsonTypes(convertersToBpmnMap);

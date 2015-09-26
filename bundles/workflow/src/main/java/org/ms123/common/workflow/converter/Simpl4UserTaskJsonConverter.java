@@ -44,19 +44,19 @@ public class Simpl4UserTaskJsonConverter extends UserTaskJsonConverter {
 
 	protected JSONSerializer m_js = new JSONSerializer();
 
-	private final String FORMKEY_PROP = "attr$activiti$formkey";
+	private final String FORMKEY_PROP = "formkey";
 
 	private final String FORMKEY = "formkey";
 
-	private final String CANDIDATEGROUPS_PROP = "attr$activiti$candidategroups";
+	private final String CANDIDATEGROUPS_PROP = "candidategroups";
 
 	private final String CANDIDATEGROUPS = "candidategroups";
 
-	private final String ASSIGNEE_PROP = "attr$activiti$assignee";
+	private final String ASSIGNEE_PROP = "assignee";
 
 	private final String ASSIGNEE = "assignee";
 
-	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
+	private final String VARMAPPING_PROP = "variablesmapping";
 
 	private final String VARMAPPING = "variablesmapping";
 

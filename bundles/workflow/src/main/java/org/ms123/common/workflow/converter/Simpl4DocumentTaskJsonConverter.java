@@ -37,9 +37,9 @@ public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	private final String DOCUMENTNAME_PROP = "el$activiti$documentname";
-	private final String FILENAME_PROP = "el$activiti$filename";
-	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
+	private final String DOCUMENTNAME_PROP = "documentname";
+	private final String FILENAME_PROP = "filename";
+	private final String VARMAPPING_PROP = "variablesmapping";
 
 
 

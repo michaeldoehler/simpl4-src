@@ -33,22 +33,28 @@ import flexjson.*;
 /**
  */
 @SuppressWarnings("unchecked")
-public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4CamelTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
-	protected JSONSerializer m_js = new JSONSerializer();
 
-	private final String RULESNAME_PROP = "rulesname";
+	private final String LISTNAME_PROP = "listname";
+	private final String LISTNAME = "listname";
 
-	private final String RULESNAME = "rulesname";
+	private final String NAMESPACE_PROP = "namespace";
+	private final String NAMESPACE = "namespace";
+
+	private final String ROUTENAME_PROP = "routename";
+	private final String ROUTENAME = "routename";
+
+	private final String ROUTEVARNAME_PROP = "routevarname";
+	private final String ROUTEVARNAME = "routevarname";
 
 	private final String VARMAPPING_PROP = "variablesmapping";
-
 	private final String VARMAPPING = "variablesmapping";
 
 	protected String getStencilId(FlowElement flowElement) {
-		return "RulesTask";
+		return "CamelTask";
 	}
 
 	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
@@ -56,24 +62,38 @@ public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
-		m_js.prettyPrint(true);
 		ServiceTask task = new ServiceTask();
 		Map elementMap = (Map) m_ds.deserialize(elementNode.toString());
 		Map<String, Object> propMap = (Map) elementMap.get("properties");
-		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskRulesExecutor");
-		System.out.println("RulesTask.class:" + clazz);
+
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskCamelExecutor");
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 
-		String variablesmapping = checkNull(VARMAPPING, propMap.get(VARMAPPING_PROP));
 		FieldExtension field = new FieldExtension();
 		field.setFieldName(VARMAPPING);
+		String variablesmapping = getValue(VARMAPPING, propMap.get(VARMAPPING_PROP));
 		field.setExpression(variablesmapping);
 		task.getFieldExtensions().add(field);
 
 		field = new FieldExtension();
-		field.setFieldName(RULESNAME);
-		field.setStringValue(checkNull(RULESNAME, propMap.get(RULESNAME_PROP)));
+		field.setFieldName(NAMESPACE);
+		field.setStringValue(getValue(NAMESPACE, propMap.get(NAMESPACE_PROP)));
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(ROUTENAME);
+		field.setStringValue(getValue(ROUTENAME, propMap.get(ROUTENAME_PROP)));
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(ROUTEVARNAME);
+		field.setStringValue(getValue(ROUTEVARNAME, propMap.get(ROUTEVARNAME_PROP)));
+		task.getFieldExtensions().add(field);
+
+		field = new FieldExtension();
+		field.setFieldName(LISTNAME);
+		field.setStringValue(checkNull(LISTNAME, propMap.get(LISTNAME_PROP)));
 		task.getFieldExtensions().add(field);
 		return task;
 	}
@@ -83,12 +103,67 @@ public class Simpl4RulesTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("RulesTask", Simpl4RulesTaskJsonConverter.class);
+		convertersToBpmnMap.put("CamelTask", Simpl4CamelTaskJsonConverter.class);
+	}
+	private String checkEmpty(String name, Object value) {
+		if (value == null)
+			throw new RuntimeException("Simpl4CamelTaskJsonConverter:" + name + " is null");
+		String val=value.toString();
+		if( val.trim().length() ==0){
+			throw new RuntimeException("Simpl4CamelTaskJsonConverter:" + name + " is empty");
+		}
+		return val;
 	}
 
 	private String checkNull(String name, Object value) {
 		if (value == null)
-			throw new RuntimeException("Simpl4RulesTaskJsonConverter:" + name + " is null");
+			throw new RuntimeException("Simpl4CamelTaskJsonConverter:" + name + " is null");
+		return value.toString();
+	}
+	private String getValue(String name, Object value) {
+		if (value == null){
+			return null;
+		}
 		return value.toString();
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

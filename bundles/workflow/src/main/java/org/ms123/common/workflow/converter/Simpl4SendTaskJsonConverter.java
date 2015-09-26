@@ -34,20 +34,20 @@ import flexjson.*;
  */
 public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 
-	private final String PROPERTY_MAILTASK_TO = "el$activiti$to";
+	private final String PROPERTY_MAILTASK_TO = "to";
 
-	private final String PROPERTY_MAILTASK_FROM = "el$activiti$from";
+	private final String PROPERTY_MAILTASK_FROM = "from";
 
-	private final String PROPERTY_MAILTASK_SUBJECT = "el$activiti$subject";
-	private final String PROPERTY_MAILTASK_ATTACHMENT = "el$activiti$attachment";
+	private final String PROPERTY_MAILTASK_SUBJECT = "subject";
+	private final String PROPERTY_MAILTASK_ATTACHMENT = "attachment";
 
-	private final String PROPERTY_MAILTASK_CC = "el$activiti$cc";
+	private final String PROPERTY_MAILTASK_CC = "cc";
 
-	private final String PROPERTY_MAILTASK_BCC = "el$activiti$bcc";
+	private final String PROPERTY_MAILTASK_BCC = "bcc";
 
-	private final String PROPERTY_MAILTASK_TEXT = "el$activiti$text";
+	private final String PROPERTY_MAILTASK_TEXT = "text";
 
-	private final String PROPERTY_MAILTASK_HTML = "el$activiti$html";
+	private final String PROPERTY_MAILTASK_HTML = "html";
 
 	public static void fillTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap, Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
 		fillJsonTypes(convertersToBpmnMap);

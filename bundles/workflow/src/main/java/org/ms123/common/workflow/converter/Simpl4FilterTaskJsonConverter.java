@@ -38,19 +38,19 @@ public class Simpl4FilterTaskJsonConverter extends BaseBpmnJsonConverter {
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
 
-	private final String LISTNAME_PROP = "el$activiti$listname";
+	private final String LISTNAME_PROP = "listname";
 
 	private final String LISTNAME = "listname";
 
-	private final String FILTERNAME_PROP = "el$activiti$filtername";
+	private final String FILTERNAME_PROP = "filtername";
 
 	private final String FILTERNAME = "filtername";
 
-	private final String FILTERVARNAME_PROP = "el$activiti$filtervarname";
+	private final String FILTERVARNAME_PROP = "filtervarname";
 
 	private final String FILTERVARNAME = "filtervarname";
 
-	private final String VARMAPPING_PROP = "el$activiti$variablesmapping";
+	private final String VARMAPPING_PROP = "variablesmapping";
 
 	private final String VARMAPPING = "variablesmapping";
 

@@ -295,10 +295,10 @@ class BaseStencilServiceImpl {
 			stencil.put("icon", m_gitMetaData.getStencilIcon(name, (String) stencil.get("icon")));
 		}
 		if( MetaData.PROCESS_SS.equals(name)){
-			List stencils = m_gitMetaData.getAddonStencils(namespace);
-			stencilList.addAll(stencils);
-			stencils = m_gitMetaData.getAddonStencils("global");
-			stencilList.addAll(stencils);
+			//List stencils = m_gitMetaData.getAddonStencils(namespace);
+			//stencilList.addAll(stencils);
+			//stencils = m_gitMetaData.getAddonStencils("global");
+			//stencilList.addAll(stencils);
 		}
 		long start = new Date().getTime();
 		String s = JsonFilterSerializer.toJson(ssMap,definitions);

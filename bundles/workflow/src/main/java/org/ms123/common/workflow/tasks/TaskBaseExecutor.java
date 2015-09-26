@@ -36,6 +36,7 @@ import org.ms123.common.workflow.api.WorkflowService;
 import org.ms123.common.workflow.GroovyTaskDsl;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.docbook.DocbookService;
+import org.ms123.common.rpc.CallService;
 import org.ms123.common.git.GitService;
 import org.ms123.common.system.tm.TransactionService;
 import org.osgi.service.event.Event;
@@ -45,6 +46,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.ProcessEngine;
 import org.ms123.common.store.StoreDesc;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import flexjson.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,8 @@ public abstract class TaskBaseExecutor {
 	protected JSONSerializer m_js = new JSONSerializer();
 	protected DataLayer m_dataLayer;
 	protected WorkflowService m_workflowService;
+	protected BundleContext m_bundleContext;
+	protected CallService m_callService;
 
 	protected File getProcessBasedir(DelegateExecution execution) {
 		String ws = System.getProperty("workspace");
@@ -111,8 +115,7 @@ public abstract class TaskBaseExecutor {
 			ProcessEngine pe = (ProcessEngine) beans.get(WorkflowService.PROCESS_ENGINE);
 			String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
 			RepositoryService repositoryService = pe.getRepositoryService();
-			ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-					.processDefinitionId(processDefinitionId).singleResult();
+			ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
 			tc.setProcessDefinitionKey(processDefinition.getKey());
 			tc.setCategory(processDefinition.getCategory());
 		}
@@ -193,6 +196,20 @@ public abstract class TaskBaseExecutor {
 		}
 	}
 
+	protected CallService getCallService(){
+		if( m_callService != null ) return m_callService;
+		if( m_bundleContext == null){
+			Map beans = Context.getProcessEngineConfiguration().getBeans();
+			m_bundleContext = (BundleContext) beans.get("bundleContext");
+		}
+		log("TaskBaseExecutor.m_bundleContext:"+m_bundleContext);
+	  ServiceReference ref = m_bundleContext.getServiceReference(CallService.class.getName());	
+		if( ref != null){
+			m_callService = (CallService) m_bundleContext.getService(ref);
+		}
+		log("TaskBaseExecutor.m_callService:"+m_callService);
+		return m_callService;
+	}
 	protected void setValue(DelegateExecution execution, String processvar, Object value) throws Exception {
 		if (processvar.indexOf(".") == -1) {
 			//log("\tProcessvar.setValue:" + processvar + " = " + value);
@@ -245,8 +262,7 @@ public abstract class TaskBaseExecutor {
 		return dsl;
 	}
 
-	protected Map<String, Object> getParams(DelegateExecution execution, Expression variablesmapping, String taskVarName)
-			throws Exception {
+	protected Map<String, Object> getParams(DelegateExecution execution, Expression variablesmapping, String taskVarName) throws Exception {
 		if (variablesmapping == null) {
 			return new HashMap();
 		}
