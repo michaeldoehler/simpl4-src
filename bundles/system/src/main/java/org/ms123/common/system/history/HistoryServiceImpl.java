@@ -129,10 +129,30 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		}
 	}
 
-	public List<Map> getHistory(String key, String type) throws Exception {
-		return _getHistory(key, type,  null,null);
+	public List<Map> getRouteInstances(
+			@PName("contextKey") String contextKey,
+			@PName("routeId") String routeId,
+			@PName("startTime") @POptional Long startTime,
+			@PName("endTime") @POptional Long endTime
+			 ) throws RpcException {
+		try {
+			return _getRouteInstances(contextKey, routeId, startTime,endTime);
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInstances:", e);
+		}
 	}
 
+	public List<Map> getRouteInstance(
+			@PName("contextKey") String contextKey,
+			@PName("routeId") String routeId,
+			@PName("exchangeId") String exchangeId
+			 ) throws RpcException {
+		try {
+			return _getRouteInstance(contextKey, routeId, exchangeId);
+		} catch (Throwable e) {
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInstance:", e);
+		}
+	}
 	@Reference(dynamic = true, optional = true)
 	public void setCassandraService(CassandraService cassandraService) {
 		System.out.println("HistoryServiceImpl.setCassandraService:" + cassandraService);

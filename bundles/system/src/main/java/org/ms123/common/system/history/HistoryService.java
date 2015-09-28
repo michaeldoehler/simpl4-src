@@ -23,11 +23,8 @@ import org.ms123.common.rpc.RpcException;
 
 public interface HistoryService {
 	public static String LOG_KEY = "key";
-	public static String LOG_KEY2 = "key2";
 	public static String LOG_TYPE = "type";
 	public static String LOG_HINT = "hint";
 	public static String LOG_MSG = "msg";
 	public static String LOG_TIME = "time";
-	public List<Map> getHistory(String key, String type) throws Exception;
-	public List<Map> getHistory(String key, String type, Long startTime, Long endTime) throws RpcException;
 }

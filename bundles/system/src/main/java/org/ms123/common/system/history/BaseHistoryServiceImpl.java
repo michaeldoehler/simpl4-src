@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Date;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Collections;
 import org.ms123.common.cassandra.CassandraService;
 import org.ms123.common.libhelper.Inflector;
 import org.ms123.common.store.StoreDesc;
@@ -39,7 +41,8 @@ import com.noorq.casser.core.Casser;
 import com.noorq.casser.core.CasserSession;
 import static com.noorq.casser.core.Query.eq;
 import static com.noorq.casser.core.Query.asc;
-
+import static com.noorq.casser.core.Query.lt;
+import static com.noorq.casser.core.Query.gt;
 /**
  *
  */
@@ -52,7 +55,10 @@ abstract class BaseHistoryServiceImpl implements HistoryService{
 	private CasserSession m_session;
 	protected History history;
 	protected HistoryRoute historyRoute;
-	private String GLOBAL_KEYSPACE = "global";
+	private static String GLOBAL_KEYSPACE = "global";
+	private static String STARTTIME = "startTime";
+	private static String ENDTIME = "endTime";
+	private static  String STATUS = "status";
 
 	protected void upsert(String key, Date time, String type, String hint, String msg) {
 		initHistory();
@@ -74,22 +80,30 @@ abstract class BaseHistoryServiceImpl implements HistoryService{
 	protected List<Map> _getHistory(String key, String type, Long startTime, Long endTime) throws Exception {
 		final List<Map> retList = new ArrayList();
 		initHistory();
-
+		if( startTime == null){
+			startTime = new Date().getTime() - (long)1*1000*60*60*24;
+		}
+		if( endTime == null){
+			endTime = new Date().getTime() + 1000000;
+		}
 		if (type != null && "camel/trace".equals(type) && key.indexOf("|") < 0 ) {
-			m_session.select(historyRoute::routeId, historyRoute::instanceId, historyRoute::time).where(historyRoute::routeId, eq(key)).orderBy(asc(history::time)).sync()
+			m_session.select(historyRoute::routeId, historyRoute::instanceId, historyRoute::time).where(historyRoute::routeId, eq(key))
+							.and(historyRoute::time,gt(new Date(startTime)))
+							.and(historyRoute::time,lt(new Date(endTime)))
+							.orderBy(asc(history::time)).sync()
 			.forEach(h -> {
 				Map m = new HashMap();
 				String _key = h._1 + "|"+ h._2;
-				List<Map> lm = _getOneInstance( _key, type, startTime, endTime);
+				List<Map> lm = _getOneInstance( _key, type);
 				retList.addAll(lm);
 			});
 		}else{
-			retList.addAll(_getOneInstance( key, type, startTime, endTime));
+			retList.addAll(_getOneInstance( key, type));
 		}
 		return retList;
 	}
 
-	protected List<Map> _getOneInstance(String key, String type, Long startTime, Long endTime) {
+	protected List<Map> _getOneInstance(String key, String type) {
 		List<Map> retList = new ArrayList();
 		m_session.select(history::key, history::time, history::type, history::hint, history::msg).where(history::key, eq(key)).and(history::type, eq(type)).orderBy(asc(history::time)).sync()
 		.forEach(h -> {
@@ -122,6 +136,61 @@ abstract class BaseHistoryServiceImpl implements HistoryService{
 	}
 
 
+	protected List<Map> _getRouteInstances(String contextKey, String routeId, java.lang.Long _startTime, java.lang.Long endTime) throws Exception{
+		List<Map> retList = new ArrayList();
+		List<Map> historyEntries = _getHistory(contextKey+"/"+routeId,"camel/trace", _startTime, endTime);
+		String currentKey = null;
+		Date startTime = null;
+		Date prevTime = null;
+		boolean hasError=false;
+		for( Map entry : historyEntries){
+			String key = (String)entry.get(LOG_KEY);
+			if("error".equals(entry.get(LOG_HINT))){
+				hasError= true;
+			}
+			if( !key.equals(currentKey)){
+				if( startTime != null){
+					retList.add(createRecord(startTime, prevTime,currentKey,hasError));
+					hasError = false;
+				}
+				startTime = (Date)entry.get(LOG_TIME);
+				currentKey = key;
+			}
+			prevTime = (Date)entry.get(LOG_TIME);
+		}
+		if( startTime != null){
+			retList.add(createRecord(startTime, prevTime,currentKey,hasError));
+		}
+		sortListByStartTime(retList);
+		return retList;
+	}
+
+	protected List<Map> _getRouteInstance(String contextKey, String routeId, String exchangeId) throws Exception{
+		List<Map> historyEntries = _getHistory(contextKey+"/"+routeId+"|"+exchangeId,"camel/trace", null, null );
+		return historyEntries;
+	}
+
+	private Map createRecord(Date startTime, Date endTime, String key,boolean hasError){
+		Map retMap = new HashMap();
+		retMap.put(STARTTIME, startTime);
+		retMap.put(ENDTIME, endTime);
+		retMap.put(STATUS, hasError ? "error" : "ok" );
+		int lastSlash = key.lastIndexOf("|");
+		retMap.put("exchangeId", key.substring(lastSlash+1));
+		return retMap;
+	}
+	private void sortListByStartTime(List<Map> list) {
+		Collections.sort(list, new TComparable());
+	}
+
+	private static class TComparable implements Comparator<Map> {
+		@Override
+		public int compare(Map m1, Map m2) {
+			Date l1 = (Date) m1.get(STARTTIME);
+			Date l2 = (Date) m2.get(STARTTIME);
+			return l2.compareTo(l1);
+		}
+	}
 	protected static void info(String msg) {
 		System.err.println(msg);
 		m_logger.info(msg);

@@ -44,7 +44,6 @@ import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.camel.api.CamelService;
-import org.ms123.common.system.history.HistoryService;
 import org.ms123.common.utils.Inflector;
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;
@@ -197,31 +196,6 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			return _getRouteInfoList(contextKey);
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInfoList:", e);
-		}
-	}
-
-	public List<Map> getRouteInstances(
-			@PName("contextKey") String contextKey,
-			@PName("routeId") String routeId,
-			@PName("startTime") @POptional Long startTime,
-			@PName("endTime") @POptional Long endTime
-			 ) throws RpcException {
-		try {
-			return _getRouteInstances(contextKey, routeId, startTime,endTime);
-		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInstances:", e);
-		}
-	}
-
-	public List<Map> getRouteInstance(
-			@PName("contextKey") String contextKey,
-			@PName("routeId") String routeId,
-			@PName("exchangeId") String exchangeId
-			 ) throws RpcException {
-		try {
-			return _getRouteInstance(contextKey, routeId, exchangeId);
-		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInstance:", e);
 		}
 	}
 
@@ -408,10 +382,5 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 	public void setEventAdmin(EventAdmin paramEventAdmin) {
 		System.out.println("CamelServiceImpl.setEventAdmin:" + paramEventAdmin);
 		this.m_eventAdmin = paramEventAdmin;
-	}
-	@Reference(dynamic = true,optional=true)
-	public void setHistoryService(HistoryService param) {
-		System.out.println("CamelServiceImpl.setHistoryService:" + param);
-		this.m_historyService = param;
 	}
 }

@@ -133,7 +133,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			var result = null;
 			try {
 				var s = this._select;
-				result = ms123.util.Remote.rpcSync("camel:getRouteInstances", {
+				result = ms123.util.Remote.rpcSync("history:getRouteInstances", {
 					contextKey: this._camelContextKey,
 					routeId: this._camelRouteDefinition.id
 				});
@@ -170,7 +170,7 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistory", {
 			}).bind(this);
 
 			try {
-				var result = ms123.util.Remote.rpcSync("camel:getRouteInstance", {
+				var result = ms123.util.Remote.rpcSync("history:getRouteInstance", {
 					contextKey: contextKey,
 					routeId: routeId,
 					exchangeId: exchangeId
