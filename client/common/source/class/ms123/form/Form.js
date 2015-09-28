@@ -1289,7 +1289,7 @@ qx.Class.define("ms123.form.Form", {
 				var p = props[i];
 				var val = m.get(p);
 				var fd = this.formData[p];
-				if ((fd.type == "DateField" || fd.type == "DateTimeField") && val != "" && typeof val == 'object' && val.constructor == Date) {
+				if ((fd.type == "DateField" || fd.type == "DateTimeField") && !this._isEmpty(val)  && typeof val == 'object' && val.constructor == Date) {
 					val = val.getTime();
 				}
 				map[p] = val;
@@ -1297,6 +1297,10 @@ qx.Class.define("ms123.form.Form", {
 			return map;
 		},
 
+		_isEmpty: function (content) {
+			if (!content || content == "") return true;
+			return false;
+		},
 		getLabels: function () {
 			var labels = {};
 			var groups = this._form.getGroups();
