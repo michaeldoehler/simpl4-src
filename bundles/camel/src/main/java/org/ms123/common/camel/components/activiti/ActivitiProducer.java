@@ -158,7 +158,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		info("props:" + props);
 		Throwable r = getRootCause(e);
 		props.put(LOG_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
-		eventAdmin.postEvent(new Event("log", props));
+		eventAdmin.postEvent(new Event("history", props));
 	}
 	private boolean shouldStartProcess() {
 		return m_activity == null;

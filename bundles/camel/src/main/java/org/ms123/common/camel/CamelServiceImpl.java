@@ -44,7 +44,7 @@ import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.camel.api.CamelService;
-import org.ms123.common.system.log.LogService;
+import org.ms123.common.system.history.HistoryService;
 import org.ms123.common.utils.Inflector;
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;
@@ -410,8 +410,8 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		this.m_eventAdmin = paramEventAdmin;
 	}
 	@Reference(dynamic = true,optional=true)
-	public void setLogService(LogService param) {
-		System.out.println("CamelServiceImpl.setLogService:" + param);
-		this.m_logService = param;
+	public void setHistoryService(HistoryService param) {
+		System.out.println("CamelServiceImpl.setHistoryService:" + param);
+		this.m_historyService = param;
 	}
 }

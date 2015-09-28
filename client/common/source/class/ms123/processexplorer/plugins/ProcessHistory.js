@@ -128,13 +128,13 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				}
 			}).bind(this);
 			try {
-				var result = ms123.util.Remote.rpcSync("log:getLogKeyList", {
+				var result = ms123.util.Remote.rpcSync("history:getHistoryByKeyList", {
 					keyList: keyList,
 					type : "activiti/job/exception"
 				});
 				complete.call(this, result);
 			} catch (e) {
-				ms123.form.Dialog.alert("_mergeExceptions.getLogKeyList:" + e);
+				ms123.form.Dialog.alert("_mergeExceptions.getHistoryByKeyList:" + e);
 				return;
 			}
 		},
@@ -163,13 +163,13 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				}
 			}).bind(this);
 			try {
-				var result = ms123.util.Remote.rpcSync("log:getLog", {
+				var result = ms123.util.Remote.rpcSync("history:getHistory", {
 					key: this.namespace+"/"+this._processDefinition.id,
 					type : "activiti/startprocess/exception"
 				});
 				complete.call(this, result);
 			} catch (e) {
-				ms123.form.Dialog.alert("_addStartExceptions.getLog:" + e);
+				ms123.form.Dialog.alert("_addStartExceptions.getHistory:" + e);
 				return;
 			}
 		},
@@ -235,7 +235,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				}
 			}).bind(this);
 			try {
-				result = ms123.util.Remote.rpcSync("log:getLog", {
+				result = ms123.util.Remote.rpcSync("history:getHistory", {
 					key: this.namespace+"/"+this._processDefinition.name+"/"+id,
 					type: "camel/history"
 				});

@@ -37,7 +37,7 @@ import org.ms123.common.git.GitService;
 import org.ms123.common.git.FileHolderApi;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.store.StoreDesc;
-import org.ms123.common.system.log.LogService;
+import org.ms123.common.system.history.HistoryService;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
@@ -88,11 +88,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ms123.common.camel.jsonconverter.CamelRouteJsonConverter;
 import static org.ms123.common.permission.api.PermissionService.PERMISSION_SERVICE;
-import static org.ms123.common.system.log.LogService.LOG_MSG;
-import static org.ms123.common.system.log.LogService.LOG_KEY;
-import static org.ms123.common.system.log.LogService.LOG_TYPE;
-import static org.ms123.common.system.log.LogService.LOG_HINT;
-import static org.ms123.common.system.log.LogService.LOG_TIME;
+import static org.ms123.common.system.history.HistoryService.LOG_MSG;
+import static org.ms123.common.system.history.HistoryService.LOG_KEY;
+import static org.ms123.common.system.history.HistoryService.LOG_TYPE;
+import static org.ms123.common.system.history.HistoryService.LOG_HINT;
+import static org.ms123.common.system.history.HistoryService.LOG_TIME;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.io.FilenameUtils;
 
@@ -109,7 +109,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected DataLayer m_dataLayer;
 
 	protected AuthService m_authService;
-	protected LogService m_logService;
+	protected HistoryService m_historyService;
 
 	protected GitService m_gitService;
 
@@ -180,12 +180,12 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 
 	protected List<Map> _getRouteInstances(String contextKey, String routeId, java.lang.Long _startTime, java.lang.Long endTime){
 		List<Map> retList = new ArrayList();
-		List<Map> logEntries = m_logService.getLog(contextKey+"/"+routeId,"camel/trace", LOG_KEY+","+LOG_TIME+","+LOG_HINT, _startTime, endTime);
+		List<Map> historyEntries = m_historyService.getHistory(contextKey+"/"+routeId,"camel/trace", _startTime, endTime);
 		String currentKey = null;
 		Date startTime = null;
 		Date prevTime = null;
 		boolean hasError=false;
-		for( Map entry : logEntries){
+		for( Map entry : historyEntries){
 			String key = entry.get(LOG_KEY);
 			if("error".equals(entry.get(LOG_HINT))){
 				hasError= true;
@@ -208,8 +208,8 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 	protected List<Map> _getRouteInstance(String contextKey, String routeId, String exchangeId){
-		List<Map> logEntries = m_logService.getLog(contextKey+"/"+routeId+"/"+exchangeId,"camel/trace" );
-		return logEntries;
+		List<Map> historyEntries = m_historyService.getHistory(contextKey+"/"+routeId+"|"+exchangeId,"camel/trace" );
+		return historyEntries;
 	}
 
 	private Map createRecord(Date startTime, Date endTime, String key,boolean hasError){
@@ -217,7 +217,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		retMap.put(STARTTIME, startTime);
 		retMap.put(ENDTIME, endTime);
 		retMap.put(STATUS, hasError ? "error" : "ok" );
-		int lastSlash = key.lastIndexOf("/");
+		int lastSlash = key.lastIndexOf("|");
 		retMap.put("exchangeId", key.substring(lastSlash+1));
 		return retMap;
 	}
@@ -622,7 +622,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		props.put(LOG_KEY, key);
 		props.put(LOG_HINT, hasException ? "error": "ok");
 		props.put(LOG_MSG, routeStackTrace);
-		m_eventAdmin.postEvent(new Event("log", props));
+		m_eventAdmin.postEvent(new Event("history", props));
 	}
 
 	public static class SleepBean {

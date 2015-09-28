@@ -39,10 +39,11 @@ import org.osgi.service.event.EventAdmin;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import flexjson.*;
-import static org.ms123.common.system.log.LogService.LOG_MSG;
-import static org.ms123.common.system.log.LogService.LOG_KEY;
-import static org.ms123.common.system.log.LogService.LOG_TYPE;
-import static org.ms123.common.system.log.LogService.LOG_HINT;
+import static org.ms123.common.system.history.HistoryService.LOG_MSG;
+import static org.ms123.common.system.history.HistoryService.LOG_KEY;
+import static org.ms123.common.system.history.HistoryService.LOG_KEY2;
+import static org.ms123.common.system.history.HistoryService.LOG_TYPE;
+import static org.ms123.common.system.history.HistoryService.LOG_HINT;
 import static org.apache.camel.util.StringHelper.xmlEncode;
 import javax.xml.namespace.QName;
 
@@ -94,7 +95,7 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		}
 		String breadcrumbId = (String) exchange.getIn().getHeaders().get(Exchange.BREADCRUMB_ID);
 		if( (loggingOff == false && logExceptionsOnly==false)|| hasException){
-			createLogEntry(exchange, contextName + "/" + routeId + "/" + breadcrumbId, props, hasException, js);
+			createLogEntry(exchange, contextName + "/" + routeId +"|"+  breadcrumbId, props, hasException, js);
 		}
 	}
 
@@ -105,7 +106,7 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 		props.put(LOG_HINT, hasException ? "error" : "ok");
 		props.put(LOG_TYPE, "camel/trace");
 		props.put(LOG_MSG, js.exclude("tracedExchange").deepSerialize(msg));
-		eventAdmin.postEvent(new Event("log", props));
+		eventAdmin.postEvent(new Event("history", props));
 	}
 
 	private boolean getPropertyBoolean(String name, Exchange exchange){
