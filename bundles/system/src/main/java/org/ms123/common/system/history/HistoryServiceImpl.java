@@ -28,10 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.NoSuchElementException;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.ms123.common.cassandra.CassandraService;
-import org.ms123.common.git.GitService;
 import org.ms123.common.rpc.PName;
 import org.ms123.common.rpc.POptional;
 import org.ms123.common.rpc.RpcException;
@@ -43,11 +40,8 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
-import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
-import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
-import static org.apache.commons.beanutils.PropertyUtils.setProperty;
 
 /** HistoryService implementation
  */
