@@ -39,6 +39,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
@@ -94,6 +95,7 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 	}
 
 
+	@RequiresRoles("admin")
 	public Map<String, List<Map>> getHistoryByKeyList(
 			@PName("keyList") List<String> keyList, 
 			@PName(LOG_TYPE) @POptional String type) throws RpcException {
@@ -111,6 +113,7 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		}
 	}
 
+	@RequiresRoles("admin")
 	public List<Map> getHistory(
 			@PName(LOG_KEY) String key, 
 			@PName(LOG_TYPE) @POptional String type, 
@@ -123,6 +126,7 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		}
 	}
 
+	@RequiresRoles("admin")
 	public List<Map> getRouteInstances(
 			@PName("contextKey") String contextKey,
 			@PName("routeId") String routeId,
@@ -136,6 +140,7 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		}
 	}
 
+	@RequiresRoles("admin")
 	public List<Map> getRouteInstance(
 			@PName("contextKey") String contextKey,
 			@PName("routeId") String routeId,

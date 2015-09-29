@@ -71,6 +71,7 @@ import static org.apache.commons.io.FilenameUtils.getName;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -100,6 +101,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 
 
 	/*BEGIN JSON-RPC-API*/
+	@RequiresRoles("admin")
 	public void  createRoutesFromShape(
 			@PName(StoreDesc.NAMESPACE) @POptional String namespace
 		 ) throws RpcException {
@@ -119,6 +121,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromShape:"+msg);
 		}
 	}
+	@RequiresRoles("admin")
 	public List<Map<String,Object>> getProcedureShapesForPrefix( @PName("prefix") String prefix) throws RpcException {
 		try {
 			return _getProcedureShapesForPrefix(prefix);
@@ -127,6 +130,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		}
 	}
 
+	@RequiresRoles("admin")
 	public void  saveRouteShape(
 			@PName(StoreDesc.NAMESPACE) String namespace,
 			@PName("path") String path,
@@ -145,6 +149,8 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteShape:"+msg);
 		}
 	}
+
+	@RequiresRoles("admin")
 	public void  saveGroovyScript(
 			@PName(StoreDesc.NAMESPACE) String namespace,
 			@PName("path") String path,
@@ -163,6 +169,8 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveGroovyScript:"+msg);
 		}
 	}
+
+	@RequiresRoles("admin")
 	public void  saveJava(
 			@PName(StoreDesc.NAMESPACE) String namespace,
 			@PName("path") String path,
@@ -181,6 +189,8 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveJava:"+msg);
 		}
 	}
+
+	@RequiresRoles("admin")
 	public List<String> getContextNames(
 			@PName(StoreDesc.NAMESPACE) @POptional String namespace ) throws RpcException {
 		try {
@@ -189,6 +199,8 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getCamelContextList:", e);
 		}
 	}
+
+	@RequiresRoles("admin")
 	public List<Map> getRouteInfoList(
 			@PName("contextKey") String contextKey
 			 ) throws RpcException {
@@ -199,6 +211,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		}
 	}
 
+	@RequiresRoles("admin")
 	public Map<String,List> getRouteVisGraph(
 			@PName("contextKey") String contextKey,
 			@PName("routeId") String routeId
