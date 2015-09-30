@@ -51,7 +51,7 @@ import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 public class HistoryServiceImpl extends BaseHistoryServiceImpl implements HistoryService, EventHandler {
 
 	private EventAdmin m_eventAdmin;
-	private static final String[] topics = new String[] { "history" };
+	private static final String[] topics = new String[] { HISTORY_TOPIC };
 
 
 	public HistoryServiceImpl() {
@@ -61,7 +61,6 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		System.out.println("HistoryEventHandlerService.activate.props:" + props);
 		try {
 			Bundle b = bundleContext.getBundle();
-			m_bundleContext = bundleContext;
 			Dictionary d = new Hashtable();
 			d.put(EventConstants.EVENT_TOPIC, topics);
 			b.getBundleContext().registerService(EventHandler.class.getName(), this, d);
@@ -79,14 +78,20 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 	}
 
 	public void handleEvent(Event event) {
-		info("HistoryServiceImpl.handleEvent: " + event + ",key:" + event.getProperty(LOG_KEY) + ",type:" + event.getProperty(LOG_TYPE));
+		info("HistoryServiceImpl.handleEvent: " + event + "/"+ event.getProperty(HISTORY_TYPE));
 		try {
-			String key = (String) event.getProperty(LOG_KEY);
-			Date time = new Date();
-			String type = (String) event.getProperty(LOG_TYPE);
-			String hint = (String) event.getProperty(LOG_HINT);
-			String msg = (String) event.getProperty(LOG_MSG);
-			upsert(key, time, type, hint, msg);
+			String type = (String) event.getProperty(HISTORY_TYPE);
+			if( ACTIVITI_CAMEL_CORRELATION_TYPE.equals(type)){
+				String activitiId = (String) event.getProperty(ACC_ACTIVITI_ID);
+				String routeInstanceId = (String) event.getProperty(ACC_ROUTE_INSTANCE_ID);
+				upsertAcc(activitiId, routeInstanceId);
+			}else{
+				String key = (String) event.getProperty(HISTORY_KEY);
+				Date time = new Date();
+				String hint = (String) event.getProperty(HISTORY_HINT);
+				String msg = (String) event.getProperty(HISTORY_MSG);
+				upsertHistory(key, time, type, hint, msg);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -98,7 +103,7 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 	@RequiresRoles("admin")
 	public Map<String, List<Map>> getHistoryByKeyList(
 			@PName("keyList") List<String> keyList, 
-			@PName(LOG_TYPE) @POptional String type) throws RpcException {
+			@PName(HISTORY_TYPE) @POptional String type) throws RpcException {
 		try {
 			Map<String, List<Map>> retMap = new HashMap();
 			for (String key : keyList) {
@@ -115,8 +120,8 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 
 	@RequiresRoles("admin")
 	public List<Map> getHistory(
-			@PName(LOG_KEY) String key, 
-			@PName(LOG_TYPE) @POptional String type, 
+			@PName(HISTORY_KEY) String key, 
+			@PName(HISTORY_TYPE) @POptional String type, 
 			@PName("startTime") @POptional Long startTime, 
 			@PName("endTime") @POptional Long endTime) throws RpcException {
 		try {

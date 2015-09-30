@@ -117,6 +117,7 @@ public abstract class TaskBaseExecutor {
 			RepositoryService repositoryService = pe.getRepositoryService();
 			ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
 			tc.setProcessDefinitionKey(processDefinition.getKey());
+			tc.setProcessDefinitionName(processDefinition.getName());
 			tc.setCategory(processDefinition.getCategory());
 		}
 	}
@@ -284,6 +285,7 @@ public abstract class TaskBaseExecutor {
 		protected VariableScope m_execution;
 		protected String m_category;
 		protected String m_processDefinitionKey;
+		protected String m_processDefinitionName;
 		protected String m_hint;
 		protected String m_pid;
 		protected String m_script;
@@ -302,6 +304,10 @@ public abstract class TaskBaseExecutor {
 
 		public void setHint(String hint) {
 			m_hint = hint;
+		}
+
+		public void setProcessDefinitionName(String pd) {
+			m_processDefinitionName = pd;
 		}
 
 		public void setProcessDefinitionKey(String pd) {
@@ -330,6 +336,9 @@ public abstract class TaskBaseExecutor {
 
 		public String getProcessDefinitionKey() {
 			return m_processDefinitionKey;
+		}
+		public String getProcessDefinitionName() {
+			return m_processDefinitionName;
 		}
 
 		public String getCategory() {

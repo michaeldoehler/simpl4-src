@@ -39,11 +39,12 @@ import org.osgi.service.event.EventAdmin;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import flexjson.*;
-import static org.ms123.common.system.history.HistoryService.LOG_MSG;
-import static org.ms123.common.system.history.HistoryService.LOG_KEY;
-import static org.ms123.common.system.history.HistoryService.LOG_KEY2;
-import static org.ms123.common.system.history.HistoryService.LOG_TYPE;
-import static org.ms123.common.system.history.HistoryService.LOG_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_MSG;
+import static org.ms123.common.system.history.HistoryService.HISTORY_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_CAMEL_TRACE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 import static org.apache.camel.util.StringHelper.xmlEncode;
 import javax.xml.namespace.QName;
 
@@ -102,11 +103,11 @@ public class TraceEventHandler implements org.apache.camel.processor.interceptor
 	private void createLogEntry(Exchange exchange, String key, Map msg, boolean hasException, JSONSerializer js) {
 		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 		Map props = new HashMap();
-		props.put(LOG_KEY, key);
-		props.put(LOG_HINT, hasException ? "error" : "ok");
-		props.put(LOG_TYPE, "camel/trace");
-		props.put(LOG_MSG, js.exclude("tracedExchange").deepSerialize(msg));
-		eventAdmin.postEvent(new Event("history", props));
+		props.put(HISTORY_KEY, key);
+		props.put(HISTORY_HINT, hasException ? "error" : "ok");
+		props.put(HISTORY_TYPE, HISTORY_CAMEL_TRACE);
+		props.put(HISTORY_MSG, js.exclude("tracedExchange").deepSerialize(msg));
+		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}
 
 	private boolean getPropertyBoolean(String name, Exchange exchange){

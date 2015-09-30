@@ -43,10 +43,13 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import static org.ms123.common.system.log.LogService.LOG_MSG;
-import static org.ms123.common.system.log.LogService.LOG_KEY;
-import static org.ms123.common.system.log.LogService.LOG_TYPE;
-import static org.ms123.common.system.log.LogService.LOG_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_MSG;
+import static org.ms123.common.system.history.HistoryService.HISTORY_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_START_PROCESS_EXCEPTION;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_JOB_EXCEPTION;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 
 @SuppressWarnings("unchecked")
 public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
@@ -143,22 +146,22 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		Map props = new HashMap();
 		if( shouldStartProcess()){
 			String key = pd.getCategory()+"/"+pd.getId();
-			props.put(LOG_KEY, key);
-			props.put(LOG_TYPE, "activiti/startprocess/exception");
+			props.put(HISTORY_KEY, key);
+			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_START_PROCESS_EXCEPTION);
 			Map hint = new HashMap();
 			hint.put("processDefinitionId", pd.getId());
 			hint.put("processDefinitionKey", pd.getKey());
 			hint.put("processDefinitionName", pd.getName());
 			hint.put("processDeploymentId", pd.getDeploymentId());
-			props.put(LOG_HINT, m_js.deepSerialize(hint));
+			props.put(HISTORY_HINT, m_js.deepSerialize(hint));
 		}else{
-			props.put(LOG_KEY, m_activitiKey);
-			props.put(LOG_TYPE, "activiti/job/exception");
+			props.put(HISTORY_KEY, m_activitiKey);
+			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_JOB_EXCEPTION);
 		}
 		info("props:" + props);
 		Throwable r = getRootCause(e);
-		props.put(LOG_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
-		eventAdmin.postEvent(new Event("history", props));
+		props.put(HISTORY_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
+		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}
 	private boolean shouldStartProcess() {
 		return m_activity == null;

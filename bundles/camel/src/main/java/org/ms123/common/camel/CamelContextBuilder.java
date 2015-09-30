@@ -44,6 +44,7 @@ import org.ms123.common.camel.components.xdocreport.*;
 import org.ms123.common.camel.components.repo.*;
 import org.ms123.common.camel.components.direct.*;
 import org.ms123.common.camel.trace.*;
+import org.ms123.common.camel.api.CamelService;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.data.api.SessionContext;
 import org.ms123.common.datamapper.DatamapperService;
@@ -56,7 +57,18 @@ import java.util.Map;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.Event;
 import org.springframework.transaction.PlatformTransactionManager;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_CAMEL_CORRELATION_TYPE;
+import static org.ms123.common.system.history.HistoryService.ACC_ACTIVITI_ID;
+import static org.ms123.common.system.history.HistoryService.ACC_ROUTE_INSTANCE_ID;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
+import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_ID;
+
 
 /**
  *
@@ -152,6 +164,17 @@ public class CamelContextBuilder {
 			if (event instanceof ExchangeCreatedEvent) {
 				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
+					EventAdmin eventAdmin = (EventAdmin)ev.getExchange().getContext().getRegistry().lookupByName(EventAdmin.class.getName());
+
+					String aci = (String)ev.getExchange().getProperty( ACTIVITI_ACTIVITY_ID );
+info("CamelContextBuilder.aci:"+aci);
+					String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_ID );
+					Map props = new HashMap();
+					props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
+					props.put(ACC_ACTIVITI_ID, aci);
+					props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + ev.getExchange().getExchangeId() );
+					eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
+
 					ThreadContext tc = ThreadContext.getThreadContext();
 					debug("------>EventNotifierSupportStart:" + ev +"/"+tc);
 					if( tc == null){
@@ -164,6 +187,8 @@ public class CamelContextBuilder {
 				ExchangeCompletedEvent ev = (ExchangeCompletedEvent) event;
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
 					debug("<-----EventNotifierSupportComplete:" + ev );
+					CamelService camelService = (CamelService)ev.getExchange().getContext().getRegistry().lookupByName(CamelService.class.getName());
+					camelService.saveHistory(ev.getExchange());
 					if(ThreadContext.getThreadContext().get(ev.getExchange().getExchangeId()) != null){
 						ThreadContext.getThreadContext().finalize(null);
 					}
@@ -189,7 +214,7 @@ public class CamelContextBuilder {
 	}
 
 	private static void info(String msg) {
-		//System.out.println(msg);
+		System.out.println(msg);
 		m_logger.info(msg);
 	}
 }

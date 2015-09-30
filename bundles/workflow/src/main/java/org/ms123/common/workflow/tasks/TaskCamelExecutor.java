@@ -36,6 +36,8 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.apache.commons.beanutils.PropertyUtils;
 import flexjson.*;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
 
 public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate {
 
@@ -53,7 +55,6 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 		tc.setExecution(execution);
 		setCategory(tc);
 		showVariablenNames(tc);
-		//SessionContext sc = getSessionContext(tc);
 
 		Object rno =  routename != null ? routename.getValue(execution) : null;
 		Object rvo =  routevarname != null ? routevarname.getValue(execution) : null;
@@ -68,9 +69,6 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 			throw new RuntimeException(getExceptionInfo(tc)+"\nTaskCamelExecutor.routename and routevarname  is null");
 		}
 
-		//String ln = listname.getValue(execution).toString();
-		//UserTransaction tx = sc.getUserTransaction();
-//		List ret = null;
 		try {
 			String methodname = null;
 			Map<String, Object> fparams = getParams(execution, variablesmapping, "routevar");
@@ -83,15 +81,15 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 					throw new RuntimeException(getExceptionInfo(tc)+"\nTaskCamelExecutor.routename is null");
 				}
 			}
-			//execution.setVariable(ln, ret);
+			
+			fparams.put(ACTIVITI_PROCESS_ID, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getProcessInstanceId());
+			fparams.put(ACTIVITI_ACTIVITY_ID, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId());
+
 			Object answer = getCallService().callCamel( namespace.getValue(execution)+"."+methodname, fparams);
 			log("TaskCamelExecutor.answer:"+ answer);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
-			//sc.handleException(tx, e);
-		//} finally {
-		//	sc.handleFinally(tx);
 		}
 	}
 	private boolean isEmpty(Object s) {

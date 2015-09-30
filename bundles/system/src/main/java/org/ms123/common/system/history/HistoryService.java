@@ -22,9 +22,25 @@ import java.util.Map;
 import org.ms123.common.rpc.RpcException;
 
 public interface HistoryService {
-	public static String LOG_KEY = "key";
-	public static String LOG_TYPE = "type";
-	public static String LOG_HINT = "hint";
-	public static String LOG_MSG = "msg";
-	public static String LOG_TIME = "time";
+	public static String HISTORY_TOPIC  = 	"history";
+
+	public static String HISTORY_TYPE = "type";
+	public static String HISTORY_KEY = "key";
+	public static String HISTORY_HINT = "hint";
+	public static String HISTORY_MSG = "msg";
+	public static String HISTORY_TIME = "time";
+
+	public static String HISTORY_ACTIVITI_START_PROCESS_EXCEPTION = "activiti/startprocess/exception";
+	public static String HISTORY_ACTIVITI_JOB_EXCEPTION = 	"activiti/job/exception";
+	public static String HISTORY_CAMEL_HISTORY = 	"camel/history";
+	public static String HISTORY_CAMEL_TRACE = 	"camel/trace";
+
+
+	public static String ACTIVITI_CAMEL_CORRELATION_TYPE = "activitiCamelCorrelation";
+	public static String ACC_ACTIVITI_ID = "activitiId";
+	public static String ACC_ROUTE_INSTANCE_ID = "routeInstanceId";
+
+	public static String ACTIVITI_PROCESS_ID = "__activitiProcessId";
+	public static String ACTIVITI_ACTIVITY_ID = "__activitiActivityId";
+	public static String CAMEL_ROUTE_DEFINITION_ID = "__routeDefinitionId";
 }

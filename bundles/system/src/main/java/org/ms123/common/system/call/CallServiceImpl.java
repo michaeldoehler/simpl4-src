@@ -52,6 +52,9 @@ import static org.apache.commons.io.IOUtils.copy;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
+import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_ID;
 
 /** CallService implementation
  */
@@ -142,6 +145,12 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			}
 		}
 
+		Object api = methodParams.get(ACTIVITI_PROCESS_ID);
+		Object aai = methodParams.get(ACTIVITI_ACTIVITY_ID);
+		if( api != null){
+				properties.put(ACTIVITI_PROCESS_ID, api );
+				properties.put(ACTIVITI_ACTIVITY_ID, aai );
+		}
 		if( bodyCount != 1){
 			if( bodyMap.keySet().size()>0){
 				bodyObj = bodyMap;
@@ -165,8 +174,9 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			}
 		}
 
+		String contentName = getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT);
 		String routeId = getId(shape);
-		CamelContext cc = m_camelService.getCamelContext(namespace, getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT));
+		CamelContext cc = m_camelService.getCamelContext(namespace, contentName);
 		Route route = cc.getRoute(routeId);
 		if( route == null){ //Maybe multiple routes
 			route= getRouteWithDirectConsumer(cc, routeId);
@@ -174,6 +184,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+routeId+"' not found");
 			}
 		}
+		properties.put(CAMEL_ROUTE_DEFINITION_ID, namespace+"/"+contentName+"/"+routeId );
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {

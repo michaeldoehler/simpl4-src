@@ -89,11 +89,14 @@ import org.ms123.common.camel.jsonconverter.CamelRouteJsonConverter;
 import static org.ms123.common.permission.api.PermissionService.PERMISSION_SERVICE;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.io.FilenameUtils;
-import static org.ms123.common.system.history.HistoryService.LOG_MSG;
-import static org.ms123.common.system.history.HistoryService.LOG_KEY;
-import static org.ms123.common.system.history.HistoryService.LOG_TYPE;
-import static org.ms123.common.system.history.HistoryService.LOG_HINT;
-import static org.ms123.common.system.history.HistoryService.LOG_TIME;
+import static org.ms123.common.system.history.HistoryService.HISTORY_MSG;
+import static org.ms123.common.system.history.HistoryService.HISTORY_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TIME;
+import static org.ms123.common.system.history.HistoryService.HISTORY_CAMEL_HISTORY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
 
 /**
  *
@@ -561,6 +564,9 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 	}
 	public void saveHistory(Exchange exchange) {
 		String activitikey = (String)exchange.getProperty("activitikey");
+		if( activitikey == null){
+			activitikey = (String)exchange.getProperty(ACTIVITI_PROCESS_ID);
+		}
 
 		List<MessageHistory> list = exchange.getProperty(Exchange.MESSAGE_HISTORY, List.class);
 		ExchangeFormatter formatter = new ExchangeFormatter();
@@ -572,12 +578,12 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		boolean hasException = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class) != null;
 
 		Map props = new HashMap();
-		props.put(LOG_TYPE, "camel/history");
+		props.put(HISTORY_TYPE, HISTORY_CAMEL_HISTORY);
 		String key = activitikey;
-		props.put(LOG_KEY, key);
-		props.put(LOG_HINT, hasException ? "error": "ok");
-		props.put(LOG_MSG, routeStackTrace);
-		m_eventAdmin.postEvent(new Event("history", props));
+		props.put(HISTORY_KEY, key);
+		props.put(HISTORY_HINT, hasException ? "error": "ok");
+		props.put(HISTORY_MSG, routeStackTrace);
+		m_eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}
 
 	public static class SleepBean {

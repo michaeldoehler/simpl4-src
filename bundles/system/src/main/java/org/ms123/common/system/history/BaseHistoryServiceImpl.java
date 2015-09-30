@@ -49,17 +49,18 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 	private CasserSession m_session;
 	protected History history;
 	protected HistoryRoute historyRoute;
+	protected ActivitiCamelCorrelation activitiCamel;
 
 	private static String GLOBAL_KEYSPACE = "global";
 	private static String STARTTIME = "startTime";
 	private static String ENDTIME = "endTime";
 	private static String STATUS = "status";
 
-	protected void upsert(String key, Date time, String type, String hint, String msg) {
+	protected void upsertHistory(String key, Date time, String type, String hint, String msg) {
 		initHistory();
 		String key1 = null;
 		String key2 = null;
-		if (type != null && "camel/trace".equals(type)) {
+		if (type != null && HISTORY_CAMEL_TRACE.equals(type)) {
 			int pipe = key.lastIndexOf("|");
 			if (pipe > 0) {
 				key1 = key.substring(0, pipe);
@@ -82,6 +83,14 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 		}
 	}
 
+	protected void upsertAcc(String activitiId, String routeInstanceId) {
+		initHistory();
+			m_session.upsert()
+							.value(activitiCamel::activitiId, activitiId)
+							.value(activitiCamel::routeInstanceId, routeInstanceId)
+								.sync();
+	}
+
 	protected List<Map> _getHistory(String key, String type, Long startTime, Long endTime) throws Exception {
 		final List<Map> retList = new ArrayList();
 		initHistory();
@@ -91,7 +100,7 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 		if (endTime == null) {
 			endTime = new Date().getTime() + 1000000;
 		}
-		if (type != null && "camel/trace".equals(type) && key.indexOf("|") < 0) {
+		if (type != null && HISTORY_CAMEL_TRACE.equals(type) && key.indexOf("|") < 0) {
 			m_session.select(historyRoute::routeId, historyRoute::instanceId, historyRoute::time)
 							.where(historyRoute::routeId, eq(key))
 								.and(historyRoute::time, gt(new Date(startTime)))
@@ -115,11 +124,11 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 								.and(history::type, eq(type))
 									.orderBy(asc(history::time)).sync().forEach(h -> {
 			Map m = new HashMap();
-			m.put(LOG_KEY, h._1);
-			m.put(LOG_TIME, h._2);
-			m.put(LOG_TYPE, h._3);
-			m.put(LOG_HINT, h._4);
-			m.put(LOG_MSG, h._5);
+			m.put(HISTORY_KEY, h._1);
+			m.put(HISTORY_TIME, h._2);
+			m.put(HISTORY_TYPE, h._3);
+			m.put(HISTORY_HINT, h._4);
+			m.put(HISTORY_MSG, h._5);
 			retList.add(m);
 		});
 		return retList;
@@ -127,14 +136,14 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 
 	protected List<Map> _getRouteInstances(String contextKey, String routeId, java.lang.Long _startTime, java.lang.Long endTime) throws Exception {
 		List<Map> retList = new ArrayList();
-		List<Map> historyEntries = _getHistory(contextKey + "/" + routeId, "camel/trace", _startTime, endTime);
+		List<Map> historyEntries = _getHistory(contextKey + "/" + routeId, HISTORY_CAMEL_TRACE, _startTime, endTime);
 		String currentKey = null;
 		Date startTime = null;
 		Date prevTime = null;
 		boolean hasError = false;
 		for (Map entry : historyEntries) {
-			String key = (String) entry.get(LOG_KEY);
-			if ("error".equals(entry.get(LOG_HINT))) {
+			String key = (String) entry.get(HISTORY_KEY);
+			if ("error".equals(entry.get(HISTORY_HINT))) {
 				hasError = true;
 			}
 			if (!key.equals(currentKey)) {
@@ -142,10 +151,10 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 					retList.add(createRecord(startTime, prevTime, currentKey, hasError));
 					hasError = false;
 				}
-				startTime = (Date) entry.get(LOG_TIME);
+				startTime = (Date) entry.get(HISTORY_TIME);
 				currentKey = key;
 			}
-			prevTime = (Date) entry.get(LOG_TIME);
+			prevTime = (Date) entry.get(HISTORY_TIME);
 		}
 		if (startTime != null) {
 			retList.add(createRecord(startTime, prevTime, currentKey, hasError));
@@ -155,7 +164,7 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 	}
 
 	protected List<Map> _getRouteInstance(String contextKey, String routeId, String exchangeId) throws Exception {
-		List<Map> historyEntries = _getHistory(contextKey + "/" + routeId + "|" + exchangeId, "camel/trace", null, null);
+		List<Map> historyEntries = _getHistory(contextKey + "/" + routeId + "|" + exchangeId, HISTORY_CAMEL_TRACE, null, null);
 		return historyEntries;
 	}
 
@@ -190,7 +199,12 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 			Session session = m_cassandraService.getSession(GLOBAL_KEYSPACE);
 			history = Casser.dsl(History.class);
 			historyRoute = Casser.dsl(HistoryRoute.class);
-			m_session = Casser.init(session).showCql().add(history).add(historyRoute).autoCreateDrop().get();
+			activitiCamel = Casser.dsl(ActivitiCamelCorrelation.class);
+			m_session = Casser.init(session).showCql()
+				.add(history)
+				.add(historyRoute)
+				.add(activitiCamel)
+					.autoCreateDrop().get();
 			info("history:" + history);
 		} catch (Exception e) {
 			info("BaseHistoryServiceImpl.initHistory:" + e.getMessage());
