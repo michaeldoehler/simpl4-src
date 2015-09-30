@@ -156,9 +156,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 						rowList.push(row);
 					}
 					rowList.sort(function (a, b) {
-						console.log("rowList.sort:"+a.id+"/"+b.id);
-						console.log("rowList.sort:"+a._startTime+"/"+b._startTime);
-						return parseInt(a._startTime) < parseInt(b._startTime);
+						return parseInt(b._startTime) - parseInt(a._startTime);
 					});
 				}
 			}).bind(this);
