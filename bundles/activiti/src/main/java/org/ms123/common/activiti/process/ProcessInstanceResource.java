@@ -151,6 +151,7 @@ public class ProcessInstanceResource extends BaseResource {
 			for (HistoricActivityInstance historicActivityInstance : activityList) {
 				Map<String, Object> activityJSON = new HashMap();
 				activityJSON.put("activityId", historicActivityInstance.getActivityId());
+				activityJSON.put("executionId", historicActivityInstance.getExecutionId());
 				if (historicActivityInstance.getActivityName() != null) {
 					activityJSON.put("activityName", historicActivityInstance.getActivityName());
 				} else {
