@@ -190,6 +190,15 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 			return l2.compareTo(l1);
 		}
 	}
+	protected String _getActivitiCamelCorrelation(String activitiId) throws Exception {
+		initHistory();
+		try{
+			return m_session.select(activitiCamel::routeInstanceId) .where(activitiCamel::activitiId, eq(activitiId)).sync().findFirst().get()._1;
+		}catch(Exception e){
+			info("_getActivitiCamelCorrelation:"+ e.getMessage());
+			return null;
+		}
+	}
 
 	private void initHistory() {
 		if (m_session != null) {
