@@ -96,7 +96,7 @@ qx.Class.define("ms123.processexplorer.ProcessExplorer", {
 		_createCamelPage:function(){
 			var camelDefinitions = new ms123.processexplorer.plugins.CamelDefinitions(this._facade);
 			var camelHistory = new ms123.processexplorer.plugins.CamelHistory(this._facade);
-			new ms123.processexplorer.plugins.JsonDisplay(this._facade);
+//			new ms123.processexplorer.plugins.JsonDisplay(this._facade);
 
 			var dock = new qx.ui.layout.Dock();
 			var rightSide = new qx.ui.container.Composite(dock);
