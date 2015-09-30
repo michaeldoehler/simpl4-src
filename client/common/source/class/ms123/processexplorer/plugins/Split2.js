@@ -16,24 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with SIMPL4.  If not, see <http://www.gnu.org/licenses/>.
  */
-qx.Class.define("ms123.processexplorer.plugins.Split3", { 
+qx.Class.define("ms123.processexplorer.plugins.Split2", { 
    extend : qx.ui.container.Composite, 
 
-   construct: function(top, center, bottom){ 
+   construct: function(top, bottom){ 
      this.base(arguments); 
 
      this.setLayout(new qx.ui.layout.VBox()); 
-
      var topSplitPane = new qx.ui.splitpane.Pane("vertical").set({decorator: null}); 
-     var bottomSplitPane = new qx.ui.splitpane.Pane("vertical").set({decorator: null}); 
 
      // width top <-> bottomSplitPane -> 1/3 <-> 2/3 
      topSplitPane.add(top, 1); 
-     topSplitPane.add(bottomSplitPane, 2); 
-
-     // width center <-> bottom -> 1/2 <-> 1/2 
-     bottomSplitPane.add(center, 1); 
-     bottomSplitPane.add(bottom, 1); 
+     topSplitPane.add(bottom, 2); 
 
      this.add(topSplitPane, {flex: 1}); 
    } 

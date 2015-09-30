@@ -466,6 +466,17 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				}
 			};
 			var table = new qx.ui.table.Table(tableModel, customMap);
+			table.addListener("cellTap", function (e) {
+				var colnum = table.getFocusedColumn();
+				var rownum = table.getFocusedRow();
+				var map = tableModel.getRowDataAsMap(rownum);
+				var value = JSON.stringify(map, null, 2);
+				/*this.facade.raiseEvent({
+					type: ms123.processexplorer.Config.EVENT_SHOWDETAILS,
+					name: "History",
+					value: map.msg
+				});*/
+			}, this, false);
 			var tcm = table.getTableColumnModel();
 			colWidth.each((function (w, index) {
 				var resizeBehavior = tcm.getBehavior();
