@@ -34,6 +34,7 @@ qx.Class.define("ms123.processexplorer.Config", {
 		EVENT_DIAGRAM_OPENED: "diagramOpened",
 		EVENT_HISTORY_OPENED: "historyOpened",
 		EVENT_SHOWDETAILS: "showDetails",
+		EVENT_SHOW_ROUTEINSTANCE: "showRouteInstance",
 		EVENT_HIDEDETAILS: "hideDetails",
 		EVENT_PROCESSSTARTED: "processStarted"
 	}

@@ -75,6 +75,7 @@ qx.Class.define("ms123.processexplorer.ProcessExplorer", {
 			var processDefinitions = new ms123.processexplorer.plugins.ProcessDefinitions(this._facade);
 			var processHistory = new ms123.processexplorer.plugins.ProcessHistory(this._facade);
 			new ms123.processexplorer.plugins.JsonDisplay(this._facade);
+			new ms123.processexplorer.plugins.RouteInstanceWindow(this._facade);
 
 			var dock = new qx.ui.layout.Dock();
 			var rightSide = new qx.ui.container.Composite(dock);

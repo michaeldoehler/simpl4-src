@@ -58,32 +58,47 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistoryInstance", {
 		},
 		getRouteInstance: function (contextKey, routeId, exchangeId) {
 			var completed = (function (data) {
-				this._tableModelRouteInstance.removeRows(0, this._tableModelRouteInstance.getRowCount());
-				for( var i =0; i< data.length;i++){
-					var rmap = data[i];
-					rmap.time = this._formatTime(rmap.time);
-					rmap.status = rmap.hint;
-					rmap.msg = this._checkParse(rmap.msg);
-					rmap.msg.properties = this._checkParse(rmap.msg.properties);
-					rmap.msg.headers = this._checkParse(rmap.msg.headers);
-					rmap.from = rmap.msg.previousNode != null ? rmap.msg.previousNode : rmap.msg.fromEndpointUri;
-					rmap.to = rmap.msg.node;
-					rmap.direction = rmap.msg.direction;
-					this._tableModelRouteInstance.addRowsAsMapArray([rmap], null, true);
+				if( data == null){
+					console.log("No instance found for:", contextKey);
+					return;
 				}
+				this.setRouteInstanceData(data);
 			}).bind(this);
 
 			try {
-				var result = ms123.util.Remote.rpcSync("history:getRouteInstance", {
-					contextKey: contextKey,
-					routeId: routeId,
-					exchangeId: exchangeId
-				});
+				console.log("arguments:",arguments);
+				if( arguments.length==1){
+					var result = ms123.util.Remote.rpcSync("history:getRouteInstanceByActivitiId", {
+						activitiId: arguments[0]
+					});
+				}else{
+					var result = ms123.util.Remote.rpcSync("history:getRouteInstance", {
+						contextKey: contextKey,
+						routeId: routeId,
+						exchangeId: exchangeId
+					});
+				}
 				completed.call(this, result);
 			} catch (e) {
 				console.log(e.stack);
 				ms123.form.Dialog.alert("History._getRouteInstance:" + e);
 				return;
+			}
+		},
+		setRouteInstanceData:function(data){
+			console.log("Data:",JSON.stringify(data,null,2));
+			this._tableModelRouteInstance.removeRows(0, this._tableModelRouteInstance.getRowCount());
+			for( var i =0; i< data.length;i++){
+				var rmap = data[i];
+				rmap.time = this._formatTime(rmap.time);
+				rmap.status = rmap.hint;
+				rmap.msg = this._checkParse(rmap.msg);
+				rmap.msg.properties = this._checkParse(rmap.msg.properties);
+				rmap.msg.headers = this._checkParse(rmap.msg.headers);
+				rmap.from = rmap.msg.previousNode != null ? rmap.msg.previousNode : rmap.msg.fromEndpointUri;
+				rmap.to = rmap.msg.node;
+				rmap.direction = rmap.msg.direction;
+				this._tableModelRouteInstance.addRowsAsMapArray([rmap], null, true);
 			}
 		},
 		_createRouteInstanceTable: function (data) {

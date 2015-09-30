@@ -470,12 +470,18 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				var map = tableModel.getRowDataAsMap(rownum);
-				var value = JSON.stringify(map, null, 2);
-				/*this.facade.raiseEvent({
-					type: ms123.processexplorer.Config.EVENT_SHOWDETAILS,
-					name: "History",
-					value: map.msg
-				});*/
+				if( "serviceTask" == map.activityType ){
+					var key =  this.namespace+"/"+this._processDefinition.name+"/"+map.executionId +"/"+map.activityId;
+					var data = this.__getRouteInstance(key);
+					if( data == null || data.length==0){
+						return;
+					}
+					this.facade.raiseEvent({
+						type: ms123.processexplorer.Config.EVENT_SHOW_ROUTEINSTANCE,
+						name: "Route",
+						value:data 
+					});
+				}
 			}, this, false);
 			var tcm = table.getTableColumnModel();
 			colWidth.each((function (w, index) {
@@ -486,6 +492,12 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			table.setStatusBarVisible(false);
 			tableModel.setDataAsMapArray(data, true);
 			return table;
+		},
+		__getRouteInstance: function (activitiId) {
+			var result = ms123.util.Remote.rpcSync("history:getRouteInstanceByActivitiId", {
+				activitiId: activitiId
+			});
+			return result;
 		},
 		_createCamelTable: function (data) {
 			var colIds = new Array();
