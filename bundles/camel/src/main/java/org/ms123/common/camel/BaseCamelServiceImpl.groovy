@@ -567,6 +567,9 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		if( activitikey == null){
 			activitikey = (String)exchange.getProperty(ACTIVITI_PROCESS_ID);
 		}
+		if( activitikey == null){
+			return;
+		}
 
 		List<MessageHistory> list = exchange.getProperty(Exchange.MESSAGE_HISTORY, List.class);
 		ExchangeFormatter formatter = new ExchangeFormatter();
