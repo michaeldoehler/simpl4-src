@@ -113,7 +113,7 @@ vmOptions="\
 "
 
 activitibundles=""
-for i in $REPOSITORY/activiti-5.16/*ar
+for i in $REPOSITORY/activiti-5.18/*ar
 do
 	activitibundles=${activitibundles}"scan-bundle:file:$i "
 done
@@ -255,7 +255,7 @@ ${cassandrabundles} \
   scan-bundle:file:$REPOSITORY/jdom-1.1.bar \
 	scan-bundle:file:$REPOSITORY/jettison-1.2.jar \
   scan-bundle:file:$REPOSITORY/jms-api-1.1-rev-1.bar \
-  scan-bundle:file:$REPOSITORY/joda-time-2.3.jar \
+  scan-bundle:file:$REPOSITORY/joda-time-2.8.2.jar \
   scan-bundle:file:$REPOSITORY/jotm-core-2.2.3.jar \
 	scan-bundle:file:$REPOSITORY/jsch-0.1.44-1.bar \
 	scan-bundle:file:$REPOSITORY/json-lib-2.3-jdk15.jar \

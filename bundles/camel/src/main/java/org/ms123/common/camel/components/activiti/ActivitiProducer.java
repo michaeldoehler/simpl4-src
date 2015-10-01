@@ -73,10 +73,11 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 	private String m_activitiKey;
 
 	public ActivitiProducer(ActivitiEndpoint endpoint, WorkflowService workflowService, PermissionService permissionService) {
-		super(endpoint, workflowService.getProcessEngine().getRuntimeService(),-1,100);
+		super(endpoint, -1,100);
 		m_permissionService = permissionService;
 		m_workflowService = workflowService;
 		m_runtimeService = workflowService.getProcessEngine().getRuntimeService();
+		setRuntimeService(m_runtimeService);
 		info("ActivitiProducer:"+m_runtimeService+"/"+m_permissionService);
 		String[] path = endpoint.getEndpointKey().split(":");
 		m_processKey = path[1].replace("//", "");
@@ -163,7 +164,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		props.put(HISTORY_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
 		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}
-	private boolean shouldStartProcess() {
+	protected boolean shouldStartProcess() {
 		return m_activity == null;
 	}
 
@@ -177,7 +178,8 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 			throw new RuntimeException("Couldn't find activity " + m_activity + " for processId " + processInstanceId);
 		}
 		Map vars = execution.getProcessVariables();
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(), getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		//Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(), getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		Map exVars = ExchangeUtils.prepareVariables(exchange,true,true ,getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		Map props = exchange.getProperties();
 		Map headers = exchange.getIn().getHeaders();
 		logCamel(exchange);
@@ -188,7 +190,8 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 	private Map getCamelVariablenMap(Exchange exchange){
 		m_js.prettyPrint(true);
 		Map camelMap = new HashMap();
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		//Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		Map exVars = ExchangeUtils.prepareVariables(exchange,true,true ,getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		//String e1 = m_js.deepSerialize(exVars);
 		//System.out.println("e1:"+e1);
 		camelMap.putAll(exVars);
@@ -201,7 +204,8 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		return camelMap;
 	}
 	private void logCamel(Exchange exchange){
-		Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		//Map exVars = ExchangeUtils.prepareVariables(exchange, getActivitiEndpoint().isCopyVariablesFromHeader(),getActivitiEndpoint().isCopyVariablesFromProperties(),getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
+		Map exVars = ExchangeUtils.prepareVariables(exchange,true,true ,getActivitiEndpoint().isCopyCamelBodyToBodyAsString());
 		Map props = exchange.getProperties();
 		Map headers = exchange.getIn().getHeaders();
 		info("exchangeVars:"+exVars);
@@ -254,7 +258,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		}
 	}
 
-	private String findProcessInstanceId(Exchange exchange) {
+	protected String findProcessInstanceId(Exchange exchange) {
 		String processInstanceId = exchange.getProperty(PROCESS_ID_PROPERTY, String.class);
 		info("findProcessInstanceId:" + processInstanceId);
 		if (processInstanceId != null) {
@@ -268,7 +272,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 		return processInstance.getId();
 	}
 
-	private ProcessInstance startProcess(Exchange exchange) {
+	protected ProcessInstance startProcess(Exchange exchange) {
 		logCamel(exchange);
 		Map vars = getCamelVariablenMap(exchange);
 		info("startProcess:"+m_processKey);

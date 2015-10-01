@@ -43,11 +43,11 @@ public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 
 
 
-	protected String getStencilId(FlowElement flowElement) {
+	protected String getStencilId(BaseElement flowElement) {
 		return "DocumentTask";
 	}
 
-	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
 		ServiceTask serviceTask = (ServiceTask) flowElement;
 	}
 
@@ -94,7 +94,7 @@ public class Simpl4DocumentTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 	protected void addField(String name, JsonNode elementNode, ServiceTask task) {
 		FieldExtension field = new FieldExtension();
-		field.setFieldName(name.substring(12));
+		field.setFieldName(name);
 		String value = getPropertyValueAsString(name, elementNode);
 		if (StringUtils.isNotEmpty(value)) {
 			if ((value.contains("${") || value.contains("#{")) && value.contains("}")) {

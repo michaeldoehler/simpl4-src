@@ -48,7 +48,7 @@ import org.springframework.transaction.TransactionStatus;
 public class TaskScriptExecutor extends TaskBaseExecutor implements JavaDelegate {
 
 	private Expression script;
-	private boolean m_ownTransaction = true;
+	private boolean m_ownTransaction = false;
 
 	public TaskScriptExecutor() {
 		m_js.prettyPrint(true);

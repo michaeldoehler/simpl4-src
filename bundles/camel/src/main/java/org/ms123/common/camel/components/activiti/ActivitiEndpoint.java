@@ -37,9 +37,10 @@ public class ActivitiEndpoint extends org.activiti.camel.ActivitiEndpoint {
 	private WorkflowService m_workflowService;
 
 	public ActivitiEndpoint(String uri, CamelContext camelContext, WorkflowService ws, PermissionService ps) {
-		super(uri, camelContext, ws.getProcessEngine().getRuntimeService());
+		super(uri, camelContext );
 		info("ActivitiEndpoint.create:" + uri +"/WorkflowService:"+ws+"/permissionService:"+ps);
 		m_runtimeService = ws.getProcessEngine().getRuntimeService();
+		setRuntimeService( m_runtimeService);
 		m_permissionService = ps;
 		m_workflowService = ws;
 	}

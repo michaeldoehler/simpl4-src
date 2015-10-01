@@ -152,6 +152,9 @@ public class GroovyExpression implements Expression {
 				openBrackets -= 1;
 				if (openBrackets == 0) {
 					countRepl++;
+log("Eval1:"+str);
+log("Eval2:"+str.substring(first,i));
+log("Eval3:"+scope.getVariables());
 					replacement = eval(str.substring(first, i), scope);
 					newString += replacement;
 				}

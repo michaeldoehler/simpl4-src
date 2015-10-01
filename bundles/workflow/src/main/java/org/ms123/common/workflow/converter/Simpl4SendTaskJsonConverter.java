@@ -61,18 +61,18 @@ public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 	public static void fillBpmnTypes(Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
 	}
 
-	protected String getStencilId(FlowElement flowElement) {
+	protected String getStencilId(BaseElement flowElement) {
 		return "SendTask";
 	}
 
-	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
 	}
 
 	protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
 		ServiceTask task = new ServiceTask();
 		//task.setType(ServiceTask.MAIL_TASK);
 
-		String clazz = "org.ms123.common.workflow.TaskSendExecutor";
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskSendExecutor");
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 
@@ -89,7 +89,7 @@ public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	protected void addField(String name, JsonNode elementNode, ServiceTask task) {
 		FieldExtension field = new FieldExtension();
-		field.setFieldName(name.substring(12));
+		field.setFieldName(name);
 		String value = getPropertyValueAsString(name, elementNode);
 		if (StringUtils.isNotEmpty(value)) {
 			if ((value.contains("${") || value.contains("#{")) && value.contains("}")) {

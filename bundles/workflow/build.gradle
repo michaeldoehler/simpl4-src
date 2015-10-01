@@ -1,12 +1,13 @@
 version='1.0.0'
-ext.activiti_version='5.16'
+ext.activiti_version='5.18'
+ext.activiti_version2='5.18.0'
 dependencies {
-		compile files("${repository}/activiti-${activiti_version}/activiti-bpmn-converter-${activiti_version}.jar")
-		compile files("${repository}/activiti-${activiti_version}/activiti-bpmn-model-${activiti_version}.jar")
-		compile files("${repository}/activiti-${activiti_version}/activiti-camel-${activiti_version}.jar")
-		compile files("${repository}/activiti-${activiti_version}/activiti-engine-${activiti_version}.jar")
-		compile files("${repository}/activiti-${activiti_version}/activiti-json-converter-${activiti_version}.jar")
-		compile files("${repository}/activiti-${activiti_version}/activiti-spring-${activiti_version}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-bpmn-converter-${activiti_version2}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-bpmn-model-${activiti_version2}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-camel-${activiti_version2}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-engine-${activiti_version2}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-json-converter-${activiti_version2}.jar")
+		compile files("${repository}/activiti-${activiti_version}/activiti-spring-${activiti_version2}.jar")
  		compile files("${repository}/activiti-${activiti_version}/jackson-core-2.2.3.jar")
  		compile files("${repository}/activiti-${activiti_version}/jackson-databind-2.2.3.bar")
 		compile files("${repository}/camel/camel-core-2.15.2.jar")

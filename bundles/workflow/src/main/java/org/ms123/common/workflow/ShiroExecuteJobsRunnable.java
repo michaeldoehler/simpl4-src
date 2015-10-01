@@ -61,7 +61,7 @@ public class ShiroExecuteJobsRunnable implements Runnable {
   }
 
   public void run() {
-    final JobExecutorContext jobExecutorContext = new JobExecutorContext();
+    final MultipleJobsExecutorContext jobExecutorContext = new MultipleJobsExecutorContext();
     final List<String> currentProcessorJobQueue = jobExecutorContext.getCurrentProcessorJobQueue();
     final CommandExecutor commandExecutor = jobExecutor.getCommandExecutor();
 		PermissionService ps = ((ShiroJobExecutor)jobExecutor).getPermissionService();

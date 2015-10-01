@@ -167,9 +167,7 @@ public class CamelContextBuilder {
 					EventAdmin eventAdmin = (EventAdmin)ev.getExchange().getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 
 					String aci = (String)ev.getExchange().getProperty( ACTIVITI_ACTIVITY_ID );
-info("CamelContextBuilder.aci:"+aci);
 					String bc = (String)ev.getExchange().getIn().getHeader( Exchange.BREADCRUMB_ID  );
-info("CamelContextBuilder.bc:"+bc);
 					String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_ID );
 					Map props = new HashMap();
 					props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);

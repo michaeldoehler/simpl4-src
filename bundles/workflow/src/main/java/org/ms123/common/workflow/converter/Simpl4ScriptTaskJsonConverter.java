@@ -41,11 +41,11 @@ public class Simpl4ScriptTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String SCRIPT = "script";
 
-	protected String getStencilId(FlowElement flowElement) {
+	protected String getStencilId(BaseElement flowElement) {
 		return "ScriptTask";
 	}
 
-	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
 		ServiceTask serviceTask = (ServiceTask) flowElement;
 	}
 

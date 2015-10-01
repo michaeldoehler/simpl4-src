@@ -54,11 +54,11 @@ public class Simpl4FilterTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String VARMAPPING = "variablesmapping";
 
-	protected String getStencilId(FlowElement flowElement) {
+	protected String getStencilId(BaseElement flowElement) {
 		return "FilterTask";
 	}
 
-	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
 		ServiceTask serviceTask = (ServiceTask) flowElement;
 	}
 

@@ -53,11 +53,11 @@ public class Simpl4CamelTaskJsonConverter extends BaseBpmnJsonConverter {
 	private final String VARMAPPING_PROP = "variablesmapping";
 	private final String VARMAPPING = "variablesmapping";
 
-	protected String getStencilId(FlowElement flowElement) {
+	protected String getStencilId(BaseElement flowElement) {
 		return "CamelTask";
 	}
 
-	protected void convertElementToJson(ObjectNode propertiesNode, FlowElement flowElement) {
+	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
 		ServiceTask serviceTask = (ServiceTask) flowElement;
 	}
 
