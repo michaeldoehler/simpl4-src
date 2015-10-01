@@ -37,6 +37,13 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.Event;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_STARTPROCESS_EXCEPTION;
+import static org.ms123.common.system.history.HistoryService.HISTORY_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_HINT;
+import static org.ms123.common.system.history.HistoryService.HISTORY_MSG;
+
 
 /**
  */
@@ -202,17 +209,17 @@ public class StartProcessInstanceResource extends BaseResource {
 		info("createLogEntry.StartProcessInstanceResource");
 		Map props = new HashMap();
 		Map hint = new HashMap();
-		props.put("type", "exception/startprocess");
-		props.put("key", m_namespace+"/"+processDefinition.getId());
+		props.put(HISTORY_TYPE, HISTORY_ACTIVITI_STARTPROCESS_EXCEPTION);
+		props.put(HISTORY_KEY, m_namespace+"/"+processDefinition.getId());
 		info("createLogEntry.props:" + props);
 		Throwable r = getRootCause(e);
-		props.put("msg", r != null ? getStackTrace(r) : getStackTrace(e));
+		props.put(HISTORY_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
 		hint.put("processDefinitionId", processDefinition.getId());
 		hint.put("processDefinitionKey", processDefinition.getKey());
 		hint.put("processDefinitionName", processDefinition.getName());
 		hint.put("processDeploymentId", processDefinition.getDeploymentId());
 		hint.put("startUserId", uid);
-		props.put("hint", m_js.deepSerialize(hint));
-		getEventAdmin().sendEvent(new Event("log", props));
+		props.put(HISTORY_HINT, m_js.deepSerialize(hint));
+		getEventAdmin().sendEvent(new Event(HISTORY_TOPIC, props));
 	}
 }
