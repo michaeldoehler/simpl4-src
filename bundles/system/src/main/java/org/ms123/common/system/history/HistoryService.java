@@ -32,6 +32,7 @@ public interface HistoryService {
 
 	public static String HISTORY_ACTIVITI_START_PROCESS_EXCEPTION = "activiti/startprocess/exception";
 	public static String HISTORY_ACTIVITI_JOB_EXCEPTION = 	"activiti/job/exception";
+	public static String HISTORY_ACTIVITI_STARTPROCESS_EXCEPTION = 	"activiti/startprocess/exception";
 	public static String HISTORY_CAMEL_HISTORY = 	"camel/history";
 	public static String HISTORY_CAMEL_TRACE = 	"camel/trace";
 
