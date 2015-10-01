@@ -41,6 +41,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_JOB_EXCEPTION;
+import static org.ms123.common.system.history.HistoryService.HISTORY_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_TYPE;
+import static org.ms123.common.system.history.HistoryService.HISTORY_MSG;
 
 
 /**
@@ -114,13 +119,13 @@ public class ShiroExecuteJobsRunnable implements Runnable {
 		Job job = ms.createJobQuery().jobId(jobIds.get(0)).singleResult();
 		Map props = new HashMap();
 		props.put("namespace", namespace);
-		props.put("type", "exception/job");
+		props.put(HISTORY_TYPE, HISTORY_ACTIVITI_JOB_EXCEPTION);
 		String key = namespace +"/"+getName(job.getProcessDefinitionId())+"/"+job.getProcessInstanceId();
-		props.put("key", key);
+		props.put(HISTORY_KEY, key);
 		log("props:" + props);
 		Throwable rc = getRootCause(e);
-		props.put("msg", getStackTrace(rc != null ? rc : e));
-		m_eventAdmin.sendEvent(new Event("log", props));
+		props.put(HISTORY_MSG, getStackTrace(rc != null ? rc : e));
+		m_eventAdmin.sendEvent(new Event(HISTORY_TOPIC, props));
 	}
 	private String getName(String id){
 		int ind = id.indexOf(":");
