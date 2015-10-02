@@ -31,7 +31,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 		this.base(arguments);
 		this.facade = facade;
 
-		this.clipboard = new ms123.graphicaleditor.plugins.EditClipBoard();
+		this.clipboard = ms123.graphicaleditor.plugins.EditClipBoard.getClipboard(this.facade.getCanvas().getStencil().stencilSet().namespace());
 
 		this.facade.offer({
 			name: this.tr("ge.Edit.cut"),
@@ -128,11 +128,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 			if (this._controlPressed) {
 				this._controlPressed = false;
 				this.editCopy();
-				//			console.log("copiedEle: %0",this.clipboard.shapesAsJson)
-				//			console.log("mousevent: %o",event)
 				this.editPaste();
 				event.forceExecution = true;
-				this.facade.raiseEvent(event, this.clipboard.shapesAsJson);
+				this.facade.raiseEvent(event, this.clipboard.get());
 
 			}
 		},
@@ -206,7 +204,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 			//if the selection is empty, do not remove the previously copied elements
 			if (selection.length == 0) return;
 
-			this.clipboard.refresh(selection, this.getAllShapesToConsider(selection), this.facade.getCanvas().getStencil().stencilSet().namespace(), useNoOffset);
+			this.clipboard.refresh(this.getAllShapesToConsider(selection), this.facade.getCanvas().getStencil().stencilSet().namespace(), useNoOffset);
 
 			if (will_update) this.facade.updateSelection();
 		},
@@ -218,9 +216,9 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 			// Create a new canvas with childShapes 
 			//and stencilset namespace to be JSON Import conform
 			var canvas = {
-				childShapes: this.clipboard.shapesAsJson,
+				childShapes: this.clipboard.get(),
 				stencilset: {
-					namespace: this.clipboard.SSnamespace
+					namespace: this.clipboard.getNamespace()
 				}
 			}
 			// Apply json helper to iterate over json object
@@ -268,7 +266,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 			canvas.eachChild(qx.lang.Function.bind(function (shape, parent) {
 				// All top-level shapes should get an offset in their bounds
 				// Move the shape occording to COPY_MOVE_OFFSET
-				if (this.clipboard.useOffset) {
+				if (this.clipboard.useOffset()) {
 					shape.bounds = {
 						lowerRight: {
 							x: shape.bounds.lowerRight.x + ms123.oryx.Config.COPY_MOVE_OFFSET,
@@ -299,7 +297,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 								y: docker.y,
 								getDocker: docker.getDocker
 							}
-						} else if (this.clipboard.useOffset) {
+						} else if (this.clipboard.useOffset()) {
 							return {
 								x: docker.x + ms123.oryx.Config.COPY_MOVE_OFFSET,
 								y: docker.y + ms123.oryx.Config.COPY_MOVE_OFFSET,
@@ -322,7 +320,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 							docker = docker.getDocker().bounds.center();
 						}
 
-						if (this.clipboard.useOffset) {
+						if (this.clipboard.useOffset()) {
 							return {
 								x: docker.x + ms123.oryx.Config.COPY_MOVE_OFFSET,
 								y: docker.y + ms123.oryx.Config.COPY_MOVE_OFFSET,
@@ -341,7 +339,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 				return shape;
 			}, this), false, true);
 
-			this.clipboard.useOffset = true;
+			this.clipboard.setUseOffset(true);
 			this.facade.importJSON(canvas,false,true);
 		},
 
@@ -351,8 +349,8 @@ qx.Class.define("ms123.graphicaleditor.plugins.Edit", {
 		editDelete: function () {
 			var selection = this.facade.getSelection();
 
-			var clipboard = new ms123.graphicaleditor.plugins.EditClipBoard();
-			clipboard.refresh(selection, this.getAllShapesToConsider(selection));
+			var clipboard = ms123.graphicaleditor.plugins.EditClipBoard.getClipboard(this.facade.getCanvas().getStencil().stencilSet().namespace());
+			clipboard.refresh(this.getAllShapesToConsider(selection));
 
 			var command = new ms123.graphicaleditor.plugins.EditDeleteCommand(clipboard, this.facade);
 

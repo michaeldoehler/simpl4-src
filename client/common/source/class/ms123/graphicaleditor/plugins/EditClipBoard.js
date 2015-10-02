@@ -26,12 +26,24 @@ qx.Class.define("ms123.graphicaleditor.plugins.EditClipBoard", {
 	/******************************************************************************
 	 CONSTRUCTOR
 	 ******************************************************************************/
-	construct: function () {
+	construct: function (namespace) {
 		this.base(arguments);
-		this.shapesAsJson = [];
-		this.selection = [];
-		this.SSnamespace = "";
-		this.useOffset = true;
+		var store = new qx.data.store.Offline("clipboard-"+namespace);
+		var model = null;
+		if (store.getModel() === null) {
+			model = qx.data.marshal.Json.createModel({
+				shapesAsJson : [],
+				namespace : "",
+				useOffset : true
+			}, true);
+			model.setNamespace(namespace);
+			model.setUseOffset(true);
+			model.setShapesAsJson([]);
+			store.setModel(model);
+		} else {
+			model = store.getModel();
+		}
+		this._offlineModel = model;
 	},
 
 
@@ -43,24 +55,45 @@ qx.Class.define("ms123.graphicaleditor.plugins.EditClipBoard", {
 	/******************************************************************************
 	 STATICS
 	 ******************************************************************************/
-	statics: {},
+	statics: {
+		__clipboards:{},
+		getClipboard:function(namespace){
+			var clipboard = ms123.graphicaleditor.plugins.EditClipBoard.__clipboards[namespace];
+			if( clipboard == null){
+				clipboard = new ms123.graphicaleditor.plugins.EditClipBoard(namespace);
+				ms123.graphicaleditor.plugins.EditClipBoard.__clipboards[namespace] = clipboard;
+			}
+			return clipboard;;
+		}
+	},
 	/******************************************************************************
 	 MEMBERS
 	 ******************************************************************************/
 	members: {
 		isOccupied: function () {
-			return this.shapesAsJson.length > 0;
+			return this._offlineModel.getShapesAsJson().length > 0;
 		},
-		refresh: function (selection, shapes, namespace, useNoOffset) {
-			this.selection = selection;
-			this.SSnamespace = namespace;
-			// Store outgoings, targets and parents to restore them later on
-			this.outgoings = {};
-			this.parents = {};
-			this.targets = {};
-			this.useOffset = useNoOffset !== true;
+		get:function(){
+			var a = this._offlineModel.getShapesAsJson();
+			if( a.getLength ){
+			 return qx.lang.Json.parse(qx.util.Serializer.toJson(a));
+			}else{
+				return a;
+			}
+		},
+		getNamespace:function(){
+			return this._offlineModel.getNamespace();
+		},
+		useOffset:function(){
+			return this._offlineModel.getUseOffset();
+		},
+		setUseOffset:function(b){
+			this._offlineModel.setUseOffset(b);
+		},
+		refresh: function (shapes, namespace, useNoOffset) {
+			this._offlineModel.setUseOffset(useNoOffset !== true);
 
-			this.shapesAsJson = shapes.map(function (shape) {
+			var json = shapes.map(function (shape) {
 				var s = shape.toJSON();
 				s.parent = {
 					resourceId: shape.getParentShape().resourceId
@@ -68,6 +101,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.EditClipBoard", {
 				s.parentIndex = shape.getParentShape().getChildShapes().indexOf(shape)
 				return s;
 			});
+			this._offlineModel.setShapesAsJson(json);
 		}
 	},
 	/******************************************************************************

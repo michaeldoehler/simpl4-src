@@ -29,7 +29,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.EditDeleteCommand", {
 	construct: function (clipboard, facade) {
 		this.base(arguments);
 		this.clipboard = clipboard;
-		this.shapesAsJson = clipboard.shapesAsJson;
+		this.shapesAsJson = clipboard.get();
 		this.facade = facade;
 
 		// Store dockers of deleted shapes to restore connections
