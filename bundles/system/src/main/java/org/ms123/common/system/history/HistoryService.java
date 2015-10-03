@@ -41,7 +41,7 @@ public interface HistoryService {
 	public static String ACC_ACTIVITI_ID = "activitiId";
 	public static String ACC_ROUTE_INSTANCE_ID = "routeInstanceId";
 
-	public static String ACTIVITI_PROCESS_ID = "__activitiProcessId";
-	public static String ACTIVITI_ACTIVITY_ID = "__activitiActivityId";
-	public static String CAMEL_ROUTE_DEFINITION_ID = "__routeDefinitionId";
+	public static String HISTORY_ACTIVITI_PROCESS_KEY = "HistoryActivitiProcessKey";
+	public static String HISTORY_ACTIVITI_ACTIVITY_KEY = "HistoryActivitiActivityKey";
+	public static String CAMEL_ROUTE_DEFINITION_KEY = "CamelRouteDefinitionKey";
 }

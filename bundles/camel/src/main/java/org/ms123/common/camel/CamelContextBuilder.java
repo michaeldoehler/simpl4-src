@@ -65,9 +65,8 @@ import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 import static org.ms123.common.system.history.HistoryService.ACTIVITI_CAMEL_CORRELATION_TYPE;
 import static org.ms123.common.system.history.HistoryService.ACC_ACTIVITI_ID;
 import static org.ms123.common.system.history.HistoryService.ACC_ROUTE_INSTANCE_ID;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
-import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_ID;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
+import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_KEY;
 
 
 /**
@@ -166,9 +165,9 @@ public class CamelContextBuilder {
 				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
 					EventAdmin eventAdmin = (EventAdmin)ev.getExchange().getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 
-					String aci = (String)ev.getExchange().getProperty( ACTIVITI_ACTIVITY_ID );
+					String aci = (String)ev.getExchange().getProperty( HISTORY_ACTIVITI_ACTIVITY_KEY );
 					String bc = (String)ev.getExchange().getIn().getHeader( Exchange.BREADCRUMB_ID  );
-					String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_ID );
+					String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_KEY );
 					Map props = new HashMap();
 					props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
 					props.put(ACC_ACTIVITI_ID, aci);

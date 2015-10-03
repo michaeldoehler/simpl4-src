@@ -203,7 +203,9 @@ public final class TraceEventMessage implements Serializable, org.apache.camel.p
 		}
 	}
 	private String toJsonString(Object o) {
+System.out.println("toJsonString1"+o);
 		try{
+System.out.println("toJsonString2"+m_gson.toJson(o));
 			return m_gson.toJson(o);
 		}catch(Throwable e){
 		}

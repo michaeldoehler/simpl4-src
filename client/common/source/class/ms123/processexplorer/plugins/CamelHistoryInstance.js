@@ -19,6 +19,7 @@
 /**
 	@ignore(Hash)
 	@ignore(Clazz)
+	@ignore(jQuery.*)
 	@asset(qx/icon/${qx.icontheme}/16/actions/*)
 */
 
@@ -93,8 +94,8 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistoryInstance", {
 				rmap.time = this._formatTime(rmap.time);
 				rmap.status = rmap.hint;
 				rmap.msg = this._checkParse(rmap.msg);
-				rmap.msg.properties = this._checkParse(rmap.msg.properties);
-				rmap.msg.headers = this._checkParse(rmap.msg.headers);
+				rmap.msg.properties = this._sortObjectByKey(this._checkParse(rmap.msg.properties));
+				rmap.msg.headers = this._sortObjectByKey(this._checkParse(rmap.msg.headers));
 				rmap.from = rmap.msg.previousNode != null ? rmap.msg.previousNode : rmap.msg.fromEndpointUri;
 				rmap.to = rmap.msg.node;
 				rmap.direction = rmap.msg.direction;
@@ -305,7 +306,23 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistoryInstance", {
 			msgArea.setReadOnly(true);
 			return msgArea;
 		},
+		_sortObjectByKey : function(obj){
+			var keys = [];
+			var sorted_obj = {};
 
+			for(var key in obj){
+				if(obj.hasOwnProperty(key)){
+					keys.push(key);
+				}
+			}
+			keys.sort();
+
+			// create new array based on Sorted Keys
+			jQuery.each(keys, function(i, key){
+				sorted_obj[key] = obj[key];
+			});
+			return sorted_obj;
+		},
 		_formatTime:function(time){
 			var m = qx.locale.Manager.getInstance();
 			var lang = m.getLanguage();

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,9 @@ import static org.apache.commons.io.IOUtils.copy;
 import static org.ms123.common.rpc.JsonRpcServlet.ERROR_FROM_METHOD;
 import static org.ms123.common.rpc.JsonRpcServlet.INTERNAL_SERVER_ERROR;
 import static org.ms123.common.rpc.JsonRpcServlet.PERMISSION_DENIED;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
-import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_ID;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_PROCESS_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
+import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_KEY;
 
 /** CallService implementation
  */
@@ -119,7 +120,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.PERMISSION_DENIED, "Method("+fqMethodName+"):User(" + userName + ") has no permission");
 		}
 
-		Map<String, Object> properties = new HashMap();
+		Map<String, Object> properties = new TreeMap();
 		Map<String, Object> headers = new HashMap();
 		Map<String, Object> bodyMap = new HashMap();
 		Object bodyObj=null;
@@ -145,11 +146,9 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			}
 		}
 
-		Object api = methodParams.get(ACTIVITI_PROCESS_ID);
-		Object aai = methodParams.get(ACTIVITI_ACTIVITY_ID);
-		if( api != null){
-				properties.put(ACTIVITI_PROCESS_ID, api );
-				properties.put(ACTIVITI_ACTIVITY_ID, aai );
+		Map acp =(Map) methodParams.get(ACTIVITI_CAMEL_PROPERTIES);
+		if( acp != null){
+				properties.putAll(acp);
 		}
 		if( bodyCount != 1){
 			if( bodyMap.keySet().size()>0){
@@ -184,7 +183,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+routeId+"' not found");
 			}
 		}
-		properties.put(CAMEL_ROUTE_DEFINITION_ID, namespace+"/"+contentName+"/"+routeId );
+		properties.put(CAMEL_ROUTE_DEFINITION_KEY, namespace+"/"+contentName+"/"+routeId );
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {

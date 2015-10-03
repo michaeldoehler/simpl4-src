@@ -298,6 +298,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			public void process(Exchange exchange) {
 				if (properties != null) {
 					for (String key : properties.keySet()) {
+System.out.println("Process:"+key);
 						exchange.setProperty(key, properties.get(key));
 					}
 				}

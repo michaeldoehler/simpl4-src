@@ -96,7 +96,7 @@ import static org.ms123.common.system.history.HistoryService.HISTORY_HINT;
 import static org.ms123.common.system.history.HistoryService.HISTORY_TIME;
 import static org.ms123.common.system.history.HistoryService.HISTORY_CAMEL_HISTORY;
 import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_PROCESS_KEY;
 
 /**
  *
@@ -565,7 +565,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 	public void saveHistory(Exchange exchange) {
 		String activitikey = (String)exchange.getProperty("activitikey");
 		if( activitikey == null){
-			activitikey = (String)exchange.getProperty(ACTIVITI_PROCESS_ID);
+			activitikey = (String)exchange.getProperty(HISTORY_ACTIVITI_PROCESS_KEY);
 		}
 		if( activitikey == null){
 			return;

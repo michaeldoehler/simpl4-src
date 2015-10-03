@@ -36,8 +36,16 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.apache.commons.beanutils.PropertyUtils;
 import flexjson.*;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_PROCESS_ID;
-import static org.ms123.common.system.history.HistoryService.ACTIVITI_ACTIVITY_ID;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_PROCESS_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
+import static org.ms123.common.rpc.CallService.ACTIVITI_CAMEL_PROPERTIES;
+
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_EXECUTION_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_BUSINESS_KEY;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_DEFINITION_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_DEFINITION_NAME;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_INSTANCE_ID;
 
 public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate {
 
@@ -82,8 +90,16 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 				}
 			}
 			
-			fparams.put(ACTIVITI_PROCESS_ID, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getProcessInstanceId());
-			fparams.put(ACTIVITI_ACTIVITY_ID, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId());
+			Map<String,String> activitiProperties = new TreeMap<String,String>();
+			activitiProperties.put(HISTORY_ACTIVITI_PROCESS_KEY, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getProcessInstanceId());
+			activitiProperties.put(HISTORY_ACTIVITI_ACTIVITY_KEY, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId());
+			activitiProperties.put(WORKFLOW_ACTIVITY_ID, execution.getCurrentActivityId());
+			activitiProperties.put(WORKFLOW_EXECUTION_ID, execution.getId());
+			activitiProperties.put(WORKFLOW_PROCESS_BUSINESS_KEY, execution.getProcessBusinessKey());
+			activitiProperties.put(WORKFLOW_PROCESS_DEFINITION_ID, execution.getProcessDefinitionId());
+			activitiProperties.put(WORKFLOW_PROCESS_DEFINITION_NAME, tc.getProcessDefinitionName());
+			activitiProperties.put(WORKFLOW_PROCESS_INSTANCE_ID, execution.getProcessInstanceId());
+			fparams.put(ACTIVITI_CAMEL_PROPERTIES, activitiProperties);
 
 			Object answer = getCallService().callCamel( namespace.getValue(execution)+"."+methodname, fparams);
 			log("TaskCamelExecutor.answer:"+ answer);

@@ -26,6 +26,14 @@ import org.activiti.engine.delegate.VariableScope;
 public interface WorkflowService {
 	public static final String WORKFLOW_SERVICE = "workflowService";
 	public static final String PROCESS_ENGINE = "processEngine";
+
+	public static final String WORKFLOW_ACTIVITY_ID = "WorkflowActivityId";
+	public static final String WORKFLOW_EXECUTION_ID = "WorkflowExecutionId";
+	public static final String WORKFLOW_PROCESS_BUSINESS_KEY = "WorkflowProcessBusinessKey";
+	public static final String WORKFLOW_PROCESS_DEFINITION_ID = "WorkflowProcessDefinitionId";
+	public static final String WORKFLOW_PROCESS_DEFINITION_NAME = "WorkflowProcessDefinitionName";
+	public static final String WORKFLOW_PROCESS_INSTANCE_ID = "WorkflowProcessInstanceId";
+
 	public ProcessEngine getProcessEngine();
 	public CamelContext getCamelContextForProcess(String namespace, String name);
 	public void executeScriptTask( String executionId, String category, String processDefinitionKey, String pid, String script, Map newVariables, String taskName );

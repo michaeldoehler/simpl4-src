@@ -35,6 +35,7 @@ public interface CallService {
 	public static String PRECONDITION = "preCondition";
 	public static String CAMELSERVICENAME = "camel-routing";
 	public static String CAMELSERVICENAME2 = "camelRoute";
+	public static String ACTIVITI_CAMEL_PROPERTIES = "__activitiCamelProperties";
 
 	public void callHooks(Map params);
 	public Object callCamel(String methodName, Object methodParams);
