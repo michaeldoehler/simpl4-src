@@ -65,7 +65,7 @@ public class ProcessInstanceResource extends BaseResource {
 			responseJSON.put("businessKey", null);
 		}
 		responseJSON.put("processDefinitionId", instance.getProcessDefinitionId());
-		responseJSON.put("startTime", Util.dateToString(instance.getStartTime()));
+		responseJSON.put("startTime", instance.getStartTime().getTime());
 		responseJSON.put("startActivityId", instance.getStartActivityId());
 		if (instance.getStartUserId() != null) {
 			responseJSON.put("startUserId", instance.getStartUserId());
@@ -76,7 +76,7 @@ public class ProcessInstanceResource extends BaseResource {
 			responseJSON.put("completed", false);
 		} else {
 			responseJSON.put("completed", true);
-			responseJSON.put("endTime", Util.dateToString(instance.getEndTime()));
+			responseJSON.put("endTime", instance.getEndTime().getTime());
 			responseJSON.put("endActivityId", instance.getEndActivityId());
 			responseJSON.put("duration", instance.getDurationInMillis());
 		}
@@ -125,9 +125,9 @@ public class ProcessInstanceResource extends BaseResource {
 				} else {
 					taskJSON.put("assignee", null);
 				}
-				taskJSON.put("startTime", Util.dateToString(historicTaskInstance.getStartTime()));
+				taskJSON.put("startTime", historicTaskInstance.getStartTime().getTime());
 				if (historicTaskInstance.getDueDate() != null) {
-					taskJSON.put("dueDate", Util.dateToString(historicTaskInstance.getDueDate()));
+					taskJSON.put("dueDate", historicTaskInstance.getDueDate().getTime());
 				} else {
 					taskJSON.put("dueDate", null);
 				}
@@ -135,7 +135,7 @@ public class ProcessInstanceResource extends BaseResource {
 					taskJSON.put("completed", false);
 				} else {
 					taskJSON.put("completed", true);
-					taskJSON.put("endTime", Util.dateToString(historicTaskInstance.getEndTime()));
+					taskJSON.put("endTime", historicTaskInstance.getEndTime().getTime());
 					taskJSON.put("duration", historicTaskInstance.getDurationInMillis());
 				}
 				tasksJSON.add(taskJSON);
@@ -161,12 +161,12 @@ public class ProcessInstanceResource extends BaseResource {
 				activityJSON.put("taskId", historicActivityInstance.getTaskId());
 				activityJSON.put("assignee", historicActivityInstance.getAssignee());
 				activityJSON.put("id", historicActivityInstance.getId());
-				activityJSON.put("startTime", Util.dateToString(historicActivityInstance.getStartTime()));
+				activityJSON.put("startTime", historicActivityInstance.getStartTime().getTime());
 				if (historicActivityInstance.getEndTime() == null) {
 					activityJSON.put("completed", false);
 				} else {
 					activityJSON.put("completed", true);
-					activityJSON.put("endTime", Util.dateToString(historicActivityInstance.getEndTime()));
+					activityJSON.put("endTime", historicActivityInstance.getEndTime().getTime());
 					activityJSON.put("duration", historicActivityInstance.getDurationInMillis());
 				}
 				activitiesJSON.add(activityJSON);
@@ -236,7 +236,7 @@ public class ProcessInstanceResource extends BaseResource {
 				variableJSON.put("revision", variableUpdate.getRevision());
 				variableJSON.put("taskId", variableUpdate.getTaskId());
 				variableJSON.put("activityInstanceId", variableUpdate.getActivityInstanceId());
-				variableJSON.put("time", Util.dateToString(variableUpdate.getTime()));
+				variableJSON.put("time", variableUpdate.getTime().getTime());
 				if( m_activityNameIdMap.get(variableUpdate.getActivityInstanceId()) != null){
 					variableJSON.put("activityName", m_activityNameIdMap.get(variableUpdate.getActivityInstanceId())+"("+variableUpdate.getActivityInstanceId()+")");
 				}else if ( variableUpdate.getActivityInstanceId() != null){

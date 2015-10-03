@@ -178,8 +178,8 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 
 				var row = 0;
 				this._addLine(containerInfo, "startUserId", content.startUserId, row++);
-				this._addLine(containerInfo, "startTime", content.startTime, row++);
-				this._addLine(containerInfo, "endTime", content.endTime, row++);
+				this._addLine(containerInfo, "startTime", this._formatTime(content.startTime), row++);
+				this._addLine(containerInfo, "endTime", this._formatTime(content.endTime), row++);
 				this._addLine(containerInfo, "duration", content.duration, row++);
 				this._addLine(containerInfo, "completed", content.completed, row++);
 				this._addLine(containerInfo, "startActivityId", content.startActivityId, row++);
@@ -190,6 +190,11 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 
 
 				var containerActivity = this.__getContainer( this._detailsActivityPage,"dock");
+				for(var i = 0; i < content.activities.length;i++){
+					var a = content.activities[i];
+					a.startTime = this._formatTime(a.startTime);
+					a.endTime = this._formatTime(a.endTime);
+				}
 				var table = this._createActivityTable(content.activities);
 				containerActivity.add(table, {
 					edge:"center"
@@ -200,6 +205,10 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 					content.variables = content.historyVariables;
 				}
 				if (content.variables) {
+					for(var i = 0; i < content.variables.length;i++){
+						var a = content.variables[i];
+						a.time = this._formatTime(a.time);
+					}
 					var containerVariables = this.__getContainer( this._detailsVariablesPage,"dock");
 					var panel = this._createSearchPanelVariables();
 					containerVariables.add(panel, {
@@ -451,11 +460,11 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 
 			colIds.push("startTime");
 			colHds.push(this.tr("processexplorer.startTime"));
-			colWidth.push(100);
+			colWidth.push(125);
 
 			colIds.push("endTime");
 			colHds.push(this.tr("processexplorer.endTime"));
-			colWidth.push(100);
+			colWidth.push(125);
 
 
 			var tableModel = new qx.ui.table.model.Simple();
@@ -848,9 +857,9 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 		_formatTime:function(time){
 			var m = qx.locale.Manager.getInstance();
 			var lang = m.getLanguage();
-			var df = new qx.util.format.DateFormat("MM-dd-yyyy HH:mm:ss");
+			var df = new qx.util.format.DateFormat("MM-dd-yy HH:mm:ss.SSS");
 			if (lang == "de") {
-				df = new qx.util.format.DateFormat("dd.MM.yyyy HH:mm:ss");
+				df = new qx.util.format.DateFormat("dd.MM.yy HH:mm:ss.SSS");
 			}
 			return qx.bom.String.escape(df.format(new Date(time)));
 		},
