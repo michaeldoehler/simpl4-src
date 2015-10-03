@@ -89,8 +89,10 @@ qx.Class.define("ms123.shell.views.Editor", {
 				console.log("model:"+qx.util.Serializer.toJson(model));
 				this.__deployProcess(model,e.getData());
 			}, this);
-			ge.addListener("undeploy", function(e){
-				this.__undeployProcess(model,e.getData());
+			ge.addListener("savedeploy", function(e){
+				var json = e.getData();
+				this._saveContent( model, model.getType().substring(3), json, true );
+				this.__deployProcess(model,e.getData());
 			}, this);
 			var content = this._getContent(model.getPath());
 			ge.init(model.getType(), model.getValue(), content,this.facade.rootNode);
@@ -264,10 +266,12 @@ qx.Class.define("ms123.shell.views.Editor", {
 				return null;
 			}
 		},
-		_saveContent: function (model, what, content) {
+		_saveContent: function (model, what, content, noDialog) {
 			var path = model.getPath();
 			var completed = (function (e) {
-				ms123.form.Dialog.alert(this.tr("shell."+what+"_saved"));
+				if( noDialog !== true){
+					ms123.form.Dialog.alert(this.tr("shell."+what+"_saved"));
+				}
 			}).bind(this);
 
 			var failed = (function (e) {

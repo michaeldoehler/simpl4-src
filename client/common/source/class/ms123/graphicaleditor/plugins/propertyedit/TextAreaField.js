@@ -177,7 +177,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.TextAreaField", {
 			var toolbar = new qx.ui.toolbar.ToolBar();
 			toolbar.setSpacing(5);
 
-			var buttonSave = new qx.ui.toolbar.Button(this.tr("save"), this.__getResourceUrl("disk.png"));
+			var buttonSave = new qx.ui.toolbar.Button(this.tr("save"), this.__getResourceUrl("save.png"));
 			buttonSave.addListener("execute", function () {
 				var value = this.textArea.getValue();
 				var data = value;
@@ -189,8 +189,20 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.TextAreaField", {
 			}, this);
 			toolbar._add(buttonSave)
 
+			var buttonSaveDeploy = new qx.ui.toolbar.Button(this.tr("savedeploy"), this.__getResourceUrl("savedeploy.png"));
+			buttonSaveDeploy.addListener("execute", function () {
+				var value = this.textArea.getValue();
+				var data = value;
+				var oldVal = this.data;
+				this.data = data;
+				this.fireDataEvent("changeValue", data, oldVal);
+				this.getChildControl("textfield").setValue(data);
+				this.facade.save.savedeploy();
+			}, this);
+			toolbar._add(buttonSaveDeploy)
+
 			if(this.facade.editorType == "sw.process"){
-				var buttonDeploy = new qx.ui.toolbar.Button(this.tr("deploy"), "icon/16/actions/media-playback-start.png");
+				var buttonDeploy = new qx.ui.toolbar.Button(this.tr("deploy"), this.__getResourceUrl("deploy.png"));
 				buttonDeploy.addListener("execute", function () {
 					var value = this.textArea.getValue();
 					var data = value;

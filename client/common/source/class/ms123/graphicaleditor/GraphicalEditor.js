@@ -37,7 +37,7 @@ qx.Class.define("ms123.graphicaleditor.GraphicalEditor", {
 	events: {
 		"save": "qx.event.type.Data",
 		"deploy": "qx.event.type.Data",
-		"undeploy": "qx.event.type.Data"
+		"savedeploy": "qx.event.type.Data"
 	},
 	/**
 	 * ****************************************************************************

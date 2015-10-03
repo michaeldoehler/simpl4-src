@@ -41,12 +41,35 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			'name': this.tr("ge.Save.save"),
 			'functionality': this.save.bind(this, false),
 			'group': this.tr("ge.Save.group"),
-			'icon': this.__getResourceUrl("disk.png"),
+			'icon': this.__getResourceUrl("save.png"),
 			'description': this.tr("ge.Save.saveDesc"),
 			'index': 1,
 			'minShape': 0,
 			'maxShape': 0
 		});
+
+		if( this.editorType == "sw.process" ){
+			this.facade.offer({
+				'name': this.tr("ge.Save.savedeploy"),
+				'functionality': this.savedeploy.bind(this, false),
+				'group': this.tr("ge.Save.group"),
+				'icon': this.__getResourceUrl("savedeploy.png"),
+				'description': this.tr("ge.Save.savedeploy"),
+				'index': 2,
+				'minShape': 0,
+				'maxShape': 0
+			});
+			this.facade.offer({
+				'name': this.tr("ge.Save.deploy"),
+				'functionality': this.deploy.bind(this, false),
+				'group': this.tr("ge.Save.group"),
+				'icon': this.__getResourceUrl("deploy.png"),
+				'description': this.tr("ge.Save.deploy"),
+				'index': 3,
+				'minShape': 0,
+				'maxShape': 0
+			});
+		}
 
 		this.facade.offer({
 			'name': this.tr("ge.Save.showJson"),
@@ -54,7 +77,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			'group': this.tr("ge.Save.group"),
 			'icon': this.__getResourceUrl("json.png"),
 			'description': this.tr("ge.Save.showJsonDesc"),
-			'index': 2,
+			'index': 4,
 			'minShape': 0,
 			'maxShape': 0
 		});
@@ -65,33 +88,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			'group': this.tr("ge.Save.group"),
 			'icon': "icon/16/actions/object-rotate-right.png",
 			'description': this.tr("ge.Save.renewResourceIdsDesc"),
-			'index': 3,
+			'index': 5,
 			'minShape': 0,
 			'maxShape': 0
 		});
 
-		if( this.editorType == "sw.process" ){
-			this.facade.offer({
-				'name': this.tr("ge.Save.deploy"),
-				'functionality': this.deploy.bind(this, false),
-				'group': this.tr("ge.Save.group"),
-				'icon': "icon/16/actions/media-playback-start.png",
-				'description': this.tr("ge.Save.deploy"),
-				'index': 4,
-				'minShape': 0,
-				'maxShape': 0
-			});
-			this.facade.offer({
-				'name': this.tr("ge.Save.undeploy"),
-				'functionality': this.undeploy.bind(this, false),
-				'group': this.tr("ge.Save.group"),
-				'icon': "icon/16/actions/media-playback-stop.png",
-				'description': this.tr("ge.Save.undeploy"),
-				'index': 5,
-				'minShape': 0,
-				'maxShape': 0
-			});
-		}
 		if( this.editorType == "sw.form" ){
 			this.facade.offer({
 				'name': this.tr("graphicaleditor.plugins.save.formtest"),
@@ -134,8 +135,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 	 MEMBERS
 	 ******************************************************************************/
 	members: {
-		undeploy: function () {
-			this.main.fireAction( "undeploy", null);
+		savedeploy: function () {
+			this._save("savedeploy");
+		},
+		save: function () {
+			this._save("save");
 		},
 		deploy: function () {
 			this.main.fireAction( "deploy", null);
@@ -227,7 +231,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 		/**
 		 * Saves the current process to the server.
 		 */
-		save: function () {
+		_save: function (event) {
 			this.facade.raiseEvent({
 				type: ms123.oryx.Config.EVENT_LOADING_ENABLE,
 				text: this.tr("ge.Save.saving")
@@ -237,7 +241,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Save", {
 			var zoomLevel = this.facade.view.getZoomLevel();
 			json.zoomLevel= zoomLevel;
 			var jsonProcessModel = qx.lang.Json.stringify(json,null,2);
-			this.main.fireAction( "save", jsonProcessModel);
+			this.main.fireAction( event, jsonProcessModel);
 			return true;
 		},
 		__getResourceUrl: function (name) {
