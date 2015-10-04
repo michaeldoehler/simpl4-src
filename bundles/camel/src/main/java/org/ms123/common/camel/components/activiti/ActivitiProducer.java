@@ -51,6 +51,11 @@ import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ST
 import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_JOB_EXCEPTION;
 import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_EXECUTION_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_BUSINESS_KEY;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_INSTANCE_ID;
+
 @SuppressWarnings("unchecked")
 public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 
@@ -62,7 +67,6 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 	private WorkflowService m_workflowService;
 
 	public static final String PROCESS_KEY_PROPERTY = "PROCESS_KEY_PROPERTY";
-
 	public static final String PROCESS_ID_PROPERTY = "PROCESS_ID_PROPERTY";
 
 	private String m_processKey = null;
@@ -243,7 +247,6 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 					}
 					continue;
 				} catch (Exception e) {
-		info("createLogEntry.ActivitiProducer.run");
 					createLogEntry(exchange,pd, e);	
 					if( e instanceof RuntimeException){
 						throw (RuntimeException)e;
@@ -259,13 +262,22 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 	}
 
 	protected String findProcessInstanceId(Exchange exchange) {
-		String processInstanceId = exchange.getProperty(PROCESS_ID_PROPERTY, String.class);
-		info("findProcessInstanceId:" + processInstanceId);
+		String processInstanceId = exchange.getProperty(PROCESS_ID_PROPERTY, String.class); //@@@MS deprecated
 		if (processInstanceId != null) {
+			System.out.println("processInstanceId1:"+ processInstanceId);
 			return processInstanceId;
 		}
-		String processInstanceKey = exchange.getProperty(PROCESS_KEY_PROPERTY, String.class);
+		processInstanceId = exchange.getProperty(WORKFLOW_PROCESS_INSTANCE_ID, String.class);
+		if (processInstanceId != null) {
+			System.out.println("processInstanceId2:"+ processInstanceId);
+			return processInstanceId;
+		}
+		String processInstanceKey = exchange.getProperty(PROCESS_KEY_PROPERTY, String.class); //@@@MS deprecated
 		ProcessInstance processInstance = m_runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(processInstanceKey).singleResult();
+		if (processInstance == null) {
+			processInstanceKey = exchange.getProperty(WORKFLOW_PROCESS_BUSINESS_KEY, String.class);
+			processInstance = m_runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(processInstanceKey).singleResult();
+		}
 		if (processInstance == null) {
 			throw new RuntimeException("ActivitiProducer:Could not find activiti with key " + processInstanceKey);
 		}
