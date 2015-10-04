@@ -89,7 +89,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		info("CamelServiceImpl.activate.props:" + props);
 		try {
 			m_bundleContext = bundleContext;
-			_createRoutesFromShape();
+			_createRoutesFromJson();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -102,14 +102,14 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 
 	/*BEGIN JSON-RPC-API*/
 	@RequiresRoles("admin")
-	public void  createRoutesFromShape(
+	public void  createRoutesFromJson(
 			@PName(StoreDesc.NAMESPACE) @POptional String namespace
 		 ) throws RpcException {
 		try {
 			if( namespace == null){
-				_createRoutesFromShape();
+				_createRoutesFromJson();
 			}else{
-				_createRoutesFromShape( namespace);
+				_createRoutesFromJson( namespace);
 			}
 		} catch (Throwable e) {
 			String msg = e.getMessage();
@@ -118,7 +118,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				msg += "\n"+e.getMessage();
 			}
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromShape:"+msg);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.createRoutesFromJson:"+msg);
 		}
 	}
 	@RequiresRoles("admin")
@@ -131,14 +131,14 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 	}
 
 	@RequiresRoles("admin")
-	public void  saveRouteShape(
+	public void  saveRoutesJson(
 			@PName(StoreDesc.NAMESPACE) String namespace,
 			@PName("path") String path,
 			@PName("content") String content
 		 ) throws RpcException {
 		try {
 			m_gitService.putContent(namespace,path, CAMEL_TYPE, content);
-			_createRoutesFromShape(namespace,path);
+			_createRoutesFromJson(namespace,path);
 		} catch (Throwable e) {
 			String msg = e.getMessage();
 			while (e.getCause() != null) {
@@ -146,7 +146,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				msg += "\n"+e.getMessage();
 			}
 			e.printStackTrace();
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRouteShape:"+msg);
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.saveRoutesJson:"+msg);
 		}
 	}
 

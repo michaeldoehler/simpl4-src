@@ -332,7 +332,7 @@ qx.Class.define("ms123.shell.views.Editor", {
 		},
 		_saveCamel: function (model, what, content) {
 			var methods = {
-				"camel":"saveRouteShape",
+				"camel":"saveRoutesJson",
 				"java":"saveJava",
 				"groovy":"saveGroovyScript"
 			}
