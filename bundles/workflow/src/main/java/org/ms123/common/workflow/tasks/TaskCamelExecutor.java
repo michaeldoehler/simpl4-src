@@ -101,7 +101,11 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 			activitiProperties.put(WORKFLOW_PROCESS_INSTANCE_ID, execution.getProcessInstanceId());
 			fparams.put(ACTIVITI_CAMEL_PROPERTIES, activitiProperties);
 
-			Object answer = getCallService().callCamel( namespace.getValue(execution)+"."+methodname, fparams);
+			String ns = namespace.getValue(execution).toString();
+			if( "-".equals(ns)){
+				ns = tc.getCategory();
+			}
+			Object answer = getCallService().callCamel( ns+"."+methodname, fparams);
 			log("TaskCamelExecutor.answer:"+ answer);
 		} catch (Exception e) {
 			e.printStackTrace();
