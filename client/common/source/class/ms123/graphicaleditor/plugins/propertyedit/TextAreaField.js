@@ -189,19 +189,19 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.TextAreaField", {
 			}, this);
 			toolbar._add(buttonSave)
 
-			var buttonSaveDeploy = new qx.ui.toolbar.Button(this.tr("savedeploy"), this.__getResourceUrl("savedeploy.png"));
-			buttonSaveDeploy.addListener("execute", function () {
-				var value = this.textArea.getValue();
-				var data = value;
-				var oldVal = this.data;
-				this.data = data;
-				this.fireDataEvent("changeValue", data, oldVal);
-				this.getChildControl("textfield").setValue(data);
-				this.facade.save.savedeploy();
-			}, this);
-			toolbar._add(buttonSaveDeploy)
-
 			if(this.facade.editorType == "sw.process"){
+				var buttonSaveDeploy = new qx.ui.toolbar.Button(this.tr("savedeploy"), this.__getResourceUrl("savedeploy.png"));
+				buttonSaveDeploy.addListener("execute", function () {
+					var value = this.textArea.getValue();
+					var data = value;
+					var oldVal = this.data;
+					this.data = data;
+					this.fireDataEvent("changeValue", data, oldVal);
+					this.getChildControl("textfield").setValue(data);
+					this.facade.save.savedeploy();
+				}, this);
+				toolbar._add(buttonSaveDeploy)
+
 				var buttonDeploy = new qx.ui.toolbar.Button(this.tr("deploy"), this.__getResourceUrl("deploy.png"));
 				buttonDeploy.addListener("execute", function () {
 					var value = this.textArea.getValue();
