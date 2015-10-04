@@ -39,6 +39,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 		this.add(this.toolbar, {
 			edge: "north"
 		});
+		this._upperHeight=150;
 
 		this._startTimeFrom = null;
 		this._startTimeTo = null;
@@ -57,18 +58,23 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 	members: {
 		_init:function(){
 			if( this._splitPane){
+				if( this._upper ){
+					this._upperHeight = this._upper.getHeight();
+				}
 				this.remove(this._splitPane);
 				this._splitPane.dispose();
 			}
 			this._processState = 'all';
 
 			var table = this._createInstanceTable();
+			this._upper = table;
 			var tabs = this._createDetailsArea();
 
 			var splitpane = this._split(table, tabs);
 			this.add(splitpane, {
 				edge: "center"
 			});
+			this._upper.setHeight(this._upperHeight);
 			this._splitPane=splitpane;
 			this._currentDiagram = null;
 		},
@@ -868,8 +874,8 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				decorator: null
 			});
 
-			splitPane.add(top, 1);
-			splitPane.add(bottom, 4);
+			splitPane.add(top, 0);
+			splitPane.add(bottom, 1);
 			return splitPane;
 		},
 		_escapeHTML:function(html) {
