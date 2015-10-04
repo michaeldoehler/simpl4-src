@@ -41,7 +41,7 @@ import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.namespace.NamespaceService;
 import org.ms123.common.datamapper.DatamapperService;
 import org.ms123.common.utils.Inflector;
-import org.ms123.common.libhelper.Utils;
+import static org.ms123.common.libhelper.Utils.formatGroovyException;
 import org.ms123.common.system.compile.java.JavaCompiler;
 
 import org.osgi.framework.BundleContext;
@@ -131,11 +131,11 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	private Map<String, List<Route>> m_routeCache = new LinkedHashMap();
 	private Map<String, Map<String,Object>> m_procedureCache = new LinkedHashMap();
 
-	public CamelContext getCamelContext(String namespace, String camelName) {
+	public CamelContext getCamelContext(String namespace) {
 		try{
-			return m_contextCache.get(getContextKey(namespace,  camelName)).context;
+			return m_contextCache.get(getContextKey(namespace)).context;
 		}catch(Exception e){
-			throw new RuntimeException("BaseCamelServiceImpl.getCamelContext("+namespace+","+camelName+"): not found");
+			throw new RuntimeException("BaseCamelServiceImpl.getCamelContext("+namespace+"): not found");
 		}
 	}
 
@@ -180,14 +180,14 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	}
 
 
-	public Map getShapeByRouteId(String namespace,String routeId){
-		ContextCacheEntry cce  = m_contextCache.get(getContextKey(namespace,"default"));
+	public Map getRootShapeByBaseRouteId(String namespace,String routeId){
+		ContextCacheEntry cce  = m_contextCache.get(getContextKey(namespace));
 		if( cce == null){
 			return null;
 		}
 		RouteCacheEntry re = cce.routeEntryMap[routeId];
 		if( re == null) return null;
-		return re.shape;
+		return re.rootShape;
 	}
 
 	protected List<Map> _getRouteInfoList(String contextKey){
@@ -211,9 +211,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected List<String> _getContextNames(String namespace){
 		List<String> retList = new ArrayList();
 		for( String key : m_contextCache.keySet()){
-			String[] a = key.split("/");
-			String ns = a[0];
-			String name = a[1];
+			String ns = key;
 			if( namespace != null){
 				if( !ns.equals(namespace)){
 					continue;
@@ -236,7 +234,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		}else{
 			int i=1;
 			while(true){
-				routeDefinition =  cc.getRouteDefinition(createRouteId(routeId,i));
+				routeDefinition =  cc.getRouteDefinition(Utils.createRouteId(routeId,i));
 				if( routeDefinition==null){
 					break;
 				}
@@ -248,16 +246,6 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 		return vg.getGraph(routeDefinitions);
 	}
 
-	protected String createRouteId( String baseId, int index){
-		return baseId+"_"+index;
-	}
-	protected String getBaseRouteId( String routeId){
-		if( !routeId.matches('^.*_\\d{1,3}$')){
-			return routeId;
-		}
-		int ind = routeId.lastIndexOf("_");
-		return routeId.substring(0,ind);
-	}
 	protected synchronized void _createRoutesFromJson(){
 		List<Map> repos = m_gitService.getRepositories(new ArrayList(),false);
 		for(Map<String,String> repo : repos){
@@ -281,7 +269,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 	protected synchronized void _createRoutesFromJson(String namespace,String path){
 		Map<String, List> routesJsonMap = getRoutesJsonMap(namespace);
 		if( routesJsonMap.size() == 0){
-			stopNotActiveRoutes( namespace, getContextKey(namespace,"default"), []);
+			stopNotActiveRoutes( namespace, getContextKey(namespace), []);
 			removeProcedureShape(namespace+"/");
 		}
 		for( String  contextKey : routesJsonMap.keySet()){
@@ -305,7 +293,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				Map rootShape = (Map)map.rootShape;
 				String md5 = (String)map.md5;
 				String _path = (String)map.path;
-				String routeBaseId = getId(rootShape);
+				String routeBaseId = Utils.getId(rootShape);
 				if( path != null && _path != path ){
 					okList.add( routeBaseId);
 					continue;
@@ -315,7 +303,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 				RouteCacheEntry re = cce.routeEntryMap[routeBaseId];
 				if( re == null){
 					//new Route
-					re = new RouteCacheEntry( shape:rootShape,md5:md5,routeId:routeBaseId);
+					re = new RouteCacheEntry( rootShape:rootShape,md5:md5,routeId:routeBaseId);
 					info("Add route:"+routeBaseId);
 					def c  = createRoutesDefinitionFromJson( re, _path, cce.context, rootShape);
 					RoutesDefinition routesDef = c.getRoutesDefinition();
@@ -325,7 +313,7 @@ abstract class BaseCamelServiceImpl implements Constants,org.ms123.common.camel.
 					int i=1;
 					int size = routesDef.getRoutes().size();
 					routesDef.getRoutes().each(){RouteDefinition routeDef->
-						String routeId = size == 1 ? routeBaseId : createRouteId(routeBaseId,i);
+						String routeId = Utils.createRouteId(routeBaseId,i);
 						routeDef.routeId(routeId);
 						routeDef.setGroup(namespace);
 						routeDef.autoStartup( autoStart);
@@ -348,7 +336,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 						//exchange route
 						info("Exchange route:"+routeBaseId+"/"+autoStart);
 						re.md5 = md5;
-						re.shape = rootShape;
+						re.rootShape = rootShape;
 						def c  = createRoutesDefinitionFromJson( re, _path, cce.context, rootShape);
 						RoutesDefinition routesDef = c.getRoutesDefinition();
 						Map<String,Map> procedureShapes = c.getProcedureShapes();					
@@ -359,7 +347,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 						int i=1;
 						int size = routesDef.getRoutes().size();
 						routesDef.getRoutes().each(){RouteDefinition routeDef->
-							String routeId = size == 1 ? routeBaseId : createRouteId(routeBaseId,i);
+							String routeId = Utils.createRouteId(routeBaseId,i);
 							if( i==1 && size > 1)
 							routeDef.routeId(routeId);
 							routeDef.autoStartup( autoStart);
@@ -386,7 +374,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 			cc.removeRoute(baseRouteId);
 		}
 		for(int i=1; i < 100; i++){
-			String routeId = createRouteId(baseRouteId,i);	
+			String routeId = Utils.createRouteId(baseRouteId,i);	
 			routeDefinition =  cc.getRouteDefinition(routeId);
 			if( routeDefinition != null){
 				info("stopAndRemoveRoute:"+routeId);
@@ -409,7 +397,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 				info("Remove route:"+rid);
 				cce.context.stopRoute(rid);
 				cce.context.removeRoute(rid);
-				def baseRouteId = getBaseRouteId(rid);
+				def baseRouteId = Utils.getBaseRouteId(rid);
 				cce.routeEntryMap.remove(baseRouteId);
 				removeProcedureShape(namespace+"/"+baseRouteId+"/");
 			}
@@ -487,8 +475,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 				info("Cannot deserialize:"+path);
 				continue;
 			}
-			String contextName = getString(rootShape, CAMELCONTEXT, "default");
-			String contextKey = getContextKey(namespace, contextName);
+			String contextKey = getContextKey(namespace);
 			boolean enabled = getBoolean(rootShape, ENABLED, true);
 			if( !enabled) continue;
 			if( routesJsonMap[contextKey] == null){
@@ -515,7 +502,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		try {
 			fsc.compile(files);
 		} catch (Throwable e) {
-			String msg = Utils.formatGroovyException(e,code);
+			String msg = formatGroovyException(e,code);
 			throw new RuntimeException(msg);
 		}
 		newGroovyClassLoader();
@@ -619,8 +606,8 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		}
 	}
 
-	private String getContextKey(String namespace,String name){
-		return namespace+"/"+name;
+	private String getContextKey(String namespace){
+		return namespace;
 	}
 
 	protected boolean getBoolean(Map shape, String name,boolean _default) {
@@ -639,14 +626,6 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		return (String)value;
 	}
 
-	protected String getId(Map shape) {
-		Map properties = (Map) shape.get(PROPERTIES);
-		String id = ((String) properties.get(OVERRIDEID));
-		if( id == null || id.trim().length()==0){
-			id = (String)shape.get(RESOURCEID);
-		}
-		return id;
-	}
 
 	protected String getProcedureName(Map shape) {
 		Map<String,String> properties = (Map) shape.get(PROPERTIES);
@@ -657,7 +636,7 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		String lastError;
 		String routeId;
 		String md5;
-		Map shape;
+		Map rootShape;
 	}
 
 	private static class ContextCacheEntry {

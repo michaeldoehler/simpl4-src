@@ -94,14 +94,6 @@ public class BaseRouteJsonConverter {
 		return cFrom > 0 && cOnException<2 && cOnCompletion<2;
 	}
 
-	protected String getId(Map shape) {
-		Map properties = (Map) shape.get(PROPERTIES);
-		String id = ((String) properties.get(OVERRIDEID));
-		if( id == null || id.length()==0){
-			id = (String)shape.get("resourceId");
-		}
-		return id;
-	}
 
 	protected String getSharedOriginRef(Map shape) {
 		Map<String,String> properties = (Map) shape.get(PROPERTIES);
@@ -125,10 +117,6 @@ public class BaseRouteJsonConverter {
 	protected String getProcedureName(Map shape) {
 		Map<String,String> properties = (Map) shape.get(PROPERTIES);
 		return properties.get(PROCEDURENAME);
-	}
-
-	protected String createRouteId( String baseId, int index){
-		return baseId+"_"+index;
 	}
 
 	protected List<Map> getShapeList(List<Map> list, List<String> types) {

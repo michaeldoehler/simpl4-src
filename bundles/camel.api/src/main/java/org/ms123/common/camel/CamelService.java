@@ -25,14 +25,14 @@ import java.util.*;
 
 public interface CamelService {
 	public final String CAMEL_SERVICE = "camelService";
-	public final String DEFAULT_CONTEXT = "default";
 	public final String PROPERTIES = "properties";
 	public final String PROCEDURENAME = "urivalue_name";
 	public final String RPC = "rpc";
 	public final String OVERRIDEID = "overrideid";
+	public final String RESOURCEID = "resourceId";
 	public final String CAMEL_TYPE = "sw.camel";
-	public CamelContext getCamelContext(String namespace, String name);
-	public Map getShapeByRouteId(String namespace, String routeId);
+	public CamelContext getCamelContext(String namespace);
+	public Map getRootShapeByBaseRouteId(String namespace, String baseRouteId);
 	public List<Map<String,Object>> getProcedureShapesForPrefix(String prefix);
 	public Map getProcedureShape(String namespace, String procedureName);
 	public void saveHistory(Exchange exchange);

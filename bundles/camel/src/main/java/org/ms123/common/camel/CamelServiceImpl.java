@@ -250,7 +250,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 				in.setBody(body);
 			}
 		};
-		ProducerTemplate template = getCamelContext((String) properties.get("namespace"), CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		ProducerTemplate template = getCamelContext((String) properties.get("namespace")).createProducerTemplate();
 		Exchange result = template.send(epUri, p);
 		return ExchangeHelper.extractResultBody(result, null);
 	}
@@ -274,7 +274,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 			}
 		};
 		//String ns = (String) properties.get("namespace");
-		ProducerTemplate template = getCamelContext(ns, CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		ProducerTemplate template = getCamelContext(ns).createProducerTemplate();
 		Exchange result = template.send(endpoint, p);
 		return ExchangeHelper.extractResultBody(result, null);
 	}
@@ -283,7 +283,7 @@ public class CamelServiceImpl extends BaseCamelServiceImpl implements org.ms123.
 		return camelSend(ns,routeName,null,null,properties);
 	}
 	public Object camelSend(String ns, String routeName,Object body, Map<String, Object> headers, Map<String, Object> properties){
-		Route route = getCamelContext(ns, DEFAULT_CONTEXT).getRoute(routeName);
+		Route route = getCamelContext(ns).getRoute(routeName);
 		if( route == null){
 			throw new RuntimeException("CamelServiceImpl:route '"+routeName+"' not found");
 		}
@@ -311,7 +311,7 @@ System.out.println("Process:"+key);
 				in.setBody(body);
 			}
 		};
-		ProducerTemplate template = getCamelContext(ns, CamelService.DEFAULT_CONTEXT).createProducerTemplate();
+		ProducerTemplate template = getCamelContext(ns).createProducerTemplate();
 		Exchange exchange = template.send(endpoint, p);
 
 		Object camelBody = ExchangeHelper.extractResultBody(exchange, null);

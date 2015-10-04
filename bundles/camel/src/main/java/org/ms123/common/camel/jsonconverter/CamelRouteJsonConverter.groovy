@@ -46,6 +46,8 @@ import static org.ms123.common.camel.api.CamelService.CAMEL_TYPE;
 import static org.ms123.common.camel.api.CamelService.OVERRIDEID;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.osgi.framework.BundleContext;
+import static org.ms123.common.camel.Utils.createRouteId;
+import static org.ms123.common.camel.Utils.getId;
 
 /**
  */
@@ -85,7 +87,7 @@ class CamelRouteJsonConverter extends BaseRouteJsonConverter implements org.ms12
 		def i=1;
 		int size = m_ctx.routesDefinition.getRoutes().size();
 		m_ctx.routesDefinition.getRoutes().each(){ routeDef ->
-			def routeId =  size == 1 ? baseId : createRouteId(baseId,i);
+			def routeId =  createRouteId(baseId,i);
 			routeDef.routeId( routeId );
 			def shape = startList.get(i-1);
 			i++;

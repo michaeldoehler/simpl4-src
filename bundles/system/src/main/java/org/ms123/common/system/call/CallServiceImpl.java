@@ -99,7 +99,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 		Map shape  = this.getProcedureShape(namespace,methodName );
 		if( shape == null){
 			info("getProcedureShape is null:"+fqMethodName);
-			shape = getCamelShape(namespace, methodName);
+			shape = getRootShape(namespace, methodName);
 		}
 		if (shape == null) {
 			throw new RpcException(JsonRpcServlet.ERROR_FROM_SERVER, JsonRpcServlet.METHOD_NOT_FOUND, "Method \"" + fqMethodName + "\" not found");
@@ -173,9 +173,8 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 			}
 		}
 
-		String contentName = getString(shape, "camelcontext", CamelService.DEFAULT_CONTEXT);
 		String routeId = getId(shape);
-		CamelContext cc = m_camelService.getCamelContext(namespace, contentName);
+		CamelContext cc = m_camelService.getCamelContext(namespace);
 		Route route = cc.getRoute(routeId);
 		if( route == null){ //Maybe multiple routes
 			route= getRouteWithDirectConsumer(cc, routeId);
@@ -183,7 +182,7 @@ public class CallServiceImpl extends BaseCallServiceImpl implements org.ms123.co
 				throw new RpcException(JsonRpcServlet.ERROR_FROM_METHOD, JsonRpcServlet.INTERNAL_SERVER_ERROR, "CamelRouteService:route for '"+routeId+"' not found");
 			}
 		}
-		properties.put(CAMEL_ROUTE_DEFINITION_KEY, namespace+"/"+contentName+"/"+routeId );
+		properties.put(CAMEL_ROUTE_DEFINITION_KEY, namespace+"/"+routeId );
 		debug("Endpoint:" + route.getEndpoint());
 		Object answer = null;
 		try {

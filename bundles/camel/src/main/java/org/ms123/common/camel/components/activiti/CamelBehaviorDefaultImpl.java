@@ -45,7 +45,7 @@ public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehav
 		setCategoryAndName(execution);
 		CamelService cs = (CamelService) lookupServiceByName(CamelService.class.getName());
 		info("m_category:" + m_category + "/" + ns + "/" + cs);
-		camelContextObj = cs.getCamelContext(ns, CamelService.DEFAULT_CONTEXT);
+		camelContextObj = cs.getCamelContext(ns);
 		info("camelContextObj:" + camelContextObj);
 	}
 

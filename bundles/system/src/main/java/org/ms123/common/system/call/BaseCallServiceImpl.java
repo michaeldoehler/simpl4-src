@@ -177,11 +177,11 @@ abstract class BaseCallServiceImpl {
 		}
 	}
 
-	protected Map getCamelShape(String ns, String name) {
-		Map shape = m_camelService.getShapeByRouteId(ns, name);
+	protected Map getRootShape(String ns, String name) {
+		Map shape = m_camelService.getRootShapeByBaseRouteId(ns, name);
 		if (shape == null) {
 			if( !name.endsWith(".camel")){
-				shape = m_camelService.getShapeByRouteId(ns, name+".camel");
+				shape = m_camelService.getRootShapeByBaseRouteId(ns, name+".camel");
 			}
 		}
 		return shape;
@@ -200,7 +200,7 @@ abstract class BaseCallServiceImpl {
 	}
 
 	protected Route getRouteWithDirectConsumer(CamelContext cc, String baseRouteId){
-		for( int i = 1; i < 10; i++){
+		for( int i = 1; i < 25; i++){
 			Route route = cc.getRoute(getRouteId(baseRouteId,i));
 			if( route != null ){
 				info(".getRouteWithDirectConsumer.Route:"+route);

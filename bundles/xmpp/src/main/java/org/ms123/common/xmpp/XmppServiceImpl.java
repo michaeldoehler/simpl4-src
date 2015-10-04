@@ -233,7 +233,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			String routesName = m_params.get("routes");
 			m_context = m_camelService.getCamelContext(namespace, "default");
 			m_outTemplate = m_context.createProducerTemplate();
-			Map shape = getCamelShape(namespace, routesName);
+			Map shape = getRootShape(namespace, routesName);
 			String recvEndpointUri = getString(shape, "recvEndpoint", null);
 			String sendEndpointUri = getString(shape, "sendEndpoint", null);
 			if (recvEndpointUri == null) {
@@ -365,11 +365,11 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			cause.printStackTrace(System.err);
 		}
 
-		protected Map getCamelShape(String ns, String name) {
-			Map shape = m_camelService.getShapeByRouteId(ns, name);
+		protected Map getRootShape(String ns, String name) {
+			Map shape = m_camelService.getRootShapeByBaseRouteId(ns, name);
 			if (shape == null) {
 				if (!name.endsWith(".camel")) {
-					shape = m_camelService.getShapeByRouteId(ns, name + ".camel");
+					shape = m_camelService.getRootShapeByBaseRouteId(ns, name + ".camel");
 				}
 			}
 			if (shape == null) {
