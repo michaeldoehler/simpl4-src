@@ -67,18 +67,11 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistoryInstance", {
 			}).bind(this);
 
 			try {
-				console.log("arguments:",arguments);
-				if( arguments.length==1){
-					var result = ms123.util.Remote.rpcSync("history:getRouteInstanceByActivitiId", {
-						activitiId: arguments[0]
-					});
-				}else{
-					var result = ms123.util.Remote.rpcSync("history:getRouteInstance", {
-						contextKey: contextKey,
-						routeId: routeId,
-						exchangeId: exchangeId
-					});
-				}
+				var result = ms123.util.Remote.rpcSync("history:getRouteInstance", {
+					contextKey: contextKey,
+					routeId: routeId,
+					exchangeId: exchangeId
+				});
 				completed.call(this, result);
 			} catch (e) {
 				console.log(e.stack);
@@ -87,7 +80,6 @@ qx.Class.define("ms123.processexplorer.plugins.CamelHistoryInstance", {
 			}
 		},
 		setRouteInstanceData:function(data){
-			console.log("Data:",JSON.stringify(data,null,2));
 			this._tableModelRouteInstance.removeRows(0, this._tableModelRouteInstance.getRowCount());
 			for( var i =0; i< data.length;i++){
 				var rmap = data[i];

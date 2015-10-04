@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Date;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import org.ms123.common.cassandra.CassandraService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +89,7 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 		initHistory();
 			m_session.upsert()
 							.value(activitiCamel::activitiId, activitiId)
+							.value(activitiCamel::time, new Date())
 							.value(activitiCamel::routeInstanceId, routeInstanceId)
 								.sync();
 	}
@@ -190,14 +193,19 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 			return l2.compareTo(l1);
 		}
 	}
-	protected String _getActivitiCamelCorrelation(String activitiId) throws Exception {
+	protected Set<String> _getActivitiCamelCorrelation(String activitiId) throws Exception {
 		initHistory();
+		Set<String> ret = new LinkedHashSet<String>();
 		try{
-			return m_session.select(activitiCamel::routeInstanceId) .where(activitiCamel::activitiId, eq(activitiId)).sync().findFirst().get()._1;
+			m_session.select(activitiCamel::routeInstanceId) .where(activitiCamel::activitiId, eq(activitiId)).sync().forEach(h -> {
+				ret.add( h._1);
+			});
+;
 		}catch(Exception e){
 			info("_getActivitiCamelCorrelation:"+ e.getMessage());
 			return null;
 		}
+		return ret;
 	}
 
 	private void initHistory() {

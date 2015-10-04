@@ -487,8 +487,8 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				var map = tableModel.getRowDataAsMap(rownum);
 				if( "serviceTask" == map.activityType ){
 					var key =  this.namespace+"/"+this._processDefinition.name+"/"+map.executionId +"/"+map.activityId;
-					var data = this.__getRouteInstance(key);
-					if( data == null || data.length==0){
+					var data = this.__getRouteInstances(key);
+					if( data == null){
 						return;
 					}
 					this.facade.raiseEvent({
@@ -508,8 +508,8 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			tableModel.setDataAsMapArray(data, true);
 			return table;
 		},
-		__getRouteInstance: function (activitiId) {
-			var result = ms123.util.Remote.rpcSync("history:getRouteInstanceByActivitiId", {
+		__getRouteInstances: function (activitiId) {
+			var result = ms123.util.Remote.rpcSync("history:getRouteInstancesByActivitiId", {
 				activitiId: activitiId
 			});
 			return result;

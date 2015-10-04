@@ -75,9 +75,28 @@ qx.Class.define("ms123.processexplorer.plugins.RouteInstanceWindow", {
 			win.minimize();
 			win.center();
 
-			var routeInstance = 	 new ms123.processexplorer.plugins.CamelHistoryInstance();
-			routeInstance.setRouteInstanceData( value );
-      win.add(routeInstance,{edge:"center"});
+			var routesTabs = new qx.ui.tabview.TabView().set({
+				contentPadding: 0,
+				minHeight: 150
+			});
+
+			var keys = Object.keys(value);
+			for( var i=0; i < keys.length;i++){
+				var key = keys[i];
+				var page = new qx.ui.tabview.Page(key.split("|")[0], this._getRouteIcon()).set({
+					showCloseButton: false
+				});
+
+				var routeInstance = 	 new ms123.processexplorer.plugins.CamelHistoryInstance();
+				routeInstance.setRouteInstanceData( value[key] );
+
+				page.setLayout(new qx.ui.layout.Grow());
+      	page.add(routeInstance);
+				routesTabs.add(page, {
+					edge: 0
+				});
+			}
+      win.add(routesTabs,{edge:"center"});
 
 			var app = qx.core.Init.getApplication();
 			var ns = this.facade.storeDesc.getNamespace();
@@ -86,6 +105,9 @@ qx.Class.define("ms123.processexplorer.plugins.RouteInstanceWindow", {
 			tb.addWindow(win);
 			dt.add(win);
 			return win;
+		},
+		_getRouteIcon:function(){
+				return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAGFwAABhcBlmjpmQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADUSURBVDiN1dOxSgNhEATgb6MIai0qglailYTgc2hCaknpc8R3sLa28w3EF0iT1l7srBVZm7twF3I5EysH/mZ2Ztgd+GWmVR5u8VDlNq2OaxxHRL8kokhvRURsY4AdHGXmeDb85QkXGGJj4bzF3CnM3aW6JQEnuMFu26a1TiLiFB/o4TMznxd0c4C9zJzOOJxXNI94xygz3xoKvsclRiXXmdMkXpsCCnxjq+6q99DDYUvZ+zhr7GRdzJ/zj0IiYhgRd1VunQ94hW5ETP4S8oKvzHwqiR/NIQGpOnr1TgAAAABJRU5ErkJggg==';
 		}
 	},
 	/******************************************************************************

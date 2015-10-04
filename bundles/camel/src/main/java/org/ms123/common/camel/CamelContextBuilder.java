@@ -31,6 +31,7 @@ import org.apache.camel.management.event.ExchangeCreatedEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.processor.interceptor.Tracer;
 import org.apache.camel.spi.Registry;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
@@ -67,7 +68,6 @@ import static org.ms123.common.system.history.HistoryService.ACC_ACTIVITI_ID;
 import static org.ms123.common.system.history.HistoryService.ACC_ROUTE_INSTANCE_ID;
 import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
 import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_KEY;
-
 
 /**
  *
@@ -162,18 +162,30 @@ public class CamelContextBuilder {
 		public void notify(EventObject event) throws Exception {
 			if (event instanceof ExchangeCreatedEvent) {
 				ExchangeCreatedEvent ev = (ExchangeCreatedEvent) event;
-				if( ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
+				if( true || ev.getExchange().getProperty(Exchange.CORRELATION_ID )==null){
 					EventAdmin eventAdmin = (EventAdmin)ev.getExchange().getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 
+					String fr = (String)ev.getExchange().getFromRouteId();
 					String aci = (String)ev.getExchange().getProperty( HISTORY_ACTIVITI_ACTIVITY_KEY );
-					String bc = (String)ev.getExchange().getIn().getHeader( Exchange.BREADCRUMB_ID  );
-					String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_KEY );
-					Map props = new HashMap();
-					props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
-					props.put(ACC_ACTIVITI_ID, aci);
-					props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc );
-					eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
-
+					if( aci != null){
+						String bc = (String)ev.getExchange().getIn().getHeader( Exchange.BREADCRUMB_ID  );
+						String routeDef = (String)ev.getExchange().getProperty(CAMEL_ROUTE_DEFINITION_KEY );
+						if( fr != null){
+							int  slash = routeDef.indexOf("/");
+							routeDef = routeDef.substring(0,slash+1) + fr;
+						}
+						Map props = new HashMap();
+						props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
+						props.put(ACC_ACTIVITI_ID, aci);
+						props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc );
+						eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
+							String s = "\nXXX:--------\nXXX:ev:"+event;
+							s += "\nXXX:aci:"+aci;
+							s += "\nXXX:bc:"+bc;
+							s += "\nXXX:def:"+routeDef;
+							s += "\nXXX:fr:"+fr;
+							System.err.println(s);
+					}
 					ThreadContext tc = ThreadContext.getThreadContext();
 					debug("------>EventNotifierSupportStart:" + ev +"/"+tc);
 					if( tc == null){

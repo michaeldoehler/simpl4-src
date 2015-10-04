@@ -34,6 +34,10 @@ public interface ActivitiCamelCorrelation{
 	@PartitionKey(ordinal=0)
 	String activitiId();
 
+	@ClusteringColumn
+	@Types.Timeuuid
+	Date time();
+
 	String routeInstanceId();
 
 }

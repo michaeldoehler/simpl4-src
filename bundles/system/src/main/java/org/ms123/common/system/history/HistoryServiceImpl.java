@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.Date;
 import java.util.Dictionary;
 import org.ms123.common.cassandra.CassandraService;
@@ -158,20 +160,24 @@ public class HistoryServiceImpl extends BaseHistoryServiceImpl implements Histor
 		}
 	}
 	@RequiresRoles("admin")
-	public List<Map> getRouteInstanceByActivitiId(
+	public Map<String,List<Map>> getRouteInstancesByActivitiId(
 			@PName("activitiId") String activitiId
 			 ) throws RpcException {
 		try {
+			Map<String,List<Map>> ret = new LinkedHashMap<String,List<Map>>();
 			info("getRouteInstance.activitiId:"+activitiId);
-			String routeDefId = _getActivitiCamelCorrelation(activitiId);
-			info("getRouteInstance.routeDefId:"+routeDefId);
-			if( routeDefId == null) return null;
-			String x[] = routeDefId.split("\\|");
-			String exchangeId = x[1];
-			int slash = x[0].lastIndexOf("/");
-			String contextKey = x[0].substring(0, slash);
-			String routeId = x[0].substring(slash+1);
-			return _getRouteInstance(contextKey, routeId, exchangeId);
+			Set<String> routeDefIds = _getActivitiCamelCorrelation(activitiId);
+			info("getRouteInstance.routeDefIds:"+routeDefIds);
+			if( routeDefIds.size() == 0) return null;
+			for( String routeDefId : routeDefIds){	
+				String x[] = routeDefId.split("\\|");
+				String exchangeId = x[1];
+				int slash = x[0].lastIndexOf("/");
+				String contextKey = x[0].substring(0, slash);
+				String routeId = x[0].substring(slash+1);
+				ret.put(routeDefId, _getRouteInstance(contextKey, routeId, exchangeId));
+			}
+			return ret;
 		} catch (Throwable e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "CamelServiceImpl.getRouteInstance:", e);
 		}
