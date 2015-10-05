@@ -51,10 +51,17 @@ import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ST
 import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_JOB_EXCEPTION;
 import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 
+import static org.ms123.common.system.history.HistoryService.ACTIVITI_CAMEL_CORRELATION_TYPE;
+import static org.ms123.common.system.history.HistoryService.ACC_ACTIVITI_ID;
+import static org.ms123.common.system.history.HistoryService.ACC_ROUTE_INSTANCE_ID;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
+import static org.ms123.common.system.history.HistoryService.CAMEL_ROUTE_DEFINITION_KEY;
+
 import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_ID;
 import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_EXECUTION_ID;
 import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_BUSINESS_KEY;
 import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_INSTANCE_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_NAME;
 
 @SuppressWarnings("unchecked")
 public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
@@ -128,11 +135,27 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer {
 			}
 		}
 		final CamelService camelService = (CamelService)exchange.getContext().getRegistry().lookupByName(CamelService.class.getName());
-		info("activitikey:"+m_activitiKey);
-		exchange.setProperty("activitikey", m_activitiKey);
-		info("createLogEntry.saveHistory.ActivitiProducer.process");
+		exchange.setProperty(WORKFLOW_ACTIVITY_NAME, m_activity);
 		camelService.saveHistory(exchange);
+		saveActivitiCamelCorrelationHistory(exchange);
 		printHistory(exchange);
+	}
+
+	private void saveActivitiCamelCorrelationHistory(Exchange exchange){
+		EventAdmin eventAdmin = (EventAdmin)exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
+
+		String processInstanceId = findProcessInstanceId(exchange);
+		ProcessInstance execution = (ProcessInstance)m_runtimeService.createExecutionQuery().processDefinitionKey(m_processKey).processInstanceId(processInstanceId).activityId(m_activity).singleResult();
+		String aci = m_namespace+"/"+m_processKey+"/"+execution.getId()+"/"+m_activity;
+		exchange.setProperty(HISTORY_ACTIVITI_ACTIVITY_KEY, aci);
+
+		String bc = (String)exchange.getIn().getHeader( Exchange.BREADCRUMB_ID  );
+		String routeDef = (String)exchange.getProperty(CAMEL_ROUTE_DEFINITION_KEY );
+		Map props = new HashMap();
+		props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
+		props.put(ACC_ACTIVITI_ID, aci);
+		props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc );
+		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}
 
 	private   void printHistory(Exchange exchange){

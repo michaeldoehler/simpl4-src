@@ -485,7 +485,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 				var colnum = table.getFocusedColumn();
 				var rownum = table.getFocusedRow();
 				var map = tableModel.getRowDataAsMap(rownum);
-				if( "serviceTask" == map.activityType ){
+				if( "serviceTask" == map.activityType || "receiveTask" == map.activityType ){
 					var key =  this.namespace+"/"+this._processDefinition.name+"/"+map.executionId +"/"+map.activityId;
 					var data = this.__getRouteInstances(key);
 					if( data == null){
@@ -522,7 +522,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			colIds.push("time");
 			colHds.push(this.tr("processexplorer.time"));
 			colWidth.push("30%");
-			colIds.push("key");
+			colIds.push("activity");
 			colHds.push(this.tr("processexplorer.id"));
 			colWidth.push("60%");
 
@@ -589,7 +589,9 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			}).bind(this));
 			table.setStatusBarVisible(false);
 			for(var i=0; i < data.length;i++){
-				data[i].status = data[i].hint=="ok" ? "finished": "error";
+				var hint = JSON.parse(data[i].hint);
+				data[i].status = hint.status=="ok" ? "finished": "error";
+				data[i].activity = hint.WorkflowActivityName;
 				data[i].time = this._formatTime(data[i].time);
 			}
 			tableModel.setDataAsMapArray(data, true);

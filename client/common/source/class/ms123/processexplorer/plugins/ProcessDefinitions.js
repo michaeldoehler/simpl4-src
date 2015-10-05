@@ -325,7 +325,7 @@ qx.Class.define( "ms123.processexplorer.plugins.ProcessDefinitions", {
 				pc.addListener( "taskCompleted", function( e ) {
 					setTimeout( ( function() {
 						this._changeEvent( map, this._lastSelect );
-					} ).bind( this ), 500 );
+					} ).bind( this ), 1000 );
 				}, this );
 				pc.start( map );
 			}

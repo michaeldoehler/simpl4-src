@@ -182,7 +182,7 @@ public abstract class GroovyTaskDslBase extends Script {
 	public CamelContext getCamelContext() {
 		if (m_camelContext == null){
 			CamelService ws = (CamelService) this.getBinding().getVariable("__camelService");
-			m_camelContext = ws.getCamelContext(getNamespace(), CamelService.DEFAULT_CONTEXT );
+			m_camelContext = ws.getCamelContext(getNamespace() );
 		}
 		return m_camelContext;
 	}

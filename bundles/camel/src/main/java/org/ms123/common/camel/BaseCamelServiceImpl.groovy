@@ -97,6 +97,9 @@ import static org.ms123.common.system.history.HistoryService.HISTORY_TIME;
 import static org.ms123.common.system.history.HistoryService.HISTORY_CAMEL_HISTORY;
 import static org.ms123.common.system.history.HistoryService.HISTORY_TOPIC;
 import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_PROCESS_KEY;
+import static org.ms123.common.system.history.HistoryService.HISTORY_ACTIVITI_ACTIVITY_KEY;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_ID;
+import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_NAME;
 
 /**
  *
@@ -571,7 +574,15 @@ info("lastError:"+re.lastError+"/"+re.md5+"/"+md5+"/"+(re.md5==md5));
 		props.put(HISTORY_TYPE, HISTORY_CAMEL_HISTORY);
 		String key = activitikey;
 		props.put(HISTORY_KEY, key);
-		props.put(HISTORY_HINT, hasException ? "error": "ok");
+		
+		Map hint = new HashMap();
+		hint.put("status", hasException ? "error": "ok");
+		if( exchange.getProperty(WORKFLOW_ACTIVITY_ID) != null){
+			hint.put(WORKFLOW_ACTIVITY_ID, (String)exchange.getProperty(WORKFLOW_ACTIVITY_ID));
+			hint.put(WORKFLOW_ACTIVITY_NAME, (String)exchange.getProperty(WORKFLOW_ACTIVITY_NAME));
+		}
+
+		props.put(HISTORY_HINT, m_js.deepSerialize(hint));
 		props.put(HISTORY_MSG, routeStackTrace);
 		m_eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 	}

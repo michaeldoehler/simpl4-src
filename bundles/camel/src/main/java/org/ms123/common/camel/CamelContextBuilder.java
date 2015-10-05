@@ -173,6 +173,7 @@ public class CamelContextBuilder {
 						if( fr != null){
 							int  slash = routeDef.indexOf("/");
 							routeDef = routeDef.substring(0,slash+1) + fr;
+							ev.getExchange().setProperty(CAMEL_ROUTE_DEFINITION_KEY, routeDef );
 						}
 						Map props = new HashMap();
 						props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
@@ -180,6 +181,7 @@ public class CamelContextBuilder {
 						props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc );
 						eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
 							String s = "\nXXX:--------\nXXX:ev:"+event;
+							s += "\nXXX:fromEndpoint:"+ev.getExchange().getFromEndpoint();
 							s += "\nXXX:aci:"+aci;
 							s += "\nXXX:bc:"+bc;
 							s += "\nXXX:def:"+routeDef;

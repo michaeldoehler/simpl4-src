@@ -28,6 +28,7 @@ public interface WorkflowService {
 	public static final String PROCESS_ENGINE = "processEngine";
 
 	public static final String WORKFLOW_ACTIVITY_ID = "WorkflowActivityId";
+	public static final String WORKFLOW_ACTIVITY_NAME = "WorkflowActivityName";
 	public static final String WORKFLOW_EXECUTION_ID = "WorkflowExecutionId";
 	public static final String WORKFLOW_PROCESS_BUSINESS_KEY = "WorkflowProcessBusinessKey";
 	public static final String WORKFLOW_PROCESS_DEFINITION_ID = "WorkflowProcessDefinitionId";
