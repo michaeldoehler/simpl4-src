@@ -54,7 +54,7 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 	private Expression routename;
 	private Expression routevarname;
 
-	private Expression listname;
+	private Expression returnvariable;
 
 	private Expression variablesmapping;
 
@@ -110,6 +110,8 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 			}
 			Object answer = getCallService().callCamel( ns+"."+methodname, fparams);
 			log("TaskCamelExecutor.answer:"+ answer);
+			String rvar = returnvariable.getValue(execution).toString();
+			execution.setVariable(rvar, answer);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

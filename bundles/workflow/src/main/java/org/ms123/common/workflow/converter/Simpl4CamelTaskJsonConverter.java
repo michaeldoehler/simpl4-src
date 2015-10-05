@@ -38,8 +38,8 @@ public class Simpl4CamelTaskJsonConverter extends BaseBpmnJsonConverter {
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
 
-	private final String LISTNAME_PROP = "listname";
-	private final String LISTNAME = "listname";
+	private final String RETURNVARIABLE_PROP = "returnvariable";
+	private final String RETURNVARIABLE = "returnvariable";
 
 	private final String NAMESPACE_PROP = "namespace";
 	private final String NAMESPACE = "namespace";
@@ -92,8 +92,8 @@ public class Simpl4CamelTaskJsonConverter extends BaseBpmnJsonConverter {
 		task.getFieldExtensions().add(field);
 
 		field = new FieldExtension();
-		field.setFieldName(LISTNAME);
-		field.setStringValue(checkNull(LISTNAME, propMap.get(LISTNAME_PROP)));
+		field.setFieldName(RETURNVARIABLE);
+		field.setStringValue(checkNull(RETURNVARIABLE, propMap.get(RETURNVARIABLE_PROP)));
 		task.getFieldExtensions().add(field);
 		return task;
 	}
