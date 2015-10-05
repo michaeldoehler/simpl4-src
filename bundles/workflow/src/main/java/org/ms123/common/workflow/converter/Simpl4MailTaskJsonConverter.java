@@ -32,7 +32,7 @@ import flexjson.*;
 
 /**
  */
-public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
+public class Simpl4MailTaskJsonConverter extends BaseBpmnJsonConverter {
 
 	private final String PROPERTY_MAILTASK_TO = "to";
 
@@ -55,14 +55,14 @@ public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 	}
 
 	public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
-		convertersToBpmnMap.put("SendTask", Simpl4SendTaskJsonConverter.class);
+		convertersToBpmnMap.put("MailTask", Simpl4MailTaskJsonConverter.class);
 	}
 
 	public static void fillBpmnTypes(Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
 	}
 
 	protected String getStencilId(BaseElement flowElement) {
-		return "SendTask";
+		return "MailTask";
 	}
 
 	protected void convertElementToJson(ObjectNode propertiesNode, BaseElement flowElement) {
@@ -72,7 +72,7 @@ public class Simpl4SendTaskJsonConverter extends BaseBpmnJsonConverter {
 		ServiceTask task = new ServiceTask();
 		//task.setType(ServiceTask.MAIL_TASK);
 
-		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskSendExecutor");
+		String clazz = Simpl4BpmnJsonConverter.getFullnameForTask("TaskMailExecutor");
 		task.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
 		task.setImplementation(clazz);
 

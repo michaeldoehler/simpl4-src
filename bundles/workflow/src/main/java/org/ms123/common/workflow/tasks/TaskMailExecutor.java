@@ -41,7 +41,7 @@ import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.commons.mail.EmailAttachment;
 
-public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
+public class TaskMailExecutor extends TaskBaseExecutor implements JavaDelegate {
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 	protected JSONSerializer m_js = new JSONSerializer();
 
@@ -84,7 +84,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 			email.setCharset("utf-8");
 			email.send();
 		} catch (EmailException e) {
-			throw new RuntimeException("TaskSendExecutor.Could not send e-mail", e);
+			throw new RuntimeException("TaskMailExecutor.Could not send e-mail", e);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 			return createTextOnlyEmail(text);
 		} else {
 			throw new RuntimeException(
-					"TaskSendExecutor:'html' or 'text' is required to be defined when using the mail activity");
+					"TaskMailExecutor:'html' or 'text' is required to be defined when using the mail activity");
 		}
 	}
 
@@ -113,7 +113,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 			}
 			return email;
 		} catch (EmailException e) {
-			throw new RuntimeException("TaskSendExecutor:Could not create HTML email", e);
+			throw new RuntimeException("TaskMailExecutor:Could not create HTML email", e);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 			email.setMsg(text);
 			return email;
 		} catch (Exception e) {
-			throw new RuntimeException("TaskSendExecutor:Could not create text-only email", e);
+			throw new RuntimeException("TaskMailExecutor:Could not create text-only email", e);
 		}
 	}
 
@@ -143,11 +143,11 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 				try {
 					email.addTo(t);
 				} catch (EmailException e) {
-					throw new RuntimeException("TaskSendExecutor:Could not add " + t + " as recipient", e);
+					throw new RuntimeException("TaskMailExecutor:Could not add " + t + " as recipient", e);
 				}
 			}
 		} else {
-			throw new RuntimeException("TaskSendExecutor:No recipient could be found for sending email");
+			throw new RuntimeException("TaskMailExecutor:No recipient could be found for sending email");
 		}
 	}
 
@@ -163,7 +163,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 		try {
 			email.setFrom(fromAddres);
 		} catch (EmailException e) {
-			throw new RuntimeException("TaskSendExecutor:Could not set " + from + " as from address in email", e);
+			throw new RuntimeException("TaskMailExecutor:Could not set " + from + " as from address in email", e);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 				try {
 					email.addCc(c);
 				} catch (EmailException e) {
-					throw new RuntimeException("TaskSendExecutor:Could not add " + c + " as cc recipient", e);
+					throw new RuntimeException("TaskMailExecutor:Could not add " + c + " as cc recipient", e);
 				}
 			}
 		}
@@ -187,7 +187,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 				try {
 					email.addBcc(b);
 				} catch (EmailException e) {
-					throw new RuntimeException("TaskSendExecutor:Could not add " + b + " as bcc recipient", e);
+					throw new RuntimeException("TaskMailExecutor:Could not add " + b + " as bcc recipient", e);
 				}
 			}
 		}
@@ -202,7 +202,7 @@ public class TaskSendExecutor extends TaskBaseExecutor implements JavaDelegate {
 
 		String host = processEngineConfiguration.getMailServerHost();
 		if (host == null) {
-			throw new RuntimeException("TaskSendExecutor:Could not send email: no SMTP host is configured");
+			throw new RuntimeException("TaskMailExecutor:Could not send email: no SMTP host is configured");
 		}
 		email.setHostName(host);
 

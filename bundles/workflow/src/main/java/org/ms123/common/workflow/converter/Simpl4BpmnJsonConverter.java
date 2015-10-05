@@ -58,9 +58,9 @@ public class Simpl4BpmnJsonConverter extends BpmnJsonConverter {
 		Simpl4UserTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4ScriptTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4RulesTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		Simpl4SendTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
+		Simpl4MailTaskJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
 		Simpl4StartEventJsonConverter.fillTypes(convertersToBpmnMap, convertersToJsonMap);
-		DI_RECTANGLES.add("SendTask");
+		DI_RECTANGLES.add("MailTask");
 		DI_RECTANGLES.add("FilterTask");
 		DI_RECTANGLES.add("CamelTask");
 		DI_RECTANGLES.add("RulesTask");
