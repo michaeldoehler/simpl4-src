@@ -103,6 +103,7 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 		if (endTime == null) {
 			endTime = new Date().getTime() + 1000000;
 		}
+		Map<String,String> doubleMap = new HashMap<String,String>();
 		if (type != null && HISTORY_CAMEL_TRACE.equals(type) && key.indexOf("|") < 0) {
 			m_session.select(historyRoute::routeId, historyRoute::instanceId, historyRoute::time)
 							.where(historyRoute::routeId, eq(key))
@@ -111,8 +112,11 @@ abstract class BaseHistoryServiceImpl implements HistoryService {
 									.orderBy(asc(history::time)).sync().forEach(h -> {
 				Map m = new HashMap();
 				String _key = h._1 + "|" + h._2;
-				List<Map> lm = _getOneEntry(_key, type);
-				retList.addAll(lm);
+				if(doubleMap.get(_key) == null){
+					doubleMap.put(_key,"");
+					List<Map> lm = _getOneEntry(_key, type);
+					retList.addAll(lm);
+				}
 			});
 		} else {
 			retList.addAll(_getOneEntry(key, type));
