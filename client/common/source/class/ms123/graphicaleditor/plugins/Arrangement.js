@@ -111,7 +111,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.Arrangement", {
 		setZLevel: function (callback, event) {
 
 			//Command-Pattern for dragging one docker
-			var zLevelCommand = ms123.oryx.core.Command.extend({
+			var zLevelCommand = Clazz.extend({
 				construct: function (callback, elements, facade) {
 					this.callback = callback;
 					this.elements = elements;
