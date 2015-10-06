@@ -38,6 +38,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 
 		//without this, it is not in the js-file
 		ms123.graphicaleditor.plugins.propertyedit.ShapeSelect;
+		ms123.graphicaleditor.plugins.propertyedit.DefinitionSelect;
 
 		if (this.direction == "horizontal") {
 			this.panelSpace = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({});
