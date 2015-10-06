@@ -266,7 +266,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 				try{
 					console.log("data:" + data);
 					data = qx.lang.Json.parse(data);
-					this.setTableData(data.items);
+					if( this.config.asArray){
+						this.setTableData(data);
+					}else{
+						this.setTableData(data.items);
+					}
 				}catch(e){
 					console.error("ComplexListWindow.createTable:"+data+" wrong value");
 				}
@@ -342,10 +346,14 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.ComplexListWindow", 
 		handleOkButton:function(e){
 			this.table.stopEditing();
 			var value = this.getTableData();
-			var data = {
-				totalCount: value.length,
-				items: value
-			};
+			if( this.config.asArray){
+				data = value;
+			}else{
+				var data = {
+					totalCount: value.length,
+					items: value
+				};
+			}
 
 			data = qx.util.Serializer.toJson(data);
 			console.log("data:" + data);
