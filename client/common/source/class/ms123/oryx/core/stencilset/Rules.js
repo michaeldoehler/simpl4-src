@@ -276,7 +276,6 @@ qx.Class.define("ms123.oryx.core.stencilset.Rules", {
 					}
 
 					jsonRules.layoutRules.each(this.bindTo(function (rules) {
-						console.log("rules:" + rules + "/" + this);
 						var layoutKey;
 						if (this._isRoleOfOtherNamespace(rules.role)) {
 							layoutKey = rules.role;
@@ -633,49 +632,39 @@ qx.Class.define("ms123.oryx.core.stencilset.Rules", {
 			// check cardinality
 			if (result) {
 				if (args.sourceShape) {
-					console.log("before.out.result:" + result);
 					var outgoingRules = this._getOutgoingRulesOfStencils(args.sourceStencil, args.edgeStencil);
 					for (var i = 0; i < outgoingRules.length; i++) {
 						var rule = outgoingRules[i];
 						var max = rule.maximum;
 						var role = rule.role;
-						console.log("out.max:" + max + "/role:" + role);
 						result = args.sourceShape.getOutgoingShapes().all((function (cs) {
-							console.log("out.cs:" + cs.getStencil().id() + " has " + role + ":" + this._edgeHasRole(cs, role));
 							if (this._edgeHasRole(cs, role)) {
 								max--;
-								console.log("out.maxminus:" + max);
 								return (max > 0) ? true : false;
 							} else {
 								return true;
 							}
 						}).bind(this));
-						console.log("out.result:" + result);
 						if (!result) break;
 					}
 				}
 
 				if (args.targetShape) {
-					console.log("result:" + result);
 					var incomingRules = this._getIncomingRulesOfStencils(args.targetStencil, args.edgeStencil);
 					for (var i = 0; i < incomingRules.length; i++) {
 						var rule = incomingRules[i];
 						var max = rule.maximum;
 						var role = rule.role;
 						result = args.targetShape.getIncomingShapes().all((function (cs) {
-							console.log("cs:" + cs.getStencil().id() + " has " + role + ":" + this._edgeHasRole(cs, role));
 							if (this._edgeHasRole(cs, role)) {
 								max--;
-								console.log("maxminus:" + max);
 								return (max > 0) ? true : false;
 							} else {
 								return true;
 							}
 						}).bind(this));
-						console.log("result:" + result);
 						if (!result) break;
 					}
-					console.log("gresult:" + result);
 				}
 			}
 			return result;
@@ -1264,7 +1253,6 @@ qx.Class.define("ms123.oryx.core.stencilset.Rules", {
 					});
 				}
 			}).bind(this));
-			console.log("_getIncomingRulesOfStencils:" + JSON.stringify(incomingRules, null, 2));
 			return incomingRules;
 		},
 		_getOutgoingRulesOfStencils: function (sourceStencil, edgeStencil) {
@@ -1278,7 +1266,6 @@ qx.Class.define("ms123.oryx.core.stencilset.Rules", {
 					});
 				}
 			}).bind(this));
-			console.log("_getOutgoingRulesOfStencils:" + JSON.stringify(outgoingRules, null, 2));
 			return outgoingRules;
 		},
 
