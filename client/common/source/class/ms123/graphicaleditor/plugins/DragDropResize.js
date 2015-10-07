@@ -523,6 +523,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.DragDropResize", {
 				options.underlyingNodes.reverse();
 				this.checkRules(options);
 			}
+			var c = this.containmentParentNode.getStencil().idWithoutNs(); //@@@MS BoundaryEvent Hack
+			var m = this.toMoveShapes[0].getStencil().idWithoutNs();
+			if( c == "BPMNDiagram" && m.startsWith("Boundary")){
+				this.isAttachingAllowed = false;
+				this.isAddingAllowed = false;
+			}
 		},
 
 		/**

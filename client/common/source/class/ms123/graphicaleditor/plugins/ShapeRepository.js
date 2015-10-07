@@ -148,18 +148,15 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 
 			b.addListener("dragstart", function (e) {
 				e.addAction("move");
-				console.log("DRAG:dragstart:" + b);
 				this.facade.getWidget().addListener("drop", this.__drop, this);
 			},this);
 
 			b.addListener("dragend", function (e) {
-				console.log("DRAG:dragend:" + b);
 				this.facade.getWidget().removeListener("drop", this.__drop, this);
 				b.releaseCapture();
 			},this);
 
 			b.addListener("execute", function (e) {
-				console.log("execute:" + b);
 			});
 			b.setPaddingTop(2);
 			b.setPaddingBottom(2);
@@ -182,12 +179,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 
 			// Check if there is a current Parent
 			if (!this._currentParent) {
-				console.log("NO current parent");
 				return
 			}
 
 			var stencil = e.getRelatedTarget().getUserData("stencil");
-			console.log("stencil:" + stencil);
 			var option = {}; //Ext.dd.Registry.getHandle(target.DDM.currentTarget);
 			option.type = stencil.id();
 			option.namespace = stencil.namespace();
@@ -198,7 +193,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 			};
 
 			var a = this.facade.getCanvas().node.getScreenCTM();
-			console.log("a:" + a + "/" + option.namespace + "/" + option.type);
 
 			// Correcting the UpperLeft-Offset
 			pos.x -= a.e;
@@ -227,7 +221,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 
 			var commandClass = Clazz.extend({
 				construct: function (option, currentParent, canAttach, position, facade) {
-					console.log("Vlazz:" + this + "/" + option);
 					this.option = option;
 					this.currentParent = currentParent;
 					this.canAttach = canAttach;
@@ -238,14 +231,12 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 					this.parent;
 				},
 				execute: function () {
-					console.log("execute:" + this.option + "/" + option);
 					if (!this.shape) {
 						this.shape = this.facade.createShape(option);
 						this.parent = this.shape.parent;
 					} else {
 						this.parent.add(this.shape);
 					}
-					console.log("execute:" + this.shape + "/" + this._canAttach + "/this:" + this);
 
 					if (this.canAttach && this.currentParent instanceof ms123.oryx.core.Node && this.shape.dockers.length > 0) {
 						var docker = this.shape.dockers[0];
@@ -282,9 +273,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 			event.clientY = e.getDocumentTop();
 			var position = this.facade.eventCoordinates(event);
 
-			console.log("commandClass:" + commandClass + "/o:" + option);
 			var command = new commandClass(option, this._currentParent, this._canAttach, position, this.facade);
-			console.log("command:" + command);
 
 			this.facade.executeCommands([command]);
 
@@ -305,7 +294,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 			var el = aShapes.last();
 
 			if (aShapes.lenght == 1 && aShapes[0] instanceof ms123.oryx.core.Canvas) {
-				console.log("is canvas");
 				cursor.setAction(null);
 				return false;
 			} else {
@@ -331,7 +319,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.ShapeRepository", {
 								targetStencil: stencil
 							});
 
-							console.log("canAttach:" + this._canAttach);
 							if (this._canAttach) {
 								// Show Highlight
 								this.facade.raiseEvent({

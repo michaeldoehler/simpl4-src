@@ -175,12 +175,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 					button.setUserData("option", option);
 					button.addListener("drag", this.__dragover, this);
 					button.addListener("dragstart", function (e) {
-						console.log("DRAG:dragstart:" + button);
 						this.facade.getWidget().addListener("drop", this.__drop, this);
 						e.addAction("move");
 					}, this);
 					button.addListener("dragend", function (e) {
-						console.log("DRAG:dragend:" + button);
 						this.facade.getWidget().removeListener("drop", this.__drop, this);
 						this.facade.updateSelection();
 					}, this);
@@ -219,13 +217,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 					button.setUserData("option", option);
 					button.addListener("drag", this.__dragover, this);
 					button.addListener("dragstart", function (e) {
-						console.log("DRAG:dragstart:" + button);
 						this.facade.getWidget().addListener("drop", this.__drop, this);
 						e.addAction("move");
 					}, this);
 
 					button.addListener("dragend", function (e) {
-						console.log("DRAG:dragend:" + button);
 						this.facade.getWidget().removeListener("drop", this.__drop, this);
 						this.facade.updateSelection();
 					}, this);
@@ -297,9 +293,11 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 			var possibleMorphs = this.facade.getRules().morphStencils({
 				stencil: elements[0].getStencil()
 			});
+			var isBoundaryEvent = elements[0].getStencil().idWithoutNs().startsWith("Boundary");//@@@BoundaryEvent Hack
 			possibleMorphs = possibleMorphs.select(qx.lang.Function.bind(function (morph) {
 				if (elements[0].getStencil().type() === "node") {
 					//check containment rules
+					if( isBoundaryEvent ) return true;
 					return this.facade.getRules().canContain({
 						containingShape: elements[0].parent,
 						containedStencil: morph
@@ -432,7 +430,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.shapemenu.Plugin", {
 
 		//beforeDragOver: function (dragZone, target, event) {
 		__dragover: function (e) {
-		//	console.log("shapeMenu.plugins.__dragover");
 			var cursor = qx.ui.core.DragDropCursor.getInstance();
 
 			if (this.shapeMenu.isVisible) {
