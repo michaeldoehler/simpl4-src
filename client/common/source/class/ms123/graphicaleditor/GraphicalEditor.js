@@ -122,9 +122,9 @@ qx.Class.define("ms123.graphicaleditor.GraphicalEditor", {
 
 			this._facade.save=save;
 			//var place = "right_bottom";
-			var place = "right_top";
+			//var place = "right_top";
 			//var place = "left_bottom";
-			//var place = "right";
+			var place = "right";
 			//var place = "center_bottom";
 			var	direction="horizontal";
 			if( ["center_bottom"].indexOf(place) != -1){
