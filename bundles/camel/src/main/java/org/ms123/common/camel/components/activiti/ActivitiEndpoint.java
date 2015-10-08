@@ -32,23 +32,26 @@ public class ActivitiEndpoint extends org.activiti.camel.ActivitiEndpoint {
 
 	private RuntimeService m_runtimeService;
 	private Map m_options;
+	private String namespace;
+	private String processname;
+	private String activityname;
 
 	private PermissionService m_permissionService;
 	private WorkflowService m_workflowService;
 
 	public ActivitiEndpoint(String uri, CamelContext camelContext, WorkflowService ws, PermissionService ps) {
-		super(uri, camelContext );
-		info("ActivitiEndpoint.create:" + uri +"/WorkflowService:"+ws+"/permissionService:"+ps);
+		super(uri, camelContext);
 		m_runtimeService = ws.getProcessEngine().getRuntimeService();
-		setRuntimeService( m_runtimeService);
+		setRuntimeService(m_runtimeService);
 		m_permissionService = ps;
 		m_workflowService = ws;
 	}
 
 	public Producer createProducer() throws Exception {
-		info("ActivitiEndpoint.createProducer" );
-		return new org.ms123.common.camel.components.activiti.ActivitiProducer(this, m_workflowService,m_permissionService);
+		info("ActivitiEndpoint.createProducer");
+		return new org.ms123.common.camel.components.activiti.ActivitiProducer(this, m_workflowService, m_permissionService);
 	}
+
 	public void configureProperties(Map<String, Object> options) {
 		info("ActivitiEndpoint:" + options);
 		m_options = options;
@@ -57,9 +60,42 @@ public class ActivitiEndpoint extends org.activiti.camel.ActivitiEndpoint {
 	public Map getOptions() {
 		return m_options;
 	}
+
+	public void setNamespace(String data) {
+		this.namespace = data;
+	}
+
+	public String getNamespace() {
+		if( "-".equals(this.namespace)){
+			return null;
+		}
+		return this.namespace;
+	}
+
+	public void setProcessName(String data) {
+		this.processname = data;
+	}
+
+	public String getProcessName() {
+		return this.processname;
+	}
+
+	public void setActivityName(String data) {
+		this.activityname = data;
+	}
+
+	public String getActivityName() {
+		return this.activityname;
+	}
+
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(ActivitiEndpoint.class);
+	private void debug(String msg) {
+		System.out.println(msg);
+		m_logger.debug(msg);
+	}
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
 }
+

@@ -31,15 +31,9 @@ import org.ms123.common.workflow.api.WorkflowService;
  */
 public class ActivitiComponent extends org.activiti.camel.ActivitiComponent {
 
-	private WorkflowService m_workflowService;
+	private WorkflowService workflowService;
 
-	private PermissionService m_permissionService;
-
-	private boolean copyVariablesToProperties;
-
-	private boolean copyVariablesToBodyAsMap;
-
-	private boolean copyCamelBodyToBody;
+	private PermissionService permissionService;
 
 	public ActivitiComponent() {
 	}
@@ -50,12 +44,12 @@ public class ActivitiComponent extends org.activiti.camel.ActivitiComponent {
 		getServices(context);
 	}
 
-	private void getServices(CamelContext context){
-		if( m_workflowService == null){
-			m_permissionService = getByType(context, PermissionService.class);
-			m_workflowService = getByType(context, WorkflowService.class);
-			info("PermissionService:"+m_permissionService);
-			info("WorkflowService:"+m_workflowService);
+	private void getServices(CamelContext context) {
+		if (this.workflowService == null) {
+			this.permissionService = getByType(context, PermissionService.class);
+			this.workflowService = getByType(context, WorkflowService.class);
+			info("PermissionService:" + this.permissionService);
+			info("WorkflowService:" + this.workflowService);
 		}
 	}
 
@@ -64,44 +58,20 @@ public class ActivitiComponent extends org.activiti.camel.ActivitiComponent {
 	}
 
 	@Override
-	protected Endpoint createEndpoint(String s, String s1, Map<String, Object> stringObjectMap) throws Exception {
+	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		CamelContext cc = getCamelContext();
 		getServices(cc);
-		ActivitiEndpoint ae = new ActivitiEndpoint(s, cc, m_workflowService, m_permissionService);
-		info("createEndpoint:" + s );
-		ae.setCopyVariablesToProperties(this.copyVariablesToProperties);
-		ae.setCopyVariablesToBodyAsMap(this.copyVariablesToBodyAsMap);
-		ae.setCopyCamelBodyToBody(this.copyCamelBodyToBody);
-		return ae;
-	}
-
-	public boolean isCopyVariablesToProperties() {
-		return copyVariablesToProperties;
-	}
-
-	public void setCopyVariablesToProperties(boolean copyVariablesToProperties) {
-		this.copyVariablesToProperties = copyVariablesToProperties;
-	}
-
-	public boolean isCopyCamelBodyToBody() {
-		return copyCamelBodyToBody;
-	}
-
-	public void setCopyCamelBodyToBody(boolean copyCamelBodyToBody) {
-		this.copyCamelBodyToBody = copyCamelBodyToBody;
-	}
-
-	public boolean isCopyVariablesToBodyAsMap() {
-		return copyVariablesToBodyAsMap;
-	}
-
-	public void setCopyVariablesToBodyAsMap(boolean copyVariablesToBodyAsMap) {
-		this.copyVariablesToBodyAsMap = copyVariablesToBodyAsMap;
+		ActivitiEndpoint endpoint = new ActivitiEndpoint(uri, cc, this.workflowService, this.permissionService);
+		info("createEndpoint:"+parameters);
+		setProperties(endpoint, parameters);
+		return endpoint;
 	}
 
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);
 	}
+
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(ActivitiComponent.class);
 }
+
