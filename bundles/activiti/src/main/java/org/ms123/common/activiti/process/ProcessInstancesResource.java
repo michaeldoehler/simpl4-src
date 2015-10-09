@@ -36,18 +36,20 @@ public class ProcessInstancesResource extends BaseResource {
 	private String m_processDefinitionKey;
 
 	private String m_businessKey;
+	private String m_namespace;
 
 	private Boolean m_unfinished;
 
 	private Boolean m_finished;
 
-	public ProcessInstancesResource(ActivitiService as, Map<String, Object> listParams, String processDefinitionId, String processDefinitionKey,String businessKey, Boolean unfinished, Boolean finished) {
+	public ProcessInstancesResource(ActivitiService as, Map<String, Object> listParams, String processDefinitionId, String processDefinitionKey,String businessKey, Boolean unfinished, Boolean finished, String namespace) {
 		super(as, listParams);
 		m_processDefinitionId = processDefinitionId;
 		m_processDefinitionKey = processDefinitionKey;
 		m_businessKey = businessKey;
 		m_unfinished = unfinished;
 		m_finished = finished;
+		m_namespace = namespace;
 		properties.put("id", HistoricProcessInstanceQueryProperty.PROCESS_INSTANCE_ID_);
 		properties.put("processDefinitionId", HistoricProcessInstanceQueryProperty.PROCESS_DEFINITION_ID);
 		properties.put("businessKey", HistoricProcessInstanceQueryProperty.BUSINESS_KEY);
@@ -58,6 +60,7 @@ public class ProcessInstancesResource extends BaseResource {
 
 	public Map getProcessInstances() {
 		HistoricProcessInstanceQuery query = getPE().getHistoryService().createHistoricProcessInstanceQuery();
+		query = query.processInstanceTenantId(m_namespace);
 		if (m_unfinished != null) {
 			if (m_unfinished) {
 				query = query.unfinished();

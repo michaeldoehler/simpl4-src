@@ -164,6 +164,7 @@ public class ActivitiServiceImpl extends BaseActivitiServiceImpl implements Acti
 	}
 
 	public Map getProcessInstances(
+			@PName("namespace") String namespace, 
 			@PName("processDefinitionId") @POptional String processDefinitionId, 
 			@PName("processDefinitionKey") @POptional String processDefinitionKey, 
 			@PName("businessKey")      @POptional String businessKey, 
@@ -174,7 +175,7 @@ public class ActivitiServiceImpl extends BaseActivitiServiceImpl implements Acti
 			if (processDefinitionId == null && processDefinitionKey == null) {
 				throw new RuntimeException("getProcessInstance.no processDefinition{Id,Key}");
 			}
-			ProcessInstancesResource pir = new ProcessInstancesResource(this, listParams, processDefinitionId, processDefinitionKey, businessKey, unfinished, finished);
+			ProcessInstancesResource pir = new ProcessInstancesResource(this, listParams, processDefinitionId, processDefinitionKey, businessKey, unfinished, finished,namespace);
 			return pir.getProcessInstances();
 		} catch (Exception e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "ActivitiService.getProcessInstances:", e);

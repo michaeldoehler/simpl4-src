@@ -95,6 +95,7 @@ qx.Class.define("ms123.processexplorer.plugins.ProcessHistory", {
 			try {
 				var s = this._select;
 				result = ms123.util.Remote.rpcSync("activiti:getProcessInstances", {
+					namespace: this.namespace,
 					processDefinitionKey: s=='key' ? this._processDefinition.key:null,
 					processDefinitionId: s=='id' ? this._processDefinition.id:null,
 					unfinished: this.__unfinished,
