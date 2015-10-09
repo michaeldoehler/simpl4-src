@@ -400,7 +400,7 @@ public class JsonRpcServlet extends HttpServlet {
 		Object methodResult;
 		try {
 			Object o = m_bundleContext.getService(sr);
-			methodResult = remoteCallUtils.callCompatibleMethod(o, method, args, request, response);
+			methodResult = remoteCallUtils.callCompatibleMethod(o, method, args != null ? args : new HashMap(), request, response);
 		} catch (NoSuchMethodException e) {
 			throw new RpcException(ERROR_FROM_SERVER, METHOD_NOT_FOUND, "Method " + method + " not found", e);
 		} catch (IllegalAccessException e) {
