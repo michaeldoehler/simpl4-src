@@ -48,9 +48,7 @@ public class TaskFilterExecutor extends TaskBaseExecutor implements JavaDelegate
 
 	@Override
 	public void execute(DelegateExecution execution) {
-		TaskContext tc = new TaskContext();
-		tc.setExecution(execution);
-		setCategory(tc);
+		TaskContext tc = new TaskContext(execution);
 		showVariablenNames(tc);
 		SessionContext sc = getSessionContext(tc);
 

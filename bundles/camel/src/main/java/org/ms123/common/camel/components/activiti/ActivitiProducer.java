@@ -239,7 +239,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
 		Map props = new HashMap();
 		if (shouldStartProcess()) {
-			String key = processDefinition.getCategory() + "/" + processDefinition.getId();
+			String key = processDefinition.getTenantId() + "/" + processDefinition.getId();
 			props.put(HISTORY_KEY, key);
 			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_START_PROCESS_EXCEPTION);
 			Map hint = new HashMap();
@@ -376,11 +376,11 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 		ProcessEngine pe = this.workflowService.getProcessEngine();
 		RepositoryService repositoryService = pe.getRepositoryService();
 		info("getProcessDefinition:"+this.processName+"/ns:"+this.namespace);
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(this.processName).processDefinitionCategory(this.namespace).latestVersion().singleResult();
+		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(this.processName).processDefinitionTenantId(this.namespace).latestVersion().singleResult();
 		if (processDefinition == null) {
 			throw new RuntimeException("ActivitiProducer:getProcessDefinition:processDefinition not found:" + this.namespace+"/"+this.processName);
 		}
-		info("getProcessDefinition:" + processDefinition + "/" + processDefinition.getCategory());
+		info("getProcessDefinition:" + processDefinition + "/" + processDefinition.getTenantId());
 		return processDefinition;
 	}
 

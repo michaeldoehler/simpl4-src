@@ -135,7 +135,7 @@ qx.Class.define( "ms123.processexplorer.plugins.ProcessDefinitions", {
 			colWidth.push( 20 );
 			colHds.push( "" );
 
-			//colIds.push("category");
+			//colIds.push("tenantId");
 			//colWidth.push("20%");
 			//colHds.push(this.tr("processexplorer.definition.category"));
 

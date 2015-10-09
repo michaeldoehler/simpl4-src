@@ -88,19 +88,19 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 			var formResourceKey = null;
 			var taskName = null;
 			var processName = null;
-			var processCategory = null;
+			var processTenantId = null;
 			if( task == null){
 				formResourceKey = this.processDefinition.startFormResourceKey;
 				processName = this.processName;
 			}else{
 				formResourceKey = task.formResourceKey;
 				if( task.processName) this.processName = task.processName;
-				processCategory = task.processCategory;
+				processTenantId = task.processTenantId;
 				processName = this.processName;
 				taskName = task.name;
 			}
-			if( !processCategory){
-				processCategory = ms123.StoreDesc.getCurrentNamespace()
+			if( !processTenantId){
+				processTenantId = ms123.StoreDesc.getCurrentNamespace()
 			}
 			if( formResourceKey==null){
 				this._handleExecuteButton(null, null, task, null,null);
@@ -157,7 +157,7 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				mappedFormValues: mappedFormValues,
 				actionCallback: actionCallback,
 				processName: processName,
-				processCategory: processCategory,
+				processTenantId: processTenantId,
 				processVariables: processVariables,
 				buttons: buttons,
 				taskName: taskName

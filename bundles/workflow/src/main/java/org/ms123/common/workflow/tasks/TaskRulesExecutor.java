@@ -50,10 +50,8 @@ public class TaskRulesExecutor extends TaskBaseExecutor implements JavaDelegate 
 
 	@Override
 	public void execute(DelegateExecution execution) {
-		TaskContext tc = new TaskContext();
-		tc.setExecution(execution);
-		setCategory(tc);
-		String namespace = tc.getCategory();
+		TaskContext tc = new TaskContext(execution);
+		String namespace = tc.getTenantId();
 		String rname = rulesname.getValue(execution).toString();
 		String vm = variablesmapping.getValue(execution).toString();
 		Map map = (Map) m_ds.deserialize(vm);

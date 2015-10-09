@@ -67,8 +67,8 @@ public class ShiroJobExecutor extends DefaultJobExecutor {
 	public void executeJobs(List<String> jobIds) {
 		ManagementService ms = m_pe.getManagementService();
 		Job job = ms.createJobQuery().jobId(jobIds.get(0)).singleResult();
-		log("------>executeJobs:" + jobIds+"/"+job.getProcessInstanceId()+"/"+job.getProcessDefinitionId());
-		Map<String,String> info = getInfo(job.getProcessInstanceId(),job.getProcessDefinitionId());
+		log("------>executeJobs:" + jobIds+"/"+job.getProcessInstanceId()+"/"+job.getProcessDefinitionId()+"/"+job.getTenantId());
+		Map<String,String> info = getInfo(job.getProcessInstanceId(),job.getProcessDefinitionId(),job.getTenantId());
 		try {
 			threadPoolExecutor.execute(new ShiroExecuteJobsRunnable(this, info, jobIds));
 		} catch (RejectedExecutionException e) {
@@ -76,15 +76,15 @@ public class ShiroJobExecutor extends DefaultJobExecutor {
 		}
 	}
 
-	protected Map getInfo(String processInstanceId,String processDefinitionId) {
+	protected Map getInfo(String processInstanceId,String processDefinitionId, String tenantId) {
 		Map<String,String> info = new HashMap();
 		if( processInstanceId != null){
-			ProcessInstance processInstance = m_pe.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+			ProcessInstance processInstance = m_pe.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).processInstanceTenantId(tenantId).singleResult();
 			Map<String,Object> vars = m_pe.getRuntimeService().getVariables(processInstanceId);
 			log("getInfo.vars:"+vars);
 			info.put("user",(String)vars.get("__currentUser"));
 			if (processInstance == null) {
-				HistoricProcessInstance instance = m_pe.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+				HistoricProcessInstance instance = m_pe.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).processInstanceTenantId(tenantId).singleResult();
 				if (instance == null) {
 					throw new RuntimeException("ShiroJobExecutor.getInfo:processInstance not found:" + processInstanceId);
 				}
@@ -96,9 +96,9 @@ public class ShiroJobExecutor extends DefaultJobExecutor {
 			info.put("user","admin");
 		}
 		RepositoryService repositoryService = m_pe.getRepositoryService();
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-		log("getInfo.namespace:"+processDefinition.getCategory());
-		info.put("namespace", processDefinition.getCategory());
+		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).processDefinitionTenantId(tenantId).singleResult();
+		log("getInfo.namespace:"+processDefinition.getTenantId());
+		info.put("namespace", processDefinition.getTenantId());
 		return info;
 	}
 	private void log(String message) {

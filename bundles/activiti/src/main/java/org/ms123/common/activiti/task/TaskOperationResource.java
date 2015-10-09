@@ -75,14 +75,14 @@ public class TaskOperationResource extends BaseResource {
 				String pid = task.getProcessInstanceId();
 				String processDefinitionId = task.getProcessDefinitionId();
 				ProcessDefinition processDefinition = getPE().getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-				String category = processDefinition.getCategory();
+				String tenantId = processDefinition.getTenantId();
 				String processDefinitionKey = processDefinition.getKey();
 
 				String formVar = getFormVar(formKey);
 				Map data = (Map)variables.get(formVar);
 				System.out.println("formKey:"+formVar+"/"+data+"/"+taskName);
 				if( data != null){
-					String namespace=category;
+					String namespace=tenantId;
 					Map ret  = getFormService().validateForm(namespace,formKey,data,true);				
 					List<Map> errors = (List)ret.get("errors");
 					if( errors.size()>0){
@@ -97,9 +97,9 @@ public class TaskOperationResource extends BaseResource {
 						if( script!=null && script.trim().length()> 2){
 /*							TaskScriptExecutor sce = new TaskScriptExecutor();
 							VariableScope vs = new RuntimeVariableScope(getPE().getRuntimeService(), executionId);
-							sce.execute(category,processDefinitionKey, pid, script, newVariables, vs,taskName, getDataLayer(),getWorkflowService());*/
+							sce.execute(tenantId,processDefinitionKey, pid, script, newVariables, vs,taskName, getDataLayer(),getWorkflowService());*/
 
-							getWorkflowService().executeScriptTask( executionId, category, processDefinitionKey, pid, script, newVariables, taskName );
+							getWorkflowService().executeScriptTask( executionId, tenantId, processDefinitionKey, pid, script, newVariables, taskName );
 
 							if( data.get("errors") != null ){
 								Object _errors = data.get("errors");

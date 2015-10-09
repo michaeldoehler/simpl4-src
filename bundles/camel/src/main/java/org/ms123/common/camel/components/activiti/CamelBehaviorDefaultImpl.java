@@ -35,16 +35,16 @@ import org.apache.camel.CamelContext;
 
 public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehaviorDefaultImpl {
 
-	String m_category, m_processDefinitionKey;
+	String m_tenant, m_processDefinitionKey;
 
 	protected void setAppropriateCamelContext(ActivityExecution execution) {
 		info("getProcessVariables:" + execution.getVariables());
 		Map vars = execution.getVariables();
 		String ns = (String) vars.get("__namespace");
 		Map beans = Context.getProcessEngineConfiguration().getBeans();
-		setCategoryAndName(execution);
+		setTenantAndName(execution);
 		CamelService cs = (CamelService) lookupServiceByName(CamelService.class.getName());
-		info("m_category:" + m_category + "/" + ns + "/" + cs);
+		info("m_tenant:" + m_tenant + "/" + ns + "/" + cs);
 		camelContextObj = cs.getCamelContext(ns);
 		info("camelContextObj:" + camelContextObj);
 	}
@@ -60,13 +60,13 @@ public class CamelBehaviorDefaultImpl extends org.activiti.camel.impl.CamelBehav
 		throw new RuntimeException("Activiti endpoint not defined for " + key);
 	}
 
-	protected void setCategoryAndName(ActivityExecution execution) {
+	protected void setTenantAndName(ActivityExecution execution) {
 		Map beans = Context.getProcessEngineConfiguration().getBeans();
 		ProcessEngine pe = (ProcessEngine) beans.get("processEngine");
 		String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
 		RepositoryService repositoryService = pe.getRepositoryService();
 		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-		m_category = processDefinition.getCategory();
+		m_tenant = processDefinition.getTenantId();
 		m_processDefinitionKey = processDefinition.getKey();
 		info("ID:" + processDefinition.getId());
 		info("Name:" + processDefinition.getName());

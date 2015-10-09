@@ -84,7 +84,7 @@ qx.Class.define("ms123.processexplorer.FormWindow", {
 			var formPath = params.formPath;
 			var mappedFormValues = params.mappedFormValues;
 			var processVariables = params.processVariables;
-			var processCategory = params.processCategory;
+			var processTenantId = params.processTenantId;
 			var buttons = params.buttons;
 			console.log("formVar:"+formVar+"/"+formPath);
 
@@ -94,7 +94,7 @@ qx.Class.define("ms123.processexplorer.FormWindow", {
 					//formDesc = ms123.processexplorer.FormWindow.__formCache[params.processName+formVar];
 					if( !formDesc ){
 						formDesc = ms123.util.Remote.rpcSync( "git:searchContent",{
-										reponame:processCategory,
+										reponame:processTenantId,
 										name:formPath,
 										type:"sw.form"
 								});	
@@ -122,11 +122,11 @@ qx.Class.define("ms123.processexplorer.FormWindow", {
 			context.actionCallback = params.actionCallback;
 			context.formDesc = formDesc;
 			context.formVariables = processVariables;
-			context.storeDesc = ms123.StoreDesc.getNamespaceDataStoreDescForNS(processCategory);
+			context.storeDesc = ms123.StoreDesc.getNamespaceDataStoreDescForNS(processTenantId);
 			console.log("StoreDesc1:"+context.storeDesc);
 			if(!context.storeDesc){
 				context.storeDesc = new ms123.StoreDesc({
-					namespace: processCategory 
+					namespace: processTenantId 
 				});
 			}
 			console.log("StoreDesc2:"+context.storeDesc);

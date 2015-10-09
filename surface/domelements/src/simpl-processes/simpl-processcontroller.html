@@ -109,7 +109,7 @@
 			start: function( processDefinition, parameter, finishCallback ) {
 				this.processDefinition = processDefinition;
 				this.processName = processDefinition.name;
-				this.namespace = processDefinition.category;
+				this.namespace = processDefinition.tenantId;
 				console.log( "Start:" + JSON.stringify( processDefinition, null, 2 ) );
 				var pid = this.processDefinition.id;
 				console.log( "startFormResourceKey:" + this.processDefinition.startFormResourceKey );
@@ -128,19 +128,19 @@
 				var formResourceKey = null;
 				var taskName = null;
 				var processName = null;
-				var processCategory = null;
+				var processTenantId = null;
 				if ( task == null ) {
 					formResourceKey = this.processDefinition.startFormResourceKey;
 					processName = this.processName;
 				} else {
 					formResourceKey = task.formResourceKey;
 					if ( task.processName ) this.processName = task.processName;
-					processCategory = task.processCategory;
+					processTenantId = task.processTenantId;
 					processName = this.processName;
 					taskName = task.name;
 				}
-				if ( !processCategory ) {
-					processCategory = simpl4.util.BaseManager.getNamespace();
+				if ( !processTenantId ) {
+					processTenantId = simpl4.util.BaseManager.getNamespace();
 				}
 				if ( formResourceKey == null ) {
 					this.handleExecuteButton( null, task, null, null, finishCallback );
@@ -182,7 +182,7 @@
 				}
 				this.panelHeader = processName + "/" + taskName;
 				this.variables = processVariables;
-				this.namespace = processCategory;
+				this.namespace = processTenantId;
 				this.formName = formName;
 				this.async( function() {
 					var form = this.querySelector( "#formid" );

@@ -60,9 +60,7 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 
 	@Override
 	public void execute(DelegateExecution execution) {
-		TaskContext tc = new TaskContext();
-		tc.setExecution(execution);
-		setCategory(tc);
+		TaskContext tc = new TaskContext(execution);
 		showVariablenNames(tc);
 
 		Object rno =  routename != null ? routename.getValue(execution) : null;
@@ -92,8 +90,8 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 			}
 			
 			Map<String,String> activitiProperties = new TreeMap<String,String>();
-			activitiProperties.put(HISTORY_ACTIVITI_PROCESS_KEY, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getProcessInstanceId());
-			activitiProperties.put(HISTORY_ACTIVITI_ACTIVITY_KEY, tc.getCategory() +"/"+tc.getProcessDefinitionName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId());
+			activitiProperties.put(HISTORY_ACTIVITI_PROCESS_KEY, tc.getTenantId() +"/"+tc.getProcessDefinitionName()+"/"+execution.getProcessInstanceId());
+			activitiProperties.put(HISTORY_ACTIVITI_ACTIVITY_KEY, tc.getTenantId() +"/"+tc.getProcessDefinitionName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId());
 			activitiProperties.put(WORKFLOW_ACTIVITY_ID, execution.getCurrentActivityId());
 			activitiProperties.put(WORKFLOW_ACTIVITY_ID, execution.getCurrentActivityId());
 			activitiProperties.put(WORKFLOW_ACTIVITY_NAME, execution.getCurrentActivityName());
@@ -106,12 +104,14 @@ public class TaskCamelExecutor extends TaskBaseExecutor implements JavaDelegate 
 
 			String ns = namespace.getValue(execution).toString();
 			if( "-".equals(ns)){
-				ns = tc.getCategory();
+				ns = tc.getTenantId();
 			}
 			Object answer = getCallService().callCamel( ns+"."+methodname, fparams);
 			log("TaskCamelExecutor.answer:"+ answer);
-			String rvar = returnvariable.getValue(execution).toString();
-			execution.setVariable(rvar, answer);
+			if( returnvariable != null){
+				String rvar = returnvariable.getValue(execution).toString();
+				execution.setVariable(rvar, answer);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

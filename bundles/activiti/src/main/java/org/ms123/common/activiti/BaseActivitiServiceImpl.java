@@ -66,27 +66,30 @@ class BaseActivitiServiceImpl implements Constants {
 
 	protected ProcessEngine m_processEngine;
 
-	protected String _getCategory(String processInstanceId) {
+	protected String _getTenantId(String processInstanceId) {
 		ProcessInstance processInstance = m_processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
 		String processDefinitionId = null;
+		String tenantId = null;
 		if (processInstance == null) {
 			HistoricProcessInstance instance = m_processEngine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
 			if (instance == null) {
-				throw new RuntimeException("BaseActivitiServiceImpl._getCategory:processInstance not found:" + processInstanceId);
+				throw new RuntimeException("BaseActivitiServiceImpl._getTenantId:processInstance not found:" + processInstanceId);
 			}
 			processDefinitionId = instance.getProcessDefinitionId();
+			tenantId = instance.getTenantId();
 		} else {
 			processDefinitionId = processInstance.getProcessDefinitionId();
+			tenantId = processInstance.getTenantId();
 		}
 		RepositoryService repositoryService = m_processEngine.getRepositoryService();
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-		return processDefinition.getCategory();
+		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).processDefinitionTenantId(tenantId).singleResult();
+		return processDefinition.getTenantId();
 	}
 
 	protected ClassLoader _setContextClassLoader(String processInstanceId) {
-		String category = _getCategory(processInstanceId);
+		String tenantId = _getTenantId(processInstanceId);
 		ClassLoader saveCl = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(m_nucleusService.getClassLoader(StoreDesc.getNamespaceData(category)));
+		Thread.currentThread().setContextClassLoader(m_nucleusService.getClassLoader(StoreDesc.getNamespaceData(tenantId)));
 		return saveCl;
 	}
 }

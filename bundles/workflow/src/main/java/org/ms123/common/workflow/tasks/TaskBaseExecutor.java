@@ -97,7 +97,7 @@ public abstract class TaskBaseExecutor {
 		DelegateExecution d = (DelegateExecution) execution;
 		String processDefinitionId = ((ExecutionEntity) d).getProcessDefinitionId();
 		StringBuffer sb = new StringBuffer();
-		sb.append("Namespace:" + tc.getCategory());
+		sb.append("Namespace:" + tc.getTenantId());
 		sb.append("\nCurrentActivityId:" + d.getCurrentActivityId());
 		sb.append("\nCurrentActivityName:" + d.getCurrentActivityName());
 		sb.append("\nEventName:" + d.getEventName());
@@ -108,31 +108,17 @@ public abstract class TaskBaseExecutor {
 		return sb.toString();
 	}
 
-	protected void setCategory(TaskContext tc) {
-		VariableScope execution = tc.getExecution();
-		if (execution instanceof ExecutionEntity) {
-			Map beans = Context.getProcessEngineConfiguration().getBeans();
-			ProcessEngine pe = (ProcessEngine) beans.get(WorkflowService.PROCESS_ENGINE);
-			String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
-			RepositoryService repositoryService = pe.getRepositoryService();
-			ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-			tc.setProcessDefinitionKey(processDefinition.getKey());
-			tc.setProcessDefinitionName(processDefinition.getName());
-			tc.setCategory(processDefinition.getCategory());
-		}
-	}
-
 	protected SessionContext getSessionContext(TaskContext tc) {
 		VariableScope execution = tc.getExecution();
 		SessionContext sc = null;
 		if (m_dataLayer != null) {
-			StoreDesc sdesc = StoreDesc.getNamespaceData(tc.getCategory());
+			StoreDesc sdesc = StoreDesc.getNamespaceData(tc.getTenantId());
 			sc = m_dataLayer.getSessionContext(sdesc);
 		} else {
 			Map beans = Context.getProcessEngineConfiguration().getBeans();
 			DataLayer dataLayer = (DataLayer) beans.get(DataLayer.DATA_LAYER);
-			log(tc, "Category:"+tc.getCategory());
-			StoreDesc sdesc = StoreDesc.getNamespaceData(tc.getCategory());
+			log(tc, "Category:"+tc.getTenantId());
+			StoreDesc sdesc = StoreDesc.getNamespaceData(tc.getTenantId());
 			log(tc, "Sdesc:"+sdesc);
 			sc = dataLayer.getSessionContext(sdesc);
 		}
@@ -254,10 +240,10 @@ public abstract class TaskBaseExecutor {
 		if (_execution instanceof DelegateExecution) {
 			DelegateExecution execution = (DelegateExecution) _execution;
 			String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
-			dsl = new GroovyTaskDsl(sc, getEventAdmin(execution), ws, tc.getCategory(), tc.getProcessDefinitionKey(),
+			dsl = new GroovyTaskDsl(sc, getEventAdmin(execution), ws, tc.getTenantId(), tc.getProcessDefinitionKey(),
 					execution.getProcessInstanceId(), getInfo(tc), vars);
 		} else {
-			dsl = new GroovyTaskDsl(sc, null, ws, tc.getCategory(), tc.getProcessDefinitionKey(), tc.getPid(),
+			dsl = new GroovyTaskDsl(sc, null, ws, tc.getTenantId(), tc.getProcessDefinitionKey(), tc.getPid(),
 					tc.getHint(), vars);
 		}
 		return dsl;
@@ -280,16 +266,35 @@ public abstract class TaskBaseExecutor {
 		}
 		return values;
 	}
+	protected void setProcessDefinition(TaskContext tc, VariableScope execution) {
+		if (execution instanceof DelegateExecution) {
+			Map beans = Context.getProcessEngineConfiguration().getBeans();
+			ProcessEngine pe = (ProcessEngine) beans.get(WorkflowService.PROCESS_ENGINE);
+			String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
+			RepositoryService repositoryService = pe.getRepositoryService();
+			ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+			tc.setProcessDefinitionKey(processDefinition.getKey());
+			tc.setProcessDefinitionName(processDefinition.getName());
+			tc.setTenantId(processDefinition.getTenantId());
+		}
+	}
 
-	protected static class TaskContext {
+	protected  class TaskContext {
 		protected VariableScope m_execution;
-		protected String m_category;
+		protected String m_tenantId;
 		protected String m_processDefinitionKey;
 		protected String m_processDefinitionName;
 		protected String m_hint;
 		protected String m_pid;
 		protected String m_script;
 
+		public TaskContext(){
+		}
+
+		public TaskContext(DelegateExecution execution){
+			m_execution = execution;
+			setProcessDefinition( this, execution);
+		}
 		public void setExecution(VariableScope vs) {
 			m_execution = vs;
 		}
@@ -314,8 +319,8 @@ public abstract class TaskBaseExecutor {
 			m_processDefinitionKey = pd;
 		}
 
-		public void setCategory(String c) {
-			m_category = c;
+		public void setTenantId(String c) {
+			m_tenantId = c;
 		}
 
 		public VariableScope getExecution() {
@@ -341,8 +346,8 @@ public abstract class TaskBaseExecutor {
 			return m_processDefinitionName;
 		}
 
-		public String getCategory() {
-			return m_category;
+		public String getTenantId() {
+			return m_tenantId;
 		}
 	}
 	protected void log(String message) {

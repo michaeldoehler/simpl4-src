@@ -56,9 +56,7 @@ public class TaskScriptExecutor extends TaskBaseExecutor implements JavaDelegate
 
 	@Override
 	public void execute(DelegateExecution execution) {
-		final TaskContext tc = new TaskContext();
-		tc.setExecution(execution);
-		setCategory(tc);
+		final TaskContext tc = new TaskContext(execution);
 		if (script == null){
 			return;
 		}
@@ -83,7 +81,7 @@ public class TaskScriptExecutor extends TaskBaseExecutor implements JavaDelegate
 			return;
 		}
 		final TaskContext tc = new TaskContext();
-		tc.setCategory(namespace);
+		tc.setTenantId(namespace);
 		tc.setProcessDefinitionKey(processDefinitionKey);
 		tc.setHint(hint);
 		tc.setPid(pid);

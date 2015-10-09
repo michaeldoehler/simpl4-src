@@ -68,7 +68,7 @@ public class TasksPaginateList extends AbstractPaginateList {
 			}
 			ProcessDefinitionEntity pde = (ProcessDefinitionEntity) ((RepositoryServiceImpl) m_pe.getRepositoryService()).getDeployedProcessDefinition(task.getProcessDefinitionId());
 			taskResponse.put("processName", pde.getName());
-			taskResponse.put("processCategory", pde.getCategory());
+			taskResponse.put("processTenantId", pde.getTenantId());
 			responseList.add(taskResponse);
 		}
 		return responseList;

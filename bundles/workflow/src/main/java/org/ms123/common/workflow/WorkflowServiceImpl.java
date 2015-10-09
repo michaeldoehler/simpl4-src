@@ -314,10 +314,10 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		return service;
 	}
 
-	public void executeScriptTask( String executionId, String category, String processDefinitionKey, String pid, String script, Map newVariables, String taskName ){
+	public void executeScriptTask( String executionId, String tenantId, String processDefinitionKey, String pid, String script, Map newVariables, String taskName ){
 		TaskScriptExecutor sce = new TaskScriptExecutor();
 		VariableScope vs = new RuntimeVariableScope(m_processEngine.getRuntimeService(), executionId);
-		sce.execute(category,processDefinitionKey, pid, script, newVariables, vs,taskName, m_dataLayer,(WorkflowService)this);
+		sce.execute(tenantId,processDefinitionKey, pid, script, newVariables, vs,taskName, m_dataLayer,(WorkflowService)this);
 	}
 
 	private ActivitiListener createListener(String event, String clazz) {
@@ -398,7 +398,7 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 		if (all) {
 			dl = rs.createDeploymentQuery().deploymentName(basename).list();
 		} else {
-			dl = rs.createDeploymentQuery().deploymentName(basename).deploymentCategory(namespace).list();
+			dl = rs.createDeploymentQuery().deploymentName(basename).deploymentTenantId(namespace).list();
 		}
 		System.out.println("Deployment:" + dl);
 	/*	if (dl != null && dl.size() > 0) {
@@ -424,7 +424,7 @@ public class WorkflowServiceImpl implements org.ms123.common.workflow.api.Workfl
 			InputStream bais = new ByteArrayInputStream(bpmnBytes);
 			DeploymentBuilder deployment = rs.createDeployment();
 			deployment.name(basename);
-			deployment.category(namespace);
+			deployment.tenantId(namespace);
 			deployment.addString("initialParameter", initialParameter);
 			deploymentId = deployment.addInputStream(basename + ".bpmn20.xml", bais).deploy().getId();
 			System.out.println("deploymentId:" + deploymentId);

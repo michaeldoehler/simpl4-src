@@ -55,13 +55,13 @@ public class ProcessDefinitionsResource extends BaseResource {
 		properties.put("version", ProcessDefinitionQueryProperty.PROCESS_DEFINITION_VERSION);
 		properties.put("deploymentId", ProcessDefinitionQueryProperty.DEPLOYMENT_ID);
 		properties.put("name", ProcessDefinitionQueryProperty.PROCESS_DEFINITION_NAME);
-		properties.put("category", ProcessDefinitionQueryProperty.PROCESS_DEFINITION_CATEGORY);
+		properties.put("tenantId", ProcessDefinitionQueryProperty.PROCESS_DEFINITION_TENANT_ID);
 	}
 
 	public Map getProcessDefinitions() {
 		ProcessDefinitionQuery query = getPE().getRepositoryService().createProcessDefinitionQuery();
 		if( m_namespace != null){
-			query = query.processDefinitionCategory(this.m_namespace);
+			query = query.processDefinitionTenantId(this.m_namespace);
 		}
 		if( m_name != null){
 			query = query.processDefinitionName(this.m_name);
@@ -80,7 +80,7 @@ public class ProcessDefinitionsResource extends BaseResource {
 			query = query.startableByUser(m_startableByUser);
 		}
 		if( m_namespace == null){
-			query = query.orderByProcessDefinitionCategory();
+			query = query.orderByTenantId();
 		}
 		if( m_key == null){
 			query = query.orderByProcessDefinitionKey();

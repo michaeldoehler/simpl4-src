@@ -89,7 +89,7 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 	public static String DESTINATION_ROUTING = "routing";
 	public static String ITEMS = "items";
 	public static String DOT = "\\.";
-	String m_category, m_processDefinitionKey;
+	String m_tenant, m_processDefinitionKey;
 
 	public Class m_routeBuilderClass = null;
 
@@ -119,8 +119,8 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 		m_mapRouting = getVarMapping(execution, variablesmapping,DESTINATION_ROUTING);
 		debug("MappingRouting:" + m_js.deepSerialize(m_mapRouting));
 
-		setCategoryAndName(execution);
-		m_camelContext = createCamelContext(m_category);
+		setTenantAndName(execution);
+		m_camelContext = createCamelContext(m_tenant);
 		createRouteBuilderClazz();
 		addRoute(m_camelContext, execution);
 		m_camelContext.start();
@@ -392,20 +392,20 @@ public abstract class BaseCamelBehavior extends BpmnActivityBehavior implements 
 		return camelContext;
 	}
 
-	protected void setCategoryAndName(ActivityExecution execution) {
+	protected void setTenantAndName(ActivityExecution execution) {
 		Map beans = Context.getProcessEngineConfiguration().getBeans();
 		ProcessEngine pe = (ProcessEngine) beans.get("processEngine");
 		String processDefinitionId = ((ExecutionEntity) execution).getProcessDefinitionId();
 		RepositoryService repositoryService = pe.getRepositoryService();
 		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-		m_category = processDefinition.getCategory();
+		m_tenant = processDefinition.getTenantId();
 		m_processDefinitionKey = processDefinition.getKey();
-		info("NS:" + m_category);
+		info("TENANT:" + m_tenant);
 		info("EID:" + execution.getId());
 		info("PID:" + execution.getProcessInstanceId());
 		info("AID:" + execution.getCurrentActivityId());
 		info("ANAME:" + execution.getCurrentActivityName());
-		m_camelActivitiKey = m_category +"/"+processDefinition.getName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId();
+		m_camelActivitiKey = m_tenant +"/"+processDefinition.getName()+"/"+execution.getId()+"/"+execution.getCurrentActivityId();
 		info("m_camelActivitiKey:" + m_camelActivitiKey);
 	}
 

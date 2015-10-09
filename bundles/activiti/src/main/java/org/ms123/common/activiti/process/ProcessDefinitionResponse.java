@@ -45,7 +45,7 @@ public class ProcessDefinitionResponse implements Serializable {
 
 	boolean isGraphicNotationDefined;
 
-	String category;
+	String tenantId;
 
 	public ProcessDefinitionResponse(ProcessDefinitionEntity processDefinition) {
 		this.setId(processDefinition.getId());
@@ -55,7 +55,7 @@ public class ProcessDefinitionResponse implements Serializable {
 		this.setDeploymentId(processDefinition.getDeploymentId());
 		this.setResourceName(processDefinition.getResourceName());
 		this.setDiagramResourceName(processDefinition.getDiagramResourceName());
-		this.setCategory(processDefinition.getCategory());
+		this.setTenantId(processDefinition.getTenantId());
 	}
 
 	public String getId() {
@@ -130,11 +130,11 @@ public class ProcessDefinitionResponse implements Serializable {
 		this.startFormResourceKey = startFormResourceKey;
 	}
 
-	public String getCategory() {
-		return category;
+	public String getTenantId() {
+		return tenantId;
 	}
 
-	public void setCategory(String category) {
-		this.category = category;
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
 	}
 }

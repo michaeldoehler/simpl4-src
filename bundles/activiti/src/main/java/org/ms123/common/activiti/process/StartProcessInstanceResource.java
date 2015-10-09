@@ -103,7 +103,7 @@ public class StartProcessInstanceResource extends BaseResource {
 				query = addVersion(query);
 				processDefinition = (ProcessDefinitionEntity) query.
 					processDefinitionKey(m_processDefinitionKey).
-					processDefinitionCategory(m_namespace).
+					processDefinitionTenantId(m_namespace).
 					singleResult();
 				if (processDefinition == null) {
 					throw new RuntimeException("No process with processDefinitionKey(" + m_processDefinitionKey + ") in namespace(" + m_namespace + ")");
@@ -113,7 +113,7 @@ public class StartProcessInstanceResource extends BaseResource {
 				query = addVersion(query);
 				processDefinition = (ProcessDefinitionEntity)query.
 					messageEventSubscriptionName(m_messageName).
-					processDefinitionCategory(m_namespace).
+					processDefinitionTenantId(m_namespace).
 					singleResult();
 				if (processDefinition == null) {
 					throw new RuntimeException("No process with messageName(" + m_messageName + ") in namespace(" + m_namespace + ")");
@@ -121,7 +121,7 @@ public class StartProcessInstanceResource extends BaseResource {
 			} else if (m_processDefinitionName != null) {
 				processDefinition = (ProcessDefinitionEntity) getPE().getRepositoryService().createProcessDefinitionQuery().
 					processDefinitionName(m_processDefinitionName).
-					processDefinitionCategory(m_namespace).
+					processDefinitionTenantId(m_namespace).
 					singleResult();
 				if (processDefinition == null) {
 					throw new RuntimeException("No process with processDefinitionName(" + m_processDefinitionName + ") in namespace(" + m_namespace + ")");
@@ -129,7 +129,7 @@ public class StartProcessInstanceResource extends BaseResource {
 			} else {
 				processDefinition = (ProcessDefinitionEntity) getPE().getRepositoryService().createProcessDefinitionQuery().
 					processDefinitionId(m_processDefinitionId).
-					processDefinitionCategory(m_namespace).
+					processDefinitionTenantId(m_namespace).
 					singleResult();
 				if (processDefinition == null) {
 					throw new RuntimeException("No process with processDefinitionId(" + m_processDefinitionId + ") in namespace(" + m_namespace + ")");

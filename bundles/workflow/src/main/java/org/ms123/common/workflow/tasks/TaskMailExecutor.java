@@ -56,9 +56,7 @@ public class TaskMailExecutor extends TaskBaseExecutor implements JavaDelegate {
 	protected Expression charset;
 
 	public void execute(DelegateExecution execution) {
-		TaskContext tc = new TaskContext();
-		tc.setExecution(execution);
-		setCategory(tc);
+		TaskContext tc = new TaskContext(execution);
 		showVariablenNames(tc);
 		String toStr = getStringFromField(to, execution);
 		String fromStr = getStringFromField(from, execution);
