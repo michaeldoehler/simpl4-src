@@ -25,16 +25,19 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.ms123.common.permission.api.PermissionService;
 import org.ms123.common.workflow.api.WorkflowService;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import flexjson.*;
 
 /**
  */
 public class ActivitiEndpoint extends org.activiti.camel.ActivitiEndpoint {
 
+	private JSONDeserializer ds = new JSONDeserializer();
 	private RuntimeService m_runtimeService;
 	private Map m_options;
+	private Map<String, String> processCriteria = new HashMap<String, String>();
 	private String namespace;
-	private String processname;
-	private String activityname;
 
 	private PermissionService m_permissionService;
 	private WorkflowService m_workflowService;
@@ -66,33 +69,36 @@ public class ActivitiEndpoint extends org.activiti.camel.ActivitiEndpoint {
 	}
 
 	public String getNamespace() {
-		if( "-".equals(this.namespace)){
+		if ("-".equals(this.namespace)) {
 			return null;
 		}
 		return this.namespace;
 	}
 
-	public void setProcessName(String data) {
-		this.processname = data;
+	public void setProcessCriteria(String data) {
+		Map<String, String> ret = new HashMap<String, String>();
+		if (data != null) {
+			List<Map<String, String>> l = (List) ds.deserialize(data);
+			for (Map<String, String> m : l) {
+				String name = m.get("name");
+				String value = m.get("value");
+				ret.put(name, value);
+			}
+		}
+		this.processCriteria = ret;
 	}
 
-	public String getProcessName() {
-		return this.processname;
-	}
-
-	public void setActivityName(String data) {
-		this.activityname = data;
-	}
-
-	public String getActivityName() {
-		return this.activityname;
+	public Map<String, String> getProcessCriteria() {
+		return this.processCriteria;
 	}
 
 	private static final org.slf4j.Logger m_logger = org.slf4j.LoggerFactory.getLogger(ActivitiEndpoint.class);
+
 	private void debug(String msg) {
 		System.out.println(msg);
 		m_logger.debug(msg);
 	}
+
 	private void info(String msg) {
 		System.out.println(msg);
 		m_logger.info(msg);

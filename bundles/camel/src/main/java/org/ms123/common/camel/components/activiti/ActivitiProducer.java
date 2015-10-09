@@ -20,6 +20,8 @@ package org.ms123.common.camel.components.activiti;
 
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ExecutionQuery;
+import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.history.HistoricProcessInstance;
@@ -64,25 +66,23 @@ import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_PROCESS_INS
 import static org.ms123.common.workflow.api.WorkflowService.WORKFLOW_ACTIVITY_NAME;
 
 @SuppressWarnings("unchecked")
-public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implements ActivitiConstants{
+public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implements ActivitiConstants {
 
 	protected JSONSerializer js = new JSONSerializer();
 	private RuntimeService runtimeService;
+	private RepositoryService repositoryService;
 	private PermissionService permissionService;
 	private WorkflowService workflowService;
 
 	private ActivitiOperation operation;
 	private ActivitiEndpoint endpoint;
 
-	private String processName;
-	private String activityName;
+	private Map<String, String> processCriteria;
+	private String activityId;
 	private String namespace;
 
 	private Map options;
 	private String activitiKey;
-
-	public static final String PROCESS_KEY_PROPERTY = "PROCESS_KEY_PROPERTY";
-	public static final String PROCESS_ID_PROPERTY = "PROCESS_ID_PROPERTY";
 
 	public ActivitiProducer(ActivitiEndpoint endpoint, WorkflowService workflowService, PermissionService permissionService) {
 		super(endpoint, -1, 100);
@@ -90,51 +90,28 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 		this.permissionService = permissionService;
 		this.workflowService = workflowService;
 		this.runtimeService = workflowService.getProcessEngine().getRuntimeService();
+		this.repositoryService = workflowService.getProcessEngine().getRepositoryService();
 		setRuntimeService(this.runtimeService);
 		String[] path = endpoint.getEndpointKey().split(":");
 		this.operation = ActivitiOperation.valueOf(path[1].replace("//", ""));
 		this.namespace = endpoint.getNamespace();
-		this.processName = endpoint.getProcessName();
-		this.activityName = endpoint.getActivityName();
+		this.processCriteria = endpoint.getProcessCriteria();
 		this.options = endpoint.getOptions();
 	}
 
 	public void process(Exchange exchange) throws Exception {
-		this.processName = getString(exchange, PROCESS_NAME, this.processName);
-		this.activityName = getString(exchange, ACTIVITY_NAME, this.activityName);
+		this.activityId = getString(exchange, ACTIVITY_ID, this.activityId);
 		this.namespace = getString(exchange, NAMESPACE, this.namespace);
-		if( this.namespace == null){
-		 this.namespace = (String) exchange.getContext().getRegistry().lookupByName("namespace");
+		if (this.namespace == null) {
+			this.namespace = (String) exchange.getContext().getRegistry().lookupByName("namespace");
 		}
-		info("ActivitiProducer.process:" + this.operation);
+		info("ActivitiProducer.operation:" + this.operation);
 		invokeOperation(this.operation, exchange);
-/*		try {
-			if (shouldStartProcess()) {
-				ProcessInstance pi = startProcess(exchange);
-				info("ProcessInstance:" + pi);
-				if (pi != null) {
-					this.activitiKey += "/" + pi.getId();
-					info("m_activitiKey:" + this.activitiKey);
-					exchange.setProperty(PROCESS_ID_PROPERTY, pi.getProcessInstanceId());
-					exchange.getOut().setBody(pi.getId());
-				}
-			} else {
-				signal(exchange, pd);
-			}
-		} catch (Exception e) {
-			info("createLogEntry.ActivitiProducer.process");
-			createLogEntry(exchange, pd, e);
-			if (e instanceof RuntimeException) {
-				throw e;
-			} else {
-				throw new RuntimeException(e);
-			}
-		}
-		final CamelService camelService = (CamelService) exchange.getContext().getRegistry().lookupByName(CamelService.class.getName());
-		exchange.setProperty(WORKFLOW_ACTIVITY_NAME, this.activityName);
-		camelService.saveHistory(exchange);
-		saveActivitiCamelCorrelationHistory(exchange);
-		printHistory(exchange);*/
+		/* final CamelService camelService = (CamelService) exchange.getContext().getRegistry().lookupByName(CamelService.class.getName());
+		 exchange.setProperty(WORKFLOW_ACTIVITY_NAME, this.activityId);
+		 camelService.saveHistory(exchange);
+		 saveActivitiCamelCorrelationHistory(exchange);
+		 printHistory(exchange);*/
 	}
 
 	/**
@@ -143,7 +120,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 	 * @param exchange
 	 * @throws Exception
 	 */
-	protected void invokeOperation(ActivitiOperation operation, Exchange exchange) throws Exception {
+	private void invokeOperation(ActivitiOperation operation, Exchange exchange) throws Exception {
 		switch (operation) {
 		case sendMessageEvent:
 			doSendMessageEvent(exchange);
@@ -164,139 +141,52 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 
 	private void doSendMessageEvent(Exchange exchange) {
 	}
+
 	private void doSendSignalEvent(Exchange exchange) {
-		ProcessDefinition processDefinition = getProcessDefinition();
+		//		ProcessDefinition processDefinition = getProcessDefinition();
 	}
+
 	private void doSendSignalToReceiveTask(Exchange exchange) {
-		ProcessDefinition processDefinition = getProcessDefinition();
-		this.processName = getStringCheck(exchange, PROCESS_NAME, this.processName);
-		this.activityName = getStringCheck(exchange, ACTIVITY_NAME, this.activityName);
-		signal(exchange, processDefinition);
+		List<ProcessInstance> processInstanceiList = getProcessInstances(exchange);
+		for( ProcessInstance pi : processInstanceiList){
+			signal(exchange, pi);
+		}
 	}
 
 	private void doStartProcess(Exchange exchange) {
-		this.processName = getStringCheck(exchange, PROCESS_NAME, this.processName);
-		ProcessDefinition processDefinition = getProcessDefinition();
-		ProcessInstance pi = startProcess(processDefinition, exchange);
+		ProcessInstance pi = executeProcess(exchange);
 		info("ProcessInstance:" + pi);
 		if (pi != null) {
 			this.activitiKey += "/" + pi.getId();
 			info("m_activitiKey:" + this.activitiKey);
-			exchange.setProperty(PROCESS_ID_PROPERTY, pi.getProcessInstanceId());
 			exchange.getOut().setBody(pi.getId());
 		}
 	}
 
-	private void signal(Exchange exchange, ProcessDefinition processDefinition) {
+	private void signal(Exchange exchange, ProcessInstance execution) {
 		String ns = (String) exchange.getContext().getRegistry().lookupByName("namespace");
-		String processInstanceId = findProcessInstanceId(processDefinition, exchange);
-		info("signal:" + "this.processName:" + this.processName + "/this.activityName:" + this.activityName + "/processInstanceId:" + processInstanceId);
-		ProcessInstance execution = (ProcessInstance) this.runtimeService.createExecutionQuery().processDefinitionKey(processDefinition.getKey()).processInstanceId(processInstanceId).activityId(this.activityName).singleResult();
-		info("ProcessInstance.execution:"+execution);
-		this.activitiKey += "/" + processInstanceId + "/" + this.activityName;
+		this.activitiKey += "/" + execution.getId() + "/" + this.activityId;
 		if (execution == null) {
-			throw new RuntimeException("Couldn't find activityName " + this.activityName + " for processId " + processInstanceId);
+			throw new RuntimeException("Couldn't find activityId " + this.activityId + " for processId " + execution.getId());
 		}
 		Map vars = execution.getProcessVariables();
 		Map exVars = ExchangeUtils.prepareVariables(exchange, true, true, true);
 		Map props = exchange.getProperties();
 		Map headers = exchange.getIn().getHeaders();
-		logCamel(exchange);
 		this.runtimeService.setVariables(execution.getId(), getCamelVariablenMap(exchange));
-		new SignalThread(ns, processDefinition, execution, exchange).start();
-	}
-
-	private void saveActivitiCamelCorrelationHistory(Exchange exchange) {
-		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
-
-		String processInstanceId = findProcessInstanceId(null, exchange); //@@@MS
-		ProcessInstance execution = (ProcessInstance) this.runtimeService.createExecutionQuery().processDefinitionKey(this.processName).processInstanceId(processInstanceId).activityId(this.activityName).singleResult();
-		String aci = this.namespace + "/" + this.processName + "/" + execution.getId() + "/" + this.activityName;
-		exchange.setProperty(HISTORY_ACTIVITI_ACTIVITY_KEY, aci);
-
-		String bc = (String) exchange.getIn().getHeader(Exchange.BREADCRUMB_ID);
-		String routeDef = (String) exchange.getProperty(CAMEL_ROUTE_DEFINITION_KEY);
-		Map props = new HashMap();
-		props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
-		props.put(ACC_ACTIVITI_ID, aci);
-		props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc);
-		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
-	}
-
-	private void printHistory(Exchange exchange) {
-		info("printHistoryX");
-		List<MessageHistory> list = exchange.getProperty(Exchange.MESSAGE_HISTORY, List.class);
-		ExchangeFormatter formatter = new ExchangeFormatter();
-		formatter.setShowExchangeId(true);
-		formatter.setMultiline(true);
-		formatter.setShowHeaders(true);
-		formatter.setStyle(ExchangeFormatter.OutputStyle.Fixed);
-		String routeStackTrace = MessageHelper.dumpMessageHistoryStacktrace(exchange, formatter, true);
-		info(routeStackTrace);
-	}
-
-	private void createLogEntry(Exchange exchange, ProcessDefinition processDefinition, Exception e) {
-		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
-		Map props = new HashMap();
-		if (shouldStartProcess()) {
-			String key = processDefinition.getTenantId() + "/" + processDefinition.getId();
-			props.put(HISTORY_KEY, key);
-			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_START_PROCESS_EXCEPTION);
-			Map hint = new HashMap();
-			hint.put("processDefinitionId", processDefinition.getId());
-			hint.put("processDefinitionKey", processDefinition.getKey());
-			hint.put("processDefinitionName", processDefinition.getName());
-			hint.put("processDeploymentId", processDefinition.getDeploymentId());
-			props.put(HISTORY_HINT, this.js.deepSerialize(hint));
-		} else {
-			props.put(HISTORY_KEY, this.activitiKey);
-			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_JOB_EXCEPTION);
-		}
-		info("props:" + props);
-		Throwable r = getRootCause(e);
-		props.put(HISTORY_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
-		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
-	}
-
-	protected boolean shouldStartProcess() {
-		return this.activityName == null;
-	}
-
-	private Map getCamelVariablenMap(Exchange exchange) {
-		this.js.prettyPrint(true);
-		Map camelMap = new HashMap();
-		Map exVars = ExchangeUtils.prepareVariables(exchange, true, true, true);
-		//String e1 = this.js.deepSerialize(exVars);
-		//System.out.println("e1:"+e1);
-		camelMap.putAll(exVars);
-		//Map props = exchange.getProperties();
-		//String e2 = this.js.deepSerialize(props);
-		//System.out.println("e2:"+e2);
-		//camelMap.put("exchangeProperties", props);
-		//Map headers = exchange.getIn().getHeaders();
-		//camelMap.putAll(headers);
-		return camelMap;
-	}
-
-	private void logCamel(Exchange exchange) {
-		Map exVars = ExchangeUtils.prepareVariables(exchange, true, true, true);
-		Map props = exchange.getProperties();
-		Map headers = exchange.getIn().getHeaders();
-		info("exchangeVars:" + exVars);
-		info("exchangeProps:" + props);
-		info("exchangeHeader:" + headers);
+		new SignalThread(ns, getProcessDefinition(execution), execution, exchange).start();
 	}
 
 	private class SignalThread extends Thread {
 		Execution execution;
-		Exchange exchange;
 		ProcessDefinition processDefinition;
+		Exchange exchange;
 		Map options;
 
 		String ns;
 
-		public SignalThread(String ns, ProcessDefinition pd, Execution execution, Exchange exchange) {
-			this.execution = execution;
+		public SignalThread(String ns, ProcessDefinition pd, ProcessInstance exec, Exchange exchange) {
+			this.execution = exec;
 			this.exchange = exchange;
 			this.options = options;
 			this.ns = ns;
@@ -308,7 +198,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 			permissionService.loginInternal(ns);
 			while (true) {
 				try {
-					info("SignalThread.sending signal to:" + execution.getId() + "/ns:" + ns);
+					info("SignalThread.sending signal to:" + execution.getId());
 					runtimeService.signal(execution.getId(), this.options);
 				} catch (org.activiti.engine.ActivitiOptimisticLockingException e) {
 					info("SignalThread:" + e);
@@ -318,7 +208,7 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 					}
 					continue;
 				} catch (Exception e) {
-					createLogEntry(exchange, processDefinition, e);
+					createLogEntry(exchange, this.processDefinition, e);
 					if (e instanceof RuntimeException) {
 						throw (RuntimeException) e;
 					} else {
@@ -332,56 +222,145 @@ public class ActivitiProducer extends org.activiti.camel.ActivitiProducer implem
 		}
 	}
 
-	protected ProcessInstance startProcess(ProcessDefinition processDefinition, Exchange exchange) {
-		//logCamel(exchange);
-		Map vars = getCamelVariablenMap(exchange);
-		info("startProcess:Name:" + this.processName+"/key:"+processDefinition.getKey());
+	private ProcessInstance executeProcess(Exchange exchange) {
+		Map<String, Object> vars = getCamelVariablenMap(exchange);
+		info("ExecuteProcess:criteria:" + this.processCriteria);
 		ThreadContext.loadThreadContext(this.namespace, "admin");
 		this.permissionService.loginInternal(this.namespace);
 		try {
-			return this.runtimeService.startProcessInstanceByKey(processDefinition.getKey(), vars);
-		/*	String key = exchange.getProperty(PROCESS_KEY_PROPERTY, String.class);
-			if (key == null) {
-				return this.runtimeService.startProcessInstanceByKey(this.processName, vars);
-			} else {
-				return this.runtimeService.startProcessInstanceByKey(this.processName, key, vars);
-			}*/
+			ProcessInstanceBuilder pib = this.runtimeService.createProcessInstanceBuilder();
+			String processDefinitionId = getString(exchange, PROCESS_DEFINITION_ID, this.processCriteria.get(PROCESS_DEFINITION_ID));
+			if (processDefinitionId != null) {
+				pib.processDefinitionId(processDefinitionId);
+			}
+			String processDefinitionKey = getString(exchange, PROCESS_DEFINITION_KEY, this.processCriteria.get(PROCESS_DEFINITION_KEY));
+			if (processDefinitionKey != null) {
+				pib.processDefinitionKey(processDefinitionKey);
+			}
+			String businessKey = getString(exchange, BUSINESS_KEY, this.processCriteria.get(BUSINESS_KEY));
+			if (businessKey != null) {
+				pib.businessKey(businessKey);
+			}
+
+			for (Map.Entry<String, Object> entry : vars.entrySet()) {
+				pib.addVariable(entry.getKey(), entry.getValue());
+			}
+			pib.tenantId(this.namespace);
+			return pib.start();
 		} finally {
 			ThreadContext.getThreadContext().finalize(null);
-			info("endProcess:" + this.namespace + "/" + this.processName);
+			info("EndProcess:" + this.processCriteria + "/" + this.namespace);
 		}
 	}
 
-	protected String findProcessInstanceId(ProcessDefinition processDefinition, Exchange exchange) {
-		info("findProcessInstanceId:Name:" + this.processName+"/key:"+processDefinition.getKey()+"/name:"+processDefinition.getName()+"/Id:"+processDefinition.getId());
-		String processInstanceId = exchange.getProperty(WORKFLOW_PROCESS_INSTANCE_ID, String.class);
+	private List<ProcessInstance> getProcessInstances(Exchange exchange) {
+		Map<String, Object> vars = getCamelVariablenMap(exchange);
+		info("findExecution:processCriteria:" + this.processCriteria + "/activityId:" + this.activityId);
+		ExecutionQuery eq = this.runtimeService.createExecutionQuery();
+		String processDefinitionId = getString(exchange, PROCESS_DEFINITION_ID, this.processCriteria.get(PROCESS_DEFINITION_ID));
+		if (processDefinitionId != null) {
+			eq.processDefinitionId(processDefinitionId);
+		}
+		String processDefinitionKey = getString(exchange, PROCESS_DEFINITION_KEY, this.processCriteria.get(PROCESS_DEFINITION_KEY));
+		if (processDefinitionKey != null) {
+			eq.processDefinitionKey(processDefinitionKey);
+		}
+		String processInstanceId = getString(exchange, PROCESS_INSTANCE_ID, this.processCriteria.get(PROCESS_INSTANCE_ID));
 		if (processInstanceId != null) {
-			System.out.println("processInstanceId2:" + processInstanceId);
-			return processInstanceId;
+			eq.processInstanceId(processInstanceId);
 		}
-		String processInstanceKey = exchange.getProperty(WORKFLOW_PROCESS_BUSINESS_KEY, String.class);
-		ProcessInstance processInstance = null;//this.runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(processInstanceKey).singleResult();
-		if (processInstance == null) {
-			processInstance = this.runtimeService.createProcessInstanceQuery().processDefinitionId(processDefinition.getId()).
-							//	processInstanceBusinessKey(processInstanceKey).
-								singleResult();
+		String businessKey = getString(exchange, BUSINESS_KEY, this.processCriteria.get(BUSINESS_KEY));
+		if (businessKey != null) {
+			eq.processInstanceBusinessKey(businessKey);
 		}
-		if (processInstance == null) {
-			throw new RuntimeException("ActivitiProducer:Could not find activiti with key " + processInstanceKey);
+
+		String activityId = getString(exchange, ACTIVITY_ID, this.processCriteria.get(ACTIVITY_ID));
+		if (activityId != null) {
+			eq.activityId(activityId);
 		}
-		return processInstance.getId();
+		String executionId = getString(exchange, EXECUTION_ID, this.processCriteria.get(EXECUTION_ID));
+		if (executionId != null) {
+			eq.executionId(executionId);
+		}
+
+		eq.executionTenantId(this.namespace);
+		List<ProcessInstance> executionList = (List) eq.list();
+		info("getProcessInstances:" + executionList);
+		if (executionList == null || executionList.size() == 0) {
+			throw new RuntimeException("ActivitiProducer.findProcessInstance:Could not find processInstance with criteria " + processCriteria);
+		}
+		return executionList;
 	}
 
-	private ProcessDefinition getProcessDefinition() {
-		ProcessEngine pe = this.workflowService.getProcessEngine();
-		RepositoryService repositoryService = pe.getRepositoryService();
-		info("getProcessDefinition:"+this.processName+"/ns:"+this.namespace);
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(this.processName).processDefinitionTenantId(this.namespace).latestVersion().singleResult();
+	private ProcessDefinition getProcessDefinition(ProcessInstance processInstance) {
+		info("getProcessDefinition:" + processInstance.getProcessDefinitionId() + "/ns:" + this.namespace);
+
+		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processInstance.getProcessDefinitionId()).singleResult();
 		if (processDefinition == null) {
-			throw new RuntimeException("ActivitiProducer:getProcessDefinition:processDefinition not found:" + this.namespace+"/"+this.processName);
+			throw new RuntimeException("ActivitiProducer:getProcessDefinition:processDefinition not found:" + processInstance);
 		}
 		info("getProcessDefinition:" + processDefinition + "/" + processDefinition.getTenantId());
 		return processDefinition;
+	}
+
+	private void saveActivitiCamelCorrelationHistory(Exchange exchange, ProcessInstance processInstance) {
+		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
+
+		String aci = this.namespace + "/" + processInstance.getProcessDefinitionKey() + "/" + processInstance.getId() + "/" + this.activityId;
+		exchange.setProperty(HISTORY_ACTIVITI_ACTIVITY_KEY, aci);
+
+		String bc = (String) exchange.getIn().getHeader(Exchange.BREADCRUMB_ID);
+		String routeDef = (String) exchange.getProperty(CAMEL_ROUTE_DEFINITION_KEY);
+		Map props = new HashMap();
+		props.put(HISTORY_TYPE, ACTIVITI_CAMEL_CORRELATION_TYPE);
+		props.put(ACC_ACTIVITI_ID, aci);
+		props.put(ACC_ROUTE_INSTANCE_ID, routeDef + "|" + bc);
+		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
+	}
+
+	private void printHistory(Exchange exchange) {
+		List<MessageHistory> list = exchange.getProperty(Exchange.MESSAGE_HISTORY, List.class);
+		ExchangeFormatter formatter = new ExchangeFormatter();
+		formatter.setShowExchangeId(true);
+		formatter.setMultiline(true);
+		formatter.setShowHeaders(true);
+		formatter.setStyle(ExchangeFormatter.OutputStyle.Fixed);
+		String routeStackTrace = MessageHelper.dumpMessageHistoryStacktrace(exchange, formatter, true);
+		info(routeStackTrace);
+	}
+
+	private void createLogEntry(Exchange exchange, ProcessDefinition processDefinition, Exception e) {
+		EventAdmin eventAdmin = (EventAdmin) exchange.getContext().getRegistry().lookupByName(EventAdmin.class.getName());
+		Map props = new HashMap();
+		if (this.operation == ActivitiOperation.startProcess) {
+			String key = processDefinition.getTenantId() + "/" + processDefinition.getId();
+			props.put(HISTORY_KEY, key);
+			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_START_PROCESS_EXCEPTION);
+			Map hint = new HashMap();
+			hint.put("processDefinitionId", processDefinition.getId());
+			hint.put("processDefinitionKey", processDefinition.getKey());
+			hint.put("processDefinitionName", processDefinition.getName());
+			hint.put("processDeploymentId", processDefinition.getDeploymentId());
+			props.put(HISTORY_HINT, this.js.deepSerialize(hint));
+		} else {
+			props.put(HISTORY_KEY, this.activitiKey);
+			props.put(HISTORY_TYPE, HISTORY_ACTIVITI_JOB_EXCEPTION);
+		}
+		Throwable r = getRootCause(e);
+		props.put(HISTORY_MSG, r != null ? getStackTrace(r) : getStackTrace(e));
+		eventAdmin.postEvent(new Event(HISTORY_TOPIC, props));
+	}
+
+	protected boolean isProcessStart() {
+		return this.activityId == null;
+	}
+
+	private Map getCamelVariablenMap(Exchange exchange) {
+		this.js.prettyPrint(true);
+		Map camelMap = new HashMap();
+		Map exVars = ExchangeUtils.prepareVariables(exchange, true, true, true);
+		camelMap.putAll(exVars);
+		return camelMap;
 	}
 
 	private String getStringCheck(Exchange e, String key, String def) {

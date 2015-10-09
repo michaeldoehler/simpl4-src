@@ -20,9 +20,13 @@ package org.ms123.common.camel.components.activiti;
 
 public interface ActivitiConstants {
 
-	public static final String PROCESS_NAME = "processName";
-	public static final String ACTIVITY_NAME = "activityName";
 	public static final String NAMESPACE = "namespace";
+	public static final String PROCESS_DEFINITION_ID = "processDefinitionId";
+	public static final String PROCESS_DEFINITION_KEY = "processDefinitionKey";
+	public static final String PROCESS_INSTANCE_ID = "processInstanceId";
+	public static final String BUSINESS_KEY = "businessKey";
+	public static final String ACTIVITY_ID = "activityId";
+	public static final String EXECUTION_ID = "executionId";
 
 	public static final String LAST_ERROR = "lastError";
 }
