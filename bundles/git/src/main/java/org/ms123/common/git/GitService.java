@@ -25,10 +25,7 @@ import org.ms123.common.rpc.RpcException;
 
 public interface GitService {
 
-	public List getRepositories() throws RpcException;
-
-	public List getRepositories(List<String> flags) throws RpcException;
-	public List getRepositories(List<String> flags, boolean all) throws RpcException;
+	public List getRepositories(List<String> flags, Boolean all) throws RpcException;
 
 	public void createRepository(String name) throws RpcException;
 

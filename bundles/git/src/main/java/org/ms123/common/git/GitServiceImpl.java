@@ -292,17 +292,10 @@ public class GitServiceImpl implements GitService {
 		}
 	}
 
-	public List getRepositories() throws RpcException {
-System.out.println("getRepositories0;");
-		return getRepositories(new ArrayList());
-	}
-
-	public List getRepositories(List<String> flags) throws RpcException {
-System.out.println("getRepositories1;"+flags);
-		return getRepositories(flags,false);
-	}
-	public List getRepositories(List<String> flags, boolean all) throws RpcException {
-System.out.println("getRepositories2;"+flags+"/"+all);
+	public List getRepositories(
+		@PName("flags")  @POptional List<String> flags, 
+		@PName("all")        @PDefaultBool(false) @POptional Boolean all) throws RpcException {
+		System.out.println("getRepositories;"+flags+"/"+all);
 		try {
 			String gitSpace = System.getProperty("git.repos");
 			File dir = new File(gitSpace);
@@ -320,11 +313,11 @@ System.out.println("getRepositories2;"+flags+"/"+all);
 				}
 				debug("\n---------------->" + fileName);
 				Map map = new HashMap();
-				if (flags.contains("updateAvailable")) {
+				if (flags!=null && flags.contains("updateAvailable")) {
 					Git gitObject = Git.open(new File(gitSpace, fileName));
 					map.put("updateAvailable", updateAvailable(gitObject));
 				}
-				if (flags.contains("isModified")) {
+				if (flags!=null && flags.contains("isModified")) {
 					Git gitObject = Git.open(new File(gitSpace, fileName));
 					map.put("isModified", isModified(gitObject));
 				}

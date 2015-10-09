@@ -309,7 +309,7 @@ public class PermissionServiceImpl extends BasePermissionServiceImpl implements 
 			@PName("filter")           @POptional String filter) throws RpcException {
 		try {
 			List<Map> result = new ArrayList();
-			List<Map> repoList = m_gitService.getRepositories();
+			List<Map> repoList = m_gitService.getRepositories(new ArrayList(), false);
 			for (Map<String, String> repo : repoList) {
 				String name = repo.get("name");
 				//if (GLOBAL.equals(name)) continue;
