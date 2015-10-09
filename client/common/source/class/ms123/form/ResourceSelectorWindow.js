@@ -338,7 +338,7 @@ qx.Class.define("ms123.form.ResourceSelectorWindow", {
 			var val = model.value;
 			for( var i=0; i< procedureShapes.length; i++){
 				var shape = procedureShapes[i];
-				if( qx.lang.String.startsWith(shape.properties.overrideid,val)){
+				if( qx.lang.String.startsWith(shape.properties.overrideid,val.replace(/\.camel$/,""))){
 					var node ={};
 					node.id = node.name = node.value = node.title = shape.properties.urivalue_name;
 					node.path = model.path + "/"+ node.name;
