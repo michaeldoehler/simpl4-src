@@ -11,6 +11,7 @@ import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import org.phidias.compile.BundleJavaManager;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.wiring.BundleWiring;
 
 /**
  * Created by trung on 5/3/15.
@@ -28,7 +29,9 @@ public class JavaCompiler {
 		SourceCode sourceCode = new SourceCode(className, sourceCodeInText);
 		CompiledCode compiledCode = new CompiledCode(className);
 		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceCode);
-		DynamicClassLoader cl = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+
+		ClassLoader loader = bundle.adapt(BundleWiring.class).getClassLoader();
+		DynamicClassLoader cl = new DynamicClassLoader(loader);
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), locations, compiledCode, cl);
 
@@ -56,7 +59,9 @@ public class JavaCompiler {
 		SourceCode sourceCode = new SourceCode(className, sourceCodeInText);
 		CompiledCode compiledCode = new CompiledCode(className);
 		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceCode);
-		DynamicClassLoader cl = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+
+		ClassLoader loader = bundle.adapt(BundleWiring.class).getClassLoader();
+		DynamicClassLoader cl = new DynamicClassLoader(loader);
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(diagnostics, null, null), locations, compiledCode, cl);
 
