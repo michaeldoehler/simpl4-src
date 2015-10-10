@@ -138,7 +138,7 @@
         });
 
         $ul.on("focus", "li:not(.dropdownjs-add)", function() {
-					return;//@@@MS
+					if(true)return;//@@@MS
           if ($select.is(":disabled")) {
             return;
           }
@@ -162,7 +162,7 @@
 
         // Listen for new added options and update dropdown if needed
         $select.on("DOMNodeInserted", function(e) {
-					return;//@@@MS
+					if(true)return;//@@@MS
           var $this = $(e.target);
           if (!$this.val().length) return;
 
