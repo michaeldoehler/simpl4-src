@@ -139,7 +139,12 @@
 					<div class="grid column brand_drawer_panel fit">
 						<div class="brand__area">
 							<a href="[[logoLinkLang]]" target="_blank">
-								<simpl-import class="brand__logo" method="global.svgimport" data="[[logoData]]"></simpl-import>
+								<template is="dom-if" if="[[logoUrl]]">
+									<img class="brand__logo"  src="[[logoUrl]]"></img>
+								</template>
+								<template is="dom-if" if="[[logoData]]">
+									<simpl-import class="brand__logo" method="global.svgimport" data="[[logoData]]"></simpl-import>
+								</template>
 							</a>
 						</div>
 						<simpl-mmenu name="menu" background="{{mmenuBackground}}" classes="{{mmenuClasses}}" sliding-submenus="true" searchfield="true" pages="{{getPages()}}" class="flex" />
@@ -238,6 +243,9 @@
 				logo: {
 					value: 'logo212121.svg',
 					type: String
+				},
+				logoUrl: {
+					computed: "getLogoUrl(logo)"
 				},
 				logoData: {
 					computed: "getLogoData(logo)"
@@ -501,10 +509,21 @@
 			isAsciidoc: function( url ) {
 				return url.indexOf( ".adoc" ) > 0;
 			},
+			getLogoUrl: function() {
+				if(this.logo.endsWith(".svg")){
+					return null;
+				}else{
+					return this.logo;
+				}
+			},
 			getLogoData: function() {
-				return {
-					path: this.logo,
-					repo:simpl4.util.BaseManager.getNamespace()
+				if(this.logo.endsWith(".svg")){
+					return {
+						path: this.logo,
+						repo:simpl4.util.BaseManager.getNamespace()
+					}
+				}else{
+					return null;
 				}
 			},
 			loginOk: function( e ) {
