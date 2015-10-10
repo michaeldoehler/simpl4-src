@@ -27,16 +27,28 @@
 			position: relative;
 			box-sizing: border-box;
 		}
+		:host /deep/ .menge {
+			width: 60px !important;
+			padding-left: 30px !important;
+			padding-right: 0px !important;
+		}
+		:host /deep/ .wbutton {
+			width: 20px !important;
+			padding-left: 0px !important;
+			padding-right: 0px !important;
+		}
+		@media(max-width:400px) {
 			:host /deep/ .menge {
-				width: 60px !important;
-				padding-left:30px !important;
-				padding-right:0px !important;
+				max-width: 25px !important;
+				width: 25px !important;
 			}
-			:host /deep/ .button {
-				width: 20px !important;
-				padding-left:0px !important;
-				padding-right:0px !important;
+			:host /deep/ .teilenummer {
+				max-width: 35px !important;
 			}
+			:host /deep/ .teilename {
+				max-width: 45px !important;
+			}
+		}
 		:host /deep/ .hotspot {
 			border-radius: 3px;
 			//				background: yellow;
@@ -56,22 +68,22 @@
 			opacity: .45 !important;
 		}
 		#viewer {
-			min-height: 200px;
+			min-height: 270px;
 			height: 1px;
 		}
 		@media(min-height:650px) {
 			#viewer {
-				min-height: 300px;
+				min-height: 330px;
 			}
 		}
 		@media(min-height:750px) {
 			#viewer {
-				min-height: 400px;
+				min-height: 430px;
 			}
 		}
 		@media(min-height:850px) {
 			#viewer {
-				min-height: 500px;
+				min-height: 530px;
 			}
 		}
 		paper-toast {
@@ -161,7 +173,7 @@
 					element: this.$.viewer,
 					prefixUrl: prefixUrl,
 					zoomPerClick: 2.0,
-     			showFullPageControl:false,
+					showFullPageControl: false,
 					autoHideControls: false,
 					navigatorMaintainSizeRatio: true,
 					navigatorSizeRatio: 0.22,
@@ -267,7 +279,7 @@
 				var col = {};
 				col.data = "basket";
 				col.title = "";
-				col.class = "button";
+				col.class = "wbutton";
 				col.icon = "basket.gif";
 				//			col.class="wkbutton";
 				col.mRender = this.renderColumn;
@@ -311,9 +323,9 @@
 				var baseUrl = simpl4.util.BaseManager.getBaseUrl();
 				var ns = simpl4.util.BaseManager.getNamespace();
 				if ( clazz && clazz.toLowerCase().indexOf( "input" ) > -1 ) {
-					return "<div style='' class='input'><input id='id" + row.part + "' style='padding:0px !important; ;max-width:34px;margin:0px;font-size:10px;height:14px;xidth:100%;' type='text'></input></div>";
-				} else if ( clazz && clazz.toLowerCase().indexOf( "button" ) > -1 ) {
-					return "<div onClick='window.buttonClicked(" + row.part + ");' class='button'><input style='height:14px;background:#787878;' src='" + baseUrl + "/repo/" + ns + "/basket.gif' type='image'></input></div>";
+					return "<div style='' class='input'><input id='id" + row.part + "' style='padding:0px !important; padding-top:3px !important; ;max-width:38px;margin:0px;font-size:10px;height:16px;xidth:100%;' type='text'></input></div>";
+				} else if ( clazz && clazz.toLowerCase().indexOf( "wbutton" ) > -1 ) {
+					return "<div onClick='window.buttonClicked(" + row.part + ");' class='wbutton'><input style='height:16px;background:#787878;' src='" + baseUrl + "/repo/" + ns + "/basket.gif' type='image'></input></div>";
 				} else {
 					return row[ name ];
 				}
@@ -342,10 +354,10 @@
 					} );
 					d.forEach( ( function( r ) {
 						if ( this._hasHotspot( r.part ) ) {
-//							r.name = "<span style='color:#D50303;'>"+r.name+"</span>";
-							
+							//							r.name = "<span style='color:#D50303;'>"+r.name+"</span>";
+
 						} else {
-							r.name = "<span style='color:rgba(0, 0, 0, 0.5);'>"+r.name+"</span>";
+							r.name = "<span style='color:rgba(0, 0, 0, 0.5);'>" + r.name + "</span>";
 						}
 					} ).bind( this ) );
 					return d;
