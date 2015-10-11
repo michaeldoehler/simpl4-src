@@ -214,18 +214,23 @@
 			console.log("form.formNameChanged:",this.formName+"/"+this.namespace);
 			this.fields = [];
 			this.fieldsMap = {};
-			var form = simpl4FormManager.getForm( this.formName, this.namespace );
-			this._form = form.properties;
-			this.defaultButtons = form.properties.xf_default_buttons;
-			this.shapes = this.prepareShape( form ).childShapes;
+			this.shapes = [];
+			this._form = {};
+
 			this.async( function() {
-				this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
-				this.fields.forEach( function( field ) {
-					field.setForm( this );
-				}, this );
-				this.fieldsMap = this.toMap( this.fields );
-				this.valueChanged();
-			},100 );
+				var form = simpl4FormManager.getForm( this.formName, this.namespace );
+				this._form = form.properties;
+				this.defaultButtons = form.properties.xf_default_buttons;
+				this.shapes = this.prepareShape( form ).childShapes;
+				this.async( function() {
+					this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
+					this.fields.forEach( function( field ) {
+						field.setForm( this );
+					}, this );
+					this.fieldsMap = this.toMap( this.fields );
+					this.valueChanged();
+				},1 );
+			},1 );
 		},
 		/*----------------------------------*/
 		specChanged: function( e ) {
