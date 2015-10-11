@@ -308,9 +308,10 @@
 						this.picker.gotoDate( this._date );
 					}
 				}
-				if ( this.type.match( /^date/ ) && this.hasDate ) {
+				if ( this.type.match( /^date.*/ ) && this.hasDate ) {
 					this.async( function() {
 						this.decorator._inputHasContent = true;
+						this.alwaysFloatLabel=true;
 					} );
 				}
 				if ( this.compact ) {
