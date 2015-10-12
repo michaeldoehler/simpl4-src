@@ -26,6 +26,7 @@ import java.io.RandomAccessFile;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -97,6 +98,7 @@ public class GitServiceImpl implements GitService {
 
 	private static JSONSerializer m_js = new JSONSerializer();
 
+	private Map<String,File> m_fileCache = new LinkedHashMap<String,File>();
 	private EventAdmin m_eventAdmin;
 
 	private static final String REF_PREFIX = "refs/heads/";
@@ -450,9 +452,13 @@ public class GitServiceImpl implements GitService {
 				info("searchFile.found:"+f);
 				return f;
 			}
+			File cachedFile = m_fileCache.get(repoName+"/"+name+"/"+type);
+			if( cachedFile != null && cachedFile.exists()){
+				info("searchFile.cachedFile("+repoName+"/"+name+") exists.searchTime"+(new Date().getTime() - startTime));
+				return cachedFile;
+			}
 			pathList = assetList(repoName, name, type, true);
-			long endTime = new Date().getTime();
-			debug("searchFile.time:" + (endTime - startTime));
+			info("searchFile.searchTime:" + (new Date().getTime() - startTime));
 			if (pathList.size() == 0) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:File \"" + name + "\" exists not in " + repoName);
 			}
@@ -460,6 +466,7 @@ public class GitServiceImpl implements GitService {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchFile:File \"" + name + "\" exists more as one times in " + repoName);
 			}
 			File file = new File(gitDir, pathList.get(0));
+			m_fileCache.put(repoName+"/"+name+"/"+type, file);
 			return file;
 		} catch (Exception e) {
 			if( e instanceof RpcException) throw (RpcException)e;
@@ -487,10 +494,18 @@ public class GitServiceImpl implements GitService {
 				FileHolder fr = new FileHolder(f);
 				return fr.getContent();
 			}
+			File cachedFile = m_fileCache.get(repoName+"/"+name+"/"+type);
+			if( cachedFile != null && cachedFile.exists()){
+				info("searchContent.cachedFile("+repoName+"/"+name+") exists.searchTime:"+(new Date().getTime() - startTime));
+				long _startTime = new Date().getTime();
+				FileHolder fr = new FileHolder(cachedFile);
+				String c = fr.getContent();
+				info("searchContent.loadtime("+repoName+"/"+name+"):"+(new Date().getTime() - _startTime));
+				return c;
+			}
 
 			pathList = assetList(repoName, name, type, true);
-			long endTime = new Date().getTime();
-			debug("searchContent.time:" + (endTime - startTime));
+			info("searchContent.searchTime:" + (new Date().getTime() - startTime));
 			if (pathList.size() == 0) {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchContent:File \"" + name + "\" exists not in " + repoName);
 			}
@@ -498,6 +513,7 @@ public class GitServiceImpl implements GitService {
 				throw new RpcException(ERROR_FROM_METHOD, 100, "GitService.searchContent:File \"" + name + "\" exists more as one times in " + repoName);
 			}
 			File file = new File(gitDir, pathList.get(0));
+			m_fileCache.put(repoName+"/"+name+"/"+type, file);
 			FileHolder fr = new FileHolder(file);
 			return fr.getContent();
 		} catch (Exception e) {
