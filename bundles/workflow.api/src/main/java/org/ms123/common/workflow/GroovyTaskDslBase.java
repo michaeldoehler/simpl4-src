@@ -254,7 +254,12 @@ public abstract class GroovyTaskDslBase extends Script {
 					boolean ok = false;
 					for (Map m2 : (List<Map>) l2) {
 						Object val2 = (Object) m2.get(key);
-						if (val1.equals(val2)) {
+
+						if( val1 == null && val2 == null){
+							ok = true;
+						} else if( val1 == null || val2 == null){
+							ok = false;
+						}else if (val1.equals(val2)) {
 							ok = true;
 						}
 					}
