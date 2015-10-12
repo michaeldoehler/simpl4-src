@@ -101,12 +101,9 @@ public class SojoObjectFilter implements WalkerInterceptor {
 	public boolean visitElement(Object pvKey, int pvIndex, Object pvValue, int pvType, String pvPath, int pvNumberOfRecursion) {
 		if (pvType == Constants.TYPE_SIMPLE) {
 			//System.out.println("pvValue:"+pvValue+"/"+pvKey+"/"+pvValue.getClass());
-			boolean isId = isId((String) pvKey);
 			if (pvKey != null && pvKey.getClass().equals(String.class)) {
-				if (isId || m_sessionContext.isFieldPermitted((String) pvKey, m_currentModuleName)) {
+				if (m_sessionContext.isFieldPermitted((String) pvKey, m_currentModuleName)) {
 					String fieldName = (String) pvKey;
-					if (!isId) {
-					}
 					if( pvValue instanceof java.util.Date){
 						pvValue = ((java.util.Date)pvValue).getTime();
 					}
@@ -195,10 +192,6 @@ public class SojoObjectFilter implements WalkerInterceptor {
 		return lvPath;
 	}
 
-
-	private boolean isId(String pvKey) {
-		return pvKey != null && pvKey.toLowerCase().equals("id");
-	}
 
 	private String getLastSegment(String path) {
 		return getLastSegment(path, ".");

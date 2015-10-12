@@ -103,19 +103,16 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 	public boolean visitElement(Object pvKey, int pvIndex, Object pvValue, int pvType, String pvPath, int pvNumberOfRecursion) {
 		pvPath = cleanPath(pvPath);
 		if (pvType == Constants.TYPE_SIMPLE) {
-			boolean isId = isId((String) pvKey);
-			if (!isId && m_fieldMap.get(pvPath) == null) {
+			if (m_fieldMap.get(pvPath) == null) {
 				return false;
 			}
 			if (pvKey != null && pvKey.getClass().equals(String.class)) {
-				if (isId || m_sessionContext.isFieldPermitted((String) pvKey, m_currentModuleName)) {
+				if (m_sessionContext.isFieldPermitted((String) pvKey, m_currentModuleName)) {
 					String fieldName = (String) pvKey;
-					if (!isId) {
-						int index = m_fieldMap.get(pvPath);
-						String alias = m_aliasList.get(index);
-						if (alias != null && alias.length() > 0 && !(alias.startsWith("@")||alias.startsWith("%"))) {
-							fieldName = alias;
-						}
+					int index = m_fieldMap.get(pvPath);
+					String alias = m_aliasList.get(index);
+					if (alias != null && alias.length() > 0 && !(alias.startsWith("@")||alias.startsWith("%"))) {
+						fieldName = alias;
 					}
 					if( pvValue instanceof java.util.Date){
 						pvValue = ((java.util.Date)pvValue).getTime();
@@ -241,10 +238,6 @@ public class SojoFilterInterceptor implements WalkerInterceptor {
 		pvPath = pvPath.replaceAll("\\(\\)", "");
 		pvPath = pvPath.replaceAll("\\.\\.", "");
 		return pvPath;
-	}
-
-	private boolean isId(String pvKey) {
-		return pvKey != null && pvKey.toLowerCase().equals("id");
 	}
 
 	private String getLastSegment(String path) {
