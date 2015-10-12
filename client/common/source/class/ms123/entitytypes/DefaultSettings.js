@@ -148,6 +148,11 @@ qx.Class.define("ms123.entitytypes.DefaultSettings", {
 					msgstr: this._capitaliseFirstLetter(et.name)
 				}
 				messages.push(msg);
+				msg = {
+					msgid: "data." + et.name + ".id",
+					msgstr: "Id"
+				}
+				messages.push(msg);
 
 				var keys = Object.keys(fields);
 				for (var j = 0; j < keys.length; j++) {
