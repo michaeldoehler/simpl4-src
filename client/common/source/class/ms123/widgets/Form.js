@@ -931,6 +931,14 @@ qx.Class.define('ms123.widgets.Form', {
 				items[f].setEnabled(false);
 			}
 		},
+		getName: function () {
+console.log("getName2:"+this.form.getName());
+			return this.form.getName();
+		},
+		setName: function (name) {
+console.log("setName2:"+name);
+			this.form.setName(name);
+		},
 		_createForm: function () {
 			var buttons = [{
 				'label': (this._mode == "select") ? this.tr("data.form.select") : this.tr("data.form.save"),

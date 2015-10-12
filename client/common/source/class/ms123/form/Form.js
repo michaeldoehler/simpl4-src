@@ -1313,7 +1313,14 @@ qx.Class.define("ms123.form.Form", {
 			}
 			return labels;
 		},
-
+		getName: function (name) {
+console.log("getName1:",this.__name);
+			return this.__name;
+		},
+		setName: function (name) {
+console.log("SetName1:",name);
+			this.__name=name;
+		},
 		getFormElementByKey: function (key) {
 			return this.getItems()[key];
 		},
