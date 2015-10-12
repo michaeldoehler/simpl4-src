@@ -28,7 +28,6 @@ qx.Class.define("ms123.form.FormElementRendererGE", {
 		this.setLayout(new qx.ui.layout.Dock(3, 3));
 		var width = elementDesc.bounds.lowerRight.x - elementDesc.bounds.upperLeft.x;
 		var height = elementDesc.bounds.lowerRight.y - elementDesc.bounds.upperLeft.y;
-		console.log("height:" + height + "/w:" + width + "/" + formElement);
 		//	this._formElement.setMinWidth(width);
 		this._formElement.setWidth(width);
 		this._formElement.setMinHeight(height);
@@ -61,7 +60,6 @@ qx.Class.define("ms123.form.FormElementRendererGE", {
 			for (var i = 0; i < this._childs.length; i++) {
 				var child = this._childs[i];
 				var stencilId = child.stencil.id.toLowerCase();
-				console.log("_createInputWidget:" + stencilId);
 				var properties = child.properties;
 				switch (stencilId) {
 				case "label":

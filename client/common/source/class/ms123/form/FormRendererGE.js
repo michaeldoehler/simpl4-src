@@ -59,8 +59,6 @@ qx.Class.define("ms123.form.FormRendererGE", {
 		_createFormWidgetPart: function (container, lineBreak, elementDesc) {
 			var stencilId = elementDesc.stencil.id.toLowerCase();
 			var properties = elementDesc.properties;
-			console.log("properties:"+qx.util.Serializer.toJson(properties));
-			console.log("._createFormWidgetPart:" + stencilId + "/" + properties.xf_id + "\t/" + container + "=" + lineBreak);
 			var newContainer = container;
 			switch (stencilId) {
 			case "xform":
@@ -141,7 +139,6 @@ qx.Class.define("ms123.form.FormRendererGE", {
 			case "alert":
 			case "textarea":
 				var formElement = this._form.getFormElement(elementDesc.resourceId);
-console.log("stencilId:"+stencilId+"/"+formElement);
 				if (formElement) {
 					var fer = new ms123.form.FormElementRendererGE(formElement, elementDesc);
 						var flex = properties.xf_flex ? properties.xf_flex : 1;
