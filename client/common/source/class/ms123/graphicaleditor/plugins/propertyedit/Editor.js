@@ -99,6 +99,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 			}
 			this.isBPMNRoot = (this.shapeSelection.shapes.first().getStencil().id() == "http://b3mn.org/stencilset/bpmn2.0#BPMNDiagram"); //@@@MS  TODO
 			this.isCamelRoot = (this.shapeSelection.shapes.first().getStencil().id() == "http://b3mn.org/stencilset/camel#Camelrouting"); //@@@MS  TODO
+			this.isFormRoot = (this.shapeSelection.shapes.first().getStencil().id() == "http://b3mn.org/stencilset/xforms#XForm"); //@@@MS  TODO
 			this.setPropertyWindowTitle();
 			this.identifyCommonProperties();
 			this.setCommonPropertiesValues();
@@ -322,7 +323,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 
 		// if a field becomes invalid after editing the shape must be restored to the old value
 		updateAfterInvalid: function (key) {
-			//console.log("updateAfterInvalid:" + key);
 			var oldValues = this._oldValues[key];
 			this.shapeSelection.shapes.each((function (shape) {
 //				if (!shape.getStencil().property(key).readonly()) {
@@ -422,7 +422,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 
 				this.shapeSelection.commonProperties = properties.values();
 			}
-			//	console.log("identifyCommonProperties:" + this.shapeSelection.commonProperties);
 		},
 
 		/**
@@ -449,15 +448,23 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					var isCamelDiagramName = (this.isCamelRoot && pair.id() == 'name');
 					var isCamelDiagramId = (this.isCamelRoot && pair.id() == 'overrideid');
 					var isBPMNDiagramName = (this.isBPMNRoot && pair.id() == 'name');
+					var isFormDiagramName = (this.isFormRoot && pair.id() == 'xf_name');
+					var isFormDiagramId = (this.isFormRoot && pair.id() == 'xf_id');
 
 					var configOrig = ms123.util.Clone.clone(pair.config()) || {};
 					var config = this.__supplant_object( pair.config(),configOrig,env) || {};
 
 					if( this.isBPMNRoot ){
 					}
-					if (isBPMNDiagramName || isCamelDiagramName || isCamelDiagramId) {
-						console.log("setProperty:"+key+"="+this.diagramName);
+					if (isBPMNDiagramName || isCamelDiagramName || isCamelDiagramId || isFormDiagramId || isFormDiagramName) {
 						this.shapeSelection.shapes.first().setProperty(key, this.diagramName);
+					}
+					if (isFormDiagramName) {
+						var n = attribute;
+						if( this._isEmpty(n)){
+							n = this.diagramName;
+						}
+						this.shapeSelection.shapes.first().setProperty(key, this._removeNotAllow(n));
 					}
 					var isTargetNamespace = (this.isBPMNRoot && pair.id() == 'targetnamespace');
 					if (isTargetNamespace) {
@@ -508,6 +515,7 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							if (isBPMNDiagramName) formElement.setEnabled(false);
 							if (isCamelDiagramId) formElement.setEnabled(false);
 							if (isCamelDiagramName) formElement.setEnabled(false);
+							if (isFormDiagramId) formElement.setEnabled(false);
 							if (isTargetNamespace) formElement.setEnabled(false);
 							break;
 						case ms123.oryx.Config.TYPE_INTEGER:
@@ -517,7 +525,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							formElement.setLiveUpdate(false);
 							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
-								console.log("NumberField.changeValue:" + formElement.getValue() + "/" + key);
 								this.editDirectly(key, formElement.getValue());
 							}).bind(this));
 							break;
@@ -531,7 +538,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 						case ms123.oryx.Config.TYPE_MODULE_SELECTOR:
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.ModuleSelectorField(config, key, this.facade);
 							formElement.addListener('changeValue', (function (e) {
-								console.log("changeValue.moduleselector:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
 							}).bind(this))
@@ -540,7 +546,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 							formElement = new ms123.form.ResourceSelectorField(config, key, this.facade);
 							formElement.setRequired(!pair.optional());
 							formElement.addListener('changeValue', (function (e) {
-								console.log("changeValue.resourceselector:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
 							}).bind(this))
@@ -548,7 +553,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 						case ms123.oryx.Config.TYPE_MULTISELECT:
 							formElement = new ms123.graphicaleditor.plugins.propertyedit.MultiSelectField(config, key, this.facade,pair.title());
 							formElement.addListener('changeValue', (function (e) {
-								console.log("changeValue.multiselect:" + e.getData() + "/" + formElement.getValue());
 								this.editDirectly(key, e.getData());
 								this.afterEdit(e);
 							}).bind(this))
@@ -789,7 +793,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					}
 				}).bind(this));
 			}
-//			var value = qx.lang.Json.stringify(env, null, 4); console.log("ENV1:" + value);
 			return env;
 		},
 		_getPropertyValue: function (id) {
@@ -808,7 +811,6 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 		_getEnvFromProperties: function () {
 			var _id = this.shapeSelection.shapes.first().getStencil().id()
 			var id  = _id.split("#")[1].toLowerCase();
-			console.log("Id:",id);
 			var env = {};
 			env["stencil"] = id;
 			if (this.shapeSelection.commonProperties) {
@@ -819,8 +821,10 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 					env[pair.id()]=attribute;
 				}).bind(this));
 			}
-//			var value = qx.lang.Json.stringify(env, null, 4); console.log("ENV2:" + value);
 			return env;
+		},
+		_isEmpty:function(s){
+			return !this._notEmpty(s);
 		},
 		_notEmpty:function(s){
 			return s != null && s.length>0;
@@ -840,6 +844,18 @@ qx.Class.define("ms123.graphicaleditor.plugins.propertyedit.Editor", {
 				return "[0-9A-Za-z_]";
 			}
 			return null;
+		},
+		_removeNotAllow:function(s){
+			if( qx.lang.String.endsWith(s, ".form")){
+				s = s.substring(0, s.length-5);
+			}
+			if( qx.lang.String.endsWith(s, ".camel")){
+				s = s.substring(0, s.length-6);
+			}
+			if( qx.lang.String.endsWith(s, ".ws")){
+				s = s.substring(0, s.length-3);
+			}
+			return s.replace("[^A-Za-z0-9_]", "")
 		},
 		_getFilterForKey:function(key){
 			if( key =="oryx-ws_id" || key == "oryx-xf_id"){
