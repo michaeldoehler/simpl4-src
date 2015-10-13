@@ -31,6 +31,7 @@ import org.ms123.common.activiti.BaseResource;
 import org.ms123.common.activiti.Util;
 import org.activiti.engine.form.TaskFormData;
 import org.ms123.common.form.FormService;
+import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.repository.ProcessDefinition;
 
 /**
@@ -64,6 +65,14 @@ public class TaskOperationResource extends BaseResource {
 			//getPE().getFormService().submitTaskFormData(m_taskId, variables);
 
 			TaskFormData taskFormData = getPE().getFormService().getTaskFormData(m_taskId);
+			List<FormProperty> userProperties = taskFormData.getFormProperties();
+			String formVar = null;
+			for(FormProperty fp : userProperties){
+				System.out.println("TaskOperationResource.FormProperty:"+fp.getId()+"="+fp.getValue());
+				if( "forvarname".equals(fp.getId())){
+					formVar = fp.getValue();
+				}
+			}
 			Map<String, Object> newVariables = new HashMap();
 			if (taskFormData != null) {
 				String formKey = taskFormData.getFormKey();
@@ -78,11 +87,14 @@ public class TaskOperationResource extends BaseResource {
 				String tenantId = processDefinition.getTenantId();
 				String processDefinitionKey = processDefinition.getKey();
 
-				String formVar = getFormVar(formKey);
+				String namespace=tenantId;
+				System.out.println("TaskOperationResource.formVar:"+formVar);
+				if( formVar == null || formVar.length()==0 ){
+					formVar = getFormVar(namespace,formKey);
+				}
 				Map data = (Map)variables.get(formVar);
 				System.out.println("formKey:"+formVar+"/"+data+"/"+taskName);
 				if( data != null){
-					String namespace=tenantId;
 					Map ret  = getFormService().validateForm(namespace,formKey,data,true);				
 					List<Map> errors = (List)ret.get("errors");
 					if( errors.size()>0){
@@ -136,10 +148,17 @@ public class TaskOperationResource extends BaseResource {
 		successNode.put("success", true);
 		return successNode;
 	}
-	private String getFormVar(String formKey){
-		if( formKey!=null && formKey.endsWith(".form")){
-			return formKey.substring(0, formKey.length()-5);
+	private String getFormVar(String namespace,String formKey){
+		String formVar=null;
+		try{
+			formVar = getFormService().getFormName(namespace,formKey);				
+		}catch(Exception e){
+			throw new RuntimeException("TaskOperationResource:cannot get formVar:",e);
 		}
-		return formKey;
+		System.out.println("TaskOperationResource:"+formVar);
+		if( formVar == null){
+			throw new RuntimeException("TaskOperationResource:formVar is null");
+		}
+		return formVar;
 	}
 }

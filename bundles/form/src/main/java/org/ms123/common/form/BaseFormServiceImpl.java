@@ -154,6 +154,19 @@ class BaseFormServiceImpl {
 		return ret;
 	}
 
+	public String getFormName(String namespace, String formKey) throws Exception {
+		String json = m_gitService.searchContent(namespace, formKey, "sw.form");
+		Map rootShape = (Map) m_ds.deserialize(json);
+		Map properties = (Map) rootShape.get("properties");
+		String name = ((String) properties.get("xf_name"));
+		if( name == null || name.length() == 0){
+			if( formKey!=null && formKey.endsWith(".form")){
+				return formKey.substring(0, formKey.length()-5);
+			}
+			return formKey;
+		}
+		return name;
+	}
 	private boolean executeFilter(SessionContext sc, Map filterCheck, String fieldName, Object value) throws Exception {
 		Map fdesc = filterCheck;
 		String filterName = (String) fdesc.get("name");
