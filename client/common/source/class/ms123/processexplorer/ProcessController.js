@@ -143,7 +143,7 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 			var processVariables={};
 			var mappedFormValues=null;
 			if( task != null){
-				processVariables = this._getProcessVariables( task.processInstanceId);
+				processVariables = this._getProcessVariables( processTenantId, formResourceKey,task.processInstanceId);
 				mappedFormValues = this._getMappedFormValues( task.id, task.processInstanceId);
 			}else{
 				processVariables["__namespace"] = ms123.StoreDesc.getCurrentNamespace();
@@ -234,11 +234,13 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 			}
 			return null;
 		},
-		_getProcessVariables: function (pid) {
+		_getProcessVariables: function (processTenantId, formId, pid) {
 			var result = null;
 			try {
 				result = ms123.util.Remote.rpcSync("activiti:getVariables", {
-					executionId:pid
+					executionId:pid,
+					namespace:processTenantId,
+					formId:formId
 				});
 			} catch (e) {
 				ms123.form.Dialog.alert("ProcessController._getProcessVariables:" + e);

@@ -26,6 +26,7 @@ import flexjson.JSONSerializer;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import org.ms123.common.data.api.DataLayer;
 import org.ms123.common.auth.api.AuthService;
@@ -204,10 +205,13 @@ public class ActivitiServiceImpl extends BaseActivitiServiceImpl implements Acti
 	}
 
 	public Map getVariables(
+			@PName("namespace")      String namespace,
+			@PName("formId")      String formId,
 			@PName("executionId")      String executionId) throws RpcException {
 		ClassLoader saveCl = _setContextClassLoader( executionId);
 		try {
-			return m_processEngine.getRuntimeService().getVariables(executionId);
+			Set<String> vars = m_formService.getFormInputVariables(namespace,formId);
+			return m_processEngine.getRuntimeService().getVariables(executionId,vars);
 		} catch (Exception e) {
 			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "ActivitiService.getVariables:", e);
 		}finally{

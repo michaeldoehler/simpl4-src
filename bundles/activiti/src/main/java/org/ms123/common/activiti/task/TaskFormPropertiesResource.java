@@ -67,7 +67,7 @@ public class TaskFormPropertiesResource extends BaseResource {
 			for (FormProperty fp : formProperties) {
 				System.out.println("fp::" + fp.getName() + "/" + fp.getValue());
 				String value = fp.getValue();
-				if( value.length() > 0 && value.startsWith("~")){
+				if( value !=null && value.length() > 0 && value.startsWith("~")){
 					value = value.substring(1);
 				}
 				if (pv != null && "variablesmapping".equals(fp.getName())) {

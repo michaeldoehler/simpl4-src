@@ -69,7 +69,7 @@ public class TaskOperationResource extends BaseResource {
 			String formVar = null;
 			for(FormProperty fp : userProperties){
 				System.out.println("TaskOperationResource.FormProperty:"+fp.getId()+"="+fp.getValue());
-				if( "forvarname".equals(fp.getId())){
+				if( "formvarname".equals(fp.getId())){
 					formVar = fp.getValue();
 				}
 			}
@@ -107,12 +107,7 @@ public class TaskOperationResource extends BaseResource {
 						newVariables.put(formVar,data);
 						String script = (String)ret.get("postProcess");
 						if( script!=null && script.trim().length()> 2){
-/*							TaskScriptExecutor sce = new TaskScriptExecutor();
-							VariableScope vs = new RuntimeVariableScope(getPE().getRuntimeService(), executionId);
-							sce.execute(tenantId,processDefinitionKey, pid, script, newVariables, vs,taskName, getDataLayer(),getWorkflowService());*/
-
 							getWorkflowService().executeScriptTask( executionId, tenantId, processDefinitionKey, pid, script, newVariables, taskName );
-
 							if( data.get("errors") != null ){
 								Object _errors = data.get("errors");
 								Map successNode = new HashMap();
