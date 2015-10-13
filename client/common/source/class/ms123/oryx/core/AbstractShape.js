@@ -439,11 +439,11 @@ qx.Class.define("ms123.oryx.core.AbstractShape", {
 			var initializedDocker = 0;
 
 			// Sort properties so that the hidden properties are first in the list
-			serialize = serialize.sort(qx.lang.Function.bind(function (a, b) {
+/*@@@MS Don't no for what			serialize = serialize.sort(qx.lang.Function.bind(function (a, b) {
 				a = Number(this.properties.keys().member(a.prefix + "-" + a.name));
 				b = Number(this.properties.keys().member(b.prefix + "-" + b.name));
 				return a > b ? 1 : (a < b ? -1 : 0)
-			},this));
+			},this));*/
 
 			serialize.each((function (obj) {
 
