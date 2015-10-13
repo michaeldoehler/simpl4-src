@@ -135,19 +135,24 @@ public abstract class TaskBaseExecutor {
 		}
 	}
 
-	protected Object getValue(DelegateExecution execution, String processvar) throws Exception {
-		if (processvar.indexOf(".") == -1) {
-			//log("\tProcessvar.getValue:" + processvar + " = " + execution.getVariable(processvar));
-			return execution.getVariable(processvar);
+	protected Object getValue(DelegateExecution execution, String processvar)  {
+		try{
+			if (processvar.indexOf(".") == -1) {
+				//log("\tProcessvar.getValue:" + processvar + " = " + execution.getVariable(processvar));
+				return execution.getVariable(processvar);
+			}
+			String[] parts = processvar.split("\\.");
+			Object o = execution.getVariable(parts[0]);
+			for (int i = 1; i < parts.length; i++) {
+				String part = parts[i];
+				o = PropertyUtils.getProperty(o, part);
+			}
+			//log("\tProcessvar.getValue:" + processvar + " = " + o);
+			return o;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException("TaskBaseExecutor:Processvariable \"" + processvar +"\" not found");
 		}
-		String[] parts = processvar.split("\\.");
-		Object o = execution.getVariable(parts[0]);
-		for (int i = 1; i < parts.length; i++) {
-			String part = parts[i];
-			o = PropertyUtils.getProperty(o, part);
-		}
-		//log("\tProcessvar.getValue:" + processvar + " = " + o);
-		return o;
 	}
 
 	protected String getFileContentFromGit(DelegateExecution execution, String namespace, String name, String type) {
