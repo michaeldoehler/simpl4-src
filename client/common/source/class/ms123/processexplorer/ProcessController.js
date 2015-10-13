@@ -154,7 +154,7 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				actionCallback: actionCallback,
 				processName: processName,
 				processTenantId: processTenantId,
-				processVariables: processVariables,
+/				processVariables: processVariables,
 				buttons: buttons,
 				taskName: taskName
 			});
