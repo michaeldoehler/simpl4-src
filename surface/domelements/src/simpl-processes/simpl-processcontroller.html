@@ -156,6 +156,7 @@
 					var xaction = e.detail.xaction;
 					var xid = e.detail.xid;
 					var data = e.detail.data;
+					var formVar = e.detail.formVar;
 					var valid = e.detail.valid;
 					if ( xaction == "execute" ) {
 						var buttonKey = xid;
@@ -164,7 +165,7 @@
 							self.querySelector( "#toast" ).show();
 							return;
 						}
-						self.handleExecuteButton( data, task, formName, buttonKey, finishCallback );
+						self.handleExecuteButton( data, task, formVar, buttonKey, finishCallback );
 					}
 					if ( xaction == "cancel" ) {
 						if ( self.finishCallback ) {
@@ -175,7 +176,7 @@
 				var processVariables = {};
 				var mappedFormValues = null;
 				if ( task != null ) {
-					processVariables = this.getProcessVariables( task.processInstanceId );
+					processVariables = this.getProcessVariables( processTenantId,formResourceKey,  task.processInstanceId );
 					mappedFormValues = this.getMappedFormValues( task.id, task.processInstanceId );
 				} else {
 					processVariables[ "__namespace" ] = simpl4.util.BaseManager.getNamespace();
@@ -250,10 +251,12 @@
 				}
 				return null;
 			},
-			getProcessVariables: function( pid ) {
+			getProcessVariables: function( namespace, formId, pid ) {
 				var result = null;
 				try {
 					result = simpl4.util.Rpc.rpcSync( "activiti:getVariables", {
+						namespace: namespace,
+						formId: formId,
 						executionId: pid
 					} );
 				} catch ( e ) {

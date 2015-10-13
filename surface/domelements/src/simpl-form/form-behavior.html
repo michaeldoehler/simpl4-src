@@ -221,6 +221,7 @@
 				var form = simpl4FormManager.getForm( this.formName, this.namespace );
 				this._form = form.properties;
 				this.defaultButtons = form.properties.xf_default_buttons;
+				this.formVar = form.properties.xf_name;
 				this.shapes = this.prepareShape( form ).childShapes;
 				this.async( function() {
 					this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
