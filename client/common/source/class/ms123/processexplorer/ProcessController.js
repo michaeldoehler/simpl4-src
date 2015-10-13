@@ -106,19 +106,16 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				this._handleExecuteButton(null, null, task, null,null);
 				return;
 			}
-			var data = this._getFormVarAndPath(formResourceKey);
-			var formPath = data.formPath;
-			var formVar = data.formVar;
+			var formPath = this._getFormPath(formResourceKey);
 			console.warn("{task,process}Name:"+taskName+"/"+processName);
 			console.warn("formResourceKey:"+formResourceKey);
 			console.warn("formPath:"+formPath);
-			console.warn("formVar:"+formVar);
 			var self = this;
 			var buttons = [{
 				'label': (task==null) ? this.tr("processes.form.start") : this.tr("tasks.form.start"),
 				'icon': "icon/22/actions/dialog-ok.png",
 				'callback': function (data) {
-					self._handleExecuteButton(this.form, data, task, formVar,null);
+					self._handleExecuteButton(this.form, data, task, this.form.getName(),null);
 				},
 				'value': 0
 			},
@@ -136,7 +133,7 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				if( e.action == "execute" ){
 					var buttonKey = e.key;
 					var data = this.getData();
-					self._handleExecuteButton(this.form, data, task, formVar, buttonKey);
+					self._handleExecuteButton(this.form, data, task, this.form.getName(), buttonKey);
 				}
 				if( e.action == "cancel" ){
 					self._formContainer.destroy({});
@@ -153,7 +150,6 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 			}
 			this._formContainer.open({
 				formPath: formPath,
-				formVar: formVar,
 				mappedFormValues: mappedFormValues,
 				actionCallback: actionCallback,
 				processName: processName,
@@ -163,23 +159,12 @@ qx.Class.define("ms123.processexplorer.ProcessController", {
 				taskName: taskName
 			});
 		},
-		_getFormVarAndPath:function(formResourceKey){
-			var formVar = null;
-			var formPath = null;
-			if(  formResourceKey.indexOf(",") == -1){
-				 formVar = formResourceKey;
-				 formPath = formResourceKey;
-			}else{
-				formVar = formResourceKey.split(",")[1];
+		_getFormPath:function(formResourceKey){
+			var formPath = formResourceKey;
+			if(  formResourceKey.indexOf(",") >0){
 				formPath = formResourceKey.split(",")[0];
 			}
-			if( formVar.match(/.*\.form$/)){
-				formVar = formVar.substring(0, formVar.length-5);
-			}
-			return {
-				formVar : formVar,
-				formPath : formPath
-			}
+			return formPath
 		},
 		_handleExecuteButton:function(form,data,task, formVar, executeButtonKey){
 			var validate = form==null ? true : form.validate();

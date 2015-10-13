@@ -80,13 +80,12 @@ qx.Class.define("ms123.processexplorer.FormWindow", {
 			this._form.setErrors(cv);
 		},
 		createForm: function (params) {
-			var formVar = params.formVar;
 			var formPath = params.formPath;
 			var mappedFormValues = params.mappedFormValues;
 			var processVariables = params.processVariables;
 			var processTenantId = params.processTenantId;
 			var buttons = params.buttons;
-			console.log("formVar:"+formVar+"/"+formPath);
+			console.log("formPath:"+formPath);
 
 			var formDesc=params.formDesc || null;
 			if( formDesc==null){
@@ -114,24 +113,23 @@ qx.Class.define("ms123.processexplorer.FormWindow", {
 			//var ret = ms123.util.Remote.sendSync("data/form?query=true", "POST", null, postdata, null);
 
 			if (!formDesc ) {
-				formDesc = "{stencil:{id:\"XForm\"},childShapes:[]}";//@@@MS braucht man das, Task ohne Form?
+				formDesc = "{properties:{xf_name:\"dummyForm\"},stencil:{id:\"XForm\"},childShapes:[]}";//@@@MS braucht man das, Task ohne Form?
 			}
-
+			var formVar=formDesc.properties.xf_name;
+			console.log("FormWindow.formVar:",formVar);
 			var context = {};
 			context.buttons = buttons;
 			context.actionCallback = params.actionCallback;
 			context.formDesc = formDesc;
 			context.formVariables = processVariables;
 			context.storeDesc = ms123.StoreDesc.getNamespaceDataStoreDescForNS(processTenantId);
-			console.log("StoreDesc1:"+context.storeDesc);
 			if(!context.storeDesc){
 				context.storeDesc = new ms123.StoreDesc({
 					namespace: processTenantId 
 				});
 			}
-			console.log("StoreDesc2:"+context.storeDesc);
-			console.log("formDesc:" + context.formDesc.resourceId);
 			var form = new ms123.widgets.Form(context);
+			form.setName( formVar );
 			var fd = (processVariables && processVariables[formVar]) ? processVariables[formVar] : {};
 			if (mappedFormValues) {
 				fd = ms123.util.Clone.merge({}, fd, mappedFormValues);
