@@ -167,6 +167,24 @@ class BaseFormServiceImpl {
 		}
 		return name;
 	}
+	public Set<String> getFormInputVariables(String namespace, String formKey) throws Exception {
+		Set<String> result = new HashSet<String>();
+		String json = m_gitService.searchContent(namespace, formKey, "sw.form");
+		Map rootShape = (Map) m_ds.deserialize(json);
+		List<Map> 	inputShapes = new ArrayList<Map>();
+		traverseElement(inputShapes, rootShape, (shape) -> {
+			Map<String,String> properties = (Map)shape.get("properties");
+			String il = properties.get("xf_inputlistname");
+			return !isEmpty(il);
+		});
+
+		for( Map shape : inputShapes){
+			Map<String,String> properties = (Map)shape.get("properties");
+			result.add(properties.get("xf_inputlistname"));
+		}
+		System.out.println("getFormInputVariables:"+result);
+		return result;
+	}
 	private boolean executeFilter(SessionContext sc, Map filterCheck, String fieldName, Object value) throws Exception {
 		Map fdesc = filterCheck;
 		String filterName = (String) fdesc.get("name");
@@ -263,6 +281,10 @@ class BaseFormServiceImpl {
 		return newMap;
 	}
 
+
+	private boolean isEmpty(String s){
+		return s == null || s.length()==0;
+	}
 	protected String getName(Map element) {
 		Map properties = (Map) element.get("properties");
 		return ((String) properties.get("xf_id"));
@@ -336,6 +358,21 @@ class BaseFormServiceImpl {
 		}
 		System.out.println("retMap:" + retMap);
 		return retMap;
+	}
+	interface ShapeCompare {
+      boolean compare(Map shape);
+  }
+
+	private void traverseElement(List<Map> result, Map shape, ShapeCompare sc) throws Exception {
+		String id = getStencilId(shape);
+
+		if (sc.compare(shape)) {
+			result.add(shape);
+		}
+		List<Map> childShapes = (List) shape.get("childShapes");
+		for (Map child : childShapes) {
+			traverseElement(result, child, sc);
+		}
 	}
 
 	private void traverseElement(List<Map> fields, Map shape, List<String> idList) throws Exception {

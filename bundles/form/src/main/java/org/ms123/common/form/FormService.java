@@ -24,4 +24,5 @@ public interface FormService {
 
 	public Map validateForm(String namespace, String name, Map data, Boolean cleanData);
 	public String  getFormName(String namespace, String name) throws Exception;
+	public Set<String>  getFormInputVariables(String namespace, String name) throws Exception;
 }
