@@ -40,9 +40,9 @@ import flexjson.*;
 public class TaskFilterExecutor extends TaskBaseExecutor implements JavaDelegate {
 
 	private Expression filtername;
-	private Expression filtervarname;
+	private Expression filterobject;
 
-	private Expression listname;
+	private Expression filtervarname;
 
 	private Expression variablesmapping;
 
@@ -53,7 +53,8 @@ public class TaskFilterExecutor extends TaskBaseExecutor implements JavaDelegate
 		SessionContext sc = getSessionContext(tc);
 
 		Object fno =  filtername != null ? filtername.getValue(execution) : null;
-		Object fvo =  filtervarname != null ? filtervarname.getValue(execution) : null;
+		Object fvo =  filterobject != null ? filterobject.getValue(execution) : null;
+		Object fvn =  filtervarname != null ? filtervarname.getValue(execution) : null;
 
 		String fn = null;
 		String fv = null;
@@ -62,10 +63,10 @@ public class TaskFilterExecutor extends TaskBaseExecutor implements JavaDelegate
 		}else if( !isEmpty(fvo)){
 			fv = getName(fvo.toString());
 		}else{
-			throw new RuntimeException(getExceptionInfo(tc)+"\nTaskFilterExecutor.filtername and filtervarname  is null");
+			throw new RuntimeException(getExceptionInfo(tc)+"\nTaskFilterExecutor.filtername and filterobject  is null");
 		}
 
-		String ln = listname.getValue(execution).toString();
+		String ln = checkAndGet(fvn,"Filtervarname");
 		UserTransaction tx = sc.getUserTransaction();
 		List ret = null;
 		try {
@@ -104,13 +105,20 @@ public class TaskFilterExecutor extends TaskBaseExecutor implements JavaDelegate
 		}
 		return false;
 	}
+	private String checkAndGet(Object s, String error) {
+		if (isEmpty(s)) {
+			throw new RuntimeException("TaskFilterExecutor."+error+" is required");
+		}
+		return s.toString();
+	}
 
 	private String getName(String s) {
 		if (s == null) {
-			throw new RuntimeException("TaskFilterExecutor.filtername is null");
+			throw new RuntimeException("TaskFilterExecutor.filtername or filterobject is required");
 		}
-		if (s.indexOf(",") == -1)
+		if (s.indexOf(",") == -1){
 			return s;
+		}
 		return s.split(",")[1];
 	}
 }

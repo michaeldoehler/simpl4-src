@@ -38,20 +38,16 @@ public class Simpl4FilterTaskJsonConverter extends BaseBpmnJsonConverter {
 	protected JSONDeserializer m_ds = new JSONDeserializer();
 
 
-	private final String LISTNAME_PROP = "listname";
-
-	private final String LISTNAME = "listname";
-
-	private final String FILTERNAME_PROP = "filtername";
-
-	private final String FILTERNAME = "filtername";
-
 	private final String FILTERVARNAME_PROP = "filtervarname";
-
 	private final String FILTERVARNAME = "filtervarname";
 
-	private final String VARMAPPING_PROP = "variablesmapping";
+	private final String FILTERNAME_PROP = "filtername";
+	private final String FILTERNAME = "filtername";
 
+	private final String FILTEROBJECT_PROP = "filterobject";
+	private final String FILTEROBJECT = "filterobject";
+
+	private final String VARMAPPING_PROP = "variablesmapping";
 	private final String VARMAPPING = "variablesmapping";
 
 	protected String getStencilId(BaseElement flowElement) {
@@ -83,13 +79,13 @@ public class Simpl4FilterTaskJsonConverter extends BaseBpmnJsonConverter {
 		task.getFieldExtensions().add(field);
 
 		field = new FieldExtension();
-		field.setFieldName(FILTERVARNAME);
-		field.setStringValue(getValue(FILTERVARNAME, propMap.get(FILTERVARNAME_PROP)));
+		field.setFieldName(FILTEROBJECT);
+		field.setStringValue(getValue(FILTEROBJECT, propMap.get(FILTEROBJECT_PROP)));
 		task.getFieldExtensions().add(field);
 
 		field = new FieldExtension();
-		field.setFieldName(LISTNAME);
-		field.setStringValue(checkNull(LISTNAME, propMap.get(LISTNAME_PROP)));
+		field.setFieldName(FILTERVARNAME);
+		field.setStringValue(checkNull(FILTERVARNAME, propMap.get(FILTERVARNAME_PROP)));
 		task.getFieldExtensions().add(field);
 		return task;
 	}

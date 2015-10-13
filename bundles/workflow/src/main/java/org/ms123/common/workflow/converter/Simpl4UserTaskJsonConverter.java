@@ -45,20 +45,19 @@ public class Simpl4UserTaskJsonConverter extends UserTaskJsonConverter {
 	protected JSONSerializer m_js = new JSONSerializer();
 
 	private final String FORMKEY_PROP = "formkey";
-
 	private final String FORMKEY = "formkey";
 
 	private final String CANDIDATEGROUPS_PROP = "candidategroups";
-
 	private final String CANDIDATEGROUPS = "candidategroups";
 
 	private final String ASSIGNEE_PROP = "assignee";
-
 	private final String ASSIGNEE = "assignee";
 
 	private final String VARMAPPING_PROP = "variablesmapping";
-
 	private final String VARMAPPING = "variablesmapping";
+
+	private final String FORMARNAME_PROP = "formvarname";
+	private final String FORMARNAME = "formvarname";
 
 	protected String getStencilId(FlowElement flowElement) {
 		return "UserTask";
@@ -86,6 +85,16 @@ public class Simpl4UserTaskJsonConverter extends UserTaskJsonConverter {
 			formProperty.setName(VARMAPPING);
 			formProperty.setDefaultExpression("~" + variablesmapping);
 			formProperty.setVariable("~" + variablesmapping);
+			task.getFormProperties().add(formProperty);
+		}
+		String formVarname = getVarMapping(propMap.get(FORMARNAME_PROP));
+		System.out.println("UserTask.formVarname:" + formVarname);
+		if (formVarname != null) {
+			FormProperty formProperty = new FormProperty();
+			formProperty.setId(FORMARNAME);
+			formProperty.setName(FORMARNAME);
+			formProperty.setDefaultExpression("~" + formVarname);
+			formProperty.setVariable("~" + formVarname);
 			task.getFormProperties().add(formProperty);
 		}
 		System.out.println("\n<<<---UserTask.task:" + m_jsPretty.deepSerialize(task));
