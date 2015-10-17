@@ -220,6 +220,8 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 				e.printStackTrace();
 			}
 		}
+		m_loaders.keySet().removeIf(k-> m_loaders.get(k) == null );
+		System.out.println("Loaders2:"+m_loaders);
 	}
 
 	private void _close(StoreDesc sdesc) {
@@ -241,6 +243,7 @@ public class NucleusServiceImpl implements org.ms123.common.nucleus.api.NucleusS
 				}
 				if(pml != null){
 					m_openList.add(pml);
+					m_loaders.put(sdesc, null);
 					debug("close:in tx:"+m_openList);
 				}
 			} catch (Exception e) {

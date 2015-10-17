@@ -29,6 +29,7 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOEnhancer;
+import org.datanucleus.enhancer.EnhancementHelper;
 import javax.jdo.Transaction;
 import org.ms123.common.libhelper.FileSystemClassLoader;
 import org.ms123.common.libhelper.BundleDelegatingClassLoader;
@@ -173,7 +174,15 @@ System.out.println("deleteSchema:"+classes+"/"+props);
 			Collection registeredClasses = implHelper.getRegisteredClasses();
 			implHelper.unregisterClasses(m_classLoader);
 			registeredClasses = implHelper.getRegisteredClasses();
+			System.out.println("JDO.registeredClasses:"+registeredClasses);
+
+			EnhancementHelper enHelper = EnhancementHelper.getInstance();
+			enHelper.unregisterClasses(m_classLoader);
+			registeredClasses = enHelper.getRegisteredClasses();
+			System.out.println("Enhancer.registeredClasses:"+registeredClasses);
+
 			((FileSystemClassLoader) m_classLoader).setInvalid();
+	
 		}
 	}
 
