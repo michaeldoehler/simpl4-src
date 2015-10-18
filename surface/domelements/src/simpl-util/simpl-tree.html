@@ -65,6 +65,10 @@
 					observer: 'dataChanged',
 					type: Object
 				},
+				opened: {
+					value: false,
+					type: Boolean
+				},
 				idProp: {
 					value:"path",
 					type: String
@@ -182,7 +186,7 @@
 				this._tree = div;
 				Polymer.dom( this.root ).appendChild( div )
 				console.log( "simpl-tree._createRoot:", this.data );
-				this._createNode( div, this.data, true );
+				this._createNode( div, this.data, this.opened ? true : false );
 			},
 			_createNode: function( parent, data, firstLevel ) {
 				var div = document.createElement( 'div' );
@@ -195,14 +199,14 @@
 					Polymer.dom( div ).classList.add( 'parent' )
 					hashChilds = true;
 				}
-				Polymer.dom( div ).classList.add( 'collapsed' )
+				Polymer.dom( div ).classList.add( firstLevel ? 'expanded' : 'collapsed' )
 
 				Polymer.dom( div ).setAttribute( "idvalue", data[ this.idProp ] );
 
 				var icon = document.createElement( 'iron-icon' );
 				Polymer.dom( div ).appendChild( icon );
 				if ( hashChilds ) {
-					Polymer.dom( icon ).setAttribute( "icon", "hardware:keyboard-arrow-right" );
+					Polymer.dom( icon ).setAttribute( "icon", firstLevel ? "hardware:keyboard-arrow-down" : "hardware:keyboard-arrow-right" );
 				}
 
 				icon.addEventListener( 'click', this.toggleEvent.bind( this ) );
@@ -215,14 +219,14 @@
 				var t = document.createTextNode( data[ this.nameProp ] );
 				Polymer.dom( span ).appendChild( t );
 				var ul = document.createElement( 'ul' );
-				Polymer.dom( ul ).setAttribute( "style", "display:none;" );
+				Polymer.dom( ul ).setAttribute( "style", firstLevel ? "display:block;" : "display:none;" );
 				Polymer.dom( parent ).appendChild( ul )
 				if ( hashChilds ) {
 					for ( var i = 0; i < data.children.length; i++ ) {
 						var dataChild = data.children[ i ];
 						var li = document.createElement( 'li' );
 						Polymer.dom( ul ).appendChild( li )
-						this._createNode( li, dataChild );
+						this._createNode( li, dataChild, false );
 					}
 				}
 			},
