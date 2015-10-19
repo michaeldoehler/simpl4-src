@@ -1,0 +1,2 @@
+function saveLightChildrenIfNeeded(node){
+if(node == null) return;

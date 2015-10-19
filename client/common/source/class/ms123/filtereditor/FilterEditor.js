@@ -537,8 +537,8 @@ qx.Class.define("ms123.filtereditor.FilterEditor", {
 					if (selField.column.indexOf(".") == -1) {
 						displayColumns.push(selField.id);
 						aliasColumns.push(selField.mapping);
-						fd["id"] = selField.mapping || selField.id;
-						fd["name"] = selField.mapping || selField.id;
+						fd["id"] = selField.id;
+						fd["name"] = selField.id;
 						columns.push(fd);
 					}
 				}
