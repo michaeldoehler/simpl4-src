@@ -39,6 +39,7 @@
 					notify: true
 				},
 				meta: {
+					notify:true,
 					type: Object
 				},
 				data: {
@@ -65,7 +66,7 @@
 			},
 			paramsChanged: function() {
 				console.log( "executefilter.paramsChanged:", this.params );
-				this.execute( false );
+				this.execute( true );
 			},
 			parseParams: function( o ) {
 				if ( o == null ) return;
