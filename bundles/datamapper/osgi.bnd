@@ -1,6 +1,6 @@
 version=1.0.0
 Export-Package org.ms123.common.datamapper
-Import-Package *,sun.reflect,org.codehaus.groovy.vmplugin.v7
+Import-Package *,sun.reflect,org.codehaus.groovy.vmplugin.v7,org.codehaus.groovy.transform
 Bundle-Version:${version}
 Bundle-Vendor: MS123, Org.
 Bundle-Description: Datamapper Service

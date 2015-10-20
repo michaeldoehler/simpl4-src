@@ -217,7 +217,6 @@ public class Transformer implements Constants{
 		List<Map> mappings = (List)context.mappings;
 		updateMappingPathes(mappings, context.outputTree);
 		sortMappingByPathLen(mappings);
-		debug("Mapping:"+m_js.deepSerialize(mappings));
 		MultiValueMap pmap = new MultiValueMap();
 		for( Map m in mappings){
 			createBeans( m, pmap, context );
@@ -636,7 +635,7 @@ public class Transformer implements Constants{
 		BeanUtilsBean beanUtilsBean;
 		Map<String,String> listBeanMap = new HashMap();
 	}
-	private static class Observer implements BeanContextLifecycleObserver,Constants {
+	private class Observer implements BeanContextLifecycleObserver,Constants {
 		private static final Log m_logger = LogFactory.getLog(Observer.class);
 		public void onBeanLifecycleEvent(BeanContextLifecycleEvent event){
 			try{
@@ -644,7 +643,7 @@ public class Transformer implements Constants{
 				ExecutionContext ec = event.getExecutionContext();
 				Context context = (Context)ec.getAttribute(TRANSFORMER_CONTEXT);
 				Transformer transformer = context.transformer;
-				boolean isList = event.getBean() instanceof List;
+				boolean isList = event.getBean() instanceof List || event.getBean() instanceof Set;
 				boolean isMap = !isList;
 
 				BeanLifecycle ev = event.getLifecycle();
@@ -654,7 +653,7 @@ public class Transformer implements Constants{
 				String srcElement = event.getSource().getElement() as String;
 				if( "csv-set".equals(srcElement) ) return;
 				String tabs = transformer.getTabs(context,event.getLifecycle());
-				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/"+isMap+"/"+srcElement);
+				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/isMap:"+isMap+"/isList:"+isList+"/bean:"+event.getBean()+"/class:"+event.getBean().getClass());
 				String beanId = event.getBeanId().getName();
 				Map beanNode = transformer.getTreeNodeById(context.outputTree, transformer.getTreeNodeId(beanId));
 				if( beanNode == null){
@@ -736,7 +735,7 @@ public class Transformer implements Constants{
 								bean.put(propertyName, scriptResult);
 							}else{
 								Class clazz = context.beanUtilsBean.getPropertyUtils().getPropertyType(event.getBean(),propertyName);
-								if (clazz != null && clazz.getInterfaces().contains( javax.jdo.spi.PersistenceCapable)) {
+								if (clazz != null && clazz.getInterfaces().contains( org.datanucleus.enhancement.Persistable)) {
 									debug("PersistenceCapable:"+clazz+"/"+propertyName);
 									transformer.handleRelatedTo(propertyName,clazz, scriptResult?.toString(), event.getBean());
 								}else{
