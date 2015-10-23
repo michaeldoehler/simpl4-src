@@ -653,7 +653,7 @@ public class Transformer implements Constants{
 				String srcElement = event.getSource().getElement() as String;
 				if( "csv-set".equals(srcElement) ) return;
 				String tabs = transformer.getTabs(context,event.getLifecycle());
-				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/isMap:"+isMap+"/isList:"+isList+"/bean:"+event.getBean()+"/class:"+event.getBean().getClass());
+				debug(tabs+"Event:"+event.getBeanId()+"/"+event.getLifecycle()+"/isMap:"+isMap+"/isList:"+isList+"/bean:"+event.getBean());
 				String beanId = event.getBeanId().getName();
 				Map beanNode = transformer.getTreeNodeById(context.outputTree, transformer.getTreeNodeId(beanId));
 				if( beanNode == null){
@@ -730,6 +730,10 @@ public class Transformer implements Constants{
 							
 							Object scriptResult = transformer.run( script, valMap, (beanNode.path as String) +"/"+propertyName);
 							debug("--scriptResult:"+scriptResult+"/valMap:"+valMap);
+							if( event.getBean() == null){
+								debug("Transformer: bean is null:propertyName:"+ propertyName+"/path:"+beanNode.path);
+								continue;
+							}
 							if( event.getBean() instanceof Map){
 								Map bean = (Map)event.getBean();
 								bean.put(propertyName, scriptResult);

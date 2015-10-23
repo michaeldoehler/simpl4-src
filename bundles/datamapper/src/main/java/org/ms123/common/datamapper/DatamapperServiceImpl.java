@@ -108,7 +108,13 @@ public class DatamapperServiceImpl extends BaseDatamapperServiceImpl implements 
 			}
 			return transform(namespace, config, configName, data);
 		} catch (Throwable e) {
-			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DatamapperService.transform:", e);
+			String msg = e.getMessage();
+			while (e.getCause() != null) {
+				e = e.getCause();
+				msg += "\n"+e.getMessage();
+			}
+			e.printStackTrace();
+			throw new RpcException(ERROR_FROM_METHOD, INTERNAL_SERVER_ERROR, "DatamapperService.transform:"+ msg);
 		}
 	}
 	public Object getMetaData2( 
