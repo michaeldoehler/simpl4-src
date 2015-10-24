@@ -1084,7 +1084,9 @@ console.log("setName2:"+name);
 						var tab = {};
 						if (t.length == 2) {
 							tab.id = t[0];
-							tab.layout = t[1];
+							if( t[1] != "double.mobile"){
+								tab.layout = t[1];
+							}
 						}
 						if (t.length == 1) {
 							tab.id = t[0];
