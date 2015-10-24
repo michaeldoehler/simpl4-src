@@ -1037,6 +1037,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 							is = new ByteArrayInputStream(b);
 							is2 = new ByteArrayInputStream(b);
 						}else{
+							byte b[] = value.getBytes();
+							beanMap.put(key, b);
+							is = new ByteArrayInputStream(b);
+							is2 = new ByteArrayInputStream(b);
 						}
 					} else {
 						debug("populate.byte[].no a FileItem:" + key + "=>" + from.get(key));
