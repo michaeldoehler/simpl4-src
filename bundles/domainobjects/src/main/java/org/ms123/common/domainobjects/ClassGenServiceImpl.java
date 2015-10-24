@@ -166,7 +166,7 @@ public class ClassGenServiceImpl implements ClassGenService {
 					rel.put("dependent", true);
 					addRelations(cp, rel, sdesc);
 			} else {
-				makeField(cp, ctClass, field.get("name"), datatype, null, null, fqn, null, true);
+				makeField(sdesc, cp, ctClass, field.get("name"), datatype, null, null, fqn, null, true);
 			}
 		}
 	}
@@ -603,20 +603,22 @@ public class ClassGenServiceImpl implements ClassGenService {
 				if ("decimalnumber".equals(val[0])) {
 					System.out.println("m:" + m);
 				}
-				makeField(cp, ctClass, val[0], val[1], edittype, defaultValue, classname, m.get("constraints"), withAnnotation);
+				makeField(sdesc, cp, ctClass, val[0], val[1], edittype, defaultValue, classname, m.get("constraints"), withAnnotation);
 			}
 		}
 	}
 
-	private void makeField(ClassPool cp, CtClass ctClass, String name, String datatype, String edittype, String defaultValue, String classname, Object co, boolean withAnnotation) throws Exception {
+	private void makeField(StoreDesc sdesc, ClassPool cp, CtClass ctClass, String name, String datatype, String edittype, String defaultValue, String classname, Object co, boolean withAnnotation) throws Exception {
 		ConstPool constPool = ctClass.getClassFile().getConstPool();
 		Class type = getClass(datatype);
 		CtField f = createField(ctClass, name, type.getName());
 		AnnotationsAttribute fieldAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
 		f.getFieldInfo().addAttribute(fieldAttr);
 		if (withAnnotation) {
+			boolean isH2_FT = sdesc.getVendor().equals(StoreDesc.VENDOR_H2) && "fulltext".equals(datatype);
+
 			boolean isGraphical = (edittype != null && edittype.startsWith("graphical"));
-			if ("textarea".equals(edittype) || isGraphical || datatype.equals("text") || datatype.equals("array/string")) {
+			if ("textarea".equals(edittype) || isH2_FT || isGraphical || datatype.equals("text") || datatype.equals("array/string")) {
 				int len = isGraphical ? 128000 : TEXT_LEN;
 				Annotation columnAnnotation = new Annotation("javax.jdo.annotations.Column", constPool);
 				MemberValue mv = new StringMemberValue("VARCHAR", constPool);
