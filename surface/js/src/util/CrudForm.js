@@ -37,6 +37,7 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 			tabviewPage.childShapes = [];
 			var layout = tabviewPage.layout || "single";
 			var row = null;
+			var prevF=null;
 			tabLists[ tabKey ].forEach( function( f, i ) {
 				if ( layout == "single" ) {
 					row = {
@@ -45,7 +46,8 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 					}
 					tabviewPage.childShapes.push( row );
 				}
-				if ( layout == "double" && ( i == 0 || ( i % 2 ) == 0 ) ) {
+				var isBreak = f.edittype == "textarea" || (prevF && prevF.edittype=="textarea");
+				if ( (layout == "double" || layout == "double.mobile") && (isBreak || ( i == 0 || ( i % 2 ) == 0 ) ) ) {
 					row = {
 						id: "Row",
 						childShapes: []
@@ -53,6 +55,7 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 					tabviewPage.childShapes.push( row );
 				}
 				row.childShapes.push( this.getFieldShape( f ) );
+				prevF = f
 			}, this );
 		}, this );
 		var h1 = "data." + entityname + "." + tabView.childShapes[ 0 ].xf_id;
