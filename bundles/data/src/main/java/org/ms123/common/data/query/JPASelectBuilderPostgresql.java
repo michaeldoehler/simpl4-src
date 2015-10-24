@@ -178,7 +178,7 @@ public class JPASelectBuilderPostgresql extends JPASelectBuilder implements Sele
 		}
 	}
 
-	private String getContains(String f, String d, String dt) {
+	protected String getContains(String f, String d, String dt) {
 		if ("fulltext".equals(dt)) {
 			return f + ".fulltext(\"" + substWildcard(d.toLowerCase(),false) + "\")";
 		} else {
@@ -270,7 +270,7 @@ public class JPASelectBuilderPostgresql extends JPASelectBuilder implements Sele
 			return f + " = " + d;
 		}
 	}
-	private String substWildcard( String ss, boolean autoWildcard ) {
+	protected String substWildcard( String ss, boolean autoWildcard ) {
     String s = "";
     for ( int i = 0;i < ss.length();i++ ) {
       if ( ss.charAt( i ) == '*' ) {

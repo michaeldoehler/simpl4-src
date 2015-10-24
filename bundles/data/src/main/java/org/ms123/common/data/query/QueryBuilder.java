@@ -80,6 +80,8 @@ public class QueryBuilder {
 		insertFilterParams(filters);
 		if (sdesc.getStore().equals("cassandra")) {
 			m_mainSelectBuilder = new JPASelectBuilder(this, sdesc, entityName, joinFields, filters, fieldSets);
+		}else if (sdesc.getVendor().equals(StoreDesc.VENDOR_H2)) {
+			m_mainSelectBuilder = new JPASelectBuilderH2(this, sdesc, entityName, joinFields, filters, fieldSets);
 		}else{
 			if (type.equals("pg")) {
 				m_mainSelectBuilder = new JPASelectBuilderPostgresql(this, sdesc, entityName, joinFields, filters, fieldSets);
