@@ -77,6 +77,9 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 			shape.id = "Textarea";
 			shape.xf_rows = f.editoptions_rows;
 		}
+		if ( f.datatype == "binary" ) {
+			shape.id = "Upload";
+		}
 		shape.xf_id = f.name;
 		shape.xf_type = this.convertFieldType( f );
 		shape.label = tr( "data." + this.entityname + "." + f.name );
@@ -92,7 +95,9 @@ clazz.construct.extend( "simpl4.util.CrudForm", {
 			shape.xf_namespace = this.namespace;
 		}
 
-		shape.xf_enabled = f.form_enabled_expr;
+		if( f.form_enabled_expr!=null ){
+			shape.xf_enabled = f.form_enabled_expr+'';
+		}
 		shape.defaultValue = f.default_value !== '' ? f.default_value : null;
 		return shape;
 	},
