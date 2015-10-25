@@ -292,7 +292,7 @@
 						title: f.title || tr( 'data.' + this.entity + '.' + f.name ),
 						data: dtName,
 						class: f.tags,
-						mRender: this.renderColumn
+						mRender: this.renderColumn.bind(this)
 					}
 					ret.push( col );
 					this.columns.push( f.name );
@@ -308,6 +308,12 @@
 				var clazz = meta.settings.aoColumns[ meta.col ].sClass;
 				if ( Detectizr.device.type == "mobile" && clazz && clazz.toLowerCase().indexOf( "phone" ) > -1 ) {
 					return "<div class='phone'><a href='tel:" + row[ name ] + "'>" + row[ name ] + "</a></div>";
+				}else if ( this.entity == "document" && name=='filename') {
+					var rpcString = encodeURIComponent(JSON.stringify(this._getRpcHeader(row.id)));
+					var username = simpl4.util.Rpc._getUserName();
+					var password = simpl4.util.Rpc._getPassword();
+					var cred = simpl4.util.Base64.encode( username + ":" + password );
+					return "<div class='filename'><a target='_blank' href='/rpc/get?credentials="+cred+"&rpc=" + rpcString + "'>" + row[ name ] + "</a></div>";
 				} else {
 					return row[ name ];
 				}
@@ -319,6 +325,18 @@
 				}, this );
 				return map;
 			},
+			_getRpcHeader: function (id) {
+				return {
+					"service": "data",
+					"method": "queryOne",
+					"params": {
+						"storeId":this.namespace+"_data",
+						"entity":"document",
+						"getContent":true,
+						"id":id
+					}
+				};
+			},
 			getDate: function( val ) {
 				if ( val == null ) {
 					return "--";
@@ -329,7 +347,7 @@
 				this.filterChanged();
 			},
 			getData: function( filter ) {
-				console.log( "Filter:", this.filter );
+				console.log( "XFilter:", this.filter );
 				this.selection = null;
 				var props = simpl4.util.EntityManager.getEntityViewProperties( filter.entity, "main-grid", {
 					namespace: this.namespace
