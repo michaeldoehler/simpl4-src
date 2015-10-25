@@ -223,6 +223,8 @@
 				this.defaultButtons = form.properties.xf_default_buttons;
 				this.formVar = form.properties.xf_name;
 				this.shapes = this.prepareShape( form ).childShapes;
+				this._shapeMap={};
+				this._buildShapeMap(this.shapes[0]);
 				this.async( function() {
 					this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
 					this.fields.forEach( function( field ) {
@@ -243,6 +245,8 @@
 
 			this.async( function() {
 				this.shapes = this.spec;
+				this._shapeMap={};
+				this._buildShapeMap(this.shapes[0]);
 				this.async( function() {
 					this.fields = this.filterToArray( this.$.formdiv.querySelectorAll( "[field]" ), true );
 					this.fields.forEach( function( field ) {
@@ -265,6 +269,15 @@
 				return "date";
 			}	
 			return t;
+		},
+		_buildShapeMap: function( shape ) {
+			if( shape.xf_id){
+				this._shapeMap[shape.xf_id] = shape;
+			}
+			var childShapes = shape.childShapes;
+			for ( var i = 0; childShapes && i < childShapes.length; i++ ) {
+				this._buildShapeMap(childShapes[i]);
+			}
 		},
 		prepareShape: function( shape ) {
 			shape = this.cleanShape( shape );

@@ -174,6 +174,9 @@
 		isEnumSelect: function( id ) {
 			return id == 'Enumselect';
 		},
+		isUpload: function( id ) {
+			return id == 'Upload';
+		},
 		isModuleSelector: function( id ) {
 			return id == 'Moduleselector';
 		},
@@ -211,7 +214,7 @@
 			return r;
 		},
 		isField: function( id ) {
-			var r = id == 'Input' || id == 'Tableselect' || id == 'Enumselect' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
+			var r = id == 'Input' || id == 'Tableselect' || id == 'Enumselect' || id == 'Upload' || id == 'Textarea' || id == 'RelatedTo' || id == 'Moduleselector' || id == 'Alert' || id == 'break';
 			return r;
 		},
 		isInputAndBoolean: function( id, xf_type ) {
@@ -255,6 +258,10 @@
 		<template name="{{item.xf_id}}" is="dom-if" if="{{isEnumSelect(item.id)}}">
 			<dropdown-field field class="flex" name$="{{item.xf_id}}" items="{{item.items}}" data-constraints$="{{item.regulaConstraints}}" enabled-expr$="{{item.xf_enabled}}" readonly-expr$="{{item.xf_readonly}}" invisible-expr$="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
 			</dropdown-field>
+		</template>
+		<template name="{{item.xf_id}}" is="dom-if" if="{{isUpload(item.id)}}">
+			<upload-field field class="flex" name$="{{item.xf_id}}" enabled-expr$="{{item.xf_enabled}}" readonly-expr$="{{item.xf_readonly}}" invisible-expr$="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>
+			</upload-field>
 		</template>
 		<template is="dom-if" if="{{isTableSelect(item.id)}}">
 			<tableselect-field field class="flex" name$="{{item.xf_id}}" multi-select="[[item.xf_multiselection]]" required$="[[item.xf_required]]" height="[[item.height]]" items="[[item.items]]" meta="[[item.meta]]" data-constraints$="{{item.regulaConstraints}}" enabled-expr$="{{item.xf_enabled}}" readonly-expr$="{{item.xf_readonly}}" invisible-expr$="{{item.xf_invisible}}" exclude-expr$="{{item.xf_exclude}}" defaultValue="{{item.defaultValue}}" label="{{item.label}}" raised>

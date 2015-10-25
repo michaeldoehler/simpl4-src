@@ -23,7 +23,7 @@
 
 	<style type="text/css">
 		.enabled {
-			border: 1px dashed #555;
+			border: 0px solid #212121;
 		}
 		.hover {
 			opacity: .7;
@@ -31,20 +31,27 @@
 		}
 		#UploadBorder {
 			vertical-align: middle;
-			color: #555;
-			padding: 20px;
+			padding: 10px;
+			min-width: 150px;
+			text-transform: uppercase;
+			font-weight: 400;
 			max-height: 300px;
 			overflow-y: auto;
+			border-radius: 3px;
 			display: inline-block;
 		}
 		#dropArea {
 			text-align: center;
 		}
-		_paper-button {
-			margin-bottom: 20px;
+		.content.paper-button {
+			padding: 0.5em 0.57em;
+		}
+		paper-button {
+			margin-bottom: 4px;
+			margin-left: 60px;
 		}
 		.file {
-			padding: 10px 0px;
+			//padding: 10px 0px;
 		}
 		.commands {
 			float: right;
@@ -76,9 +83,10 @@
 	<template>
 		<div>
 			<paper-button id="button" icon="file-upload" class="blue" on-click="_fileClick">
+				<iron-icon icon="file-upload"></iron-icon>
 				<content></content>
 			</paper-button>
-			<div id='UploadBorder'>
+			<paper-material class="button button_secondary" elevation="2" id='UploadBorder'>
 				<div id="dropArea" hidden$="{{!_shownDropText}}">{{dropText}}</div>
 				<template is="dom-repeat" items="{{files}}">
 					<div class="file">
@@ -96,11 +104,9 @@
 						</div>
 					</div>
 				</template>
-			</div>
+			</paper-material>
 		</div>
 		<input type="file" id="fileInput" on-change="_fileChange" hidden multiple="{{multi}}">
-		<!--<paper-toast id="toastSuccess" text="File uploaded successfully!"></paper-toast>
-    <paper-toast id="toastFail" text="Error uploading file!"></paper-toast>-->
 	</template>
 
 </dom-module>
@@ -253,7 +259,7 @@
 			}
 		},
 		behaviors: [
-				TranslationsBehavior
+			TranslationsBehavior
 		],
 		/**
 		 * Clears the list of files
@@ -303,6 +309,9 @@
 					file.progress = 0;
 					file.error = false;
 					file.complete = false;
+					if ( this.multi == false ) {
+						this.clear();
+					}
 					this.push( "files", file );
 					this.uploadFile( file );
 				}
@@ -331,6 +340,9 @@
 				file.progress = 0;
 				file.error = false;
 				file.complete = false;
+				if ( this.multi == false ) {
+					this.clear();
+				}
 				this.push( "files", file );
 				this.uploadFile( file );
 			}
@@ -398,6 +410,7 @@
 				console.log( "onloadend:", evt.target.result );
 				console.log( "onloadend:", evt );
 				this.set( prefix + ".complete", true );
+				this.fire( "upload-complete", evt );
 			} ).bind( this );
 			filereader.readAsDataURL( file );
 		}

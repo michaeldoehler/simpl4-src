@@ -482,7 +482,9 @@
 					padding: 0px;
 			};
 		}
-		:host {
+		:host #input /deep/ textarea{
+			font-size: 14px;
+			font-weight: normal;
 		}
 	</style>
 	<template>
@@ -539,6 +541,77 @@
 			}
 		} );
 
+	</script>
+</dom-module>
+
+<dom-module id="upload-field">
+	<style>
+		:host {
+			--paper-input-container: {
+				padding: 0px;
+			}
+			;
+		}
+		:host #input {
+			font-size: 12px;
+		}
+
+	</style>
+	<template>
+		<paper-input-container id="decorator" no-label-float$="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" disabled$="[[disabled]]" invalid="[[invalid]]">
+
+			<label hidden$="[[!label]]">[[label]]</label>
+
+			<simpl-upload id="input" class="paper-input-input" drop-text="[[tr('import.drop_file2')]]" droppable="true" raised="true">[[tr('import.select_file')]]</simpl-upload>
+			<template is="dom-if" if="[[errorMessage]]">
+				<paper-input-error>[[errorMessage]]</paper-input-error>
+			</template>
+
+		</paper-input-container>
+	</template>
+	<script>
+		Polymer( {
+			is: "upload-field",
+			behaviors: [
+				Polymer.IronFormElementBehavior,
+				Polymer.PaperInputBehavior,
+				Polymer.IronControlState,
+				TranslationsBehavior,
+				FieldBehavior
+			],
+			listeners: {
+				'upload-complete': 'valueChanged'
+			},
+			observers: [
+				'editValueChanged(editValue)'
+			],
+			properties: {},
+			editValueChanged: function() {
+				this.value = this.editValue;
+				this.fire( 'value-changed', this );
+			},
+			valueChanged: function( e ) {
+				var f = this.form.getField( "filename" );
+				if ( f != null ) {
+					f.setValue( e.detail.target.file.name );
+				}
+				this.editValue = e.detail.target.result;
+			},
+			setValue: function( v ) {
+				this.editValue = v;
+				this.disabled = false;
+				var f = this.form.getField( "filename" );
+				if ( f != null && !this.isEmpty( f.getValue() ) ) {
+					this.disabled = true;
+					this.editValue = "ignore";
+				}
+				this.$.input.clear();
+			},
+			isEmpty: function( s ) {
+				if ( s == null || s == '' ) return true;
+				return false;
+			}
+		} );
 	</script>
 </dom-module>
 
@@ -888,6 +961,7 @@
 				Polymer.IronFormElementBehavior,
 				Polymer.PaperInputBehavior,
 				Polymer.IronControlState,
+				TranslationsBehavior,
 				FieldBehavior
 			],
 			properties: {
@@ -1046,7 +1120,7 @@
 				<div class="lyaout vertical flex">
 					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entityName}}" filter="{{filter}}"></simpl-filter>
 					<div style="height:20px;"></div>
-					<simpl-panel bgcolor="black" heading="{{'data.'+entityName|tr}}" collapsable="">
+					<simpl-panel bgcolor="black" heading="[[tr('data.'+entityName)]]" collapsable="">
 						<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</div>
@@ -1061,6 +1135,7 @@
 				Polymer.IronFormElementBehavior,
 				Polymer.PaperInputBehavior,
 				Polymer.IronControlState,
+				TranslationsBehavior,
 				FieldBehavior
 			],
 			properties: {
@@ -1155,7 +1230,9 @@
 	<script>
 		Polymer( {
 			is: 'db-selector-field',
-			behaviors: [ FieldBehavior ],
+			behaviors: [ FieldBehavior,
+				TranslationsBehavior
+			],
 			selectAction: function( e ) {
 				var data = e.detail.data;
 				this.$.relatedDialog.close();
