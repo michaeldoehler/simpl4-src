@@ -264,7 +264,7 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 			setDefaultValues(insertClazz, objectInsert);
 			populate(sessionContext, dataMap, objectInsert, hintsMap);
 			m_js.prettyPrint(true);
-			debug("IO:"+m_js.deepSerialize(objectInsert));
+			//debug("IO:"+m_js.deepSerialize(objectInsert));
 			List constraintViolations = validateObject(sessionContext, objectInsert, entityName, true);
 			if (constraintViolations != null) {
 				retMap.put("constraintViolations", constraintViolations);
@@ -1030,6 +1030,10 @@ public class JdoLayerImpl implements org.ms123.common.data.api.DataLayer {
 						is = new FileInputStream(new File(storeLocation));
 					} else if (from.get(key) instanceof String) {
 						String value = (String)from.get(key);
+						if( "ignore".equals(value)){
+							debug("ignore:");
+							return;
+						}
 						if( value.startsWith("data:")){
 							int ind = value.indexOf(";base64,");
 							byte b[] = Base64.decode(value.substring(ind+8));
