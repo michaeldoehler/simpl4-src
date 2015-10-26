@@ -117,7 +117,7 @@
 				</div>
 
 				<paper-tabs class="flex" selected="{{selectedDetailsTabId}}" selectables="paper-tab" scrollable attr-for-selected="details-item-id" scrollable>
-					<paper-tab details-item-id="detailsMainTabId">[[panelHeaderDetails]]</paper-tab>
+					<paper-tab class="menu__item_secondary" details-item-id="detailsMainTabId">[[panelHeaderDetails]]</paper-tab>
 					<template is="dom-repeat" as="item" items="[[entityChildList]]">
 						<paper-tab details-item-id$="[[item.id]]">[[item.title]]</paper-tab>
 					</template>
