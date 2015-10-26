@@ -132,7 +132,12 @@
 					<template is="dom-repeat" as="item" items="{{entityChildList}}">
 						<neon-animatable style="position:relative;" details-item-id$="[[item.id]]">
 							<paper-material class="flex" elevation="1">
-								<simpl-crudtable id$="{{item.id}}" buttons="{{item.buttonListDetail}}" data="[[item]]" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
+								<template is="dom-if" if="[[isTable(item)]]">
+									<simpl-crudtable id$="{{item.id}}" buttons="{{item.buttonListDetail}}" data-desc="[[item]]" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction"></simpl-crudtable>
+								</template>
+								<template is="dom-if" if="[[isForm(item)]]">
+									<simpl-form id$="{{item.id}}" mode="[[getEditMode()]]" data-desc="[[item]]" spec="[[getFormSpec(item)]]"></simpl-form>
+								</template>
 							</paper-material>
 						</neon-animatable>
 					</template>
@@ -199,12 +204,23 @@
 				this.prevNamespace = namespace;
 				this.formSpec = [ formSpec ];
 			},
+			getFormSpec: function( item ) {
+				return [simpl4FormManager.getCrudForm( item.entity, item.namespace )];
+			},
+			getEditMode: function() {
+				return "edit";
+			},
 			selectedDetailsTabIdChanged: function( e ) {
 				var ct = this.$.ironPages.querySelector( "#" + this.selectedDetailsTabId );
 				if ( ct == null ) return;
-				console.log( "ct:", ct.data );
-				ct.data.namespace = this.namespace;
-				ct.filter = ct.data;
+				var dataDesc = ct.dataDesc;
+				console.log( "ct:", dataDesc );
+				dataDesc.namespace = this.namespace;
+				if( dataDesc.type == "table"){
+					ct.filter = dataDesc;
+				}else{
+					ct.setData(this.getFormData(dataDesc));
+				}
 			},
 			cancelAction: function( e ) {
 				this.prevNextButtonsInvisible = true;
@@ -311,6 +327,9 @@
 				for ( var i = 0; i < mainEntity.childs.length; i++ ) {
 					var c = mainEntity.childs[ i ];
 					var cn = {};
+					if( c.modulename == "team"){
+						 continue;
+					}
 					cn.entity = c.modulename;
 					cn.namespace = c.namespace;
 					cn.title = tr( "data." + c.name );
@@ -323,6 +342,9 @@
 						id: currentRowData.id,
 						pageSize: 0
 					}
+					var datatype = c.datatype.split("/");
+					cn.type = datatype[0] == "list" ? "table" : "form";
+					cn.dependent = c.dependent;
 					console.log( "cn:" + JSON.stringify( cn, null, 2 ) );
 					entityChildList.push( cn );
 				}
@@ -422,6 +444,19 @@
 					this.$.nextButton.disabled = ( this.currentRowIndex < ( this.currentDataSet.length - 1 ) ) ? false : true;
 					this.$.prevButton.disabled = ( this.currentRowIndex > 0 ) ? false : true;
 				}
+			},
+			isForm:function(item){
+				return item.type == "form";
+			},
+			isTable:function(item){
+				return item.type == "table";
+			},
+			getFormData: function( dataDesc ) {
+				var props = simpl4.util.EntityManager.getEntityViewProperties( dataDesc.entity, "main-form", {
+					namespace: dataDesc.namespace
+				} );
+				var data = simpl4.util.Rpc.rpcSync( "data:query", dataDesc.rpc );
+				return data.rows.length > 0 ? data.rows[0] : {};
 			},
 			_maskedEval: function( scr, env, def ) {
 				try {

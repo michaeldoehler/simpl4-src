@@ -43,6 +43,10 @@
 				font-size: 11px;
 				min-width: 70px;
 			}
+			:host /deep/ a.filename {
+				text-decoration: underline;
+				font-weight: 600;
+			}
 			:host /deep/ div.phone {
 				box-shadow: 0 1px 0 #ccc, 0 -1px #fff inset;
 				display: inline;
@@ -313,7 +317,7 @@
 					var username = simpl4.util.Rpc._getUserName();
 					var password = simpl4.util.Rpc._getPassword();
 					var cred = simpl4.util.Base64.encode( username + ":" + password );
-					return "<div class='filename'><a target='_blank' href='/rpc/get?credentials="+cred+"&rpc=" + rpcString + "'>" + row[ name ] + "</a></div>";
+					return "<div class='filename'><a class='filename' target='_blank' href='/rpc/get?credentials="+cred+"&rpc=" + rpcString + "'>" + row[ name ] + "</a></div>";
 				} else {
 					return row[ name ];
 				}

@@ -1120,7 +1120,7 @@
 				<div class="lyaout vertical flex">
 					<simpl-filter style="margin-bottom:10px;" namespace="{{namespace}}" entity="{{entityName}}" filter="{{filter}}"></simpl-filter>
 					<div style="height:20px;"></div>
-					<simpl-panel bgcolor="black" heading="[[tr('data.'+entityName)]]" collapsable="">
+					<simpl-panel bgcolor="black" heading="[[getHeader(entityName)]]" collapsable="">
 						<simpl-crudtable namespace="{{namespace}}" buttons="select,cancel" on-select-action="selectAction" on-cancel-action="cancelAction" meta="{{meta}}" filter="{{filter}}"></simpl-crudtable>
 					</simpl-panel>
 				</div>
@@ -1208,6 +1208,9 @@
 			  console.log("Field.relatedto.entityChanged:",this.entity+"/"+this.namespace);
 				if( this.entity==null) return;
 				this.entityName = this.entity;
+			},
+			getHeader:function(entityName){
+				return tr('data.'+entityName);
 			},
 			_maskedEval: function( scr, env, def ) {
 				try {
