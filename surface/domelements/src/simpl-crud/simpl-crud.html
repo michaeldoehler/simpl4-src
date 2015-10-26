@@ -214,7 +214,6 @@
 				var ct = this.$.ironPages.querySelector( "#" + this.selectedDetailsTabId );
 				if ( ct == null ) return;
 				var dataDesc = ct.dataDesc;
-				console.log( "ct:", dataDesc );
 				dataDesc.namespace = this.namespace;
 				if( dataDesc.type == "table"){
 					ct.filter = dataDesc;
@@ -345,7 +344,6 @@
 					var datatype = c.datatype.split("/");
 					cn.type = datatype[0] == "list" ? "table" : "form";
 					cn.dependent = c.dependent;
-					console.log( "cn:" + JSON.stringify( cn, null, 2 ) );
 					entityChildList.push( cn );
 				}
 				this.entityChildList = entityChildList;

@@ -39,8 +39,8 @@
 				<col class="col0">
 					<col class="col1">
 			</colgroup>
-			<template is="dom-repeat" items="{{meta}}">
-				<template is="dom-if" if="{{data}}">
+			<template is="dom-if" if="[[data]]" restamp>
+				<template is="dom-repeat" items="[[meta]]">
 					<tr>
 						<th>{{item.title}}</th>
 						<td>{{getCellData(item)}}</td>
@@ -134,8 +134,10 @@
 				return moment( parseInt( val ) ).format( "L" );
 			},
 			setData: function( data ) {
-				this.data = this.preProcessData( [ data ] )[ 0 ];
-				console.log( "Data:", JSON.stringify( data, null, 2 ) );
+				this.data = null;//@@@MS, Polymer bullshit
+				this.async( function() {
+					this.data = this.preProcessData( [ data ] )[ 0 ];
+				},100 );
 			}
 		} );
 
