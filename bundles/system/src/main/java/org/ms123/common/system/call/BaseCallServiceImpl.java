@@ -70,7 +70,9 @@ abstract class BaseCallServiceImpl {
 		{
 			put("string", java.lang.String.class);
 			put("integer", java.lang.Integer.class);
+			put("long", java.lang.Long.class);
 			put("double", java.lang.Double.class);
+			put("date", java.util.Date.class);
 			put("boolean", java.lang.Boolean.class);
 			put("map", java.util.Map.class);
 			put("list", java.util.List.class);
