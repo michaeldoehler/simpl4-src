@@ -221,9 +221,14 @@ qx.Class.define("ms123.searchfilter.Condition", {
 				}
 				control.setDateFormat(format);
 				control.addListener("changeValue", function (e) {
+					if( this._inTimeChange===true) {
+						return;
+					}
 					var utc = ms123.util.UTC.toUTC(e.getData());
 					console.log("date:"+e.getData().getTime()+"/"+utc);
-					this.fireDataEvent("changeData", utc, null);
+					this._inTimeChange = true;
+					this.fireDataEvent("changeData", e.getData().getTime(), null); //@@@MS utc or not??
+					this._inTimeChange=false;
 				}, this);
 				break
 			}
