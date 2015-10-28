@@ -790,7 +790,7 @@
 
 	</style>
 	<template>
-		<paper-input-container id="decorator" no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" readonly disabled$="[[disabled]]">
+		<paper-input-container id="decorator" no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" readonly disabled$="[[disabled]]" invalid="[[invalid]]">
 			<label id="label" hidden$="[[!label]]">[[label]]</label>
 			<input hidden is="iron-input" id="input" bind-value="[[value]]" />
 			<select id="select" name="[[name]]">
@@ -798,6 +798,9 @@
 					<option value$="{{i.value}}">{{i.label}}</option>
 				</template-->
 			</select>
+      <template is="dom-if" if="[[errorMessage]]">
+        <paper-input-error>[[errorMessage]]</paper-input-error>
+      </template>
 		</paper-input-container>
 	</template>
 	<script>
@@ -864,25 +867,32 @@
 				}
 			},
 			valueChanged: function( v ) {
-				console.log( "drop-field(" + this.name + ").valueChanged;", this.value );
+				console.log( "drop-field(" + this.name + ").valueChanged:", this.value+"/wo:"+this.withoutCheck );
+				if ( this.isDomReady != true ) return;
+				if ( this.withoutCheck ) {
+					this.withoutCheck = false;
+					return;
+				}
+				this.checkConstraints();
 			},
 			setValue: function( v ) {
 				this._dropdown.data( "options", this._options );
-				console.log( "drop-field(" + this.name + ").setValue;", this._dropdown.data( "options" ) );
+				console.log( "drop-field(" + this.name + ").setValue:",v+"/"+ this._dropdown.data( "options" ) );
 				this.value = v;
 
 				this.async( function() {
 					$( this._dropdown ).dropdown( "select", this.value );
-				} );
+				},10 );
 			},
 			getValue: function() {
 				console.log( "drop-field(" + this.name + "),GetValue:", this.value );
 				return this.value;
 			},
 			onSelected: function( val ) {
+				if( val == undefined) return;
+				console.log( "drop-field(" + this.name + ").onSelected:", this.value+"/val:"+val );
 				this.value = val;
 				this.fire( 'value-changed', this );
-				console.log( "drop-field(" + this.name + ").selectValue:", this.value );
 			},
 			onCallback: function( dropdown ) {
 				this._dropdown = dropdown;
@@ -899,6 +909,7 @@
 					optionClass: this.name
 				}
 				this.async( function() {
+				console.log( "drop-field(" + this.name + ").create" );
 					$( this.$.select ).dropdown( this._options );
 				} );
 			}
