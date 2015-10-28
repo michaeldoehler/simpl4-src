@@ -139,13 +139,14 @@
 						<paper-icon-button on-tap="toggleSearchMode" icon="{{getSearchModeIcon()}}"></paper-icon-button>
 					</span>
 				</div>
+				
 				<div class="flex" style="text-align:right;">
+				<content></content>
 					<paper-button raised style="min-width:150px !important;" class="flex button_primary_raised" on-tap="search">
 						<iron-icon icon="search"></iron-icon>{{tr('searchfilter.searchbutton')}}</paper-button>
 				</div>
 			</div>
 			<div id="builder"></div>
-			<content></content>
 		</paper-material>
 	</template>
 

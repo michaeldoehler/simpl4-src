@@ -70,12 +70,18 @@
 		paper-tab {
 			padding: 0 6px;
 		}
+		paper-button.new /deep/ paper-material.content {
+			padding: 0.3em 0.57em !important;
+		}
 
 	</style>
 	<template>
 		<iron-pages id="ironPages" selected="{{pageSelected}}" attr-for-selected="num">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
-				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}"></simpl-filter>
+				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}">
+					<paper-button raised style="min-width:150px !important;" class="new flex button_primary" on-tap="_addAction">
+						<iron-icon icon="add"></iron-icon>{{tr('button.new')}}</paper-button>
+				</simpl-filter>
 				<template is="dom-if" if="{{filter}}">
 					<simpl-panel id="panel2" bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudTable}}" collapsable>
 						<simpl-crudtable namespace="{{namespace}}" buttons="{{buttonList}}" on-add-action="addAction" on-copy-action="copyAction" on-detail-action="detailAction" on-edit-action="editAction" filter="{{filter}}"></simpl-crudtable>
@@ -229,7 +235,9 @@
 					this.needRefresh = false;
 					setTimeout( ( function() {
 						this.pageSelected = prevPage;
-						this.currentTable.refresh();
+						if( this.currentTable ){
+							this.currentTable.refresh();
+						}
 					} ).bind( this ), 100 );
 				} else {
 					this.async( function() {
@@ -294,12 +302,20 @@
 					this.pageSelected = 1;
 				} ).bind( this ) );
 			},
+			_addAction: function( e ) {
+				var e = {detail:{
+					namespace:this.namespace,
+					entityChild:"",
+					entity:this.entity
+				}};
+				this.addAction(e);
+			},
 			addAction: function( e ) {
 				this.prevNextButtonsInvisible = true;
 				var detail = e.detail;
 				this.mode = 'add';
 				this.pageStack.push( this.pageSelected );
-				console.log( "addAction:", this );
+				console.log( "addAction:", detail );
 				this.setFormSpec( detail.namespace, detail.entity );
 				this.currentEntityName = detail.entity;
 				this.currentEntityChildName = detail.entityChild;
