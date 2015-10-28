@@ -179,7 +179,7 @@
 				if ( field.setValue == null ) return;
 				field.withoutCheck = true;
 				if ( field.setInvalid ) field.setInvalid( false );
-				field.setValue( data[ field.name ] || field.defaultValue || "" );
+				field.setValue( data[ field.name ] || field.defaultvalue || "" );
 			}, this );
 		},
 		getData: function() {
@@ -334,7 +334,17 @@
 					shape.properties.label = "";
 				}
 				if ( shape.properties.xf_default ) {
-					shape.properties.defaultValue = shape.properties.xf_default;
+					if( shape.stencil.id.toLowerCase() == 'input' ){
+						if( shape.properties.xf_type.startsWith("date")){
+							var d = shape.properties.xf_default;
+							if( d != null && typeof (d ) === "string" && d.length>0){
+								shape.properties.xf_default = Date.create( d).getTime();
+								if( isNaN(shape.properties.xf_default )){
+									console.error("form-behavior:parse.error.DefaultDate("+shape.properties.xf_id+"):"+d);
+								}
+							}
+						}
+					}
 				}
 				if ( shape.stencil.id.toLowerCase() == 'textarea' ) {
 					if ( shape.properties.xf_rows == null ) {
@@ -354,6 +364,12 @@
 						si = simpl4FormManager.createSelectableItems( this.namespace, this.formName, props.xf_id, JSON.stringify( props.xf_enum ) );
 					}
 					props.items = si.getItems();
+					try{
+						if( this.isEmpty(props.xf_default)){
+							props.xf_default = props.items[0].value;
+						}
+					}catch(e){
+					}
 				}
 				if ( shape.stencil.id.toLowerCase() == 'tableselect' ) {
 					var props = shape.properties;
@@ -490,6 +506,10 @@
 			Past: [ "format" ],
 			Future: [ "format" ],
 			Step: [ "min", "max", "value" ]
+		},
+		isEmpty: function( s ) {
+			if ( s == null || s == '' ) return true;
+			return false;
 		},
 		expandString: function( str, binding ) {
 			if ( str == null || str.length == 0 ) return "";

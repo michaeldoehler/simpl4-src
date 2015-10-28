@@ -423,9 +423,10 @@
 			_toIso: function( v ) {
 				var iso = v;
 				var isString = ( typeof v ) === "string";
-				if ( isString && !v.match( /[-]/ ) ) {
+				var isNumber = ( typeof v ) === "number";
+				if ( isNumber || isString && !v.match( /[-]/ ) ) {
 					var showTime = this.type.match( /^datetime/ ) != null;
-					iso = moment( parseInt( v ) ).format( showTime ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD" );
+					iso = moment( parseInt( v ) ).format( showTime ? "YYYY-MM-DDTHH:mm" : "YYYY-MM-DD" );
 				}
 				return iso;
 			},
