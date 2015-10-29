@@ -79,7 +79,7 @@
 		<iron-pages id="ironPages" selected="{{pageSelected}}" attr-for-selected="num">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}">
-					<paper-button raised style="min-width:150px !important;" class="new flex button_primary" on-tap="_addAction">
+					<paper-button raised style="min-width:100px;" class="new flex button_primary" on-tap="_addAction">
 						<iron-icon icon="add"></iron-icon>{{tr('button.new')}}</paper-button>
 				</simpl-filter>
 				<template is="dom-if" if="{{filter}}">
@@ -89,6 +89,9 @@
 				</template>
 			</section>
 			<section style="padding:0px;position:relative;overflow-x:hidden;" num="1" unresolved>
+				<div class="grid flex" style="margin-top:5px;margin-bottom:10px">
+					<paper-button style="text-align:left;" class="flex button" raised on-tap="cancelAction"><iron-icon icon="arrow-back"></iron-icon>{{tr('button.back')}}</paper-button>
+				</div>
 				<simpl-panel bgcolor="{{panelBackgroundColor}}" heading="{{panelHeaderCrudForm}}">
 					<simpl-form id="formid" mode="{{mode}}" spec="{{formSpec}}"></simpl-form>
 					<div class="layout horizontal" style="margin-top:20px;margin-bottom:4px;text-align:left;">
@@ -99,10 +102,8 @@
 							<iron-icon icon="image:navigate-next"></iron-icon>
 						</paper-button>
 
-						<paper-button class="h flex button button_primary" raised on-tap="saveAction">
-							<iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
-						<paper-button class="h flex button" raised on-tap="cancelAction">
-							<iron-icon icon="cancel"></iron-icon>{{tr('tasks.form.cancel')}}</paper-button>
+						<paper-button class="h flex button button_primary" raised on-tap="saveAction"><iron-icon icon="save"></iron-icon>{{tr('data.form.save')}}</paper-button>
+						<paper-button class="h flex button" raised on-tap="cancelAction"><iron-icon icon="arrow-back"></iron-icon>{{tr('button.back')}}</paper-button>
 					</div>
 				</simpl-panel>
 				<paper-toast id="toast" duration=3000 class="capsule" text="{{toast_message}}" style="padding-right: 60px;"></paper-toast>
@@ -118,8 +119,7 @@
 			</section>
 			<section style="padding:0px;overflow-x:hidden;" num="2">
 				<div class="grid flex" style="margin-top:5px;margin-bottom:10px">
-					<paper-button style="text-align:left;" class="flex button button_primary" raised on-tap="cancelAction">
-						<iron-icon icon="arrow-back"></iron-icon>{{tr('datatables.sPrevious')}}</paper-button>
+					<paper-button style="text-align:left;" class="flex button button_primary" raised on-tap="cancelAction"><iron-icon icon="arrow-back"></iron-icon>{{tr('button.back')}}</paper-button>
 				</div>
 
 				<paper-tabs class="flex" selected="{{selectedDetailsTabId}}" selectables="paper-tab" scrollable attr-for-selected="details-item-id" scrollable>
