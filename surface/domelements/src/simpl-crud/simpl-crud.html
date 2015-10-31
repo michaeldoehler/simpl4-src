@@ -79,7 +79,7 @@
 		<iron-pages id="ironPages" selected="{{pageSelected}}" attr-for-selected="num">
 			<section style="padding:0px;min-height:400px;position:relative;overflow-x:hidden;" num="0">
 				<simpl-filter namespace="{{namespace}}" entity="{{mainEntityName}}" filter="{{filter}}">
-					<paper-button raised style="min-width:100px;" class="new flex button_primary" on-tap="_addAction">
+					<paper-button raised style="min-width:100px !important;" class="new flex button_primary" on-tap="_addAction">
 						<iron-icon icon="add"></iron-icon>{{tr('button.new')}}</paper-button>
 				</simpl-filter>
 				<template is="dom-if" if="{{filter}}">

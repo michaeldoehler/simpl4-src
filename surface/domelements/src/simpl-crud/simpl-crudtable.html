@@ -55,8 +55,7 @@
 		</style>
 		<div class="layout horizontal" style="margin-bottom:10px;">
 			<template is="dom-repeat" items="{{buttonList}}">
-				<paper-button class="button button_primary ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}">
-					<iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
+				<paper-button class="button button_secondary ripple flex" raised name$="{{item.name}}" on-tap="onTap" disabled$="{{item.disabled}}"><iron-icon name$="{{item.name}}" icon="{{item.icon}}"></iron-icon>{{item.text}}</paper-button>
 			</template>
 		</div>
 		<div style="overflow:hidden;">
