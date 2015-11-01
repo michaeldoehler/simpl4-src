@@ -233,6 +233,7 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
 	scan-bundle:file:$REPOSITORY/javax.servlet.jsp.jstl-1.2.4.bar \
 	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/jetty-proxy-9.2.9.v20150224.jar \
   scan-bundle:file:$REPOSITORY/ant-1.8.2.bar \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
   scan-bundle:file:$REPOSITORY/antlr-runtime-3.3.bar \

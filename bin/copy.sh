@@ -65,6 +65,7 @@ echo -e "\t:CURRENTBRANCH=$CURRENTBRANCH"
 export BUNDLESBUILD="$SRCTOPDIR/build/$CURRENTBRANCH/bundlesBuild"
 export REPOSITORY="$SRCTOPDIR/repository"
 export LIBDIRECTORY="$DESTTOPDIR/libs"
+export WEBDIRECTORY="$DESTTOPDIR/WEB-INF"
 export BINDIRECTORY="$DESTTOPDIR/bin"
 export ETCDIRECTORY="$DESTTOPDIR/etc"
 export SERVERDIRECTORY="$DESTTOPDIR/server"
@@ -88,6 +89,11 @@ cp $BUNDLESBUILD/org.ms123.common.libhelper-1.0.0.jar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.launcher-1.0.0.jar ${LIBDIRECTORY}
 cp $REPOSITORY/flexjson-2.1.bar ${LIBDIRECTORY}
 cp $BUNDLESBUILD/org.ms123.admin-1.0.0.jar ${LIBDIRECTORY}
+cp $BUNDLESBUILD/org.ms123.launcher-1.0.0.jar ${WEBDIRECTORY}/lib
+cp $REPOSITORY/org.apache.felix.main-4.6.1.jar ${WEBDIRECTORY}/lib
+cp $REPOSITORY/jetty-proxy-9.2.9.v20150224.jar ${WEBDIRECTORY}/lib
+cp $REPOSITORY/pax-web-jetty-bundle-4.1.1.jar ${WEBDIRECTORY}/lib
+
 
 
 cp $SRCTOPDIR/bin/sw $BINDIRECTORY
