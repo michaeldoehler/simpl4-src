@@ -101,6 +101,7 @@ vmOptions="\
  -DopenfireHome=\$SIMPL4DIR/etc/openfire \
  -Dkaraf.etc=\$SIMPL4DIR/etc/activemq/etc \
  -Dcassandra.boot_without_jna=true \
+ -Dcassandra.storagedir=\$SIMPL4DIR/gitrepos/global_data/store/cassandra \
  -Dwebconsole.type=properties \
  -Dwebconsole.jms.url=tcp://localhost:61616 \
  -Dwebconsole.jmx.url=service:jmx:rmi:///jndi/rmi://localhost:1098/jmxrmi \
