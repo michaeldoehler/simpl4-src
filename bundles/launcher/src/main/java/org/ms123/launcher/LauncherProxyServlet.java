@@ -23,14 +23,7 @@ public class LauncherProxyServlet extends ProxyServlet {
 	public void init() throws ServletException {
 		super.init();
 		ServletConfig config = getServletConfig();
-		String cp = getServletContext().getRealPath("/WEB-INF");
-		FelixServletLauncher.basePath = cp.substring(0, cp.length() - 8);
-		String baseUrl = "http://127.0.0.1:10000";
-		info("init:" + cp);
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.submit(() -> {
-			FelixServletLauncher.start();
-		});
+		baseUrl = "http://127.0.0.1:10000";
 		info("INITEND");
 	}
 
@@ -47,7 +40,8 @@ public class LauncherProxyServlet extends ProxyServlet {
 	@Override
 	protected URI rewriteURI(HttpServletRequest request) {
 		String pathInfo = request.getPathInfo();
-		String basePath = pathInfo.substring(CONTEXT_PATH.length());
+		info("rewriteURI.pathInfo:" + pathInfo);
+		String basePath = pathInfo;
 
 		String query = request.getQueryString();
 		info("rewriteURI.query:" + query);
