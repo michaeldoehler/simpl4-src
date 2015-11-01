@@ -12,18 +12,16 @@ import org.eclipse.jetty.proxy.ProxyServlet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-public class LauncherProxyServlet extends ProxyServlet {
+public class BridgeServlet extends ProxyServlet {
 
 	private static final long serialVersionUID = -7441088044680657919L;
 
 	private String CONTEXT_PATH = "/simpl4";
-	private String baseUrl;
 
 	@Override
 	public void init() throws ServletException {
 		super.init();
 		ServletConfig config = getServletConfig();
-		baseUrl = "http://127.0.0.1:10000";
 		info("INITEND");
 	}
 
@@ -48,16 +46,16 @@ public class LauncherProxyServlet extends ProxyServlet {
 		info("rewriteURI.basePath:" + basePath);
 		URI uri = null;
 		if (query != null && query.length() > 0) {
-			uri = URI.create(baseUrl + basePath + "?" + query);
+			uri = URI.create(OsgiStarter.simpl4BaseUrl + basePath + "?" + query);
 		} else {
-			uri = URI.create(baseUrl + basePath);
+			uri = URI.create(OsgiStarter.simpl4BaseUrl + basePath);
 		}
 		info("rewriteURI.uri:" + uri);
 		return uri;
 	}
 
 	private static void info(String msg) {
-		System.out.println("LauncherProxyServlet:" + msg);
+		System.out.println("BridgeServlet:" + msg);
 	}
 
 }
