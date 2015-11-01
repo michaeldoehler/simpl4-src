@@ -51,6 +51,10 @@ qx.Class.define("ms123.util.Remote", {
 		_getUserName: function () {
 			return ms123.util.Remote._username;
 		},
+		getPrefix:function(){
+			var i = location.pathname.indexOf("/sw/start");
+			return location.pathname.substring(0,i);
+		},
 		sendSync: function (url, method, type, data, msg) {
 			var params = {
 				url: url,
@@ -82,7 +86,7 @@ qx.Class.define("ms123.util.Remote", {
 				if(  parameter && parameter.namespace ){
 					namespace = parameter.namespace;	
 				}
-			var rpc = new ms123.util.Rpc("/rpc/"+namespace, service);
+			var rpc = new ms123.util.Rpc(this.getPrefix()+"/rpc/"+namespace, service);
 //			rpc.setProtocol("2.0");
 			rpc.setUsername(ms123.util.Remote._getUserName());
 			rpc.setPassword(ms123.util.Remote._getPassword());
@@ -108,7 +112,7 @@ qx.Class.define("ms123.util.Remote", {
 				if(  params.parameter && params.parameter.namespace ){
 					namespace = params.parameter.namespace;	
 				}
-				var rpc = new ms123.util.Rpc("/rpc/"+namespace, params.service);
+				var rpc = new ms123.util.Rpc(this.getPrefix()+"/rpc/"+namespace, params.service);
 				rpc.setUsername(ms123.util.Remote._getUserName());
 				rpc.setPassword(ms123.util.Remote._getPassword());
 				rpc.setUseBasicHttpAuth(true);
