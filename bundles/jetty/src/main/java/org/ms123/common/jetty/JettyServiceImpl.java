@@ -180,7 +180,15 @@ public class JettyServiceImpl implements JettyService, ServiceListener {
 
 	private void initJetty() throws Exception {
 		String port = System.getProperty("jetty.port");
-		m_server = new Server( getInt(port, 8075) );
+		String host = System.getProperty("jetty.host");
+		m_server = new Server();
+
+		ServerConnector connector=new ServerConnector(m_server);
+    connector.setPort(getInt(port, 8075));
+		if( host != null){
+    	connector.setHost(host);        
+		}
+    m_server.setConnectors(new Connector[]{connector});
 		for(Connector y : m_server.getConnectors()) {
 			for(ConnectionFactory x  : y.getConnectionFactories()) {
 				if(x instanceof HttpConnectionFactory) {
