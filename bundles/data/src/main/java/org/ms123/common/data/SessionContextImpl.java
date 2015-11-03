@@ -276,7 +276,7 @@ public class SessionContextImpl implements org.ms123.common.data.api.SessionCont
 		try {
 			Collection coll = (Collection) q.execute();
 			Iterator iter = coll.iterator();
-			if (iter.hasNext()) {
+			while (iter.hasNext()) {
 				Object c = iter.next();
 				retList.add(c);
 			}
