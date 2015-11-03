@@ -122,6 +122,9 @@ public class OsgiStarter implements ServletContextListener {
 		System.setProperty("webconsole.jmx.user", "admin");
 		System.setProperty("webconsole.type", "properties");
 		System.setProperty("workspace", simpl4Dir + "/workspace");
+		System.setProperty("bitronix.tm.journal.disk.logPart1Filename", simpl4Dir+"/server/btm1.tlog");
+		System.setProperty("bitronix.tm.journal.disk.logPart2Filename", simpl4Dir+"/server/btm2.tlog");
+
 
 	}
 
