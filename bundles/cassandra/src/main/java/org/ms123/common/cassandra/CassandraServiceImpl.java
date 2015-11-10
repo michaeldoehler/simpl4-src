@@ -81,7 +81,12 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 	}
 
 	protected void activate(BundleContext bundleContext, Map<?, ?> props) {
-		m_cassandraConfig = new File(System.getProperty("etc.dir"), "cassandra.yaml").toString();
+		try{
+			m_cassandraConfig = new File(System.getProperty("etc.dir"), "cassandra.yaml").toURI().toURL().toString();
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException("CassandraServiceImpl.activate:", e);
+		}
 		start();
 	}
 
@@ -101,9 +106,9 @@ public class CassandraServiceImpl extends BaseCassandraServiceImpl implements Ca
 	}
 
 	public void start() {
-		info("starting Cassandra in Embedded mode");
+		info("starting Cassandra in Embedded mode:"+m_cassandraConfig);
 		if (m_cassandraConfig != null) {
-			System.setProperty("cassandra.config", "file://" + m_cassandraConfig);
+			System.setProperty("cassandra.config", m_cassandraConfig);
 		}
 		System.setProperty("cassandra-foreground", "false");
 		m_cassandraDaemon = new CassandraDaemon();
