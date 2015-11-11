@@ -50,7 +50,7 @@ public class BitronixTransactionServiceImpl implements TransactionService{
 	public BitronixTransactionServiceImpl() throws Exception{
 		TransactionManagerServices.getConfiguration().setDefaultTransactionTimeout(36000);;
 		TransactionManagerServices.getConfiguration().setWarnAboutZeroResourceTransaction(false);
-		m_btm = new BitronixTransactionManager();
+		m_btm = TransactionManagerServices.getTransactionManager();
 		m_jta = new JtaTransactionManager((UserTransaction)m_btm,(TransactionManager)m_btm);
 	}
 
