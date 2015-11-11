@@ -234,6 +234,7 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/pax-web-jsp-4.1.1.bar@3 \
 	scan-bundle:file:$REPOSITORY/javax.servlet.jsp.jstl-1.2.4.bar \
 	scan-bundle:file:$REPOSITORY/pax-web-extender-war-4.1.1.jar@3 \
+	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar@3 \
 	scan-bundle:file:$REPOSITORY/jetty-proxy-9.2.9.v20150224.jar \
   scan-bundle:file:$REPOSITORY/ant-1.8.2.bar \
 	scan-bundle:file:$REPOSITORY/antlr.bar \
@@ -374,7 +375,6 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/redmine-java-api-1.23.jar  \
 	scan-bundle:file:$REPOSITORY/org.everit.osgi.bundles.javax.sql-4.1.0.jar \
 	scan-bundle:file:$REPOSITORY/quartz-2.2.1.jar  \
-	scan-bundle:file:$REPOSITORY/btm-3.0.0-SNAPSHOT.jar \
 	scan-bundle:file:$REPOSITORY/jcommander-1.35.jar \
 	scan-bundle:file:$REPOSITORY/rxjava-1.0.9.jar \
 	scan-bundle:file:$REPOSITORY/snakeyaml-1.13.bar \
