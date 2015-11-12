@@ -34,7 +34,6 @@ ext.cssLibs="libs.css";
 configure(subprojects - 
 	project(":client") - 
 	project(':surface') -
-	project(':surface/elements') - 
 	project(':surface/domelements') - 
 	project(':surface/css') - 
 	project(':surface/js')){ s->
@@ -182,11 +181,6 @@ configure(project(":surface")){
 	task projectClean (type:Task) { }
 }
 
-configure(project(":surface/elements")){
-	task copyToRepo (type:Task) { }
-	task projectClean (type:Task) { }
-}
-
 configure(project(":surface/domelements")){
 	task copyToRepo (type:Task) { }
 	task projectClean (type:Task) { }
@@ -206,7 +200,6 @@ task buildAll(type: Task) {
 	dependsOn subprojects.copyToRepo
 
 	evaluationDependsOnChildren()
-	project(':surface/elements').copyToRepo.dependsOn(project(":surface/elements").buildAll)
 	project(':surface/domelements').copyToRepo.dependsOn(project(":surface/domelements").buildAll)
 	project(':surface/js').copyToRepo.dependsOn(project(":surface/js").buildAll)
 	project(':surface/css').copyToRepo.dependsOn(project(":surface/css").buildAll)
@@ -231,7 +224,6 @@ task buildAll(type: Task) {
 }
 
 task deploy(type: Task) {
-	dependsOn(project(":surface/elements").buildAll)
 	dependsOn(project(":surface/domelements").buildAll)
 	doLast(){
 		def dest = new File(rootProject.property("deploy.directory")).getCanonicalPath().toString();
