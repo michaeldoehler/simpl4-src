@@ -24,5 +24,5 @@ fi
 if [ -e "/usr/bin/vulcanize" ] ; then
 	/usr/bin/vulcanize  --strip-comments --inline-css --inline-scripts --inline index.html >domelements.html
 else
-	cp bin/_domelements.html.gz bin/domelements.html.gz
+	cp bin/_domelements.html.gz domelements.html.gz
 fi
