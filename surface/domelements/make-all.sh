@@ -2,8 +2,8 @@
 
 #rm -rf bower_components
 if [ ! -d "bower_components" ] ; then
-	 if [ -f "bower_components.tgz" ] ; then
-		 tar xf bower_components.tgz
+	 if [ -f "bin/bower_components.tgz" ] ; then
+		 tar xf bin/bower_components.tgz
 	 else
 		 echo "No bower"
 		 bower install
@@ -21,4 +21,8 @@ if [ ! -d "bower_components" ] ; then
 	fi 
 fi
 
-/usr/bin/vulcanize  --strip-comments --inline-css --inline-scripts --inline index.html >domelements.html
+if [ -e "/usr/bin/vulcanize" ] ; then
+	/usr/bin/vulcanize  --strip-comments --inline-css --inline-scripts --inline index.html >domelements.html
+else
+	cp bin/_domelements.html.gz bin/domelements.html.gz
+fi
