@@ -231,7 +231,7 @@ public class XmppServiceImpl extends BaseXmppServiceImpl implements XmppService 
 			m_params = parameterMap;
 			String namespace = m_params.get("namespace");
 			String routesName = m_params.get("routes");
-			m_context = m_camelService.getCamelContext(namespace, "default");
+			m_context = m_camelService.getCamelContext(namespace);
 			m_outTemplate = m_context.createProducerTemplate();
 			Map shape = getRootShape(namespace, routesName);
 			String recvEndpointUri = getString(shape, "recvEndpoint", null);
