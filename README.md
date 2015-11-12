@@ -4,8 +4,8 @@
 =================
 
 ####Requirement
-min. java 1.7.0  
-git
+* min. java 1.8.0  
+* git
 
 ----
 
