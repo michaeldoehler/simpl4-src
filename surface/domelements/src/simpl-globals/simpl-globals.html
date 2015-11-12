@@ -178,6 +178,15 @@
 			window.channel = postal.channel();
 
 
+			var awFont = new Font();
+			awFont.src = simpl4.util.BaseManager.getBaseUrl()+"/sw/surface/fontawesome-webfont.woff?v=4.3.0";
+			awFont.fontFamily = "FontAwesome";
+			awFont.fontWeight = "normal";
+			awFont.fontStyle = "normal";
+			awFont.onload = function () {
+				console.log("awfont loaded");
+			}
+
 			Polymer( {
 				is: 'simpl-globals',
 				properties: {
