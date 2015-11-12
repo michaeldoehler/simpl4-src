@@ -4,6 +4,8 @@ dependencies {
 	compile files("${repository}/org.apache.felix.main-4.6.1.jar")
   compile files("${repository}/pax-web-jetty-bundle-4.1.1.jar")
   compile files("${repository}/jetty-proxy-9.2.9.v20150224.jar")
+  compile files("${repository}/flexjson-2.1.bar")
  	compile files("${repository}/pax-logging-api-1.7.1.jar")
+ 	compile files("${repository}/jsoup-1.8.3.jar")
 
 }

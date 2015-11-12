@@ -35,6 +35,26 @@
 				return match && decodeURIComponent( match[ 1 ].replace( /\+/g, ' ' ) );
 			}
 
+			function getQueryParameter(reqKey) {
+				var uri = window.location.toString();
+				var ret='';
+				if ( uri.indexOf( "?" ) > 0 ) {
+					var query = uri.substring( uri.indexOf( "?" ) );
+					var hash  = query.substring( query.indexOf( "#" ) );
+					if( hash != -1){
+						query = uri.substring( 0, hash );
+						var params = query.split("&");
+						for (var i = 0 ; i < params.length ; i++) {
+							var pos = params[i].indexOf("=");
+							var key = params[i].substring(0, pos);
+							if (key == reqKey) {
+									ret = params[i].substring(pos + 1);
+							}
+						}
+					}
+				}
+				return ret;
+			}
 			function removeQueryParameter() {
 				var uri = window.location.toString();
 				if ( uri.indexOf( "?" ) > 0 ) {
@@ -58,7 +78,7 @@
 					var x = src.split( "/sw" );
 					var baseUrl = x[ 0 ];
 					console.log( "baseUrl1:" + baseUrl );
-					simpl4.util.BaseManager.setBaseUrl( baseUrl );
+					simpl4.util.BaseManager.setBaseUrl( baseUrl);
 					break;
 				}
 			}
@@ -77,7 +97,7 @@
 			}
 
 			var pathElements = window.location.pathname.split("/");
-			var namespace = pathElements[ 2 ];
+			var namespace = pathElements[ pathElements.length-2 ];
 
 			if( pathElements.length > 4 ){
 				console.log("base.pathname.split:",window.location.pathname.split("/"));
@@ -88,7 +108,7 @@
 					head.removeChild(head.querySelector("base"));
 				}
 				var base = document.createElement("base");
-				base.href = loc.protocol + "//" + loc.hostname+"/repo/"+ namespace + "/";
+				base.href = simpl4.util.BaseManager.getBaseUrl()+"/repo/"+ namespace + "/";
 				console.log("base.new.href:",base.href);
 				head.appendChild(base);
 			}

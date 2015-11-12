@@ -70,7 +70,7 @@
 				var password = simpl4.util.BaseManager.getPassword();
 				var username = simpl4.util.BaseManager.getUser();
 				var credentials = simpl4.util.Base64.encode( username + ":" + password );
-				var url = "/rpc/get?rpc=" + encodeURIComponent(JSON.stringify( rpc )) + "&credentials=" + credentials;
+				var url = simpl4.util.BaseManager.getBaseUrl()+"/rpc/get?rpc=" + encodeURIComponent(JSON.stringify( rpc )) + "&credentials=" + credentials;
 				console.log( "Url:", url );
 				this.importHref( url, this.onResponse.bind( this ) );
 			},

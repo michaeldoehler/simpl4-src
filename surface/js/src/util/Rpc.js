@@ -92,7 +92,8 @@ clazz.construct.extend( "simpl4.util.Rpc", {
 				namespace = params.parameter.namespace;
 			}
 		}
-		var url = "/rpc/" + namespace + "/" + params.service;
+		var url = simpl4.util.BaseManager.getBaseUrl() + "/rpc/" + namespace + "/" + params.service;
+		//var url = "/rpc/" + namespace + "/" + params.service;
 		var requestObject = {
 			"service": params.service,
 			"method": params.method,

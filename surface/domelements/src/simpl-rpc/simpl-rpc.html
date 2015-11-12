@@ -105,7 +105,7 @@
 				var password = simpl4.util.Rpc._getPassword();
 				args.headers[ 'Authorization' ] = 'Basic ' + simpl4.util.Base64.encode( username + ":" + password );
 				args.callback = this.receive.bind( this );
-				args.url = "/rpc/xyz";
+				args.url = simpl4.util.BaseManager.getBaseUrl()+"/rpc/xyz";
 				args.method = 'POST';
 				var body = {
 					jsonrpc: '2.0',
