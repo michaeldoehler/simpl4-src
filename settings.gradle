@@ -49,5 +49,4 @@ include 'bundles/libhelper',
 	'surface',
 	'surface/js',
 	'surface/css',
-	'surface/elements',
 	'surface/domelements'
