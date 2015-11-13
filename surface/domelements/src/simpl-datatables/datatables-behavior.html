@@ -131,8 +131,11 @@
 			return this.selection;
 		},
 		unselectAll: function() {
+			if( this._api==null) return;
 			var rows = this._api.rows().nodes();
-			$( rows ).removeClass( 'selected' );
+			if( rows !=null){
+				$( rows ).removeClass( 'selected' );
+			}
 		},
 		copySelection: function( sel ) {
 			var raw = [];
