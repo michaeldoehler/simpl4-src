@@ -25,11 +25,9 @@ $ git clone https://github.com/ms123s/simpl4-src.git simpl4-src
 $ cd simpl4-src
 $ gradlew
 ```
-----
-
-####clone simpl4-deploy, parallel to "simpl4-src and update the "deploy directory"
-Directory arrangment:
-simpl4-src
+clone simpl4-deploy, parallel to "simpl4-src and update the "deploy directory"  
+Directory arrangment:  
+simpl4-src  
 simpl4-deploy
 
 ```bash
