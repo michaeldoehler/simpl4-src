@@ -39,9 +39,9 @@
 				if ( this.isNotEmpty( readonlyExpr ) ) {
 					var e = this._maskedEval( readonlyExpr, map );
 					if ( e ) {
-						f.setAttribute( "readonly", "" );
+						f.setAttribute( "disabled", "" );
 					} else {
-						f.removeAttribute( "readonly" );
+						f.removeAttribute( "disabled" );
 					}
 				} else if ( this.isNotEmpty( enabledExpr ) ) {
 					var e = this._maskedEval( enabledExpr, map );

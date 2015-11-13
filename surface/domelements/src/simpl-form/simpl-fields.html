@@ -71,6 +71,12 @@
 		getValue: function() {
 			return this.value;
 		},
+		observers: [
+			'disabledChanged(disabled)'
+		],
+		disabledChanged: function( event ) {
+			this.alwaysFloatLabel = this.disabled;
+		},
 		_focusBlurHandler: function( event ) {
 			var target = event.path ? event.path[ 0 ] : event.target;
 			if ( target === this ) {
