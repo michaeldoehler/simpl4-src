@@ -285,6 +285,7 @@ qx.Class.define("ms123.namespaces.Manager", {
 					'type': "TextField",
 					'label': this.tr("namespacesmanager.namespace_name"),
 					'validation': {
+						filter: "[A-Za-z0-9_]",
 						required: true,
 						validator: "/^[A-Za-z]([0-9A-Za-z_]){2,20}$/"
 					},
