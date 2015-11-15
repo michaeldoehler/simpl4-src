@@ -48,9 +48,12 @@ done
 
 INFILE=$1
 java -jar bin/compiler.jar --charset UTF-8 -O WHITESPACE_ONLY $INFILE >/tmp/.js
-#if [ -n "$OVERWRITE" ] ; then
-#   /usr/local/bin/js-beautify   /tmp/.js >$INFILE
-#else
-#   /usr/local/bin/js-beautify   /tmp/.js
-#fi
-cp /tmp/.js $INFILE
+if [ -e "../../../tools/lib/js-beautify/js/bin/js-beautify.js" ] ; then
+	if [ -n "$OVERWRITE" ] ; then
+		 /usr/local/bin/js-beautify   /tmp/.js >$INFILE
+	else
+		 /usr/local/bin/js-beautify   /tmp/.js
+	fi
+else
+	cp /tmp/.js $INFILE
+fi
