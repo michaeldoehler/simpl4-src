@@ -13,5 +13,5 @@ dependencies {
   compile files("${repository}/mvel2-2.1.RC1.jar")
   compile files("${repository}/jsch-0.1.44-1.bar")
 	compile files("${repository}/tika-core-1.5-SNAPSHOT.jar")
-  compile files("${repository}/org.eclipse.jgit-2.1.0.201209190230-r.bar")
+  compile files("${repository}/org.eclipse.jgit-4.1.1.201511131810-r.jar")
 }

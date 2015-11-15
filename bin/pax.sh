@@ -273,7 +273,8 @@ ${cassandrabundles} \
 	scan-bundle:file:$REPOSITORY/org.apache.felix.shell-1.4.3.jar \
 	scan-bundle:file:$REPOSITORY/jline-2.12.jar \
 	scan-bundle:file:$REPOSITORY/org.jledit.core_0.2.1.jar \
-	scan-bundle:file:$REPOSITORY/org.eclipse.jgit-2.1.0.201209190230-r.bar \
+	scan-bundle:file:$REPOSITORY/org.eclipse.jgit-4.1.1.201511131810-r.jar \
+	scan-bundle:file:$REPOSITORY/JavaEWAH-0.7.9.jar \
 	scan-bundle:file:$REPOSITORY/org.json_2.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth-1.0.0.jar \
   scan-bundle:file:$BUNDLESBUILD/org.ms123.common.auth.api-1.0.0.jar \

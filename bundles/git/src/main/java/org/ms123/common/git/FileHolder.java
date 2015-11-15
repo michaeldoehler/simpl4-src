@@ -41,7 +41,7 @@ import java.util.Iterator;
 import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
-import org.eclipse.jgit.storage.file.*;
+import org.eclipse.jgit.internal.storage.file.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.ByteBuffer;

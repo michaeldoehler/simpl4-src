@@ -313,7 +313,7 @@ public class GitServiceImpl implements GitService {
 				if (!all && hasStoreCfg(file)==false) {
 					continue;
 				}
-				debug("\n---------------->" + fileName);
+				System.out.println("\nupdateavail---------------->" + fileName);
 				Map map = new HashMap();
 				if (flags!=null && flags.contains("updateAvailable")) {
 					Git gitObject = Git.open(new File(gitSpace, fileName));
@@ -1082,6 +1082,9 @@ public class GitServiceImpl implements GitService {
 		try{
 			fr = fc.call();
 		}catch(org.eclipse.jgit.api.errors.InvalidRemoteException e){
+			return false;
+		}catch(Exception e){
+			e.printStackTrace();
 			return false;
 		}
 		debug("getAdvertisedRefs:" + fr.getAdvertisedRefs());
