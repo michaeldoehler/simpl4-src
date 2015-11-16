@@ -273,7 +273,7 @@ def getShortName(name){
 
 def compileQooxdoo(what) {
 	def cache = "${rootDir}/build/${currentBranch}/.qooxdooCache";
-	if( os == "unix"){
+	if( os == "unix" || os == "mac"){
 		println( "commandLine \"python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build\".tokenize()")
 		exec {
 			commandLine "python  ${qoodooSDK}/tool/bin/generator.py -I -m CACHE:${cache} --macro=QOOXDOO_PATH:${qoodooSDK}  --config=${clientDir}/${what}/config.json build".tokenize()
@@ -322,7 +322,7 @@ def deployServerPart(destdir){
 	if( !dir.exists()){
 		dir.mkdirs();
 	}
-	if( os == "unix"){
+	if( os == "unix" || os == "mac" ){
 		exec {
 			commandLine "${rootDir}/bin/pax.sh -s ${rootDir}  -d ${destdir}".tokenize()
 		}
@@ -334,7 +334,7 @@ def deployServerPart(destdir){
 }
 
 def copyFiles(destdir){
-	if( os == "unix"){
+	if( os == "unix" || os == "mac" ){
 		exec {
 			commandLine "${rootDir}/bin/copy.sh -s ${rootDir}  -d ${destdir}".tokenize()
 		}
